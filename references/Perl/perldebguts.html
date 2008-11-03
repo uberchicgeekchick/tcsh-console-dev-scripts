@@ -1,0 +1,916 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perldebguts - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-internals.html">Internals and C language interface</a> &gt; perldebguts</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perldebguts</div><div class="pdf_link"><a href="perldebguts.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perldebguts.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#Debugger-Internals">Debugger Internals</a><ul><li><a href="#Writing-Your-Own-Debugger">Writing Your Own Debugger</a></ul><li><a href="#Frame-Listing-Output-Examples">Frame Listing Output Examples</a><li><a href="#Debugging-regular-expressions">Debugging regular expressions</a><ul><li><a href="#Compile-time-output">Compile-time output</a><li><a href="#Types-of-nodes">Types of nodes</a><li><a href="#Run-time-output">Run-time output</a></ul><li><a href="#Debugging-Perl-memory-usage">Debugging Perl memory usage</a><ul><li><a href="#Using-'%24ENV%7bPERL_DEBUG_MSTATS%7d'">Using <code class="inline"><span class="i">$ENV</span>{PERL_DEBUG_MSTATS}</code>
+</a></ul><li><a href="#SEE-ALSO">SEE ALSO</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perldebguts - Guts of Perl debugging </p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>This is not the perldebug(1) manpage, which tells you how to use
+the debugger.  This manpage describes low-level details concerning
+the debugger's internals, which range from difficult to impossible
+to understand for anyone who isn't incredibly intimate with Perl's guts.
+Caveat lector.</p>
+<a name="Debugger-Internals"></a><h1>Debugger Internals</h1>
+<p>Perl has special debugging hooks at compile-time and run-time used
+to create debugging environments.  These hooks are not to be confused
+with the <i>perl -Dxxx</i> command described in <a href="perlrun.html">perlrun</a>, which is
+usable only if a special Perl is built per the instructions in the
+<i>INSTALL</i> podpage in the Perl source tree.</p>
+<p>For example, whenever you call Perl's built-in <code class="inline"><a class="l_k" href="functions/caller.html">caller</a></code> function
+from the package <code class="inline"><a class="l_w" href="DB.html">DB</a></code>, the arguments that the corresponding stack
+frame was called with are copied to the <code class="inline"><span class="i">@DB::args</span></code>
+ array.  These
+mechanisms are enabled by calling Perl with the <b>-d</b> switch.
+Specifically, the following additional features are enabled
+(cf. <a href="perlvar.html#%24%5eP">"$^P" in perlvar</a>):</p>
+<ul>
+<li>
+<p>Perl inserts the contents of <code class="inline"><span class="i">$ENV</span>{PERL5DB}</code>
+ (or <code class="inline">BEGIN <span class="s">{</span><a class="l_k" href="functions/require.html">require</a>
+<span class="q">&#39;perl5db.pl&#39;</span><span class="s">}</span></code>
+ if not present) before the first line of your program.</p>
+</li>
+<li>
+<p>Each array <code class="inline"><span class="i">@</span>{<span class="q">&quot;_&lt;$filename&quot;</span>}</code>
+ holds the lines of $filename for a
+file compiled by Perl.  The same is also true for <code class="inline"><a class="l_k" href="functions/eval.html">eval</a></code>ed strings
+that contain subroutines, or which are currently being executed.
+The $filename for <code class="inline"><a class="l_k" href="functions/eval.html">eval</a></code>ed strings looks like <code class="inline"><span class="s">(</span><a class="l_k" href="functions/eval.html">eval</a> <span class="n">34</span><span class="s">)</span></code>
+.
+Code assertions in regexes look like <code class="inline"><span class="s">(</span>re_eval <span class="n">19</span><span class="s">)</span></code>
+.</p>
+<p>Values in this array are magical in numeric context: they compare
+equal to zero only if the line is not breakable.</p>
+</li>
+<li>
+<p>Each hash <code class="inline"><span class="i">%</span>{<span class="q">&quot;_&lt;$filename&quot;</span>}</code>
+ contains breakpoints and actions keyed
+by line number.  Individual entries (as opposed to the whole hash)
+are settable.  Perl only cares about Boolean true here, although
+the values used by <i>perl5db.pl</i> have the form
+<code class="inline"><span class="q">&quot;$break_condition\0$action&quot;</span></code>
+.  </p>
+<p>The same holds for evaluated strings that contain subroutines, or
+which are currently being executed.  The $filename for <code class="inline"><a class="l_k" href="functions/eval.html">eval</a></code>ed strings
+looks like <code class="inline"><span class="s">(</span><a class="l_k" href="functions/eval.html">eval</a> <span class="n">34</span><span class="s">)</span></code>
+ or  <code class="inline"><span class="s">(</span>re_eval <span class="n">19</span><span class="s">)</span></code>
+.</p>
+</li>
+<li>
+<p>Each scalar <code class="inline"><span class="i">$</span>{<span class="q">&quot;_&lt;$filename&quot;</span>}</code>
+ contains <code class="inline"><span class="q">&quot;_&lt;$filename&quot;</span></code>
+.  This is
+also the case for evaluated strings that contain subroutines, or
+which are currently being executed.  The $filename for <code class="inline"><a class="l_k" href="functions/eval.html">eval</a></code>ed
+strings looks like <code class="inline"><span class="s">(</span><a class="l_k" href="functions/eval.html">eval</a> <span class="n">34</span><span class="s">)</span></code>
+ or <code class="inline"><span class="s">(</span>re_eval <span class="n">19</span><span class="s">)</span></code>
+.</p>
+</li>
+<li>
+<p>After each <code class="inline"><a class="l_k" href="functions/require.html">require</a></code>d file is compiled, but before it is executed,
+<code class="inline"><span class="i">DB::postponed</span><span class="s">(</span><span class="i">*</span>{<span class="q">&quot;_&lt;$filename&quot;</span>}<span class="s">)</span></code>
+ is called if the subroutine
+<code class="inline">DB::postponed</code>
+ exists.  Here, the $filename is the expanded name of
+the <code class="inline"><a class="l_k" href="functions/require.html">require</a></code>d file, as found in the values of %INC.</p>
+</li>
+<li>
+<p>After each subroutine <code class="inline">subname</code>
+ is compiled, the existence of
+<code class="inline"><span class="i">$DB::postponed</span>{subname}</code>
+ is checked.  If this key exists,
+<code class="inline"><span class="i">DB::postponed</span><span class="s">(</span>subname<span class="s">)</span></code>
+ is called if the <code class="inline">DB::postponed</code>
+ subroutine
+also exists.</p>
+</li>
+<li>
+<p>A hash <code class="inline"><span class="i">%DB::sub</span></code>
+ is maintained, whose keys are subroutine names
+and whose values have the form <code class="inline"><span class="j">filename:</span>startline-endline</code>
+.
+<code class="inline">filename</code>
+ has the form <code class="inline"><span class="s">(</span><a class="l_k" href="functions/eval.html">eval</a> <span class="n">34</span><span class="s">)</span></code>
+ for subroutines defined inside
+<code class="inline"><a class="l_k" href="functions/eval.html">eval</a></code>s, or <code class="inline"><span class="s">(</span>re_eval <span class="n">19</span><span class="s">)</span></code>
+ for those within regex code assertions.</p>
+</li>
+<li>
+<p>When the execution of your program reaches a point that can hold a
+breakpoint, the <code class="inline"><span class="i">DB::DB</span><span class="s">(</span><span class="s">)</span></code>
+ subroutine is called if any of the variables
+<code class="inline"><span class="i">$DB::trace</span></code>
+, <code class="inline"><span class="i">$DB::single</span></code>
+, or <code class="inline"><span class="i">$DB::signal</span></code>
+ is true.  These variables
+are not <code class="inline"><a class="l_k" href="functions/local.html">local</a></code>izable.  This feature is disabled when executing
+inside <code class="inline"><span class="i">DB::DB</span><span class="s">(</span><span class="s">)</span></code>
+, including functions called from it 
+unless <code class="inline"><span class="i">$^D</span> &amp; <span class="s">(</span><span class="n">1</span>&lt;&lt;<span class="n">30</span><span class="s">)</span></code>
+ is true.</p>
+</li>
+<li>
+<p>When execution of the program reaches a subroutine call, a call to
+<code class="inline"><span class="i">&amp;DB::sub</span></code>
+(<i>args</i>) is made instead, with <code class="inline"><span class="i">$DB::sub</span></code>
+ holding the
+name of the called subroutine. (This doesn't happen if the subroutine
+was compiled in the <code class="inline"><a class="l_w" href="DB.html">DB</a></code> package.)</p>
+</li>
+</ul>
+<p>Note that if <code class="inline"><span class="i">&amp;DB::sub</span></code>
+ needs external data for it to work, no
+subroutine call is possible without it. As an example, the standard
+debugger's <code class="inline"><span class="i">&amp;DB::sub</span></code>
+ depends on the <code class="inline"><span class="i">$DB::deep</span></code>
+ variable
+(it defines how many levels of recursion deep into the debugger you can go
+before a mandatory break).  If <code class="inline"><span class="i">$DB::deep</span></code>
+ is not defined, subroutine
+calls are not possible, even though <code class="inline"><span class="i">&amp;DB::sub</span></code>
+ exists.</p>
+<a name="Writing-Your-Own-Debugger"></a><h2>Writing Your Own Debugger</h2>
+<h3>Environment Variables</h3>
+<p>The <code class="inline">PERL5DB</code>
+ environment variable can be used to define a debugger.
+For example, the minimal "working" debugger (it actually doesn't do anything)
+consists of one line:</p>
+<pre class="verbatim"><a name="DB::DB"></a>  sub <span class="m">DB::DB</span> <span class="s">{</span><span class="s">}</span></pre>
+<p>It can easily be defined like this:</p>
+<pre class="verbatim">  $ PERL5DB="sub DB::DB {}" perl -d your-script</pre><p>Another brief debugger, slightly more useful, can be created
+with only the line:</p>
+<pre class="verbatim"><a name="DB::DB"></a>  sub <span class="m">DB::DB</span> <span class="s">{</span><a class="l_k" href="functions/print.html">print</a> ++<span class="i">$i</span><span class="sc">;</span> <a class="l_k" href="functions/scalar.html">scalar</a> <span class="q">&lt;STDIN&gt;</span><span class="s">}</span></pre>
+<p>This debugger prints a number which increments for each statement
+encountered and waits for you to hit a newline before continuing
+to the next statement.</p>
+<p>The following debugger is actually useful:</p>
+<pre class="verbatim">  <span class="s">{</span>
+<a name="package-DB"></a>    package <span class="i">DB</span><span class="sc">;</span>
+<a name="DB"></a>    sub <span class="m">DB</span>  <span class="s">{</span><span class="s">}</span>
+<a name="sub"></a>    sub <span class="m">sub</span> <span class="s">{</span><a class="l_k" href="functions/print.html">print</a> ++<span class="i">$i</span><span class="cm">,</span> <span class="q">&quot; $sub\n&quot;</span><span class="sc">;</span> <span class="i">&amp;$sub</span><span class="s">}</span>
+<a name="package-main"></a>  <span class="s">}</span></pre>
+<p>It prints the sequence number of each subroutine call and the name of the
+called subroutine.  Note that <code class="inline"><span class="i">&amp;DB::sub</span></code>
+ is being compiled into the
+package <code class="inline"><a class="l_w" href="DB.html">DB</a></code> through the use of the <code class="inline"><a class="l_k" href="functions/package.html">package</a></code> directive.</p>
+<p>When it starts, the debugger reads your rc file (<i>./.perldb</i> or
+<i>~/.perldb</i> under Unix), which can set important options.
+(A subroutine (<code class="inline"><span class="i">&amp;afterinit</span></code>
+) can be defined here as well; it is executed
+after the debugger completes its own initialization.)</p>
+<p>After the rc file is read, the debugger reads the PERLDB_OPTS
+environment variable and uses it to set debugger options. The
+contents of this variable are treated as if they were the argument
+of an <code class="inline">o ...</code>
+ debugger command (q.v. in <a href="perldebug.html#Options">"Options" in perldebug</a>).</p>
+<h3>Debugger internal variables
+In addition to the file and subroutine-related variables mentioned above,
+the debugger also maintains various magical internal variables.</h3>
+<ul>
+<li>
+<p><code class="inline"><span class="i">@DB::dbline</span></code>
+ is an alias for <code class="inline"><span class="i">@</span>{<span class="q">&quot;::_&lt;current_file&quot;</span>}</code>
+, which
+holds the lines of the currently-selected file (compiled by Perl), either
+explicitly chosen with the debugger's <code class="inline">f</code>
+ command, or implicitly by flow
+of execution.</p>
+<p>Values in this array are magical in numeric context: they compare
+equal to zero only if the line is not breakable.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">%DB::dbline</span></code>
+, is an alias for <code class="inline"><span class="i">%</span>{<span class="q">&quot;::_&lt;current_file&quot;</span>}</code>
+, which
+contains breakpoints and actions keyed by line number in
+the currently-selected file, either explicitly chosen with the
+debugger's <code class="inline">f</code>
+ command, or implicitly by flow of execution.</p>
+<p>As previously noted, individual entries (as opposed to the whole hash)
+are settable.  Perl only cares about Boolean true here, although
+the values used by <i>perl5db.pl</i> have the form
+<code class="inline"><span class="q">&quot;$break_condition\0$action&quot;</span></code>
+.</p>
+</li>
+</ul>
+<h3>Debugger customization functions</h3>
+<p>Some functions are provided to simplify customization.</p>
+<ul>
+<li>
+<p>See <a href="perldebug.html#Options">"Options" in perldebug</a> for description of options parsed by
+<code class="inline"><span class="i">DB::parse_options</span><span class="s">(</span>string<span class="s">)</span></code>
+ parses debugger options; see
+<a href="http://search.cpan.org/perldoc/pperldebug#Options">"Options" in pperldebug</a> for a description of options recognized.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">DB::dump_trace</span><span class="s">(</span>skip<span class="s">[</span><span class="cm">,</span>count<span class="s">]</span><span class="s">)</span></code>
+ skips the specified number of frames
+and returns a list containing information about the calling frames (all
+of them, if <code class="inline">count</code>
+ is missing).  Each entry is reference to a hash
+with keys <code class="inline">context</code>
+ (either <code class="inline">.</code>, <code class="inline"><span class="i">$</span></code>
+, or <code class="inline"><span class="i">@</span></code>
+), <code class="inline"><a class="l_k" href="functions/sub.html">sub</a></code> (subroutine
+name, or info about <code class="inline"><a class="l_k" href="functions/eval.html">eval</a></code>), <code class="inline">args</code>
+ (<code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code> or a reference to
+an array), <code class="inline">file</code>
+, and <code class="inline">line</code>
+.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">DB::print_trace</span><span class="s">(</span>FH<span class="cm">,</span> skip<span class="s">[</span><span class="cm">,</span> count<span class="s">[</span><span class="cm">,</span> short<span class="s">]</span><span class="s">]</span><span class="s">)</span></code>
+ prints
+formatted info about caller frames.  The last two functions may be
+convenient as arguments to <code class="inline">&lt;</code>
+, <code class="inline">&lt;&lt;</code>
+ commands.</p>
+</li>
+</ul>
+<p>Note that any variables and functions that are not documented in
+this manpages (or in <a href="perldebug.html">perldebug</a>) are considered for internal   
+use only, and as such are subject to change without notice.</p>
+<a name="Frame-Listing-Output-Examples"></a><h1>Frame Listing Output Examples</h1>
+<p>The <code class="inline">frame</code>
+ option can be used to control the output of frame 
+information.  For example, contrast this expression trace:</p>
+<pre class="verbatim"> $ perl -de 42
+ Stack dump during die enabled outside of evals.</pre><pre class="verbatim"> Loading DB routines from perl5db.pl patch level 0.94
+ Emacs support available.</pre><pre class="verbatim"> Enter h or `h h' for help.</pre><pre class="verbatim"> main::(-e:1):   0
+   DB&lt;1&gt; sub foo { 14 }</pre><pre class="verbatim">   DB&lt;2&gt; sub bar { 3 }</pre><pre class="verbatim">   DB&lt;3&gt; t print foo() * bar()
+ main::((eval 172):3):   print foo() + bar();
+ main::foo((eval 168):2):
+ main::bar((eval 170):2):
+ 42</pre><p>with this one, once the <code class="inline">o</code>
+ption <code class="inline">frame=<span class="n">2</span></code>
+ has been set:</p>
+<pre class="verbatim">   DB&lt;4&gt; o f=2
+                frame = '2'
+   DB&lt;5&gt; t print foo() * bar()
+ 3:      foo() * bar()
+ entering main::foo
+  2:     sub foo { 14 };
+ exited main::foo
+ entering main::bar
+  2:     sub bar { 3 };
+ exited main::bar
+ 42</pre><p>By way of demonstration, we present below a laborious listing
+resulting from setting your <code class="inline">PERLDB_OPTS</code>
+ environment variable to
+the value <code class="inline">f=n N</code>
+, and running <i>perl -d -V</i> from the command line.
+Examples use various values of <code class="inline">n</code>
+ are shown to give you a feel
+for the difference between settings.  Long those it may be, this
+is not a complete listing, but only excerpts.</p>
+<ol>
+<li>
+<pre class="verbatim">  entering main::BEGIN
+   entering Config::BEGIN
+    Package <a class="l_w" href="lib.html">lib</a>/<a class="l_w" href="Exporter.html">Exporter</a>.pm.
+    Package <a class="l_w" href="lib.html">lib</a>/<a class="l_w" href="Carp.html">Carp</a>.pm.
+   Package <a class="l_w" href="lib.html">lib</a>/<a class="l_w" href="Config.html">Config</a>.pm.
+   entering Config::TIEHASH
+   entering Exporter::import
+    entering Exporter::export
+  entering Config::myconfig
+   entering Config::FETCH
+   entering Config::FETCH
+   entering Config::FETCH
+   entering Config::FETCH</pre>
+</li>
+<li>
+<pre class="verbatim">  entering main::BEGIN
+   entering Config::BEGIN
+    Package <a class="l_w" href="lib.html">lib</a>/<a class="l_w" href="Exporter.html">Exporter</a>.pm.
+    Package <a class="l_w" href="lib.html">lib</a>/<a class="l_w" href="Carp.html">Carp</a>.pm.
+   exited Config::BEGIN
+   Package <a class="l_w" href="lib.html">lib</a>/<a class="l_w" href="Config.html">Config</a>.pm.
+   entering Config::TIEHASH
+   exited Config::TIEHASH
+   entering Exporter::import
+    entering Exporter::export
+    exited Exporter::export
+   exited Exporter::import
+  exited main::BEGIN
+  entering Config::myconfig
+   entering Config::FETCH
+   exited Config::FETCH
+   entering Config::FETCH
+   exited Config::FETCH
+   entering Config::FETCH</pre>
+</li>
+<li>
+<pre class="verbatim">  in  $=main::BEGIN() from /dev/null:0
+   in  $=Config::BEGIN() from lib/Config.pm:2
+    Package lib/Exporter.pm.
+    Package lib/Carp.pm.
+   Package lib/Config.pm.
+   in  $=Config::TIEHASH('Config') from lib/Config.pm:644
+   in  $=Exporter::import('Config', 'myconfig', 'config_vars') from /dev/null:0
+    in  $=Exporter::export('Config', 'main', 'myconfig', 'config_vars') from li
+  in  @=Config::myconfig() from /dev/null:0
+   in  $=Config::FETCH(ref(Config), 'package') from lib/Config.pm:574
+   in  $=Config::FETCH(ref(Config), 'baserev') from lib/Config.pm:574
+   in  $=Config::FETCH(ref(Config), 'PERL_VERSION') from lib/Config.pm:574
+   in  $=Config::FETCH(ref(Config), 'PERL_SUBVERSION') from lib/Config.pm:574
+   in  $=Config::FETCH(ref(Config), 'osname') from lib/Config.pm:574
+   in  $=Config::FETCH(ref(Config), 'osvers') from lib/Config.pm:574</pre></li>
+<li>
+<pre class="verbatim">  in  $=main::BEGIN() from /dev/null:0
+   in  $=Config::BEGIN() from lib/Config.pm:2
+    Package lib/Exporter.pm.
+    Package lib/Carp.pm.
+   out $=Config::BEGIN() from lib/Config.pm:0
+   Package lib/Config.pm.
+   in  $=Config::TIEHASH('Config') from lib/Config.pm:644
+   out $=Config::TIEHASH('Config') from lib/Config.pm:644
+   in  $=Exporter::import('Config', 'myconfig', 'config_vars') from /dev/null:0
+    in  $=Exporter::export('Config', 'main', 'myconfig', 'config_vars') from lib/
+    out $=Exporter::export('Config', 'main', 'myconfig', 'config_vars') from lib/
+   out $=Exporter::import('Config', 'myconfig', 'config_vars') from /dev/null:0
+  out $=main::BEGIN() from /dev/null:0
+  in  @=Config::myconfig() from /dev/null:0
+   in  $=Config::FETCH(ref(Config), 'package') from lib/Config.pm:574
+   out $=Config::FETCH(ref(Config), 'package') from lib/Config.pm:574
+   in  $=Config::FETCH(ref(Config), 'baserev') from lib/Config.pm:574
+   out $=Config::FETCH(ref(Config), 'baserev') from lib/Config.pm:574
+   in  $=Config::FETCH(ref(Config), 'PERL_VERSION') from lib/Config.pm:574
+   out $=Config::FETCH(ref(Config), 'PERL_VERSION') from lib/Config.pm:574
+   in  $=Config::FETCH(ref(Config), 'PERL_SUBVERSION') from lib/Config.pm:574</pre></li>
+<li>
+<pre class="verbatim">  in  $=main::BEGIN() from /dev/null:0
+   in  $=Config::BEGIN() from lib/Config.pm:2
+    Package lib/Exporter.pm.
+    Package lib/Carp.pm.
+   out $=Config::BEGIN() from lib/Config.pm:0
+   Package lib/Config.pm.
+   in  $=Config::TIEHASH('Config') from lib/Config.pm:644
+   out $=Config::TIEHASH('Config') from lib/Config.pm:644
+   in  $=Exporter::import('Config', 'myconfig', 'config_vars') from /dev/null:0
+    in  $=Exporter::export('Config', 'main', 'myconfig', 'config_vars') from lib/E
+    out $=Exporter::export('Config', 'main', 'myconfig', 'config_vars') from lib/E
+   out $=Exporter::import('Config', 'myconfig', 'config_vars') from /dev/null:0
+  out $=main::BEGIN() from /dev/null:0
+  in  @=Config::myconfig() from /dev/null:0
+   in  $=Config::FETCH('Config=HASH(0x1aa444)', 'package') from lib/Config.pm:574
+   out $=Config::FETCH('Config=HASH(0x1aa444)', 'package') from lib/Config.pm:574
+   in  $=Config::FETCH('Config=HASH(0x1aa444)', 'baserev') from lib/Config.pm:574
+   out $=Config::FETCH('Config=HASH(0x1aa444)', 'baserev') from lib/Config.pm:574</pre></li>
+<li>
+<pre class="verbatim">  in  $=CODE(0x15eca4)() from /dev/null:0
+   in  $=CODE(0x182528)() from lib/Config.pm:2
+    Package lib/Exporter.pm.
+   out $=CODE(0x182528)() from lib/Config.pm:0
+   scalar context return from CODE(0x182528): undef
+   Package lib/Config.pm.
+   in  $=Config::TIEHASH('Config') from lib/Config.pm:628
+   out $=Config::TIEHASH('Config') from lib/Config.pm:628
+   scalar context return from Config::TIEHASH:   empty hash
+   in  $=Exporter::import('Config', 'myconfig', 'config_vars') from /dev/null:0
+    in  $=Exporter::export('Config', 'main', 'myconfig', 'config_vars') from lib/Exporter.pm:171
+    out $=Exporter::export('Config', 'main', 'myconfig', 'config_vars') from lib/Exporter.pm:171
+    scalar context return from Exporter::export: ''
+   out $=Exporter::import('Config', 'myconfig', 'config_vars') from /dev/null:0
+   scalar context return from Exporter::import: ''</pre></li>
+</ol>
+<p>In all cases shown above, the line indentation shows the call tree.
+If bit 2 of <code class="inline">frame</code>
+ is set, a line is printed on exit from a
+subroutine as well.  If bit 4 is set, the arguments are printed
+along with the caller info.  If bit 8 is set, the arguments are
+printed even if they are tied or references.  If bit 16 is set, the
+return value is printed, too.</p>
+<p>When a package is compiled, a line like this</p>
+<pre class="verbatim">    Package <a class="l_w" href="lib.html">lib</a>/<a class="l_w" href="Carp.html">Carp</a>.pm.</pre>
+<p>is printed with proper indentation.</p>
+<a name="Debugging-regular-expressions"></a><h1>Debugging regular expressions</h1>
+<p>There are two ways to enable debugging output for regular expressions.</p>
+<p>If your perl is compiled with <code class="inline">-DDEBUGGING</code>
+, you may use the
+<b>-Dr</b> flag on the command line.</p>
+<p>Otherwise, one can <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="re.html">re</a> <span class="q">&#39;debug&#39;</span></code>
+, which has effects at
+compile time and run time.  It is not lexically scoped.</p>
+<a name="Compile-time-output"></a><h2>Compile-time output</h2>
+<p>The debugging output at compile time looks like this:</p>
+<pre class="verbatim">  Compiling REx `[bc]d(ef*g)+h[ij]k$'
+  size 45 Got 364 bytes for offset annotations.
+  first at 1
+  rarest char g at 0
+  rarest char d at 0
+     1: ANYOF[bc](12)
+    12: EXACT &lt;d&gt;(14)
+    14: CURLYX[0] {1,32767}(28)
+    16:   OPEN1(18)
+    18:     EXACT &lt;e&gt;(20)
+    20:     STAR(23)
+    21:       EXACT &lt;f&gt;(0)
+    23:     EXACT &lt;g&gt;(25)
+    25:   CLOSE1(27)
+    27:   WHILEM[1/1](0)
+    28: NOTHING(29)
+    29: EXACT &lt;h&gt;(31)
+    31: ANYOF[ij](42)
+    42: EXACT &lt;k&gt;(44)
+    44: EOL(45)
+    45: END(0)
+  anchored `de' at 1 floating `gh' at 3..2147483647 (checking floating) 
+        stclass `ANYOF[bc]' minlen 7 
+  Offsets: [45]
+  	1[4] 0[0] 0[0] 0[0] 0[0] 0[0] 0[0] 0[0] 0[0] 0[0] 0[0] 5[1]
+  	0[0] 12[1] 0[0] 6[1] 0[0] 7[1] 0[0] 9[1] 8[1] 0[0] 10[1] 0[0]
+  	11[1] 0[0] 12[0] 12[0] 13[1] 0[0] 14[4] 0[0] 0[0] 0[0] 0[0]
+  	0[0] 0[0] 0[0] 0[0] 0[0] 0[0] 18[1] 0[0] 19[1] 20[0]  
+  Omitting $` $&amp; $' support.</pre><p>The first line shows the pre-compiled form of the regex.  The second
+shows the size of the compiled form (in arbitrary units, usually
+4-byte words) and the total number of bytes allocated for the
+offset/length table, usually 4+<code class="inline">size</code>
+*8.  The next line shows the
+label <i>id</i> of the first node that does a match.</p>
+<p>The </p>
+<pre class="verbatim">  anchored `de' at 1 floating `gh' at 3..2147483647 (checking floating) 
+        stclass `ANYOF[bc]' minlen 7 </pre><p>line (split into two lines above) contains optimizer
+information.  In the example shown, the optimizer found that the match 
+should contain a substring <code class="inline">de</code>
+ at offset 1, plus substring <code class="inline">gh</code>
+
+at some offset between 3 and infinity.  Moreover, when checking for
+these substrings (to abandon impossible matches quickly), Perl will check
+for the substring <code class="inline">gh</code>
+ before checking for the substring <code class="inline">de</code>
+.  The
+optimizer may also use the knowledge that the match starts (at the
+<code class="inline">first</code>
+ <i>id</i>) with a character class, and no string 
+shorter than 7 characters can possibly match.</p>
+<p>The fields of interest which may appear in this line are</p>
+<ul>
+<li><a name="'anchored'-_STRING_-'at'-_POS_"></a><b><code class="inline">anchored</code>
+ <i>STRING</i> <code class="inline">at</code>
+ <i>POS</i></b>
+</li>
+<li><a name="'floating'-_STRING_-'at'-_POS1..POS2_"></a><b><code class="inline">floating</code>
+ <i>STRING</i> <code class="inline">at</code>
+ <i>POS1..POS2</i></b>
+<p>See above.</p>
+</li>
+<li><a name="'matching-floating%2fanchored'"></a><b><code class="inline">matching floating/anchored</code>
+</b>
+<p>Which substring to check first.</p>
+</li>
+<li><a name="'minlen'"></a><b><code class="inline">minlen</code>
+</b>
+<p>The minimal length of the match.</p>
+</li>
+<li><a name="'stclass'-_TYPE_"></a><b><code class="inline">stclass</code>
+ <i>TYPE</i></b>
+<p>Type of first matching node.</p>
+</li>
+<li><a name="'noscan'"></a><b><code class="inline">noscan</code>
+</b>
+<p>Don't scan for the found substrings.</p>
+</li>
+<li><a name="'isall'"></a><b><code class="inline">isall</code>
+</b>
+<p>Means that the optimizer information is all that the regular
+expression contains, and thus one does not need to enter the regex engine at
+all.</p>
+</li>
+<li><a name="'GPOS'"></a><b><code class="inline">GPOS</code>
+</b>
+<p>Set if the pattern contains <code class="inline">\G</code>
+.</p>
+</li>
+<li><a name="'plus'"></a><b><code class="inline">plus</code>
+ </b>
+<p>Set if the pattern starts with a repeated char (as in <code class="inline">x+y</code>).</p>
+</li>
+<li><a name="'implicit'"></a><b><code class="inline">implicit</code>
+</b>
+<p>Set if the pattern starts with <code class="inline">.*</code>.</p>
+</li>
+<li><a name="'with-eval'"></a><b><code class="inline">with <a class="l_k" href="functions/eval.html">eval</a></code>
+ </b>
+<p>Set if the pattern contain eval-groups, such as <code class="inline">(?{ code })</code> and
+<code class="inline"><span class="s">(</span><span class="q">??</span><span class="s">{</span> code <span class="s">}</span><span class="s">)</span></code>
+.</p>
+</li>
+<li><a name="'anchored(TYPE)'"></a><b><code class="inline"><span class="i">anchored</span><span class="s">(</span>TYPE<span class="s">)</span></code>
+</b>
+<p>If the pattern may match only at a handful of places, (with <code class="inline">TYPE</code>
+
+being <code class="inline">BOL</code>
+, <code class="inline">MBOL</code>
+, or <code class="inline">GPOS</code>
+.  See the table below.</p>
+</li>
+</ul>
+<p>If a substring is known to match at end-of-line only, it may be
+followed by <code class="inline"><span class="i">$</span></code>
+, as in <code class="inline">floating `k'$</code>.</p>
+<p>The optimizer-specific information is used to avoid entering (a slow) regex
+engine on strings that will not definitely match.  If the <code class="inline">isall</code>
+ flag
+is set, a call to the regex engine may be avoided even when the optimizer
+found an appropriate place for the match.</p>
+<p>Above the optimizer section is the list of <i>nodes</i> of the compiled
+form of the regex.  Each line has format </p>
+<p><code class="inline">   </code>
+<i>id</i>: <i>TYPE</i> <i>OPTIONAL-INFO</i> (<i>next-id</i>)</p>
+<a name="Types-of-nodes"></a><h2>Types of nodes</h2>
+<p>Here are the possible types, with short descriptions:</p>
+<pre class="verbatim">    <span class="c"># TYPE arg-description [num-args] [longjump-len] DESCRIPTION</span></pre>
+<pre class="verbatim">    <span class="c"># Exit points</span>
+    END		<a class="l_k" href="functions/no.html">no</a>	End of program.
+    SUCCEED	<a class="l_k" href="functions/no.html">no</a>	Return from a subroutine<span class="cm">,</span> basically.</pre>
+<pre class="verbatim">    # Anchors:
+    BOL		no	Match "" at beginning of line.
+    MBOL	no	Same, assuming multiline.
+    SBOL	no	Same, assuming singleline.
+    EOS		no	Match "" at end of string.
+    EOL		no	Match "" at end of line.
+    MEOL	no	Same, assuming multiline.
+    SEOL	no	Same, assuming singleline.
+    BOUND	no	Match "" at any word boundary
+    BOUNDL	no	Match "" at any word boundary
+    NBOUND	no	Match "" at any word non-boundary
+    NBOUNDL	no	Match "" at any word non-boundary
+    GPOS	no	Matches where last m//g left off.</pre><pre class="verbatim">    # [Special] alternatives
+    ANY		no	Match any one character (except newline).
+    SANY	no	Match any one character.
+    ANYOF	sv	Match character in (or not in) this class.
+    ALNUM	no	Match any alphanumeric character
+    ALNUML	no	Match any alphanumeric char in locale
+    NALNUM	no	Match any non-alphanumeric character
+    NALNUML	no	Match any non-alphanumeric char in locale
+    SPACE	no	Match any whitespace character
+    SPACEL	no	Match any whitespace char in locale
+    NSPACE	no	Match any non-whitespace character
+    NSPACEL	no	Match any non-whitespace char in locale
+    DIGIT	no	Match any numeric character
+    NDIGIT	no	Match any non-numeric character</pre><pre class="verbatim">    <span class="c"># BRANCH	The set of branches constituting a single choice are hooked</span>
+    <span class="c">#		together with their &quot;next&quot; pointers, since precedence prevents</span>
+    <span class="c">#		anything being concatenated to any individual branch.  The</span>
+    <span class="c">#		&quot;next&quot; pointer of the last BRANCH in a choice points to the</span>
+    <span class="c">#		thing following the whole choice.  This is also where the</span>
+    <span class="c">#		final &quot;next&quot; pointer of each individual branch points; each</span>
+    <span class="c">#		branch starts with the operand node of a BRANCH node.</span>
+    <span class="c">#</span>
+    BRANCH	node	Match this alternative<span class="cm">,</span> or the <a class="l_k" href="functions/next.html">next</a>...</pre>
+<pre class="verbatim">    # BACK	Normal "next" pointers all implicitly point forward; BACK
+    #		exists to make loop structures possible.
+    # not used
+    BACK	no	Match "", "next" ptr points backward.</pre><pre class="verbatim">    <span class="c"># Literals</span>
+    EXACT	sv	Match this string <span class="s">(</span>preceded by <a class="l_k" href="functions/length.html">length</a><span class="s">)</span>.
+    EXACTF	sv	Match this string<span class="cm">,</span> folded <span class="s">(</span>prec. by <a class="l_k" href="functions/length.html">length</a><span class="s">)</span>.
+    EXACTFL	sv	Match this string<span class="cm">,</span> folded in <a class="l_w" href="locale.html">locale</a> <span class="s">(</span>w/len<span class="s">)</span>.</pre>
+<pre class="verbatim">    <span class="c"># Do nothing</span>
+    NOTHING	<a class="l_k" href="functions/no.html">no</a>	Match empty string.
+    <span class="c"># A variant of above which delimits a group, thus stops optimizations</span>
+    TAIL	<a class="l_k" href="functions/no.html">no</a>	Match empty string. Can jump here from outside.</pre>
+<pre class="verbatim">    # STAR,PLUS	'?', and complex '*' and '+', are implemented as circular
+    #		BRANCH structures using BACK.  Simple cases (one character
+    #		per match) are implemented with STAR and PLUS for speed
+    #		and to minimize recursive plunges.
+    #
+    STAR	node	Match this (simple) thing 0 or more times.
+    PLUS	node	Match this (simple) thing 1 or more times.</pre><pre class="verbatim">    CURLY	sv 2	Match this simple thing {n,m} times.
+    CURLYN	no 2	Match next-after-this simple thing 
+    #			{n,m} times, set parens.
+    CURLYM	no 2	Match this medium-complex thing {n,m} times.
+    CURLYX	sv 2	Match this complex thing {n,m} times.</pre><pre class="verbatim">    <span class="c"># This terminator creates a loop structure for CURLYX</span>
+    WHILEM	<a class="l_k" href="functions/no.html">no</a>	Do curly processing and see if rest matches.</pre>
+<pre class="verbatim">    # OPEN,CLOSE,GROUPP	...are numbered at compile time.
+    OPEN	num 1	Mark this point in input as start of #n.
+    CLOSE	num 1	Analogous to OPEN.</pre><pre class="verbatim">    REF		num 1	Match some already matched string
+    REFF	num 1	Match already matched string, folded
+    REFFL	num 1	Match already matched string, folded in loc.</pre><pre class="verbatim">    # grouping assertions
+    IFMATCH	off 1 2	Succeeds if the following matches.
+    UNLESSM	off 1 2	Fails if the following matches.
+    SUSPEND	off 1 1	"Independent" sub-regex.
+    IFTHEN	off 1 1	Switch, should be preceded by switcher .
+    GROUPP	num 1	Whether the group matched.</pre><pre class="verbatim">    # Support for long regex
+    LONGJMP	off 1 1	Jump far away.
+    BRANCHJ	off 1 1	BRANCH with long offset.</pre><pre class="verbatim">    # The heavy worker
+    EVAL	evl 1	Execute some Perl code.</pre><pre class="verbatim">    <span class="c"># Modifiers</span>
+    MINMOD	<a class="l_k" href="functions/no.html">no</a>	Next operator is not greedy.
+    LOGICAL	<a class="l_k" href="functions/no.html">no</a>	Next opcode should set the flag only.</pre>
+<pre class="verbatim">    # This is not used yet
+    RENUM	off 1 1	Group with independently numbered parens.</pre><pre class="verbatim">    <span class="c"># This is not really a node, but an optimized away piece of a &quot;long&quot; node.</span>
+    <span class="c"># To simplify debugging output, we mark it as if it were a node</span>
+    OPTIMIZED	off	Placeholder for <a class="l_k" href="functions/dump.html">dump</a>.</pre>
+<p>Following the optimizer information is a dump of the offset/length
+table, here split across several lines:</p>
+<pre class="verbatim">  <span class="j">Offsets:</span> <span class="s">[</span><span class="n">45</span><span class="s">]</span>
+  	<span class="n">1</span><span class="s">[</span><span class="n">4</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">5</span><span class="s">[</span><span class="n">1</span><span class="s">]</span>
+  	<span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">12</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">6</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">7</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">9</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">8</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">10</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span>
+  	<span class="n">11</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">12</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">12</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">13</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">14</span><span class="s">[</span><span class="n">4</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span>
+  	<span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">18</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span> <span class="n">19</span><span class="s">[</span><span class="n">1</span><span class="s">]</span> <span class="n">20</span><span class="s">[</span><span class="n">0</span><span class="s">]</span>  </pre>
+<p>The first line here indicates that the offset/length table contains 45
+entries.  Each entry is a pair of integers, denoted by <code class="inline">offset<span class="s">[</span><a class="l_k" href="functions/length.html">length</a><span class="s">]</span></code>
+.
+Entries are numbered starting with 1, so entry #1 here is <code class="inline"><span class="n">1</span><span class="s">[</span><span class="n">4</span><span class="s">]</span></code>
+ and
+entry #12 is <code class="inline"><span class="n">5</span><span class="s">[</span><span class="n">1</span><span class="s">]</span></code>
+.  <code class="inline"><span class="n">1</span><span class="s">[</span><span class="n">4</span><span class="s">]</span></code>
+ indicates that the node labeled <code class="inline">1:</code>
+(the <code class="inline">1: ANYOF[bc]</code>) begins at character position 1 in the
+pre-compiled form of the regex, and has a length of 4 characters.
+<code class="inline"><span class="n">5</span><span class="s">[</span><span class="n">1</span><span class="s">]</span></code>
+ in position 12 
+indicates that the node labeled <code class="inline">12:</code>
+(the <code class="inline">12: EXACT &lt;d&gt;</code>) begins at character position 5 in the
+pre-compiled form of the regex, and has a length of 1 character.
+<code class="inline"><span class="n">12</span><span class="s">[</span><span class="n">1</span><span class="s">]</span></code>
+ in position 14 
+indicates that the node labeled <code class="inline">14:</code>
+(the <code class="inline">14: CURLYX[0] {1,32767}</code>) begins at character position 12 in the
+pre-compiled form of the regex, and has a length of 1 character---that
+is, it corresponds to the <code class="inline">+</code>
+ symbol in the precompiled regex.</p>
+<p><code class="inline"><span class="n">0</span><span class="s">[</span><span class="n">0</span><span class="s">]</span></code>
+ items indicate that there is no corresponding node.</p>
+<a name="Run-time-output"></a><h2>Run-time output</h2>
+<p>First of all, when doing a match, one may get no run-time output even
+if debugging is enabled.  This means that the regex engine was never
+entered and that all of the job was therefore done by the optimizer.</p>
+<p>If the regex engine was entered, the output may look like this:</p>
+<pre class="verbatim">  Matching `[bc]d(ef*g)+h[ij]k$' against `abcdefg__gh__'
+    Setting an EVAL scope, savestack=3
+     2 &lt;ab&gt; &lt;cdefg__gh_&gt;    |  1: ANYOF
+     3 &lt;abc&gt; &lt;defg__gh_&gt;    | 11: EXACT &lt;d&gt;
+     4 &lt;abcd&gt; &lt;efg__gh_&gt;    | 13: CURLYX {1,32767}
+     4 &lt;abcd&gt; &lt;efg__gh_&gt;    | 26:   WHILEM
+				0 out of 1..32767  cc=effff31c
+     4 &lt;abcd&gt; &lt;efg__gh_&gt;    | 15:     OPEN1
+     4 &lt;abcd&gt; &lt;efg__gh_&gt;    | 17:     EXACT &lt;e&gt;
+     5 &lt;abcde&gt; &lt;fg__gh_&gt;    | 19:     STAR
+			     EXACT &lt;f&gt; can match 1 times out of 32767...
+    Setting an EVAL scope, savestack=3
+     6 &lt;bcdef&gt; &lt;g__gh__&gt;    | 22:       EXACT &lt;g&gt;
+     7 &lt;bcdefg&gt; &lt;__gh__&gt;    | 24:       CLOSE1
+     7 &lt;bcdefg&gt; &lt;__gh__&gt;    | 26:       WHILEM
+				    1 out of 1..32767  cc=effff31c
+    Setting an EVAL scope, savestack=12
+     7 &lt;bcdefg&gt; &lt;__gh__&gt;    | 15:         OPEN1
+     7 &lt;bcdefg&gt; &lt;__gh__&gt;    | 17:         EXACT &lt;e&gt;
+       restoring \1 to 4(4)..7
+				    failed, try continuation...
+     7 &lt;bcdefg&gt; &lt;__gh__&gt;    | 27:         NOTHING
+     7 &lt;bcdefg&gt; &lt;__gh__&gt;    | 28:         EXACT &lt;h&gt;
+				    failed...
+				failed...</pre><p>The most significant information in the output is about the particular <i>node</i>
+of the compiled regex that is currently being tested against the target string.
+The format of these lines is</p>
+<p><code class="inline">    </code>
+<i>STRING-OFFSET</i> &lt;<i>PRE-STRING</i>&gt; &lt;<i>POST-STRING</i>&gt;   |<i>ID</i>:  <i>TYPE</i></p>
+<p>The <i>TYPE</i> info is indented with respect to the backtracking level.
+Other incidental information appears interspersed within.</p>
+<a name="Debugging-Perl-memory-usage"></a><h1>Debugging Perl memory usage</h1>
+<p>Perl is a profligate wastrel when it comes to memory use.  There
+is a saying that to estimate memory usage of Perl, assume a reasonable
+algorithm for memory allocation, multiply that estimate by 10, and
+while you still may miss the mark, at least you won't be quite so
+astonished.  This is not absolutely true, but may provide a good
+grasp of what happens.</p>
+<p>Assume that an integer cannot take less than 20 bytes of memory, a
+float cannot take less than 24 bytes, a string cannot take less
+than 32 bytes (all these examples assume 32-bit architectures, the
+result are quite a bit worse on 64-bit architectures).  If a variable
+is accessed in two of three different ways (which require an integer,
+a float, or a string), the memory footprint may increase yet another
+20 bytes.  A sloppy malloc(3) implementation can inflate these
+numbers dramatically.</p>
+<p>On the opposite end of the scale, a declaration like</p>
+<pre class="verbatim">  sub <span class="m">foo</span><span class="sc">;</span></pre>
+<p>may take up to 500 bytes of memory, depending on which release of Perl
+you're running.</p>
+<p>Anecdotal estimates of source-to-compiled code bloat suggest an
+eightfold increase.  This means that the compiled form of reasonable
+(normally commented, properly indented etc.) code will take
+about eight times more space in memory than the code took
+on disk.</p>
+<p>The <b>-DL</b> command-line switch is obsolete since circa Perl 5.6.0
+(it was available only if Perl was built with <code class="inline">-DDEBUGGING</code>
+).
+The switch was used to track Perl's memory allocations and possible
+memory leaks.  These days the use of malloc debugging tools like
+<i>Purify</i> or <i>valgrind</i> is suggested instead.</p>
+<p>One way to find out how much memory is being used by Perl data
+structures is to install the Devel::Size module from CPAN: it gives
+you the minimum number of bytes required to store a particular data
+structure.  Please be mindful of the difference between the size()
+and total_size().</p>
+<p>If Perl has been compiled using Perl's malloc you can analyze Perl
+memory usage by setting the $ENV{PERL_DEBUG_MSTATS}.</p>
+<a name="Using-'%24ENV%7bPERL_DEBUG_MSTATS%7d'"></a><h2>Using <code class="inline"><span class="i">$ENV</span>{PERL_DEBUG_MSTATS}</code>
+</h2>
+<p>If your perl is using Perl's malloc() and was compiled with the
+necessary switches (this is the default), then it will print memory
+usage statistics after compiling your code when <code class="inline"><span class="i">$ENV</span>{PERL_DEBUG_MSTATS}
+&gt; <span class="n">1</span></code>
+, and before termination of the program when <code class="inline"><span class="i">$ENV</span>{PERL_DEBUG_MSTATS} &gt;= <span class="n">1</span></code>
+.  The report format is similar to
+the following example:</p>
+<pre class="verbatim">  $ PERL_DEBUG_MSTATS=2 perl -e "require Carp"
+  Memory allocation statistics after compilation: (buckets 4(4)..8188(8192)
+     14216 free:   130   117    28     7     9   0   2     2   1 0 0
+		437    61    36     0     5
+     60924 used:   125   137   161    55     7   8   6    16   2 0 1
+		 74   109   304    84    20
+  Total sbrk(): 77824/21:119. Odd ends: pad+heads+chain+tail: 0+636+0+2048.
+  Memory allocation statistics after execution:   (buckets 4(4)..8188(8192)
+     30888 free:   245    78    85    13     6   2   1     3   2 0 1
+		315   162    39    42    11
+    175816 used:   265   176  1112   111    26  22  11    27   2 1 1
+		196   178  1066   798    39
+  Total sbrk(): 215040/47:145. Odd ends: pad+heads+chain+tail: 0+2192+0+6144.</pre><p>It is possible to ask for such a statistic at arbitrary points in
+your execution using the mstat() function out of the standard
+Devel::Peek module.</p>
+<p>Here is some explanation of that format:</p>
+<ul>
+<li><a name="'buckets-SMALLEST(APPROX)..GREATEST(APPROX)'"></a><b><code class="inline">buckets <span class="i">SMALLEST</span><span class="s">(</span>APPROX<span class="s">)</span>..<span class="i">GREATEST</span><span class="s">(</span>APPROX<span class="s">)</span></code>
+</b>
+<p>Perl's malloc() uses bucketed allocations.  Every request is rounded
+up to the closest bucket size available, and a bucket is taken from
+the pool of buckets of that size.</p>
+<p>The line above describes the limits of buckets currently in use.
+Each bucket has two sizes: memory footprint and the maximal size
+of user data that can fit into this bucket.  Suppose in the above
+example that the smallest bucket were size 4.  The biggest bucket
+would have usable size 8188, and the memory footprint would be 8192.</p>
+<p>In a Perl built for debugging, some buckets may have negative usable
+size.  This means that these buckets cannot (and will not) be used.
+For larger buckets, the memory footprint may be one page greater
+than a power of 2.  If so, case the corresponding power of two is
+printed in the <code class="inline">APPROX</code>
+ field above.</p>
+</li>
+<li><a name="Free%2fUsed"></a><b>Free/Used</b>
+<p>The 1 or 2 rows of numbers following that correspond to the number
+of buckets of each size between <code class="inline">SMALLEST</code>
+ and <code class="inline">GREATEST</code>
+.  In
+the first row, the sizes (memory footprints) of buckets are powers
+of two--or possibly one page greater.  In the second row, if present,
+the memory footprints of the buckets are between the memory footprints
+of two buckets "above".</p>
+<p>For example, suppose under the previous example, the memory footprints
+were</p>
+<pre class="verbatim">     free:    8     16    32    64    128  256 512 1024 2048 4096 8192
+	   4     12    24    48    80</pre><p>With non-<code class="inline">DEBUGGING</code>
+ perl, the buckets starting from <code class="inline"><span class="n">128</span></code>
+ have
+a 4-byte overhead, and thus an 8192-long bucket may take up to
+8188-byte allocations.</p>
+</li>
+<li><a name="'Total-sbrk()%3a-SBRKed%2fSBRKs%3aCONTINUOUS'"></a><b><code class="inline">Total sbrk(): SBRKed/SBRKs:CONTINUOUS</code></b>
+<p>The first two fields give the total amount of memory perl sbrk(2)ed
+(ess-broken? :-) and number of sbrk(2)s used.  The third number is
+what perl thinks about continuity of returned chunks.  So long as
+this number is positive, malloc() will assume that it is probable
+that sbrk(2) will provide continuous memory.</p>
+<p>Memory allocated by external libraries is not counted.</p>
+</li>
+<li><a name="'pad%3a-0'"></a><b><code class="inline"><span class="j">pad:</span> <span class="n">0</span></code>
+</b>
+<p>The amount of sbrk(2)ed memory needed to keep buckets aligned.</p>
+</li>
+<li><a name="'heads%3a-2192'"></a><b><code class="inline"><span class="j">heads:</span> <span class="n">2192</span></code>
+</b>
+<p>Although memory overhead of bigger buckets is kept inside the bucket, for
+smaller buckets, it is kept in separate areas.  This field gives the
+total size of these areas.</p>
+</li>
+<li><a name="'chain%3a-0'"></a><b><code class="inline"><span class="j">chain:</span> <span class="n">0</span></code>
+</b>
+<p>malloc() may want to subdivide a bigger bucket into smaller buckets.
+If only a part of the deceased bucket is left unsubdivided, the rest
+is kept as an element of a linked list.  This field gives the total
+size of these chunks.</p>
+</li>
+<li><a name="'tail%3a-6144'"></a><b><code class="inline"><span class="j">tail:</span> <span class="n">6144</span></code>
+</b>
+<p>To minimize the number of sbrk(2)s, malloc() asks for more memory.  This
+field gives the size of the yet unused part, which is sbrk(2)ed, but
+never touched.</p>
+</li>
+</ul>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><a href="perldebug.html">perldebug</a>,
+<a href="perlguts.html">perlguts</a>,
+<a href="perlrun.html">perlrun</a>
+<a href="re.html">re</a>,
+and
+<a href="Devel/DProf.html">Devel::DProf</a>.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perldebguts','perldebguts.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

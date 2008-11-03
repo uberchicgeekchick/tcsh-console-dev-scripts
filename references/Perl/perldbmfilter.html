@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perldbmfilter - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-language.html">Language reference</a> &gt; perldbmfilter</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perldbmfilter</div><div class="pdf_link"><a href="perldbmfilter.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perldbmfilter.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#The-Filter">The Filter</a><li><a href="#An-Example----the-NULL-termination-problem.">An Example -- the NULL termination problem.</a><li><a href="#Another-Example----Key-is-a-C-int.">Another Example -- Key is a C int.</a></ul><li><a href="#SEE-ALSO">SEE ALSO</a><li><a href="#AUTHOR">AUTHOR</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perldbmfilter - Perl DBM Filters</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<pre class="verbatim">    <span class="i">$db</span> = <a class="l_k" href="functions/tie.html">tie</a> <span class="i">%hash</span><span class="cm">,</span> <span class="q">&#39;DBM&#39;</span><span class="cm">,</span> ...</pre>
+<pre class="verbatim">    <span class="i">$old_filter</span> = <span class="i">$db</span><span class="i">-&gt;filter_store_key</span>  <span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> ... <span class="s">}</span> <span class="s">)</span><span class="sc">;</span>
+    <span class="i">$old_filter</span> = <span class="i">$db</span><span class="i">-&gt;filter_store_value</span><span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> ... <span class="s">}</span> <span class="s">)</span><span class="sc">;</span>
+    <span class="i">$old_filter</span> = <span class="i">$db</span><span class="i">-&gt;filter_fetch_key</span>  <span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> ... <span class="s">}</span> <span class="s">)</span><span class="sc">;</span>
+    <span class="i">$old_filter</span> = <span class="i">$db</span><span class="i">-&gt;filter_fetch_value</span><span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> ... <span class="s">}</span> <span class="s">)</span><span class="sc">;</span></pre>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>The four <code class="inline">filter_*</code>
+ methods shown above are available in all the DBM
+modules that ship with Perl, namely DB_File, GDBM_File, NDBM_File,
+ODBM_File and SDBM_File.</p>
+<p>Each of the methods work identically, and are used to install (or
+uninstall) a single DBM Filter. The only difference between them is the
+place that the filter is installed.</p>
+<p>To summarise:</p>
+<ul>
+<li><a name="*filter_store_key*"></a><b><b>filter_store_key</b></b>
+<p>If a filter has been installed with this method, it will be invoked
+every time you write a key to a DBM database.</p>
+</li>
+<li><a name="*filter_store_value*"></a><b><b>filter_store_value</b></b>
+<p>If a filter has been installed with this method, it will be invoked
+every time you write a value to a DBM database.</p>
+</li>
+<li><a name="*filter_fetch_key*"></a><b><b>filter_fetch_key</b></b>
+<p>If a filter has been installed with this method, it will be invoked
+every time you read a key from a DBM database.</p>
+</li>
+<li><a name="*filter_fetch_value*"></a><b><b>filter_fetch_value</b></b>
+<p>If a filter has been installed with this method, it will be invoked
+every time you read a value from a DBM database.</p>
+</li>
+</ul>
+<p>You can use any combination of the methods from none to all four.</p>
+<p>All filter methods return the existing filter, if present, or <code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code>
+in not.</p>
+<p>To delete a filter pass <code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code> to it.</p>
+<a name="The-Filter"></a><h2>The Filter</h2>
+<p>When each filter is called by Perl, a local copy of <code class="inline"><span class="i">$_</span></code>
+ will contain
+the key or value to be filtered. Filtering is achieved by modifying
+the contents of <code class="inline"><span class="i">$_</span></code>
+. The return code from the filter is ignored.</p>
+<a name="An-Example----the-NULL-termination-problem."></a><h2>An Example -- the NULL termination problem.</h2>
+<p>DBM Filters are useful for a class of problems where you <i>always</i>
+want to make the same transformation to all keys, all values or both.</p>
+<p>For example, consider the following scenario. You have a DBM database
+that you need to share with a third-party C application. The C application
+assumes that <i>all</i> keys and values are NULL terminated. Unfortunately
+when Perl writes to DBM databases it doesn't use NULL termination, so
+your Perl application will have to manage NULL termination itself. When
+you write to the database you will have to use something like this:</p>
+<pre class="verbatim">    <span class="i">$hash</span>{<span class="q">&quot;$key\0&quot;</span>} = <span class="q">&quot;$value\0&quot;</span><span class="sc">;</span></pre>
+<p>Similarly the NULL needs to be taken into account when you are considering
+the length of existing keys/values.</p>
+<p>It would be much better if you could ignore the NULL terminations issue
+in the main application code and have a mechanism that automatically
+added the terminating NULL to all keys and values whenever you write to
+the database and have them removed when you read from the database. As I'm
+sure you have already guessed, this is a problem that DBM Filters can
+fix very easily.</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="strict.html">strict</a><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="warnings.html">warnings</a><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="SDBM_File.html">SDBM_File</a><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="Fcntl.html">Fcntl</a><span class="sc">;</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">%hash</span><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$filename</span> = <span class="q">&quot;filt&quot;</span><span class="sc">;</span>
+    <a class="l_k" href="functions/unlink.html">unlink</a> <span class="i">$filename</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$db</span> = <a class="l_k" href="functions/tie.html">tie</a><span class="s">(</span><span class="i">%hash</span><span class="cm">,</span> <span class="q">&#39;SDBM_File&#39;</span><span class="cm">,</span> <span class="i">$filename</span><span class="cm">,</span> O_RDWR|O_CREAT<span class="cm">,</span> <span class="n">0640</span><span class="s">)</span>
+      or <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Cannot open $filename: $!\n&quot;</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="c"># Install DBM Filters</span>
+    <span class="i">$db</span><span class="i">-&gt;filter_fetch_key</span>  <span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <span class="q">s/\0$//</span>    <span class="s">}</span> <span class="s">)</span><span class="sc">;</span>
+    <span class="i">$db</span><span class="i">-&gt;filter_store_key</span>  <span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <span class="i">$_</span> .= <span class="q">&quot;\0&quot;</span> <span class="s">}</span> <span class="s">)</span><span class="sc">;</span>
+    <span class="i">$db</span><span class="i">-&gt;filter_fetch_value</span><span class="s">(</span> 
+        <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <a class="l_k" href="functions/no.html">no</a> <a class="l_w" href="warnings.html">warnings</a> <span class="q">&#39;uninitialized&#39;</span><span class="sc">;</span> <span class="q">s/\0$//</span> <span class="s">}</span> <span class="s">)</span><span class="sc">;</span>
+    <span class="i">$db</span><span class="i">-&gt;filter_store_value</span><span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <span class="i">$_</span> .= <span class="q">&quot;\0&quot;</span> <span class="s">}</span> <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">$hash</span>{<span class="q">&quot;abc&quot;</span>} = <span class="q">&quot;def&quot;</span><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$a</span> = <span class="i">$hash</span>{<span class="q">&quot;ABC&quot;</span>}<span class="sc">;</span>
+    <span class="c"># ...</span>
+    <a class="l_k" href="functions/undef.html">undef</a> <span class="i">$db</span><span class="sc">;</span>
+    <a class="l_k" href="functions/untie.html">untie</a> <span class="i">%hash</span><span class="sc">;</span></pre>
+<p>The code above uses SDBM_File, but it will work with any of the DBM
+modules.</p>
+<p>Hopefully the contents of each of the filters should be
+self-explanatory. Both "fetch" filters remove the terminating NULL,
+and both "store" filters add a terminating NULL.</p>
+<a name="Another-Example----Key-is-a-C-int."></a><h2>Another Example -- Key is a C int.</h2>
+<p>Here is another real-life example. By default, whenever Perl writes to
+a DBM database it always writes the key and value as strings. So when
+you use this:</p>
+<pre class="verbatim">    <span class="i">$hash</span>{<span class="n">12345</span>} = <span class="q">&quot;something&quot;</span><span class="sc">;</span></pre>
+<p>the key 12345 will get stored in the DBM database as the 5 byte string
+"12345". If you actually want the key to be stored in the DBM database
+as a C int, you will have to use <code class="inline"><a class="l_k" href="functions/pack.html">pack</a></code> when writing, and <code class="inline"><a class="l_k" href="functions/unpack.html">unpack</a></code>
+when reading.</p>
+<p>Here is a DBM Filter that does it:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="strict.html">strict</a><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="warnings.html">warnings</a><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="DB_File.html">DB_File</a><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">%hash</span><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$filename</span> = <span class="q">&quot;filt&quot;</span><span class="sc">;</span>
+    <a class="l_k" href="functions/unlink.html">unlink</a> <span class="i">$filename</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$db</span> = <a class="l_k" href="functions/tie.html">tie</a> <span class="i">%hash</span><span class="cm">,</span> <span class="q">&#39;DB_File&#39;</span><span class="cm">,</span> <span class="i">$filename</span><span class="cm">,</span> O_CREAT|O_RDWR<span class="cm">,</span> <span class="n">0666</span><span class="cm">,</span> <span class="i">$DB_HASH</span> 
+      or <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Cannot open $filename: $!\n&quot;</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">$db</span><span class="i">-&gt;filter_fetch_key</span>  <span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <span class="i">$_</span> = <a class="l_k" href="functions/unpack.html">unpack</a><span class="s">(</span><span class="q">&quot;i&quot;</span><span class="cm">,</span> <span class="i">$_</span><span class="s">)</span> <span class="s">}</span> <span class="s">)</span><span class="sc">;</span>
+    <span class="i">$db</span><span class="i">-&gt;filter_store_key</span>  <span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <span class="i">$_</span> = <a class="l_k" href="functions/pack.html">pack</a> <span class="s">(</span><span class="q">&quot;i&quot;</span><span class="cm">,</span> <span class="i">$_</span><span class="s">)</span> <span class="s">}</span> <span class="s">)</span><span class="sc">;</span>
+    <span class="i">$hash</span>{<span class="n">123</span>} = <span class="q">&quot;def&quot;</span><span class="sc">;</span>
+    <span class="c"># ...</span>
+    <a class="l_k" href="functions/undef.html">undef</a> <span class="i">$db</span><span class="sc">;</span>
+    <a class="l_k" href="functions/untie.html">untie</a> <span class="i">%hash</span><span class="sc">;</span></pre>
+<p>The code above uses DB_File, but again it will work with any of the
+DBM modules.</p>
+<p>This time only two filters have been used -- we only need to manipulate
+the contents of the key, so it wasn't necessary to install any value
+filters.</p>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><a href="DB_File.html">DB_File</a>, <a href="http://search.cpan.org/perldoc/GDBM_File">GDBM_File</a>, <a href="NDBM_File.html">NDBM_File</a>, <a href="http://search.cpan.org/perldoc/ODBM_File">ODBM_File</a> and <a href="SDBM_File.html">SDBM_File</a>.</p>
+<a name="AUTHOR"></a><h1>AUTHOR</h1>
+<p>Paul Marquess</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perldbmfilter','perldbmfilter.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

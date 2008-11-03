@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perlmachten - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-platforms.html">Platform specific</a> &gt; perlmachten</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perlmachten</div><div class="pdf_link"><a href="perlmachten.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perlmachten.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#Perl-version-5.8.x-and-greater-not-supported">Perl version 5.8.x and greater not supported</a><li><a href="#Compiling-Perl-5.6.x-on-MachTen">Compiling Perl 5.6.x on MachTen</a><li><a href="#Failures-during-'make-test'-on-MachTen">Failures during <code class="inline">make test</code>
+ on MachTen</a><li><a href="#Building-external-modules-on-MachTen">Building external modules on MachTen</a></ul><li><a href="#AUTHOR">AUTHOR</a><li><a href="#DATE">DATE</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>README.machten - Perl version 5 on Power MachTen systems</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>This document describes how to build Perl 5 on Power MachTen systems,
+and discusses a few wrinkles in the implementation.</p>
+<a name="Perl-version-5.8.x-and-greater-not-supported"></a><h2>Perl version 5.8.x and greater not supported</h2>
+<p><b>Power MachTen is not supported by versions of Perl later than
+5.6.x.</b>
+If you wish to build a version from the 5.6 track, please
+obtain a source distribution from the archive at
+<a href="http://cpan.org/src/5.0/">http://cpan.org/src/5.0/</a> and follow the instructions in its
+README.machten file.</p>
+<p>MachTen is no longer supported by its developers, Tenon Intersystems.
+A UNIX environment hosted on Mac OS Classic, MachTen has been
+superseded by Mac OS X and by BSD and Linux implementations for Macintosh
+hardware.
+The final version of Power MachTen, 4.1.4, lacks many features found in
+modern implementations of UNIX, and has a number of bugs.
+These shortcomings prevent recent versions of Perl from being able to use
+extensions on MachTen, and cause numerous test suite failures in the
+perl core.</p>
+<p>In September 2003, a discussion on the MachTen mailing list determined
+that there was no interest in making a later version of Perl build
+successfully on MachTen.
+Consequently, support for building Perl under MachTen has been suppressed
+in Perl distributions published after February 2004.
+The hints file, <i>hints/machten.sh</i>, remains a part of the
+distributions for reference purposes.</p>
+<a name="Compiling-Perl-5.6.x-on-MachTen"></a><h2>Compiling Perl 5.6.x on MachTen</h2>
+<p>To compile perl 5.6.x under MachTen 4.1.4 (and probably earlier versions):</p>
+<pre class="verbatim">  ./Configure -de
+  make
+  make test
+  make install</pre><p>This builds and installs a statically-linked perl; MachTen's dynamic
+linking facilities are not adequate to support Perl's use of
+dynamically linked libraries.  (See <i>hints/machten.sh</i> for more
+information.)</p>
+<p>You should have at least 32 megabytes of free memory on your
+system before running the <code class="inline">make</code>
+ command.</p>
+<p>For much more information on building perl -- for example, on how to
+change the default installation directory -- see <i>INSTALL</i>.</p>
+<a name="Failures-during-'make-test'-on-MachTen"></a><h2>Failures during <code class="inline">make test</code>
+ on MachTen</h2>
+<ul>
+<li><a name="op%2flexassign.t"></a><b>op/lexassign.t</b>
+<p>This test may fail when first run after building perl.  It does not
+fail subsequently.  The cause is unknown.</p>
+</li>
+<li><a name="pragma%2fwarnings.t"></a><b>pragma/warnings.t</b>
+<p>Test 257 fails due to a failure to warn about attempts to read from a
+filehandle which is a duplicate of stdout when stdout is attached to a
+pipe.  The output of the test contains a block comment which discusses
+a different failure, not applicable to MachTen.</p>
+<p>The root of the problem is that Machten does not assign a file type to
+either end of a pipe (see <a href="functions/stat.html">stat</a>), resulting, among other things
+in Perl's <code class="inline">-p</code>
+ test failing on file descriptors belonging to pipes.
+As a result, perl becomes confused, and the test for reading from a
+write-only file fails.  I am reluctant to patch perl to get around
+this, as it's clearly an OS bug (about which Tenon has been informed),
+and limited in its effect on practical Perl programs.</p>
+</li>
+</ul>
+<a name="Building-external-modules-on-MachTen"></a><h2>Building external modules on MachTen</h2>
+<p>To add an external module to perl, build in the normal way, which
+is documented in <a href="ExtUtils/MakeMaker.html">ExtUtils::MakeMaker</a>, or which can be driven
+automatically by the CPAN module (see <a href="CPAN.html">CPAN</a>), which is part of the
+standard distribution.  If you want to install a module which
+contains XS code (C or C++ source which compiles to object code
+for linking with perl), you will have to replace your perl binary with
+a new version containing the new statically-linked object module.  The
+build process tells you how to do this.</p>
+<p>There is a gotcha, however, which users usually encounter immediately
+they respond to CPAN's invitation to <code class="inline">install Bundle::CPAN</code>
+. When
+installing a <i>bundle</i> -- a group of modules which together achieve
+some particular purpose, the installation process for later modules in
+the bundle tends to assume that earlier modules have been fully
+installed and are available for use.  This is not true on a
+statically-linked system for earlier modules which contain XS code.
+As a result the installation of the bundle fails.  The work-around is
+not to install the bundle as a one-shot operation, but instead to see
+what modules it contains, and install these one-at-a-time by hand in
+the order given.</p>
+<a name="AUTHOR"></a><h1>AUTHOR</h1>
+<p>Dominic Dunlop &lt;domo@computer.org&gt;</p>
+<a name="DATE"></a><h1>DATE</h1>
+<p>Version 1.1.0 2004-02-13</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perlmachten','perlmachten.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

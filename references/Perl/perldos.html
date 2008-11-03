@@ -1,0 +1,348 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perldos - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-platforms.html">Platform specific</a> &gt; perldos</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perldos</div><div class="pdf_link"><a href="perldos.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perldos.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#Prerequisites-for-Compiling-Perl-on-DOS">Prerequisites for Compiling Perl on DOS</a><li><a href="#Shortcomings-of-Perl-under-DOS">Shortcomings of Perl under DOS</a><li><a href="#Building-Perl-on-DOS">Building Perl on DOS</a><li><a href="#Testing-Perl-on-DOS">Testing Perl on DOS</a><li><a href="#Installation-of-Perl-on-DOS">Installation of Perl on DOS</a></ul><li><a href="#BUILDING-AND-INSTALLING-MODULES-ON-DOS">BUILDING AND INSTALLING MODULES ON DOS</a><ul><li><a href="#Building-Prerequisites-for-Perl-on-DOS">Building Prerequisites for Perl on DOS</a><li><a href="#Unpacking-CPAN-Modules-on-DOS">Unpacking CPAN Modules on DOS</a><li><a href="#Building-Non-XS-Modules-on-DOS">Building Non-XS Modules on DOS</a><li><a href="#Building-XS-Modules-on-DOS">Building XS Modules on DOS</a></ul><li><a href="#AUTHOR">AUTHOR</a><li><a href="#SEE-ALSO">SEE ALSO</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perldos - Perl under DOS, W31, W95.</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<p>These are instructions for building Perl under DOS (or w??), using
+DJGPP v2.03 or later.  Under w95 long filenames are supported.</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>Before you start, you should glance through the README file
+found in the top-level directory where the Perl distribution
+was extracted.  Make sure you read and understand the terms under
+which this software is being distributed.</p>
+<p>This port currently supports MakeMaker (the set of modules that
+is used to build extensions to perl).  Therefore, you should be
+able to build and install most extensions found in the CPAN sites.</p>
+<p>Detailed instructions on how to build and install perl extension
+modules, including XS-type modules, is included.  See 'BUILDING AND
+INSTALLING MODULES'.</p>
+<a name="Prerequisites-for-Compiling-Perl-on-DOS"></a><h2>Prerequisites for Compiling Perl on DOS</h2>
+<ul>
+<li><a name="DJGPP"></a><b>DJGPP</b>
+<p>DJGPP is a port of GNU C/C++ compiler and development tools to 32-bit,
+protected-mode environment on Intel 32-bit CPUs running MS-DOS and compatible
+operating systems, by DJ Delorie &lt;dj@delorie.com&gt; and friends.</p>
+<p>For more details (FAQ), check out the home of DJGPP at:</p>
+<pre class="verbatim">        http://www.delorie.com/djgpp/</pre><p>If you have questions about DJGPP, try posting to the DJGPP newsgroup:
+comp.os.msdos.djgpp, or use the email gateway djgpp@delorie.com.</p>
+<p>You can find the full DJGPP distribution on any SimTel.Net mirror all over
+the world. Like:</p>
+<pre class="verbatim">        ftp://ftp.simtel.net/pub/simtelnet/gnu/djgpp/v2*</pre><p>You need the following files to build perl (or add new modules):</p>
+<pre class="verbatim">        <span class="v">v2</span>/djdev203.zip
+        v2gnu/bnu2112b.zip
+        v2gnu/gcc2953b.zip
+        v2gnu/bsh204b.zip
+        v2gnu/mak3791b.zip
+        v2gnu/fil40b.zip
+        v2gnu/sed3028b.zip
+        v2gnu/txt20b.zip
+        v2gnu/dif272b.zip
+        v2gnu/grep24b.zip
+        v2gnu/shl20jb.zip
+        v2gnu/gwk306b.zip
+        v2misc/csdpmi5b.zip</pre>
+<p>or possibly any newer version.</p>
+</li>
+<li><a name="Pthreads"></a><b>Pthreads</b>
+<p>Thread support is not tested in this version of the djgpp perl.</p>
+</li>
+</ul>
+<a name="Shortcomings-of-Perl-under-DOS"></a><h2>Shortcomings of Perl under DOS</h2>
+<p>Perl under DOS lacks some features of perl under UNIX because of
+deficiencies in the UNIX-emulation, most notably:</p>
+<ul>
+<li>
+<p>fork() and pipe()</p>
+</li>
+<li>
+<p>some features of the UNIX filesystem regarding link count and file dates</p>
+</li>
+<li>
+<p>in-place operation is a little bit broken with short filenames</p>
+</li>
+<li>
+<p>sockets</p>
+</li>
+</ul>
+<a name="Building-Perl-on-DOS"></a><h2>Building Perl on DOS</h2>
+<ul>
+<li>
+<p>Unpack the source package <i>perl5.8*.tar.gz</i> with djtarx. If you want
+to use long file names under w95 and also to get Perl to pass all its
+tests, don't forget to use</p>
+<pre class="verbatim">        set LFN=y
+        set FNCASE=y</pre><p>before unpacking the archive.</p>
+</li>
+<li>
+<p>Create a "symlink" or copy your bash.exe to sh.exe in your <code class="inline"><span class="s">(</span><span class="i">$DJDIR</span><span class="s">)</span>/bin</code>
+
+directory.</p>
+<pre class="verbatim">        ln -s <span class="i">bash</span>.exe sh.exe</pre>
+<p>[If you have the recommended version of bash for DJGPP, this is already
+done for you.]</p>
+<p>And make the <code class="inline">SHELL</code>
+ environment variable point to this <i>sh.exe</i>:</p>
+<pre class="verbatim">        set SHELL=c:/djgpp/bin/sh.exe (use full path name!)</pre><p>You can do this in <i>djgpp.env</i> too. Add this line BEFORE any section
+definition:</p>
+<pre class="verbatim">        +SHELL=%DJDIR%/bin/sh.exe</pre></li>
+<li>
+<p>If you have <i>split.exe</i> and <i>gsplit.exe</i> in your path, then rename 
+<i>split.exe</i> to <i>djsplit.exe</i>, and <i>gsplit.exe</i> to <i>split.exe</i>.
+Copy or link <i>gecho.exe</i> to <i>echo.exe</i> if you don't have <i>echo.exe</i>.
+Copy or link <i>gawk.exe</i> to <i>awk.exe</i> if you don't have <i>awk.exe</i>.</p>
+<p>[If you have the recommended versions of djdev, shell utilities and
+gawk, all these are already done for you, and you will not need to do
+anything.]</p>
+</li>
+<li>
+<p>Chdir to the djgpp subdirectory of perl toplevel and type the following
+commands:</p>
+<pre class="verbatim">        set FNCASE=y
+        configure.bat</pre><p>This will do some preprocessing then run the Configure script for you.
+The Configure script is interactive, but in most cases you just need to
+press ENTER.  The "set" command ensures that DJGPP preserves the letter
+case of file names when reading directories.  If you already issued this
+set command when unpacking the archive, and you are in the same DOS
+session as when you unpacked the archive, you don't have to issue the
+set command again.  This command is necessary *before* you start to 
+(re)configure or (re)build perl in order to ensure both that perl builds 
+correctly and that building XS-type modules can succeed.  See the DJGPP 
+info entry for "_preserve_fncase" for more information:</p>
+<pre class="verbatim">        info libc alphabetical _preserve_fncase</pre>
+<p>If the script says that your package is incomplete, and asks whether
+to continue, just answer with Y (this can only happen if you don't use
+long filenames or forget to issue "set FNCASE=y" first).</p>
+<p>When Configure asks about the extensions, I suggest IO and Fcntl,
+and if you want database handling then SDBM_File or GDBM_File
+(you need to install gdbm for this one). If you want to use the
+POSIX extension (this is the default), make sure that the stack
+size of your <i>cc1.exe</i> is at least 512kbyte (you can check this
+with: <code class="inline">stubedit cc1.exe</code>
+).</p>
+<p>You can use the Configure script in non-interactive mode too.
+When I built my <i>perl.exe</i>, I used something like this:</p>
+<pre class="verbatim">        configure.bat -des</pre>
+<p>You can find more info about Configure's command line switches in
+the <i>INSTALL</i> file.</p>
+<p>When the script ends, and you want to change some values in the
+generated <i>config.sh</i> file, then run</p>
+<pre class="verbatim">        sh Configure -S</pre>
+<p>after you made your modifications.</p>
+<p>IMPORTANT: if you use this <code class="inline">-S</code>
+ switch, be sure to delete the CONFIG
+environment variable before running the script:</p>
+<pre class="verbatim">        set CONFIG=</pre>
+</li>
+<li>
+<p>Now you can compile Perl. Type:</p>
+<pre class="verbatim">        make</pre>
+</li>
+</ul>
+<a name="Testing-Perl-on-DOS"></a><h2>Testing Perl on DOS</h2>
+<p>Type:</p>
+<pre class="verbatim">        make test</pre>
+<p>If you're lucky you should see "All tests successful". But there can be
+a few failed subtests (less than 5 hopefully) depending on some external
+conditions (e.g. some subtests fail under linux/dosemu or plain dos
+with short filenames only).</p>
+<a name="Installation-of-Perl-on-DOS"></a><h2>Installation of Perl on DOS</h2>
+<p>Type:</p>
+<pre class="verbatim">        make install</pre>
+<p>This will copy the newly compiled perl and libraries into your DJGPP
+directory structure. Perl.exe and the utilities go into <code class="inline"><span class="s">(</span><span class="i">$DJDIR</span><span class="s">)</span>/bin</code>
+,
+and the library goes under <code class="inline"><span class="s">(</span><span class="i">$DJDIR</span><span class="s">)</span>/<a class="l_w" href="lib.html">lib</a>/perl5</code>
+. The pod documentation
+goes under <code class="inline"><span class="s">(</span><span class="i">$DJDIR</span><span class="s">)</span>/<a class="l_w" href="lib.html">lib</a>/perl5/pod</code>
+.</p>
+<a name="BUILDING-AND-INSTALLING-MODULES-ON-DOS"></a><h1>BUILDING AND INSTALLING MODULES ON DOS</h1>
+<a name="Building-Prerequisites-for-Perl-on-DOS"></a><h2>Building Prerequisites for Perl on DOS</h2>
+<p>For building and installing non-XS modules, all you need is a working
+perl under DJGPP.  Non-XS modules do not require re-linking the perl
+binary, and so are simpler to build and install.</p>
+<p>XS-type modules do require re-linking the perl binary, because part of
+an XS module is written in "C", and has to be linked together with the
+perl binary to be executed.  This is required because perl under DJGPP
+is built with the "static link" option, due to the lack of "dynamic
+linking" in the DJGPP environment.</p>
+<p>Because XS modules require re-linking of the perl binary, you need both
+the perl binary distribution and the perl source distribution to build
+an XS extension module.  In addition, you will have to have built your
+perl binary from the source distribution so that all of the components
+of the perl binary are available for the required link step.</p>
+<a name="Unpacking-CPAN-Modules-on-DOS"></a><h2>Unpacking CPAN Modules on DOS</h2>
+<p>First, download the module package from CPAN (e.g., the "Comma Separated
+Value" text package, Text-CSV-0.01.tar.gz).  Then expand the contents of
+the package into some location on your disk.  Most CPAN modules are
+built with an internal directory structure, so it is usually safe to
+expand it in the root of your DJGPP installation.  Some people prefer to
+locate source trees under /usr/src (i.e., <code class="inline"><span class="s">(</span><span class="i">$DJDIR</span><span class="s">)</span>/usr/src</code>
+), but you may
+put it wherever seems most logical to you, *EXCEPT* under the same
+directory as your perl source code.  There are special rules that apply
+to modules which live in the perl source tree that do not apply to most
+of the modules in CPAN.</p>
+<p>Unlike other DJGPP packages, which are normal "zip" files, most CPAN
+module packages are "gzipped tarballs".  Recent versions of WinZip will
+safely unpack and expand them, *UNLESS* they have zero-length files.  It
+is a known WinZip bug (as of v7.0) that it will not extract zero-length
+files.</p>
+<p>From the command line, you can use the djtar utility provided with DJGPP
+to unpack and expand these files.  For example:</p>
+<pre class="verbatim">        <span class="j">C:</span>\djgpp&gt;djtarx -v Text-CSV-<span class="n">0.01</span>.tar.gz</pre>
+<p>This will create the new directory <code class="inline"><span class="s">(</span><span class="i">$DJDIR</span><span class="s">)</span>/Text-CSV-<span class="n">0.01</span></code>
+, filling
+it with the source for this module.</p>
+<a name="Building-Non-XS-Modules-on-DOS"></a><h2>Building Non-XS Modules on DOS</h2>
+<p>To build a non-XS module, you can use the standard module-building
+instructions distributed with perl modules.</p>
+<pre class="verbatim">    perl Makefile.PL
+    make
+    make test
+    make install</pre>
+<p>This is sufficient because non-XS modules install only ".pm" files and
+(sometimes) pod and/or man documentation.  No re-linking of the perl
+binary is needed to build, install or use non-XS modules.</p>
+<a name="Building-XS-Modules-on-DOS"></a><h2>Building XS Modules on DOS</h2>
+<p>To build an XS module, you must use the standard module-building
+instructions distributed with perl modules *PLUS* three extra
+instructions specific to the DJGPP "static link" build environment.</p>
+<pre class="verbatim">    set FNCASE=y
+    perl Makefile.PL
+    make
+    make perl
+    make test
+    make -f Makefile.aperl inst_perl MAP_TARGET=perl.exe
+    make install</pre><p>The first extra instruction sets DJGPP's FNCASE environment variable so
+that the new perl binary which you must build for an XS-type module will
+build correctly.  The second extra instruction re-builds the perl binary
+in your module directory before you run "make test", so that you are
+testing with the new module code you built with "make".  The third extra
+instruction installs the perl binary from your module directory into the
+standard DJGPP binary directory, <code class="inline"><span class="s">(</span><span class="i">$DJDIR</span><span class="s">)</span>/bin</code>
+, replacing your
+previous perl binary.</p>
+<p>Note that the MAP_TARGET value *must* have the ".exe" extension or you
+will not create a "perl.exe" to replace the one in <code class="inline"><span class="s">(</span><span class="i">$DJDIR</span><span class="s">)</span>/bin</code>
+.</p>
+<p>When you are done, the XS-module install process will have added information
+to your "perllocal" information telling that the perl binary has been replaced,
+and what module was installed.  You can view this information at any time
+by using the command:</p>
+<pre class="verbatim">        perl -S <span class="i">perldoc</span> perllocal</pre>
+<a name="AUTHOR"></a><h1>AUTHOR</h1>
+<p>Laszlo Molnar, <i>laszlo.molnar@eth.ericsson.se</i> [Installing/building perl]</p>
+<p>Peter J. Farley III <i>pjfarley@banet.net</i> [Building/installing modules]</p>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p>perl(1).</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perldos','perldos.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

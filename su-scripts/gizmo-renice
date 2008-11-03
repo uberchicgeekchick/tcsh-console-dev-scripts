@@ -1,0 +1,4 @@
+#!/bin/tcsh
+foreach gizmo_thread ( `pidof -x gizmo` )
+	sudo renice -20 "${gizmo_thread}"
+end

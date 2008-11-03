@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>select - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="../css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="../label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 1;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="../onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='../close_purple.gif';" onmouseout="leftCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="../index-overview.html">Overview</a></li>
+        <li><a href="../index-tutorials.html">Tutorials</a></li>
+        <li><a href="../index-faq.html">FAQs</a></li>
+        <li><a href="../index-history.html">History / Changes</a></li>
+        <li><a href="../index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="../index-language.html">Language</a></li>
+        <li><a href="../index-functions.html">Functions</a></li>
+        <li><a href="../perlop.html">Operators</a></li>
+        <li><a href="../perlvar.html">Special variables</a></li>
+        <li><a href="../index-pragmas.html">Pragmas</a></li>
+        <li><a href="../index-modules-A.html">Core modules</a></li>
+        <li><a href="../index-utilities.html">Utilities</a></li>
+        <li><a href="../index-internals.html">Internals</a></li>
+        <li><a href="../index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="../index.html">Home</a> &gt; <a href="../index-language.html">Language reference</a> &gt; <a href="../index-functions.html">Functions</a> &gt; select</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">select</div></div><div class="mod_az_list"><a href="../index-functions.html">Perl functions A-Z</a> | <a href="../index-functions-by-cat.html">Perl functions by category</a> | <a href="../perlfunc.html">The 'perlfunc' manpage</a></div><ul>
+<li><a name="select-FILEHANDLE"></a><b>select FILEHANDLE</b>
+<p> </p>
+</li>
+</ul>
+<ul>
+<li><a name="select"></a><b>select</b>
+<p>Returns the currently selected filehandle.  Sets the current default
+filehandle for output, if FILEHANDLE is supplied.  This has two
+effects: first, a <code class="inline"><a class="l_k" href="../functions/write.html">write</a></code> or a <code class="inline"><a class="l_k" href="../functions/print.html">print</a></code> without a filehandle will
+default to this FILEHANDLE.  Second, references to variables related to
+output will refer to this output channel.  For example, if you have to
+set the top of form format for more than one output channel, you might
+do the following:</p>
+<pre class="verbatim">    <a class="l_k" href="../functions/select.html">select</a><span class="s">(</span>REPORT1<span class="s">)</span><span class="sc">;</span>
+    <span class="i">$^</span> = <span class="q">&#39;report1_top&#39;</span><span class="sc">;</span>
+    <a class="l_k" href="../functions/select.html">select</a><span class="s">(</span>REPORT2<span class="s">)</span><span class="sc">;</span>
+    <span class="i">$^</span> = <span class="q">&#39;report2_top&#39;</span><span class="sc">;</span></pre>
+<p>FILEHANDLE may be an expression whose value gives the name of the
+actual filehandle.  Thus:</p>
+<pre class="verbatim">    <span class="i">$oldfh</span> = <a class="l_k" href="../functions/select.html">select</a><span class="s">(</span>STDERR<span class="s">)</span><span class="sc">;</span> <span class="i">$|</span> = <span class="n">1</span><span class="sc">;</span> <a class="l_k" href="../functions/select.html">select</a><span class="s">(</span><span class="i">$oldfh</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Some programmers may prefer to think of filehandles as objects with
+methods, preferring to write the last example as:</p>
+<pre class="verbatim">    <a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../IO/Handle.html">IO::Handle</a><span class="sc">;</span>
+    STDERR-&gt;autoflush<span class="s">(</span><span class="n">1</span><span class="s">)</span><span class="sc">;</span></pre>
+</li>
+</ul>
+<ul>
+<li><a name="select-RBITS%2cWBITS%2cEBITS%2cTIMEOUT"></a><b>select RBITS,WBITS,EBITS,TIMEOUT</b>
+<p></p>
+<p>This calls the select(2) system call with the bit masks specified, which
+can be constructed using <code class="inline"><a class="l_k" href="../functions/fileno.html">fileno</a></code> and <code class="inline"><a class="l_k" href="../functions/vec.html">vec</a></code>, along these lines:</p>
+<pre class="verbatim">    <span class="i">$rin</span> = <span class="i">$win</span> = <span class="i">$ein</span> = <span class="q">&#39;&#39;</span><span class="sc">;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$rin</span><span class="cm">,</span><a class="l_k" href="../functions/fileno.html">fileno</a><span class="s">(</span>STDIN<span class="s">)</span><span class="cm">,</span><span class="n">1</span><span class="s">)</span> = <span class="n">1</span><span class="sc">;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$win</span><span class="cm">,</span><a class="l_k" href="../functions/fileno.html">fileno</a><span class="s">(</span>STDOUT<span class="s">)</span><span class="cm">,</span><span class="n">1</span><span class="s">)</span> = <span class="n">1</span><span class="sc">;</span>
+    <span class="i">$ein</span> = <span class="i">$rin</span> | <span class="i">$win</span><span class="sc">;</span></pre>
+<p>If you want to select on many filehandles you might wish to write a
+subroutine:</p>
+<pre class="verbatim"><a name="fhbits"></a>    sub <span class="m">fhbits</span> <span class="s">{</span>
+	<a class="l_k" href="../functions/my.html">my</a><span class="s">(</span><span class="i">@fhlist</span><span class="s">)</span> = <a class="l_k" href="../functions/split.html">split</a><span class="s">(</span><span class="q">&#39; &#39;</span><span class="cm">,</span><span class="i">$_</span>[<span class="n">0</span>]<span class="s">)</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/my.html">my</a><span class="s">(</span><span class="i">$bits</span><span class="s">)</span><span class="sc">;</span>
+	for <span class="s">(</span><span class="i">@fhlist</span><span class="s">)</span> <span class="s">{</span>
+	    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$bits</span><span class="cm">,</span><a class="l_k" href="../functions/fileno.html">fileno</a><span class="s">(</span><span class="i">$_</span><span class="s">)</span><span class="cm">,</span><span class="n">1</span><span class="s">)</span> = <span class="n">1</span><span class="sc">;</span>
+	<span class="s">}</span>
+	<span class="i">$bits</span><span class="sc">;</span>
+    <span class="s">}</span>
+    <span class="i">$rin</span> = <span class="i">fhbits</span><span class="s">(</span><span class="q">&#39;STDIN TTY SOCK&#39;</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>The usual idiom is:</p>
+<pre class="verbatim">    <span class="s">(</span><span class="i">$nfound</span><span class="cm">,</span><span class="i">$timeleft</span><span class="s">)</span> =
+      <a class="l_k" href="../functions/select.html">select</a><span class="s">(</span><span class="i">$rout</span>=<span class="i">$rin</span><span class="cm">,</span> <span class="i">$wout</span>=<span class="i">$win</span><span class="cm">,</span> <span class="i">$eout</span>=<span class="i">$ein</span><span class="cm">,</span> <span class="i">$timeout</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>or to block until something becomes ready just do this</p>
+<pre class="verbatim">    <span class="i">$nfound</span> = <a class="l_k" href="../functions/select.html">select</a><span class="s">(</span><span class="i">$rout</span>=<span class="i">$rin</span><span class="cm">,</span> <span class="i">$wout</span>=<span class="i">$win</span><span class="cm">,</span> <span class="i">$eout</span>=<span class="i">$ein</span><span class="cm">,</span> <a class="l_k" href="../functions/undef.html">undef</a><span class="s">)</span><span class="sc">;</span></pre>
+<p>Most systems do not bother to return anything useful in $timeleft, so
+calling select() in scalar context just returns $nfound.</p>
+<p>Any of the bit masks can also be undef.  The timeout, if specified, is
+in seconds, which may be fractional.  Note: not all implementations are
+capable of returning the $timeleft.  If not, they always return
+$timeleft equal to the supplied $timeout.</p>
+<p>You can effect a sleep of 250 milliseconds this way:</p>
+<pre class="verbatim">    <a class="l_k" href="../functions/select.html">select</a><span class="s">(</span><a class="l_k" href="../functions/undef.html">undef</a><span class="cm">,</span> <a class="l_k" href="../functions/undef.html">undef</a><span class="cm">,</span> <a class="l_k" href="../functions/undef.html">undef</a><span class="cm">,</span> <span class="n">0.25</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Note that whether <code class="inline"><a class="l_k" href="../functions/select.html">select</a></code> gets restarted after signals (say, SIGALRM)
+is implementation-dependent.  See also <a href="../perlport.html">perlport</a> for notes on the
+portability of <code class="inline"><a class="l_k" href="../functions/select.html">select</a></code>.</p>
+<p>On error, <code class="inline"><a class="l_k" href="../functions/select.html">select</a></code> behaves like the select(2) system call : it returns
+-1 and sets <code class="inline"><span class="i">$!</span></code>
+.</p>
+<p>Note: on some Unixes, the select(2) system call may report a socket file
+descriptor as "ready for reading", when actually no data is available,
+thus a subsequent read blocks. It can be avoided using always the
+O_NONBLOCK flag on the socket. See select(2) and fcntl(2) for further
+details.</p>
+<p><b>WARNING</b>: One should not attempt to mix buffered I/O (like <code class="inline"><a class="l_k" href="../functions/read.html">read</a></code>
+or &lt;FH&gt;) with <code class="inline"><a class="l_k" href="../functions/select.html">select</a></code>, except as permitted by POSIX, and even
+then only on POSIX systems.  You have to use <code class="inline"><a class="l_k" href="../functions/sysread.html">sysread</a></code> instead.</p>
+</li>
+</ul>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="../perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='../close_purple.gif';" onmouseout="rightCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="../search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('select','functions/select.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

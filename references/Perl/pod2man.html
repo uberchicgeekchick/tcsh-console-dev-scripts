@@ -1,0 +1,465 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>pod2man - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-utilities.html">Utilities</a> &gt; pod2man</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">pod2man</div><div class="pdf_link"><a href="pod2man.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="pod2man.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#OPTIONS">OPTIONS</a><li><a href="#DIAGNOSTICS">DIAGNOSTICS</a><li><a href="#EXAMPLES">EXAMPLES</a><li><a href="#BUGS">BUGS</a><li><a href="#NOTES">NOTES</a><li><a href="#SEE-ALSO">SEE ALSO</a><li><a href="#AUTHOR">AUTHOR</a><li><a href="#COPYRIGHT-AND-LICENSE">COPYRIGHT AND LICENSE</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>pod2man - Convert POD data to formatted *roff input</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<p>pod2man [<b>--section</b>=<i>manext</i>] [<b>--release</b>=<i>version</i>]
+[<b>--center</b>=<i>string</i>] [<b>--date</b>=<i>string</i>] [<b>--fixed</b>=<i>font</i>]
+[<b>--fixedbold</b>=<i>font</i>] [<b>--fixeditalic</b>=<i>font</i>]
+[<b>--fixedbolditalic</b>=<i>font</i>] [<b>--name</b>=<i>name</i>] [<b>--official</b>]
+[<b>--lax</b>] [<b>--quotes</b>=<i>quotes</i>] [<b>--verbose</b>]
+[<i>input</i> [<i>output</i>] ...]</p>
+<p>pod2man <b>--help</b></p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p><b>pod2man</b> is a front-end for Pod::Man, using it to generate *roff input
+from POD source.  The resulting *roff code is suitable for display on a
+terminal using nroff(1), normally via man(1), or printing using troff(1).</p>
+<p><i>input</i> is the file to read for POD source (the POD can be embedded in
+code).  If <i>input</i> isn't given, it defaults to STDIN.  <i>output</i>, if given,
+is the file to which to write the formatted output.  If <i>output</i> isn't
+given, the formatted output is written to STDOUT.  Several POD files can be
+processed in the same <b>pod2man</b> invocation (saving module load and compile
+times) by providing multiple pairs of <i>input</i> and <i>output</i> files on the
+command line.</p>
+<p><b>--section</b>, <b>--release</b>, <b>--center</b>, <b>--date</b>, and <b>--official</b> can be
+used to set the headers and footers to use; if not given, Pod::Man will
+assume various defaults.  See below or <a href="Pod/Man.html">Pod::Man</a> for details.</p>
+<p><b>pod2man</b> assumes that your *roff formatters have a fixed-width font named
+CW.  If yours is called something else (like CR), use <b>--fixed</b> to specify
+it.  This generally only matters for troff output for printing.  Similarly,
+you can set the fonts used for bold, italic, and bold italic fixed-width
+output.</p>
+<p>Besides the obvious pod conversions, Pod::Man, and therefore pod2man also
+takes care of formatting func(), func(n), and simple variable references
+like $foo or @bar so you don't have to use code escapes for them; complex
+expressions like <code class="inline"><span class="i">$fred</span>{<span class="q">&#39;stuff&#39;</span>}</code>
+ will still need to be escaped, though.
+It also translates dashes that aren't used as hyphens into en dashes, makes
+long dashes--like this--into proper em dashes, fixes "paired quotes," and
+takes care of several other troff-specific tweaks.  See <a href="Pod/Man.html">Pod::Man</a> for
+complete information.</p>
+<a name="OPTIONS"></a><h1>OPTIONS</h1>
+<ul>
+<li><a name="*-c*-_string_%2c-*--center*%3d_string_"></a><b><b>-c</b> <i>string</i>, <b>--center</b>=<i>string</i></b>
+<p>Sets the centered page header to <i>string</i>.  The default is "User
+Contributed Perl Documentation", but also see <b>--official</b> below.</p>
+</li>
+<li><a name="*-d*-_string_%2c-*--date*%3d_string_"></a><b><b>-d</b> <i>string</i>, <b>--date</b>=<i>string</i></b>
+<p>Set the left-hand footer string to this value.  By default, the modification
+date of the input file will be used, or the current date if input comes from
+STDIN.</p>
+</li>
+<li><a name="*--fixed*%3d_font_"></a><b><b>--fixed</b>=<i>font</i></b>
+<p>The fixed-width font to use for vertabim text and code.  Defaults to CW.
+Some systems may want CR instead.  Only matters for troff(1) output.</p>
+</li>
+<li><a name="*--fixedbold*%3d_font_"></a><b><b>--fixedbold</b>=<i>font</i></b>
+<p>Bold version of the fixed-width font.  Defaults to CB.  Only matters for
+troff(1) output.</p>
+</li>
+<li><a name="*--fixeditalic*%3d_font_"></a><b><b>--fixeditalic</b>=<i>font</i></b>
+<p>Italic version of the fixed-width font (actually, something of a misnomer,
+since most fixed-width fonts only have an oblique version, not an italic
+version).  Defaults to CI.  Only matters for troff(1) output.</p>
+</li>
+<li><a name="*--fixedbolditalic*%3d_font_"></a><b><b>--fixedbolditalic</b>=<i>font</i></b>
+<p>Bold italic (probably actually oblique) version of the fixed-width font.
+Pod::Man doesn't assume you have this, and defaults to CB.  Some systems
+(such as Solaris) have this font available as CX.  Only matters for troff(1)
+output.</p>
+</li>
+<li><a name="*-h*%2c-*--help*"></a><b><b>-h</b>, <b>--help</b></b>
+<p>Print out usage information.</p>
+</li>
+<li><a name="*-l*%2c-*--lax*"></a><b><b>-l</b>, <b>--lax</b></b>
+<p>No longer used.  <b>pod2man</b> used to check its input for validity as a manual
+page, but this should now be done by <i>podchecker(1)</i> instead.  Accepted for
+backwards compatibility; this option no longer does anything.</p>
+</li>
+<li><a name="*-n*-_name_%2c-*--name*%3d_name_"></a><b><b>-n</b> <i>name</i>, <b>--name</b>=<i>name</i></b>
+<p>Set the name of the manual page to <i>name</i>.  Without this option, the manual
+name is set to the uppercased base name of the file being converted unless
+the manual section is 3, in which case the path is parsed to see if it is a
+Perl module path.  If it is, a path like <code class="inline">.../lib/Pod/Man.pm</code> is converted
+into a name like <code class="inline"><a class="l_w" href="Pod/Man.html">Pod::Man</a></code>.  This option, if given, overrides any
+automatic determination of the name.</p>
+<p>Note that this option is probably not useful when converting multiple POD
+files at once.  The convention for Unix man pages for commands is for the
+man page title to be in all-uppercase even if the command isn't.</p>
+</li>
+<li><a name="*-o*%2c-*--official*"></a><b><b>-o</b>, <b>--official</b></b>
+<p>Set the default header to indicate that this page is part of the standard
+Perl release, if <b>--center</b> is not also given.</p>
+</li>
+<li><a name="*-q*-_quotes_%2c-*--quotes*%3d_quotes_"></a><b><b>-q</b> <i>quotes</i>, <b>--quotes</b>=<i>quotes</i></b>
+<p>Sets the quote marks used to surround C&lt;&gt; text to <i>quotes</i>.  If
+<i>quotes</i> is a single character, it is used as both the left and right
+quote; if <i>quotes</i> is two characters, the first character is used as the
+left quote and the second as the right quoted; and if <i>quotes</i> is four
+characters, the first two are used as the left quote and the second two as
+the right quote.</p>
+<p><i>quotes</i> may also be set to the special value <code class="inline">none</code>
+, in which case no
+quote marks are added around C&lt;&gt; text (but the font is still changed for
+troff output).</p>
+</li>
+<li><a name="*-r*%2c-*--release*"></a><b><b>-r</b>, <b>--release</b></b>
+<p>Set the centered footer.  By default, this is the version of Perl you run
+<b>pod2man</b> under.  Note that some system an macro sets assume that the
+centered footer will be a modification date and will prepend something like
+"Last modified: "; if this is the case, you may want to set <b>--release</b> to
+the last modified date and <b>--date</b> to the version number.</p>
+</li>
+<li><a name="*-s*%2c-*--section*"></a><b><b>-s</b>, <b>--section</b></b>
+<p>Set the section for the <code class="inline">.TH</code> macro.  The standard section numbering
+convention is to use 1 for user commands, 2 for system calls, 3 for
+functions, 4 for devices, 5 for file formats, 6 for games, 7 for
+miscellaneous information, and 8 for administrator commands.  There is a lot
+of variation here, however; some systems (like Solaris) use 4 for file
+formats, 5 for miscellaneous information, and 7 for devices.  Still others
+use 1m instead of 8, or some mix of both.  About the only section numbers
+that are reliably consistent are 1, 2, and 3.</p>
+<p>By default, section 1 will be used unless the file ends in .pm in which case
+section 3 will be selected.</p>
+</li>
+<li><a name="*-v*%2c-*--verbose*"></a><b><b>-v</b>, <b>--verbose</b></b>
+<p>Print out the name of each output file as it is being generated.</p>
+</li>
+</ul>
+<a name="DIAGNOSTICS"></a><h1>DIAGNOSTICS</h1>
+<p>If <b>pod2man</b> fails with errors, see <a href="Pod/Man.html">Pod::Man</a> and <a href="Pod/Parser.html">Pod::Parser</a> for
+information about what those errors might mean.</p>
+<a name="EXAMPLES"></a><h1>EXAMPLES</h1>
+<pre class="verbatim">    pod2man program &gt; program.1
+    pod2man SomeModule.pm /usr/perl/man/man3/SomeModule.3
+    pod2man --section=7 note.pod &gt; note.7</pre><p>If you would like to print out a lot of man page continuously, you probably
+want to set the C and D registers to set contiguous page numbering and
+even/odd paging, at least on some versions of man(7).</p>
+<pre class="verbatim">    troff -man -rC1 -rD1 perl.1 perldata.1 perlsyn.1 ...</pre><p>To get index entries on stderr, turn on the F register, as in:</p>
+<pre class="verbatim">    troff -man -rF1 perl<span class="n">.1</span></pre>
+<p>The indexing merely outputs messages via <code class="inline">.tm</code> for each major page,
+section, subsection, item, and any <code class="inline">X&lt;&gt;</code>
+ directives.  See
+<a href="Pod/Man.html">Pod::Man</a> for more details.</p>
+<a name="BUGS"></a><h1>BUGS</h1>
+<p>Lots of this documentation is duplicated from <a href="Pod/Man.html">Pod::Man</a>.</p>
+<a name="NOTES"></a><h1>NOTES</h1>
+<p>For those not sure of the proper layout of a man page, here are some notes
+on writing a proper man page.</p>
+<p>The name of the program being documented is conventionally written in bold
+(using B&lt;&gt;) wherever it occurs, as are all program options.
+Arguments should be written in italics (I&lt;&gt;).  Functions are
+traditionally written in italics; if you write a function as function(),
+Pod::Man will take care of this for you.  Literal code or commands should
+be in C&lt;&gt;.  References to other man pages should be in the form
+<code class="inline"><span class="i">manpage</span><span class="s">(</span>section<span class="s">)</span></code>
+, and Pod::Man will automatically format those
+appropriately.  As an exception, it's traditional not to use this form when
+referring to module documentation; use <code class="inline">L<span class="q">&lt;Module::Name&gt;</span></code>
+ instead.</p>
+<p>References to other programs or functions are normally in the form of man
+page references so that cross-referencing tools can provide the user with
+links and the like.  It's possible to overdo this, though, so be careful not
+to clutter your documentation with too much markup.</p>
+<p>The major headers should be set out using a <code class="inline"><span class="pd">=head1</span></code>
+ directive, and are
+historically written in the rather startling ALL UPPER CASE format, although
+this is not mandatory.  Minor headers may be included using <code class="inline"><span class="pd">=head2</span></code>
+, and
+are typically in mixed case.</p>
+<p>The standard sections of a manual page are:</p>
+<ul>
+<li><a name="NAME"></a><b>NAME</b>
+<p>Mandatory section; should be a comma-separated list of programs or functions
+documented by this podpage, such as:</p>
+<pre class="verbatim">    foo<span class="cm">,</span> bar - programs to <a class="l_k" href="functions/do.html">do</a> something</pre>
+<p>Manual page indexers are often extremely picky about the format of this
+section, so don't put anything in it except this line.  A single dash, and
+only a single dash, should separate the list of programs or functions from
+the description.  Functions should not be qualified with <code class="inline"><span class="s">(</span><span class="s">)</span></code>
+ or the like.
+The description should ideally fit on a single line, even if a man program
+replaces the dash with a few tabs.</p>
+</li>
+<li><a name="SYNOPSIS"></a><b>SYNOPSIS</b>
+<p>A short usage summary for programs and functions.  This section is mandatory
+for section 3 pages.</p>
+</li>
+<li><a name="DESCRIPTION"></a><b>DESCRIPTION</b>
+<p>Extended description and discussion of the program or functions, or the body
+of the documentation for man pages that document something else.  If
+particularly long, it's a good idea to break this up into subsections
+<code class="inline"><span class="pd">=head2</span></code>
+ directives like:</p>
+<pre class="verbatim">    =head2 Normal Usage</pre>
+<pre class="verbatim">    =head2 Advanced Features</pre>
+<pre class="verbatim">    =head2 Writing Configuration Files</pre>
+<p>or whatever is appropriate for your documentation.</p>
+</li>
+<li><a name="OPTIONS"></a><b>OPTIONS</b>
+<p>Detailed description of each of the command-line options taken by the
+program.  This should be separate from the description for the use of things
+like <a href="Pod/Usage.html">Pod::Usage</a>.  This is normally presented as a list, with
+each option as a separate <code class="inline"><span class="pd">=item</span></code>
+.  The specific option string should be
+enclosed in B&lt;&gt;.  Any values that the option takes should be
+enclosed in I&lt;&gt;.  For example, the section for the option
+<b>--section</b>=<i>manext</i> would be introduced with:</p>
+<pre class="verbatim">    =item <a class="l_w" href="B.html">B</a><span class="q">&lt;--section&gt;</span>=I<span class="q">&lt;manext&gt;</span></pre>
+<p>Synonymous options (like both the short and long forms) are separated by a
+comma and a space on the same <code class="inline"><span class="pd">=item</span></code>
+ line, or optionally listed as their
+own item with a reference to the canonical name.  For example, since
+<b>--section</b> can also be written as <b>-s</b>, the above would be:</p>
+<pre class="verbatim">    =item B&lt;-s&gt; I&lt;manext&gt;, B&lt;--section&gt;=I&lt;manext&gt;</pre><p>(Writing the short option first is arguably easier to read, since the long
+option is long enough to draw the eye to it anyway and the short option can
+otherwise get lost in visual noise.)</p>
+</li>
+<li><a name="RETURN-VALUE"></a><b>RETURN VALUE</b>
+<p>What the program or function returns, if successful.  This section can be
+omitted for programs whose precise exit codes aren't important, provided
+they return 0 on success as is standard.  It should always be present for
+functions.</p>
+</li>
+<li><a name="ERRORS"></a><b>ERRORS</b>
+<p>Exceptions, error return codes, exit statuses, and errno settings.
+Typically used for function documentation; program documentation uses
+DIAGNOSTICS instead.  The general rule of thumb is that errors printed to
+STDOUT or STDERR and intended for the end user are documented in DIAGNOSTICS
+while errors passed internal to the calling program and intended for other
+programmers are documented in ERRORS.  When documenting a function that sets
+errno, a full list of the possible errno values should be given here.</p>
+</li>
+<li><a name="DIAGNOSTICS"></a><b>DIAGNOSTICS</b>
+<p>All possible messages the program can print out--and what they mean.  You
+may wish to follow the same documentation style as the Perl documentation;
+see perldiag(1) for more details (and look at the POD source as well).</p>
+<p>If applicable, please include details on what the user should do to correct
+the error; documenting an error as indicating "the input buffer is too
+small" without telling the user how to increase the size of the input buffer
+(or at least telling them that it isn't possible) aren't very useful.</p>
+</li>
+<li><a name="EXAMPLES"></a><b>EXAMPLES</b>
+<p>Give some example uses of the program or function.  Don't skimp; users often
+find this the most useful part of the documentation.  The examples are
+generally given as verbatim paragraphs.</p>
+<p>Don't just present an example without explaining what it does.  Adding a
+short paragraph saying what the example will do can increase the value of
+the example immensely.</p>
+</li>
+<li><a name="ENVIRONMENT"></a><b>ENVIRONMENT</b>
+<p>Environment variables that the program cares about, normally presented as a
+list using <code class="inline"><span class="pd">=over</span></code>
+, <code class="inline"><span class="pd">=item</span></code>
+, and <code class="inline"><span class="pd">=back</span></code>
+.  For example:</p>
+<pre class="verbatim">    =over <span class="n">6</span></pre>
+<pre class="verbatim">    =item HOME</pre>
+<pre class="verbatim">    Used to determine the user's home directory.  F&lt;.foorc&gt; in this
+    directory is read for configuration details, if it exists.</pre><pre class="verbatim">    =back</pre>
+<p>Since environment variables are normally in all uppercase, no additional
+special formatting is generally needed; they're glaring enough as it is.</p>
+</li>
+<li><a name="FILES"></a><b>FILES</b>
+<p>All files used by the program or function, normally presented as a list, and
+what it uses them for.  File names should be enclosed in F&lt;&gt;.  It's
+particularly important to document files that will be potentially modified.</p>
+</li>
+<li><a name="CAVEATS"></a><b>CAVEATS</b>
+<p>Things to take special care with, sometimes called WARNINGS.</p>
+</li>
+<li><a name="BUGS"></a><b>BUGS</b>
+<p>Things that are broken or just don't work quite right.</p>
+</li>
+<li><a name="RESTRICTIONS"></a><b>RESTRICTIONS</b>
+<p>Bugs you don't plan to fix.  :-)</p>
+</li>
+<li><a name="NOTES"></a><b>NOTES</b>
+<p>Miscellaneous commentary.</p>
+</li>
+<li><a name="SEE-ALSO"></a><b>SEE ALSO</b>
+<p>Other man pages to check out, like man(1), man(7), makewhatis(8), or
+catman(8).  Normally a simple list of man pages separated by commas, or a
+paragraph giving the name of a reference work.  Man page references, if they
+use the standard <code class="inline"><span class="i">name</span><span class="s">(</span>section<span class="s">)</span></code>
+ form, don't have to be enclosed in
+L&lt;&gt; (although it's recommended), but other things in this section
+probably should be when appropriate.</p>
+<p>If the package has a mailing list, include a URL or subscription
+instructions here.</p>
+<p>If the package has a web site, include a URL here.</p>
+</li>
+<li><a name="AUTHOR"></a><b>AUTHOR</b>
+<p>Who wrote it (use AUTHORS for multiple people).  Including your current
+e-mail address (or some e-mail address to which bug reports should be sent)
+so that users have a way of contacting you is a good idea.  Remember that
+program documentation tends to roam the wild for far longer than you expect
+and pick an e-mail address that's likely to last if possible.</p>
+</li>
+<li><a name="COPYRIGHT-AND-LICENSE"></a><b>COPYRIGHT AND LICENSE</b>
+<p>For copyright</p>
+<pre class="verbatim">    Copyright YEAR(s) by YOUR NAME(s)</pre><p>(No, (C) is not needed.  No, "all rights reserved" is not needed.)</p>
+<p>For licensing the easiest way is to use the same licensing as Perl itself:</p>
+<pre class="verbatim">    This library is free software; you may redistribute it and/or modify
+    it under the same terms as Perl itself.</pre><p>This makes it easy for people to use your module with Perl.  Note that
+this licensing is neither an endorsement or a requirement, you are of
+course free to choose any licensing.</p>
+</li>
+<li><a name="HISTORY"></a><b>HISTORY</b>
+<p>Programs derived from other sources sometimes have this, or you might keep
+a modification log here.  If the log gets overly long or detailed,
+consider maintaining it in a separate file, though.</p>
+</li>
+</ul>
+<p>In addition, some systems use CONFORMING TO to note conformance to relevant
+standards and MT-LEVEL to note safeness for use in threaded programs or
+signal handlers.  These headings are primarily useful when documenting parts
+of a C library.  Documentation of object-oriented libraries or modules may
+use CONSTRUCTORS and METHODS sections for detailed documentation of the
+parts of the library and save the DESCRIPTION section for an overview; other
+large modules may use FUNCTIONS for similar reasons.  Some people use
+OVERVIEW to summarize the description if it's quite long.</p>
+<p>Section ordering varies, although NAME should <i>always</i> be the first section
+(you'll break some man page systems otherwise), and NAME, SYNOPSIS,
+DESCRIPTION, and OPTIONS generally always occur first and in that order if
+present.  In general, SEE ALSO, AUTHOR, and similar material should be left
+for last.  Some systems also move WARNINGS and NOTES to last.  The order
+given above should be reasonable for most purposes.</p>
+<p>Finally, as a general note, try not to use an excessive amount of markup.
+As documented here and in <a href="Pod/Man.html">Pod::Man</a>, you can safely leave Perl variables,
+function names, man page references, and the like unadorned by markup and
+the POD translators will figure it out for you.  This makes it much easier
+to later edit the documentation.  Note that many existing translators
+(including this one currently) will do the wrong thing with e-mail addresses
+or URLs when wrapped in L&lt;&gt;, so don't do that.</p>
+<p>For additional information that may be more accurate for your specific
+system, see either <i>man(5)</i> or <i>man(7)</i> depending on your system manual
+section numbering conventions.</p>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><a href="Pod/Man.html">Pod::Man</a>, <a href="Pod/Parser.html">Pod::Parser</a>, <i>man(1)</i>, <i>nroff(1)</i>, <i>podchecker(1)</i>,
+<i>troff(1)</i>, <i>man(7)</i></p>
+<p>The man page documenting the an macro set may be <i>man(5)</i> instead of
+<i>man(7)</i> on your system.</p>
+<p>The current version of this script is always available from its web site at
+<a href="http://www.eyrie.org/~eagle/software/podlators/">http://www.eyrie.org/~eagle/software/podlators/</a>.  It is also part of the
+Perl core distribution as of 5.6.0.</p>
+<a name="AUTHOR"></a><h1>AUTHOR</h1>
+<p>Russ Allbery &lt;rra@stanford.edu&gt;, based <i>very</i> heavily on the original
+<b>pod2man</b> by Larry Wall and Tom Christiansen.  Large portions of this
+documentation, particularly the sections on the anatomy of a proper man
+page, are taken from the <b>pod2man</b> documentation by Tom.</p>
+<a name="COPYRIGHT-AND-LICENSE"></a><h1>COPYRIGHT AND LICENSE</h1>
+<p>Copyright 1999, 2000, 2001 by Russ Allbery &lt;rra@stanford.edu&gt;.</p>
+<p>This program is free software; you may redistribute it and/or modify it
+under the same terms as Perl itself.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('pod2man','pod2man.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

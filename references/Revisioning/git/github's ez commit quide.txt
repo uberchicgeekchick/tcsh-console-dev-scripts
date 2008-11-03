@@ -1,0 +1,10 @@
+Give this clone URL to anyone.
+	git clone git://github.com/uberchicgeekchick/alacast.git
+
+Use this clone URL yourself.
+	git clone git@github.com:uberchicgeekchick/alacast.git
+
+cd existing_git_repo
+	git remote add origin git@github.com:uberchicgeekchick/alacast.git
+	git push origin master
+

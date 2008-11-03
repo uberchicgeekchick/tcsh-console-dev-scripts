@@ -1,0 +1,879 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perlfaq7 - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-faq.html">FAQs</a> &gt; perlfaq7</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perlfaq7</div><div class="pdf_link"><a href="perlfaq7.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perlfaq7.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#Can-I-get-a-BNF%2fyacc%2fRE-for-the-Perl-language%3f">Can I get a BNF/yacc/RE for the Perl language?</a><li><a href="#What-are-all-these-%24%40%25%26*-punctuation-signs%2c-and-how-do-I-know-when-to-use-them%3f">What are all these $@%&amp;* punctuation signs, and how do I know when to use them?</a><li><a href="#Do-I-always%2fnever-have-to-quote-my-strings-or-use-semicolons-and-commas%3f">Do I always/never have to quote my strings or use semicolons and commas?</a><li><a href="#How-do-I-skip-some-return-values%3f">How do I skip some return values?</a><li><a href="#How-do-I-temporarily-block-warnings%3f">How do I temporarily block warnings?</a><li><a href="#What's-an-extension%3f">What's an extension?</a><li><a href="#Why-do-Perl-operators-have-different-precedence-than-C-operators%3f">Why do Perl operators have different precedence than C operators?</a><li><a href="#How-do-I-declare%2fcreate-a-structure%3f">How do I declare/create a structure?</a><li><a href="#How-do-I-create-a-module%3f">How do I create a module?</a><li><a href="#How-do-I-create-a-class%3f">How do I create a class?</a><li><a href="#How-can-I-tell-if-a-variable-is-tainted%3f">How can I tell if a variable is tainted?</a><li><a href="#What's-a-closure%3f">What's a closure?</a><li><a href="#What-is-variable-suicide-and-how-can-I-prevent-it%3f">What is variable suicide and how can I prevent it?</a><li><a href="#How-can-I-pass%2freturn-a-%7bFunction%2c-FileHandle%2c-Array%2c-Hash%2c-Method%2c-Regex%7d%3f">How can I pass/return a {Function, FileHandle, Array, Hash, Method, Regex}?</a><li><a href="#How-do-I-create-a-static-variable%3f">How do I create a static variable?</a><li><a href="#What's-the-difference-between-dynamic-and-lexical-(static)-scoping%3f--Between-local()-and-my()%3f">What's the difference between dynamic and lexical (static) scoping?  Between local() and my()?</a><li><a href="#How-can-I-access-a-dynamic-variable-while-a-similarly-named-lexical-is-in-scope%3f">How can I access a dynamic variable while a similarly named lexical is in scope?</a><li><a href="#What's-the-difference-between-deep-and-shallow-binding%3f">What's the difference between deep and shallow binding?</a><li><a href="#Why-doesn't-%22my(%24foo)-%3d-%3cFILE%3e%3b%22-work-right%3f">Why doesn't "my($foo) = &lt;FILE&gt;;" work right?</a><li><a href="#How-do-I-redefine-a-builtin-function%2c-operator%2c-or-method%3f">How do I redefine a builtin function, operator, or method?</a><li><a href="#What's-the-difference-between-calling-a-function-as-%26foo-and-foo()%3f">What's the difference between calling a function as &amp;foo and foo()?</a><li><a href="#How-do-I-create-a-switch-or-case-statement%3f">How do I create a switch or case statement?</a><li><a href="#How-can-I-catch-accesses-to-undefined-variables%2c-functions%2c-or-methods%3f">How can I catch accesses to undefined variables, functions, or methods?</a><li><a href="#Why-can't-a-method-included-in-this-same-file-be-found%3f">Why can't a method included in this same file be found?</a><li><a href="#How-can-I-find-out-my-current-package%3f">How can I find out my current package?</a><li><a href="#How-can-I-comment-out-a-large-block-of-perl-code%3f">How can I comment out a large block of perl code?</a><li><a href="#How-do-I-clear-a-package%3f">How do I clear a package?</a><li><a href="#How-can-I-use-a-variable-as-a-variable-name%3f">How can I use a variable as a variable name?</a><li><a href="#What-does-%22bad-interpreter%22-mean%3f">What does "bad interpreter" mean?</a></ul><li><a href="#AUTHOR-AND-COPYRIGHT">AUTHOR AND COPYRIGHT</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perlfaq7 - General Perl Language Issues ($Revision: 1.28 $, $Date: 2005/12/31 00:54:37 $)</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>This section deals with general Perl language issues that don't
+clearly fit into any of the other sections.</p>
+<a name="Can-I-get-a-BNF%2fyacc%2fRE-for-the-Perl-language%3f"></a><h2>Can I get a BNF/yacc/RE for the Perl language?</h2>
+<p>There is no BNF, but you can paw your way through the yacc grammar in
+perly.y in the source distribution if you're particularly brave.  The
+grammar relies on very smart tokenizing code, so be prepared to
+venture into toke.c as well.</p>
+<p>In the words of Chaim Frenkel: "Perl's grammar can not be reduced to BNF.
+The work of parsing perl is distributed between yacc, the lexer, smoke
+and mirrors."</p>
+<a name="What-are-all-these-%24%40%25%26*-punctuation-signs%2c-and-how-do-I-know-when-to-use-them%3f"></a><h2>What are all these $@%&amp;* punctuation signs, and how do I know when to use them?</h2>
+<p>They are type specifiers, as detailed in <a href="perldata.html">perldata</a>:</p>
+<pre class="verbatim">    $ for scalar values (number, string or reference)
+    @ for arrays
+    % for hashes (associative arrays)
+    &amp; for subroutines (aka functions, procedures, methods)
+    * for all types of that symbol name.  In version 4 you used them like
+      pointers, but in modern perls you can just use references.</pre><p>There are couple of other symbols that you're likely to encounter that aren't
+really type specifiers:</p>
+<pre class="verbatim">    &lt;&gt; are used for inputting a record from a filehandle.
+    \  takes a reference to something.</pre>
+<p>Note that &lt;FILE&gt; is <i>neither</i> the type specifier for files
+nor the name of the handle.  It is the <code class="inline">&lt;&gt;</code>
+ operator applied
+to the handle FILE.  It reads one line (well, record--see
+<a href="perlvar.html#%24%2f">"$/" in perlvar</a>) from the handle FILE in scalar context, or <i>all</i> lines
+in list context.  When performing open, close, or any other operation
+besides <code class="inline">&lt;&gt;</code>
+ on files, or even when talking about the handle, do
+<i>not</i> use the brackets.  These are correct: <code class="inline"><a class="l_k" href="functions/eof.html">eof(FH)</a></code>, <code class="inline"><a class="l_k" href="functions/seek.html">seek</a><span class="s">(</span>FH<span class="cm">,</span> <span class="n">0</span><span class="cm">,</span>
+<span class="n">2</span><span class="s">)</span></code>
+ and "copying from STDIN to FILE".</p>
+<a name="Do-I-always%2fnever-have-to-quote-my-strings-or-use-semicolons-and-commas%3f"></a><h2>Do I always/never have to quote my strings or use semicolons and commas?</h2>
+<p>Normally, a bareword doesn't need to be quoted, but in most cases
+probably should be (and must be under <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="strict.html">strict</a></code>
+).  But a hash key
+consisting of a simple word (that isn't the name of a defined
+subroutine) and the left-hand operand to the <code class="inline"><span class="cm">=&gt;</span></code>
+ operator both
+count as though they were quoted:</p>
+<pre class="verbatim">    This                    is like this
+    ------------            ---------------
+    $foo{line}              $foo{'line'}
+    bar =&gt; stuff            'bar' =&gt; stuff</pre><p>The final semicolon in a block is optional, as is the final comma in a
+list.  Good style (see <a href="perlstyle.html">perlstyle</a>) says to put them in except for
+one-liners:</p>
+<pre class="verbatim">    if <span class="s">(</span><span class="i">$whoops</span><span class="s">)</span> <span class="s">{</span> <a class="l_k" href="functions/exit.html">exit</a> <span class="n">1</span> <span class="s">}</span>
+    <span class="i">@nums</span> = <span class="s">(</span><span class="n">1</span><span class="cm">,</span> <span class="n">2</span><span class="cm">,</span> <span class="n">3</span><span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    if <span class="s">(</span><span class="i">$whoops</span><span class="s">)</span> <span class="s">{</span>
+        <a class="l_k" href="functions/exit.html">exit</a> <span class="n">1</span><span class="sc">;</span>
+    <span class="s">}</span>
+    <span class="i">@lines</span> = <span class="s">(</span>
+	<span class="q">&quot;There Beren came from mountains cold&quot;</span><span class="cm">,</span>
+	<span class="q">&quot;And lost he wandered under leaves&quot;</span><span class="cm">,</span>
+    <span class="s">)</span><span class="sc">;</span></pre>
+<a name="How-do-I-skip-some-return-values%3f"></a><h2>How do I skip some return values?</h2>
+<p>One way is to treat the return values as a list and index into it:</p>
+<pre class="verbatim">        <span class="i">$dir</span> = <span class="s">(</span><a class="l_k" href="functions/getpwnam.html">getpwnam</a><span class="s">(</span><span class="i">$user</span><span class="s">)</span><span class="s">)</span>[<span class="n">7</span>]<span class="sc">;</span></pre>
+<p>Another way is to use undef as an element on the left-hand-side:</p>
+<pre class="verbatim">    <span class="s">(</span><span class="i">$dev</span><span class="cm">,</span> <span class="i">$ino</span><span class="cm">,</span> <a class="l_k" href="functions/undef.html">undef</a><span class="cm">,</span> <a class="l_k" href="functions/undef.html">undef</a><span class="cm">,</span> <span class="i">$uid</span><span class="cm">,</span> <span class="i">$gid</span><span class="s">)</span> = <a class="l_k" href="functions/stat.html">stat</a><span class="s">(</span><span class="i">$file</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>You can also use a list slice to select only the elements that
+you need:</p>
+<pre class="verbatim">	<span class="s">(</span><span class="i">$dev</span><span class="cm">,</span> <span class="i">$ino</span><span class="cm">,</span> <span class="i">$uid</span><span class="cm">,</span> <span class="i">$gid</span><span class="s">)</span> = <span class="s">(</span> <a class="l_k" href="functions/stat.html">stat</a><span class="s">(</span><span class="i">$file</span><span class="s">)</span> <span class="s">)</span>[<span class="n">0</span><span class="cm">,</span><span class="n">1</span><span class="cm">,</span><span class="n">4</span><span class="cm">,</span><span class="n">5</span>]<span class="sc">;</span></pre>
+<a name="How-do-I-temporarily-block-warnings%3f"></a><h2>How do I temporarily block warnings?</h2>
+<p>If you are running Perl 5.6.0 or better, the <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="warnings.html">warnings</a></code>
+ pragma
+allows fine control of what warning are produced.
+See <a href="perllexwarn.html">perllexwarn</a> for more details.</p>
+<pre class="verbatim">    <span class="s">{</span>
+	<a class="l_k" href="functions/no.html">no</a> <a class="l_w" href="warnings.html">warnings</a><span class="sc">;</span>          <span class="c"># temporarily turn off warnings</span>
+	<span class="i">$a</span> = <span class="i">$b</span> + <span class="i">$c</span><span class="sc">;</span>         <span class="c"># I know these might be undef</span>
+    <span class="s">}</span></pre>
+<p>Additionally, you can enable and disable categories of warnings.
+You turn off the categories you want to ignore and you can still
+get other categories of warnings.  See <a href="perllexwarn.html">perllexwarn</a> for the
+complete details, including the category names and hierarchy.</p>
+<pre class="verbatim">	<span class="s">{</span>
+	<a class="l_k" href="functions/no.html">no</a> <a class="l_w" href="warnings.html">warnings</a> <span class="q">&#39;uninitialized&#39;</span><span class="sc">;</span>
+	<span class="i">$a</span> = <span class="i">$b</span> + <span class="i">$c</span><span class="sc">;</span>
+	<span class="s">}</span></pre>
+<p>If you have an older version of Perl, the <code class="inline"><span class="i">$^W</span></code>
+ variable (documented
+in <a href="perlvar.html">perlvar</a>) controls runtime warnings for a block:</p>
+<pre class="verbatim">    <span class="s">{</span>
+	<a class="l_k" href="functions/local.html">local</a> <span class="i">$^W</span> = <span class="n">0</span><span class="sc">;</span>        <span class="c"># temporarily turn off warnings</span>
+	<span class="i">$a</span> = <span class="i">$b</span> + <span class="i">$c</span><span class="sc">;</span>         <span class="c"># I know these might be undef</span>
+    <span class="s">}</span></pre>
+<p>Note that like all the punctuation variables, you cannot currently
+use my() on <code class="inline"><span class="i">$^W</span></code>
+, only local().</p>
+<a name="What's-an-extension%3f"></a><h2>What's an extension?</h2>
+<p>An extension is a way of calling compiled C code from Perl.  Reading
+<a href="perlxstut.html">perlxstut</a> is a good place to learn more about extensions.</p>
+<a name="Why-do-Perl-operators-have-different-precedence-than-C-operators%3f"></a><h2>Why do Perl operators have different precedence than C operators?</h2>
+<p>Actually, they don't.  All C operators that Perl copies have the same
+precedence in Perl as they do in C.  The problem is with operators that C
+doesn't have, especially functions that give a list context to everything
+on their right, eg. print, chmod, exec, and so on.  Such functions are
+called "list operators" and appear as such in the precedence table in
+<a href="perlop.html">perlop</a>.</p>
+<p>A common mistake is to write:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/unlink.html">unlink</a> <span class="i">$file</span> || <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;snafu&quot;</span><span class="sc">;</span></pre>
+<p>This gets interpreted as:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/unlink.html">unlink</a> <span class="s">(</span><span class="i">$file</span> || <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;snafu&quot;</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>To avoid this problem, either put in extra parentheses or use the
+super low precedence <code class="inline">or</code>
+ operator:</p>
+<pre class="verbatim">    <span class="s">(</span><a class="l_k" href="functions/unlink.html">unlink</a> <span class="i">$file</span><span class="s">)</span> || <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;snafu&quot;</span><span class="sc">;</span>
+    <a class="l_k" href="functions/unlink.html">unlink</a> <span class="i">$file</span> or <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;snafu&quot;</span><span class="sc">;</span></pre>
+<p>The "English" operators (<code class="inline">and</code>
+, <code class="inline">or</code>
+, <code class="inline">xor</code>
+, and <code class="inline">not</code>
+)
+deliberately have precedence lower than that of list operators for
+just such situations as the one above.</p>
+<p>Another operator with surprising precedence is exponentiation.  It
+binds more tightly even than unary minus, making <code class="inline"><span class="n">-2</span>**<span class="n">2</span></code>
+ product a
+negative not a positive four.  It is also right-associating, meaning
+that <code class="inline"><span class="n">2</span>**<span class="n">3</span>**<span class="n">2</span></code>
+ is two raised to the ninth power, not eight squared.</p>
+<p>Although it has the same precedence as in C, Perl's <code class="inline">?:</code> operator
+produces an lvalue.  This assigns $x to either $a or $b, depending
+on the trueness of $maybe:</p>
+<pre class="verbatim">    <span class="s">(</span><span class="i">$maybe</span> ? <span class="i">$a</span> <span class="co">:</span> <span class="i">$b</span><span class="s">)</span> = <span class="i">$x</span><span class="sc">;</span></pre>
+<a name="How-do-I-declare%2fcreate-a-structure%3f"></a><h2>How do I declare/create a structure?</h2>
+<p>In general, you don't "declare" a structure.  Just use a (probably
+anonymous) hash reference.  See <a href="perlref.html">perlref</a> and <a href="perldsc.html">perldsc</a> for details.
+Here's an example:</p>
+<pre class="verbatim">    <span class="i">$person</span> = <span class="s">{</span><span class="s">}</span><span class="sc">;</span>                   <span class="c"># new anonymous hash</span>
+    <span class="i">$person</span>-&gt;{AGE}  = <span class="n">24</span><span class="sc">;</span>           <span class="c"># set field AGE to 24</span>
+    <span class="i">$person</span>-&gt;{NAME} = <span class="q">&quot;Nat&quot;</span><span class="sc">;</span>        <span class="c"># set field NAME to &quot;Nat&quot;</span></pre>
+<p>If you're looking for something a bit more rigorous, try <a href="perltoot.html">perltoot</a>.</p>
+<a name="How-do-I-create-a-module%3f"></a><h2>How do I create a module?</h2>
+<p>(contributed by brian d foy)</p>
+<p><a href="perlmod.html">perlmod</a>, <a href="perlmodlib.html">perlmodlib</a>, <a href="perlmodstyle.html">perlmodstyle</a> explain modules
+in all the gory details. <a href="perlnewmod.html">perlnewmod</a> gives a brief
+overview of the process along with a couple of suggestions
+about style.</p>
+<p>If you need to include C code or C library interfaces in
+your module, you'll need h2xs.  h2xs will create the module
+distribution structure and the initial interface files
+you'll need.  <a href="perlxs.html">perlxs</a> and <a href="perlxstut.html">perlxstut</a> explain the details.</p>
+<p>If you don't need to use C code, other tools such as
+ExtUtils::ModuleMaker and Module::Starter, can help you
+create a skeleton module distribution.</p>
+<p>You may also want to see Sam Tregar's "Writing Perl Modules
+for CPAN" ( <a href="http://apress.com/book/bookDisplay.html?bID=14">http://apress.com/book/bookDisplay.html?bID=14</a> )
+which is the best hands-on guide to creating module
+distributions.</p>
+<a name="How-do-I-create-a-class%3f"></a><h2>How do I create a class?</h2>
+<p>See <a href="perltoot.html">perltoot</a> for an introduction to classes and objects, as well as
+<a href="perlobj.html">perlobj</a> and <a href="perlbot.html">perlbot</a>.</p>
+<a name="How-can-I-tell-if-a-variable-is-tainted%3f"></a><h2>How can I tell if a variable is tainted?</h2>
+<p>You can use the tainted() function of the Scalar::Util module, available
+from CPAN (or included with Perl since release 5.8.0).
+See also <a href="perlsec.html#Laundering-and-Detecting-Tainted-Data">"Laundering and Detecting Tainted Data" in perlsec</a>.</p>
+<a name="What's-a-closure%3f"></a><h2>What's a closure?</h2>
+<p>Closures are documented in <a href="perlref.html">perlref</a>.</p>
+<p><i>Closure</i> is a computer science term with a precise but
+hard-to-explain meaning. Closures are implemented in Perl as anonymous
+subroutines with lasting references to lexical variables outside their
+own scopes.  These lexicals magically refer to the variables that were
+around when the subroutine was defined (deep binding).</p>
+<p>Closures make sense in any programming language where you can have the
+return value of a function be itself a function, as you can in Perl.
+Note that some languages provide anonymous functions but are not
+capable of providing proper closures: the Python language, for
+example.  For more information on closures, check out any textbook on
+functional programming.  Scheme is a language that not only supports
+but encourages closures.</p>
+<p>Here's a classic function-generating function:</p>
+<pre class="verbatim"><a name="add_function_generator"></a>    sub <span class="m">add_function_generator</span> <span class="s">{</span>
+      <a class="l_k" href="functions/return.html">return</a> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <a class="l_k" href="functions/shift.html">shift</a><span class="s">(</span><span class="s">)</span> + <a class="l_k" href="functions/shift.html">shift</a><span class="s">(</span><span class="s">)</span> <span class="s">}</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    <span class="i">$add_sub</span> = <span class="i">add_function_generator</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    <span class="i">$sum</span> = <span class="i">$add_sub</span>-&gt;<span class="s">(</span><span class="n">4</span><span class="cm">,</span><span class="n">5</span><span class="s">)</span><span class="sc">;</span>                <span class="c"># $sum is 9 now.</span></pre>
+<p>The closure works as a <i>function template</i> with some customization
+slots left out to be filled later.  The anonymous subroutine returned
+by add_function_generator() isn't technically a closure because it
+refers to no lexicals outside its own scope.</p>
+<p>Contrast this with the following make_adder() function, in which the
+returned anonymous function contains a reference to a lexical variable
+outside the scope of that function itself.  Such a reference requires
+that Perl return a proper closure, thus locking in for all time the
+value that the lexical had when the function was created.</p>
+<pre class="verbatim"><a name="make_adder"></a>    sub <span class="m">make_adder</span> <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$addpiece</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+        <a class="l_k" href="functions/return.html">return</a> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <a class="l_k" href="functions/shift.html">shift</a><span class="s">(</span><span class="s">)</span> + <span class="i">$addpiece</span> <span class="s">}</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    <span class="i">$f1</span> = <span class="i">make_adder</span><span class="s">(</span><span class="n">20</span><span class="s">)</span><span class="sc">;</span>
+    <span class="i">$f2</span> = <span class="i">make_adder</span><span class="s">(</span><span class="n">555</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Now <code class="inline"><span class="i">&amp;$f1</span><span class="s">(</span><span class="i">$n</span><span class="s">)</span></code>
+ is always 20 plus whatever $n you pass in, whereas
+<code class="inline"><span class="i">&amp;$f2</span><span class="s">(</span><span class="i">$n</span><span class="s">)</span></code>
+ is always 555 plus whatever $n you pass in.  The $addpiece
+in the closure sticks around.</p>
+<p>Closures are often used for less esoteric purposes.  For example, when
+you want to pass in a bit of code into a function:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$line</span><span class="sc">;</span>
+    <span class="i">timeout</span><span class="s">(</span> <span class="n">30</span><span class="cm">,</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <span class="i">$line</span> = <span class="q">&lt;STDIN&gt;</span> <span class="s">}</span> <span class="s">)</span><span class="sc">;</span></pre>
+<p>If the code to execute had been passed in as a string,
+<code class="inline"><span class="q">&#39;$line = &lt;STDIN&gt;&#39;</span></code>
+, there would have been no way for the
+hypothetical timeout() function to access the lexical variable
+$line back in its caller's scope.</p>
+<a name="What-is-variable-suicide-and-how-can-I-prevent-it%3f"></a><h2>What is variable suicide and how can I prevent it?</h2>
+<p>This problem was fixed in perl 5.004_05, so preventing it means upgrading
+your version of perl. ;)</p>
+<p>Variable suicide is when you (temporarily or permanently) lose the value
+of a variable.  It is caused by scoping through my() and local()
+interacting with either closures or aliased foreach() iterator variables
+and subroutine arguments.  It used to be easy to inadvertently lose a
+variable's value this way, but now it's much harder.  Take this code:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$f</span> = <span class="q">&#39;foo&#39;</span><span class="sc">;</span>
+<a name="T"></a>    sub <span class="m">T</span> <span class="s">{</span>
+      while <span class="s">(</span><span class="i">$i</span>++ &lt; <span class="n">3</span><span class="s">)</span> <span class="s">{</span> <a class="l_k" href="functions/my.html">my</a> <span class="i">$f</span> = <span class="i">$f</span><span class="sc">;</span> <span class="i">$f</span> .= <span class="i">$i</span><span class="sc">;</span> <a class="l_k" href="functions/print.html">print</a> <span class="i">$f</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span> <span class="s">}</span>
+    <span class="s">}</span>
+    <span class="i">T</span><span class="sc">;</span>
+    <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Finally $f\n&quot;</span><span class="sc">;</span></pre>
+<p>If you are experiencing variable suicide, that <code class="inline"><a class="l_k" href="functions/my.html">my</a> <span class="i">$f</span></code>
+ in the subroutine
+doesn't pick up a fresh copy of the <code class="inline"><span class="i">$f</span></code>
+ whose value is &lt;foo&gt;. The output
+shows that inside the subroutine the value of <code class="inline"><span class="i">$f</span></code>
+ leaks through when it
+shouldn't, as in this output:</p>
+<pre class="verbatim">	foobar
+	foobarbar
+	foobarbarbar
+	Finally foo</pre>
+<p>The $f that has "bar" added to it three times should be a new <code class="inline"><span class="i">$f</span></code>
+
+<code class="inline"><a class="l_k" href="functions/my.html">my</a> <span class="i">$f</span></code>
+ should create a new lexical variable each time through the loop.
+The expected output is:</p>
+<pre class="verbatim">	foobar
+	foobar
+	foobar
+	Finally foo</pre>
+<a name="How-can-I-pass%2freturn-a-%7bFunction%2c-FileHandle%2c-Array%2c-Hash%2c-Method%2c-Regex%7d%3f"></a><h2>How can I pass/return a {Function, FileHandle, Array, Hash, Method, Regex}?</h2>
+<p>With the exception of regexes, you need to pass references to these
+objects.  See <a href="perlsub.html#Pass-by-Reference">"Pass by Reference" in perlsub</a> for this particular
+question, and <a href="perlref.html">perlref</a> for information on references.</p>
+<p>See "Passing Regexes", below, for information on passing regular
+expressions.</p>
+<ul>
+<li><a name="Passing-Variables-and-Functions"></a><b>Passing Variables and Functions</b>
+<p>Regular variables and functions are quite easy to pass: just pass in a
+reference to an existing or anonymous variable or function:</p>
+<pre class="verbatim">    <span class="i">func</span><span class="s">(</span> \<span class="i">$some_scalar</span> <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">func</span><span class="s">(</span> \<span class="i">@some_array</span>  <span class="s">)</span><span class="sc">;</span>
+    <span class="i">func</span><span class="s">(</span> <span class="s">[</span> <span class="n">1</span> .. <span class="n">10</span> <span class="s">]</span>   <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">func</span><span class="s">(</span> \<span class="i">%some_hash</span>   <span class="s">)</span><span class="sc">;</span>
+    <span class="i">func</span><span class="s">(</span> <span class="s">{</span> this <span class="cm">=&gt;</span> <span class="n">10</span><span class="cm">,</span> that <span class="cm">=&gt;</span> <span class="n">20</span> <span class="s">}</span>   <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">func</span><span class="s">(</span> \<span class="i">&amp;some_func</span>   <span class="s">)</span><span class="sc">;</span>
+    <span class="i">func</span><span class="s">(</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <span class="i">$_</span>[<span class="n">0</span>] ** <span class="i">$_</span>[<span class="n">1</span>] <span class="s">}</span>   <span class="s">)</span><span class="sc">;</span></pre>
+</li>
+<li><a name="Passing-Filehandles"></a><b>Passing Filehandles</b>
+<p>As of Perl 5.6, you can represent filehandles with scalar variables
+which you treat as any other scalar.</p>
+<pre class="verbatim">	<a class="l_k" href="functions/open.html">open</a> <a class="l_k" href="functions/my.html">my</a> <span class="i">$fh</span><span class="cm">,</span> <span class="i">$filename</span> or <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Cannot open $filename! $!&quot;</span><span class="sc">;</span>
+	<span class="i">func</span><span class="s">(</span> <span class="i">$fh</span> <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">	sub func {
+		my $passed_fh = shift;</pre><pre class="verbatim">		my $line = &lt;$fh&gt;;
+		}</pre><p>Before Perl 5.6, you had to use the <code class="inline"><span class="i">*FH</span></code>
+ or <code class="inline">\<span class="i">*FH</span></code>
+ notations.
+These are "typeglobs"--see <a href="perldata.html#Typeglobs-and-Filehandles">"Typeglobs and Filehandles" in perldata</a>
+and especially <a href="perlsub.html#Pass-by-Reference">"Pass by Reference" in perlsub</a> for more information.</p>
+</li>
+<li><a name="Passing-Regexes"></a><b>Passing Regexes</b>
+<p>To pass regexes around, you'll need to be using a release of Perl
+sufficiently recent as to support the <code class="inline"><a class="l_k" href="functions/qr.html">qr//</a></code> construct, pass around
+strings and use an exception-trapping eval, or else be very, very clever.</p>
+<p>Here's an example of how to pass in a string to be regex compared
+using <code class="inline"><a class="l_k" href="functions/qr.html">qr//</a></code>:</p>
+<pre class="verbatim"><a name="compare"></a>    sub <span class="m">compare($$)</span> <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="s">(</span><span class="i">$val1</span><span class="cm">,</span> <span class="i">$regex</span><span class="s">)</span> = <span class="i">@_</span><span class="sc">;</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$retval</span> = <span class="i">$val1</span> =~ <span class="q">/$regex/</span><span class="sc">;</span>
+	<a class="l_k" href="functions/return.html">return</a> <span class="i">$retval</span><span class="sc">;</span>
+    <span class="s">}</span>
+    <span class="i">$match</span> = <span class="i">compare</span><span class="s">(</span><span class="q">&quot;old McDonald&quot;</span><span class="cm">,</span> <span class="q">qr/d.*D/i</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Notice how <code class="inline"><a class="l_k" href="functions/qr.html">qr//</a></code> allows flags at the end.  That pattern was compiled
+at compile time, although it was executed later.  The nifty <code class="inline"><a class="l_k" href="functions/qr.html">qr//</a></code>
+notation wasn't introduced until the 5.005 release.  Before that, you
+had to approach this problem much less intuitively.  For example, here
+it is again if you don't have <code class="inline"><a class="l_k" href="functions/qr.html">qr//</a></code>:</p>
+<pre class="verbatim"><a name="compare"></a>    sub <span class="m">compare($$)</span> <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="s">(</span><span class="i">$val1</span><span class="cm">,</span> <span class="i">$regex</span><span class="s">)</span> = <span class="i">@_</span><span class="sc">;</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$retval</span> = <a class="l_k" href="functions/eval.html">eval</a> <span class="s">{</span> <span class="i">$val1</span> =~ <span class="q">/$regex/</span> <span class="s">}</span><span class="sc">;</span>
+	<a class="l_k" href="functions/die.html">die</a> if <span class="i">$@</span><span class="sc">;</span>
+	<a class="l_k" href="functions/return.html">return</a> <span class="i">$retval</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    <span class="i">$match</span> = <span class="i">compare</span><span class="s">(</span><span class="q">&quot;old McDonald&quot;</span><span class="cm">,</span> <span class="q">q/($?i)d.*D/</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Make sure you never say something like this:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/return.html">return</a> <a class="l_k" href="functions/eval.html">eval</a> <span class="q">&quot;\$val =~ /$regex/&quot;</span><span class="sc">;</span>   <span class="c"># WRONG</span></pre>
+<p>or someone can sneak shell escapes into the regex due to the double
+interpolation of the eval and the double-quoted string.  For example:</p>
+<pre class="verbatim">    <span class="i">$pattern_of_evil</span> = <span class="q">&#39;danger ${ system(&quot;rm -rf * &amp;&quot;) } danger&#39;</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/eval.html">eval</a> <span class="q">&quot;\$string =~ /$pattern_of_evil/&quot;</span><span class="sc">;</span></pre>
+<p>Those preferring to be very, very clever might see the O'Reilly book,
+<i>Mastering Regular Expressions</i>, by Jeffrey Friedl.  Page 273's
+Build_MatchMany_Function() is particularly interesting.  A complete
+citation of this book is given in <a href="perlfaq2.html">perlfaq2</a>.</p>
+</li>
+<li><a name="Passing-Methods"></a><b>Passing Methods</b>
+<p>To pass an object method into a subroutine, you can do this:</p>
+<pre class="verbatim">    call_a_lot(10, $some_obj, "methname")
+    sub call_a_lot {
+        my ($count, $widget, $trick) = @_;
+        for (my $i = 0; $i &lt; $count; $i++) {
+            $widget-&gt;$trick();
+        }
+    }</pre><p>Or, you can use a closure to bundle up the object, its
+method call, and arguments:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$whatnot</span> =  <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <span class="i">$some_obj</span><span class="i">-&gt;obfuscate</span><span class="s">(</span><span class="i">@args</span><span class="s">)</span> <span class="s">}</span><span class="sc">;</span>
+    <span class="i">func</span><span class="s">(</span><span class="i">$whatnot</span><span class="s">)</span><span class="sc">;</span>
+<a name="func"></a>    sub <span class="m">func</span> <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$code</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+        <span class="i">&amp;$code</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>You could also investigate the can() method in the UNIVERSAL class
+(part of the standard perl distribution).</p>
+</li>
+</ul>
+<a name="How-do-I-create-a-static-variable%3f"></a><h2>How do I create a static variable?</h2>
+<p>(contributed by brian d foy)</p>
+<p>Perl doesn't have "static" variables, which can only be accessed from
+the function in which they are declared. You can get the same effect
+with lexical variables, though.</p>
+<p>You can fake a static variable by using a lexical variable which goes
+out of scope. In this example, you define the subroutine <code class="inline">counter</code>
+, and
+it uses the lexical variable <code class="inline"><span class="i">$count</span></code>
+. Since you wrap this in a BEGIN
+block, <code class="inline"><span class="i">$count</span></code>
+ is defined at compile-time, but also goes out of
+scope at the end of the BEGIN block. The BEGIN block also ensures that
+the subroutine and the value it uses is defined at compile-time so the
+subroutine is ready to use just like any other subroutine, and you can
+put this code in the same place as other subroutines in the program
+text (i.e. at the end of the code, typically). The subroutine
+<code class="inline">counter</code>
+ still has a reference to the data, and is the only way you
+can access the value (and each time you do, you increment the value).
+The data in chunk of memory defined by <code class="inline"><span class="i">$count</span></code>
+ is private to
+<code class="inline">counter</code>
+.</p>
+<pre class="verbatim">    BEGIN <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$count</span> = <span class="n">1</span><span class="sc">;</span>
+<a name="counter"></a>        sub <span class="m">counter</span> <span class="s">{</span> <span class="i">$count</span>++ <span class="s">}</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$start</span> = <span class="i">count</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    .... # code that calls count();</pre><pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$end</span> = <span class="i">count</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>In the previous example, you created a function-private variable
+because only one function remembered its reference. You could define
+multiple functions while the variable is in scope, and each function
+can share the "private" variable. It's not really "static" because you
+can access it outside the function while the lexical variable is in
+scope, and even create references to it. In this example,
+<code class="inline">increment_count</code>
+ and <code class="inline">return_count</code>
+ share the variable. One
+function adds to the value and the other simply returns the value.
+They can both access <code class="inline"><span class="i">$count</span></code>
+, and since it has gone out of scope,
+there is no other way to access it.</p>
+<pre class="verbatim">    BEGIN <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$count</span> = <span class="n">1</span><span class="sc">;</span>
+<a name="increment_count"></a>        sub <span class="m">increment_count</span> <span class="s">{</span> <span class="i">$count</span>++ <span class="s">}</span>
+<a name="return_count"></a>        sub <span class="m">return_count</span>    <span class="s">{</span> <span class="i">$count</span> <span class="s">}</span>
+    <span class="s">}</span></pre>
+<p>To declare a file-private variable, you still use a lexical variable.
+A file is also a scope, so a lexical variable defined in the file
+cannot be seen from any other file.</p>
+<p>See <a href="perlsub.html#Persistent-Private-Variables">"Persistent Private Variables" in perlsub</a> for more information.
+The discussion of closures in <a href="perlref.html">perlref</a> may help you even though we
+did not use anonymous subroutines in this answer. See
+<a href="perlsub.html#Persistent-Private-Variables">"Persistent Private Variables" in perlsub</a> for details.</p>
+<a name="What's-the-difference-between-dynamic-and-lexical-(static)-scoping%3f--Between-local()-and-my()%3f"></a><h2>What's the difference between dynamic and lexical (static) scoping?  Between local() and my()?</h2>
+<p><code class="inline"><a class="l_k" href="functions/local.html">local($x)</a></code> saves away the old value of the global variable <code class="inline"><span class="i">$x</span></code>
+
+and assigns a new value for the duration of the subroutine <i>which is
+visible in other functions called from that subroutine</i>.  This is done
+at run-time, so is called dynamic scoping.  local() always affects global
+variables, also called package variables or dynamic variables.</p>
+<p><code class="inline"><a class="l_k" href="functions/my.html">my($x)</a></code> creates a new variable that is only visible in the current
+subroutine.  This is done at compile-time, so it is called lexical or
+static scoping.  my() always affects private variables, also called
+lexical variables or (improperly) static(ly scoped) variables.</p>
+<p>For instance:</p>
+<pre class="verbatim"><a name="visible"></a>    sub <span class="m">visible</span> <span class="s">{</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;var has value $var\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim"><a name="dynamic"></a>    sub <span class="m">dynamic</span> <span class="s">{</span>
+	<a class="l_k" href="functions/local.html">local</a> <span class="i">$var</span> = <span class="q">&#39;local&#39;</span><span class="sc">;</span>	<span class="c"># new temporary value for the still-global</span>
+	<span class="i">visible</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>              <span class="c">#   variable called $var</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim"><a name="lexical"></a>    sub <span class="m">lexical</span> <span class="s">{</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$var</span> = <span class="q">&#39;private&#39;</span><span class="sc">;</span>    <span class="c"># new private variable, $var</span>
+	<span class="i">visible</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>              <span class="c"># (invisible outside of sub scope)</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    <span class="i">$var</span> = <span class="q">&#39;global&#39;</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">visible</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>      		<span class="c"># prints global</span>
+    <span class="i">dynamic</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>      		<span class="c"># prints local</span>
+    <span class="i">lexical</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>      		<span class="c"># prints global</span></pre>
+<p>Notice how at no point does the value "private" get printed.  That's
+because $var only has that value within the block of the lexical()
+function, and it is hidden from called subroutine.</p>
+<p>In summary, local() doesn't make what you think of as private, local
+variables.  It gives a global variable a temporary value.  my() is
+what you're looking for if you want private variables.</p>
+<p>See <a href="perlsub.html#Private-Variables-via-my()">"Private Variables via my()" in perlsub</a> and
+<a href="perlsub.html#Temporary-Values-via-local()">"Temporary Values via local()" in perlsub</a> for excruciating details.</p>
+<a name="How-can-I-access-a-dynamic-variable-while-a-similarly-named-lexical-is-in-scope%3f"></a><h2>How can I access a dynamic variable while a similarly named lexical is in scope?</h2>
+<p>If you know your package, you can just mention it explicitly, as in
+$Some_Pack::var. Note that the notation $::var is <b>not</b> the dynamic $var
+in the current package, but rather the one in the "main" package, as
+though you had written $main::var.</p>
+<pre class="verbatim">	<a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="vars.html">vars</a> <span class="q">&#39;$var&#39;</span><span class="sc">;</span>
+	<a class="l_k" href="functions/local.html">local</a> <span class="i">$var</span> = <span class="q">&quot;global&quot;</span><span class="sc">;</span>
+	<a class="l_k" href="functions/my.html">my</a>    <span class="i">$var</span> = <span class="q">&quot;lexical&quot;</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;lexical is $var\n&quot;</span><span class="sc">;</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;global  is $main::var\n&quot;</span><span class="sc">;</span></pre>
+<p>Alternatively you can use the compiler directive our() to bring a
+dynamic variable into the current lexical scope.</p>
+<pre class="verbatim">	<a class="l_k" href="functions/require.html">require</a> <span class="n">5.006</span><span class="sc">;</span> <span class="c"># our() did not exist before 5.6</span>
+	<a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="vars.html">vars</a> <span class="q">&#39;$var&#39;</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/local.html">local</a> <span class="i">$var</span> = <span class="q">&quot;global&quot;</span><span class="sc">;</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$var</span>    = <span class="q">&quot;lexical&quot;</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;lexical is $var\n&quot;</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="s">{</span>
+	  <a class="l_k" href="functions/our.html">our</a> <span class="i">$var</span><span class="sc">;</span>
+	  <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;global  is $var\n&quot;</span><span class="sc">;</span>
+	<span class="s">}</span></pre>
+<a name="What's-the-difference-between-deep-and-shallow-binding%3f"></a><h2>What's the difference between deep and shallow binding?</h2>
+<p>In deep binding, lexical variables mentioned in anonymous subroutines
+are the same ones that were in scope when the subroutine was created.
+In shallow binding, they are whichever variables with the same names
+happen to be in scope when the subroutine is called.  Perl always uses
+deep binding of lexical variables (i.e., those created with my()).
+However, dynamic variables (aka global, local, or package variables)
+are effectively shallowly bound.  Consider this just one more reason
+not to use them.  See the answer to <a href="#What's-a-closure%3f">"What's a closure?"</a>.</p>
+<a name="Why-doesn't-%22my(%24foo)-%3d-%3cFILE%3e%3b%22-work-right%3f"></a><h2>Why doesn't "my($foo) = &lt;FILE&gt;;" work right?</h2>
+<p><code class="inline"><a class="l_k" href="functions/my.html">my()</a></code> and <code class="inline"><a class="l_k" href="functions/local.html">local()</a></code> give list context to the right hand side
+of <code class="inline">=</code>
+.  The &lt;FH&gt; read operation, like so many of Perl's
+functions and operators, can tell which context it was called in and
+behaves appropriately.  In general, the scalar() function can help.
+This function does nothing to the data itself (contrary to popular myth)
+but rather tells its argument to behave in whatever its scalar fashion is.
+If that function doesn't have a defined scalar behavior, this of course
+doesn't help you (such as with sort()).</p>
+<p>To enforce scalar context in this particular case, however, you need
+merely omit the parentheses:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/local.html">local</a><span class="s">(</span><span class="i">$foo</span><span class="s">)</span> = <span class="q">&lt;FILE&gt;</span><span class="sc">;</span>	    <span class="c"># WRONG</span>
+    <a class="l_k" href="functions/local.html">local</a><span class="s">(</span><span class="i">$foo</span><span class="s">)</span> = <a class="l_k" href="functions/scalar.html">scalar</a><span class="s">(</span><span class="q">&lt;FILE&gt;</span><span class="s">)</span><span class="sc">;</span>   <span class="c"># ok</span>
+    <a class="l_k" href="functions/local.html">local</a> <span class="i">$foo</span>  = <span class="q">&lt;FILE&gt;</span><span class="sc">;</span>	    <span class="c"># right</span></pre>
+<p>You should probably be using lexical variables anyway, although the
+issue is the same here:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a><span class="s">(</span><span class="i">$foo</span><span class="s">)</span> = <span class="q">&lt;FILE&gt;</span><span class="sc">;</span>	<span class="c"># WRONG</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$foo</span>  = <span class="q">&lt;FILE&gt;</span><span class="sc">;</span>	<span class="c"># right</span></pre>
+<a name="How-do-I-redefine-a-builtin-function%2c-operator%2c-or-method%3f"></a><h2>How do I redefine a builtin function, operator, or method?</h2>
+<p>Why do you want to do that? :-)</p>
+<p>If you want to override a predefined function, such as open(),
+then you'll have to import the new definition from a different
+module.  See <a href="perlsub.html#Overriding-Built-in-Functions">"Overriding Built-in Functions" in perlsub</a>.  There's
+also an example in <a href="perltoot.html#Class%3a%3aTemplate">"Class::Template" in perltoot</a>.</p>
+<p>If you want to overload a Perl operator, such as <code class="inline">+</code>
+ or <code class="inline"><span class="i">**</span></code>
+,
+then you'll want to use the <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="overload.html">overload</a></code>
+ pragma, documented
+in <a href="overload.html">overload</a>.</p>
+<p>If you're talking about obscuring method calls in parent classes,
+see <a href="perltoot.html#Overridden-Methods">"Overridden Methods" in perltoot</a>.</p>
+<a name="What's-the-difference-between-calling-a-function-as-%26foo-and-foo()%3f"></a><h2>What's the difference between calling a function as &amp;foo and foo()?</h2>
+<p>When you call a function as <code class="inline"><span class="i">&amp;foo</span></code>
+, you allow that function access to
+your current @_ values, and you bypass prototypes.
+The function doesn't get an empty @_--it gets yours!  While not
+strictly speaking a bug (it's documented that way in <a href="perlsub.html">perlsub</a>), it
+would be hard to consider this a feature in most cases.</p>
+<p>When you call your function as <code class="inline"><span class="i">&amp;foo</span><span class="s">(</span><span class="s">)</span></code>
+, then you <i>do</i> get a new @_,
+but prototyping is still circumvented.</p>
+<p>Normally, you want to call a function using <code class="inline"><span class="i">foo</span><span class="s">(</span><span class="s">)</span></code>
+.  You may only
+omit the parentheses if the function is already known to the compiler
+because it already saw the definition (<code class="inline"><a class="l_k" href="functions/use.html">use</a></code> but not <code class="inline"><a class="l_k" href="functions/require.html">require</a></code>),
+or via a forward reference or <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="subs.html">subs</a></code>
+ declaration.  Even in this
+case, you get a clean @_ without any of the old values leaking through
+where they don't belong.</p>
+<a name="How-do-I-create-a-switch-or-case-statement%3f"></a><h2>How do I create a switch or case statement?</h2>
+<p>This is explained in more depth in the <a href="perlsyn.html">perlsyn</a>.  Briefly, there's
+no official case statement, because of the variety of tests possible
+in Perl (numeric comparison, string comparison, glob comparison,
+regex matching, overloaded comparisons, ...).
+Larry couldn't decide how best to do this, so he left it out, even
+though it's been on the wish list since perl1.</p>
+<p>Starting from Perl 5.8 to get switch and case one can use the
+Switch extension and say:</p>
+<pre class="verbatim">	<a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="Switch.html">Switch</a><span class="sc">;</span></pre>
+<p>after which one has switch and case.  It is not as fast as it could be
+because it's not really part of the language (it's done using source
+filters) but it is available, and it's very flexible.</p>
+<p>But if one wants to use pure Perl, the general answer is to write a
+construct like this:</p>
+<pre class="verbatim">    for <span class="s">(</span><span class="i">$variable_to_test</span><span class="s">)</span> <span class="s">{</span>
+	if    <span class="s">(</span><span class="q">/pat1/</span><span class="s">)</span>  <span class="s">{</span> <span class="s">}</span>     <span class="c"># do something</span>
+	elsif <span class="s">(</span><span class="q">/pat2/</span><span class="s">)</span>  <span class="s">{</span> <span class="s">}</span>     <span class="c"># do something else</span>
+	elsif <span class="s">(</span><span class="q">/pat3/</span><span class="s">)</span>  <span class="s">{</span> <span class="s">}</span>     <span class="c"># do something else</span>
+	else            <span class="s">{</span> <span class="s">}</span>     <span class="c"># default</span>
+    <span class="s">}</span></pre>
+<p>Here's a simple example of a switch based on pattern matching, this
+time lined up in a way to make it look more like a switch statement.
+We'll do a multiway conditional based on the type of reference stored
+in $whatchamacallit:</p>
+<pre class="verbatim">    SWITCH: for (ref $whatchamacallit) {</pre><pre class="verbatim">	<span class="q">/^$/</span>		&amp;&amp; <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;not a reference&quot;</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="q">/SCALAR/</span>	&amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>
+				<span class="i">print_scalar</span><span class="s">(</span><span class="i">$$ref</span><span class="s">)</span><span class="sc">;</span>
+				<a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span>
+			<span class="s">}</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="q">/ARRAY/</span>		&amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>
+				<span class="i">print_array</span><span class="s">(</span><span class="i">@$ref</span><span class="s">)</span><span class="sc">;</span>
+				<a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span>
+			<span class="s">}</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="q">/HASH/</span>		&amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>
+				<span class="i">print_hash</span><span class="s">(</span><span class="i">%$ref</span><span class="s">)</span><span class="sc">;</span>
+				<a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span>
+			<span class="s">}</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="q">/CODE/</span>		&amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>
+				<a class="l_k" href="functions/warn.html">warn</a> <span class="q">&quot;can&#39;t print function ref&quot;</span><span class="sc">;</span>
+				<a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span>
+			<span class="s">}</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="c"># DEFAULT</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/warn.html">warn</a> <span class="q">&quot;User defined type skipped&quot;</span><span class="sc">;</span></pre>
+<pre class="verbatim">    }</pre><p>See <code class="inline">perlsyn/"Basic BLOCKs and Switch Statements"</code> for many other
+examples in this style.</p>
+<p>Sometimes you should change the positions of the constant and the variable.
+For example, let's say you wanted to test which of many answers you were
+given, but in a case-insensitive way that also allows abbreviations.
+You can use the following technique if the strings all start with
+different characters or if you want to arrange the matches so that
+one takes precedence over another, as <code class="inline"><span class="q">&quot;SEND&quot;</span></code>
+ has precedence over
+<code class="inline"><span class="q">&quot;STOP&quot;</span></code>
+ here:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/chomp.html">chomp</a><span class="s">(</span><span class="i">$answer</span> = &lt;&gt;<span class="s">)</span><span class="sc">;</span>
+    if    <span class="s">(</span><span class="q">&quot;SEND&quot;</span>  =~ <span class="q">/^\Q$answer/i</span><span class="s">)</span> <span class="s">{</span> <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Action is send\n&quot;</span>  <span class="s">}</span>
+    elsif <span class="s">(</span><span class="q">&quot;STOP&quot;</span>  =~ <span class="q">/^\Q$answer/i</span><span class="s">)</span> <span class="s">{</span> <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Action is stop\n&quot;</span>  <span class="s">}</span>
+    elsif <span class="s">(</span><span class="q">&quot;ABORT&quot;</span> =~ <span class="q">/^\Q$answer/i</span><span class="s">)</span> <span class="s">{</span> <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Action is abort\n&quot;</span> <span class="s">}</span>
+    elsif <span class="s">(</span><span class="q">&quot;LIST&quot;</span>  =~ <span class="q">/^\Q$answer/i</span><span class="s">)</span> <span class="s">{</span> <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Action is list\n&quot;</span>  <span class="s">}</span>
+    elsif <span class="s">(</span><span class="q">&quot;EDIT&quot;</span>  =~ <span class="q">/^\Q$answer/i</span><span class="s">)</span> <span class="s">{</span> <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Action is edit\n&quot;</span>  <span class="s">}</span></pre>
+<p>A totally different approach is to create a hash of function references.</p>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">%commands</span> = <span class="s">(</span>
+        <span class="q">&quot;happy&quot;</span> <span class="cm">=&gt;</span> \<span class="i">&amp;joy</span><span class="cm">,</span>
+        <span class="q">&quot;sad&quot;</span><span class="cm">,</span>  <span class="cm">=&gt;</span> \<span class="i">&amp;sullen</span><span class="cm">,</span>
+        <span class="q">&quot;done&quot;</span>  <span class="cm">=&gt;</span> <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;See ya!&quot;</span> <span class="s">}</span><span class="cm">,</span>
+        <span class="q">&quot;mad&quot;</span>   <span class="cm">=&gt;</span> \<span class="i">&amp;angry</span><span class="cm">,</span>
+    <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;How are you? &quot;</span><span class="sc">;</span>
+    <a class="l_k" href="functions/chomp.html">chomp</a><span class="s">(</span><span class="i">$string</span> = <span class="q">&lt;STDIN&gt;</span><span class="s">)</span><span class="sc">;</span>
+    if <span class="s">(</span><span class="i">$commands</span>{<span class="i">$string</span>}<span class="s">)</span> <span class="s">{</span>
+        <span class="i">$commands</span>{<span class="i">$string</span>}-&gt;<span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    <span class="s">}</span> else <span class="s">{</span>
+        <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;No such command: $string\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<a name="How-can-I-catch-accesses-to-undefined-variables%2c-functions%2c-or-methods%3f"></a><h2>How can I catch accesses to undefined variables, functions, or methods?</h2>
+<p>The AUTOLOAD method, discussed in <a href="perlsub.html#Autoloading">"Autoloading" in perlsub</a> and
+<a href="perltoot.html#AUTOLOAD%3a-Proxy-Methods">"AUTOLOAD: Proxy Methods" in perltoot</a>, lets you capture calls to
+undefined functions and methods.</p>
+<p>When it comes to undefined variables that would trigger a warning
+under <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="warnings.html">warnings</a></code>
+, you can promote the warning to an error.</p>
+<pre class="verbatim">	<a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="warnings.html">warnings</a> FATAL <span class="cm">=&gt;</span> <span class="q">qw(uninitialized)</span><span class="sc">;</span></pre>
+<a name="Why-can't-a-method-included-in-this-same-file-be-found%3f"></a><h2>Why can't a method included in this same file be found?</h2>
+<p>Some possible reasons: your inheritance is getting confused, you've
+misspelled the method name, or the object is of the wrong type.  Check
+out <a href="perltoot.html">perltoot</a> for details about any of the above cases.  You may
+also use <code class="inline"><a class="l_k" href="functions/print.html">print</a> <a class="l_k" href="functions/ref.html">ref</a><span class="s">(</span><span class="i">$object</span><span class="s">)</span></code>
+ to find out the class <code class="inline"><span class="i">$object</span></code>
+ was
+blessed into.</p>
+<p>Another possible reason for problems is because you've used the
+indirect object syntax (eg, <code class="inline">find Guru <span class="q">&quot;Samy&quot;</span></code>
+) on a class name
+before Perl has seen that such a package exists.  It's wisest to make
+sure your packages are all defined before you start using them, which
+will be taken care of if you use the <code class="inline"><a class="l_k" href="functions/use.html">use</a></code> statement instead of
+<code class="inline"><a class="l_k" href="functions/require.html">require</a></code>.  If not, make sure to use arrow notation (eg.,
+<code class="inline">Guru-&gt;find<span class="s">(</span><span class="q">&quot;Samy&quot;</span><span class="s">)</span></code>
+) instead.  Object notation is explained in
+<a href="perlobj.html">perlobj</a>.</p>
+<p>Make sure to read about creating modules in <a href="perlmod.html">perlmod</a> and
+the perils of indirect objects in <a href="perlobj.html#Method-Invocation">"Method Invocation" in perlobj</a>.</p>
+<a name="How-can-I-find-out-my-current-package%3f"></a><h2>How can I find out my current package?</h2>
+<p>If you're just a random program, you can do this to find
+out what the currently compiled package is:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$packname</span> = __PACKAGE__<span class="sc">;</span></pre>
+<p>But, if you're a method and you want to print an error message
+that includes the kind of object you were called on (which is
+not necessarily the same as the one in which you were compiled):</p>
+<pre class="verbatim"><a name="amethod"></a>    sub <span class="m">amethod</span> <span class="s">{</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$self</span>  = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/ref.html">ref</a><span class="s">(</span><span class="i">$self</span><span class="s">)</span> || <span class="i">$self</span><span class="sc">;</span>
+	<a class="l_k" href="functions/warn.html">warn</a> <span class="q">&quot;called me from a $class object&quot;</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<a name="How-can-I-comment-out-a-large-block-of-perl-code%3f"></a><h2>How can I comment out a large block of perl code?</h2>
+<p>You can use embedded POD to discard it.  Enclose the blocks you want
+to comment out in POD markers.  The &lt;=begin&gt; directive marks a section
+for a specific formatter.  Use the <code class="inline">comment</code>
+ format, which no formatter
+should claim to understand (by policy).  Mark the end of the block
+with &lt;=end&gt;.</p>
+<pre class="verbatim">    <span class="c"># program is here</span></pre>
+<pre class="verbatim">    =begin comment</pre>
+<pre class="verbatim">    all of this stuff</pre>
+<pre class="verbatim">    here will be ignored
+    by everyone</pre>
+<pre class="verbatim">	=end comment</pre>
+<pre class="verbatim">    =cut</pre>
+<pre class="verbatim">    <span class="c"># program continues</span></pre>
+<p>The pod directives cannot go just anywhere.  You must put a
+pod directive where the parser is expecting a new statement,
+not just in the middle of an expression or some other
+arbitrary grammar production.</p>
+<p>See <a href="perlpod.html">perlpod</a> for more details.</p>
+<a name="How-do-I-clear-a-package%3f"></a><h2>How do I clear a package?</h2>
+<p>Use this code, provided by Mark-Jason Dominus:</p>
+<pre class="verbatim"><a name="scrub_package"></a>    sub <span class="m">scrub_package</span> <span class="s">{</span>
+	<a class="l_k" href="functions/no.html">no</a> <a class="l_w" href="strict.html">strict</a> <span class="q">&#39;refs&#39;</span><span class="sc">;</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$pack</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+	<a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Shouldn&#39;t delete main package&quot;</span>
+	    if <span class="i">$pack</span> eq <span class="q">&quot;&quot;</span> || <span class="i">$pack</span> eq <span class="q">&quot;main&quot;</span><span class="sc">;</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$stash</span> = <span class="i">*</span>{<span class="i">$pack</span> . <span class="q">&#39;::&#39;</span>}{HASH}<span class="sc">;</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$name</span><span class="sc">;</span>
+	foreach <span class="i">$name</span> <span class="s">(</span><a class="l_k" href="functions/keys.html">keys</a> <span class="i">%$stash</span><span class="s">)</span> <span class="s">{</span>
+	    <a class="l_k" href="functions/my.html">my</a> <span class="i">$fullname</span> = <span class="i">$pack</span> . <span class="q">&#39;::&#39;</span> . <span class="i">$name</span><span class="sc">;</span>
+	    <span class="c"># Get rid of everything with that name.</span>
+	    <a class="l_k" href="functions/undef.html">undef</a> <span class="i">$$fullname</span><span class="sc">;</span>
+	    <a class="l_k" href="functions/undef.html">undef</a> <span class="i">@$fullname</span><span class="sc">;</span>
+	    <a class="l_k" href="functions/undef.html">undef</a> <span class="i">%$fullname</span><span class="sc">;</span>
+	    <a class="l_k" href="functions/undef.html">undef</a> <span class="i">&amp;$fullname</span><span class="sc">;</span>
+	    <a class="l_k" href="functions/undef.html">undef</a> <span class="i">*$fullname</span><span class="sc">;</span>
+	<span class="s">}</span>
+    <span class="s">}</span></pre>
+<p>Or, if you're using a recent release of Perl, you can
+just use the Symbol::delete_package() function instead.</p>
+<a name="How-can-I-use-a-variable-as-a-variable-name%3f"></a><h2>How can I use a variable as a variable name?</h2>
+<p>Beginners often think they want to have a variable contain the name
+of a variable.</p>
+<pre class="verbatim">    <span class="i">$fred</span>    = <span class="n">23</span><span class="sc">;</span>
+    <span class="i">$varname</span> = <span class="q">&quot;fred&quot;</span><span class="sc">;</span>
+    ++<span class="i">$$varname</span><span class="sc">;</span>         <span class="c"># $fred now 24</span></pre>
+<p>This works <i>sometimes</i>, but it is a very bad idea for two reasons.</p>
+<p>The first reason is that this technique <i>only works on global
+variables</i>.  That means that if $fred is a lexical variable created
+with my() in the above example, the code wouldn't work at all: you'd
+accidentally access the global and skip right over the private lexical
+altogether.  Global variables are bad because they can easily collide
+accidentally and in general make for non-scalable and confusing code.</p>
+<p>Symbolic references are forbidden under the <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="strict.html">strict</a></code>
+ pragma.
+They are not true references and consequently are not reference counted
+or garbage collected.</p>
+<p>The other reason why using a variable to hold the name of another
+variable is a bad idea is that the question often stems from a lack of
+understanding of Perl data structures, particularly hashes.  By using
+symbolic references, you are just using the package's symbol-table hash
+(like <code class="inline"><span class="i">%main::</span></code>
+) instead of a user-defined hash.  The solution is to
+use your own hash or a real reference instead.</p>
+<pre class="verbatim">    <span class="i">$USER_VARS</span>{<span class="q">&quot;fred&quot;</span>} = <span class="n">23</span><span class="sc">;</span>
+    <span class="i">$varname</span> = <span class="q">&quot;fred&quot;</span><span class="sc">;</span>
+    <span class="i">$USER_VARS</span>{<span class="i">$varname</span>}++<span class="sc">;</span>  <span class="c"># not $$varname++</span></pre>
+<p>There we're using the %USER_VARS hash instead of symbolic references.
+Sometimes this comes up in reading strings from the user with variable
+references and wanting to expand them to the values of your perl
+program's variables.  This is also a bad idea because it conflates the
+program-addressable namespace and the user-addressable one.  Instead of
+reading a string and expanding it to the actual contents of your program's
+own variables:</p>
+<pre class="verbatim">    <span class="i">$str</span> = <span class="q">&#39;this has a $fred and $barney in it&#39;</span><span class="sc">;</span>
+    <span class="i">$str</span> =~ <span class="q">s/(\$\w+)/$1/eeg</span><span class="sc">;</span>		  <span class="c"># need double eval</span></pre>
+<p>it would be better to keep a hash around like %USER_VARS and have
+variable references actually refer to entries in that hash:</p>
+<pre class="verbatim">    <span class="i">$str</span> =~ <span class="q">s/\$(\w+)/$USER_VARS{$1}/g</span><span class="sc">;</span>   <span class="c"># no /e here at all</span></pre>
+<p>That's faster, cleaner, and safer than the previous approach.  Of course,
+you don't need to use a dollar sign.  You could use your own scheme to
+make it less confusing, like bracketed percent symbols, etc.</p>
+<pre class="verbatim">    <span class="i">$str</span> = <span class="q">&#39;this has a %fred% and %barney% in it&#39;</span><span class="sc">;</span>
+    <span class="i">$str</span> =~ <span class="q">s/%(\w+)%/$USER_VARS{$1}/g</span><span class="sc">;</span>   <span class="c"># no /e here at all</span></pre>
+<p>Another reason that folks sometimes think they want a variable to
+contain the name of a variable is because they don't know how to build
+proper data structures using hashes.  For example, let's say they
+wanted two hashes in their program: %fred and %barney, and that they
+wanted to use another scalar variable to refer to those by name.</p>
+<pre class="verbatim">    <span class="i">$name</span> = <span class="q">&quot;fred&quot;</span><span class="sc">;</span>
+    <span class="i">$$name</span>{WIFE} = <span class="q">&quot;wilma&quot;</span><span class="sc">;</span>     <span class="c"># set %fred</span></pre>
+<pre class="verbatim">    <span class="i">$name</span> = <span class="q">&quot;barney&quot;</span><span class="sc">;</span>
+    <span class="i">$$name</span>{WIFE} = <span class="q">&quot;betty&quot;</span><span class="sc">;</span>	<span class="c"># set %barney</span></pre>
+<p>This is still a symbolic reference, and is still saddled with the
+problems enumerated above.  It would be far better to write:</p>
+<pre class="verbatim">    <span class="i">$folks</span>{<span class="q">&quot;fred&quot;</span>}{WIFE}   = <span class="q">&quot;wilma&quot;</span><span class="sc">;</span>
+    <span class="i">$folks</span>{<span class="q">&quot;barney&quot;</span>}{WIFE} = <span class="q">&quot;betty&quot;</span><span class="sc">;</span></pre>
+<p>And just use a multilevel hash to start with.</p>
+<p>The only times that you absolutely <i>must</i> use symbolic references are
+when you really must refer to the symbol table.  This may be because it's
+something that can't take a real reference to, such as a format name.
+Doing so may also be important for method calls, since these always go
+through the symbol table for resolution.</p>
+<p>In those cases, you would turn off <code class="inline"><a class="l_w" href="strict.html">strict</a> <span class="q">&#39;refs&#39;</span></code>
+ temporarily so you
+can play around with the symbol table.  For example:</p>
+<pre class="verbatim">    <span class="i">@colors</span> = <span class="q">qw(red blue green yellow orange purple violet)</span><span class="sc">;</span>
+    for <a class="l_k" href="functions/my.html">my</a> <span class="i">$name</span> <span class="s">(</span><span class="i">@colors</span><span class="s">)</span> <span class="s">{</span>
+        <a class="l_k" href="functions/no.html">no</a> <a class="l_w" href="strict.html">strict</a> <span class="q">&#39;refs&#39;</span><span class="sc">;</span>  <span class="c"># renege for the block</span>
+        <span class="i">*$name</span> = <a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <span class="q">&quot;&lt;FONT COLOR=&#39;$name&#39;&gt;@_&lt;/FONT&gt;&quot;</span> <span class="s">}</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>All those functions (red(), blue(), green(), etc.) appear to be separate,
+but the real code in the closure actually was compiled only once.</p>
+<p>So, sometimes you might want to use symbolic references to directly
+manipulate the symbol table.  This doesn't matter for formats, handles, and
+subroutines, because they are always global--you can't use my() on them.
+For scalars, arrays, and hashes, though--and usually for subroutines--
+you probably only want to use hard references.</p>
+<a name="What-does-%22bad-interpreter%22-mean%3f"></a><h2>What does "bad interpreter" mean?</h2>
+<p>(contributed by brian d foy)</p>
+<p>The "bad interpreter" message comes from the shell, not perl.  The
+actual message may vary depending on your platform, shell, and locale
+settings.</p>
+<p>If you see "bad interpreter - no such file or directory", the first
+line in your perl script (the "shebang" line) does not contain the
+right path to perl (or any other program capable of running scripts).
+Sometimes this happens when you move the script from one machine to
+another and each machine has a different path to perl---/usr/bin/perl
+versus /usr/local/bin/perl for instance. It may also indicate
+that the source machine has CRLF line terminators and the
+destination machine has LF only: the shell tries to find
+/usr/bin/perl&lt;CR&gt;, but can't.</p>
+<p>If you see "bad interpreter: Permission denied", you need to make your
+script executable.</p>
+<p>In either case, you should still be able to run the scripts with perl
+explicitly:</p>
+<pre class="verbatim">	% perl script.pl</pre><p>If you get a message like "perl: command not found", perl is not in
+your PATH, which might also mean that the location of perl is not
+where you expect it so you need to adjust your shebang line.</p>
+<a name="AUTHOR-AND-COPYRIGHT"></a><h1>AUTHOR AND COPYRIGHT</h1>
+<p>Copyright (c) 1997-2006 Tom Christiansen, Nathan Torkington, and
+other authors as noted. All rights reserved.</p>
+<p>This documentation is free; you can redistribute it and/or modify it
+under the same terms as Perl itself.</p>
+<p>Irrespective of its distribution, all code examples in this file
+are hereby placed into the public domain.  You are permitted and
+encouraged to use this code in your own programs for fun
+or for profit as you see fit.  A simple comment in the code giving
+credit would be courteous but is not required.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perlfaq7','perlfaq7.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perltru64 - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-platforms.html">Platform specific</a> &gt; perltru64</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perltru64</div><div class="pdf_link"><a href="perltru64.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perltru64.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#Compiling-Perl-5-on-Tru64">Compiling Perl 5 on Tru64</a><li><a href="#Using-Large-Files-with-Perl-on-Tru64">Using Large Files with Perl on Tru64</a><li><a href="#Threaded-Perl-on-Tru64">Threaded Perl on Tru64</a><li><a href="#Long-Doubles-on-Tru64">Long Doubles on Tru64</a><li><a href="#DB_File-tests-failing-on-Tru64">DB_File tests failing on Tru64</a><li><a href="#64-bit-Perl-on-Tru64">64-bit Perl on Tru64</a><li><a href="#Warnings-about-floating-point-overflow-when-compiling-Perl-on-Tru64">Warnings about floating-point overflow when compiling Perl on Tru64</a></ul><li><a href="#Testing-Perl-on-Tru64">Testing Perl on Tru64</a><li><a href="#ext%2fODBM_File%2fodbm-Test-Failing-With-Static-Builds">ext/ODBM_File/odbm Test Failing With Static Builds</a><li><a href="#Perl-Fails-Because-Of-Unresolved-Symbol-sockatmark">Perl Fails Because Of Unresolved Symbol sockatmark</a><li><a href="#AUTHOR">AUTHOR</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>README.tru64 - Perl version 5 on Tru64 (formerly known as Digital UNIX formerly known as DEC OSF/1) systems</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>This document describes various features of HP's (formerly Compaq's,
+formerly Digital's) Unix operating system (Tru64) that will affect
+how Perl version 5 (hereafter just Perl) is configured, compiled
+and/or runs.</p>
+<a name="Compiling-Perl-5-on-Tru64"></a><h2>Compiling Perl 5 on Tru64</h2>
+<p>The recommended compiler to use in Tru64 is the native C compiler.
+The native compiler produces much faster code (the speed difference is
+noticeable: several dozen percentages) and also more correct code: if
+you are considering using the GNU C compiler you should use at the
+very least the release of 2.95.3 since all older gcc releases are
+known to produce broken code when compiling Perl.  One manifestation
+of this brokenness is the lib/sdbm test dumping core; another is many
+of the op/regexp and op/pat, or ext/Storable tests dumping core
+(the exact pattern of failures depending on the GCC release and
+optimization flags).</p>
+<p>gcc 3.2.1 is known to work okay with Perl 5.8.0.  However, when
+optimizing the toke.c gcc likes to have a lot of memory, 256 megabytes
+seems to be enough.  The default setting of the process data section
+in Tru64 should be one gigabyte, but some sites/setups might have
+lowered that.  The configuration process of Perl checks for too low
+process limits, and lowers the optimization for the toke.c if
+necessary, and also gives advice on how to raise the process limits.</p>
+<a name="Using-Large-Files-with-Perl-on-Tru64"></a><h2>Using Large Files with Perl on Tru64</h2>
+<p>In Tru64 Perl is automatically able to use large files, that is,
+files larger than 2 gigabytes, there is no need to use the Configure
+-Duselargefiles option as described in INSTALL (though using the option
+is harmless).</p>
+<a name="Threaded-Perl-on-Tru64"></a><h2>Threaded Perl on Tru64</h2>
+<p>If you want to use threads, you should primarily use the new Perl
+5.8.0 threads model by running Configure with -Duseithreads.</p>
+<p>The old Perl 5.005 threads is obsolete, unmaintained, and its use is
+discouraged.  If you really want it, run Configure with the
+-Dusethreads -Duse5005threads options as described in INSTALL.</p>
+<p>Either thread model is going to work only in Tru64 4.0 and newer
+releases, older operating releases like 3.2 aren't probably going
+to work properly with threads.</p>
+<p>In Tru64 V5 (at least V5.1A, V5.1B) you cannot build threaded Perl with gcc
+because the system header &lt;pthread.h&gt; explicitly checks for supported
+C compilers, gcc (at least 3.2.2) not being one of them.  But the
+system C compiler should work just fine.</p>
+<a name="Long-Doubles-on-Tru64"></a><h2>Long Doubles on Tru64</h2>
+<p>You cannot Configure Perl to use long doubles unless you have at least
+Tru64 V5.0, the long double support simply wasn't functional enough
+before that.  Perl's Configure will override attempts to use the long
+doubles (you can notice this by Configure finding out that the modfl()
+function does not work as it should).</p>
+<p>At the time of this writing (June 2002), there is a known bug in the
+Tru64 libc printing of long doubles when not using "e" notation.
+The values are correct and usable, but you only get a limited number
+of digits displayed unless you force the issue by using <code class="inline"><a class="l_k" href="functions/printf.html">printf</a>
+<span class="q">&quot;%.33e&quot;</span><span class="cm">,</span><span class="i">$num</span></code>
+ or the like.  For Tru64 versions V5.0A through V5.1A, a
+patch is expected sometime after perl 5.8.0 is released.  If your libc
+has not yet been patched, you'll get a warning from Configure when
+selecting long doubles.</p>
+<a name="DB_File-tests-failing-on-Tru64"></a><h2>DB_File tests failing on Tru64</h2>
+<p>The DB_File tests (db-btree.t, db-hash.t, db-recno.t) may fail you
+have installed a newer version of Berkeley DB into the system and the
+-I and -L compiler and linker flags introduce version conflicts with
+the DB 1.85 headers and libraries that came with the Tru64.  For example, 
+mixing a DB v2 library with the DB v1 headers is a bad idea.  Watch
+out for Configure options -Dlocincpth and -Dloclibpth, and check your
+/usr/local/include and /usr/local/lib since they are included by default.</p>
+<p>The second option is to explicitly instruct Configure to detect the
+newer Berkeley DB installation, by supplying the right directories with
+<code class="inline">-Dlocincpth=/some/include</code> and <code class="inline">-Dloclibpth=/some/lib</code> <b>and</b> before
+running "make test" setting your LD_LIBRARY_PATH to <i>/some/lib</i>.</p>
+<p>The third option is to work around the problem by disabling the
+DB_File completely when build Perl by specifying -Ui_db to Configure,
+and then using the BerkeleyDB module from CPAN instead of DB_File.
+The BerkeleyDB works with Berkeley DB versions 2.* or greater.</p>
+<p>The Berkeley DB 4.1.25 has been tested with Tru64 V5.1A and found
+to work.  The latest Berkeley DB can be found from <i><a href="http://www.sleepycat.com">http://www.sleepycat.com</a></i>.</p>
+<a name="64-bit-Perl-on-Tru64"></a><h2>64-bit Perl on Tru64</h2>
+<p>In Tru64 Perl's integers are automatically 64-bit wide, there is
+no need to use the Configure -Duse64bitint option as described
+in INSTALL.  Similarly, there is no need for -Duse64bitall
+since pointers are automatically 64-bit wide.</p>
+<a name="Warnings-about-floating-point-overflow-when-compiling-Perl-on-Tru64"></a><h2>Warnings about floating-point overflow when compiling Perl on Tru64</h2>
+<p>When compiling Perl in Tru64 you may (depending on the compiler
+release) see two warnings like this</p>
+<pre class="verbatim">    cc: Warning: numeric.c, line 104: In this statement, floating-point overflow occurs in evaluating the expression "1.8e308". (floatoverfl)
+        return HUGE_VAL;
+    -----------^</pre><p>and when compiling the POSIX extension</p>
+<pre class="verbatim">    cc: Warning: const-c.inc, line 2007: In this statement, floating-point overflow occurs in evaluating the expression "1.8e308". (floatoverfl)
+                return HUGE_VAL;
+    -------------------^</pre><p>The exact line numbers may vary between Perl releases.  The warnings
+are benign and can be ignored: in later C compiler releases the warnings
+should be gone.</p>
+<p>When the file <i>pp_sys.c</i> is being compiled you may (depending on the
+operating system release) see an additional compiler flag being used:
+<code class="inline">-DNO_EFF_ONLY_OK</code>
+.  This is normal and refers to a feature that is
+relevant only if you use the <code class="inline"><a class="l_w" href="filetest.html">filetest</a></code> pragma.  In older releases of
+the operating system the feature was broken and the NO_EFF_ONLY_OK
+instructs Perl not to use the feature.</p>
+<a name="Testing-Perl-on-Tru64"></a><h1>Testing Perl on Tru64</h1>
+<p>During "make test" the <code class="inline">comp/cpp</code>
+ will be skipped because on Tru64 it
+cannot be tested before Perl has been installed.  The test refers to
+the use of the <code class="inline">-P</code>
+ option of Perl.</p>
+<a name="ext%2fODBM_File%2fodbm-Test-Failing-With-Static-Builds"></a><h1>ext/ODBM_File/odbm Test Failing With Static Builds</h1>
+<p>The ext/ODBM_File/odbm is known to fail with static builds
+(Configure -Uusedl) due to a known bug in Tru64's static libdbm
+library.  The good news is that you very probably don't need to ever
+use the ODBM_File extension since more advanced NDBM_File works fine,
+not to mention the even more advanced DB_File.</p>
+<a name="Perl-Fails-Because-Of-Unresolved-Symbol-sockatmark"></a><h1>Perl Fails Because Of Unresolved Symbol sockatmark</h1>
+<p>If you get an error like</p>
+<pre class="verbatim">    Can't load '.../OSF1/lib/perl5/5.8.0/alpha-dec_osf/auto/IO/IO.so' for module IO: Unresolved symbol in .../lib/perl5/5.8.0/alpha-dec_osf/auto/IO/IO.so: sockatmark at .../lib/perl5/5.8.0/alpha-dec_osf/XSLoader.pm line 75.</pre><p>you need to either recompile your Perl in Tru64 4.0D or upgrade your
+Tru64 4.0D to at least 4.0F: the sockatmark() system call was
+added in Tru64 4.0F, and the IO extension refers that symbol.</p>
+<a name="AUTHOR"></a><h1>AUTHOR</h1>
+<p>Jarkko Hietaniemi &lt;jhi@iki.fi&gt;</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perltru64','perltru64.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>threads - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-pragmas.html">Pragmas</a> &gt; threads</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">threads</div><div class="pdf_link"><a href="threads.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="threads.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#WARNINGS">WARNINGS</a><li><a href="#TODO">TODO</a><li><a href="#BUGS">BUGS</a><li><a href="#AUTHOR-and-COPYRIGHT">AUTHOR and COPYRIGHT</a><li><a href="#SEE-ALSO">SEE ALSO</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>threads - Perl extension allowing use of interpreter based threads from perl</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="threads.html">threads</a><span class="sc">;</span></pre>
+<pre class="verbatim"><a name="start_thread"></a>    sub <span class="m">start_thread</span> <span class="s">{</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Thread started\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$thread</span>  = <a class="l_w" href="threads.html">threads</a>-&gt;create<span class="s">(</span><span class="q">&quot;start_thread&quot;</span><span class="cm">,</span><span class="q">&quot;argument&quot;</span><span class="s">)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$thread2</span> = <span class="i">$thread</span><span class="i">-&gt;create</span><span class="s">(</span><a class="l_k" href="functions/sub.html">sub</a> <span class="s">{</span> <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;I am a thread&quot;</span><span class="s">}</span><span class="cm">,</span><span class="q">&quot;argument&quot;</span><span class="s">)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$thread3</span> = <span class="i">async</span> <span class="s">{</span> foreach <span class="s">(</span><span class="i">@files</span><span class="s">)</span> <span class="s">{</span> ... <span class="s">}</span> <span class="s">}</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">$thread</span><span class="i">-&gt;join</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    <span class="i">$thread</span><span class="i">-&gt;detach</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">$thread</span> = <a class="l_w" href="threads.html">threads</a>-&gt;self<span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    <span class="i">$thread</span> = <a class="l_w" href="threads.html">threads</a>-&gt;object<span class="s">(</span> <span class="i">$tid</span> <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">$thread</span><span class="i">-&gt;tid</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    <a class="l_w" href="threads.html">threads</a>-&gt;tid<span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    <a class="l_w" href="threads.html">threads</a>-&gt;self-&gt;tid<span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <a class="l_w" href="threads.html">threads</a>-&gt;yield<span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <a class="l_w" href="threads.html">threads</a>-&gt;list<span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>Perl 5.6 introduced something called interpreter threads.  Interpreter
+threads are different from "5005threads" (the thread model of Perl
+5.005) by creating a new perl interpreter per thread and not sharing
+any data or state between threads by default.</p>
+<p>Prior to perl 5.8 this has only been available to people embedding
+perl and for emulating fork() on windows.</p>
+<p>The threads API is loosely based on the old Thread.pm API. It is very
+important to note that variables are not shared between threads, all
+variables are per default thread local.  To use shared variables one
+must use threads::shared.</p>
+<p>It is also important to note that you must enable threads by doing
+<code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="threads.html">threads</a></code>
+ as early as possible in the script itself and that it
+is not possible to enable threading inside an <code class="inline"><a class="l_k" href="functions/eval.html">eval</a> <span class="q">&quot;&quot;</span></code>
+, <code class="inline"><a class="l_k" href="functions/do.html">do</a></code>,
+<code class="inline"><a class="l_k" href="functions/require.html">require</a></code>, or <code class="inline"><a class="l_k" href="functions/use.html">use</a></code>.  In particular, if you are intending to share
+variables with threads::shared, you must <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="threads.html">threads</a></code>
+ before you
+<code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="threads/shared.html">threads::shared</a></code>
+ and <code class="inline"><a class="l_w" href="threads.html">threads</a></code> will emit a warning if you do
+it the other way around.</p>
+<ul>
+<li><a name="%24thread-%3d-threads-%3ecreate(function%2c-LIST)"></a><b>$thread = threads-&gt;create(function, LIST)</b>
+<p>This will create a new thread with the entry point function and give
+it LIST as parameters.  It will return the corresponding threads
+object, or <code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code> if thread creation failed. The new() method is an
+alias for create().</p>
+</li>
+<li><a name="%24thread-%3ejoin"></a><b>$thread-&gt;join</b>
+<p>This will wait for the corresponding thread to join. When the thread
+finishes, join() will return the return values of the entry point
+function. If the thread has been detached, an error will be thrown.</p>
+<p>The context (void, scalar or list) of the thread creation is also the
+context for join().  This means that if you intend to return an array
+from a thread, you must use <code class="inline"><a class="l_k" href="functions/my.html">my</a> <span class="s">(</span><span class="i">$thread</span><span class="s">)</span> = <a class="l_w" href="threads.html">threads</a>-</code>
+new(...)&gt;, and
+that if you intend to return a scalar, you must use <code class="inline"><a class="l_k" href="functions/my.html">my</a> <span class="i">$thread</span> = ...</code>
+.</p>
+<p>If the program exits without all other threads having been either
+joined or detached, then a warning will be issued. (A program exits
+either because one of its threads explicitly calls exit(), or in the
+case of the main thread, reaches the end of the main program file.)</p>
+</li>
+<li><a name="%24thread-%3edetach"></a><b>$thread-&gt;detach</b>
+<p>Will make the thread unjoinable, and cause any eventual return value
+to be discarded.</p>
+</li>
+<li><a name="threads-%3eself"></a><b>threads-&gt;self</b>
+<p>This will return the thread object for the current thread.</p>
+</li>
+<li><a name="%24thread-%3etid"></a><b>$thread-&gt;tid</b>
+<p>This will return the id of the thread.  Thread IDs are integers, with
+the main thread in a program being 0.  Currently Perl assigns a unique
+tid to every thread ever created in your program, assigning the first
+thread to be created a tid of 1, and increasing the tid by 1 for each
+new thread that's created.</p>
+<p>NB the class method <code class="inline"><a class="l_w" href="threads.html">threads</a>-&gt;tid<span class="s">(</span><span class="s">)</span></code>
+ is a quick way to get the
+current thread id if you don't have your thread object handy.</p>
+</li>
+<li><a name="threads-%3eobject(-tid-)"></a><b>threads-&gt;object( tid )</b>
+<p>This will return the thread object for the thread associated with the
+specified tid.  Returns undef if there is no thread associated with the tid
+or no tid is specified or the specified tid is undef.</p>
+</li>
+<li><a name="threads-%3eyield()%3b"></a><b>threads-&gt;yield();</b>
+<p>This is a suggestion to the OS to let this thread yield CPU time to other
+threads.  What actually happens is highly dependent upon the underlying
+thread implementation.</p>
+<p>You may do <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="threads.html">threads</a> <span class="q">qw(yield)</span></code>
+ then use just a bare <code class="inline">yield</code>
+ in your
+code.</p>
+</li>
+<li><a name="threads-%3elist()%3b"></a><b>threads-&gt;list();</b>
+<p>This will return a list of all non joined, non detached threads.</p>
+</li>
+<li><a name="async-BLOCK%3b"></a><b>async BLOCK;</b>
+<p><code class="inline">async</code>
+ creates a thread to execute the block immediately following
+it.  This block is treated as an anonymous sub, and so must have a
+semi-colon after the closing brace. Like <code class="inline"><a class="l_w" href="threads.html">threads</a>-&gt;new</code>
+, <code class="inline">async</code>
+
+returns a thread object.</p>
+</li>
+</ul>
+<a name="WARNINGS"></a><h1>WARNINGS</h1>
+<ul>
+<li><a name="A-thread-exited-while-%25d-other-threads-were-still-running"></a><b>A thread exited while %d other threads were still running</b>
+<p>A thread (not necessarily the main thread) exited while there were
+still other threads running.  Usually it's a good idea to first collect
+the return values of the created threads by joining them, and only then
+exit from the main thread.</p>
+</li>
+</ul>
+<a name="TODO"></a><h1>TODO</h1>
+<p>The current implementation of threads has been an attempt to get
+a correct threading system working that could be built on, 
+and optimized, in newer versions of perl.</p>
+<p>Currently the overhead of creating a thread is rather large,
+also the cost of returning values can be large. These are areas
+were there most likely will be work done to optimize what data
+that needs to be cloned.</p>
+<a name="BUGS"></a><h1>BUGS</h1>
+<ul>
+<li><a name="Parent-Child-threads."></a><b>Parent-Child threads.</b>
+<p>On some platforms it might not be possible to destroy "parent"
+threads while there are still existing child "threads".</p>
+<p>This will possibly be fixed in later versions of perl.</p>
+</li>
+<li><a name="tid-is-I32"></a><b>tid is I32</b>
+<p>The thread id is a 32 bit integer, it can potentially overflow.
+This might be fixed in a later version of perl.</p>
+</li>
+<li><a name="Returning-objects"></a><b>Returning objects</b>
+<p>When you return an object the entire stash that the object is blessed
+as well.  This will lead to a large memory usage.  The ideal situation
+would be to detect the original stash if it existed.</p>
+</li>
+<li><a name="Creating-threads-inside-BEGIN-blocks"></a><b>Creating threads inside BEGIN blocks</b>
+<p>Creating threads inside BEGIN blocks (or during the compilation phase
+in general) does not work.  (In Windows, trying to use fork() inside
+BEGIN blocks is an equally losing proposition, since it has been
+implemented in very much the same way as threads.)</p>
+</li>
+<li><a name="PERL_OLD_SIGNALS-are-not-threadsafe%2c-will-not-be."></a><b>PERL_OLD_SIGNALS are not threadsafe, will not be.</b>
+<p>If your Perl has been built with PERL_OLD_SIGNALS (one has
+to explicitly add that symbol to ccflags, see <code class="inline">perl -V</code>
+),
+signal handling is not threadsafe.</p>
+</li>
+</ul>
+<a name="AUTHOR-and-COPYRIGHT"></a><h1>AUTHOR and COPYRIGHT</h1>
+<p>Arthur Bergman &lt;sky at nanisky.com&gt;</p>
+<p>threads is released under the same license as Perl.</p>
+<p>Thanks to</p>
+<p>Richard Soderberg &lt;perl at crystalflame.net&gt;
+Helping me out tons, trying to find reasons for races and other weird bugs!</p>
+<p>Simon Cozens &lt;simon at brecon.co.uk&gt;
+Being there to answer zillions of annoying questions</p>
+<p>Rocco Caputo &lt;troc at netrus.net&gt;</p>
+<p>Vipul Ved Prakash &lt;mail at vipul.net&gt;
+Helping with debugging.</p>
+<p>please join perl-ithreads@perl.org for more information</p>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><a href="threads/shared.html">threads::shared</a>, <a href="perlthrtut.html">perlthrtut</a>, 
+<a href="http://www.perl.com/pub/a/2002/06/11/threads.html">http://www.perl.com/pub/a/2002/06/11/threads.html</a>,
+<a href="perlcall.html">perlcall</a>, <a href="perlembed.html">perlembed</a>, <a href="perlguts.html">perlguts</a></p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('threads','threads.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

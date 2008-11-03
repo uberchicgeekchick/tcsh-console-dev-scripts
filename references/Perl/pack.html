@@ -1,0 +1,549 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>pack - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="../css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="../label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 1;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="../onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='../close_purple.gif';" onmouseout="leftCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="../index-overview.html">Overview</a></li>
+        <li><a href="../index-tutorials.html">Tutorials</a></li>
+        <li><a href="../index-faq.html">FAQs</a></li>
+        <li><a href="../index-history.html">History / Changes</a></li>
+        <li><a href="../index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="../index-language.html">Language</a></li>
+        <li><a href="../index-functions.html">Functions</a></li>
+        <li><a href="../perlop.html">Operators</a></li>
+        <li><a href="../perlvar.html">Special variables</a></li>
+        <li><a href="../index-pragmas.html">Pragmas</a></li>
+        <li><a href="../index-modules-A.html">Core modules</a></li>
+        <li><a href="../index-utilities.html">Utilities</a></li>
+        <li><a href="../index-internals.html">Internals</a></li>
+        <li><a href="../index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="../index.html">Home</a> &gt; <a href="../index-language.html">Language reference</a> &gt; <a href="../index-functions.html">Functions</a> &gt; pack</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">pack</div></div><div class="mod_az_list"><a href="../index-functions.html">Perl functions A-Z</a> | <a href="../index-functions-by-cat.html">Perl functions by category</a> | <a href="../perlfunc.html">The 'perlfunc' manpage</a></div><ul>
+<li><a name="pack-TEMPLATE%2cLIST"></a><b>pack TEMPLATE,LIST</b>
+<p></p>
+<p>Takes a LIST of values and converts it into a string using the rules
+given by the TEMPLATE.  The resulting string is the concatenation of
+the converted values.  Typically, each converted value looks
+like its machine-level representation.  For example, on 32-bit machines
+a converted integer may be represented by a sequence of 4 bytes.</p>
+<p>The TEMPLATE is a sequence of characters that give the order and type
+of values, as follows:</p>
+<pre class="verbatim">    a	A string with arbitrary binary data, will be null padded.
+    A	A text (ASCII) string, will be space padded.
+    Z	A null terminated (ASCIZ) string, will be null padded.</pre><pre class="verbatim">    b	A bit string <span class="s">(</span>ascending bit order inside <a class="l_k" href="../functions/each.html">each</a> byte<span class="cm">,</span> like <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="s">)</span><span class="s">)</span>.
+    <a class="l_w" href="../B.html">B</a>	A bit string <span class="s">(</span>descending bit order inside <a class="l_k" href="../functions/each.html">each</a> byte<span class="s">)</span>.
+    h	A <a class="l_k" href="../functions/hex.html">hex</a> string <span class="s">(</span>low nybble first<span class="s">)</span>.
+    H	A <a class="l_k" href="../functions/hex.html">hex</a> string <span class="s">(</span>high nybble first<span class="s">)</span>.</pre>
+<pre class="verbatim">    c	A signed char value.
+    C	An unsigned char value.  Only does <a class="l_w" href="../bytes.html">bytes</a>.  See U for Unicode.</pre>
+<pre class="verbatim">    s	A signed short value.
+    S	An unsigned short value.
+	  (This 'short' is _exactly_ 16 bits, which may differ from
+	   what a local C compiler calls 'short'.  If you want
+	   native-length shorts, use the '!' suffix.)</pre><pre class="verbatim">    i	A signed integer value.
+    I	An unsigned integer value.
+	  (This 'integer' is _at_least_ 32 bits wide.  Its exact
+           size depends on what a local C compiler calls 'int',
+           and may even be larger than the 'long' described in
+           the next item.)</pre><pre class="verbatim">    l	A signed long value.
+    L	An unsigned long value.
+	  (This 'long' is _exactly_ 32 bits, which may differ from
+	   what a local C compiler calls 'long'.  If you want
+	   native-length longs, use the '!' suffix.)</pre><pre class="verbatim">    n	An unsigned short in "network" (big-endian) order.
+    N	An unsigned long in "network" (big-endian) order.
+    v	An unsigned short in "VAX" (little-endian) order.
+    V	An unsigned long in "VAX" (little-endian) order.
+	  (These 'shorts' and 'longs' are _exactly_ 16 bits and
+	   _exactly_ 32 bits, respectively.)</pre><pre class="verbatim">    q	A signed quad (64-bit) value.
+    Q	An unsigned quad value.
+	  (Quads are available only if your system supports 64-bit
+	   integer values _and_ if Perl has been compiled to support those.
+           Causes a fatal error otherwise.)</pre><pre class="verbatim">    j   A signed <a class="l_w" href="../integer.html">integer</a> value <span class="s">(</span>a Perl internal <a class="l_w" href="../integer.html">integer</a><span class="cm">,</span> IV<span class="s">)</span>.
+    J   An unsigned <a class="l_w" href="../integer.html">integer</a> value <span class="s">(</span>a Perl internal unsigned <a class="l_w" href="../integer.html">integer</a><span class="cm">,</span> UV<span class="s">)</span>.</pre>
+<pre class="verbatim">    f	A single-precision float in the native format.
+    d	A double-precision float in the native format.</pre><pre class="verbatim">    F	A floating point value in the native native format
+           (a Perl internal floating point value, NV).
+    D	A long double-precision float in the native format.
+	  (Long doubles are available only if your system supports long
+	   double values _and_ if Perl has been compiled to support those.
+           Causes a fatal error otherwise.)</pre><pre class="verbatim">    p	A pointer to a null-terminated string.
+    P	A pointer to a structure <span class="s">(</span>fixed-<a class="l_k" href="../functions/length.html">length</a> string<span class="s">)</span>.</pre>
+<pre class="verbatim">    u	A uuencoded string.
+    U	A Unicode character number.  Encodes to UTF-8 internally
+	(or UTF-EBCDIC in EBCDIC platforms).</pre><pre class="verbatim">    w	A BER compressed integer (not an ASN.1 BER, see perlpacktut for
+	details).  Its bytes represent an unsigned integer in base 128,
+	most significant digit first, with as few digits as possible.  Bit
+	eight (the high bit) is set on each byte except the last.</pre><pre class="verbatim">    x	A null byte.
+    X	Back up a byte.
+    @	Null fill to absolute position, counted from the start of
+        the innermost ()-group.
+    (	Start of a ()-group.</pre><p>The following rules apply:</p>
+<ul>
+<li>
+<p>Each letter may optionally be followed by a number giving a repeat
+count.  With all types except <code class="inline">a</code>
+, <code class="inline">A</code>
+, <code class="inline">Z</code>
+, <code class="inline">b</code>
+, <code class="inline"><a class="l_w" href="../B.html">B</a></code>, <code class="inline">h</code>
+,
+<code class="inline">H</code>
+, <code class="inline"><span class="i">@</span></code>
+, <code class="inline">x</code>
+, <code class="inline">X</code>
+ and <code class="inline">P</code>
+ the pack function will gobble up that
+many values from the LIST.  A <code class="inline"><span class="i">*</span></code>
+ for the repeat count means to use
+however many items are left, except for <code class="inline"><span class="i">@</span></code>
+, <code class="inline">x</code>
+, <code class="inline">X</code>
+, where it is
+equivalent to <code class="inline"><span class="n">0</span></code>
+, and <code class="inline">u</code>
+, where it is equivalent to 1 (or 45, what
+is the same).  A numeric repeat count may optionally be enclosed in
+brackets, as in <code class="inline"><a class="l_k" href="../functions/pack.html">pack</a> <span class="q">&#39;C[80]&#39;</span><span class="cm">,</span> <span class="i">@arr</span></code>
+.</p>
+<p>One can replace the numeric repeat count by a template enclosed in brackets;
+then the packed length of this template in bytes is used as a count.
+For example, <code class="inline">x<span class="s">[</span>L<span class="s">]</span></code>
+ skips a long (it skips the number of bytes in a long);
+the template <code class="inline">$t X[$t] $t</code> unpack()s twice what $t unpacks.
+If the template in brackets contains alignment commands (such as <code class="inline">x!<span class="s">[</span>d<span class="s">]</span></code>
+),
+its packed length is calculated as if the start of the template has the maximal
+possible alignment.</p>
+<p>When used with <code class="inline">Z</code>
+, <code class="inline"><span class="i">*</span></code>
+ results in the addition of a trailing null
+byte (so the packed result will be one longer than the byte <code class="inline"><a class="l_k" href="../functions/length.html">length</a></code>
+of the item).</p>
+<p>The repeat count for <code class="inline">u</code>
+ is interpreted as the maximal number of bytes
+to encode per line of output, with 0 and 1 replaced by 45.</p>
+</li>
+<li>
+<p>The <code class="inline">a</code>
+, <code class="inline">A</code>
+, and <code class="inline">Z</code>
+ types gobble just one value, but pack it as a
+string of length count, padding with nulls or spaces as necessary.  When
+unpacking, <code class="inline">A</code>
+ strips trailing spaces and nulls, <code class="inline">Z</code>
+ strips everything
+after the first null, and <code class="inline">a</code>
+ returns data verbatim.  When packing,
+<code class="inline">a</code>
+, and <code class="inline">Z</code>
+ are equivalent.</p>
+<p>If the value-to-pack is too long, it is truncated.  If too long and an
+explicit count is provided, <code class="inline">Z</code>
+ packs only <code class="inline"><span class="i">$count</span>-<span class="n">1</span></code>
+ bytes, followed
+by a null byte.  Thus <code class="inline">Z</code>
+ always packs a trailing null byte under
+all circumstances.</p>
+</li>
+<li>
+<p>Likewise, the <code class="inline">b</code>
+ and <code class="inline"><a class="l_w" href="../B.html">B</a></code> fields pack a string that many bits long.
+Each byte of the input field of pack() generates 1 bit of the result.
+Each result bit is based on the least-significant bit of the corresponding
+input byte, i.e., on <code class="inline"><a class="l_k" href="../functions/ord.html">ord($byte)%2</a></code>.  In particular, bytes <code class="inline"><span class="q">&quot;0&quot;</span></code>
+ and
+<code class="inline"><span class="q">&quot;1&quot;</span></code>
+ generate bits 0 and 1, as do bytes <code class="inline"><span class="q">&quot;\0&quot;</span></code>
+ and <code class="inline"><span class="q">&quot;\1&quot;</span></code>
+.</p>
+<p>Starting from the beginning of the input string of pack(), each 8-tuple
+of bytes is converted to 1 byte of output.  With format <code class="inline">b</code>
+
+the first byte of the 8-tuple determines the least-significant bit of a
+byte, and with format <code class="inline"><a class="l_w" href="../B.html">B</a></code> it determines the most-significant bit of
+a byte.</p>
+<p>If the length of the input string is not exactly divisible by 8, the
+remainder is packed as if the input string were padded by null bytes
+at the end.  Similarly, during unpack()ing the "extra" bits are ignored.</p>
+<p>If the input string of pack() is longer than needed, extra bytes are ignored.
+A <code class="inline"><span class="i">*</span></code>
+ for the repeat count of pack() means to use all the bytes of
+the input field.  On unpack()ing the bits are converted to a string
+of <code class="inline"><span class="q">&quot;0&quot;</span></code>
+s and <code class="inline"><span class="q">&quot;1&quot;</span></code>
+s.</p>
+</li>
+<li>
+<p>The <code class="inline">h</code>
+ and <code class="inline">H</code>
+ fields pack a string that many nybbles (4-bit groups,
+representable as hexadecimal digits, 0-9a-f) long.</p>
+<p>Each byte of the input field of pack() generates 4 bits of the result.
+For non-alphabetical bytes the result is based on the 4 least-significant
+bits of the input byte, i.e., on <code class="inline"><a class="l_k" href="../functions/ord.html">ord($byte)%16</a></code>.  In particular,
+bytes <code class="inline"><span class="q">&quot;0&quot;</span></code>
+ and <code class="inline"><span class="q">&quot;1&quot;</span></code>
+ generate nybbles 0 and 1, as do bytes
+<code class="inline"><span class="q">&quot;\0&quot;</span></code>
+ and <code class="inline"><span class="q">&quot;\1&quot;</span></code>
+.  For bytes <code class="inline"><span class="q">&quot;a&quot;</span>..<span class="q">&quot;f&quot;</span></code>
+ and <code class="inline"><span class="q">&quot;A&quot;</span>..<span class="q">&quot;F&quot;</span></code>
+ the result
+is compatible with the usual hexadecimal digits, so that <code class="inline"><span class="q">&quot;a&quot;</span></code>
+ and
+<code class="inline"><span class="q">&quot;A&quot;</span></code>
+ both generate the nybble <code class="inline"><span class="n">0xa</span>==<span class="n">10</span></code>
+.  The result for bytes
+<code class="inline"><span class="q">&quot;g&quot;</span>..<span class="q">&quot;z&quot;</span></code>
+ and <code class="inline"><span class="q">&quot;G&quot;</span>..<span class="q">&quot;Z&quot;</span></code>
+ is not well-defined.</p>
+<p>Starting from the beginning of the input string of pack(), each pair
+of bytes is converted to 1 byte of output.  With format <code class="inline">h</code>
+ the
+first byte of the pair determines the least-significant nybble of the
+output byte, and with format <code class="inline">H</code>
+ it determines the most-significant
+nybble.</p>
+<p>If the length of the input string is not even, it behaves as if padded
+by a null byte at the end.  Similarly, during unpack()ing the "extra"
+nybbles are ignored.</p>
+<p>If the input string of pack() is longer than needed, extra bytes are ignored.
+A <code class="inline"><span class="i">*</span></code>
+ for the repeat count of pack() means to use all the bytes of
+the input field.  On unpack()ing the bits are converted to a string
+of hexadecimal digits.</p>
+</li>
+<li>
+<p>The <code class="inline">p</code>
+ type packs a pointer to a null-terminated string.  You are
+responsible for ensuring the string is not a temporary value (which can
+potentially get deallocated before you get around to using the packed result).
+The <code class="inline">P</code>
+ type packs a pointer to a structure of the size indicated by the
+length.  A NULL pointer is created if the corresponding value for <code class="inline">p</code>
+ or
+<code class="inline">P</code>
+ is <code class="inline"><a class="l_k" href="../functions/undef.html">undef</a></code>, similarly for unpack().</p>
+</li>
+<li>
+<p>The <code class="inline">/</code> template character allows packing and unpacking of strings where
+the packed structure contains a byte count followed by the string itself.
+You write <i>length-item</i><code class="inline">/</code><i>string-item</i>.</p>
+<p>The <i>length-item</i> can be any <code class="inline"><a class="l_k" href="../functions/pack.html">pack</a></code> template letter, and describes
+how the length value is packed.  The ones likely to be of most use are
+integer-packing ones like <code class="inline">n</code>
+ (for Java strings), <code class="inline">w</code>
+ (for ASN.1 or
+SNMP) and <code class="inline">N</code>
+ (for Sun XDR).</p>
+<p>For <code class="inline"><a class="l_k" href="../functions/pack.html">pack</a></code>, the <i>string-item</i> must, at present, be <code class="inline"><span class="q">&quot;A*&quot;</span></code>
+, <code class="inline"><span class="q">&quot;a*&quot;</span></code>
+ or
+<code class="inline"><span class="q">&quot;Z*&quot;</span></code>
+. For <code class="inline"><a class="l_k" href="../functions/unpack.html">unpack</a></code> the length of the string is obtained from the
+<i>length-item</i>, but if you put in the '*' it will be ignored. For all other
+codes, <code class="inline"><a class="l_k" href="../functions/unpack.html">unpack</a></code> applies the length value to the next item, which must not
+have a repeat count.</p>
+<pre class="verbatim">    <a class="l_k" href="../functions/unpack.html">unpack</a> <span class="q">&#39;C/a&#39;</span><span class="cm">,</span> <span class="q">&quot;\04Gurusamy&quot;</span><span class="sc">;</span>        gives <span class="q">&#39;Guru&#39;</span>
+    <a class="l_k" href="../functions/unpack.html">unpack</a> <span class="q">&#39;a3/A* A*&#39;</span><span class="cm">,</span> <span class="q">&#39;007 Bond  J &#39;</span><span class="sc">;</span>  gives <span class="s">(</span><span class="q">&#39; Bond&#39;</span><span class="cm">,</span><span class="q">&#39;J&#39;</span><span class="s">)</span>
+    <a class="l_k" href="../functions/pack.html">pack</a> <span class="q">&#39;n/a* w/a*&#39;</span><span class="cm">,</span><span class="q">&#39;hello,&#39;</span><span class="cm">,</span><span class="q">&#39;world&#39;</span><span class="sc">;</span>  gives <span class="q">&quot;\000\006hello,\005world&quot;</span></pre>
+<p>The <i>length-item</i> is not returned explicitly from <code class="inline"><a class="l_k" href="../functions/unpack.html">unpack</a></code>.</p>
+<p>Adding a count to the <i>length-item</i> letter is unlikely to do anything
+useful, unless that letter is <code class="inline">A</code>
+, <code class="inline">a</code>
+ or <code class="inline">Z</code>
+.  Packing with a
+<i>length-item</i> of <code class="inline">a</code>
+ or <code class="inline">Z</code>
+ may introduce <code class="inline"><span class="q">&quot;\000&quot;</span></code>
+ characters,
+which Perl does not regard as legal in numeric strings.</p>
+</li>
+<li>
+<p>The integer types <code class="inline"><a class="l_k" href="../functions/s.html">s</a></code>, <code class="inline">S</code>
+, <code class="inline">l</code>
+, and <code class="inline">L</code>
+ may be
+immediately followed by a <code class="inline">!</code>
+ suffix to signify native shorts or
+longs--as you can see from above for example a bare <code class="inline">l</code>
+ does mean
+exactly 32 bits, the native <code class="inline">long</code>
+ (as seen by the local C compiler)
+may be larger.  This is an issue mainly in 64-bit platforms.  You can
+see whether using <code class="inline">!</code>
+ makes any difference by</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/print.html">print</a> <a class="l_k" href="../functions/length.html">length</a><span class="s">(</span><a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;s&quot;</span><span class="s">)</span><span class="s">)</span><span class="cm">,</span> <span class="q">&quot; &quot;</span><span class="cm">,</span> <a class="l_k" href="../functions/length.html">length</a><span class="s">(</span><a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;s!&quot;</span><span class="s">)</span><span class="s">)</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <a class="l_k" href="../functions/length.html">length</a><span class="s">(</span><a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;l&quot;</span><span class="s">)</span><span class="s">)</span><span class="cm">,</span> <span class="q">&quot; &quot;</span><span class="cm">,</span> <a class="l_k" href="../functions/length.html">length</a><span class="s">(</span><a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;l!&quot;</span><span class="s">)</span><span class="s">)</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<p><code class="inline">i!</code>
+ and <code class="inline">I!</code>
+ also work but only because of completeness;
+they are identical to <code class="inline">i</code>
+ and <code class="inline">I</code>
+.</p>
+<p>The actual sizes (in bytes) of native shorts, ints, longs, and long
+longs on the platform where Perl was built are also available via
+<a href="../Config.html">Config</a>:</p>
+<pre class="verbatim">       <a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Config.html">Config</a><span class="sc">;</span>
+       <a class="l_k" href="../functions/print.html">print</a> <span class="i">$Config</span>{shortsize}<span class="cm">,</span>    <span class="q">&quot;\n&quot;</span><span class="sc">;</span>
+       <a class="l_k" href="../functions/print.html">print</a> <span class="i">$Config</span>{intsize}<span class="cm">,</span>      <span class="q">&quot;\n&quot;</span><span class="sc">;</span>
+       <a class="l_k" href="../functions/print.html">print</a> <span class="i">$Config</span>{longsize}<span class="cm">,</span>     <span class="q">&quot;\n&quot;</span><span class="sc">;</span>
+       <a class="l_k" href="../functions/print.html">print</a> <span class="i">$Config</span>{longlongsize}<span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<p>(The <code class="inline"><span class="i">$Config</span>{longlongsize}</code>
+ will be undefined if your system does
+not support long longs.)</p>
+</li>
+<li>
+<p>The integer formats <code class="inline"><a class="l_k" href="../functions/s.html">s</a></code>, <code class="inline">S</code>
+, <code class="inline">i</code>
+, <code class="inline">I</code>
+, <code class="inline">l</code>
+, <code class="inline">L</code>
+, <code class="inline">j</code>
+, and <code class="inline">J</code>
+
+are inherently non-portable between processors and operating systems
+because they obey the native byteorder and endianness.  For example a
+4-byte integer 0x12345678 (305419896 decimal) would be ordered natively
+(arranged in and handled by the CPU registers) into bytes as</p>
+<pre class="verbatim"> 	0x12 0x34 0x56 0x78	# big-endian
+ 	0x78 0x56 0x34 0x12	# little-endian</pre><p>Basically, the Intel and VAX CPUs are little-endian, while everybody
+else, for example Motorola m68k/88k, PPC, Sparc, HP PA, Power, and
+Cray are big-endian.  Alpha and MIPS can be either: Digital/Compaq
+used/uses them in little-endian mode; SGI/Cray uses them in big-endian
+mode.</p>
+<p>The names `big-endian' and `little-endian' are comic references to
+the classic "Gulliver's Travels" (via the paper "On Holy Wars and a
+Plea for Peace" by Danny Cohen, USC/ISI IEN 137, April 1, 1980) and
+the egg-eating habits of the Lilliputians.</p>
+<p>Some systems may have even weirder byte orders such as</p>
+<pre class="verbatim"> 	0x56 0x78 0x12 0x34
+ 	0x34 0x12 0x78 0x56</pre><p>You can see your system's preference with</p>
+<pre class="verbatim"> 	<a class="l_k" href="../functions/print.html">print</a> <a class="l_k" href="../functions/join.html">join</a><span class="s">(</span><span class="q">&quot; &quot;</span><span class="cm">,</span> <a class="l_k" href="../functions/map.html">map</a> <span class="s">{</span> <a class="l_k" href="../functions/sprintf.html">sprintf</a> <span class="q">&quot;%#02x&quot;</span><span class="cm">,</span> <span class="i">$_</span> <span class="s">}</span>
+                            <a class="l_k" href="../functions/unpack.html">unpack</a><span class="s">(</span><span class="q">&quot;C*&quot;</span><span class="cm">,</span><a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;L&quot;</span><span class="cm">,</span><span class="n">0x12345678</span><span class="s">)</span><span class="s">)</span><span class="s">)</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<p>The byteorder on the platform where Perl was built is also available
+via <a href="../Config.html">Config</a>:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Config.html">Config</a><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$Config</span>{byteorder}<span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<p>Byteorders <code class="inline"><span class="q">&#39;1234&#39;</span></code>
+ and <code class="inline"><span class="q">&#39;12345678&#39;</span></code>
+ are little-endian, <code class="inline"><span class="q">&#39;4321&#39;</span></code>
+
+and <code class="inline"><span class="q">&#39;87654321&#39;</span></code>
+ are big-endian.</p>
+<p>If you want portable packed integers use the formats <code class="inline">n</code>
+, <code class="inline">N</code>
+,
+<code class="inline">v</code>
+, and <code class="inline">V</code>
+, their byte endianness and size are known.
+See also <a href="../perlport.html">perlport</a>.</p>
+</li>
+<li>
+<p>Real numbers (floats and doubles) are in the native machine format only;
+due to the multiplicity of floating formats around, and the lack of a
+standard "network" representation, no facility for interchange has been
+made.  This means that packed floating point data written on one machine
+may not be readable on another - even if both use IEEE floating point
+arithmetic (as the endian-ness of the memory representation is not part
+of the IEEE spec).  See also <a href="../perlport.html">perlport</a>.</p>
+<p>Note that Perl uses doubles internally for all numeric calculation, and
+converting from double into float and thence back to double again will
+lose precision (i.e., <code class="inline">unpack("f", pack("f", $foo)</code>) will not in general
+equal $foo).</p>
+</li>
+<li>
+<p>If the pattern begins with a <code class="inline">U</code>
+, the resulting string will be
+treated as UTF-8-encoded Unicode. You can force UTF-8 encoding on in a
+string with an initial <code class="inline">U0</code>
+, and the bytes that follow will be
+interpreted as Unicode characters. If you don't want this to happen,
+you can begin your pattern with <code class="inline">C0</code>
+ (or anything else) to force Perl
+not to UTF-8 encode your string, and then follow this with a <code class="inline">U*</code>
+
+somewhere in your pattern.</p>
+</li>
+<li>
+<p>You must yourself do any alignment or padding by inserting for example
+enough <code class="inline"><span class="q">&#39;x&#39;</span></code>
+es while packing.  There is no way to pack() and unpack()
+could know where the bytes are going to or coming from.  Therefore
+<code class="inline"><a class="l_k" href="../functions/pack.html">pack</a></code> (and <code class="inline"><a class="l_k" href="../functions/unpack.html">unpack</a></code>) handle their output and input as flat
+sequences of bytes.</p>
+</li>
+<li>
+<p>A ()-group is a sub-TEMPLATE enclosed in parentheses.  A group may
+take a repeat count, both as postfix, and for unpack() also via the <code class="inline">/</code>
+template character. Within each repetition of a group, positioning with
+<code class="inline"><span class="i">@</span></code>
+ starts again at 0. Therefore, the result of</p>
+<pre class="verbatim">    <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span> <span class="q">&#39;@1A((@2A)@3A)&#39;</span><span class="cm">,</span> <span class="q">&#39;a&#39;</span><span class="cm">,</span> <span class="q">&#39;b&#39;</span><span class="cm">,</span> <span class="q">&#39;c&#39;</span> <span class="s">)</span></pre>
+<p>is the string "\0a\0\0bc".</p>
+</li>
+<li>
+<p><code class="inline">x</code>
+ and <code class="inline">X</code>
+ accept <code class="inline">!</code>
+ modifier.  In this case they act as
+alignment commands: they jump forward/back to the closest position
+aligned at a multiple of <code class="inline">count</code>
+ bytes.  For example, to pack() or
+unpack() C's <code class="inline"><span class="i">struct</span> <span class="s">{</span>char c<span class="sc">;</span> double d<span class="sc">;</span> char cc<span class="s">[</span><span class="n">2</span><span class="s">]</span><span class="s">}</span></code>
+ one may need to
+use the template <code class="inline">C x!<span class="s">[</span>d<span class="s">]</span> d C<span class="s">[</span><span class="n">2</span><span class="s">]</span></code>
+; this assumes that doubles must be
+aligned on the double's size.</p>
+<p>For alignment commands <code class="inline">count</code>
+ of 0 is equivalent to <code class="inline">count</code>
+ of 1;
+both result in no-ops.</p>
+</li>
+<li>
+<p>A comment in a TEMPLATE starts with <code class="inline"><span class="c">#</span></code>
+ and goes to the end of line.
+White space may be used to separate pack codes from each other, but
+a <code class="inline">!</code>
+ modifier and a repeat count must follow immediately.</p>
+</li>
+<li>
+<p>If TEMPLATE requires more arguments to pack() than actually given, pack()
+assumes additional <code class="inline"><span class="q">&quot;&quot;</span></code>
+ arguments.  If TEMPLATE requires fewer arguments
+to pack() than actually given, extra arguments are ignored.</p>
+</li>
+</ul>
+<p>Examples:</p>
+<pre class="verbatim">    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;CCCC&quot;</span><span class="cm">,</span><span class="n">65</span><span class="cm">,</span><span class="n">66</span><span class="cm">,</span><span class="n">67</span><span class="cm">,</span><span class="n">68</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># foo eq &quot;ABCD&quot;</span>
+    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;C4&quot;</span><span class="cm">,</span><span class="n">65</span><span class="cm">,</span><span class="n">66</span><span class="cm">,</span><span class="n">67</span><span class="cm">,</span><span class="n">68</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># same thing</span>
+    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;U4&quot;</span><span class="cm">,</span><span class="n">0x24b6</span><span class="cm">,</span><span class="n">0x24b7</span><span class="cm">,</span><span class="n">0x24b8</span><span class="cm">,</span><span class="n">0x24b9</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># same thing with Unicode circled letters</span></pre>
+<pre class="verbatim">    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;ccxxcc&quot;</span><span class="cm">,</span><span class="n">65</span><span class="cm">,</span><span class="n">66</span><span class="cm">,</span><span class="n">67</span><span class="cm">,</span><span class="n">68</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># foo eq &quot;AB\0\0CD&quot;</span></pre>
+<pre class="verbatim">    <span class="c"># note: the above examples featuring &quot;C&quot; and &quot;c&quot; are true</span>
+    <span class="c"># only on ASCII and ASCII-derived systems such as ISO Latin 1</span>
+    <span class="c"># and UTF-8.  In EBCDIC the first example would be</span>
+    <span class="c"># $foo = pack(&quot;CCCC&quot;,193,194,195,196);</span></pre>
+<pre class="verbatim">    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;s2&quot;</span><span class="cm">,</span><span class="n">1</span><span class="cm">,</span><span class="n">2</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># &quot;\1\0\2\0&quot; on little-endian</span>
+    <span class="c"># &quot;\0\1\0\2&quot; on big-endian</span></pre>
+<pre class="verbatim">    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;a4&quot;</span><span class="cm">,</span><span class="q">&quot;abcd&quot;</span><span class="cm">,</span><span class="q">&quot;x&quot;</span><span class="cm">,</span><span class="q">&quot;y&quot;</span><span class="cm">,</span><span class="q">&quot;z&quot;</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># &quot;abcd&quot;</span></pre>
+<pre class="verbatim">    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;aaaa&quot;</span><span class="cm">,</span><span class="q">&quot;abcd&quot;</span><span class="cm">,</span><span class="q">&quot;x&quot;</span><span class="cm">,</span><span class="q">&quot;y&quot;</span><span class="cm">,</span><span class="q">&quot;z&quot;</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># &quot;axyz&quot;</span></pre>
+<pre class="verbatim">    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;a14&quot;</span><span class="cm">,</span><span class="q">&quot;abcdefg&quot;</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># &quot;abcdefg\0\0\0\0\0\0\0&quot;</span></pre>
+<pre class="verbatim">    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;i9pl&quot;</span><span class="cm">,</span> <a class="l_k" href="../functions/gmtime.html">gmtime</a><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># a real struct tm (on my system anyway)</span></pre>
+<pre class="verbatim">    <span class="i">$utmp_template</span> = <span class="q">&quot;Z8 Z8 Z16 L&quot;</span><span class="sc">;</span>
+    <span class="i">$utmp</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="i">$utmp_template</span><span class="cm">,</span> <span class="i">@utmp1</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># a struct utmp (BSDish)</span></pre>
+<pre class="verbatim">    <span class="i">@utmp2</span> = <a class="l_k" href="../functions/unpack.html">unpack</a><span class="s">(</span><span class="i">$utmp_template</span><span class="cm">,</span> <span class="i">$utmp</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># &quot;@utmp1&quot; eq &quot;@utmp2&quot;</span></pre>
+<pre class="verbatim"><a name="bintodec"></a>    sub <span class="m">bintodec</span> <span class="s">{</span>
+	<a class="l_k" href="../functions/unpack.html">unpack</a><span class="s">(</span><span class="q">&quot;N&quot;</span><span class="cm">,</span> <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;B32&quot;</span><span class="cm">,</span> <a class="l_k" href="../functions/substr.html">substr</a><span class="s">(</span><span class="q">&quot;0&quot;</span> x <span class="n">32</span> . <a class="l_k" href="../functions/shift.html">shift</a><span class="cm">,</span> <span class="n">-32</span><span class="s">)</span><span class="s">)</span><span class="s">)</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    <span class="i">$foo</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&#39;sx2l&#39;</span><span class="cm">,</span> <span class="n">12</span><span class="cm">,</span> <span class="n">34</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># short 12, two zero bytes padding, long 34</span>
+    <span class="i">$bar</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&#39;s@4l&#39;</span><span class="cm">,</span> <span class="n">12</span><span class="cm">,</span> <span class="n">34</span><span class="s">)</span><span class="sc">;</span>
+    <span class="c"># short 12, zero fill to position 4, long 34</span>
+    <span class="c"># $foo eq $bar</span></pre>
+<p>The same template may generally also be used in unpack().</p>
+</li>
+</ul>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="../perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='../close_purple.gif';" onmouseout="rightCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="../search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('pack','functions/pack.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

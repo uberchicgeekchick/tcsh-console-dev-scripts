@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perluts - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-platforms.html">Platform specific</a> &gt; perluts</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perluts</div><div class="pdf_link"><a href="perluts.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perluts.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#BUILDING-PERL-ON-UTS">BUILDING PERL ON UTS</a><li><a href="#Installing-the-built-perl-on-UTS">Installing the built perl on UTS</a><li><a href="#AUTHOR">AUTHOR</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perluts - Perl under UTS</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<p>This document can be read <i>as is</i>: as <i>README.uts</i>, or you
+can read it after you build your package using "man perluts".</p>
+<p>The purpose is to help you build Perl for UTS, which, if you
+follow these instructions, should be easy, and result in
+a solidly working installation.</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>Perl 5.7.2 (Developmental) or Perl 5.8.x (forthcoming) for UTS</p>
+<a name="BUILDING-PERL-ON-UTS"></a><h1>BUILDING PERL ON UTS</h1>
+<p>NOTE: Some sites have redefined the way uname works, and if yours
+does this, special steps must be taken so that Configure can
+recognize your system as a UTS system.  To see if you are in
+this category, issue the command "uname -a".  It should look
+something like:</p>
+<pre class="verbatim">  uts juno 4 4.4 9672 370</pre><p>At any rate, the first field should be "uts".  If this is not
+the case; supposing it is, say telcoUTS, create a script, uts/uname
+(i.e. uname, in the subdirectory "uts" of the main Perl source dir):
+   # uname
+   /usr/bin/uname "$@" | sed -e 's/^telcoUTS/uts/'</p>
+<p>and when you execute Configure, do it as below, except for adding
+PATH=uts:$PATH as a prefix.  I.e. do:</p>
+<pre class="verbatim">   PATH=uts:$PATH ./Configure ...</pre><p>There is no need to do an interactive configure, just type</p>
+<pre class="verbatim">  ./Configure -de [-Dusedevel] [-Doptimize=-g ] 2&gt;&amp;1 | tee Conf.out</pre><p>"-Dusedevel" may be required to configure Perl 5.7.2 non-interactively.
+Use -Doptimize=-g if you want to run Perl under sdb or gdb, OR
+if you want to be able to use the -D command line flags to perl,
+which are occasionally useful in debugging perl scripts.</p>
+<p>In this and the following steps, the "2&gt;&amp;1 | tee XXX.out" records all
+output from the process, which will be useful if anything unexpected
+goes wrong.</p>
+<p>Then do the compilation with</p>
+<pre class="verbatim">  make <span class="n">2</span>&gt;<span class="i">&amp;1</span> | tee make.out</pre>
+<p>Finally, test using</p>
+<pre class="verbatim">  make test <span class="n">2</span>&gt;<span class="i">&amp;1</span> | tee make-test.out</pre>
+<p>In the output, the only failures you should see should look like:</p>
+<pre class="verbatim">   lib/Math/BigInt/t/bigfltpm.........Use of uninitialized value ...
+   FAILED at test 57
+   lib/Math/BigInt/t/bigintc..........ok
+   lib/Math/BigInt/t/bigintpm.........FAILED at test 204
+   lib/Math/BigInt/t/mbimbf...........Use of uninitialized value ...
+   Illegal division by zero at ../lib/Math/BigInt/Calc.pm line 314.
+   FAILED at test 71
+   lib/Math/Complex...................exp: OVERFLOW
+   FAILED at test 250
+   lib/Math/Trig......................exp: OVERFLOW
+   ok
+   lib/Memoize/t/array................ok
+   	...
+   lib/Net/protoent...................ok
+   lib/Net/servent....................FAILED at test 0</pre><p>This means that everything passes except for some problems in the
+packages "Math::BigInt", "Math::Complex", and "Math::Trig".
+The lib/Net/servent failure seems to be a bug in the test
+program.  To confirm this, from the main Perl source dir, do:</p>
+<pre class="verbatim">   LD_LIBRARY_PATH=`pwd` ./perl -Ilib lib/Net/servent.t</pre><p>and it should output</p>
+<pre class="verbatim">   1..3
+   ok 1
+   ok 2
+   ok 3</pre><a name="Installing-the-built-perl-on-UTS"></a><h1>Installing the built perl on UTS</h1>
+<p>Run the command "make install"</p>
+<a name="AUTHOR"></a><h1>AUTHOR</h1>
+<pre class="verbatim">   Hal Morris
+   UTS Global LLC
+   email: hom00@utsglobal.com</pre></div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perluts','perluts.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

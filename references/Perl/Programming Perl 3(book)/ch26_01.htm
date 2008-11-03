@@ -1,0 +1,1045 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Plain Old Documentation (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Plain Old Documentation">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+</div>
+<style type="text/css">
+  #fixunixgb { position: absolute; right: 0px; bottom: 0px; }
+  div > div#fixunixgb { position: fixed; }
+  pre.fixit { overflow:auto;border-left:1px dashed #000;border-right:1px dashed #000;padding-left:2px; }
+</style><!--[if gte IE 5.5]><![if lt IE 7]>
+<style type="text/css">
+  div#fixunixgb {
+  right: auto; bottom: auto;
+  left: expression( ( 0 - fixunixgb.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );
+  top: expression( ( 0 - fixunixgb.offsetHeight + ( document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
+}
+</style>
+<![endif]><![endif]-->
+<div id="fixunixgb" align=right style="position:fixed; bottom: 5; right: 5; color:black; background-color: white; width: 170px; height: 120px; padding: 5px; z-index:3">
+<script language="javascript">
+<!--
+var state = 'visible';
+
+function gushowhide(layer_ref) {
+
+if (state == 'visible') {
+state = 'hidden';
+}
+else {
+state = 'visible';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.visibility = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].visibility = state;
+}
+if (document.getElementById && !document.all) {
+maxwell_smart = document.getElementById(layer_ref);
+maxwell_smart.style.visibility = state;
+}
+}
+//-->
+</script>
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 160x90, bottomleft fixed */
+google_ad_slot = "2032737097";
+google_ad_width = 160;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<font size=-1><a href="javascript://" onclick="gushowhide('fixunixgb');">close (x)</a></font>
+</div>
+</div>
+<br>
+<center>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+//728x90, создано 30.01.08 (main top)
+google_ad_slot = "2783893649";
+google_ad_width = 728;
+google_ad_height = 90;
+//--></script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+
+<a href="http://www.internetmap.info/cgi-bin/go.cgi?site_id=49589" target=_blank><img src="http://www.internetmap.info/images/im_88x85.gif" border=0 alt="Internet Map"></a>
+<br>
+
+<b><a href="http://www.unix.org.ua/forum/">Do not forget register in our new UNIX and CISCO forum</a></b>
+
+</center>
+<p>
+
+
+<html>
+<head>
+<title>Plain Old Documentation (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Plain Old Documentation">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+
+<!-- START OF BODY -->
+
+
+
+<!-- TOP BANNER -->
+
+<img src="gifs/smbanner.gif" usemap="#banner-map" border="0" alt="Book Home">
+<map name="banner-map"><AREA SHAPE="RECT" COORDS="0,0,466,71" HREF="index.htm" ALT="Programming Perl"><AREA SHAPE="RECT" COORDS="467,0,514,18" HREF="jobjects/fsearch.htm" ALT="Search this book">
+</map>
+
+<!-- TOP NAV BAR -->
+
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch25_10.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="part4.htm">Part 4: Perl as Culture</a></td><td align="right" valign="top" width="172"><a href="ch26_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- SECTION BODY -->
+<h1 class="chapter">Chapter 26.  Plain Old Documentation</h1>
+<div class="htmltoc">
+<h4 class="tochead">Contents:</h4>
+<p>
+<a href="ch26_01.htm">Pod in a Nutshell</a>
+<br>
+<a href="ch26_02.htm">Pod Translators and Modules</a>
+<br>
+<a href="ch26_03.htm">Writing Your Own Pod Tools</a>
+<br>
+<a href="ch26_04.htm">Pod Pitfalls</a>
+<br>
+<a href="ch26_05.htm">Documenting Your Perl Programs</a>
+<br>
+</p>
+</div>
+
+<a name="INDEX-4372"></a><a name="INDEX-4373"></a>
+<p>One of the principles underlying Perl's design is that simple things
+should be simple, and hard things should be possible.  Documentation
+should be simple.</p>
+
+<p>Perl supports a simple text markup format called <em class="emphasis">pod</em> that can
+stand on its own or be freely intermixed with your source code to create
+embedded documentation.  Pod can be converted to many other formats for
+printing or viewing, or you can just read it directly, because it's
+plain.</p>
+
+<p>Pod is not as expressive as languages like XML, [LaTeX], <em class="emphasis">troff</em>(1), or
+even HTML.  This is intentional: we sacrificed that expressiveness for
+simplicity and convenience.  Some text markup languages make authors
+write more markup than text, which makes writing harder than it has to
+be, and reading next to impossible.  A good format, like a good movie
+score, stays in the background without causing distraction.</p>
+
+<p>Getting programmers to write documentation is almost as hard as getting
+them to wear ties.  Pod was designed to be so easy to write that even a
+programmer could do it--and would.  We don't claim that pod is
+sufficient for writing a book, although it was sufficient for writing
+this one.</p>
+
+
+<h2 class="sect1">26.1. Pod in a Nutshell</h2>
+
+<a name="INDEX-4374"></a>
+<p>Most document formats require the entire document to be in that
+format.  Pod is more forgiving: you can embed pod in any sort of
+file, relying on <em class="emphasis">pod translators</em> to extract the pod.  Some files consist entirely of 100% pure pod.  But other files, notably
+Perl programs and modules, may contain dollops of pod sprinkled
+about wherever the author feels like it.  Perl simply skips over
+the pod text when parsing the file for execution.</p>
+
+<p>The Perl lexer knows to begin skipping when, at a spot where it would
+ordinarily find a statement, it instead encounters a line
+beginning with an equal sign and an identifier, like this:
+<blockquote>
+<pre class="programlisting">=head1 Here There Be Pods!</pre>
+</blockquote>
+
+That text, along with all remaining text up through and including a line
+beginning with <tt class="literal">=cut</tt>, will be ignored.  This allows you to intermix
+your source code and your documentation freely, as in:
+<blockquote>
+<pre class="programlisting">=item snazzle
+
+The snazzle() function will behave in the most spectacular
+form that you can possibly imagine, not even excepting
+cybernetic pyrotechnics.
+
+=cut
+
+sub snazzle {
+    my $arg = shift;
+    ....
+}
+
+=item razzle
+
+The razzle() function enables autodidactic epistemology generation.
+
+=cut
+
+sub razzle {
+    print "Epistemology generation unimplemented on this platform.\n";
+}</pre>
+</blockquote>
+
+For more examples, look at any standard or CPAN Perl module.
+They're all supposed to come with pod, and nearly all do, except for
+the ones that don't.</p>
+
+<p>
+<a name="INDEX-4375"></a>
+Since pod is recognized by the Perl lexer and thrown out, you may also
+use an appropriate pod directive to quickly comment out an arbitrarily
+large section of code.  Use a <tt class="literal">=for</tt> pod block to
+comment out one paragraph, or a
+<tt class="literal">=begin</tt>/<tt class="literal">=end</tt> pair for a larger
+section.  We'll cover the syntax of those pod directives later.
+Remember, though, that in both cases, you're still in pod mode
+afterwards, so you need to <tt class="literal">=cut</tt> back to the
+compiler.
+<blockquote>
+<pre class="programlisting">print "got 1\n";
+
+=for commentary
+This paragraph alone is ignored by anyone except the
+mythical "commentary" translator.  When it's over, you're
+still in pod mode, not program mode.
+print "got 2\n";
+
+
+=cut
+
+# ok, real program again
+print "got 3\n";
+
+=begin comment 
+
+print "got 4\n";
+
+all of this stuff
+here will be ignored
+by everyone
+
+print "got 5\n";
+
+=end comment 
+
+=cut
+
+print "got 6\n";</pre>
+</blockquote>
+
+This will print out that it got <tt class="literal">1</tt>, <tt class="literal">3</tt>, and <tt class="literal">6</tt>.  Remember that
+these pod directives can't go just anywhere.  You have to put them
+only where the parser is expecting to see a new statement, not just in
+the middle of an expression or at other arbitrary locations.</p>
+
+<p>From the viewpoint of Perl, all pod markup is thrown out, but from
+the viewpoint of pod translators, it's the code that is thrown out.
+Pod translators view the remaining text as a sequence of paragraphs
+separated by blank lines.  All modern pod translators parse pod the
+same way, using the standard <tt class="literal">Pod::Parser</tt> module.  They differ only
+in their output, since each translator specializes in one output
+format.</p>
+
+<p>There are three kinds of paragraphs: verbatim paragraphs, command
+paragraphs, and prose paragraphs.</p>
+
+
+<h3 class="sect2">26.1.1. Verbatim Paragraphs</h3>
+
+<p>Verbatim paragraphs are used for literal text that you want to
+appear as is, such as snippets of code.  A verbatim paragraph must
+be indented; that is, it must begin with a space or tab character.  The
+translator should reproduce it exactly, typically in a constant
+width font, with tabs assumed to be on eight-column boundaries.  There
+are no special formatting escapes, so you can't play font games to
+italicize or embolden.  A <tt class="literal">&lt;</tt> character means a literal <tt class="literal">&lt;</tt>, and nothing else.</p>
+
+
+
+
+
+
+<h3 class="sect2">26.1.2. Pod Directives</h3>
+
+<a name="INDEX-4376"></a><a name="INDEX-4377"></a><a name="INDEX-4378"></a>
+<p>All pod directives start with <tt class="literal">=</tt> followed by an identifier.  This may
+be followed by any amount of arbitrary text that the directive can use
+however it pleases.  The only syntactic requirement is that the text must all be
+one paragraph.  Currently recognized directives (sometimes called <em class="emphasis">pod
+commands</em>) are:</p>
+
+<dl>
+<dt>
+<b><tt class="literal">=head1</tt></b>
+</dt>
+<dt>
+<b><tt class="literal">=head2</tt></b>
+</dt>
+<dt>
+<b>...</b>
+</dt>
+<dd>
+<p>The <tt class="literal">=head1</tt>, <tt class="literal">=head2</tt>,... directives produce headings at the level
+specified.  The rest of the text in the paragraph is treated as the
+heading description.  These are similar to the <tt class="literal">.SH</tt> and <tt class="literal">.SS</tt>
+section and subsection headers in <em class="emphasis">man</em>(7), or to <tt class="literal">&lt;H1&gt;</tt>...<tt class="literal">&lt;/H1&gt;</tt> and <tt class="literal">&lt;H2&gt;</tt>...<tt class="literal">&lt;/H2&gt;</tt> tags in HTML.  In fact, that's
+exactly what those translators convert these directives into.</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">=cut</tt></b>
+</dt>
+<dd>
+<p>The <tt class="literal">=cut</tt> directive indicates the end of a stretch of pod.  (There
+might be more pod later in the document, but if so it will be
+introduced with another pod directive.)</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">=pod</tt></b>
+</dt>
+<dd>
+<p>The <tt class="literal">=pod</tt> directive does nothing beyond telling the compiler to lay
+off parsing code through the next <tt class="literal">=cut</tt>.  It's useful for adding
+another paragraph to the document if you're mixing up code and pod a
+lot.</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">=over</tt> <em class="replaceable">NUMBER</em></b>
+</dt>
+<dt>
+<b><tt class="literal">=item</tt> <em class="replaceable">SYMBOL</em></b>
+</dt>
+<dt>
+<b><tt class="literal">=back</tt></b>
+</dt>
+<dd>
+<p>The <tt class="literal">=over</tt> directive starts a section specifically for the generation
+of a list using the <tt class="literal">=item</tt> directive.  At the end of your list, use
+<tt class="literal">=back</tt> to end it.  The <em class="replaceable">NUMBER</em>, if provided, hints to the
+formatter how many spaces to indent.  Some formatters aren't rich
+enough to respect the hint, while others are <em class="emphasis">too</em> rich to respect
+it, insofar as it's difficult when working with proportional fonts to
+make anything line up merely by counting spaces. (However, four spaces is generally construed as enough room for bullets
+or numbers.)</p>
+
+<p>The actual type of the list is indicated by the <em class="replaceable">SYMBOL</em> on the
+individual items.  Here is a bulleted list:
+<blockquote>
+<pre class="programlisting">=over 4
+
+=item *
+
+Mithril armor
+
+=item *
+
+Elven cloak
+
+=back</pre>
+</blockquote>
+
+And a numbered list:
+<blockquote>
+<pre class="programlisting">=over 4
+
+=item 1.
+
+First, speak "friend".
+
+=item 2.
+
+Second, enter Moria.
+
+=back</pre>
+</blockquote>
+
+And a named list:
+<blockquote>
+<pre class="programlisting">=over 4
+
+=item armor()
+
+Description of the armor() function
+
+=item chant()
+
+Description of the chant() function
+
+=back</pre>
+</blockquote>
+
+You may nest lists of the same or different types, but some
+basic rules apply: don't use <tt class="literal">=item</tt> outside an <tt class="literal">=over</tt>/<tt class="literal">=back</tt> block; use
+at least one <tt class="literal">=item</tt> inside an <tt class="literal">=over</tt>/<tt class="literal">=back</tt> block; and perhaps
+most importantly, keep the type of the items consistent within a given
+list.  Either use <tt class="literal">=item *</tt> for each item to produce a bulleted list,
+or <tt class="literal">=item 1.</tt>, <tt class="literal">=item 2.</tt>, and so on to produce numbered list, or use
+<tt class="literal">=item foo</tt>, <tt class="literal">=item bar</tt>, and so on to produce a named list.  If you
+start with bullets or numbers, stick with them, since formatters are
+allowed to use the first <tt class="literal">=item</tt> type to decide how to format the
+list.</p>
+
+<p>As with everything in pod, the result is only as good as the
+translator.  Some translators pay attention to the particular
+numbers (or letters, or Roman numerals) following the <tt class="literal">=item</tt>, and
+others don't.  The current <em class="emphasis">pod2html</em> translator, for instance,
+is quite cavalier: it strips out the sequence indicators entirely
+without looking at them to infer what sequence you're using, then
+wraps the entire list inside <tt class="literal">&lt;OL&gt;</tt> and <tt class="literal">&lt;/OL&gt;</tt> tags so
+that the browser can display it as an ordered list in HTML.  This
+is not to be construed a feature; it may eventually be fixed.</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">=for</tt> <em class="replaceable">TRANSLATOR</em></b>
+</dt>
+<dt>
+<b><tt class="literal">=begin</tt> <em class="replaceable">TRANSLATOR</em></b>
+</dt>
+<dt>
+<b><tt class="literal">=end</tt> <em class="replaceable">TRANSLATOR</em></b>
+</dt>
+<dd>
+<p>
+<tt class="literal">=for</tt>, <tt class="literal">=begin</tt>, and
+<tt class="literal">=end</tt> let you include special sections to be passed
+through unaltered, but only to particular formatters. Formatters that
+recognize their own names, or aliases for their names, in
+<em class="replaceable">TRANSLATOR</em> pay attention to that directive;
+any others completely ignore them.  The directive
+<tt class="literal">=for</tt> specifies that just the rest of this
+paragraph is destined <em class="emphasis">for</em> a particular
+translator.
+<blockquote>
+<pre class="programlisting">=for html
+&lt;p&gt; This is a &lt;flash&gt;raw&lt;/flash&gt; &lt;small&gt;HTML&lt;/small&gt; paragraph &lt;/p&gt;</pre>
+</blockquote>
+
+The paired <tt class="literal">=begin</tt> and <tt class="literal">=end</tt>
+directives work similarly to <tt class="literal">=for</tt>, but instead of
+accepting a single paragraph only, they treat all text between matched
+<tt class="literal">=begin</tt> and <tt class="literal">=end</tt> as destined for
+a particular translator.  Some examples:
+<blockquote>
+<pre class="programlisting">=begin html
+
+&lt;br&gt;Figure 1.&lt;IMG SRC="figure1.png"&gt;&lt;br&gt;
+
+=end html
+
+=begin text
+
+  ---------------
+  |  foo        |
+  |        bar  |
+  ---------------
+
+^^^^ Figure 1. ^^^^
+
+=end text</pre>
+</blockquote>
+
+Values of <em class="replaceable">TRANSLATOR</em> commonly accepted by
+formatters include <tt class="literal">roff</tt>, <tt class="literal">man</tt>,
+<tt class="literal">troff</tt>, <tt class="literal">nroff</tt>,
+<tt class="literal">tbl</tt>, <tt class="literal">eqn</tt>,
+<tt class="literal">latex</tt>, <tt class="literal">tex</tt>,
+<tt class="literal">html</tt>, and <tt class="literal">text</tt>.  Some formatters
+will accept some of these as synonyms.  No translator accepts
+<tt class="literal">comment</tt>--that's just the customary word for
+something to be ignored by everybody. Any unrecognized word would
+serve the same purpose. While writing this book, we often left notes
+for ourselves under the directive <tt class="literal">=for later</tt>.</p>
+
+<p>Note that <tt class="literal">=begin</tt> and <tt class="literal">=end</tt> do
+nest, but only in the sense that the outermost matched set causes
+everything in the middle to be treated as nonpod, even if it happens
+to contain other <em class="replaceable">=word</em> directives.  That
+is, as soon as any translator sees <tt class="literal">=begin foo</tt>, it
+will either ignore or process <em class="emphasis">everything</em> down to
+the corresponding <tt class="literal">=end foo</tt>.</p>
+</dd>
+
+</dl>
+
+
+
+
+
+
+<h3 class="sect2">26.1.3. Pod Sequences</h3>
+
+<p>The third type of paragraph is simply "flowed" text.  That is, if a
+paragraph doesn't start with either whitespace or an equals sign, it's
+taken as a plain paragraph: regular text that's typed in with as few
+frills as possible.  Newlines are treated as equivalent to spaces.
+It's largely up to the translator to make it look nice, because
+programmers have more important things to do.  It is assumed that
+translators will apply certain common heuristics--see the section "Pod Translators
+and Modules" later in this chapter.</p>
+
+<p>You can do some things explicitly, however.  Inside either
+ordinary paragraphs or heading/item directives (but not in verbatim
+paragraphs), you may use special sequences to adjust the formatting.
+These sequences always start with a single capital letter followed by a
+left angle bracket, and extend through the matching (not necessarily
+the next) right angle bracket.  Sequences may contain other sequences.</p>
+
+<p>Here are the sequences defined by pod:</p>
+
+<dl>
+<dt>
+<b><tt class="literal">I&lt;</tt><em class="replaceable">text</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Italicized text, used for emphasis, book titles, names of
+ships, and manpage references such as "<em class="emphasis">perlpod</em>(1)".</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">B&lt;</tt><em class="replaceable">text</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Emboldened text, used almost exclusively for command-line switches
+and sometimes for names of programs.</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">C&lt;</tt><em class="replaceable">text</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Literal code, probably in a fixed-width font like Courier.  Not
+needed on simple items that the translator should be able to infer
+as code, but you should put it anyway.</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">S&lt;</tt><em class="replaceable">text</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Text with nonbreaking spaces.  Often surrounds other sequences.</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">name</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>A cross reference (link) to a name:</p>
+
+<dl>
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">name</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Manual page</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">name/ident</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Item in manual page</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">name/"sec"</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Section in other manual page</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">"sec"</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Section in this manual page (the quotes are optional)</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">/"sec"</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Ditto</p>
+</dd>
+
+</dl>
+
+<p>The next five sequences are the same as those above, but the output will be
+only <em class="replaceable">text</em>, with the link information hidden as in
+HTML:</p>
+
+<dl>
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">text</em><tt class="literal">|</tt><em class="replaceable">name</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">text</em><tt class="literal">|</tt><em class="replaceable">name</em><tt class="literal">/</tt><em class="replaceable">ident</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">text</em><tt class="literal">|</tt><em class="replaceable">name</em><tt class="literal">/</tt><em class="replaceable">"sec"</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">text</em><tt class="literal">|</tt><em class="replaceable">"sec"</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dt>
+<b><tt class="literal">L&lt;</tt><em class="replaceable">text</em><tt class="literal">|/</tt><em class="replaceable">"sec"</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>The <em class="replaceable">text</em> cannot contain the characters <tt class="literal">/</tt> and <tt class="literal">|</tt>, and should
+contain <tt class="literal">&lt;</tt> or <tt class="literal">&gt;</tt> only in matched pairs.</p>
+</dd>
+
+</dl>
+</dd>
+
+
+<dt>
+<b><tt class="literal">F&lt;</tt><em class="replaceable">pathname</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>Used for filenames.  This is traditionally rendered the same as <tt class="literal">I</tt>.</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">X&lt;</tt><em class="replaceable">entry</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>An index entry of some sort.  As always, it's up to the translator to decide what to do.
+The pod specification doesn't dictate that.</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">E&lt;</tt><em class="replaceable">escape</em><tt class="literal">&gt;</tt></b>
+</dt>
+<dd>
+<p>A named character, similar to HTML escapes:</p>
+</dd>
+
+
+<dt>
+<b><tt class="literal">Z&lt;&gt;</tt></b>
+</dt>
+<dd>
+<p>A zero-width character.  This is nice for putting in front of sequences
+that might confuse something.  For example, if you had a line
+in regular prose that had to start with an equals sign, you could write
+that as:
+<blockquote>
+<pre class="programlisting">Z&lt;&gt;=can you see</pre>
+</blockquote>
+
+or for something with a "From" in it, so the mailer doesn't put a <tt class="literal">&gt;</tt> in front:
+<blockquote>
+<pre class="programlisting">Z&lt;&gt;From here on out...</pre>
+</blockquote>
+</p>
+</dd>
+
+</dl>
+
+<p>Most of the time, you'll need only a single set of angle brackets to
+delimit one of these pod sequences.  Sometimes, however, you will want
+to put a <tt class="literal">&lt;</tt> or <tt class="literal">&gt;</tt> inside a
+sequence.  (This is particularly common when using a
+<tt class="literal">C&lt;&gt;</tt> sequence to provide a constant-width font
+for a snippet of code.)  As with all things in Perl, there is more
+than one way to do it.  One way is to simply represent the closing
+bracket with an <tt class="literal">E</tt> sequence:
+<blockquote>
+<pre class="programlisting">C&lt;$a E&lt;lt&gt;=E&lt;gt&gt; $b&gt;</pre>
+</blockquote>
+
+This produces "<tt class="literal">$a &lt;=&gt; $b</tt>".</p>
+
+<p>A more readable, and perhaps more "plain" way, is to use an alternate
+set of delimiters that doesn't require the angle brackets to be escaped.
+Doubled angle brackets (<tt class="literal">C&lt;&lt;</tt><em class="replaceable">stuff</em><tt class="literal">&gt;&gt;</tt>) may be used,
+provided there is whitespace immediately following the opening
+delimiter and immediately preceding the closing one.  For
+example, the following will work:
+<blockquote>
+<pre class="programlisting">C&lt;&lt; $a &lt;=&gt; $b &gt;&gt;</pre>
+</blockquote>
+
+You may use as many repeated angle-brackets as you like so
+long as you have the same number of them on both sides, and you make
+sure that whitespace immediately follows the last <tt class="literal">&lt;</tt> of the left side
+and immediately precedes the first <tt class="literal">&gt;</tt> of the right side.  So the
+following will also work:
+<blockquote>
+<pre class="programlisting">C&lt;&lt;&lt; $a &lt;=&gt; $b &gt;&gt;&gt;
+C&lt;&lt;&lt;&lt; $a &lt;=&gt; $b &gt;&gt;&gt;&gt;</pre>
+</blockquote>
+
+All these end up spitting out <tt class="literal">$a &lt;=&gt; $b</tt> in a constant-width font.</p>
+
+<p>The extra whitespace inside on either end goes away, so you should
+leave 
+
+whitespace on the outside if you want it.  Also, the two inside
+chunks of extra whitespace don't overlap, so if the first thing being
+quoted is <tt class="literal">&gt;&gt;</tt>, it isn't taken as the closing delimiter:
+<blockquote>
+<pre class="programlisting">The C&lt;&lt; &gt;&gt; &gt;&gt; right shift operator.</pre>
+</blockquote>
+
+This produces "The <tt class="literal">&gt;&gt;</tt> right shift operator."</p>
+
+<p>Note that pod sequences <em class="emphasis">do</em> nest.  That means you can
+write "<tt class="literal">The I&lt;Santa MarE&lt;iacute&gt;a&gt; left port
+already</tt>" to produce "The <em class="emphasis">Santa Mar&amp;#237;a</em>
+left port already", or "<tt class="literal">B&lt;touch&gt; S&lt;B&lt;-t&gt;
+I&lt;time&gt;&gt; I&lt;file&gt;</tt>" to produce
+"<b class="emphasis-bold">touch -t&nbsp;</b><em class="emphasis">time</em><em class="emphasis">file</em>", and expect this to work properly.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- BOTTOM NAV BAR -->
+
+<hr width="515" align="left">
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch25_10.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="index.htm"><img src="../gifs/txthome.gif" alt="Home" border="0"></a></td><td align="right" valign="top" width="172"><a href="ch26_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+<tr>
+<td align="left" valign="top" width="172">25.10. Style</td><td align="center" valign="top" width="171"><a href="index/index.htm"><img src="../gifs/index.gif" alt="Book Index" border="0"></a></td><td align="right" valign="top" width="172">26.2. Pod Translators and Modules</td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- LIBRARY NAV BAR -->
+
+<img src="../gifs/smnavbar.gif" usemap="#library-map" border="0" alt="Library Navigation Links"><p>
+<font size="-1"><a href="copyrght.htm">Copyright &copy; 2001</a> O'Reilly &amp; Associates. All rights reserved.</font>
+</p>
+<map name="library-map"> <area shape="rect" coords="2,-1,79,99" href="../index.htm"><area shape="rect" coords="84,1,157,108" href="../perlnut/index.htm"><area shape="rect" coords="162,2,248,125" href="../prog3/index.htm"><area shape="rect" coords="253,2,326,130" href="../advprog/index.htm"><area shape="rect" coords="332,1,407,112" href="../cookbook/index.htm"><area shape="rect" coords="414,2,523,103" href="../sysadmin/index.htm">
+</map>
+
+<!-- END OF BODY -->
+
+</body>
+</html>
+
+
+<br>
+
+
+<table border=0 align=center>
+<tr><td>
+
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 468x60, main footer */
+google_ad_slot = "1100896219";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<script>
+user = "2823";
+page = "2";
+
+</script>
+
+
+
+</td>
+<td>
+
+<!-- Ukrainian Banner Network 468x60 START -->
+<center>
+<script>
+//<!--
+user = "2823";
+page = "2";
+pid = Math.round((Math.random() * (10000000 - 1)));
+document.write("<iframe src='http://banner.kiev.ua/cgi-bin/bi.cgi?h" +
+user + "&amp;"+ pid + "&amp;" + page + "' frameborder=0 vspace=0 hspace=0 " +
+" width=468 height=60 marginwidth=0 marginheight=0 scrolling=no>");
+document.write("<a href='http://banner.kiev.ua/cgi-bin/bg.cgi?" +
+user + "&amp;"+ pid + "&amp;" + page + "' target=_top>");
+document.write("<img border=0 src='http://banner.kiev.ua/" +
+"cgi-bin/bi.cgi?i" + user + "&amp;" + pid + "&amp;" + page +
+"' width=468 height=60 alt='хЋ“Ѕ…ќ”ЋЅ— вЅќќ≈“ќЅ— у≈‘Ў'></a>");
+document.write("</iframe>");
+//-->
+</script>
+</center>
+<!-- Ukrainian Banner Network 468x60 END -->
+
+
+</td></tr>
+<tr><td colspan=2>
+<br>
+<hr size=1>
+
+
+
+<!-- SpyLOG -->
+<script src="http://tools.spylog.ru/counter_cv.js" id="spylog_code" type="text/javascript" counter="1028713" part="docs" track_links="ext" page_level="0">
+</script>
+<noscript>
+<a href="http://u10287.13.spylog.com/cnt?cid=1028713&f=3&p=0" target="_blank">
+<img src="http://u10287.13.spylog.com/cnt?cid=1028713&p=0" alt="SpyLOG" border="0" width="88" height="31"></a>
+</noscript>
+<!--/ SpyLOG -->
+
+<!--bigmir)net TOP 100-->
+<script type="text/javascript" language="javascript"><!--
+function BM_Draw(oBM_STAT){
+document.write('<table cellpadding="0" cellspacing="0" border="0" style="display:inline;margin-right:4px;"><tr><td><div style="margin:0px;padding:0px;font-size:1px;width:88px;"><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_top.gif\') no-repeat bottom;">&nbsp;</div><div style="font:10px Tahoma;background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_center.gif\');"><div style="text-align:center;"><a href="http://www.bigmir.net/" target="_blank" style="color:#0000ab;text-decoration:none;font:10px Tahoma;">bigmir<span style="color:#ff0000;">)</span>net</a></div><div style="margin-top:3px;padding: 0px 6px 0px 6px;color:#003596;"><div style="float:left;font:10px Tahoma;">'+oBM_STAT.hosts+'</div><div style="float:right;font:10px Tahoma;">'+oBM_STAT.hits+'</div></div><br clear="all"/></div><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_bottom.gif\') no-repeat top;">&nbsp;</div></div></td></tr></table>');
+}
+//-->
+</script>
+
+<script type="text/javascript" language="javascript"><!--
+bmN=navigator,bmD=document,bmD.cookie='b=b',i=0,bs=[],bm={o:1,v:126595,s:126595,t:0,c:bmD.cookie?1:0,n:Math.round((Math.random()* 1000000)),w:0};
+for(var f=self;f!=f.parent;f=f.parent)bm.w++;
+try{if(bmN.plugins&&bmN.mimeTypes.length&&(x=bmN.plugins['Shockwave Flash']))bm.m=parseInt(x.description.replace(/([a-zA-Z]|s)+/,''));
+else for(var f=3;f<20;f++)if(eval('new ActiveXObject("ShockwaveFlash.ShockwaveFlash.'+f+'")'))bm.m=f}catch(e){;}
+try{bm.y=bmN.javaEnabled()?1:0}catch(e){;}
+try{bmS=screen;bm.v^=bm.d=bmS.colorDepth||bmS.pixelDepth;bm.v^=bm.r=bmS.width}catch(e){;}
+r=bmD.referrer.slice(7);if(r&&r.split('/')[0]!=window.location.host){bm.f=escape(r);bm.v^=r.length}
+bm.v^=window.location.href.length;for(var x in bm) if(/^[ovstcnwmydrf]$/.test(x)) bs[i++]=x+bm[x];
+bmD.write('<sc'+'ript type="text/javascript" language="javascript" src="http://c.bigmir.net/?'+bs.join('&')+'"></sc'+'ript>');
+//-->
+</script>
+<noscript>
+<a href="http://www.bigmir.net/" target="_blank"><img src="http://c.bigmir.net/?v126595&s126595&t2" width="88" height="31" alt="bigmir)net TOP 100" title="bigmir)net TOP 100" border="0" /></a>
+</noscript>
+<!--bigmir)net TOP 100-->
+
+<!--begin of Rambler's Top100 code -->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://counter.rambler.ru/top100.cnt?692798" alt="" width=1 height=1 border=0></a>
+<!--end of Top100 code-->
+
+<!--begin of Top100 logo-->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://top100-images.rambler.ru/top100/w1.gif" alt="Rambler's Top100" width=88 height=31 
+border=0></a>
+<!--end of Top100 logo -->
+
+
+<!-- hit.ua -->
+<a href='http://hit.ua/?x=3601' target='_blank'>
+<script language="javascript" type="text/javascript"><!--
+Cd=document;Cr="&"+Math.random();Cp="&s=1";
+Cd.cookie="b=b";if(Cd.cookie)Cp+="&c=1";
+Cp+="&t="+(new Date()).getTimezoneOffset();
+if(self!=top)Cp+="&f=1";
+//--></script>
+<script language="javascript1.1" type="text/javascript"><!--
+if(navigator.javaEnabled())Cp+="&j=1";
+//--></script>
+<script language="javascript1.2" type="text/javascript"><!--
+if(typeof(screen)!='undefined')Cp+="&w="+screen.width+"&h="+
+screen.height+"&d="+(screen.colorDepth?screen.colorDepth:screen.pixelDepth);
+//--></script>
+<script language="javascript" type="text/javascript"><!--
+Cd.write("<img src='http://c.hit.ua/hit?i=3601&g=0&x=1"+Cp+Cr+
+"&r="+escape(Cd.referrer)+"&u="+escape(window.location.href)+
+"' border='0' width='88' height='31' "+
+"alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>");
+//--></script>
+<noscript>
+<img src='http://c.hit.ua/hit?i=3601&amp;g=0&amp;x=1' border='0' width='88' height='31' alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>
+</noscript></a>
+<!-- / hit.ua -->
+
+<script language="javascript">//<!--
+mtI="012408140822";mtG="45";mtT="4";mtS='http://012408140822.c.mystat-in.net/?';
+mtD=document;mtN=navigator.appName;mtR=escape(mtD.referrer);
+mtW="";mtC="";mtV="0";mtJ="1";
+//--></script><script language="javascript1.1">//<!--
+mtV="1";mtJ = (navigator.javaEnabled()?"1":"0");
+//--></script><script language="javascript1.2">//<!--
+mtE=screen;mtW=mtE.width;mtN!="Netscape"?mtC=mtE.colorDepth:mtC=mtE.pixelDepth;mtV="2";
+//--></script><script language="javascript1.3">//<!--
+mtV="3";
+//--></script><script language="javascript">//<!--
+mtUrl="";mtUrl+="\""+mtS+"i"+mtI+"&t"+mtT+"&g"+mtG+"&w"+mtW+"&c"+mtC+"&r"+mtR+"&v"+mtV+"&j"+mtJ+"\"";
+mtUrl="<a href=http://mytop-in.net/ target=_blank><img src="+mtUrl+"width=88 height=31 border=0 alt=\"Rated by MyTOP\"></a>";
+mtD.write(mtUrl);
+//--></script>
+<noscript>
+<a href=http://mytop-in.net/ target=_blank><img src=http://012408140822.c.mystat-in.net/?i012408140822&t4&g45&j0 width=88 height=31 border=0 alt="Rated by MyTOP"></a>
+</noscript>
+
+<!--Rating@Mail.ru COUNTEr--><script language="JavaScript" type="text/javascript"><!--
+d=document;var a='';a+=';r='+escape(d.referrer)
+js=10//--></script><script language="JavaScript1.1" type="text/javascript"><!--
+a+=';j='+navigator.javaEnabled()
+js=11//--></script><script language="JavaScript1.2" type="text/javascript"><!--
+s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+js=12//--></script><script language="JavaScript1.3" type="text/javascript"><!--
+js=13//--></script><script language="JavaScript" type="text/javascript"><!--
+d.write('<a href="http://top.mail.ru/jump?from=1374183"'+
+' target=_top><img src="http://d7.cf.b4.a1.top.list.ru/counter'+
+'?id=1374183;t=48;js='+js+a+';rand='+Math.random()+
+'" alt="–ейтинг@Mail.ru"'+' border=0 height=31 width=88/><\/a>')
+if(11<js)d.write('<'+'!-- ')//--></script><noscript><a
+target=_top href="http://top.mail.ru/jump?from=1374183"><img
+src="http://d7.cf.b4.a1.top.list.ru/counter?js=na;id=1374183;t=48"
+border=0 height=31 width=88
+alt="–ейтинг@Mail.ru"/></a></noscript><script language="JavaScript" type="text/javascript"><!--
+if(11<js)d.write('--'+'>')//--></script><!--/COUNTER-->
+
+<!-- I.UA counter --><a href="http://www.i.ua/" target="_blank" onclick="this.href='http://i.ua/r.php?21595';" title="Rated by I.UA">
+<script type="text/javascript" language="javascript"><!--
+iS='<img src="http://r.i.ua/s?u21595&p66&n'+Math.random();
+iD=document;iD.cookie="iua=1";if(iD.cookie)iS+='&c1';
+iS+='&d'+(screen.colorDepth?screen.colorDepth:screen.pixelDepth)
++"&w"+screen.width+'&h'+screen.height
+iT=iD.referrer.slice(7);iH=window.location.href.slice(7);
+((iI=iT.indexOf('/'))!=-1)?(iT=iT.substring(0,iI)):(iI=iT.length);
+if(iT!=iH.substring(0,iI))iS+='&f'+escape(iD.referrer.slice(7))
+iS+='&r'+escape(iH);
+iD.write(iS+'" border="0" width="88" height="31" />');
+//--></script></a><!-- End of I.UA counter -->
+
+<script type="text/javascript">
+<!--
+Nnv=navigator;Nna=Nnv.appName;Nd=document;Nd.cookie="b=b";Nc=0;if(Nd.cookie)Nc=1;
+Nn=(Nna.substring(0,2)=="Mi")?0:1;Ns=screen;Npx=(Nn==0)?Ns.colorDepth:Ns.pixelDepth;
+str='<img src="http://c.uarating.com/199;'+Ns.width+'x'+Ns.height+';'+Npx+';'+Nc+';';
+str=str+escape(Nd.referrer)+';'+Math.random()+'" width="88" height="31" border="0">';
+document.write('<a href="http://www.uarating.com/" alt="uaRating" target="_blank">'+str+'<\/a>');
+// -->
+</script>
+<noscript><a href="http://www.uarating.com/" target="_blank"><img src="http://c.uarating.com/199;0x0;0;0;-;0" alt="uaRating" width="88" height="31" border="0"></a></noscript>
+
+
+</td></tr>
+</table>
+
+
+</body>
+</html>

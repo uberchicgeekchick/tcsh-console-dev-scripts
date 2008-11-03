@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>libnetcfg - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-utilities.html">Utilities</a> &gt; libnetcfg</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">libnetcfg</div><div class="pdf_link"><a href="libnetcfg.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="libnetcfg.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#USAGE">USAGE</a><li><a href="#SEE-ALSO">SEE ALSO</a><li><a href="#AUTHORS">AUTHORS</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>libnetcfg - configure libnet</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>The libnetcfg utility can be used to configure the libnet.
+Starting from perl 5.8 libnet is part of the standard Perl
+distribution, but the libnetcfg can be used for any libnet
+installation.</p>
+<a name="USAGE"></a><h1>USAGE</h1>
+<p>Without arguments libnetcfg displays the current configuration.</p>
+<pre class="verbatim">    $ libnetcfg
+    # old config ./libnet.cfg
+    daytime_hosts        ntp1.none.such
+    ftp_int_passive      0
+    ftp_testhost         ftp.funet.fi
+    inet_domain          none.such
+    nntp_hosts           nntp.none.such
+    ph_hosts             
+    pop3_hosts           pop.none.such
+    smtp_hosts           smtp.none.such
+    snpp_hosts           
+    test_exist           1
+    test_hosts           1
+    time_hosts           ntp.none.such
+    # libnetcfg -h for help
+    $ </pre><p>It tells where the old configuration file was found (if found).</p>
+<p>The <code class="inline">-h</code>
+ option will show a usage message.</p>
+<p>To change the configuration you will need to use either the <code class="inline">-c</code>
+ or
+the <code class="inline">-d</code>
+ options.</p>
+<p>The default name of the old configuration file is by default
+"libnet.cfg", unless otherwise specified using the -i option,
+<code class="inline">-i oldfile</code>
+, and it is searched first from the current directory,
+and then from your module path.</p>
+<p>The default name of the new configuration file is "libnet.cfg", and by
+default it is written to the current directory, unless otherwise
+specified using the -o option, <code class="inline">-o <span class="i">newfile</span></code>
+.</p>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><a href="Net/Config.html">Net::Config</a>, <a href="Net/libnetFAQ.html">Net::libnetFAQ</a></p>
+<a name="AUTHORS"></a><h1>AUTHORS</h1>
+<p>Graham Barr, the original Configure script of libnet.</p>
+<p>Jarkko Hietaniemi, conversion into libnetcfg for inclusion into Perl 5.8.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('libnetcfg','libnetcfg.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

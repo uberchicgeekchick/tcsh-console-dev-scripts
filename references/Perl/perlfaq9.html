@@ -1,0 +1,598 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perlfaq9 - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-faq.html">FAQs</a> &gt; perlfaq9</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perlfaq9</div><div class="pdf_link"><a href="perlfaq9.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perlfaq9.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#What-is-the-correct-form-of-response-from-a-CGI-script%3f">What is the correct form of response from a CGI script?</a><li><a href="#My-CGI-script-runs-from-the-command-line-but-not-the-browser.--(500-Server-Error)">My CGI script runs from the command line but not the browser.  (500 Server Error)</a><li><a href="#How-can-I-get-better-error-messages-from-a-CGI-program%3f">How can I get better error messages from a CGI program?</a><li><a href="#How-do-I-remove-HTML-from-a-string%3f">How do I remove HTML from a string?</a><li><a href="#How-do-I-extract-URLs%3f">How do I extract URLs?</a><li><a href="#How-do-I-download-a-file-from-the-user's-machine%3f--How-do-I-open-a-file-on-another-machine%3f">How do I download a file from the user's machine?  How do I open a file on another machine?</a><li><a href="#How-do-I-make-a-pop-up-menu-in-HTML%3f">How do I make a pop-up menu in HTML?</a><li><a href="#How-do-I-fetch-an-HTML-file%3f">How do I fetch an HTML file?</a><li><a href="#How-do-I-automate-an-HTML-form-submission%3f">How do I automate an HTML form submission?</a><li><a href="#How-do-I-decode-or-create-those-%25-encodings-on-the-web%3f">How do I decode or create those %-encodings on the web?</a><li><a href="#How-do-I-redirect-to-another-page%3f">How do I redirect to another page?</a><li><a href="#How-do-I-put-a-password-on-my-web-pages%3f">How do I put a password on my web pages?</a><li><a href="#How-do-I-edit-my-.htpasswd-and-.htgroup-files-with-Perl%3f">How do I edit my .htpasswd and .htgroup files with Perl?</a><li><a href="#How-do-I-make-sure-users-can't-enter-values-into-a-form-that-cause-my-CGI-script-to-do-bad-things%3f">How do I make sure users can't enter values into a form that cause my CGI script to do bad things?</a><li><a href="#How-do-I-parse-a-mail-header%3f">How do I parse a mail header?</a><li><a href="#How-do-I-decode-a-CGI-form%3f">How do I decode a CGI form?</a><li><a href="#How-do-I-check-a-valid-mail-address%3f">How do I check a valid mail address?</a><li><a href="#How-do-I-decode-a-MIME%2fBASE64-string%3f">How do I decode a MIME/BASE64 string?</a><li><a href="#How-do-I-return-the-user's-mail-address%3f">How do I return the user's mail address?</a><li><a href="#How-do-I-send-mail%3f">How do I send mail?</a><li><a href="#How-do-I-use-MIME-to-make-an-attachment-to-a-mail-message%3f">How do I use MIME to make an attachment to a mail message?</a><li><a href="#How-do-I-read-mail%3f">How do I read mail?</a><li><a href="#How-do-I-find-out-my-hostname%2c-domainname%2c-or-IP-address%3f-hostname%2c-domainname%2c-IP-address%2c-host%2c-domain%2c-hostfqdn%2c-inet_ntoa%2c-gethostbyname%2c-Socket%2c-Net%3a%3aDomain%2c-Sys%3a%3aHostname">How do I find out my hostname, domainname, or IP address?
+</a><li><a href="#How-do-I-fetch-a-news-article-or-the-active-newsgroups%3f">How do I fetch a news article or the active newsgroups?</a><li><a href="#How-do-I-fetch%2fput-an-FTP-file%3f">How do I fetch/put an FTP file?</a><li><a href="#How-can-I-do-RPC-in-Perl%3f">How can I do RPC in Perl?</a></ul><li><a href="#AUTHOR-AND-COPYRIGHT">AUTHOR AND COPYRIGHT</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perlfaq9 - Networking ($Revision: 1.28 $, $Date: 2005/12/31 00:54:37 $)</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>This section deals with questions related to networking, the internet,
+and a few on the web.</p>
+<a name="What-is-the-correct-form-of-response-from-a-CGI-script%3f"></a><h2>What is the correct form of response from a CGI script?</h2>
+<p>(Alan Flavell &lt;flavell+www@a5.ph.gla.ac.uk&gt; answers...)</p>
+<p>The Common Gateway Interface (CGI) specifies a software interface between
+a program ("CGI script") and a web server (HTTPD). It is not specific
+to Perl, and has its own FAQs and tutorials, and usenet group,
+comp.infosystems.www.authoring.cgi</p>
+<p>The CGI specification is outlined in an informational RFC:
+<a href="http://www.ietf.org/rfc/rfc3875">http://www.ietf.org/rfc/rfc3875</a></p>
+<p>Other relevant documentation listed in: <a href="http://www.perl.org/CGI_MetaFAQ.html">http://www.perl.org/CGI_MetaFAQ.html</a></p>
+<p>These Perl FAQs very selectively cover some CGI issues. However, Perl
+programmers are strongly advised to use the CGI.pm module, to take care
+of the details for them.</p>
+<p>The similarity between CGI response headers (defined in the CGI
+specification) and HTTP response headers (defined in the HTTP
+specification, RFC2616) is intentional, but can sometimes be confusing.</p>
+<p>The CGI specification defines two kinds of script: the "Parsed Header"
+script, and the "Non Parsed Header" (NPH) script. Check your server
+documentation to see what it supports. "Parsed Header" scripts are
+simpler in various respects. The CGI specification allows any of the
+usual newline representations in the CGI response (it's the server's
+job to create an accurate HTTP response based on it). So "\n" written in
+text mode is technically correct, and recommended. NPH scripts are more
+tricky: they must put out a complete and accurate set of HTTP
+transaction response headers; the HTTP specification calls for records
+to be terminated with carriage-return and line-feed, i.e ASCII \015\012
+written in binary mode.</p>
+<p>Using CGI.pm gives excellent platform independence, including EBCDIC
+systems. CGI.pm selects an appropriate newline representation
+($CGI::CRLF) and sets binmode as appropriate.</p>
+<a name="My-CGI-script-runs-from-the-command-line-but-not-the-browser.--(500-Server-Error)"></a><h2>My CGI script runs from the command line but not the browser.  (500 Server Error)</h2>
+<p>Several things could be wrong.  You can go through the "Troubleshooting
+Perl CGI scripts" guide at</p>
+<pre class="verbatim">	http://www.perl.org/troubleshooting_CGI.html</pre><p>If, after that, you can demonstrate that you've read the FAQs and that
+your problem isn't something simple that can be easily answered, you'll
+probably receive a courteous and useful reply to your question if you
+post it on comp.infosystems.www.authoring.cgi (if it's something to do
+with HTTP or the CGI protocols).  Questions that appear to be Perl
+questions but are really CGI ones that are posted to comp.lang.perl.misc
+are not so well received.</p>
+<p>The useful FAQs, related documents, and troubleshooting guides are
+listed in the CGI Meta FAQ:</p>
+<pre class="verbatim">	http://www.perl.org/CGI_MetaFAQ.html</pre><a name="How-can-I-get-better-error-messages-from-a-CGI-program%3f"></a><h2>How can I get better error messages from a CGI program?</h2>
+<p>Use the CGI::Carp module.  It replaces <code class="inline"><a class="l_k" href="functions/warn.html">warn</a></code> and <code class="inline"><a class="l_k" href="functions/die.html">die</a></code>, plus the
+normal Carp modules <code class="inline">carp</code>
+, <code class="inline">croak</code>
+, and <code class="inline">confess</code>
+ functions with
+more verbose and safer versions.  It still sends them to the normal
+server error log.</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="CGI/Carp.html">CGI::Carp</a><span class="sc">;</span>
+    <a class="l_k" href="functions/warn.html">warn</a> <span class="q">&quot;This is a complaint&quot;</span><span class="sc">;</span>
+    <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;But this one is serious&quot;</span><span class="sc">;</span></pre>
+<p>The following use of CGI::Carp also redirects errors to a file of your choice,
+placed in a BEGIN block to catch compile-time warnings as well:</p>
+<pre class="verbatim">    BEGIN <span class="s">{</span>
+        <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="CGI/Carp.html">CGI::Carp</a> <span class="q">qw(carpout)</span><span class="sc">;</span>
+        <a class="l_k" href="functions/open.html">open</a><span class="s">(</span>LOG<span class="cm">,</span> <span class="q">&quot;&gt;&gt;/var/local/cgi-logs/mycgi-log&quot;</span><span class="s">)</span>
+            or <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Unable to append to mycgi-log: $!\n&quot;</span><span class="sc">;</span>
+        <span class="i">carpout</span><span class="s">(</span><span class="i">*LOG</span><span class="s">)</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>You can even arrange for fatal errors to go back to the client browser,
+which is nice for your own debugging, but might confuse the end user.</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="CGI/Carp.html">CGI::Carp</a> <span class="q">qw(fatalsToBrowser)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Bad error here&quot;</span><span class="sc">;</span></pre>
+<p>Even if the error happens before you get the HTTP header out, the module
+will try to take care of this to avoid the dreaded server 500 errors.
+Normal warnings still go out to the server error log (or wherever
+you've sent them with <code class="inline">carpout</code>
+) with the application name and date
+stamp prepended.</p>
+<a name="How-do-I-remove-HTML-from-a-string%3f"></a><h2>How do I remove HTML from a string?</h2>
+<p>The most correct way (albeit not the fastest) is to use HTML::Parser
+from CPAN.  Another mostly correct
+way is to use HTML::FormatText which not only removes HTML but also
+attempts to do a little simple formatting of the resulting plain text.</p>
+<p>Many folks attempt a simple-minded regular expression approach, like
+<code class="inline"><a class="l_k" href="functions/s.html">s/&lt;.*?&gt;//g</a></code>, but that fails in many cases because the tags
+may continue over line breaks, they may contain quoted angle-brackets,
+or HTML comment may be present.  Plus, folks forget to convert
+entities--like <code class="inline"><span class="i">&amp;lt</span><span class="sc">;</span></code>
+ for example.</p>
+<p>Here's one "simple-minded" approach, that works for most files:</p>
+<pre class="verbatim">    <span class="c">#!/usr/bin/perl -p0777</span>
+    <span class="q">s/&lt;(?:[^&gt;&#39;&quot;]*|([&#39;&quot;]).*?\1)*&gt;//gs</span></pre>
+<p>If you want a more complete solution, see the 3-stage striphtml
+program in
+<a href="http://www.cpan.org/authors/Tom_Christiansen/scripts/striphtml.gz">http://www.cpan.org/authors/Tom_Christiansen/scripts/striphtml.gz</a>
+.</p>
+<p>Here are some tricky cases that you should think about when picking
+a solution:</p>
+<pre class="verbatim">    &lt;IMG SRC = "foo.gif" ALT = "A &gt; B"&gt;</pre><pre class="verbatim">    &lt;IMG SRC = "foo.gif"
+	 ALT = "A &gt; B"&gt;</pre><pre class="verbatim">    <span class="q">&lt;!-- &lt;A comment&gt;</span> --&gt;</pre>
+<pre class="verbatim">    &lt;script&gt;if (a&lt;b &amp;&amp; a&gt;c)&lt;/script&gt;</pre><pre class="verbatim">    <span class="q">&lt;# Just data #&gt;</span></pre>
+<pre class="verbatim">    &lt;![INCLUDE CDATA [ &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; ]]&gt;</pre><p>If HTML comments include other tags, those solutions would also break
+on text like this:</p>
+<pre class="verbatim">    &lt;!-- This section commented out.
+        &lt;B&gt;You can't see me!&lt;/B&gt;
+    --&gt;</pre><a name="How-do-I-extract-URLs%3f"></a><h2>How do I extract URLs?</h2>
+<p>You can easily extract all sorts of URLs from HTML with
+<code class="inline">HTML::SimpleLinkExtor</code>
+ which handles anchors, images, objects,
+frames, and many other tags that can contain a URL.  If you need
+anything more complex, you can create your own subclass of
+<code class="inline">HTML::LinkExtor</code>
+ or <code class="inline">HTML::Parser</code>
+.  You might even use
+<code class="inline">HTML::SimpleLinkExtor</code>
+ as an example for something specifically
+suited to your needs.</p>
+<p>You can use URI::Find to extract URLs from an arbitrary text document.</p>
+<p>Less complete solutions involving regular expressions can save
+you a lot of processing time if you know that the input is simple.  One
+solution from Tom Christiansen runs 100 times faster than most
+module based approaches but only extracts URLs from anchors where the first
+attribute is HREF and there are no other attributes.</p>
+<pre class="verbatim">        <span class="c">#!/usr/bin/perl -n00</span>
+        <span class="c"># qxurl - tchrist@perl.com</span>
+        <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;$2\n&quot;</span> while <span class="q">m{</span>
+            <span class="q">            &lt; \s*</span>
+              <span class="q">              A \s+ HREF \s* = \s* ([&quot;&#39;]) (.*?) \1</span>
+            <span class="q">            \s* &gt;</span>
+        <span class="q">        }gsix</span><span class="sc">;</span></pre>
+<a name="How-do-I-download-a-file-from-the-user's-machine%3f--How-do-I-open-a-file-on-another-machine%3f"></a><h2>How do I download a file from the user's machine?  How do I open a file on another machine?</h2>
+<p>In this case, download means to use the file upload feature of HTML
+forms.  You allow the web surfer to specify a file to send to your web
+server.  To you it looks like a download, and to the user it looks
+like an upload.  No matter what you call it, you do it with what's
+known as <b>multipart/form-data</b> encoding.  The CGI.pm module (which
+comes with Perl as part of the Standard Library) supports this in the
+start_multipart_form() method, which isn't the same as the startform()
+method.</p>
+<p>See the section in the CGI.pm documentation on file uploads for code
+examples and details.</p>
+<a name="How-do-I-make-a-pop-up-menu-in-HTML%3f"></a><h2>How do I make a pop-up menu in HTML?</h2>
+<p>Use the <b>&lt;SELECT&gt;</b> and <b>&lt;OPTION&gt;</b> tags.  The CGI.pm
+module (available from CPAN) supports this widget, as well as many
+others, including some that it cleverly synthesizes on its own.</p>
+<a name="How-do-I-fetch-an-HTML-file%3f"></a><h2>How do I fetch an HTML file?</h2>
+<p>One approach, if you have the lynx text-based HTML browser installed
+on your system, is this:</p>
+<pre class="verbatim">    <span class="i">$html_code</span> = <span class="q">`lynx -source $url`</span><span class="sc">;</span>
+    <span class="i">$text_data</span> = <span class="q">`lynx -dump $url`</span><span class="sc">;</span></pre>
+<p>The libwww-perl (LWP) modules from CPAN provide a more powerful way
+to do this.  They don't require lynx, but like lynx, can still work
+through proxies:</p>
+<pre class="verbatim">    <span class="c"># simplest version</span>
+    <a class="l_k" href="functions/use.html">use</a> LWP::Simple<span class="sc">;</span>
+    <span class="i">$content</span> = <span class="i">get</span><span class="s">(</span><span class="i">$URL</span><span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="c"># or print HTML from a URL</span>
+    <a class="l_k" href="functions/use.html">use</a> LWP::Simple<span class="sc">;</span>
+    getprint <span class="q">&quot;<a href="http://www.linpro.no/lwp/">http://www.linpro.no/lwp/</a>&quot;</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="c"># or print ASCII from HTML from a URL</span>
+    <span class="c"># also need HTML-Tree package from CPAN</span>
+    <a class="l_k" href="functions/use.html">use</a> LWP::Simple<span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> HTML::Parser<span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> HTML::FormatText<span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="s">(</span><span class="i">$html</span><span class="cm">,</span> <span class="i">$ascii</span><span class="s">)</span><span class="sc">;</span>
+    <span class="i">$html</span> = <span class="i">get</span><span class="s">(</span><span class="q">&quot;<a href="http://www.perl.com/">http://www.perl.com/</a>&quot;</span><span class="s">)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/defined.html">defined</a> <span class="i">$html</span>
+        or <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Can&#39;t fetch HTML from <a href="http://www.perl.com/">http://www.perl.com/</a>&quot;</span><span class="sc">;</span>
+    <span class="i">$ascii</span> = HTML::FormatText-&gt;new-&gt;format<span class="s">(</span><span class="i">parse_html</span><span class="s">(</span><span class="i">$html</span><span class="s">)</span><span class="s">)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/print.html">print</a> <span class="i">$ascii</span><span class="sc">;</span></pre>
+<a name="How-do-I-automate-an-HTML-form-submission%3f"></a><h2>How do I automate an HTML form submission?</h2>
+<p>If you are doing something complex, such as moving through many pages
+and forms or a web site, you can use <code class="inline">WWW::Mechanize</code>
+.  See its
+documentation for all the details.</p>
+<p>If you're submitting values using the GET method, create a URL and encode
+the form using the <code class="inline">query_form</code>
+ method:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> LWP::Simple<span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> URI::URL<span class="sc">;</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$url</span> = <span class="i">url</span><span class="s">(</span><span class="q">&#39;<a href="http://www.perl.com/cgi-bin/cpan_mod">http://www.perl.com/cgi-bin/cpan_mod</a>&#39;</span><span class="s">)</span><span class="sc">;</span>
+    <span class="i">$url</span><span class="i">-&gt;query_form</span><span class="s">(</span>module <span class="cm">=&gt;</span> <span class="q">&#39;DB_File&#39;</span><span class="cm">,</span> readme <span class="cm">=&gt;</span> <span class="n">1</span><span class="s">)</span><span class="sc">;</span>
+    <span class="i">$content</span> = <span class="i">get</span><span class="s">(</span><span class="i">$url</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>If you're using the POST method, create your own user agent and encode
+the content appropriately.</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> HTTP::Request::Common <span class="q">qw(POST)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> LWP::UserAgent<span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">$ua</span> = LWP::UserAgent-&gt;new<span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$req</span> = POST <span class="q">&#39;<a href="http://www.perl.com/cgi-bin/cpan_mod">http://www.perl.com/cgi-bin/cpan_mod</a>&#39;</span><span class="cm">,</span>
+                   <span class="s">[</span> module <span class="cm">=&gt;</span> <span class="q">&#39;DB_File&#39;</span><span class="cm">,</span> readme <span class="cm">=&gt;</span> <span class="n">1</span> <span class="s">]</span><span class="sc">;</span>
+    <span class="i">$content</span> = <span class="i">$ua</span><span class="i">-&gt;request</span><span class="s">(</span><span class="i">$req</span><span class="s">)</span><span class="i">-&gt;as_string</span><span class="sc">;</span></pre>
+<a name="How-do-I-decode-or-create-those-%25-encodings-on-the-web%3f"></a><h2>How do I decode or create those %-encodings on the web?</h2>
+<p>If you are writing a CGI script, you should be using the CGI.pm module
+that comes with perl, or some other equivalent module.  The CGI module
+automatically decodes queries for you, and provides an escape()
+function to handle encoding.</p>
+<p>The best source of detailed information on URI encoding is RFC 2396.
+Basically, the following substitutions do it:</p>
+<pre class="verbatim">    <span class="q">s/([^\w()&#39;*~!.-])/sprintf &#39;%%%02x&#39;, ord $1/eg</span><span class="sc">;</span>   <span class="c"># encode</span></pre>
+<pre class="verbatim">    <span class="q">s/%([A-Fa-f\d]{2})/chr hex $1/eg</span><span class="sc">;</span>                <span class="c"># decode</span>
+	<span class="q">s/%([[:xdigit:]]{2})/chr hex $1/eg</span><span class="sc">;</span>          <span class="c"># same thing</span></pre>
+<p>However, you should only apply them to individual URI components, not
+the entire URI, otherwise you'll lose information and generally mess
+things up.  If that didn't explain it, don't worry.  Just go read
+section 2 of the RFC, it's probably the best explanation there is.</p>
+<p>RFC 2396 also contains a lot of other useful information, including a
+regexp for breaking any arbitrary URI into components (Appendix B).</p>
+<a name="How-do-I-redirect-to-another-page%3f"></a><h2>How do I redirect to another page?</h2>
+<p>Specify the complete URL of the destination (even if it is on the same
+server). This is one of the two different kinds of CGI "Location:"
+responses which are defined in the CGI specification for a Parsed Headers
+script. The other kind (an absolute URLpath) is resolved internally to
+the server without any HTTP redirection. The CGI specifications do not
+allow relative URLs in either case.</p>
+<p>Use of CGI.pm is strongly recommended.  This example shows redirection
+with a complete URL. This redirection is handled by the web browser.</p>
+<pre class="verbatim">      <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="CGI.html">CGI</a> <span class="q">qw/:standard/</span><span class="sc">;</span></pre>
+<pre class="verbatim">      <a class="l_k" href="functions/my.html">my</a> <span class="i">$url</span> = <span class="q">&#39;<a href="http://www.cpan.org/">http://www.cpan.org/</a>&#39;</span><span class="sc">;</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="i">redirect</span><span class="s">(</span><span class="i">$url</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>This example shows a redirection with an absolute URLpath.  This
+redirection is handled by the local web server.</p>
+<pre class="verbatim">      <a class="l_k" href="functions/my.html">my</a> <span class="i">$url</span> = <span class="q">&#39;/CPAN/index.html&#39;</span><span class="sc">;</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="i">redirect</span><span class="s">(</span><span class="i">$url</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>But if coded directly, it could be as follows (the final "\n" is
+shown separately, for clarity), using either a complete URL or
+an absolute URLpath.</p>
+<pre class="verbatim">      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Location: $url\n&quot;</span><span class="sc">;</span>   <span class="c"># CGI response header</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;\n&quot;</span><span class="sc">;</span>                 <span class="c"># end of headers</span></pre>
+<a name="How-do-I-put-a-password-on-my-web-pages%3f"></a><h2>How do I put a password on my web pages?</h2>
+<p>To enable authentication for your web server, you need to configure
+your web server.  The configuration is different for different sorts
+of web servers---apache does it differently from iPlanet which does
+it differently from IIS.  Check your web server documentation for
+the details for your particular server.</p>
+<a name="How-do-I-edit-my-.htpasswd-and-.htgroup-files-with-Perl%3f"></a><h2>How do I edit my .htpasswd and .htgroup files with Perl?</h2>
+<p>The HTTPD::UserAdmin and HTTPD::GroupAdmin modules provide a
+consistent OO interface to these files, regardless of how they're
+stored.  Databases may be text, dbm, Berkeley DB or any database with
+a DBI compatible driver.  HTTPD::UserAdmin supports files used by the
+"Basic" and "Digest" authentication schemes.  Here's an example:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> HTTPD::UserAdmin <span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    HTTPD::UserAdmin
+	  -&gt;new<span class="s">(</span><a class="l_w" href="DB.html">DB</a> <span class="cm">=&gt;</span> <span class="q">&quot;/foo/.htpasswd&quot;</span><span class="s">)</span>
+	  <span class="i">-&gt;add</span><span class="s">(</span><span class="i">$username</span> <span class="cm">=&gt;</span> <span class="i">$password</span><span class="s">)</span><span class="sc">;</span></pre>
+<a name="How-do-I-make-sure-users-can't-enter-values-into-a-form-that-cause-my-CGI-script-to-do-bad-things%3f"></a><h2>How do I make sure users can't enter values into a form that cause my CGI script to do bad things?</h2>
+<p>See the security references listed in the CGI Meta FAQ</p>
+<pre class="verbatim">	http://www.perl.org/CGI_MetaFAQ.html</pre><a name="How-do-I-parse-a-mail-header%3f"></a><h2>How do I parse a mail header?</h2>
+<p>For a quick-and-dirty solution, try this solution derived
+from <a href="functions/split.html">split</a>:</p>
+<pre class="verbatim">    <span class="i">$/</span> = <span class="q">&#39;&#39;</span><span class="sc">;</span>
+    <span class="i">$header</span> = <span class="q">&lt;MSG&gt;</span><span class="sc">;</span>
+    <span class="i">$header</span> =~ <span class="q">s/\n\s+/ /g</span><span class="sc">;</span>	 <span class="c"># merge continuation lines</span>
+    <span class="i">%head</span> = <span class="s">(</span> UNIX_FROM_LINE<span class="cm">,</span> <a class="l_k" href="functions/split.html">split</a> <span class="q">/^([-\w]+):\s*/m</span><span class="cm">,</span> <span class="i">$header</span> <span class="s">)</span><span class="sc">;</span></pre>
+<p>That solution doesn't do well if, for example, you're trying to
+maintain all the Received lines.  A more complete approach is to use
+the Mail::Header module from CPAN (part of the MailTools package).</p>
+<a name="How-do-I-decode-a-CGI-form%3f"></a><h2>How do I decode a CGI form?</h2>
+<p>(contributed by brian d foy)</p>
+<p>Use the CGI.pm module that comes with Perl.  It's quick,
+it's easy, and it actually does quite a bit of work to
+ensure things happen correctly.  It handles GET, POST, and
+HEAD requests, multipart forms, multivalued fields, query
+string and message body combinations, and many other things
+you probably don't want to think about.</p>
+<p>It doesn't get much easier: the CGI module automatically
+parses the input and makes each value available through the
+<code class="inline"><span class="i">param</span><span class="s">(</span><span class="s">)</span></code>
+ function.</p>
+<pre class="verbatim">	<a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="CGI.html">CGI</a> <span class="q">qw(:standard)</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/my.html">my</a> <span class="i">$total</span> = <span class="i">param</span><span class="s">(</span> <span class="q">&#39;price&#39;</span> <span class="s">)</span> + <span class="i">param</span><span class="s">(</span> <span class="q">&#39;shipping&#39;</span> <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/my.html">my</a> <span class="i">@items</span> = <span class="i">param</span><span class="s">(</span> <span class="q">&#39;item&#39;</span> <span class="s">)</span><span class="sc">;</span> <span class="c"># multiple values, same field name</span></pre>
+<p>If you want an object-oriented approach, CGI.pm can do that too.</p>
+<pre class="verbatim">	<a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="CGI.html">CGI</a><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/my.html">my</a> <span class="i">$cgi</span> = <a class="l_w" href="CGI.html">CGI</a>-&gt;new<span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/my.html">my</a> <span class="i">$total</span> = <span class="i">$cgi</span><span class="i">-&gt;param</span><span class="s">(</span> <span class="q">&#39;price&#39;</span> <span class="s">)</span> + <span class="i">$cgi</span><span class="i">-&gt;param</span><span class="s">(</span> <span class="q">&#39;shipping&#39;</span> <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/my.html">my</a> <span class="i">@items</span> = <span class="i">$cgi</span><span class="i">-&gt;param</span><span class="s">(</span> <span class="q">&#39;item&#39;</span> <span class="s">)</span><span class="sc">;</span></pre>
+<p>You might also try CGI::Minimal which is a lightweight version
+of the same thing.  Other CGI::* modules on CPAN might work better
+for you, too.</p>
+<p>Many people try to write their own decoder (or copy one from
+another program) and then run into one of the many "gotchas"
+of the task.  It's much easier and less hassle to use CGI.pm.</p>
+<a name="How-do-I-check-a-valid-mail-address%3f"></a><h2>How do I check a valid mail address?</h2>
+<p>You can't, at least, not in real time.  Bummer, eh?</p>
+<p>Without sending mail to the address and seeing whether there's a human
+on the other end to answer you, you cannot determine whether a mail
+address is valid.  Even if you apply the mail header standard, you
+can have problems, because there are deliverable addresses that aren't
+RFC-822 (the mail header standard) compliant, and addresses that aren't
+deliverable which are compliant.</p>
+<p>You can use the Email::Valid or RFC::RFC822::Address which check
+the format of the address, although they cannot actually tell you
+if it is a deliverable address (i.e. that mail to the address
+will not bounce).  Modules like Mail::CheckUser and Mail::EXPN
+try to interact with the domain name system or particular
+mail servers to learn even more, but their methods do not
+work everywhere---especially for security conscious administrators.</p>
+<p>Many are tempted to try to eliminate many frequently-invalid
+mail addresses with a simple regex, such as
+<code class="inline"><span class="q">/^[\w.-]+\@(?:[\w-]+\.)+\w+$/</span></code>
+.  It's a very bad idea.  However,
+this also throws out many valid ones, and says nothing about
+potential deliverability, so it is not suggested.  Instead, see
+<a href="http://www.cpan.org/authors/Tom_Christiansen/scripts/ckaddr.gz">http://www.cpan.org/authors/Tom_Christiansen/scripts/ckaddr.gz</a> ,
+which actually checks against the full RFC spec (except for nested
+comments), looks for addresses you may not wish to accept mail to
+(say, Bill Clinton or your postmaster), and then makes sure that the
+hostname given can be looked up in the DNS MX records.  It's not fast,
+but it works for what it tries to do.</p>
+<p>Our best advice for verifying a person's mail address is to have them
+enter their address twice, just as you normally do to change a password.
+This usually weeds out typos.  If both versions match, send
+mail to that address with a personal message that looks somewhat like:</p>
+<pre class="verbatim">    Dear someuser<span class="i">@host</span>.com<span class="cm">,</span></pre>
+<pre class="verbatim">    Please confirm the mail address you gave us Wed May  6 09:38:41
+    MDT 1998 by replying to this message.  Include the string
+    "Rumpelstiltskin" in that reply, but spelled in reverse; that is,
+    start with "Nik...".  Once this is done, your confirmed address will
+    be entered into our records.</pre><p>If you get the message back and they've followed your directions,
+you can be reasonably assured that it's real.</p>
+<p>A related strategy that's less open to forgery is to give them a PIN
+(personal ID number).  Record the address and PIN (best that it be a
+random one) for later processing.  In the mail you send, ask them to
+include the PIN in their reply.  But if it bounces, or the message is
+included via a "vacation" script, it'll be there anyway.  So it's
+best to ask them to mail back a slight alteration of the PIN, such as
+with the characters reversed, one added or subtracted to each digit, etc.</p>
+<a name="How-do-I-decode-a-MIME%2fBASE64-string%3f"></a><h2>How do I decode a MIME/BASE64 string?</h2>
+<p>The MIME-Base64 package (available from CPAN) handles this as well as
+the MIME/QP encoding.  Decoding BASE64 becomes as simple as:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="MIME/Base64.html">MIME::Base64</a><span class="sc">;</span>
+    <span class="i">$decoded</span> = <span class="i">decode_base64</span><span class="s">(</span><span class="i">$encoded</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>The MIME-Tools package (available from CPAN) supports extraction with
+decoding of BASE64 encoded attachments and content directly from email
+messages.</p>
+<p>If the string to decode is short (less than 84 bytes long)
+a more direct approach is to use the unpack() function's "u"
+format after minor transliterations:</p>
+<pre class="verbatim">    <span class="q">tr#A-Za-z0-9+/##cd</span><span class="sc">;</span>                   <span class="c"># remove non-base64 chars</span>
+    <span class="q">tr#A-Za-z0-9+/# -_#</span><span class="sc">;</span>                  <span class="c"># convert to uuencoded format</span>
+    <span class="i">$len</span> = <a class="l_k" href="functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;c&quot;</span><span class="cm">,</span> <span class="n">32</span> + <span class="n">0.75</span>*<a class="l_k" href="functions/length.html">length</a><span class="s">)</span><span class="sc">;</span>   <span class="c"># compute length byte</span>
+    <a class="l_k" href="functions/print.html">print</a> <a class="l_k" href="functions/unpack.html">unpack</a><span class="s">(</span><span class="q">&quot;u&quot;</span><span class="cm">,</span> <span class="i">$len</span> . <span class="i">$_</span><span class="s">)</span><span class="sc">;</span>         <span class="c"># uudecode and print</span></pre>
+<a name="How-do-I-return-the-user's-mail-address%3f"></a><h2>How do I return the user's mail address?</h2>
+<p>On systems that support getpwuid, the $&lt; variable, and the
+Sys::Hostname module (which is part of the standard perl distribution),
+you can probably try using something like this:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="Sys/Hostname.html">Sys::Hostname</a><span class="sc">;</span>
+    <span class="i">$address</span> = <a class="l_k" href="functions/sprintf.html">sprintf</a><span class="s">(</span><span class="q">&#39;%s@%s&#39;</span><span class="cm">,</span> <a class="l_k" href="functions/scalar.html">scalar</a> <a class="l_k" href="functions/getpwuid.html">getpwuid</a><span class="s">(</span><span class="i">$&lt;</span><span class="s">)</span><span class="cm">,</span> hostname<span class="s">)</span><span class="sc">;</span></pre>
+<p>Company policies on mail address can mean that this generates addresses
+that the company's mail system will not accept, so you should ask for
+users' mail addresses when this matters.  Furthermore, not all systems
+on which Perl runs are so forthcoming with this information as is Unix.</p>
+<p>The Mail::Util module from CPAN (part of the MailTools package) provides a
+mailaddress() function that tries to guess the mail address of the user.
+It makes a more intelligent guess than the code above, using information
+given when the module was installed, but it could still be incorrect.
+Again, the best way is often just to ask the user.</p>
+<a name="How-do-I-send-mail%3f"></a><h2>How do I send mail?</h2>
+<p>Use the <code class="inline">sendmail</code>
+ program directly:</p>
+<pre class="verbatim">    open(SENDMAIL, "|/usr/lib/sendmail -oi -t -odq")
+                        or die "Can't fork for sendmail: $!\n";
+    print SENDMAIL &lt;&lt;"EOF";
+    From: User Originating Mail &lt;me\@host&gt;
+    To: Final Destination &lt;you\@otherhost&gt;
+    Subject: A relevant subject line</pre><pre class="verbatim">    Body of the message goes here after the blank line
+    in as many lines as you like.
+    EOF
+    <a class="l_k" href="functions/close.html">close</a><span class="s">(</span>SENDMAIL<span class="s">)</span>     or <a class="l_k" href="functions/warn.html">warn</a> <span class="q">&quot;sendmail didn&#39;t close nicely&quot;</span><span class="sc">;</span></pre>
+<p>The <b>-oi</b> option prevents sendmail from interpreting a line consisting
+of a single dot as "end of message".  The <b>-t</b> option says to use the
+headers to decide who to send the message to, and <b>-odq</b> says to put
+the message into the queue.  This last option means your message won't
+be immediately delivered, so leave it out if you want immediate
+delivery.</p>
+<p>Alternate, less convenient approaches include calling mail (sometimes
+called mailx) directly or simply opening up port 25 have having an
+intimate conversation between just you and the remote SMTP daemon,
+probably sendmail.</p>
+<p>Or you might be able use the CPAN module Mail::Mailer:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> Mail::Mailer<span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">$mailer</span> = Mail::Mailer-&gt;new<span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+    <span class="i">$mailer</span><span class="i">-&gt;open</span><span class="s">(</span><span class="s">{</span> From    <span class="cm">=&gt;</span> <span class="i">$from_address</span><span class="cm">,</span>
+                    To      <span class="cm">=&gt;</span> <span class="i">$to_address</span><span class="cm">,</span>
+                    Subject <span class="cm">=&gt;</span> <span class="i">$subject</span><span class="cm">,</span>
+                  <span class="s">}</span><span class="s">)</span>
+        or <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Can&#39;t open: $!\n&quot;</span><span class="sc">;</span>
+    <a class="l_k" href="functions/print.html">print</a> <span class="i">$mailer</span> <span class="i">$body</span><span class="sc">;</span>
+    <span class="i">$mailer</span><span class="i">-&gt;close</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>The Mail::Internet module uses Net::SMTP which is less Unix-centric than
+Mail::Mailer, but less reliable.  Avoid raw SMTP commands.  There
+are many reasons to use a mail transport agent like sendmail.  These
+include queuing, MX records, and security.</p>
+<a name="How-do-I-use-MIME-to-make-an-attachment-to-a-mail-message%3f"></a><h2>How do I use MIME to make an attachment to a mail message?</h2>
+<p>This answer is extracted directly from the MIME::Lite documentation.
+Create a multipart message (i.e., one with attachments).</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> MIME::Lite<span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="c">### Create a new multipart message:</span>
+    <span class="i">$msg</span> = MIME::Lite-&gt;new<span class="s">(</span>
+                 From    <span class="cm">=&gt;</span><span class="q">&#39;me@myhost.com&#39;</span><span class="cm">,</span>
+                 To      <span class="cm">=&gt;</span><span class="q">&#39;you@yourhost.com&#39;</span><span class="cm">,</span>
+                 Cc      <span class="cm">=&gt;</span><span class="q">&#39;some@other.com, some@more.com&#39;</span><span class="cm">,</span>
+                 Subject <span class="cm">=&gt;</span><span class="q">&#39;A message with 2 parts...&#39;</span><span class="cm">,</span>
+                 Type    <span class="cm">=&gt;</span><span class="q">&#39;multipart/mixed&#39;</span>
+                 <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="c">### Add parts (each &quot;attach&quot; has same arguments as &quot;new&quot;):</span>
+    <span class="i">$msg</span><span class="i">-&gt;attach</span><span class="s">(</span>Type     <span class="cm">=&gt;</span><span class="q">&#39;TEXT&#39;</span><span class="cm">,</span>
+                 Data     <span class="cm">=&gt;</span><span class="q">&quot;Here&#39;s the GIF file you wanted&quot;</span>
+                 <span class="s">)</span><span class="sc">;</span>
+    <span class="i">$msg</span><span class="i">-&gt;attach</span><span class="s">(</span>Type     <span class="cm">=&gt;</span><span class="q">&#39;image/gif&#39;</span><span class="cm">,</span>
+                 Path     <span class="cm">=&gt;</span><span class="q">&#39;aaa000123.gif&#39;</span><span class="cm">,</span>
+                 Filename <span class="cm">=&gt;</span><span class="q">&#39;logo.gif&#39;</span>
+                 <span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    <span class="i">$text</span> = <span class="i">$msg</span><span class="i">-&gt;as_string</span><span class="sc">;</span></pre>
+<p>MIME::Lite also includes a method for sending these things.</p>
+<pre class="verbatim">    <span class="i">$msg</span><span class="i">-&gt;send</span><span class="sc">;</span></pre>
+<p>This defaults to using <a href="http://search.cpan.org/perldoc/sendmail">sendmail</a> but can be customized to use
+SMTP via <a href="Net/SMTP.html">Net::SMTP</a>.</p>
+<a name="How-do-I-read-mail%3f"></a><h2>How do I read mail?</h2>
+<p>While you could use the Mail::Folder module from CPAN (part of the
+MailFolder package) or the Mail::Internet module from CPAN (part
+of the MailTools package), often a module is overkill.  Here's a
+mail sorter.</p>
+<pre class="verbatim">    <span class="c">#!/usr/bin/perl</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a><span class="s">(</span><span class="i">@msgs</span><span class="cm">,</span> <span class="i">@sub</span><span class="s">)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$msgno</span> = <span class="n">-1</span><span class="sc">;</span>
+    <span class="i">$/</span> = <span class="q">&#39;&#39;</span><span class="sc">;</span>                    <span class="c"># paragraph reads</span>
+    while <span class="s">(</span>&lt;&gt;<span class="s">)</span> <span class="s">{</span>
+        if <span class="s">(</span><span class="q">/^From /m</span><span class="s">)</span> <span class="s">{</span>
+            <span class="q">/^Subject:\s*(?:Re:\s*)*(.*)/mi</span><span class="sc">;</span>
+            <span class="i">$sub</span>[++<span class="i">$msgno</span>] = <a class="l_k" href="functions/lc.html">lc</a><span class="s">(</span><span class="i">$1</span><span class="s">)</span> || <span class="q">&#39;&#39;</span><span class="sc">;</span>
+        <span class="s">}</span>
+        <span class="i">$msgs</span>[<span class="i">$msgno</span>] .= <span class="i">$_</span><span class="sc">;</span>
+    <span class="s">}</span>
+    for <a class="l_k" href="functions/my.html">my</a> <span class="i">$i</span> <span class="s">(</span><a class="l_k" href="functions/sort.html">sort</a> <span class="s">{</span> <span class="i">$sub</span>[<span class="i">$a</span>] cmp <span class="i">$sub</span>[<span class="i">$b</span>] || <span class="i">$a</span> &lt;=&gt; <span class="i">$b</span> <span class="s">}</span> <span class="s">(</span><span class="n">0</span> .. <span class="i">$#msgs</span><span class="s">)</span><span class="s">)</span> <span class="s">{</span>
+        <a class="l_k" href="functions/print.html">print</a> <span class="i">$msgs</span>[<span class="i">$i</span>]<span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>Or more succinctly,</p>
+<pre class="verbatim">    <span class="c">#!/usr/bin/perl -n00</span>
+    <span class="c"># bysub2 - awkish sort-by-subject</span>
+    BEGIN <span class="s">{</span> <span class="i">$msgno</span> = <span class="n">-1</span> <span class="s">}</span>
+    <span class="i">$sub</span>[++<span class="i">$msgno</span>] = <span class="s">(</span><span class="q">/^Subject:\s*(?:Re:\s*)*(.*)/mi</span><span class="s">)</span>[<span class="n">0</span>] if <span class="q">/^From/m</span><span class="sc">;</span>
+    <span class="i">$msg</span>[<span class="i">$msgno</span>] .= <span class="i">$_</span><span class="sc">;</span>
+    END <span class="s">{</span> <a class="l_k" href="functions/print.html">print</a> <span class="i">@msg</span>[ <a class="l_k" href="functions/sort.html">sort</a> <span class="s">{</span> <span class="i">$sub</span>[<span class="i">$a</span>] cmp <span class="i">$sub</span>[<span class="i">$b</span>] || <span class="i">$a</span> &lt;=&gt; <span class="i">$b</span> <span class="s">}</span> <span class="s">(</span><span class="n">0</span> .. <span class="i">$#msg</span><span class="s">)</span> ] <span class="s">}</span></pre>
+<a name="How-do-I-find-out-my-hostname%2c-domainname%2c-or-IP-address%3f-hostname%2c-domainname%2c-IP-address%2c-host%2c-domain%2c-hostfqdn%2c-inet_ntoa%2c-gethostbyname%2c-Socket%2c-Net%3a%3aDomain%2c-Sys%3a%3aHostname"></a><h2>How do I find out my hostname, domainname, or IP address?
+</h2>
+<p>(contributed by brian d foy)</p>
+<p>The Net::Domain module, which is part of the standard distribution starting
+in perl5.7.3, can get you the fully qualified domain name (FQDN), the host
+name, or the domain name.</p>
+<pre class="verbatim">	<a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="Net/Domain.html">Net::Domain</a> <span class="q">qw(hostname hostfqdn hostdomain)</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="functions/my.html">my</a> <span class="i">$host</span> = <span class="i">hostfqdn</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>The <code class="inline"><a class="l_w" href="Sys/Hostname.html">Sys::Hostname</a></code> module, included in the standard distribution since
+perl5.6, can also get the hostname.</p>
+<pre class="verbatim">	<a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="Sys/Hostname.html">Sys::Hostname</a><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="i">$host</span> = <span class="i">hostname</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>To get the IP address, you can use the <code class="inline"><a class="l_k" href="functions/gethostbyname.html">gethostbyname</a></code> built-in function
+to turn the name into a number. To turn that number into the dotted octet
+form (a.b.c.d) that most people expect, use the <code class="inline">inet_ntoa</code>
+ function
+from the &lt;Socket&gt; module, which also comes with perl.</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="Socket.html">Socket</a><span class="sc">;</span></pre>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$address</span> = <span class="i">inet_ntoa</span><span class="s">(</span>
+    	<a class="l_k" href="functions/scalar.html">scalar</a> <a class="l_k" href="functions/gethostbyname.html">gethostbyname</a><span class="s">(</span> <span class="i">$host</span> || <span class="q">&#39;localhost&#39;</span> <span class="s">)</span>
+    	<span class="s">)</span><span class="sc">;</span></pre>
+<a name="How-do-I-fetch-a-news-article-or-the-active-newsgroups%3f"></a><h2>How do I fetch a news article or the active newsgroups?</h2>
+<p>Use the Net::NNTP or News::NNTPClient modules, both available from CPAN.
+This can make tasks like fetching the newsgroup list as simple as</p>
+<pre class="verbatim">    perl -MNews::NNTPClient
+      -e <span class="q">&#39;print News::NNTPClient-&gt;new-&gt;list(&quot;newsgroups&quot;)&#39;</span></pre>
+<a name="How-do-I-fetch%2fput-an-FTP-file%3f"></a><h2>How do I fetch/put an FTP file?</h2>
+<p>LWP::Simple (available from CPAN) can fetch but not put.  Net::FTP (also
+available from CPAN) is more complex but can put as well as fetch.</p>
+<a name="How-can-I-do-RPC-in-Perl%3f"></a><h2>How can I do RPC in Perl?</h2>
+<p>(Contributed by brian d foy)</p>
+<p>Use one of the RPC modules you can find on CPAN (
+<a href="http://search.cpan.org/search?query=RPC&amp;mode=all">http://search.cpan.org/search?query=RPC&amp;mode=all</a> ).</p>
+<a name="AUTHOR-AND-COPYRIGHT"></a><h1>AUTHOR AND COPYRIGHT</h1>
+<p>Copyright (c) 1997-2006 Tom Christiansen, Nathan Torkington, and
+other authors as noted. All rights reserved.</p>
+<p>This documentation is free; you can redistribute it and/or modify it
+under the same terms as Perl itself.</p>
+<p>Irrespective of its distribution, all code examples in this file
+are hereby placed into the public domain.  You are permitted and
+encouraged to use this code in your own programs for fun
+or for profit as you see fit.  A simple comment in the code giving
+credit would be courteous but is not required.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perlfaq9','perlfaq9.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

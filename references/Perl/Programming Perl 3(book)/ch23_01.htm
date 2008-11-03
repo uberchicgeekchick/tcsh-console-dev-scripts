@@ -1,0 +1,1173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Security (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Security">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+</div>
+<style type="text/css">
+  #fixunixgb { position: absolute; right: 0px; bottom: 0px; }
+  div > div#fixunixgb { position: fixed; }
+  pre.fixit { overflow:auto;border-left:1px dashed #000;border-right:1px dashed #000;padding-left:2px; }
+</style><!--[if gte IE 5.5]><![if lt IE 7]>
+<style type="text/css">
+  div#fixunixgb {
+  right: auto; bottom: auto;
+  left: expression( ( 0 - fixunixgb.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );
+  top: expression( ( 0 - fixunixgb.offsetHeight + ( document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
+}
+</style>
+<![endif]><![endif]-->
+<div id="fixunixgb" align=right style="position:fixed; bottom: 5; right: 5; color:black; background-color: white; width: 170px; height: 120px; padding: 5px; z-index:3">
+<script language="javascript">
+<!--
+var state = 'visible';
+
+function gushowhide(layer_ref) {
+
+if (state == 'visible') {
+state = 'hidden';
+}
+else {
+state = 'visible';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.visibility = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].visibility = state;
+}
+if (document.getElementById && !document.all) {
+maxwell_smart = document.getElementById(layer_ref);
+maxwell_smart.style.visibility = state;
+}
+}
+//-->
+</script>
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 160x90, bottomleft fixed */
+google_ad_slot = "2032737097";
+google_ad_width = 160;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<font size=-1><a href="javascript://" onclick="gushowhide('fixunixgb');">close (x)</a></font>
+</div>
+</div>
+<br>
+<center>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+//728x90, создано 30.01.08 (main top)
+google_ad_slot = "2783893649";
+google_ad_width = 728;
+google_ad_height = 90;
+//--></script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+
+<a href="http://www.internetmap.info/cgi-bin/go.cgi?site_id=49589" target=_blank><img src="http://www.internetmap.info/images/im_88x85.gif" border=0 alt="Internet Map"></a>
+<br>
+
+<b><a href="http://www.unix.org.ua/forum/">Do not forget register in our new UNIX and CISCO forum</a></b>
+
+</center>
+<p>
+
+
+<html>
+<head>
+<title>Security (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Security">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+
+<!-- START OF BODY -->
+
+
+
+<!-- TOP BANNER -->
+
+<img src="gifs/smbanner.gif" usemap="#banner-map" border="0" alt="Book Home">
+<map name="banner-map"><AREA SHAPE="RECT" COORDS="0,0,466,71" HREF="index.htm" ALT="Programming Perl"><AREA SHAPE="RECT" COORDS="467,0,514,18" HREF="jobjects/fsearch.htm" ALT="Search this book">
+</map>
+
+<!-- TOP NAV BAR -->
+
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch22_03.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="part4.htm">Part 4: Perl as Culture</a></td><td align="right" valign="top" width="172"><a href="ch23_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- SECTION BODY -->
+<h1 class="chapter">Chapter 23.  Security</h1>
+<div class="htmltoc">
+<h4 class="tochead">Contents:</h4>
+<p>
+<a href="ch23_01.htm">Handling Insecure Data</a>
+<br>
+<a href="ch23_02.htm">Handling Timing Glitches</a>
+<br>
+<a href="ch23_03.htm">Handling Insecure Code</a>
+<br>
+</p>
+</div>
+
+<p>
+<a name="INDEX-3951"></a><a name="INDEX-3952"></a>
+Whether you're dealing with a user sitting at the keyboard typing
+commands or someone sending information across the network, you need
+to be careful about the data coming into your programs, since the other
+person may, either maliciously or accidentally, send you data that will
+do more harm than good.  Perl provides a special security-checking
+mechanism called <em class="emphasis">taint mode</em>, whose purpose is to isolate tainted
+data so that you won't use it to do something you didn't intend to do.
+For instance, if you mistakenly trust a tainted filename, you might end
+up appending an entry to your password file when you thought you were
+appending to a log file.  The mechanism of tainting is covered in
+the section <a href="ch23_01.htm#ch23-sect-hid">Section 23.1, "Handling Insecure Data"</a>.</p>
+
+<p>In multitasking environments, offstage actions by unseen actors can
+affect the security of your own program.  If you presume exclusive ownership of external
+objects (especially files) as though yours were the only process
+on the system, you expose yourself to errors substantially subtler
+than those that come from directly handling data or code of dubious
+provenance.  Perl helps you out a little here by detecting some
+situations that are beyond your control, but for those that you can
+control, the key is understanding which approaches are proof against
+unseen meddlers.  The section <a href="ch23_02.htm#ch23-sect-htg">Section 23.2, "Handling Timing Glitches"</a> discusses
+these matters.</p>
+
+<p>
+<a name="INDEX-3953"></a>
+If the data you get from a stranger happens to be a bit of source code
+to execute, you need to be even more careful than you would with their
+data.  Perl provides checks to intercept stealthy code masquerading as
+data so you don't execute it unintentionally.  If you do want to
+execute foreign code, though, the <tt class="literal">Safe</tt> module lets you quarantine
+suspect code where it can't do any harm and might possibly do some
+good.  These are the topics of the section <a href="ch23_03.htm#ch23-sect-hic">Section 23.3, "Handling Insecure Code"</a>.</p>
+
+
+<h2 class="sect1">23.1. Handling Insecure Data</h2>
+
+<a name="INDEX-3954"></a><a name="INDEX-3955"></a><a name="INDEX-3956"></a>
+<p>
+<a name="INDEX-3957"></a><a name="INDEX-3958"></a><a name="INDEX-3959"></a><a name="INDEX-3960"></a>
+Perl makes it easy to program securely even when your program is being
+used by someone less trustworthy than the program itself.  That is,
+some programs need to grant limited privileges to their users, without
+giving away other privileges.  Setuid and setgid programs fall into
+this category on Unix, as do programs running in various privileged
+modes on other operating systems that support such notions.  Even on
+systems that don't, the same principle applies to network servers and
+to any programs run by those servers (such as CGI scripts, mailing
+list processors, and daemons listed in
+<em class="emphasis">/etc/inetd.conf</em>). All such
+programs require a higher level of scrutiny than normal.</p>
+
+<p>
+<a name="INDEX-3961"></a>
+Even programs run from the command line are sometimes good candidates
+for taint mode, especially if they're meant to be run by a privileged
+user.  Programs that act upon untrusted data, like those that generate
+statistics from log files or use <tt class="literal">LWP::*</tt> or
+<tt class="literal">Net::*</tt> to fetch remote data, should probably run
+with tainting explicitly turned on; programs that are not prudent risk
+being turned into "Trojan horses".  Since programs don't get any kind
+of thrill out of risk taking, there's no particular reason for them
+not to be careful.</p>
+
+<p>Compared with Unix command-line shells, which are really just
+frameworks for calling other programs, Perl is easy to program
+securely because it's straightforward and self-contained.  Unlike
+most shell programming languages, which are based on multiple,
+mysterious substitution passes on each line of the script, Perl
+uses a more conventional evaluation scheme with fewer hidden snags.
+Additionally, because the language has more built-in functionality,
+it can rely less upon external (and possibly untrustworthy) programs
+to accomplish its purposes.</p>
+
+<p>
+<a name="INDEX-3962"></a><a name="INDEX-3963"></a><a name="INDEX-3964"></a><a name="INDEX-3965"></a><a name="INDEX-3966"></a>
+Under Unix, Perl's home town, the preferred way to compromise system
+security was to cajole a privileged program into doing something it
+wasn't supposed to do.  To stave off such attacks, Perl developed a
+unique approach for coping with hostile environments.  Perl
+automatically enables taint mode whenever it detects its program
+running with differing real and effective user or group
+IDs.<a href="#FOOTNOTE-1">[1]</a> Even if the
+file containing your Perl script doesn't have the setuid or setgid
+bits turned on, that script can still find itself executing in taint
+mode.  This happens if your script was invoked by another program that
+was <em class="emphasis">itself</em> running under differing IDs.  Perl
+programs that weren't designed to operate under taint mode tend to
+expire prematurely when caught violating safe tainting policy.  This
+
+is just as well, since these are the sorts of shenanigans that were
+historically perpetrated on shell scripts to compromise system
+security.  Perl isn't that gullible.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-1"></a>
+<p>[1] The setuid bit in Unix permissions is mode 04000,
+and the setgid bit is 02000; either or both may be set to grant the
+user of the program some of the privileges of the owner (or owners) of
+the program.  (These are collectively known as set-id programs.) Other
+operating systems may confer special privileges on programs in other
+ways, but the principle is the same.</p>
+
+</blockquote>
+
+<p>
+<a name="INDEX-3967"></a><a name="INDEX-3968"></a><a name="INDEX-3969"></a><a name="INDEX-3970"></a><a name="INDEX-3971"></a>
+You can also enable taint mode explicitly with the <span class="option">-T</span> command-line
+switch.  You should do this for daemons, servers, and any programs that
+run on behalf of someone else, such as CGI scripts.  Programs that can
+be run remotely and anonymously by anyone on the Net are executing in the
+most hostile of environments.  You should not be afraid to say "No!"
+occasionally.  Contrary to popular belief, you can exercise a great
+deal of prudence without dehydrating into a wrinkled prude.</p>
+
+<p>On the more security-conscious sites, running all CGI scripts under
+the <span class="option">-T</span> flag isn't just a good a idea: it's the law.  We're not
+claiming that running in taint mode is sufficient to make your
+script secure.  It's not, and it would take a whole book just to
+mention everything that would.  But if you aren't executing your
+CGI scripts under taint mode, you've needlessly abandoned the
+strongest protection Perl can give you.</p>
+
+<p>
+<a name="INDEX-3972"></a><a name="INDEX-3973"></a><a name="INDEX-3974"></a>
+While in taint mode, Perl takes special precautions called <em class="emphasis">taint
+checks</em> to prevent traps both obvious and subtle.  Some of these checks
+are reasonably simple, such as verifying that dangerous environment
+variables aren't set and that directories in your path aren't writable
+by others; careful programmers have always used checks like these.
+Other checks, however, are best supported by the language itself, and
+it is these checks especially that contribute to making a privileged
+Perl program more secure than the corresponding C program, or
+a Perl CGI script more secure than one written in any language without
+taint checks.  (Which, as far as we know, is any language other than
+Perl.)</p>
+
+<p>
+<a name="INDEX-3975"></a><a name="INDEX-3976"></a><a name="INDEX-3977"></a><a name="INDEX-3978"></a>
+The principle is simple: you may not use data derived from outside
+your program to affect something else outside your program--at
+least, not by accident.  Anything that comes from outside your
+program is marked as tainted, including all command-line arguments,
+environment variables, and file input.  Tainted data may not be
+used directly or indirectly in any operation that invokes a subshell,
+nor in any operation that modifies files, directories, or processes.
+Any variable set within an expression that has previously referenced
+a tainted value becomes tainted itself, even if it is logically
+impossible for the tainted value to influence the variable.  Because
+taintedness is associated with each scalar, some individual values
+in an array or hash might be tainted and others might not.  (Only the
+values in a hash can be tainted, though, not the keys.)</p>
+
+<p>The following code illustrates how tainting would work if you executed
+all these statements in order.  Statements marked "Insecure"
+will trigger an exception, whereas those that are "OK" will not.
+<blockquote>
+<pre class="programlisting">$arg = shift(@ARGV);          # $arg is now tainted (due to @ARGV).
+$hid = "$arg, 'bar'";         # $hid also tainted (due to $arg).
+$line = &lt;&gt;;                   # Tainted (reading from external file).
+$path = $ENV{PATH};           # Tainted due to %ENV, but see below.
+$mine = 'abc';                # Not tainted.
+
+system "echo $mine";          # Insecure until PATH set.
+system "echo $arg";           # Insecure: uses sh with tainted $arg.
+system "echo", $arg;          # OK once PATH set (doesn't use sh).
+system "echo $hid";           # Insecure two ways: taint, PATH.
+
+$oldpath = $ENV{PATH};        # $oldpath is tainted (due to $ENV).
+$ENV{PATH} = '/bin:/usr/bin'; # (Makes it OK to execute other programs.)
+$newpath = $ENV{PATH};        # $newpath is NOT tainted.
+
+delete @ENV{qw{IFS
+               CDPATH
+               ENV
+               BASH_ENV}};    # Makes %ENV safer.
+
+system "echo $mine";          # OK, is secure once path is reset.
+system "echo $hid";           # Insecure via tainted $hid.
+
+open(OOF, "&lt; $arg");          # OK (read-only opens not checked).
+open(OOF, "&gt; $arg");          # Insecure (trying to write to tainted arg).
+
+open(OOF, "echo $arg|")       # Insecure due to tainted $arg, but...
+    or die "can't pipe from echo: $!";
+
+open(OOF,"-|")                # Considered OK: see below for taint
+    or exec "echo", $arg      #   exemption on exec'ing a list.
+    or die "can't exec echo: $!";
+
+open(OOF,"-|", "echo", $arg   # Same as previous, likewise OKish.
+    or die "can't pipe from echo: $!";
+
+$shout = `echo $arg`;         # Insecure via tainted $arg.
+$shout = `echo abc`;          # $shout is tainted due to backticks.
+$shout2 = `echo $shout`;      # Insecure via tainted $shout.
+
+unlink $mine, $arg;           # Insecure via tainted $arg.
+umask $arg;                   # Insecure via tainted $arg.
+
+exec "echo $arg";             # Insecure via tainted $arg passed to shell.
+exec "echo", $arg;            # Considered OK! (But see below.)
+exec "sh", '-c', $arg;        # Considered OK, but isn't really!</pre>
+</blockquote>
+<a name="INDEX-3979"></a><a name="INDEX-3980"></a><a name="INDEX-3981"></a>
+</p>
+
+<p>If you try to do something insecure, you get an exception (which
+unless trapped, becomes a fatal error) such as "<tt class="literal">Insecure
+dependency</tt>" or "<tt class="literal">Insecure $ENV{PATH}</tt>".
+See the section <a href="ch23_01.htm#ch23-sect-cuye">Section 23.1.2, "Cleaning Up Your Environment"</a> later.</p>
+
+<p>If you pass a <em class="replaceable">LIST</em> to a
+<tt class="literal">system</tt>, <tt class="literal">exec</tt>, or pipe
+<tt class="literal">open</tt>, the arguments are not inspected for
+taintedness, because with a <em class="replaceable">LIST</em> of
+arguments, Perl doesn't need to invoke the potentially dangerous shell
+to run the command.  You can still easily write an insecure
+<tt class="literal">system</tt>, <tt class="literal">exec</tt>, or pipe
+<tt class="literal">open</tt> using the <em class="replaceable">LIST</em>
+form, as demonstrated in the final example above.  These forms are
+exempt from checking because you are presumed to know what you're
+doing when you use them.</p>
+
+<p>
+<a name="INDEX-3982"></a>
+Sometimes, though, you can't tell how many arguments you're passing.
+If you supply these functions with an array<a href="#FOOTNOTE-2">[2]</a> that contains just
+one element, then it's just as though you passed one string in the
+first place, so the shell might be used.  The solution is to pass an
+explicit path in the indirect-object slot:
+<blockquote>
+<pre class="programlisting">system @args;                 # Won't call the shell unless @args == 1.
+system { $args[0] } @args;    # Bypasses shell even with one-argument list.</pre>
+</blockquote>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-2"></a>
+<p>[2]Or a
+function that produces a list.</p>
+
+</blockquote>
+
+
+<h3 class="sect2">23.1.1. Detecting and Laundering Tainted Data</h3>
+
+<a name="INDEX-3983"></a><a name="INDEX-3984"></a><a name="INDEX-3985"></a><a name="INDEX-3986"></a>
+<p>To test whether a scalar variable contains tainted data, you can use
+the following <tt class="literal">is_tainted</tt> function.  It makes use of
+the fact that <tt class="literal">eval</tt><em class="replaceable">STRING</em> raises an exception if you try to
+compile tainted data.  It doesn't matter that the
+<tt class="literal">$nada</tt> variable used in the expression to compile
+will always be empty; it will still be tainted if
+<tt class="literal">$arg</tt> is tainted.  The outer <tt class="literal">eval</tt><em class="replaceable">BLOCK</em> isn't doing any compilation.  It's
+just there to catch the exception raised if the inner
+<tt class="literal">eval</tt> is given tainted data.  Since the
+<tt class="literal">$@</tt> variable is guaranteed to be nonempty after each
+<tt class="literal">eval</tt> if an exception was raised and empty
+otherwise, we return the result of testing whether its length was
+zero:
+<blockquote>
+<pre class="programlisting">sub is_tainted {
+    my $arg = shift;
+    my $nada = substr($arg, 0, 0);  # zero-length
+    local $@;  # preserve caller's version
+    eval { eval "# $nada" };
+    return length($@) != 0;
+}</pre>
+</blockquote>
+
+But testing for taintedness only gets you so far.  Usually you know
+perfectly well which variables contain tainted data--you just have to
+clear the data's taintedness.  The only official way to bypass the
+tainting mechanism is by referencing submatches returned by an earlier
+regular expression match.<a href="#FOOTNOTE-3">[3]</a> When you write a pattern that contains
+capturing parentheses, you can access the captured substrings through
+match variables like <tt class="literal">$1</tt>, <tt class="literal">$2</tt>, and
+<tt class="literal">$+</tt>, or by evaluating the pattern in list
+context. Either way, the presumption is that you knew what you were
+doing when you wrote the pattern and wrote it to weed out anything
+dangerous.  So you need to give it some real thought--never blindly
+untaint, or else you defeat the entire mechanism.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-3"></a>
+<p>[3]An unofficial way is by
+storing the tainted string as the key to a hash and fetching back that
+key.  Because keys aren't really full SVs (internal name scalar
+values), they don't carry the taint property.  This behavior may be
+changed someday, so don't rely on it.  Be careful when handling keys,
+lest you unintentionally untaint your data and do something unsafe
+with them.</p>
+
+</blockquote>
+
+<p>It's better to verify that the variable contains only good characters
+than to check whether it contains any bad characters.  That's because
+it's far too easy to miss bad characters that you never thought of.
+For example, here's a test to make sure <tt class="literal">$string</tt>
+contains nothing but "word" characters (alphabetics, numerics, and
+underscores), hyphens, at signs, and dots:
+<blockquote>
+<pre class="programlisting">if ($string =~ /^([-\@\w.]+)$/) {
+    $string = $1;                     # $string now untainted.
+}
+else {
+    die "Bad data in $string";        # Log this somewhere.
+}</pre>
+</blockquote>
+<a name="INDEX-3987"></a>
+</p>
+
+<p>This renders <tt class="literal">$string</tt> fairly secure to use later in
+an external command, since <tt class="literal">/\w+/</tt> doesn't normally
+match shell metacharacters, nor are those other characters going to
+mean anything special to the shell.<a href="#FOOTNOTE-4">[4]</a> Had we used <tt class="literal">/(.+)/s</tt>
+instead, it would have been unsafe because that pattern lets
+everything through.  But Perl doesn't check for that.  When
+untainting, be exceedingly careful with your patterns.  Laundering
+data by using regular expressions is the <em class="emphasis">only</em>
+approved internal mechanism for untainting dirty data.  And sometimes
+it's the wrong approach entirely.  If you're in taint mode because
+you're running set-id and not because you intentionally turned on
+<span class="option">-T</span>, you can reduce your risk by forking a child of
+lesser privilege; see the section <a href="ch23_01.htm#ch23-sect-cuye">Section 23.1.2, "Cleaning Up Your Environment"</a>.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-4"></a>
+<p>[4] Unless you were
+using an intentionally broken locale.  Perl assumes that your system's
+locale definitions are potentially compromised.  Hence, when running
+under the <tt class="literal">use locale</tt> pragma, patterns with a
+symbolic character class in them, such as <tt class="literal">\w</tt> or
+<tt class="literal">[[:alpha:]]</tt>, produce tainted
+results.</p>
+
+</blockquote>
+
+<p>The <tt class="literal">use re 'taint'</tt> pragma disables the implicit
+untainting of any pattern matches through the end of the current
+lexical scope.  You might use this pragma if you just want to extract
+a few substrings from some potentially tainted data, but since you
+aren't being mindful of security, you'd prefer to leave the substrings
+tainted to guard against unfortunate accidents later.</p>
+
+<p>Imagine you're matching something like this, where
+<tt class="literal">$fullpath</tt> is tainted:
+<blockquote>
+<pre class="programlisting">($dir, $file) = $fullpath =~ m!(.*/)(.*)!s;</pre>
+</blockquote>
+
+By default, <tt class="literal">$dir</tt> and <tt class="literal">$file</tt> would
+now be untainted.  But you probably didn't want to do that so
+cavalierly, because you never really thought about the security
+issues.  For example, you might not be terribly happy if
+<tt class="literal">$file</tt> contained the string "<tt class="literal">; rm -rf *
+;</tt>", just to name one rather egregious example.  The
+following code leaves the two result variables tainted if
+<tt class="literal">$fullpath</tt> was tainted:
+<blockquote>
+<pre class="programlisting">{
+    use re 'taint';
+    ($dir, $file) = $fullpath =~ m!(.*/)(.*)!s;
+}</pre>
+</blockquote>
+
+A good strategy is to leave submatches tainted by default over the
+whole source file and only selectively permit untainting in nested
+scopes as needed:
+<blockquote>
+<pre class="programlisting">use re 'taint';
+# remainder of file now leaves $1 etc tainted
+{
+    no re 'taint';
+    # this block now untaints re matches
+    if ($num =~ /^(\d+)$/) {
+        $num = $1;
+    }
+}</pre>
+</blockquote>
+
+Input from a filehandle or a directory handle is automatically
+tainted, except when it comes from the special filehandle, <tt class="literal">DATA</tt>.
+If you want to, you can mark other handles as trusted sources
+via the <tt class="literal">IO::Handle</tt> module's <tt class="literal">untaint</tt> function:
+<blockquote>
+<pre class="programlisting">use IO::Handle;
+
+IO::Handle::untaint(*SOME_FH);          # Either procedurally
+SOME_FH-&gt;untaint();                     # or using the OO style.</pre>
+</blockquote>
+
+Turning off tainting on an entire filehandle is a risky move.  How
+do you <em class="emphasis">really</em> know it's safe?  If you're going to do this, you
+should at least verify that nobody but the owner can write to the
+file.<a href="#FOOTNOTE-5">[5]</a> If you're on a Unix filesystem (and
+one that prudently restricts <em class="emphasis">chown</em>(2) to the superuser), the
+following code works:
+<blockquote>
+<pre class="programlisting">use File::stat;
+use Symbol 'qualify_to_ref';
+sub handle_looks_safe(*) {
+    my $fh = qualify_to_ref(shift, caller);
+    my $info = stat($fh);
+    return unless $info;
+
+    # owner neither superuser nor "me", whose
+    # real uid is in the $&lt; variable
+    if ($info-&gt;uid != 0 &amp;&amp; $info-&gt;uid != $&lt;) {
+        return 0;
+    }
+
+    # check whether group or other can write file.
+    # use 066 to detect for readability also
+    if ($info-&gt;mode &amp; 022) {
+        return 0;
+    }
+    return 1;
+}
+
+use IO::Handle;
+SOME_FH-&gt;untaint() if handle_looks_safe(*SOME_FH);</pre>
+</blockquote>
+
+We called <tt class="literal">stat</tt> on the filehandle, not the filename, to avoid a
+dangerous race condition.  See the section <a href="ch23_02.htm#ch23-sect-hrc">Section 23.2.2, "Handling Race Conditions"</a>
+later in this chapter.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-5"></a>
+<p>[5] Although you can untaint a directory handle,
+too, this function only works on a filehandle.  That's because given
+a directory handle, there's no portable way to extract its file
+descriptor to <tt class="literal">stat</tt>.</p>
+
+</blockquote>
+
+<p>Note that this routine is only a good start.  A slightly more
+paranoid version would check all parent directories as well, even though you
+can't reliably <tt class="literal">stat</tt> a directory handle.  But if any parent directory
+is world-writable, you know you're in trouble whether or not there are race conditions.</p>
+
+<p>Perl has its own notion of which operations are dangerous, but it's
+still possible to get into trouble with other operations that don't
+care whether they use tainted values.  It's not always enough to
+be careful of input.  Perl output functions don't test whether their
+arguments are tainted, but in some environments, this matters.  If
+you aren't careful of what you output, you might just end up spitting
+out strings that have unexpected meanings to whoever is processing
+the output.  If you're running on a terminal, special escape and
+control codes could cause the viewer's terminal to act strangely.
+If you're in a web environment and you blindly spit back out data that
+was given to you, you could unknowingly produce HTML tags that
+would drastically alter the page's appearance.  Worse still, some
+markup tags can even execute code back on the browser.</p>
+
+<p>Imagine the common case of a guest book where visitors enter their own
+messages to be displayed when others come calling.  A malicious guest
+could supply unsightly HTML tags or put in
+<tt class="literal">&lt;SCRIPT&gt;...&lt;/SCRIPT&gt;</tt> sequences
+that execute code (like JavaScript) back in the browsers of subsequent
+guests.</p>
+
+<p>Just as you should carefully check for only good characters when
+inspecting tainted data that accesses resources on your own system,
+you should apply the same care in a web environment when presenting
+data supplied by a user.  For example, to strip the data of any
+character not in the specified list of good characters, try something
+like this:
+<blockquote>
+<pre class="programlisting">$new_guestbook_entry =~ tr[_a-zA-Z0-9 ,./!?()@+*-][]dc;</pre>
+</blockquote>
+
+You certainly wouldn't use that to clean up a filename, since you
+probably don't want filenames with spaces or slashes, just for
+starters.  But it's enough to keep your guest book free of
+sneaky HTML tags and entities.  Each data-laundering case is a
+little bit different, so always spend time deciding what is and
+what is not permitted.  The tainting mechanism is intended to catch
+stupid mistakes, not to remove the need for thought.</p>
+
+<a name="INDEX-3988"></a><a name="INDEX-3989"></a><a name="INDEX-3990"></a>
+
+
+
+
+
+<a name="ch23-sect-cuye"></a>
+<h3 class="sect2">23.1.2. Cleaning Up Your Environment</h3>
+
+<a name="INDEX-3991"></a><a name="INDEX-3992"></a><a name="INDEX-3993"></a><a name="INDEX-3994"></a>
+<p>When you execute another program from within your Perl script, no
+matter how, Perl checks to make sure your <tt class="literal">PATH</tt>
+environment variable is secure.  Since it came from your environment,
+your <tt class="literal">PATH</tt> starts out tainted, so if you try to run
+another program, Perl raises an "<tt class="literal">Insecure
+$ENV{PATH}</tt>" exception.  When you set it to a known,
+untainted value, Perl makes sure that each directory in that path is
+nonwritable by anyone other than the directory's owner and group;
+otherwise, it raises an "<tt class="literal">Insecure directory</tt>"
+exception.</p>
+
+<p>You may be surprised to find that Perl cares about your
+<tt class="literal">PATH</tt> even when you specify the full pathname of the
+command you want to execute.  It's true that with an absolute
+filename, the <tt class="literal">PATH</tt> isn't used to find the
+executable to run.  But there's no reason to trust the program you're
+running not to turn right around and execute some
+<em class="emphasis">other</em> program and get into trouble because of the
+insecure <tt class="literal">PATH</tt>.  So Perl forces you to set a secure
+<tt class="literal">PATH</tt> before you call any program, no matter how you
+say to call it.</p>
+
+<p>
+<a name="INDEX-3995"></a>
+The <tt class="literal">PATH</tt> isn't the only environment variable that
+can bring grief.  Because some shells use the variables
+<tt class="literal">IFS</tt>, <tt class="literal">CDPATH</tt>,
+<tt class="literal">ENV</tt>, and <tt class="literal">BASH_ENV</tt>, Perl makes
+sure that those are all either empty or untainted before it will run
+another command.  Either set these variables to something known to be
+safe, or else delete them from the environment altogether:
+<blockquote>
+<pre class="programlisting">delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};   # Make %ENV safer</pre>
+</blockquote>
+<a name="INDEX-3996"></a><a name="INDEX-3997"></a><a name="INDEX-3998"></a>
+Features convenient in a normal environment can become security
+concerns in a hostile one.  Even if you remember to disallow filenames
+containing newlines, it's important to understand that
+<tt class="literal">open</tt> accesses more than just named files.  Given
+appropriate ornamentation on the filename argument, one- or
+two-argument calls to <tt class="literal">open</tt> can also run arbitrary
+external commands via pipes, fork extra copies of the current process,
+duplicate file descriptors, and interpret the special filename
+"<tt class="literal">-</tt>" as an alias for standard input or output.  It
+can also ignore leading and trailing whitespace that might disguise
+such fancy arguments from your check patterns.  While it's true that
+Perl's taint checking will catch tainted arguments used for pipe opens
+(unless you use a separated argument list) and any file opens that
+aren't read-only, the exception this raises is still likely to make
+your program misbehave.</p>
+
+<p>If you intend to use any externally derived data as part of a filename
+to open, at least include an explicit mode separated by a space.  It's
+probably safest, though, to use either the low-level
+<tt class="literal">sysopen</tt> or the three-argument form of
+<tt class="literal">open</tt>:
+<blockquote>
+<pre class="programlisting"># Magic open--could be anything
+open(FH, $file)             or die "can't magic open $file: $!";
+
+
+# Guaranteed to be a read-only file open and not a pipe
+# or fork, but still groks file descriptors and "-",
+# and ignores whitespace at either end of name.
+open(FH, "&lt; $file")         or die "can't open $file: $!";
+
+# WYSIWYG open: disables all convenience features.
+open(FH, "&lt;", $file)        or die "can't open $file: $!";
+
+# Same properties as WYSIWYG 3-arg version.
+require Fcntl;
+sysopen(FH, $file, O_RDONLY)        or die "can't sysopen $file: $!";</pre>
+</blockquote>
+
+Even these steps aren't quite good enough.  Perl doesn't prevent
+you from opening tainted filenames for reading, so you need to be
+careful of what you show people.  A program that opens an arbitrary,
+user-supplied filename for reading and then reveals that file's
+contents is still a security problem.  What if it's a private letter?
+What if it's your system password file?  What if it's salary information
+or your stock portfolio?</p>
+
+<p>
+<a name="INDEX-3999"></a><a name="INDEX-4000"></a>
+Look closely at filenames provided by a potentially hostile
+user<a href="#FOOTNOTE-6">[6]</a> before opening them.  For example, you might want
+to verify that there are no sneaky directory components in the path.
+Names like "<tt class="literal">../../../../../../../etc/passwd</tt>" are notorious tricks of
+this sort.  You can protect yourself by making sure there are no
+slashes in the pathname (assuming that's your system's directory
+separator).  Another common trick is to put newlines or semicolons into
+filenames that will later be interpreted by some poor, witless
+command-line interpreter that can be fooled into starting a new command
+in the middle of the filename.  This is why taint mode discourages uninspected 
+external commands.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-6"></a>
+<p>[6]And on the Net, the only users you can trust not to be
+potentially hostile are the ones who are being <em class="emphasis">actively</em> hostile
+instead.</p>
+
+</blockquote>
+
+
+
+
+
+<a name="ch23-sect-access"></a>
+<h3 class="sect2">23.1.3. Accessing Commands and Files Under
+Reduced Privileges</h3>
+
+<p>
+<a name="INDEX-4001"></a><a name="INDEX-4002"></a><a name="INDEX-4003"></a><a name="INDEX-4004"></a>
+The following discussion pertains to some nifty security facilities of Unix-like
+systems.  Users of other systems may safely (or rather, unsafely)
+skip this section.</p>
+
+<p>
+<a name="INDEX-4005"></a><a name="INDEX-4006"></a>
+If you're running set-id, try to arrange that, whenever possible, you
+do dangerous operations with the privileges of the user, not the
+privileges of the program.  That is, whenever you're going to call
+<tt class="literal">open</tt>, <tt class="literal">sysopen</tt>,
+<tt class="literal">system</tt>, backticks, and any other file or process
+operations, you can protect yourself by setting your effective UID or
+GID back to the real UID or GID.  In Perl, you can do this for setuid
+scripts by saying <tt class="literal">$&gt; = $&lt;</tt> (or <tt class="literal">$EUID
+= $UID</tt> if you <tt class="literal">use English</tt>) and for setgid
+scripts by saying <tt class="literal">$( = $)</tt> (<tt class="literal">$EGID =
+$GID</tt>).  If both IDs are set, you should reset both.
+However, sometimes
+
+this isn't feasible, because you might still need
+those increased privileges later in your program.</p>
+
+<p>For those cases, Perl provides a reasonably safe way to open a file or
+pipe from within a set-id program.  First, fork a child using the
+special <tt class="literal">open</tt> syntax that connects the parent and
+child by a pipe.  In the child, reset the user and group IDs back to
+their original or known safe values.  You also get to modify any of
+the child's per-process attributes without affecting the parent,
+letting you change the working directory, set the file creation mask,
+or fiddle with environment variables.  No longer executing under extra
+privileges, the child process at last calls <tt class="literal">open</tt>
+and passes whatever data it manages to access on behalf of the mundane
+but demented user back up to its powerful but justly paranoid parent.</p>
+
+<p>
+<a name="INDEX-4007"></a>
+Even though <tt class="literal">system</tt> and <tt class="literal">exec</tt> don't use the shell when you
+supply them with more than one argument, the backtick operator
+admits no such alternative calling convention. Using the forking
+technique, we easily emulate backticks without fear of shell escapes,
+and with reduced (and therefore safer) privileges:
+<blockquote>
+<pre class="programlisting">use English;   # to use $UID, etc
+die "Can't fork open: $!"   unless defined($pid = open(FROMKID, "-|"));
+if ($pid) {           # parent
+    while (&lt;FROMKID&gt;) {
+        # do something
+    }
+    close FROMKID;
+}
+else {
+    $EUID = $UID;  # setuid(getuid())
+    $EGID = $GID;  # setgid(getgid()), and initgroups(2) on getgroups(2)
+    chdir("/")      or die "can't chdir to /: $!";
+    umask(077);
+    $ENV{PATH} = "/bin:/usr/bin";
+    exec 'myprog', 'arg1', 'arg2';
+    die "can't exec myprog: $!";
+}</pre>
+</blockquote>
+<a name="INDEX-4008"></a>
+This is by far the best way to call other programs from a set-id
+script.  You make sure never to use the shell to execute anything,
+and you drop your privileges before you yourself <tt class="literal">exec</tt> the program.
+(But because the list forms of <tt class="literal">system</tt>, <tt class="literal">exec</tt>, and pipe <tt class="literal">open</tt>
+are specifically exempted from taint checks on their arguments, you
+must still be careful of what you pass in.)</p>
+
+<p>
+<a name="INDEX-4009"></a>
+If you don't need to drop privileges, and just want to implement
+backticks or a pipe <tt class="literal">open</tt> without risking the shell intercepting
+your arguments, you could use this:
+<blockquote>
+<pre class="programlisting">open(FROMKID, "-|") or exec("myprog", "arg1", "arg2")
+    or die "can't run myprog: $!";</pre>
+</blockquote>
+and then just read from <tt class="literal">FROMKID</tt> in the parent.  As
+of the 5.6.1 release of Perl, you can write that as:
+<blockquote>
+<pre class="programlisting">open(FROMKID, "-|", "myprog", "arg1", "arg2");</pre>
+</blockquote>
+
+The forking technique is useful for more than just running commands
+from a set-id program.  It's also good for opening files under the ID
+of whoever ran the program.  Suppose you had a setuid program that
+needed to open a file for writing.  You don't want to run the
+<tt class="literal">open</tt> under your extra privileges, but you can't
+permanently drop them, either.  So arrange for a forked copy that's
+dropped its privileges to do the <tt class="literal">open</tt> for you.
+When you want to write to the file, write to the child, and it will
+then write to the file for you.
+<blockquote>
+<pre class="programlisting">use English;
+
+defined ($pid = open(SAFE_WRITER, "|-"))
+    or die "Can't fork: $!";
+
+if ($pid) {
+    # you're the parent. write data to SAFE_WRITER child
+    print SAFE_WRITER "@output_data\n";
+    close SAFE_WRITER
+        or die $! ? "Syserr closing SAFE_WRITER writer: $!"
+                  : "Wait status $? from SAFE_WRITER writer";
+}
+else {
+    # you're the child, so drop extra privileges
+    ($EUID, $EGID) = ($UID, $GID);
+
+    # open the file under original user's rights
+    open(FH, "&gt; /some/file/path")
+        or die "can't open /some/file/path for writing: $!";
+
+    # copy from parent (now stdin) into the file
+    while (&lt;STDIN&gt;) {
+        print FH $_;
+    }
+    close(FH)   or die "close failed: $!";
+    exit;       # Don't forget to make the SAFE_WRITER disappear.
+}</pre>
+</blockquote>
+
+Upon failing to open the file, the child prints an error message and
+exits.  When the parent writes to the now-defunct child's filehandle,
+it triggers a broken pipe signal (<tt class="literal">SIGPIPE</tt>), which
+is fatal unless trapped or ignored.  See the section <a href="ch16_01.htm#ch16-sect-signals">Section 23.1, "Signals"</a> in
+<a href="ch16_01.htm">Chapter 16, "Interprocess Communication"</a>.
+<a name="INDEX-4010"></a><a name="INDEX-4011"></a><a name="INDEX-4012"></a><a name="INDEX-4013"></a>
+</p>
+
+<a name="INDEX-4014"></a><a name="INDEX-4015"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a name="INDEX-4095"></a>
+
+
+<!-- BOTTOM NAV BAR -->
+
+<hr width="515" align="left">
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch22_03.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="index.htm"><img src="../gifs/txthome.gif" alt="Home" border="0"></a></td><td align="right" valign="top" width="172"><a href="ch23_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+<tr>
+<td align="left" valign="top" width="172">22.3. Creating CPAN Modules</td><td align="center" valign="top" width="171"><a href="index/index.htm"><img src="../gifs/index.gif" alt="Book Index" border="0"></a></td><td align="right" valign="top" width="172">23.2. Handling Timing Glitches</td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- LIBRARY NAV BAR -->
+
+<img src="../gifs/smnavbar.gif" usemap="#library-map" border="0" alt="Library Navigation Links"><p>
+<font size="-1"><a href="copyrght.htm">Copyright &copy; 2001</a> O'Reilly &amp; Associates. All rights reserved.</font>
+</p>
+<map name="library-map"> <area shape="rect" coords="2,-1,79,99" href="../index.htm"><area shape="rect" coords="84,1,157,108" href="../perlnut/index.htm"><area shape="rect" coords="162,2,248,125" href="../prog3/index.htm"><area shape="rect" coords="253,2,326,130" href="../advprog/index.htm"><area shape="rect" coords="332,1,407,112" href="../cookbook/index.htm"><area shape="rect" coords="414,2,523,103" href="../sysadmin/index.htm">
+</map>
+
+<!-- END OF BODY -->
+
+</body>
+</html>
+
+
+<br>
+
+
+<table border=0 align=center>
+<tr><td>
+
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 468x60, main footer */
+google_ad_slot = "1100896219";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<script>
+user = "2823";
+page = "2";
+
+</script>
+
+
+
+</td>
+<td>
+
+<!-- Ukrainian Banner Network 468x60 START -->
+<center>
+<script>
+//<!--
+user = "2823";
+page = "2";
+pid = Math.round((Math.random() * (10000000 - 1)));
+document.write("<iframe src='http://banner.kiev.ua/cgi-bin/bi.cgi?h" +
+user + "&amp;"+ pid + "&amp;" + page + "' frameborder=0 vspace=0 hspace=0 " +
+" width=468 height=60 marginwidth=0 marginheight=0 scrolling=no>");
+document.write("<a href='http://banner.kiev.ua/cgi-bin/bg.cgi?" +
+user + "&amp;"+ pid + "&amp;" + page + "' target=_top>");
+document.write("<img border=0 src='http://banner.kiev.ua/" +
+"cgi-bin/bi.cgi?i" + user + "&amp;" + pid + "&amp;" + page +
+"' width=468 height=60 alt='хЋ“Ѕ…ќ”ЋЅ— вЅќќ≈“ќЅ— у≈‘Ў'></a>");
+document.write("</iframe>");
+//-->
+</script>
+</center>
+<!-- Ukrainian Banner Network 468x60 END -->
+
+
+</td></tr>
+<tr><td colspan=2>
+<br>
+<hr size=1>
+
+
+
+<!-- SpyLOG -->
+<script src="http://tools.spylog.ru/counter_cv.js" id="spylog_code" type="text/javascript" counter="1028713" part="docs" track_links="ext" page_level="0">
+</script>
+<noscript>
+<a href="http://u10287.13.spylog.com/cnt?cid=1028713&f=3&p=0" target="_blank">
+<img src="http://u10287.13.spylog.com/cnt?cid=1028713&p=0" alt="SpyLOG" border="0" width="88" height="31"></a>
+</noscript>
+<!--/ SpyLOG -->
+
+<!--bigmir)net TOP 100-->
+<script type="text/javascript" language="javascript"><!--
+function BM_Draw(oBM_STAT){
+document.write('<table cellpadding="0" cellspacing="0" border="0" style="display:inline;margin-right:4px;"><tr><td><div style="margin:0px;padding:0px;font-size:1px;width:88px;"><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_top.gif\') no-repeat bottom;">&nbsp;</div><div style="font:10px Tahoma;background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_center.gif\');"><div style="text-align:center;"><a href="http://www.bigmir.net/" target="_blank" style="color:#0000ab;text-decoration:none;font:10px Tahoma;">bigmir<span style="color:#ff0000;">)</span>net</a></div><div style="margin-top:3px;padding: 0px 6px 0px 6px;color:#003596;"><div style="float:left;font:10px Tahoma;">'+oBM_STAT.hosts+'</div><div style="float:right;font:10px Tahoma;">'+oBM_STAT.hits+'</div></div><br clear="all"/></div><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_bottom.gif\') no-repeat top;">&nbsp;</div></div></td></tr></table>');
+}
+//-->
+</script>
+
+<script type="text/javascript" language="javascript"><!--
+bmN=navigator,bmD=document,bmD.cookie='b=b',i=0,bs=[],bm={o:1,v:126595,s:126595,t:0,c:bmD.cookie?1:0,n:Math.round((Math.random()* 1000000)),w:0};
+for(var f=self;f!=f.parent;f=f.parent)bm.w++;
+try{if(bmN.plugins&&bmN.mimeTypes.length&&(x=bmN.plugins['Shockwave Flash']))bm.m=parseInt(x.description.replace(/([a-zA-Z]|s)+/,''));
+else for(var f=3;f<20;f++)if(eval('new ActiveXObject("ShockwaveFlash.ShockwaveFlash.'+f+'")'))bm.m=f}catch(e){;}
+try{bm.y=bmN.javaEnabled()?1:0}catch(e){;}
+try{bmS=screen;bm.v^=bm.d=bmS.colorDepth||bmS.pixelDepth;bm.v^=bm.r=bmS.width}catch(e){;}
+r=bmD.referrer.slice(7);if(r&&r.split('/')[0]!=window.location.host){bm.f=escape(r);bm.v^=r.length}
+bm.v^=window.location.href.length;for(var x in bm) if(/^[ovstcnwmydrf]$/.test(x)) bs[i++]=x+bm[x];
+bmD.write('<sc'+'ript type="text/javascript" language="javascript" src="http://c.bigmir.net/?'+bs.join('&')+'"></sc'+'ript>');
+//-->
+</script>
+<noscript>
+<a href="http://www.bigmir.net/" target="_blank"><img src="http://c.bigmir.net/?v126595&s126595&t2" width="88" height="31" alt="bigmir)net TOP 100" title="bigmir)net TOP 100" border="0" /></a>
+</noscript>
+<!--bigmir)net TOP 100-->
+
+<!--begin of Rambler's Top100 code -->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://counter.rambler.ru/top100.cnt?692798" alt="" width=1 height=1 border=0></a>
+<!--end of Top100 code-->
+
+<!--begin of Top100 logo-->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://top100-images.rambler.ru/top100/w1.gif" alt="Rambler's Top100" width=88 height=31 
+border=0></a>
+<!--end of Top100 logo -->
+
+
+<!-- hit.ua -->
+<a href='http://hit.ua/?x=3601' target='_blank'>
+<script language="javascript" type="text/javascript"><!--
+Cd=document;Cr="&"+Math.random();Cp="&s=1";
+Cd.cookie="b=b";if(Cd.cookie)Cp+="&c=1";
+Cp+="&t="+(new Date()).getTimezoneOffset();
+if(self!=top)Cp+="&f=1";
+//--></script>
+<script language="javascript1.1" type="text/javascript"><!--
+if(navigator.javaEnabled())Cp+="&j=1";
+//--></script>
+<script language="javascript1.2" type="text/javascript"><!--
+if(typeof(screen)!='undefined')Cp+="&w="+screen.width+"&h="+
+screen.height+"&d="+(screen.colorDepth?screen.colorDepth:screen.pixelDepth);
+//--></script>
+<script language="javascript" type="text/javascript"><!--
+Cd.write("<img src='http://c.hit.ua/hit?i=3601&g=0&x=1"+Cp+Cr+
+"&r="+escape(Cd.referrer)+"&u="+escape(window.location.href)+
+"' border='0' width='88' height='31' "+
+"alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>");
+//--></script>
+<noscript>
+<img src='http://c.hit.ua/hit?i=3601&amp;g=0&amp;x=1' border='0' width='88' height='31' alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>
+</noscript></a>
+<!-- / hit.ua -->
+
+<script language="javascript">//<!--
+mtI="012408140822";mtG="45";mtT="4";mtS='http://012408140822.c.mystat-in.net/?';
+mtD=document;mtN=navigator.appName;mtR=escape(mtD.referrer);
+mtW="";mtC="";mtV="0";mtJ="1";
+//--></script><script language="javascript1.1">//<!--
+mtV="1";mtJ = (navigator.javaEnabled()?"1":"0");
+//--></script><script language="javascript1.2">//<!--
+mtE=screen;mtW=mtE.width;mtN!="Netscape"?mtC=mtE.colorDepth:mtC=mtE.pixelDepth;mtV="2";
+//--></script><script language="javascript1.3">//<!--
+mtV="3";
+//--></script><script language="javascript">//<!--
+mtUrl="";mtUrl+="\""+mtS+"i"+mtI+"&t"+mtT+"&g"+mtG+"&w"+mtW+"&c"+mtC+"&r"+mtR+"&v"+mtV+"&j"+mtJ+"\"";
+mtUrl="<a href=http://mytop-in.net/ target=_blank><img src="+mtUrl+"width=88 height=31 border=0 alt=\"Rated by MyTOP\"></a>";
+mtD.write(mtUrl);
+//--></script>
+<noscript>
+<a href=http://mytop-in.net/ target=_blank><img src=http://012408140822.c.mystat-in.net/?i012408140822&t4&g45&j0 width=88 height=31 border=0 alt="Rated by MyTOP"></a>
+</noscript>
+
+<!--Rating@Mail.ru COUNTEr--><script language="JavaScript" type="text/javascript"><!--
+d=document;var a='';a+=';r='+escape(d.referrer)
+js=10//--></script><script language="JavaScript1.1" type="text/javascript"><!--
+a+=';j='+navigator.javaEnabled()
+js=11//--></script><script language="JavaScript1.2" type="text/javascript"><!--
+s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+js=12//--></script><script language="JavaScript1.3" type="text/javascript"><!--
+js=13//--></script><script language="JavaScript" type="text/javascript"><!--
+d.write('<a href="http://top.mail.ru/jump?from=1374183"'+
+' target=_top><img src="http://d7.cf.b4.a1.top.list.ru/counter'+
+'?id=1374183;t=48;js='+js+a+';rand='+Math.random()+
+'" alt="–ейтинг@Mail.ru"'+' border=0 height=31 width=88/><\/a>')
+if(11<js)d.write('<'+'!-- ')//--></script><noscript><a
+target=_top href="http://top.mail.ru/jump?from=1374183"><img
+src="http://d7.cf.b4.a1.top.list.ru/counter?js=na;id=1374183;t=48"
+border=0 height=31 width=88
+alt="–ейтинг@Mail.ru"/></a></noscript><script language="JavaScript" type="text/javascript"><!--
+if(11<js)d.write('--'+'>')//--></script><!--/COUNTER-->
+
+<!-- I.UA counter --><a href="http://www.i.ua/" target="_blank" onclick="this.href='http://i.ua/r.php?21595';" title="Rated by I.UA">
+<script type="text/javascript" language="javascript"><!--
+iS='<img src="http://r.i.ua/s?u21595&p66&n'+Math.random();
+iD=document;iD.cookie="iua=1";if(iD.cookie)iS+='&c1';
+iS+='&d'+(screen.colorDepth?screen.colorDepth:screen.pixelDepth)
++"&w"+screen.width+'&h'+screen.height
+iT=iD.referrer.slice(7);iH=window.location.href.slice(7);
+((iI=iT.indexOf('/'))!=-1)?(iT=iT.substring(0,iI)):(iI=iT.length);
+if(iT!=iH.substring(0,iI))iS+='&f'+escape(iD.referrer.slice(7))
+iS+='&r'+escape(iH);
+iD.write(iS+'" border="0" width="88" height="31" />');
+//--></script></a><!-- End of I.UA counter -->
+
+<script type="text/javascript">
+<!--
+Nnv=navigator;Nna=Nnv.appName;Nd=document;Nd.cookie="b=b";Nc=0;if(Nd.cookie)Nc=1;
+Nn=(Nna.substring(0,2)=="Mi")?0:1;Ns=screen;Npx=(Nn==0)?Ns.colorDepth:Ns.pixelDepth;
+str='<img src="http://c.uarating.com/199;'+Ns.width+'x'+Ns.height+';'+Npx+';'+Nc+';';
+str=str+escape(Nd.referrer)+';'+Math.random()+'" width="88" height="31" border="0">';
+document.write('<a href="http://www.uarating.com/" alt="uaRating" target="_blank">'+str+'<\/a>');
+// -->
+</script>
+<noscript><a href="http://www.uarating.com/" target="_blank"><img src="http://c.uarating.com/199;0x0;0;0;-;0" alt="uaRating" width="88" height="31" border="0"></a></noscript>
+
+
+</td></tr>
+</table>
+
+
+</body>
+</html>

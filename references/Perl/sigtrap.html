@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>sigtrap - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-pragmas.html">Pragmas</a> &gt; sigtrap</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">sigtrap</div><div class="pdf_link"><a href="sigtrap.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="sigtrap.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#OPTIONS">OPTIONS</a><ul><li><a href="#SIGNAL-HANDLERS">SIGNAL HANDLERS</a><li><a href="#SIGNAL-LISTS">SIGNAL LISTS</a><li><a href="#OTHER">OTHER</a></ul><li><a href="#EXAMPLES">EXAMPLES</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>sigtrap - Perl pragma to enable simple signal handling</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(stack-trace old-interface-signals)</span><span class="sc">;</span>	<span class="c"># equivalent</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(BUS SEGV PIPE ABRT)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(die INT QUIT)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(die normal-signals)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(die untrapped normal-signals)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(die untrapped normal-signals</span>
+		    <span class="q">stack-trace any error-signals)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">&#39;handler&#39;</span> <span class="cm">=&gt;</span> \<span class="i">&amp;my_handler</span><span class="cm">,</span> <span class="q">&#39;normal-signals&#39;</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(handler my_handler normal-signals</span>
+    	    	    <span class="q">stack-trace error-signals)</span><span class="sc">;</span></pre>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>The <b>sigtrap</b> pragma is a simple interface to installing signal
+handlers.  You can have it install one of two handlers supplied by
+<b>sigtrap</b> itself (one which provides a Perl stack trace and one which
+simply <code class="inline"><a class="l_k" href="functions/die.html">die()</a></code>s), or alternately you can supply your own handler for it
+to install.  It can be told only to install a handler for signals which
+are either untrapped or ignored.  It has a couple of lists of signals to
+trap, plus you can supply your own list of signals.</p>
+<p>The arguments passed to the <code class="inline"><a class="l_k" href="functions/use.html">use</a></code> statement which invokes <b>sigtrap</b>
+are processed in order.  When a signal name or the name of one of
+<b>sigtrap</b>'s signal lists is encountered a handler is immediately
+installed, when an option is encountered it affects subsequently
+installed handlers.</p>
+<a name="OPTIONS"></a><h1>OPTIONS</h1>
+<a name="SIGNAL-HANDLERS"></a><h2>SIGNAL HANDLERS</h2>
+<p>These options affect which handler will be used for subsequently
+installed signals.</p>
+<ul>
+<li><a name="*stack-trace*"></a><b><b>stack-trace</b></b>
+<p>The handler used for subsequently installed signals outputs a Perl stack
+trace to STDERR and then tries to dump core.  This is the default signal
+handler.</p>
+</li>
+<li><a name="*die*"></a><b><b>die</b></b>
+<p>The handler used for subsequently installed signals calls <code class="inline"><a class="l_k" href="functions/die.html">die</a></code>
+(actually <code class="inline">croak</code>
+) with a message indicating which signal was caught.</p>
+</li>
+<li><a name="*handler*-_your-handler_"></a><b><b>handler</b> <i>your-handler</i></b>
+<p><i>your-handler</i> will be used as the handler for subsequently installed
+signals.  <i>your-handler</i> can be any value which is valid as an
+assignment to an element of <code class="inline"><span class="i">%SIG</span></code>
+.</p>
+</li>
+</ul>
+<a name="SIGNAL-LISTS"></a><h2>SIGNAL LISTS</h2>
+<p><b>sigtrap</b> has a few built-in lists of signals to trap.  They are:</p>
+<ul>
+<li><a name="*normal-signals*"></a><b><b>normal-signals</b></b>
+<p>These are the signals which a program might normally expect to encounter
+and which by default cause it to terminate.  They are HUP, INT, PIPE and
+TERM.</p>
+</li>
+<li><a name="*error-signals*"></a><b><b>error-signals</b></b>
+<p>These signals usually indicate a serious problem with the Perl
+interpreter or with your script.  They are ABRT, BUS, EMT, FPE, ILL,
+QUIT, SEGV, SYS and TRAP.</p>
+</li>
+<li><a name="*old-interface-signals*"></a><b><b>old-interface-signals</b></b>
+<p>These are the signals which were trapped by default by the old
+<b>sigtrap</b> interface, they are ABRT, BUS, EMT, FPE, ILL, PIPE, QUIT,
+SEGV, SYS, TERM, and TRAP.  If no signals or signals lists are passed to
+<b>sigtrap</b>, this list is used.</p>
+</li>
+</ul>
+<p>For each of these three lists, the collection of signals set to be
+trapped is checked before trapping; if your architecture does not
+implement a particular signal, it will not be trapped but rather
+silently ignored.</p>
+<a name="OTHER"></a><h2>OTHER</h2>
+<ul>
+<li><a name="*untrapped*"></a><b><b>untrapped</b></b>
+<p>This token tells <b>sigtrap</b> to install handlers only for subsequently
+listed signals which aren't already trapped or ignored.</p>
+</li>
+<li><a name="*any*"></a><b><b>any</b></b>
+<p>This token tells <b>sigtrap</b> to install handlers for all subsequently
+listed signals.  This is the default behavior.</p>
+</li>
+<li><a name="_signal_"></a><b><i>signal</i></b>
+<p>Any argument which looks like a signal name (that is,
+<code class="inline"><span class="q">/^[A-Z][A-Z0-9]*$/</span></code>
+) indicates that <b>sigtrap</b> should install a
+handler for that name.</p>
+</li>
+<li><a name="_number_"></a><b><i>number</i></b>
+<p>Require that at least version <i>number</i> of <b>sigtrap</b> is being used.</p>
+</li>
+</ul>
+<a name="EXAMPLES"></a><h1>EXAMPLES</h1>
+<p>Provide a stack trace for the old-interface-signals:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a><span class="sc">;</span></pre>
+<p>Ditto:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(stack-trace old-interface-signals)</span><span class="sc">;</span></pre>
+<p>Provide a stack trace on the 4 listed signals only:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(BUS SEGV PIPE ABRT)</span><span class="sc">;</span></pre>
+<p>Die on INT or QUIT:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(die INT QUIT)</span><span class="sc">;</span></pre>
+<p>Die on HUP, INT, PIPE or TERM:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(die normal-signals)</span><span class="sc">;</span></pre>
+<p>Die on HUP, INT, PIPE or TERM, except don't change the behavior for
+signals which are already trapped or ignored:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(die untrapped normal-signals)</span><span class="sc">;</span></pre>
+<p>Die on receipt one of an of the <b>normal-signals</b> which is currently
+<b>untrapped</b>, provide a stack trace on receipt of <b>any</b> of the
+<b>error-signals</b>:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(die untrapped normal-signals</span>
+		    <span class="q">stack-trace any error-signals)</span><span class="sc">;</span></pre>
+<p>Install my_handler() as the handler for the <b>normal-signals</b>:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">&#39;handler&#39;</span><span class="cm">,</span> \<span class="i">&amp;my_handler</span><span class="cm">,</span> <span class="q">&#39;normal-signals&#39;</span><span class="sc">;</span></pre>
+<p>Install my_handler() as the handler for the normal-signals, provide a
+Perl stack trace on receipt of one of the error-signals:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="sigtrap.html">sigtrap</a> <span class="q">qw(handler my_handler normal-signals</span>
+    	    	    <span class="q">stack-trace error-signals)</span><span class="sc">;</span></pre>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('sigtrap','sigtrap.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

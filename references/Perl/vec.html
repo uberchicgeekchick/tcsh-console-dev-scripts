@@ -1,0 +1,346 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>vec - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="../css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="../label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 1;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="../onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='../close_purple.gif';" onmouseout="leftCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="../index-overview.html">Overview</a></li>
+        <li><a href="../index-tutorials.html">Tutorials</a></li>
+        <li><a href="../index-faq.html">FAQs</a></li>
+        <li><a href="../index-history.html">History / Changes</a></li>
+        <li><a href="../index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="../index-language.html">Language</a></li>
+        <li><a href="../index-functions.html">Functions</a></li>
+        <li><a href="../perlop.html">Operators</a></li>
+        <li><a href="../perlvar.html">Special variables</a></li>
+        <li><a href="../index-pragmas.html">Pragmas</a></li>
+        <li><a href="../index-modules-A.html">Core modules</a></li>
+        <li><a href="../index-utilities.html">Utilities</a></li>
+        <li><a href="../index-internals.html">Internals</a></li>
+        <li><a href="../index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="../index.html">Home</a> &gt; <a href="../index-language.html">Language reference</a> &gt; <a href="../index-functions.html">Functions</a> &gt; vec</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">vec</div></div><div class="mod_az_list"><a href="../index-functions.html">Perl functions A-Z</a> | <a href="../index-functions-by-cat.html">Perl functions by category</a> | <a href="../perlfunc.html">The 'perlfunc' manpage</a></div><ul>
+<li><a name="vec-EXPR%2cOFFSET%2cBITS"></a><b>vec EXPR,OFFSET,BITS</b>
+<p>  </p>
+<p>Treats the string in EXPR as a bit vector made up of elements of
+width BITS, and returns the value of the element specified by OFFSET
+as an unsigned integer.  BITS therefore specifies the number of bits
+that are reserved for each element in the bit vector.  This must
+be a power of two from 1 to 32 (or 64, if your platform supports
+that).</p>
+<p>If BITS is 8, "elements" coincide with bytes of the input string.</p>
+<p>If BITS is 16 or more, bytes of the input string are grouped into chunks
+of size BITS/8, and each group is converted to a number as with
+pack()/unpack() with big-endian formats <code class="inline">n</code>
+/<code class="inline">N</code>
+ (and analogously
+for BITS==64).  See <a href="pack.html">pack</a> for details.</p>
+<p>If bits is 4 or less, the string is broken into bytes, then the bits
+of each byte are broken into 8/BITS groups.  Bits of a byte are
+numbered in a little-endian-ish way, as in <code class="inline"><span class="n">0x01</span></code>
+, <code class="inline"><span class="n">0x02</span></code>
+,
+<code class="inline"><span class="n">0x04</span></code>
+, <code class="inline"><span class="n">0x08</span></code>
+, <code class="inline"><span class="n">0x10</span></code>
+, <code class="inline"><span class="n">0x20</span></code>
+, <code class="inline"><span class="n">0x40</span></code>
+, <code class="inline"><span class="n">0x80</span></code>
+.  For example,
+breaking the single input byte <code class="inline"><a class="l_k" href="../functions/chr.html">chr(0x36)</a></code> into two groups gives a list
+<code class="inline"><span class="s">(</span><span class="n">0x6</span><span class="cm">,</span> <span class="n">0x3</span><span class="s">)</span></code>
+; breaking it into 4 groups gives <code class="inline"><span class="s">(</span><span class="n">0x2</span><span class="cm">,</span> <span class="n">0x1</span><span class="cm">,</span> <span class="n">0x3</span><span class="cm">,</span> <span class="n">0x0</span><span class="s">)</span></code>
+.</p>
+<p><code class="inline"><a class="l_k" href="../functions/vec.html">vec</a></code> may also be assigned to, in which case parentheses are needed
+to give the expression the correct precedence as in</p>
+<pre class="verbatim">    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$image</span><span class="cm">,</span> <span class="i">$max_x</span> * <span class="i">$x</span> + <span class="i">$y</span><span class="cm">,</span> <span class="n">8</span><span class="s">)</span> = <span class="n">3</span><span class="sc">;</span></pre>
+<p>If the selected element is outside the string, the value 0 is returned.
+If an element off the end of the string is written to, Perl will first
+extend the string with sufficiently many zero bytes.   It is an error
+to try to write off the beginning of the string (i.e. negative OFFSET).</p>
+<p>The string should not contain any character with the value &gt; 255 (which
+can only happen if you're using UTF-8 encoding).  If it does, it will be
+treated as something that is not UTF-8 encoded.  When the <code class="inline"><a class="l_k" href="../functions/vec.html">vec</a></code> was
+assigned to, other parts of your program will also no longer consider the
+string to be UTF-8 encoded.  In other words, if you do have such characters
+in your string, vec() will operate on the actual byte string, and not the
+conceptual character string.</p>
+<p>Strings created with <code class="inline"><a class="l_k" href="../functions/vec.html">vec</a></code> can also be manipulated with the logical
+operators <code class="inline">|</code>, <code class="inline"><span class="i">&amp;</span></code>
+, <code class="inline">^</code>, and <code class="inline">~</code>
+.  These operators will assume a bit
+vector operation is desired when both operands are strings.
+See <a href="../perlop.html#Bitwise-String-Operators">"Bitwise String Operators" in perlop</a>.</p>
+<p>The following code will build up an ASCII string saying <code class="inline"><span class="q">&#39;PerlPerlPerl&#39;</span></code>
+.
+The comments show the string after each step.  Note that this code works
+in the same way on big-endian or little-endian machines.</p>
+<pre class="verbatim">    <a class="l_k" href="../functions/my.html">my</a> <span class="i">$foo</span> = <span class="q">&#39;&#39;</span><span class="sc">;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span>  <span class="n">0</span><span class="cm">,</span> <span class="n">32</span><span class="s">)</span> = <span class="n">0x5065726C</span><span class="sc">;</span>	<span class="c"># &#39;Perl&#39;</span></pre>
+<pre class="verbatim">    <span class="c"># $foo eq &quot;Perl&quot; eq &quot;\x50\x65\x72\x6C&quot;, 32 bits</span>
+    <a class="l_k" href="../functions/print.html">print</a> <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span> <span class="n">0</span><span class="cm">,</span> <span class="n">8</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># prints 80 == 0x50 == ord(&#39;P&#39;)</span></pre>
+<pre class="verbatim">    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span>  <span class="n">2</span><span class="cm">,</span> <span class="n">16</span><span class="s">)</span> = <span class="n">0x5065</span><span class="sc">;</span>		<span class="c"># &#39;PerlPe&#39;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span>  <span class="n">3</span><span class="cm">,</span> <span class="n">16</span><span class="s">)</span> = <span class="n">0x726C</span><span class="sc">;</span>		<span class="c"># &#39;PerlPerl&#39;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span>  <span class="n">8</span><span class="cm">,</span>  <span class="n">8</span><span class="s">)</span> = <span class="n">0x50</span><span class="sc">;</span>		<span class="c"># &#39;PerlPerlP&#39;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span>  <span class="n">9</span><span class="cm">,</span>  <span class="n">8</span><span class="s">)</span> = <span class="n">0x65</span><span class="sc">;</span>		<span class="c"># &#39;PerlPerlPe&#39;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span> <span class="n">20</span><span class="cm">,</span>  <span class="n">4</span><span class="s">)</span> = <span class="n">2</span><span class="sc">;</span>		<span class="c"># &#39;PerlPerlPe&#39;   . &quot;\x02&quot;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span> <span class="n">21</span><span class="cm">,</span>  <span class="n">4</span><span class="s">)</span> = <span class="n">7</span><span class="sc">;</span>		<span class="c"># &#39;PerlPerlPer&#39;</span>
+                                        <span class="c"># &#39;r&#39; is &quot;\x72&quot;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span> <span class="n">45</span><span class="cm">,</span>  <span class="n">2</span><span class="s">)</span> = <span class="n">3</span><span class="sc">;</span>		<span class="c"># &#39;PerlPerlPer&#39;  . &quot;\x0c&quot;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span> <span class="n">93</span><span class="cm">,</span>  <span class="n">1</span><span class="s">)</span> = <span class="n">1</span><span class="sc">;</span>		<span class="c"># &#39;PerlPerlPer&#39;  . &quot;\x2c&quot;</span>
+    <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$foo</span><span class="cm">,</span> <span class="n">94</span><span class="cm">,</span>  <span class="n">1</span><span class="s">)</span> = <span class="n">1</span><span class="sc">;</span>		<span class="c"># &#39;PerlPerlPerl&#39;</span>
+                                        <span class="c"># &#39;l&#39; is &quot;\x6c&quot;</span></pre>
+<p>To transform a bit vector into a string or list of 0's and 1's, use these:</p>
+<pre class="verbatim">    <span class="i">$bits</span> = <a class="l_k" href="../functions/unpack.html">unpack</a><span class="s">(</span><span class="q">&quot;b*&quot;</span><span class="cm">,</span> <span class="i">$vector</span><span class="s">)</span><span class="sc">;</span>
+    <span class="i">@bits</span> = <a class="l_k" href="../functions/split.html">split</a><span class="s">(</span><span class="q">//</span><span class="cm">,</span> <a class="l_k" href="../functions/unpack.html">unpack</a><span class="s">(</span><span class="q">&quot;b*&quot;</span><span class="cm">,</span> <span class="i">$vector</span><span class="s">)</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>If you know the exact length in bits, it can be used in place of the <code class="inline"><span class="i">*</span></code>
+.</p>
+<p>Here is an example to illustrate how the bits actually fall in place:</p>
+<pre class="verbatim">    <span class="c">#!/usr/bin/perl -wl</span></pre>
+<pre class="verbatim">    print &lt;&lt;'EOT';
+                                      0         1         2         3
+                       unpack("V",$_) 01234567890123456789012345678901
+    ------------------------------------------------------------------
+    EOT</pre><pre class="verbatim">    for <span class="i">$w</span> <span class="s">(</span><span class="n">0</span>..<span class="n">3</span><span class="s">)</span> <span class="s">{</span>
+        <span class="i">$width</span> = <span class="n">2</span>**<span class="i">$w</span><span class="sc">;</span>
+        for <span class="s">(</span><span class="i">$shift</span>=<span class="n">0</span><span class="sc">;</span> <span class="i">$shift</span> &lt; <span class="i">$width</span><span class="sc">;</span> ++<span class="i">$shift</span><span class="s">)</span> <span class="s">{</span>
+            for <span class="s">(</span><span class="i">$off</span>=<span class="n">0</span><span class="sc">;</span> <span class="i">$off</span> &lt; <span class="n">32</span>/<span class="i">$width</span><span class="sc">;</span> ++<span class="i">$off</span><span class="s">)</span> <span class="s">{</span>
+                <span class="i">$str</span> = <a class="l_k" href="../functions/pack.html">pack</a><span class="s">(</span><span class="q">&quot;B*&quot;</span><span class="cm">,</span> <span class="q">&quot;0&quot;</span><span class="n">x32</span><span class="s">)</span><span class="sc">;</span>
+                <span class="i">$bits</span> = <span class="s">(</span><span class="n">1</span>&lt;&lt;<span class="i">$shift</span><span class="s">)</span><span class="sc">;</span>
+                <a class="l_k" href="../functions/vec.html">vec</a><span class="s">(</span><span class="i">$str</span><span class="cm">,</span> <span class="i">$off</span><span class="cm">,</span> <span class="i">$width</span><span class="s">)</span> = <span class="i">$bits</span><span class="sc">;</span>
+                <span class="i">$res</span> = <a class="l_k" href="../functions/unpack.html">unpack</a><span class="s">(</span><span class="q">&quot;b*&quot;</span><span class="cm">,</span><span class="i">$str</span><span class="s">)</span><span class="sc">;</span>
+                <span class="i">$val</span> = <a class="l_k" href="../functions/unpack.html">unpack</a><span class="s">(</span><span class="q">&quot;V&quot;</span><span class="cm">,</span> <span class="i">$str</span><span class="s">)</span><span class="sc">;</span>
+                <a class="l_k" href="../functions/write.html">write</a><span class="sc">;</span>
+            <span class="s">}</span>
+        <span class="s">}</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    format STDOUT =
+    vec($_,@#,@#) = @&lt;&lt; == @######### @&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;
+    $off, $width, $bits, $val, $res
+    .
+    __END__</pre><p>Regardless of the machine architecture on which it is run, the above
+example should print the following table:</p>
+<pre class="verbatim">                                      0         1         2         3
+                       unpack("V",$_) 01234567890123456789012345678901
+    ------------------------------------------------------------------
+    vec($_, 0, 1) = 1   ==          1 10000000000000000000000000000000
+    vec($_, 1, 1) = 1   ==          2 01000000000000000000000000000000
+    vec($_, 2, 1) = 1   ==          4 00100000000000000000000000000000
+    vec($_, 3, 1) = 1   ==          8 00010000000000000000000000000000
+    vec($_, 4, 1) = 1   ==         16 00001000000000000000000000000000
+    vec($_, 5, 1) = 1   ==         32 00000100000000000000000000000000
+    vec($_, 6, 1) = 1   ==         64 00000010000000000000000000000000
+    vec($_, 7, 1) = 1   ==        128 00000001000000000000000000000000
+    vec($_, 8, 1) = 1   ==        256 00000000100000000000000000000000
+    vec($_, 9, 1) = 1   ==        512 00000000010000000000000000000000
+    vec($_,10, 1) = 1   ==       1024 00000000001000000000000000000000
+    vec($_,11, 1) = 1   ==       2048 00000000000100000000000000000000
+    vec($_,12, 1) = 1   ==       4096 00000000000010000000000000000000
+    vec($_,13, 1) = 1   ==       8192 00000000000001000000000000000000
+    vec($_,14, 1) = 1   ==      16384 00000000000000100000000000000000
+    vec($_,15, 1) = 1   ==      32768 00000000000000010000000000000000
+    vec($_,16, 1) = 1   ==      65536 00000000000000001000000000000000
+    vec($_,17, 1) = 1   ==     131072 00000000000000000100000000000000
+    vec($_,18, 1) = 1   ==     262144 00000000000000000010000000000000
+    vec($_,19, 1) = 1   ==     524288 00000000000000000001000000000000
+    vec($_,20, 1) = 1   ==    1048576 00000000000000000000100000000000
+    vec($_,21, 1) = 1   ==    2097152 00000000000000000000010000000000
+    vec($_,22, 1) = 1   ==    4194304 00000000000000000000001000000000
+    vec($_,23, 1) = 1   ==    8388608 00000000000000000000000100000000
+    vec($_,24, 1) = 1   ==   16777216 00000000000000000000000010000000
+    vec($_,25, 1) = 1   ==   33554432 00000000000000000000000001000000
+    vec($_,26, 1) = 1   ==   67108864 00000000000000000000000000100000
+    vec($_,27, 1) = 1   ==  134217728 00000000000000000000000000010000
+    vec($_,28, 1) = 1   ==  268435456 00000000000000000000000000001000
+    vec($_,29, 1) = 1   ==  536870912 00000000000000000000000000000100
+    vec($_,30, 1) = 1   == 1073741824 00000000000000000000000000000010
+    vec($_,31, 1) = 1   == 2147483648 00000000000000000000000000000001
+    vec($_, 0, 2) = 1   ==          1 10000000000000000000000000000000
+    vec($_, 1, 2) = 1   ==          4 00100000000000000000000000000000
+    vec($_, 2, 2) = 1   ==         16 00001000000000000000000000000000
+    vec($_, 3, 2) = 1   ==         64 00000010000000000000000000000000
+    vec($_, 4, 2) = 1   ==        256 00000000100000000000000000000000
+    vec($_, 5, 2) = 1   ==       1024 00000000001000000000000000000000
+    vec($_, 6, 2) = 1   ==       4096 00000000000010000000000000000000
+    vec($_, 7, 2) = 1   ==      16384 00000000000000100000000000000000
+    vec($_, 8, 2) = 1   ==      65536 00000000000000001000000000000000
+    vec($_, 9, 2) = 1   ==     262144 00000000000000000010000000000000
+    vec($_,10, 2) = 1   ==    1048576 00000000000000000000100000000000
+    vec($_,11, 2) = 1   ==    4194304 00000000000000000000001000000000
+    vec($_,12, 2) = 1   ==   16777216 00000000000000000000000010000000
+    vec($_,13, 2) = 1   ==   67108864 00000000000000000000000000100000
+    vec($_,14, 2) = 1   ==  268435456 00000000000000000000000000001000
+    vec($_,15, 2) = 1   == 1073741824 00000000000000000000000000000010
+    vec($_, 0, 2) = 2   ==          2 01000000000000000000000000000000
+    vec($_, 1, 2) = 2   ==          8 00010000000000000000000000000000
+    vec($_, 2, 2) = 2   ==         32 00000100000000000000000000000000
+    vec($_, 3, 2) = 2   ==        128 00000001000000000000000000000000
+    vec($_, 4, 2) = 2   ==        512 00000000010000000000000000000000
+    vec($_, 5, 2) = 2   ==       2048 00000000000100000000000000000000
+    vec($_, 6, 2) = 2   ==       8192 00000000000001000000000000000000
+    vec($_, 7, 2) = 2   ==      32768 00000000000000010000000000000000
+    vec($_, 8, 2) = 2   ==     131072 00000000000000000100000000000000
+    vec($_, 9, 2) = 2   ==     524288 00000000000000000001000000000000
+    vec($_,10, 2) = 2   ==    2097152 00000000000000000000010000000000
+    vec($_,11, 2) = 2   ==    8388608 00000000000000000000000100000000
+    vec($_,12, 2) = 2   ==   33554432 00000000000000000000000001000000
+    vec($_,13, 2) = 2   ==  134217728 00000000000000000000000000010000
+    vec($_,14, 2) = 2   ==  536870912 00000000000000000000000000000100
+    vec($_,15, 2) = 2   == 2147483648 00000000000000000000000000000001
+    vec($_, 0, 4) = 1   ==          1 10000000000000000000000000000000
+    vec($_, 1, 4) = 1   ==         16 00001000000000000000000000000000
+    vec($_, 2, 4) = 1   ==        256 00000000100000000000000000000000
+    vec($_, 3, 4) = 1   ==       4096 00000000000010000000000000000000
+    vec($_, 4, 4) = 1   ==      65536 00000000000000001000000000000000
+    vec($_, 5, 4) = 1   ==    1048576 00000000000000000000100000000000
+    vec($_, 6, 4) = 1   ==   16777216 00000000000000000000000010000000
+    vec($_, 7, 4) = 1   ==  268435456 00000000000000000000000000001000
+    vec($_, 0, 4) = 2   ==          2 01000000000000000000000000000000
+    vec($_, 1, 4) = 2   ==         32 00000100000000000000000000000000
+    vec($_, 2, 4) = 2   ==        512 00000000010000000000000000000000
+    vec($_, 3, 4) = 2   ==       8192 00000000000001000000000000000000
+    vec($_, 4, 4) = 2   ==     131072 00000000000000000100000000000000
+    vec($_, 5, 4) = 2   ==    2097152 00000000000000000000010000000000
+    vec($_, 6, 4) = 2   ==   33554432 00000000000000000000000001000000
+    vec($_, 7, 4) = 2   ==  536870912 00000000000000000000000000000100
+    vec($_, 0, 4) = 4   ==          4 00100000000000000000000000000000
+    vec($_, 1, 4) = 4   ==         64 00000010000000000000000000000000
+    vec($_, 2, 4) = 4   ==       1024 00000000001000000000000000000000
+    vec($_, 3, 4) = 4   ==      16384 00000000000000100000000000000000
+    vec($_, 4, 4) = 4   ==     262144 00000000000000000010000000000000
+    vec($_, 5, 4) = 4   ==    4194304 00000000000000000000001000000000
+    vec($_, 6, 4) = 4   ==   67108864 00000000000000000000000000100000
+    vec($_, 7, 4) = 4   == 1073741824 00000000000000000000000000000010
+    vec($_, 0, 4) = 8   ==          8 00010000000000000000000000000000
+    vec($_, 1, 4) = 8   ==        128 00000001000000000000000000000000
+    vec($_, 2, 4) = 8   ==       2048 00000000000100000000000000000000
+    vec($_, 3, 4) = 8   ==      32768 00000000000000010000000000000000
+    vec($_, 4, 4) = 8   ==     524288 00000000000000000001000000000000
+    vec($_, 5, 4) = 8   ==    8388608 00000000000000000000000100000000
+    vec($_, 6, 4) = 8   ==  134217728 00000000000000000000000000010000
+    vec($_, 7, 4) = 8   == 2147483648 00000000000000000000000000000001
+    vec($_, 0, 8) = 1   ==          1 10000000000000000000000000000000
+    vec($_, 1, 8) = 1   ==        256 00000000100000000000000000000000
+    vec($_, 2, 8) = 1   ==      65536 00000000000000001000000000000000
+    vec($_, 3, 8) = 1   ==   16777216 00000000000000000000000010000000
+    vec($_, 0, 8) = 2   ==          2 01000000000000000000000000000000
+    vec($_, 1, 8) = 2   ==        512 00000000010000000000000000000000
+    vec($_, 2, 8) = 2   ==     131072 00000000000000000100000000000000
+    vec($_, 3, 8) = 2   ==   33554432 00000000000000000000000001000000
+    vec($_, 0, 8) = 4   ==          4 00100000000000000000000000000000
+    vec($_, 1, 8) = 4   ==       1024 00000000001000000000000000000000
+    vec($_, 2, 8) = 4   ==     262144 00000000000000000010000000000000
+    vec($_, 3, 8) = 4   ==   67108864 00000000000000000000000000100000
+    vec($_, 0, 8) = 8   ==          8 00010000000000000000000000000000
+    vec($_, 1, 8) = 8   ==       2048 00000000000100000000000000000000
+    vec($_, 2, 8) = 8   ==     524288 00000000000000000001000000000000
+    vec($_, 3, 8) = 8   ==  134217728 00000000000000000000000000010000
+    vec($_, 0, 8) = 16  ==         16 00001000000000000000000000000000
+    vec($_, 1, 8) = 16  ==       4096 00000000000010000000000000000000
+    vec($_, 2, 8) = 16  ==    1048576 00000000000000000000100000000000
+    vec($_, 3, 8) = 16  ==  268435456 00000000000000000000000000001000
+    vec($_, 0, 8) = 32  ==         32 00000100000000000000000000000000
+    vec($_, 1, 8) = 32  ==       8192 00000000000001000000000000000000
+    vec($_, 2, 8) = 32  ==    2097152 00000000000000000000010000000000
+    vec($_, 3, 8) = 32  ==  536870912 00000000000000000000000000000100
+    vec($_, 0, 8) = 64  ==         64 00000010000000000000000000000000
+    vec($_, 1, 8) = 64  ==      16384 00000000000000100000000000000000
+    vec($_, 2, 8) = 64  ==    4194304 00000000000000000000001000000000
+    vec($_, 3, 8) = 64  == 1073741824 00000000000000000000000000000010
+    vec($_, 0, 8) = 128 ==        128 00000001000000000000000000000000
+    vec($_, 1, 8) = 128 ==      32768 00000000000000010000000000000000
+    vec($_, 2, 8) = 128 ==    8388608 00000000000000000000000100000000
+    vec($_, 3, 8) = 128 == 2147483648 00000000000000000000000000000001</pre></li>
+</ul>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="../perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='../close_purple.gif';" onmouseout="rightCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="../search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('vec','functions/vec.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

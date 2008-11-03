@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>pod2latex - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-utilities.html">Utilities</a> &gt; pod2latex</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">pod2latex</div><div class="pdf_link"><a href="pod2latex.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="pod2latex.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#OPTIONS-AND-ARGUMENTS">OPTIONS AND ARGUMENTS</a><li><a href="#BUGS">BUGS</a><li><a href="#SEE-ALSO">SEE ALSO</a><li><a href="#AUTHOR">AUTHOR</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>pod2latex - convert pod documentation to latex format</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<pre class="verbatim">  pod2latex *.pm</pre><pre class="verbatim">  pod2latex -out mytex.tex *.pod</pre><pre class="verbatim">  pod2latex -full -sections 'DESCRIPTION|NAME' SomeDir</pre><pre class="verbatim">  pod2latex -prefile h.tex -postfile t.tex <a class="l_k" href="functions/my.html">my</a>.pod</pre>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p><code class="inline">pod2latex</code>
+ is a program to convert POD format documentation
+(<a href="perlpod.html">perlpod</a>) into latex. It can process multiple input documents at a
+time and either generate a latex file per input document or a single
+combined output file.</p>
+<a name="OPTIONS-AND-ARGUMENTS"></a><h1>OPTIONS AND ARGUMENTS</h1>
+<p>This section describes the supported command line options. Minimum
+matching is supported.</p>
+<ul>
+<li><a name="*-out*"></a><b><b>-out</b></b>
+<p>Name of the output file to be used. If there are multiple input pods
+it is assumed that the intention is to write all translated output
+into a single file. <code class="inline">.tex</code> is appended if not present.  If the
+argument is not supplied, a single document will be created for each
+input file.</p>
+</li>
+<li><a name="*-full*"></a><b><b>-full</b></b>
+<p>Creates a complete <code class="inline">latex</code>
+ file that can be processed immediately
+(unless <code class="inline"><span class="pd">=for/=begin</span></code>
+ directives are used that rely on extra packages).
+Table of contents and index generation commands are included in the
+wrapper <code class="inline">latex</code>
+ code.</p>
+</li>
+<li><a name="*-sections*"></a><b><b>-sections</b></b>
+<p>Specify pod sections to include (or remove if negated) in the
+translation.  See <a href="Pod/Select.html#SECTION-SPECIFICATIONS">"SECTION SPECIFICATIONS" in Pod::Select</a> for the
+format to use for <i>section-spec</i>. This option may be given multiple
+times on the command line.This is identical to the similar option in
+the <code class="inline"><span class="i">podselect</span><span class="s">(</span><span class="s">)</span></code>
+ command.</p>
+</li>
+<li><a name="*-modify*"></a><b><b>-modify</b></b>
+<p>This option causes the output <code class="inline">latex</code>
+ to be slightly
+modified from the input pod such that when a <code class="inline"><span class="pd">=head1 NAME</span></code>
+
+is encountered a section is created containing the actual
+pod name (rather than <b>NAME</b>) and all subsequent <code class="inline"><span class="pd">=head1</span></code>
+
+directives are treated as subsections. This has the advantage
+that the description of a module will be in its own section
+which is helpful for including module descriptions in documentation.
+Also forces <code class="inline">latex</code>
+ label and index entries to be prefixed by the
+name of the module.</p>
+</li>
+<li><a name="*-h1level*"></a><b><b>-h1level</b></b>
+<p>Specifies the <code class="inline">latex</code>
+ section that is equivalent to a <code class="inline">H1</code>
+ pod
+directive. This is an integer between 0 and 5 with 0 equivalent to a
+<code class="inline">latex</code>
+ chapter, 1 equivalent to a <code class="inline">latex</code>
+ section etc. The default
+is 1 (<code class="inline">H1</code>
+ equivalent to a latex section).</p>
+</li>
+<li><a name="*-help*"></a><b><b>-help</b></b>
+<p>Print a brief help message and exit.</p>
+</li>
+<li><a name="*-man*"></a><b><b>-man</b></b>
+<p>Print the manual page and exit.</p>
+</li>
+<li><a name="*-verbose*"></a><b><b>-verbose</b></b>
+<p>Print information messages as each document is processed.</p>
+</li>
+<li><a name="*-preamble*"></a><b><b>-preamble</b></b>
+<p>A user-supplied preamble for the LaTeX code. Multiple values
+are supported and appended in order separated by "\n".
+See <b>-prefile</b> for reading the preamble from a file.</p>
+</li>
+<li><a name="*-postamble*"></a><b><b>-postamble</b></b>
+<p>A user supplied postamble for the LaTeX code. Multiple values
+are supported and appended in order separated by "\n".
+See <b>-postfile</b> for reading the postamble from a file.</p>
+</li>
+<li><a name="*-prefile*"></a><b><b>-prefile</b></b>
+<p>A user-supplied preamble for the LaTeX code to be read from the
+named file. Multiple values are supported and appended in
+order. See <b>-preamble</b>.</p>
+</li>
+<li><a name="*-postfile*"></a><b><b>-postfile</b></b>
+<p>A user-supplied postamble for the LaTeX code to be read from the
+named file. Multiple values are supported and appended in
+order. See <b>-postamble</b>.</p>
+</li>
+</ul>
+<a name="BUGS"></a><h1>BUGS</h1>
+<p>Known bugs are:</p>
+<ul>
+<li>
+<p>Cross references between documents are not resolved when multiple
+pod documents are converted into a single output <code class="inline">latex</code>
+ file.</p>
+</li>
+<li>
+<p>Functions and variables are not automatically recognized
+and they will therefore not be marked up in any special way
+unless instructed by an explicit pod command.</p>
+</li>
+</ul>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><a href="Pod/LaTeX.html">Pod::LaTeX</a></p>
+<a name="AUTHOR"></a><h1>AUTHOR</h1>
+<p>Tim Jenness &lt;tjenness@cpan.org&gt;</p>
+<p>This program is free software; you can redistribute it
+and/or modify it under the same terms as Perl itself.</p>
+<p>Copyright (C) 2000, 2003, 2004 Tim Jenness. All Rights Reserved.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('pod2latex','pod2latex.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

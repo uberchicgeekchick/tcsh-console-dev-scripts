@@ -1,0 +1,798 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perlsyn - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-language.html">Language reference</a> &gt; perlsyn</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perlsyn</div><div class="pdf_link"><a href="perlsyn.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perlsyn.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME-syntax">NAME
+</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#Declarations-declaration-undef-undefined-uninitialized">Declarations
+   </a><li><a href="#Comments-comment-%23">Comments
+ </a><li><a href="#Simple-Statements-statement-semicolon-expression-%3b">Simple Statements
+   </a><li><a href="#Truth-and-Falsehood-truth-falsehood-true-false-!-not-negation-0">Truth and Falsehood
+       </a><li><a href="#Statement-Modifiers-statement-modifier-modifier-if-unless-while-until-foreach-for">Statement Modifiers
+    
+  </a><li><a href="#Compound-Statements-statement%2c-compound-block-bracket%2c-curly-curly-bracket-brace-%7b-%7d-if-unless-while-until-foreach-for-continue">Compound Statements
+    
+        </a><li><a href="#Loop-Control-loop-control-loop%2c-control-next-last-redo-continue">Loop Control
+     </a><li><a href="#For-Loops-for-foreach">For Loops
+ </a><li><a href="#Foreach-Loops-for-foreach">Foreach Loops
+ </a><li><a href="#Basic-BLOCKs-and-Switch-Statements-switch-block-case">Basic BLOCKs and Switch Statements
+  </a><li><a href="#Goto-goto">Goto
+</a><li><a href="#PODs%3a-Embedded-Documentation-POD-documentation">PODs: Embedded Documentation
+ </a><li><a href="#Plain-Old-Comments-(Not!)-comment-line-%23-preprocessor-eval">Plain Old Comments (Not!)
+    </a></ul></ul><a name="NAME-syntax"></a><h1>NAME
+</h1>
+<p>perlsyn - Perl syntax</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>A Perl program consists of a sequence of declarations and statements
+which run from the top to the bottom.  Loops, subroutines and other
+control structures allow you to jump around within the code.</p>
+<p>Perl is a <b>free-form</b> language, you can format and indent it however
+you like.  Whitespace mostly serves to separate tokens, unlike
+languages like Python where it is an important part of the syntax.</p>
+<p>Many of Perl's syntactic elements are <b>optional</b>.  Rather than
+requiring you to put parentheses around every function call and
+declare every variable, you can often leave such explicit elements off
+and Perl will figure out what you meant.  This is known as <b>Do What I
+Mean</b>, abbreviated <b>DWIM</b>.  It allows programmers to be <b>lazy</b> and to
+code in a style with which they are comfortable.</p>
+<p>Perl <b>borrows syntax</b> and concepts from many languages: awk, sed, C,
+Bourne Shell, Smalltalk, Lisp and even English.  Other
+languages have borrowed syntax from Perl, particularly its regular
+expression extensions.  So if you have programmed in another language
+you will see familiar pieces in Perl.  They often work the same, but
+see <a href="perltrap.html">perltrap</a> for information about how they differ.</p>
+<a name="Declarations-declaration-undef-undefined-uninitialized"></a><h2>Declarations
+   </h2>
+<p>The only things you need to declare in Perl are report formats and
+subroutines (and sometimes not even subroutines).  A variable holds
+the undefined value (<code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code>) until it has been assigned a defined
+value, which is anything other than <code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code>.  When used as a number,
+<code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code> is treated as <code class="inline"><span class="n">0</span></code>
+; when used as a string, it is treated as
+the empty string, <code class="inline"><span class="q">&quot;&quot;</span></code>
+; and when used as a reference that isn't being
+assigned to, it is treated as an error.  If you enable warnings,
+you'll be notified of an uninitialized value whenever you treat
+<code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code> as a string or a number.  Well, usually.  Boolean contexts,
+such as:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$a</span><span class="sc">;</span>
+    if <span class="s">(</span><span class="i">$a</span><span class="s">)</span> <span class="s">{</span><span class="s">}</span></pre>
+<p>are exempt from warnings (because they care about truth rather than
+definedness).  Operators such as <code class="inline">++</code>
+, <code class="inline">--</code>
+, <code class="inline">+=</code>
+,
+<code class="inline">-=</code>
+, and <code class="inline">.=</code>
+, that operate on undefined left values such as:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/my.html">my</a> <span class="i">$a</span><span class="sc">;</span>
+    <span class="i">$a</span>++<span class="sc">;</span></pre>
+<p>are also always exempt from such warnings.</p>
+<p>A declaration can be put anywhere a statement can, but has no effect on
+the execution of the primary sequence of statements--declarations all
+take effect at compile time.  Typically all the declarations are put at
+the beginning or the end of the script.  However, if you're using
+lexically-scoped private variables created with <code class="inline"><a class="l_k" href="functions/my.html">my()</a></code>, you'll
+have to make sure
+your format or subroutine definition is within the same block scope
+as the my if you expect to be able to access those private variables.</p>
+<p>Declaring a subroutine allows a subroutine name to be used as if it were a
+list operator from that point forward in the program.  You can declare a
+subroutine without defining it by saying <code class="inline"><a name="name"></a>sub <span class="m">name</span></code>
+, thus:
+</p>
+<pre class="verbatim">    sub <span class="m">myname</span><span class="sc">;</span>
+    <span class="i">$me</span> = <span class="i">myname</span> <span class="i">$0</span> 		or <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;can&#39;t get myname&quot;</span><span class="sc">;</span></pre>
+<p>Note that myname() functions as a list operator, not as a unary operator;
+so be careful to use <code class="inline">or</code>
+ instead of <code class="inline">||</code> in this case.  However, if
+you were to declare the subroutine as <code class="inline"><a name="myname"></a>sub <span class="m">myname ($)</span></code>
+, then
+<code class="inline">myname</code>
+ would function as a unary operator, so either <code class="inline">or</code>
+ or
+<code class="inline">||</code> would work.</p>
+<p>Subroutines declarations can also be loaded up with the <code class="inline"><a class="l_k" href="functions/require.html">require</a></code> statement
+or both loaded and imported into your namespace with a <code class="inline"><a class="l_k" href="functions/use.html">use</a></code> statement.
+See <a href="perlmod.html">perlmod</a> for details on this.</p>
+<p>A statement sequence may contain declarations of lexically-scoped
+variables, but apart from declaring a variable name, the declaration acts
+like an ordinary statement, and is elaborated within the sequence of
+statements as if it were an ordinary statement.  That means it actually
+has both compile-time and run-time effects.</p>
+<a name="Comments-comment-%23"></a><h2>Comments
+ </h2>
+<p>Text from a <code class="inline"><span class="q">&quot;#&quot;</span></code>
+ character until the end of the line is a comment,
+and is ignored.  Exceptions include <code class="inline"><span class="q">&quot;#&quot;</span></code>
+ inside a string or regular
+expression.</p>
+<a name="Simple-Statements-statement-semicolon-expression-%3b"></a><h2>Simple Statements
+   </h2>
+<p>The only kind of simple statement is an expression evaluated for its
+side effects.  Every simple statement must be terminated with a
+semicolon, unless it is the final statement in a block, in which case
+the semicolon is optional.  (A semicolon is still encouraged if the
+block takes up more than one line, because you may eventually add
+another line.)  Note that there are some operators like <code class="inline"><a class="l_k" href="functions/eval.html">eval</a> <span class="s">{</span><span class="s">}</span></code>
+ and
+<code class="inline"><a class="l_k" href="functions/do.html">do</a> <span class="s">{</span><span class="s">}</span></code>
+ that look like compound statements, but aren't (they're just
+TERMs in an expression), and thus need an explicit termination if used
+as the last item in a statement.</p>
+<a name="Truth-and-Falsehood-truth-falsehood-true-false-!-not-negation-0"></a><h2>Truth and Falsehood
+       </h2>
+<p>The number 0, the strings <code class="inline"><span class="q">&#39;0&#39;</span></code>
+ and <code class="inline"><span class="q">&#39;&#39;</span></code>
+, the empty list <code class="inline"><span class="s">(</span><span class="s">)</span></code>
+, and
+<code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code> are all false in a boolean context. All other values are true.
+Negation of a true value by <code class="inline">!</code>
+ or <code class="inline">not</code>
+ returns a special false value.
+When evaluated as a string it is treated as <code class="inline"><span class="q">&#39;&#39;</span></code>
+, but as a number, it
+is treated as 0.</p>
+<a name="Statement-Modifiers-statement-modifier-modifier-if-unless-while-until-foreach-for"></a><h2>Statement Modifiers
+    
+  </h2>
+<p>Any simple statement may optionally be followed by a <i>SINGLE</i> modifier,
+just before the terminating semicolon (or block ending).  The possible
+modifiers are:</p>
+<pre class="verbatim">    if EXPR
+    unless EXPR
+    while EXPR
+    until EXPR
+    foreach LIST</pre>
+<p>The <code class="inline">EXPR</code>
+ following the modifier is referred to as the "condition".
+Its truth or falsehood determines how the modifier will behave.</p>
+<p><code class="inline"><a class="l_w" href="if.html">if</a></code> executes the statement once <i>if</i> and only if the condition is
+true.  <code class="inline">unless</code>
+ is the opposite, it executes the statement <i>unless</i>
+the condition is true (i.e., if the condition is false).</p>
+<pre class="verbatim">    <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Basset hounds got long ears&quot;</span> if <a class="l_k" href="functions/length.html">length</a> <span class="i">$ear</span> &gt;= <span class="n">10</span><span class="sc">;</span>
+    <span class="i">go_outside</span><span class="s">(</span><span class="s">)</span> and <span class="i">play</span><span class="s">(</span><span class="s">)</span> unless <span class="i">$is_raining</span><span class="sc">;</span></pre>
+<p>The <code class="inline">foreach</code>
+ modifier is an iterator: it executes the statement once
+for each item in the LIST (with <code class="inline"><span class="i">$_</span></code>
+ aliased to each item in turn).</p>
+<pre class="verbatim">    <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Hello $_!\n&quot;</span> foreach <span class="q">qw(world Dolly nurse)</span><span class="sc">;</span></pre>
+<p><code class="inline">while</code>
+ repeats the statement <i>while</i> the condition is true.
+<code class="inline">until</code>
+ does the opposite, it repeats the statement <i>until</i> the
+condition is true (or while the condition is false):</p>
+<pre class="verbatim">    <span class="c"># Both of these count from 0 to 10.</span>
+    <a class="l_k" href="functions/print.html">print</a> <span class="i">$i</span>++ while <span class="i">$i</span> &lt;= <span class="n">10</span><span class="sc">;</span>
+    <a class="l_k" href="functions/print.html">print</a> <span class="i">$j</span>++ until <span class="i">$j</span> &gt;  <span class="n">10</span><span class="sc">;</span></pre>
+<p>The <code class="inline">while</code>
+ and <code class="inline">until</code>
+ modifiers have the usual "<code class="inline">while</code>
+ loop"
+semantics (conditional evaluated first), except when applied to a
+<code class="inline"><a class="l_k" href="functions/do.html">do</a></code>-BLOCK (or to the deprecated <code class="inline"><a class="l_k" href="functions/do.html">do</a></code>-SUBROUTINE statement), in
+which case the block executes once before the conditional is
+evaluated.  This is so that you can write loops like:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>
+	<span class="i">$line</span> = <span class="q">&lt;STDIN&gt;</span><span class="sc">;</span>
+	...
+    <span class="s">}</span> until <span class="i">$line</span>  eq <span class="q">&quot;.\n&quot;</span><span class="sc">;</span></pre>
+<p>See <a href="functions/do.html">do</a>.  Note also that the loop control statements described
+later will <i>NOT</i> work in this construct, because modifiers don't take
+loop labels.  Sorry.  You can always put another block inside of it
+(for <code class="inline"><a class="l_k" href="functions/next.html">next</a></code>) or around it (for <code class="inline"><a class="l_k" href="functions/last.html">last</a></code>) to do that sort of thing.
+For <code class="inline"><a class="l_k" href="functions/next.html">next</a></code>, just double the braces:
+  </p>
+<pre class="verbatim">    <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span><span class="s">{</span>
+	<a class="l_k" href="functions/next.html">next</a> if <span class="i">$x</span> == <span class="i">$y</span><span class="sc">;</span>
+	<span class="c"># do something here</span>
+    <span class="s">}</span><span class="s">}</span> until <span class="i">$x</span>++ &gt; <span class="i">$z</span><span class="sc">;</span></pre>
+<p>For <code class="inline"><a class="l_k" href="functions/last.html">last</a></code>, you have to be more elaborate:
+</p>
+<pre class="verbatim">    <span class="j">LOOP:</span> <span class="s">{</span> 
+	    <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>
+		<a class="l_k" href="functions/last.html">last</a> if <span class="i">$x</span> = <span class="i">$y</span>**<span class="n">2</span><span class="sc">;</span>
+		<span class="c"># do something here</span>
+	    <span class="s">}</span> while <span class="i">$x</span>++ &lt;= <span class="i">$z</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p><b>NOTE:</b> The behaviour of a <code class="inline"><a class="l_k" href="functions/my.html">my</a></code> statement modified with a statement
+modifier conditional or loop construct (e.g. <code class="inline"><a class="l_k" href="functions/my.html">my</a> <span class="i">$x</span> if ...</code>
+) is
+<b>undefined</b>.  The value of the <code class="inline"><a class="l_k" href="functions/my.html">my</a></code> variable may be <code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code>, any
+previously assigned value, or possibly anything else.  Don't rely on
+it.  Future versions of perl might do something different from the
+version of perl you try it out on.  Here be dragons.
+</p>
+<a name="Compound-Statements-statement%2c-compound-block-bracket%2c-curly-curly-bracket-brace-%7b-%7d-if-unless-while-until-foreach-for-continue"></a><h2>Compound Statements
+    
+        </h2>
+<p>In Perl, a sequence of statements that defines a scope is called a block.
+Sometimes a block is delimited by the file containing it (in the case
+of a required file, or the program as a whole), and sometimes a block
+is delimited by the extent of a string (in the case of an eval).</p>
+<p>But generally, a block is delimited by curly brackets, also known as braces.
+We will call this syntactic construct a BLOCK.</p>
+<p>The following compound statements may be used to control flow:</p>
+<pre class="verbatim">    if (EXPR) BLOCK
+    if (EXPR) BLOCK else BLOCK
+    if (EXPR) BLOCK elsif (EXPR) BLOCK ... else BLOCK
+    LABEL while (EXPR) BLOCK
+    LABEL while (EXPR) BLOCK continue BLOCK
+    LABEL until (EXPR) BLOCK
+    LABEL until (EXPR) BLOCK continue BLOCK
+    LABEL for (EXPR; EXPR; EXPR) BLOCK
+    LABEL foreach VAR (LIST) BLOCK
+    LABEL foreach VAR (LIST) BLOCK continue BLOCK
+    LABEL BLOCK continue BLOCK</pre><p>Note that, unlike C and Pascal, these are defined in terms of BLOCKs,
+not statements.  This means that the curly brackets are <i>required</i>--no
+dangling statements allowed.  If you want to write conditionals without
+curly brackets there are several other ways to do it.  The following
+all do the same thing:</p>
+<pre class="verbatim">    if <span class="s">(</span>!<a class="l_k" href="functions/open.html">open</a><span class="s">(</span>FOO<span class="s">)</span><span class="s">)</span> <span class="s">{</span> <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Can&#39;t open $FOO: $!&quot;</span><span class="sc">;</span> <span class="s">}</span>
+    <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Can&#39;t open $FOO: $!&quot;</span> unless <a class="l_k" href="functions/open.html">open</a><span class="s">(</span>FOO<span class="s">)</span><span class="sc">;</span>
+    <a class="l_k" href="functions/open.html">open</a><span class="s">(</span>FOO<span class="s">)</span> or <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Can&#39;t open $FOO: $!&quot;</span><span class="sc">;</span>	<span class="c"># FOO or bust!</span>
+    <a class="l_k" href="functions/open.html">open</a><span class="s">(</span>FOO<span class="s">)</span> ? <span class="q">&#39;hi mom&#39;</span> <span class="co">:</span> <a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;Can&#39;t open $FOO: $!&quot;</span><span class="sc">;</span>
+			<span class="c"># a bit exotic, that last one</span></pre>
+<p>The <code class="inline"><a class="l_w" href="if.html">if</a></code> statement is straightforward.  Because BLOCKs are always
+bounded by curly brackets, there is never any ambiguity about which
+<code class="inline"><a class="l_w" href="if.html">if</a></code> an <code class="inline">else</code>
+ goes with.  If you use <code class="inline">unless</code>
+ in place of <code class="inline"><a class="l_w" href="if.html">if</a></code>,
+the sense of the test is reversed.</p>
+<p>The <code class="inline">while</code>
+ statement executes the block as long as the expression is
+true (does not evaluate to the null string <code class="inline"><span class="q">&quot;&quot;</span></code>
+ or <code class="inline"><span class="n">0</span></code>
+ or <code class="inline"><span class="q">&quot;0&quot;</span></code>
+).
+The <code class="inline">until</code>
+ statement executes the block as long as the expression is
+false.
+The LABEL is optional, and if present, consists of an identifier followed
+by a colon.  The LABEL identifies the loop for the loop control
+statements <code class="inline"><a class="l_k" href="functions/next.html">next</a></code>, <code class="inline"><a class="l_k" href="functions/last.html">last</a></code>, and <code class="inline"><a class="l_k" href="functions/redo.html">redo</a></code>.
+If the LABEL is omitted, the loop control statement
+refers to the innermost enclosing loop.  This may include dynamically
+looking back your call-stack at run time to find the LABEL.  Such
+desperate behavior triggers a warning if you use the <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="warnings.html">warnings</a></code>
+
+pragma or the <b>-w</b> flag.</p>
+<p>If there is a <code class="inline"><a class="l_k" href="functions/continue.html">continue</a></code> BLOCK, it is always executed just before the
+conditional is about to be evaluated again.  Thus it can be used to
+increment a loop variable, even when the loop has been continued via
+the <code class="inline"><a class="l_k" href="functions/next.html">next</a></code> statement.</p>
+<a name="Loop-Control-loop-control-loop%2c-control-next-last-redo-continue"></a><h2>Loop Control
+     </h2>
+<p>The <code class="inline"><a class="l_k" href="functions/next.html">next</a></code> command starts the next iteration of the loop:</p>
+<pre class="verbatim">    <span class="j">LINE:</span> while <span class="s">(</span><span class="q">&lt;STDIN&gt;</span><span class="s">)</span> <span class="s">{</span>
+	<a class="l_k" href="functions/next.html">next</a> <span class="j">LINE</span> if <span class="q">/^#/</span><span class="sc">;</span>	<span class="c"># discard comments</span>
+	...
+    <span class="s">}</span></pre>
+<p>The <code class="inline"><a class="l_k" href="functions/last.html">last</a></code> command immediately exits the loop in question.  The
+<code class="inline"><a class="l_k" href="functions/continue.html">continue</a></code> block, if any, is not executed:</p>
+<pre class="verbatim">    <span class="j">LINE:</span> while <span class="s">(</span><span class="q">&lt;STDIN&gt;</span><span class="s">)</span> <span class="s">{</span>
+	<a class="l_k" href="functions/last.html">last</a> <span class="j">LINE</span> if <span class="q">/^$/</span><span class="sc">;</span>	<span class="c"># exit when done with header</span>
+	...
+    <span class="s">}</span></pre>
+<p>The <code class="inline"><a class="l_k" href="functions/redo.html">redo</a></code> command restarts the loop block without evaluating the
+conditional again.  The <code class="inline"><a class="l_k" href="functions/continue.html">continue</a></code> block, if any, is <i>not</i> executed.
+This command is normally used by programs that want to lie to themselves
+about what was just input.</p>
+<p>For example, when processing a file like <i>/etc/termcap</i>.
+If your input lines might end in backslashes to indicate continuation, you
+want to skip ahead and get the next record.</p>
+<pre class="verbatim">    while <span class="s">(</span>&lt;&gt;<span class="s">)</span> <span class="s">{</span>
+	<a class="l_k" href="functions/chomp.html">chomp</a><span class="sc">;</span>
+	if <span class="s">(</span><span class="q">s/\\$//</span><span class="s">)</span> <span class="s">{</span>
+	    <span class="i">$_</span> .= &lt;&gt;<span class="sc">;</span>
+	    <a class="l_k" href="functions/redo.html">redo</a> unless <a class="l_k" href="functions/eof.html">eof</a><span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+	<span class="s">}</span>
+	<span class="c"># now process $_</span>
+    <span class="s">}</span></pre>
+<p>which is Perl short-hand for the more explicitly written version:</p>
+<pre class="verbatim">    <span class="j">LINE:</span> while <span class="s">(</span><a class="l_k" href="functions/defined.html">defined</a><span class="s">(</span><span class="i">$line</span> = <span class="q">&lt;ARGV&gt;</span><span class="s">)</span><span class="s">)</span> <span class="s">{</span>
+	<a class="l_k" href="functions/chomp.html">chomp</a><span class="s">(</span><span class="i">$line</span><span class="s">)</span><span class="sc">;</span>
+	if <span class="s">(</span><span class="i">$line</span> =~ <span class="q">s/\\$//</span><span class="s">)</span> <span class="s">{</span>
+	    <span class="i">$line</span> .= <span class="q">&lt;ARGV&gt;</span><span class="sc">;</span>
+	    <a class="l_k" href="functions/redo.html">redo</a> <span class="j">LINE</span> unless <a class="l_k" href="functions/eof.html">eof</a><span class="s">(</span><span class="s">)</span><span class="sc">;</span> <span class="c"># not eof(ARGV)!</span>
+	<span class="s">}</span>
+	<span class="c"># now process $line</span>
+    <span class="s">}</span></pre>
+<p>Note that if there were a <code class="inline"><a class="l_k" href="functions/continue.html">continue</a></code> block on the above code, it would
+get executed only on lines discarded by the regex (since redo skips the
+continue block). A continue block is often used to reset line counters
+or <code class="inline"><span class="q">?pat?</span></code>
+ one-time matches:</p>
+<pre class="verbatim">    <span class="c"># inspired by :1,$g/fred/s//WILMA/</span>
+    while <span class="s">(</span>&lt;&gt;<span class="s">)</span> <span class="s">{</span>
+	<span class="q">?(fred)?</span>    &amp;&amp; <span class="q">s//WILMA $1 WILMA/</span><span class="sc">;</span>
+	<span class="q">?(barney)?</span>  &amp;&amp; <span class="q">s//BETTY $1 BETTY/</span><span class="sc">;</span>
+	<span class="q">?(homer)?</span>   &amp;&amp; <span class="q">s//MARGE $1 MARGE/</span><span class="sc">;</span>
+    <span class="s">}</span> <a class="l_k" href="functions/continue.html">continue</a> <span class="s">{</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;$ARGV $.: $_&quot;</span><span class="sc">;</span>
+	<a class="l_k" href="functions/close.html">close</a> ARGV  if <a class="l_k" href="functions/eof.html">eof</a><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># reset $.</span>
+	<a class="l_k" href="functions/reset.html">reset</a>	    if <a class="l_k" href="functions/eof.html">eof</a><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># reset ?pat?</span>
+    <span class="s">}</span></pre>
+<p>If the word <code class="inline">while</code>
+ is replaced by the word <code class="inline">until</code>
+, the sense of the
+test is reversed, but the conditional is still tested before the first
+iteration.</p>
+<p>The loop control statements don't work in an <code class="inline"><a class="l_w" href="if.html">if</a></code> or <code class="inline">unless</code>
+, since
+they aren't loops.  You can double the braces to make them such, though.</p>
+<pre class="verbatim">    if <span class="s">(</span><span class="q">/pattern/</span><span class="s">)</span> <span class="s">{</span><span class="s">{</span>
+	<a class="l_k" href="functions/last.html">last</a> if <span class="q">/fred/</span><span class="sc">;</span>
+	<a class="l_k" href="functions/next.html">next</a> if <span class="q">/barney/</span><span class="sc">;</span> <span class="c"># same effect as &quot;last&quot;, but doesn&#39;t document as well</span>
+	<span class="c"># do something here</span>
+    <span class="s">}</span><span class="s">}</span></pre>
+<p>This is caused by the fact that a block by itself acts as a loop that
+executes once, see <a href="#Basic-BLOCKs-and-Switch-Statements">"Basic BLOCKs and Switch Statements"</a>.</p>
+<p>The form <code class="inline">while/if BLOCK BLOCK</code>, available in Perl 4, is no longer
+available.   Replace any occurrence of <code class="inline">if BLOCK</code>
+ by <code class="inline">if <span class="s">(</span><a class="l_k" href="functions/do.html">do</a> BLOCK<span class="s">)</span></code>
+.</p>
+<a name="For-Loops-for-foreach"></a><h2>For Loops
+ </h2>
+<p>Perl's C-style <code class="inline">for</code>
+ loop works like the corresponding <code class="inline">while</code>
+ loop;
+that means that this:</p>
+<pre class="verbatim">    for <span class="s">(</span><span class="i">$i</span> = <span class="n">1</span><span class="sc">;</span> <span class="i">$i</span> &lt; <span class="n">10</span><span class="sc">;</span> <span class="i">$i</span>++<span class="s">)</span> <span class="s">{</span>
+	...
+    <span class="s">}</span></pre>
+<p>is the same as this:</p>
+<pre class="verbatim">    <span class="i">$i</span> = <span class="n">1</span><span class="sc">;</span>
+    while <span class="s">(</span><span class="i">$i</span> &lt; <span class="n">10</span><span class="s">)</span> <span class="s">{</span>
+	...
+    <span class="s">}</span> <a class="l_k" href="functions/continue.html">continue</a> <span class="s">{</span>
+	<span class="i">$i</span>++<span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>There is one minor difference: if variables are declared with <code class="inline"><a class="l_k" href="functions/my.html">my</a></code>
+in the initialization section of the <code class="inline">for</code>
+, the lexical scope of
+those variables is exactly the <code class="inline">for</code>
+ loop (the body of the loop
+and the control sections).
+</p>
+<p>Besides the normal array index looping, <code class="inline">for</code>
+ can lend itself
+to many other interesting applications.  Here's one that avoids the
+problem you get into if you explicitly test for end-of-file on
+an interactive file descriptor causing your program to appear to
+hang.
+  </p>
+<pre class="verbatim">    <span class="i">$on_a_tty</span> = -t <span class="i">STDIN</span> &amp;&amp; -t <span class="i">STDOUT</span><span class="sc">;</span>
+<a name="prompt"></a>    sub <span class="m">prompt</span> <span class="s">{</span> <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;yes? &quot;</span> if <span class="i">$on_a_tty</span> <span class="s">}</span>
+    for <span class="s">(</span> <span class="i">prompt</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span> <span class="q">&lt;STDIN&gt;</span><span class="sc">;</span> <span class="i">prompt</span><span class="s">(</span><span class="s">)</span> <span class="s">)</span> <span class="s">{</span>
+	<span class="c"># do something</span>
+    <span class="s">}</span></pre>
+<p>Using <code class="inline"><a class="l_k" href="functions/readline.html">readline</a></code> (or the operator form, <code class="inline"><span class="q">&lt;EXPR&gt;</span></code>
+) as the
+conditional of a <code class="inline">for</code>
+ loop is shorthand for the following.  This
+behaviour is the same as a <code class="inline">while</code>
+ loop conditional.
+ </p>
+<pre class="verbatim">    for <span class="s">(</span> <span class="i">prompt</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span> <a class="l_k" href="functions/defined.html">defined</a><span class="s">(</span> <span class="i">$_</span> = <span class="q">&lt;STDIN&gt;</span> <span class="s">)</span><span class="sc">;</span> <span class="i">prompt</span><span class="s">(</span><span class="s">)</span> <span class="s">)</span> <span class="s">{</span>
+        <span class="c"># do something</span>
+    <span class="s">}</span></pre>
+<a name="Foreach-Loops-for-foreach"></a><h2>Foreach Loops
+ </h2>
+<p>The <code class="inline">foreach</code>
+ loop iterates over a normal list value and sets the
+variable VAR to be each element of the list in turn.  If the variable
+is preceded with the keyword <code class="inline"><a class="l_k" href="functions/my.html">my</a></code>, then it is lexically scoped, and
+is therefore visible only within the loop.  Otherwise, the variable is
+implicitly local to the loop and regains its former value upon exiting
+the loop.  If the variable was previously declared with <code class="inline"><a class="l_k" href="functions/my.html">my</a></code>, it uses
+that variable instead of the global one, but it's still localized to
+the loop.  This implicit localisation occurs <i>only</i> in a <code class="inline">foreach</code>
+
+loop.
+ </p>
+<p>The <code class="inline">foreach</code>
+ keyword is actually a synonym for the <code class="inline">for</code>
+ keyword, so
+you can use <code class="inline">foreach</code>
+ for readability or <code class="inline">for</code>
+ for brevity.  (Or because
+the Bourne shell is more familiar to you than <i>csh</i>, so writing <code class="inline">for</code>
+
+comes more naturally.)  If VAR is omitted, <code class="inline"><span class="i">$_</span></code>
+ is set to each value.
+</p>
+<p>If any element of LIST is an lvalue, you can modify it by modifying
+VAR inside the loop.  Conversely, if any element of LIST is NOT an
+lvalue, any attempt to modify that element will fail.  In other words,
+the <code class="inline">foreach</code>
+ loop index variable is an implicit alias for each item
+in the list that you're looping over.
+</p>
+<p>If any part of LIST is an array, <code class="inline">foreach</code>
+ will get very confused if
+you add or remove elements within the loop body, for example with
+<code class="inline"><a class="l_k" href="functions/splice.html">splice</a></code>.   So don't do that.
+</p>
+<p><code class="inline">foreach</code>
+ probably won't do what you expect if VAR is a tied or other
+special variable.   Don't do that either.</p>
+<p>Examples:</p>
+<pre class="verbatim">    for <span class="s">(</span><span class="i">@ary</span><span class="s">)</span> <span class="s">{</span> <span class="q">s/foo/bar/</span> <span class="s">}</span></pre>
+<pre class="verbatim">    for <a class="l_k" href="functions/my.html">my</a> <span class="i">$elem</span> <span class="s">(</span><span class="i">@elements</span><span class="s">)</span> <span class="s">{</span>
+	<span class="i">$elem</span> *= <span class="n">2</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    for <span class="i">$count</span> <span class="s">(</span><span class="n">10</span><span class="cm">,</span><span class="n">9</span><span class="cm">,</span><span class="n">8</span><span class="cm">,</span><span class="n">7</span><span class="cm">,</span><span class="n">6</span><span class="cm">,</span><span class="n">5</span><span class="cm">,</span><span class="n">4</span><span class="cm">,</span><span class="n">3</span><span class="cm">,</span><span class="n">2</span><span class="cm">,</span><span class="n">1</span><span class="cm">,</span><span class="q">&#39;BOOM&#39;</span><span class="s">)</span> <span class="s">{</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="i">$count</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span> <a class="l_k" href="functions/sleep.html">sleep</a><span class="s">(</span><span class="n">1</span><span class="s">)</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    for <span class="s">(</span><span class="n">1</span>..<span class="n">15</span><span class="s">)</span> <span class="s">{</span> <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Merry Christmas\n&quot;</span><span class="sc">;</span> <span class="s">}</span></pre>
+<pre class="verbatim">    foreach <span class="i">$item</span> <span class="s">(</span><a class="l_k" href="functions/split.html">split</a><span class="s">(</span><span class="q">/:[\\\n:]*/</span><span class="cm">,</span> <span class="i">$ENV</span>{TERMCAP}<span class="s">)</span><span class="s">)</span> <span class="s">{</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Item: $item\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>Here's how a C programmer might code up a particular algorithm in Perl:</p>
+<pre class="verbatim">    for <span class="s">(</span><a class="l_k" href="functions/my.html">my</a> <span class="i">$i</span> = <span class="n">0</span><span class="sc">;</span> <span class="i">$i</span> &lt; <span class="i">@ary1</span><span class="sc">;</span> <span class="i">$i</span>++<span class="s">)</span> <span class="s">{</span>
+	for <span class="s">(</span><a class="l_k" href="functions/my.html">my</a> <span class="i">$j</span> = <span class="n">0</span><span class="sc">;</span> <span class="i">$j</span> &lt; <span class="i">@ary2</span><span class="sc">;</span> <span class="i">$j</span>++<span class="s">)</span> <span class="s">{</span>
+	    if <span class="s">(</span><span class="i">$ary1</span>[<span class="i">$i</span>] &gt; <span class="i">$ary2</span>[<span class="i">$j</span>]<span class="s">)</span> <span class="s">{</span>
+		<a class="l_k" href="functions/last.html">last</a><span class="sc">;</span> <span class="c"># can&#39;t go to outer :-(</span>
+	    <span class="s">}</span>
+	    <span class="i">$ary1</span>[<span class="i">$i</span>] += <span class="i">$ary2</span>[<span class="i">$j</span>]<span class="sc">;</span>
+	<span class="s">}</span>
+	<span class="c"># this is where that last takes me</span>
+    <span class="s">}</span></pre>
+<p>Whereas here's how a Perl programmer more comfortable with the idiom might
+do it:</p>
+<pre class="verbatim">    <span class="j">OUTER:</span> for <a class="l_k" href="functions/my.html">my</a> <span class="i">$wid</span> <span class="s">(</span><span class="i">@ary1</span><span class="s">)</span> <span class="s">{</span>
+    <span class="j">INNER:</span>   for <a class="l_k" href="functions/my.html">my</a> <span class="i">$jet</span> <span class="s">(</span><span class="i">@ary2</span><span class="s">)</span> <span class="s">{</span>
+		<a class="l_k" href="functions/next.html">next</a> <span class="j">OUTER</span> if <span class="i">$wid</span> &gt; <span class="i">$jet</span><span class="sc">;</span>
+		<span class="i">$wid</span> += <span class="i">$jet</span><span class="sc">;</span>
+	     <span class="s">}</span>
+	  <span class="s">}</span></pre>
+<p>See how much easier this is?  It's cleaner, safer, and faster.  It's
+cleaner because it's less noisy.  It's safer because if code gets added
+between the inner and outer loops later on, the new code won't be
+accidentally executed.  The <code class="inline"><a class="l_k" href="functions/next.html">next</a></code> explicitly iterates the other loop
+rather than merely terminating the inner one.  And it's faster because
+Perl executes a <code class="inline">foreach</code>
+ statement more rapidly than it would the
+equivalent <code class="inline">for</code>
+ loop.</p>
+<a name="Basic-BLOCKs-and-Switch-Statements-switch-block-case"></a><h2>Basic BLOCKs and Switch Statements
+  </h2>
+<p>A BLOCK by itself (labeled or not) is semantically equivalent to a
+loop that executes once.  Thus you can use any of the loop control
+statements in it to leave or restart the block.  (Note that this is
+<i>NOT</i> true in <code class="inline"><a class="l_k" href="functions/eval.html">eval{}</a></code>, <code class="inline"><a class="l_k" href="functions/sub.html">sub{}</a></code>, or contrary to popular belief
+<code class="inline"><a class="l_k" href="functions/do.html">do{}</a></code> blocks, which do <i>NOT</i> count as loops.)  The <code class="inline"><a class="l_k" href="functions/continue.html">continue</a></code>
+block is optional.</p>
+<p>The BLOCK construct is particularly nice for doing case
+structures.</p>
+<pre class="verbatim">    <span class="j">SWITCH:</span> <span class="s">{</span>
+	if <span class="s">(</span><span class="q">/^abc/</span><span class="s">)</span> <span class="s">{</span> <span class="i">$abc</span> = <span class="n">1</span><span class="sc">;</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span> <span class="s">}</span>
+	if <span class="s">(</span><span class="q">/^def/</span><span class="s">)</span> <span class="s">{</span> <span class="i">$def</span> = <span class="n">1</span><span class="sc">;</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span> <span class="s">}</span>
+	if <span class="s">(</span><span class="q">/^xyz/</span><span class="s">)</span> <span class="s">{</span> <span class="i">$xyz</span> = <span class="n">1</span><span class="sc">;</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span> <span class="s">}</span>
+	<span class="i">$nothing</span> = <span class="n">1</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>There is no official <code class="inline">switch</code>
+ statement in Perl, because there are
+already several ways to write the equivalent.</p>
+<p>However, starting from Perl 5.8 to get switch and case one can use
+the Switch extension and say:</p>
+<pre class="verbatim">	<a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="Switch.html">Switch</a><span class="sc">;</span></pre>
+<p>after which one has switch and case.  It is not as fast as it could be
+because it's not really part of the language (it's done using source
+filters) but it is available, and it's very flexible.</p>
+<p>In addition to the above BLOCK construct, you could write</p>
+<pre class="verbatim">    <span class="j">SWITCH:</span> <span class="s">{</span>
+	<span class="i">$abc</span> = <span class="n">1</span><span class="cm">,</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span>  if <span class="q">/^abc/</span><span class="sc">;</span>
+	<span class="i">$def</span> = <span class="n">1</span><span class="cm">,</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span>  if <span class="q">/^def/</span><span class="sc">;</span>
+	<span class="i">$xyz</span> = <span class="n">1</span><span class="cm">,</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span>  if <span class="q">/^xyz/</span><span class="sc">;</span>
+	<span class="i">$nothing</span> = <span class="n">1</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>(That's actually not as strange as it looks once you realize that you can
+use loop control "operators" within an expression.  That's just the binary
+comma operator in scalar context.  See <a href="perlop.html#Comma-Operator">"Comma Operator" in perlop</a>.)</p>
+<p>or</p>
+<pre class="verbatim">    <span class="j">SWITCH:</span> <span class="s">{</span>
+	<span class="q">/^abc/</span> &amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span> <span class="i">$abc</span> = <span class="n">1</span><span class="sc">;</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span> <span class="s">}</span><span class="sc">;</span>
+	<span class="q">/^def/</span> &amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span> <span class="i">$def</span> = <span class="n">1</span><span class="sc">;</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span> <span class="s">}</span><span class="sc">;</span>
+	<span class="q">/^xyz/</span> &amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span> <span class="i">$xyz</span> = <span class="n">1</span><span class="sc">;</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span> <span class="s">}</span><span class="sc">;</span>
+	<span class="i">$nothing</span> = <span class="n">1</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>or formatted so it stands out more as a "proper" <code class="inline">switch</code>
+ statement:</p>
+<pre class="verbatim">    SWITCH: {
+	/^abc/ 	    &amp;&amp; do {
+			    $abc = 1;
+			    last SWITCH;
+		       };</pre><pre class="verbatim">	<span class="q">/^def/</span> 	    &amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>
+			    <span class="i">$def</span> = <span class="n">1</span><span class="sc">;</span>
+			    <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span>
+		       <span class="s">}</span><span class="sc">;</span></pre>
+<pre class="verbatim">	/^xyz/ 	    &amp;&amp; do {
+			    $xyz = 1;
+			    last SWITCH;
+		        };
+	$nothing = 1;
+    }</pre><p>or</p>
+<pre class="verbatim">    <span class="j">SWITCH:</span> <span class="s">{</span>
+	<span class="q">/^abc/</span> and <span class="i">$abc</span> = <span class="n">1</span><span class="cm">,</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span>
+	<span class="q">/^def/</span> and <span class="i">$def</span> = <span class="n">1</span><span class="cm">,</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span>
+	<span class="q">/^xyz/</span> and <span class="i">$xyz</span> = <span class="n">1</span><span class="cm">,</span> <a class="l_k" href="functions/last.html">last</a> <span class="j">SWITCH</span><span class="sc">;</span>
+	<span class="i">$nothing</span> = <span class="n">1</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>or even, horrors,</p>
+<pre class="verbatim">    if <span class="s">(</span><span class="q">/^abc/</span><span class="s">)</span>
+	<span class="s">{</span> <span class="i">$abc</span> = <span class="n">1</span> <span class="s">}</span>
+    elsif <span class="s">(</span><span class="q">/^def/</span><span class="s">)</span>
+	<span class="s">{</span> <span class="i">$def</span> = <span class="n">1</span> <span class="s">}</span>
+    elsif <span class="s">(</span><span class="q">/^xyz/</span><span class="s">)</span>
+	<span class="s">{</span> <span class="i">$xyz</span> = <span class="n">1</span> <span class="s">}</span>
+    else
+	<span class="s">{</span> <span class="i">$nothing</span> = <span class="n">1</span> <span class="s">}</span></pre>
+<p>A common idiom for a <code class="inline">switch</code>
+ statement is to use <code class="inline">foreach</code>
+'s aliasing to make
+a temporary assignment to <code class="inline"><span class="i">$_</span></code>
+ for convenient matching:</p>
+<pre class="verbatim">    <span class="j">SWITCH:</span> for <span class="s">(</span><span class="i">$where</span><span class="s">)</span> <span class="s">{</span>
+		<span class="q">/In Card Names/</span>     &amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span> <a class="l_k" href="functions/push.html">push</a> <span class="i">@flags</span><span class="cm">,</span> <span class="q">&#39;-e&#39;</span><span class="sc">;</span> <a class="l_k" href="functions/last.html">last</a><span class="sc">;</span> <span class="s">}</span><span class="sc">;</span>
+		<span class="q">/Anywhere/</span>          &amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span> <a class="l_k" href="functions/push.html">push</a> <span class="i">@flags</span><span class="cm">,</span> <span class="q">&#39;-h&#39;</span><span class="sc">;</span> <a class="l_k" href="functions/last.html">last</a><span class="sc">;</span> <span class="s">}</span><span class="sc">;</span>
+		<span class="q">/In Rulings/</span>        &amp;&amp; <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>                    <a class="l_k" href="functions/last.html">last</a><span class="sc">;</span> <span class="s">}</span><span class="sc">;</span>
+		<a class="l_k" href="functions/die.html">die</a> <span class="q">&quot;unknown value for form variable where: `$where&#39;&quot;</span><span class="sc">;</span>
+	    <span class="s">}</span></pre>
+<p>Another interesting approach to a switch statement is arrange
+for a <code class="inline"><a class="l_k" href="functions/do.html">do</a></code> block to return the proper value:</p>
+<pre class="verbatim">    <span class="i">$amode</span> = <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>
+	if     <span class="s">(</span><span class="i">$flag</span> &amp; O_RDONLY<span class="s">)</span> <span class="s">{</span> <span class="q">&quot;r&quot;</span> <span class="s">}</span>	<span class="c"># XXX: isn&#39;t this 0?</span>
+	elsif  <span class="s">(</span><span class="i">$flag</span> &amp; O_WRONLY<span class="s">)</span> <span class="s">{</span> <span class="s">(</span><span class="i">$flag</span> &amp; O_APPEND<span class="s">)</span> ? <span class="q">&quot;a&quot;</span> <span class="co">:</span> <span class="q">&quot;w&quot;</span> <span class="s">}</span>
+	elsif  <span class="s">(</span><span class="i">$flag</span> &amp; O_RDWR<span class="s">)</span>   <span class="s">{</span>
+	    if <span class="s">(</span><span class="i">$flag</span> &amp; O_CREAT<span class="s">)</span>  <span class="s">{</span> <span class="q">&quot;w+&quot;</span> <span class="s">}</span>
+	    else                  <span class="s">{</span> <span class="s">(</span><span class="i">$flag</span> &amp; O_APPEND<span class="s">)</span> ? <span class="q">&quot;a+&quot;</span> <span class="co">:</span> <span class="q">&quot;r+&quot;</span> <span class="s">}</span>
+	<span class="s">}</span>
+    <span class="s">}</span><span class="sc">;</span></pre>
+<p>Or </p>
+<pre class="verbatim">        <a class="l_k" href="functions/print.html">print</a> <a class="l_k" href="functions/do.html">do</a> <span class="s">{</span>
+            <span class="s">(</span><span class="i">$flags</span> &amp; O_WRONLY<span class="s">)</span> ? <span class="q">&quot;write-only&quot;</span>          <span class="co">:</span>
+            <span class="s">(</span><span class="i">$flags</span> &amp; O_RDWR<span class="s">)</span>   ? <span class="q">&quot;read-write&quot;</span>          <span class="co">:</span>
+                                  <span class="q">&quot;read-only&quot;</span><span class="sc">;</span>
+        <span class="s">}</span><span class="sc">;</span></pre>
+<p>Or if you are certain that all the <code class="inline">&amp;&amp;</code> clauses are true, you can use
+something like this, which "switches" on the value of the
+<code class="inline">HTTP_USER_AGENT</code>
+ environment variable.</p>
+<pre class="verbatim">    <span class="c">#!/usr/bin/perl </span>
+    <span class="c"># pick out jargon file page based on browser</span>
+    <span class="i">$dir</span> = <span class="q">&#39;<a href="http://www.wins.uva.nl/~mes/jargon">http://www.wins.uva.nl/~mes/jargon</a>&#39;</span><span class="sc">;</span>
+    for <span class="s">(</span><span class="i">$ENV</span>{HTTP_USER_AGENT}<span class="s">)</span> <span class="s">{</span> 
+	<span class="i">$page</span>  =    <span class="q">/Mac/</span>            &amp;&amp; <span class="q">&#39;m/Macintrash.html&#39;</span>
+		 || <span class="q">/Win(dows )?NT/</span>  &amp;&amp; <span class="q">&#39;e/evilandrude.html&#39;</span>
+		 || <span class="q">/Win|MSIE|WebTV/</span> &amp;&amp; <span class="q">&#39;m/MicroslothWindows.html&#39;</span>
+		 || <span class="q">/Linux/</span>          &amp;&amp; <span class="q">&#39;l/Linux.html&#39;</span>
+		 || <span class="q">/HP-UX/</span>          &amp;&amp; <span class="q">&#39;h/HP-SUX.html&#39;</span>
+		 || <span class="q">/SunOS/</span>          &amp;&amp; <span class="q">&#39;s/ScumOS.html&#39;</span>
+		 ||                     <span class="q">&#39;a/AppendixB.html&#39;</span><span class="sc">;</span>
+    <span class="s">}</span>
+    <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;Location: $dir/$page\015\012\015\012&quot;</span><span class="sc">;</span></pre>
+<p>That kind of switch statement only works when you know the <code class="inline">&amp;&amp;</code> clauses
+will be true.  If you don't, the previous <code class="inline">?:</code> example should be used.</p>
+<p>You might also consider writing a hash of subroutine references
+instead of synthesizing a <code class="inline">switch</code>
+ statement.</p>
+<a name="Goto-goto"></a><h2>Goto
+</h2>
+<p>Although not for the faint of heart, Perl does support a <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>
+statement.  There are three forms: <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>-LABEL, <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>-EXPR, and
+<code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>-&amp;NAME.  A loop's LABEL is not actually a valid target for
+a <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>; it's just the name of the loop.</p>
+<p>The <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>-LABEL form finds the statement labeled with LABEL and resumes
+execution there.  It may not be used to go into any construct that
+requires initialization, such as a subroutine or a <code class="inline">foreach</code>
+ loop.  It
+also can't be used to go into a construct that is optimized away.  It
+can be used to go almost anywhere else within the dynamic scope,
+including out of subroutines, but it's usually better to use some other
+construct such as <code class="inline"><a class="l_k" href="functions/last.html">last</a></code> or <code class="inline"><a class="l_k" href="functions/die.html">die</a></code>.  The author of Perl has never felt the
+need to use this form of <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code> (in Perl, that is--C is another matter).</p>
+<p>The <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>-EXPR form expects a label name, whose scope will be resolved
+dynamically.  This allows for computed <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>s per FORTRAN, but isn't
+necessarily recommended if you're optimizing for maintainability:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/goto.html">goto</a><span class="s">(</span><span class="s">(</span><span class="q">&quot;FOO&quot;</span><span class="cm">,</span> <span class="q">&quot;BAR&quot;</span><span class="cm">,</span> <span class="q">&quot;GLARCH&quot;</span><span class="s">)</span>[<span class="i">$i</span>]<span class="s">)</span><span class="sc">;</span></pre>
+<p>The <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>-&amp;NAME form is highly magical, and substitutes a call to the
+named subroutine for the currently running subroutine.  This is used by
+<code class="inline">AUTOLOAD<span class="s">(</span><span class="s">)</span></code>
+ subroutines that wish to load another subroutine and then
+pretend that the other subroutine had been called in the first place
+(except that any modifications to <code class="inline"><span class="i">@_</span></code>
+ in the current subroutine are
+propagated to the other subroutine.)  After the <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>, not even <code class="inline"><a class="l_k" href="functions/caller.html">caller()</a></code>
+will be able to tell that this routine was called first.</p>
+<p>In almost all cases like this, it's usually a far, far better idea to use the
+structured control flow mechanisms of <code class="inline"><a class="l_k" href="functions/next.html">next</a></code>, <code class="inline"><a class="l_k" href="functions/last.html">last</a></code>, or <code class="inline"><a class="l_k" href="functions/redo.html">redo</a></code> instead of
+resorting to a <code class="inline"><a class="l_k" href="functions/goto.html">goto</a></code>.  For certain applications, the catch and throw pair of
+<code class="inline"><a class="l_k" href="functions/eval.html">eval{}</a></code> and die() for exception processing can also be a prudent approach.</p>
+<a name="PODs%3a-Embedded-Documentation-POD-documentation"></a><h2>PODs: Embedded Documentation
+ </h2>
+<p>Perl has a mechanism for intermixing documentation with source code.
+While it's expecting the beginning of a new statement, if the compiler
+encounters a line that begins with an equal sign and a word, like this</p>
+<pre class="verbatim">    =head1 Here There Be Pods!</pre>
+<p>Then that text and all remaining text up through and including a line
+beginning with <code class="inline"><span class="pd">=cut</span></code>
+ will be ignored.  The format of the intervening
+text is described in <a href="perlpod.html">perlpod</a>.</p>
+<p>This allows you to intermix your source code
+and your documentation text freely, as in</p>
+<pre class="verbatim">    =item snazzle($)</pre><pre class="verbatim">    The snazzle() function will behave in the most spectacular
+    form that you can possibly imagine, not even excepting
+    cybernetic pyrotechnics.</pre><pre class="verbatim">    =cut back to the compiler<span class="cm">,</span> nuff of this pod stuff!</pre>
+<pre class="verbatim"><a name="snazzle"></a>    sub <span class="m">snazzle($)</span> <span class="s">{</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$thingie</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+	.........
+    <span class="s">}</span></pre>
+<p>Note that pod translators should look at only paragraphs beginning
+with a pod directive (it makes parsing easier), whereas the compiler
+actually knows to look for pod escapes even in the middle of a
+paragraph.  This means that the following secret stuff will be
+ignored by both the compiler and the translators.</p>
+<pre class="verbatim">    <span class="i">$a</span>=<span class="n">3</span><span class="sc">;</span>
+    =secret stuff
+     <a class="l_k" href="functions/warn.html">warn</a> <span class="q">&quot;Neither POD nor CODE!?&quot;</span>
+    =cut back
+    <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;got $a\n&quot;</span><span class="sc">;</span></pre>
+<p>You probably shouldn't rely upon the <code class="inline"><a class="l_k" href="functions/warn.html">warn()</a></code> being podded out forever.
+Not all pod translators are well-behaved in this regard, and perhaps
+the compiler will become pickier.</p>
+<p>One may also use pod directives to quickly comment out a section
+of code.</p>
+<a name="Plain-Old-Comments-(Not!)-comment-line-%23-preprocessor-eval"></a><h2>Plain Old Comments (Not!)
+    </h2>
+<p>Perl can process line directives, much like the C preprocessor.  Using
+this, one can control Perl's idea of filenames and line numbers in
+error or warning messages (especially for strings that are processed
+with <code class="inline"><a class="l_k" href="functions/eval.html">eval()</a></code>).  The syntax for this mechanism is the same as for most
+C preprocessors: it matches the regular expression</p>
+<pre class="verbatim">    <span class="c"># example: &#39;# line 42 &quot;new_filename.plx&quot;&#39;</span>
+    <span class="q">/^\#   \s*</span>
+      <span class="q">      line \s+ (\d+)   \s*</span>
+      <span class="q">      (?:\s(&quot;?)([^&quot;]+)\2)? \s*</span>
+     <span class="q">     $/x</span></pre>
+<p>with <code class="inline"><span class="i">$1</span></code>
+ being the line number for the next line, and <code class="inline"><span class="i">$3</span></code>
+ being
+the optional filename (specified with or without quotes).</p>
+<p>There is a fairly obvious gotcha included with the line directive:
+Debuggers and profilers will only show the last source line to appear
+at a particular line number in a given file.  Care should be taken not
+to cause line number collisions in code you'd like to debug later.</p>
+<p>Here are some examples that you should be able to type into your command
+shell:</p>
+<pre class="verbatim">    <span class="i">% perl</span>
+    <span class="c"># line 200 &quot;bzzzt&quot;</span>
+    <span class="c"># the `#&#39; on the previous line must be the first char on line</span>
+    <a class="l_k" href="functions/die.html">die</a> <span class="q">&#39;foo&#39;</span><span class="sc">;</span>
+<a name="__END__"></a>    __END__
+<span class="q">    foo at bzzzt line 201.</span></pre>
+<pre class="verbatim">    <span class="i">% perl</span>
+    <span class="c"># line 200 &quot;bzzzt&quot;</span>
+    <a class="l_k" href="functions/eval.html">eval</a> <span class="q">qq[\n#line 2001 &quot;&quot;\ndie &#39;foo&#39;]</span><span class="sc">;</span> <a class="l_k" href="functions/print.html">print</a> <span class="i">$@</span><span class="sc">;</span>
+<a name="__END__"></a>    __END__
+<span class="q">    foo at - line 2001.</span></pre>
+<pre class="verbatim">    <span class="i">% perl</span>
+    <a class="l_k" href="functions/eval.html">eval</a> <span class="q">qq[\n#line 200 &quot;foo bar&quot;\ndie &#39;foo&#39;]</span><span class="sc">;</span> <a class="l_k" href="functions/print.html">print</a> <span class="i">$@</span><span class="sc">;</span>
+<a name="__END__"></a>    __END__
+<span class="q">    foo at foo bar line 200.</span></pre>
+<pre class="verbatim">    <span class="i">% perl</span>
+    <span class="c"># line 345 &quot;goop&quot;</span>
+    <a class="l_k" href="functions/eval.html">eval</a> <span class="q">&quot;\n#line &quot;</span> . __LINE__ . <span class="q">&#39; &quot;&#39;</span> . __FILE__ .<span class="q">&quot;\&quot;\ndie &#39;foo&#39;&quot;</span><span class="sc">;</span>
+    <a class="l_k" href="functions/print.html">print</a> <span class="i">$@</span><span class="sc">;</span>
+<a name="__END__"></a>    __END__
+<span class="q">    foo at goop line 345.</span></pre>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perlsyn','perlsyn.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

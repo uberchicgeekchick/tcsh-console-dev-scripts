@@ -1,0 +1,709 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>The Perl Debugger (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="The Perl Debugger">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+</div>
+<style type="text/css">
+  #fixunixgb { position: absolute; right: 0px; bottom: 0px; }
+  div > div#fixunixgb { position: fixed; }
+  pre.fixit { overflow:auto;border-left:1px dashed #000;border-right:1px dashed #000;padding-left:2px; }
+</style><!--[if gte IE 5.5]><![if lt IE 7]>
+<style type="text/css">
+  div#fixunixgb {
+  right: auto; bottom: auto;
+  left: expression( ( 0 - fixunixgb.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );
+  top: expression( ( 0 - fixunixgb.offsetHeight + ( document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
+}
+</style>
+<![endif]><![endif]-->
+<div id="fixunixgb" align=right style="position:fixed; bottom: 5; right: 5; color:black; background-color: white; width: 170px; height: 120px; padding: 5px; z-index:3">
+<script language="javascript">
+<!--
+var state = 'visible';
+
+function gushowhide(layer_ref) {
+
+if (state == 'visible') {
+state = 'hidden';
+}
+else {
+state = 'visible';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.visibility = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].visibility = state;
+}
+if (document.getElementById && !document.all) {
+maxwell_smart = document.getElementById(layer_ref);
+maxwell_smart.style.visibility = state;
+}
+}
+//-->
+</script>
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 160x90, bottomleft fixed */
+google_ad_slot = "2032737097";
+google_ad_width = 160;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<font size=-1><a href="javascript://" onclick="gushowhide('fixunixgb');">close (x)</a></font>
+</div>
+</div>
+<br>
+<center>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+//728x90, создано 30.01.08 (main top)
+google_ad_slot = "2783893649";
+google_ad_width = 728;
+google_ad_height = 90;
+//--></script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+
+<a href="http://www.internetmap.info/cgi-bin/go.cgi?site_id=49589" target=_blank><img src="http://www.internetmap.info/images/im_88x85.gif" border=0 alt="Internet Map"></a>
+<br>
+
+<b><a href="http://www.unix.org.ua/forum/">Do not forget register in our new UNIX and CISCO forum</a></b>
+
+</center>
+<p>
+
+
+<html>
+<head>
+<title>The Perl Debugger (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="The Perl Debugger">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+
+<!-- START OF BODY -->
+
+
+
+<!-- TOP BANNER -->
+
+<img src="gifs/smbanner.gif" usemap="#banner-map" border="0" alt="Book Home">
+<map name="banner-map"><AREA SHAPE="RECT" COORDS="0,0,466,71" HREF="index.htm" ALT="Programming Perl"><AREA SHAPE="RECT" COORDS="467,0,514,18" HREF="jobjects/fsearch.htm" ALT="Search this book">
+</map>
+
+<!-- TOP NAV BAR -->
+
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch19_02.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="part3.htm">Part 3: Perl as Technology</a></td><td align="right" valign="top" width="172"><a href="ch20_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- SECTION BODY -->
+<h1 class="chapter">Chapter 20.  The Perl Debugger</h1>
+<div class="htmltoc">
+<h4 class="tochead">Contents:</h4>
+<p>
+<a href="ch20_01.htm">Using the Debugger</a>
+<br>
+<a href="ch20_02.htm">Debugger Commands</a>
+<br>
+<a href="ch20_03.htm">Debugger Customization</a>
+<br>
+<a href="ch20_04.htm">Unattended Execution</a>
+<br>
+<a href="ch20_05.htm">Debugger Support</a>
+<br>
+<a href="ch20_06.htm">The Perl Profiler</a>
+<br>
+</p>
+</div>
+
+<p>
+<a name="INDEX-3498"></a><a name="INDEX-3499"></a><a name="INDEX-3500"></a><a name="INDEX-3501"></a><a name="INDEX-3502"></a><a name="INDEX-3503"></a>
+</p>
+
+<p>First of all, have you tried the <tt class="literal">use warnings</tt> pragma?
+<a name="INDEX-3504"></a>
+</p>
+
+<p>
+<a name="INDEX-3505"></a>
+If you invoke Perl with the <span class="option">-d</span> switch, your program
+will be run inside the Perl debugger.  This works like an interactive
+Perl environment, prompting for debugger commands that let you examine
+source code, set breakpoints, dump out your function-call stack,
+change the values of variables, and so on.  Any command not recognized
+by the debugger is directly executed (using <tt class="literal">eval</tt>)
+as Perl code in the package of the code currently being debugged. (The
+debugger uses the <tt class="literal">DB</tt> package for its own state
+information, to avoid trampling yours.)  This is so wonderfully
+convenient that people often fire up the debugger just to test out
+Perl constructs interactively.  In that case, it doesn't matter what
+program you tell Perl to debug, so we'll choose one without much
+meaning:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt><tt class="userinput"><b> perl -de 42</b></tt>
+</pre>
+</blockquote>
+
+In Perl, the debugger is not a program completely separate from the
+one being debugged, the way it usually is in a typical programming
+environment.  Instead, the <span class="option">-d</span> flag tells the compiler
+to insert source information into the parse trees it's about to hand
+off to the interpreter.  That means your code must first compile
+correctly for the debugger to work on it.  If that is successful, the
+intrepreter preloads a special Perl library file containing the
+debugger itself.
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt><tt class="userinput"><b> perl -d /path/to/program</b></tt>
+</pre>
+</blockquote>
+
+The program will halt immediately before the first run-time executable
+statement (but see the section <a href="ch20_01.htm#ch20-sect-ud">Section 20.1, "Using the Debugger"</a> regarding
+compile-time statements) and ask you to enter a debugger command.
+Whenever the debugger halts and shows you a line of code, it displays
+the line that it's <em class="emphasis">about</em> to execute, not the one just executed.</p>
+
+<p>As the debugger encounters a line, it first checks for a breakpoint,
+prints it (if the debugger is in trace mode), performs any actions
+(created with the <tt class="literal">a</tt> command described later in "Debugger
+Commands"), and finally prompts the user if a breakpoint is present
+or if the debugger is in single-step mode.  If not, it evaluates the
+line normally and continues to the next line.</p>
+
+
+<h2 class="sect1">20.1. Using the Debugger</h2>
+
+<p>The debugger prompt is something like:
+<blockquote>
+<pre class="programlisting">DB&lt;8&gt;</pre>
+</blockquote>
+
+or even:
+<blockquote>
+<pre class="programlisting">DB&lt;&lt;17&gt;&gt;</pre>
+</blockquote>
+<a name="INDEX-3506"></a><a name="INDEX-3507"></a><a name="INDEX-3508"></a>
+</p>
+
+<p>where the number shows how many commands you've executed.  A
+<em class="emphasis">csh</em>-like history mechanism allows you to
+access previous commands by number.  For example,
+<tt class="literal">!17</tt> would repeat command number 17.  The number of
+angle brackets indicates the depth of the debugger.  For example, you
+get more than one set of brackets if you're already at a breakpoint
+and then print out the result of a function call that itself also has
+a breakpoint.</p>
+
+<p>
+<a name="INDEX-3509"></a>
+If you want to enter a multiline command, such as a subroutine
+definition with several statements, you may escape the newline that
+would normally end the debugger command with a backslash.  Here's an
+example:
+<blockquote>
+<pre class="programlisting">DB&lt;1&gt; <b class="emphasis-bold">for (1..3) {         \</b>
+  cont:     <b class="emphasis-bold">print "ok\n";    \</b>
+  cont: <b class="emphasis-bold">}</b>
+  ok
+  ok
+  ok</pre>
+</blockquote>
+
+Let's say you want to fire up the debugger on a little program of
+yours (let's call it <em class="emphasis">camel_flea</em>)
+and stop it as soon as it gets down to a function named
+<tt class="literal">infested</tt>.  Here's how you'd do that:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt><tt class="userinput"><b> perl -d camel_flea</b></tt>
+
+Loading DB routines from perl5db.pl version 1.07
+Editor support available.
+
+Enter h or `h h' for help, or `man perldebug' for more help.
+
+main::(camel_flea:2):     pests('bactrian', 4);
+  DB&lt;1&gt;</pre>
+</blockquote>
+
+The debugger halts your program right before the first run-time
+executable statement (but see below about compile-time statements) and
+asks you to enter a command.  Again, whenever the debugger stops to
+show you a line of code, it displays the line it's
+<em class="emphasis">about</em> to execute, not the one it just executed.
+The line displayed may not look exactly like it did in your source
+file, particularly if you've run it through any kind of preprocessor.</p>
+
+<p>Now, you'd like to stop as soon as your program gets to the <tt class="literal">infested</tt>
+function, so you establish a breakpoint there like so:
+<blockquote>
+<pre class="programlisting">DB&lt;1&gt; <b class="emphasis-bold">b infested</b>
+DB&lt;2&gt; <b class="emphasis-bold">c</b>
+</pre>
+</blockquote>
+
+The debugger now continues until it hits that function, at which point
+it says this:
+<blockquote>
+<pre class="programlisting">main::infested(camel_flea:8):       my $bugs = int rand(3);</pre>
+</blockquote>
+</p>
+
+<p>
+<a name="INDEX-3510"></a>
+To look at a "window" of source code around the breakpoint, use
+the <tt class="literal">w</tt> command:
+<blockquote>
+<pre class="programlisting">DB&lt;2&gt; <b class="emphasis-bold">w</b>
+5     }
+6
+7       sub infested {
+8==&gt;b       my $bugs = int rand(3);
+9:          our $Master;
+10:         contaminate($Master);
+11:         warn "needs wash"
+12              if $Master &amp;&amp; $Master-&gt;isa("Human");
+13
+14:         print "got $bugs\n";
+
+DB&lt;2&gt;</pre>
+</blockquote>
+<a name="INDEX-3511"></a>
+As you see by the <tt class="literal">==&gt;</tt> marker, your current line
+is line 8, and by the <tt class="literal">b</tt> there, you know it has a
+breakpoint on it.  If you'` had set an action, there also would also
+have been an <tt class="literal">a</tt> there.  The line numbers with colons
+are breakable; the rest are not.</p>
+
+<p>
+<a name="INDEX-3512"></a><a name="INDEX-3513"></a>
+To see who called whom, ask for a stack backtrace using the <tt class="userinput"><b>T</b></tt> command:
+<blockquote>
+<pre class="programlisting">DB&lt;2&gt; <b class="emphasis-bold">T</b>
+$ = main::infested called from file `Ambulation.pm' line 4
+@ = Ambulation::legs(1, 2, 3, 4) called from file `camel_flea' line 5
+. = main::pests('bactrian', 4) called from file `camel_flea' line 2</pre>
+</blockquote>
+<a name="INDEX-3514"></a><a name="INDEX-3515"></a><a name="INDEX-3516"></a><a name="INDEX-3517"></a><a name="INDEX-3518"></a><a name="INDEX-3519"></a>
+</p>
+
+<p>The initial character (<tt class="literal">$</tt>, <tt class="literal">@</tt>, or
+<tt class="literal">.</tt>) tells whether the function was called in a
+scalar, list, or void context, respectively.  There are three lines
+because you were three functions deep when you ran the stack
+backtrace.  Here's what each line means:</p>
+
+<ul>
+<li>
+<p>The first line says you were in the function
+<tt class="literal">main::infested</tt> when you ran the stack trace.  It
+tells you the function was called in a scalar context from line 4 of
+the file <em class="emphasis">Ambulation.pm</em>.  It also shows that it
+was called without any arguments whatsoever, meaning it was called as
+<tt class="literal">&amp;infested</tt> instead of the normal way, as
+<tt class="literal">infested()</tt>.</p>
+</li>
+<li>
+<p>The second line shows that the function
+<tt class="literal">Ambulation::legs</tt> was called in list context from
+line number 5 of the <em class="emphasis">camel_flea</em>
+file, with those four arguments.</p>
+</li>
+<li>
+<p>The third line shows that <tt class="literal">main::pests</tt> was called in
+void context from line 2 of
+<em class="emphasis">camel_flea</em>.</p>
+</li>
+</ul>
+<a name="INDEX-3520"></a><a name="INDEX-3521"></a><a name="INDEX-3522"></a>
+<p>If you have compile-phase executable statements such as code from
+<tt class="literal">BEGIN</tt> and <tt class="literal">CHECK</tt> blocks or
+<tt class="literal">use</tt> statements, these will <em class="emphasis">not</em>
+ordinarily be stopped by the debugger, although
+<tt class="literal">require</tt>s and <tt class="literal">INIT</tt> blocks will,
+since they happen after the transition to run phase (see <a href="ch18_01.htm">Chapter 18, "Compiling"</a>).  Compile-phase statements can be
+traced with the <tt class="literal">AutoTrace</tt> option set in
+<tt class="literal">PERLDB_OPTS</tt>.
+<a name="INDEX-3523"></a>
+</p>
+
+<p>You can exert a little control over the Perl debugger from
+within your Perl program itself.  You might do this, for example,
+to set an automatic breakpoint at a certain subroutine whenever a
+particular program is run under the debugger.  From your own Perl
+code, however, you can transfer control back to the debugger using
+the following statement, which is harmless if the debugger is not
+running:
+<blockquote>
+<pre class="programlisting">$DB::single = 1;</pre>
+</blockquote>
+
+If you set <tt class="literal">$DB::single</tt> to 2, it's equivalent to the
+<tt class="literal">n</tt> command, whereas a value of 1 emulates the
+<tt class="literal">s</tt> command.  The <tt class="literal">$DB::trace</tt>
+variable should be set to 1 to simulate the <tt class="literal">t</tt>
+command.</p>
+
+<p>
+<a name="INDEX-3524"></a>
+Another way to debug a module is to set breakpoint on <em class="emphasis">load</em>ing:
+<blockquote>
+<pre class="programlisting">DB&lt;7&gt; <b class="emphasis-bold">b load c:/perl/lib/Carp.pm</b>
+Will stop on load of `c:/perl/lib/Carp.pm'.</pre>
+</blockquote>
+
+and then restart the debugger using the <tt class="literal">R</tt> command.
+For finer control, you can use the <tt class="literal">b compile
+subname</tt> to stop as soon as possible after a particular
+subroutine is compiled.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a name="INDEX-3663"></a>
+
+
+<!-- BOTTOM NAV BAR -->
+
+<hr width="515" align="left">
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch19_02.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="index.htm"><img src="../gifs/txthome.gif" alt="Home" border="0"></a></td><td align="right" valign="top" width="172"><a href="ch20_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+<tr>
+<td align="left" valign="top" width="172">19.2. Environment Variables</td><td align="center" valign="top" width="171"><a href="index/index.htm"><img src="../gifs/index.gif" alt="Book Index" border="0"></a></td><td align="right" valign="top" width="172">20.2. Debugger Commands</td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- LIBRARY NAV BAR -->
+
+<img src="../gifs/smnavbar.gif" usemap="#library-map" border="0" alt="Library Navigation Links"><p>
+<font size="-1"><a href="copyrght.htm">Copyright &copy; 2001</a> O'Reilly &amp; Associates. All rights reserved.</font>
+</p>
+<map name="library-map"> <area shape="rect" coords="2,-1,79,99" href="../index.htm"><area shape="rect" coords="84,1,157,108" href="../perlnut/index.htm"><area shape="rect" coords="162,2,248,125" href="../prog3/index.htm"><area shape="rect" coords="253,2,326,130" href="../advprog/index.htm"><area shape="rect" coords="332,1,407,112" href="../cookbook/index.htm"><area shape="rect" coords="414,2,523,103" href="../sysadmin/index.htm">
+</map>
+
+<!-- END OF BODY -->
+
+</body>
+</html>
+
+
+<br>
+
+
+<table border=0 align=center>
+<tr><td>
+
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 468x60, main footer */
+google_ad_slot = "1100896219";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<script>
+user = "2823";
+page = "2";
+
+</script>
+
+
+
+</td>
+<td>
+
+<!-- Ukrainian Banner Network 468x60 START -->
+<center>
+<script>
+//<!--
+user = "2823";
+page = "2";
+pid = Math.round((Math.random() * (10000000 - 1)));
+document.write("<iframe src='http://banner.kiev.ua/cgi-bin/bi.cgi?h" +
+user + "&amp;"+ pid + "&amp;" + page + "' frameborder=0 vspace=0 hspace=0 " +
+" width=468 height=60 marginwidth=0 marginheight=0 scrolling=no>");
+document.write("<a href='http://banner.kiev.ua/cgi-bin/bg.cgi?" +
+user + "&amp;"+ pid + "&amp;" + page + "' target=_top>");
+document.write("<img border=0 src='http://banner.kiev.ua/" +
+"cgi-bin/bi.cgi?i" + user + "&amp;" + pid + "&amp;" + page +
+"' width=468 height=60 alt='хЋ“Ѕ…ќ”ЋЅ— вЅќќ≈“ќЅ— у≈‘Ў'></a>");
+document.write("</iframe>");
+//-->
+</script>
+</center>
+<!-- Ukrainian Banner Network 468x60 END -->
+
+
+</td></tr>
+<tr><td colspan=2>
+<br>
+<hr size=1>
+
+
+
+<!-- SpyLOG -->
+<script src="http://tools.spylog.ru/counter_cv.js" id="spylog_code" type="text/javascript" counter="1028713" part="docs" track_links="ext" page_level="0">
+</script>
+<noscript>
+<a href="http://u10287.13.spylog.com/cnt?cid=1028713&f=3&p=0" target="_blank">
+<img src="http://u10287.13.spylog.com/cnt?cid=1028713&p=0" alt="SpyLOG" border="0" width="88" height="31"></a>
+</noscript>
+<!--/ SpyLOG -->
+
+<!--bigmir)net TOP 100-->
+<script type="text/javascript" language="javascript"><!--
+function BM_Draw(oBM_STAT){
+document.write('<table cellpadding="0" cellspacing="0" border="0" style="display:inline;margin-right:4px;"><tr><td><div style="margin:0px;padding:0px;font-size:1px;width:88px;"><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_top.gif\') no-repeat bottom;">&nbsp;</div><div style="font:10px Tahoma;background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_center.gif\');"><div style="text-align:center;"><a href="http://www.bigmir.net/" target="_blank" style="color:#0000ab;text-decoration:none;font:10px Tahoma;">bigmir<span style="color:#ff0000;">)</span>net</a></div><div style="margin-top:3px;padding: 0px 6px 0px 6px;color:#003596;"><div style="float:left;font:10px Tahoma;">'+oBM_STAT.hosts+'</div><div style="float:right;font:10px Tahoma;">'+oBM_STAT.hits+'</div></div><br clear="all"/></div><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_bottom.gif\') no-repeat top;">&nbsp;</div></div></td></tr></table>');
+}
+//-->
+</script>
+
+<script type="text/javascript" language="javascript"><!--
+bmN=navigator,bmD=document,bmD.cookie='b=b',i=0,bs=[],bm={o:1,v:126595,s:126595,t:0,c:bmD.cookie?1:0,n:Math.round((Math.random()* 1000000)),w:0};
+for(var f=self;f!=f.parent;f=f.parent)bm.w++;
+try{if(bmN.plugins&&bmN.mimeTypes.length&&(x=bmN.plugins['Shockwave Flash']))bm.m=parseInt(x.description.replace(/([a-zA-Z]|s)+/,''));
+else for(var f=3;f<20;f++)if(eval('new ActiveXObject("ShockwaveFlash.ShockwaveFlash.'+f+'")'))bm.m=f}catch(e){;}
+try{bm.y=bmN.javaEnabled()?1:0}catch(e){;}
+try{bmS=screen;bm.v^=bm.d=bmS.colorDepth||bmS.pixelDepth;bm.v^=bm.r=bmS.width}catch(e){;}
+r=bmD.referrer.slice(7);if(r&&r.split('/')[0]!=window.location.host){bm.f=escape(r);bm.v^=r.length}
+bm.v^=window.location.href.length;for(var x in bm) if(/^[ovstcnwmydrf]$/.test(x)) bs[i++]=x+bm[x];
+bmD.write('<sc'+'ript type="text/javascript" language="javascript" src="http://c.bigmir.net/?'+bs.join('&')+'"></sc'+'ript>');
+//-->
+</script>
+<noscript>
+<a href="http://www.bigmir.net/" target="_blank"><img src="http://c.bigmir.net/?v126595&s126595&t2" width="88" height="31" alt="bigmir)net TOP 100" title="bigmir)net TOP 100" border="0" /></a>
+</noscript>
+<!--bigmir)net TOP 100-->
+
+<!--begin of Rambler's Top100 code -->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://counter.rambler.ru/top100.cnt?692798" alt="" width=1 height=1 border=0></a>
+<!--end of Top100 code-->
+
+<!--begin of Top100 logo-->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://top100-images.rambler.ru/top100/w1.gif" alt="Rambler's Top100" width=88 height=31 
+border=0></a>
+<!--end of Top100 logo -->
+
+
+<!-- hit.ua -->
+<a href='http://hit.ua/?x=3601' target='_blank'>
+<script language="javascript" type="text/javascript"><!--
+Cd=document;Cr="&"+Math.random();Cp="&s=1";
+Cd.cookie="b=b";if(Cd.cookie)Cp+="&c=1";
+Cp+="&t="+(new Date()).getTimezoneOffset();
+if(self!=top)Cp+="&f=1";
+//--></script>
+<script language="javascript1.1" type="text/javascript"><!--
+if(navigator.javaEnabled())Cp+="&j=1";
+//--></script>
+<script language="javascript1.2" type="text/javascript"><!--
+if(typeof(screen)!='undefined')Cp+="&w="+screen.width+"&h="+
+screen.height+"&d="+(screen.colorDepth?screen.colorDepth:screen.pixelDepth);
+//--></script>
+<script language="javascript" type="text/javascript"><!--
+Cd.write("<img src='http://c.hit.ua/hit?i=3601&g=0&x=1"+Cp+Cr+
+"&r="+escape(Cd.referrer)+"&u="+escape(window.location.href)+
+"' border='0' width='88' height='31' "+
+"alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>");
+//--></script>
+<noscript>
+<img src='http://c.hit.ua/hit?i=3601&amp;g=0&amp;x=1' border='0' width='88' height='31' alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>
+</noscript></a>
+<!-- / hit.ua -->
+
+<script language="javascript">//<!--
+mtI="012408140822";mtG="45";mtT="4";mtS='http://012408140822.c.mystat-in.net/?';
+mtD=document;mtN=navigator.appName;mtR=escape(mtD.referrer);
+mtW="";mtC="";mtV="0";mtJ="1";
+//--></script><script language="javascript1.1">//<!--
+mtV="1";mtJ = (navigator.javaEnabled()?"1":"0");
+//--></script><script language="javascript1.2">//<!--
+mtE=screen;mtW=mtE.width;mtN!="Netscape"?mtC=mtE.colorDepth:mtC=mtE.pixelDepth;mtV="2";
+//--></script><script language="javascript1.3">//<!--
+mtV="3";
+//--></script><script language="javascript">//<!--
+mtUrl="";mtUrl+="\""+mtS+"i"+mtI+"&t"+mtT+"&g"+mtG+"&w"+mtW+"&c"+mtC+"&r"+mtR+"&v"+mtV+"&j"+mtJ+"\"";
+mtUrl="<a href=http://mytop-in.net/ target=_blank><img src="+mtUrl+"width=88 height=31 border=0 alt=\"Rated by MyTOP\"></a>";
+mtD.write(mtUrl);
+//--></script>
+<noscript>
+<a href=http://mytop-in.net/ target=_blank><img src=http://012408140822.c.mystat-in.net/?i012408140822&t4&g45&j0 width=88 height=31 border=0 alt="Rated by MyTOP"></a>
+</noscript>
+
+<!--Rating@Mail.ru COUNTEr--><script language="JavaScript" type="text/javascript"><!--
+d=document;var a='';a+=';r='+escape(d.referrer)
+js=10//--></script><script language="JavaScript1.1" type="text/javascript"><!--
+a+=';j='+navigator.javaEnabled()
+js=11//--></script><script language="JavaScript1.2" type="text/javascript"><!--
+s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+js=12//--></script><script language="JavaScript1.3" type="text/javascript"><!--
+js=13//--></script><script language="JavaScript" type="text/javascript"><!--
+d.write('<a href="http://top.mail.ru/jump?from=1374183"'+
+' target=_top><img src="http://d7.cf.b4.a1.top.list.ru/counter'+
+'?id=1374183;t=48;js='+js+a+';rand='+Math.random()+
+'" alt="–ейтинг@Mail.ru"'+' border=0 height=31 width=88/><\/a>')
+if(11<js)d.write('<'+'!-- ')//--></script><noscript><a
+target=_top href="http://top.mail.ru/jump?from=1374183"><img
+src="http://d7.cf.b4.a1.top.list.ru/counter?js=na;id=1374183;t=48"
+border=0 height=31 width=88
+alt="–ейтинг@Mail.ru"/></a></noscript><script language="JavaScript" type="text/javascript"><!--
+if(11<js)d.write('--'+'>')//--></script><!--/COUNTER-->
+
+<!-- I.UA counter --><a href="http://www.i.ua/" target="_blank" onclick="this.href='http://i.ua/r.php?21595';" title="Rated by I.UA">
+<script type="text/javascript" language="javascript"><!--
+iS='<img src="http://r.i.ua/s?u21595&p66&n'+Math.random();
+iD=document;iD.cookie="iua=1";if(iD.cookie)iS+='&c1';
+iS+='&d'+(screen.colorDepth?screen.colorDepth:screen.pixelDepth)
++"&w"+screen.width+'&h'+screen.height
+iT=iD.referrer.slice(7);iH=window.location.href.slice(7);
+((iI=iT.indexOf('/'))!=-1)?(iT=iT.substring(0,iI)):(iI=iT.length);
+if(iT!=iH.substring(0,iI))iS+='&f'+escape(iD.referrer.slice(7))
+iS+='&r'+escape(iH);
+iD.write(iS+'" border="0" width="88" height="31" />');
+//--></script></a><!-- End of I.UA counter -->
+
+<script type="text/javascript">
+<!--
+Nnv=navigator;Nna=Nnv.appName;Nd=document;Nd.cookie="b=b";Nc=0;if(Nd.cookie)Nc=1;
+Nn=(Nna.substring(0,2)=="Mi")?0:1;Ns=screen;Npx=(Nn==0)?Ns.colorDepth:Ns.pixelDepth;
+str='<img src="http://c.uarating.com/199;'+Ns.width+'x'+Ns.height+';'+Npx+';'+Nc+';';
+str=str+escape(Nd.referrer)+';'+Math.random()+'" width="88" height="31" border="0">';
+document.write('<a href="http://www.uarating.com/" alt="uaRating" target="_blank">'+str+'<\/a>');
+// -->
+</script>
+<noscript><a href="http://www.uarating.com/" target="_blank"><img src="http://c.uarating.com/199;0x0;0;0;-;0" alt="uaRating" width="88" height="31" border="0"></a></noscript>
+
+
+</td></tr>
+</table>
+
+
+</body>
+</html>

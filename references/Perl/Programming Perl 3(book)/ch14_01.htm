@@ -1,0 +1,1122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Tied Variables (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Tied Variables">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+</div>
+<style type="text/css">
+  #fixunixgb { position: absolute; right: 0px; bottom: 0px; }
+  div > div#fixunixgb { position: fixed; }
+  pre.fixit { overflow:auto;border-left:1px dashed #000;border-right:1px dashed #000;padding-left:2px; }
+</style><!--[if gte IE 5.5]><![if lt IE 7]>
+<style type="text/css">
+  div#fixunixgb {
+  right: auto; bottom: auto;
+  left: expression( ( 0 - fixunixgb.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );
+  top: expression( ( 0 - fixunixgb.offsetHeight + ( document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
+}
+</style>
+<![endif]><![endif]-->
+<div id="fixunixgb" align=right style="position:fixed; bottom: 5; right: 5; color:black; background-color: white; width: 170px; height: 120px; padding: 5px; z-index:3">
+<script language="javascript">
+<!--
+var state = 'visible';
+
+function gushowhide(layer_ref) {
+
+if (state == 'visible') {
+state = 'hidden';
+}
+else {
+state = 'visible';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.visibility = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].visibility = state;
+}
+if (document.getElementById && !document.all) {
+maxwell_smart = document.getElementById(layer_ref);
+maxwell_smart.style.visibility = state;
+}
+}
+//-->
+</script>
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 160x90, bottomleft fixed */
+google_ad_slot = "2032737097";
+google_ad_width = 160;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<font size=-1><a href="javascript://" onclick="gushowhide('fixunixgb');">close (x)</a></font>
+</div>
+</div>
+<br>
+<center>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+//728x90, создано 30.01.08 (main top)
+google_ad_slot = "2783893649";
+google_ad_width = 728;
+google_ad_height = 90;
+//--></script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+
+<a href="http://www.internetmap.info/cgi-bin/go.cgi?site_id=49589" target=_blank><img src="http://www.internetmap.info/images/im_88x85.gif" border=0 alt="Internet Map"></a>
+<br>
+
+<b><a href="http://www.unix.org.ua/forum/">Do not forget register in our new UNIX and CISCO forum</a></b>
+
+</center>
+<p>
+
+
+<html>
+<head>
+<title>Tied Variables (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Tied Variables">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+
+<!-- START OF BODY -->
+
+
+
+<!-- TOP BANNER -->
+
+<img src="gifs/smbanner.gif" usemap="#banner-map" border="0" alt="Book Home">
+<map name="banner-map"><AREA SHAPE="RECT" COORDS="0,0,466,71" HREF="index.htm" ALT="Programming Perl"><AREA SHAPE="RECT" COORDS="467,0,514,18" HREF="jobjects/fsearch.htm" ALT="Search this book">
+</map>
+
+<!-- TOP NAV BAR -->
+
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch13_10.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="part2.htm">Part 2: The Gory Details</a></td><td align="right" valign="top" width="172"><a href="ch14_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- SECTION BODY -->
+<h1 class="chapter">Chapter 14.  Tied Variables</h1>
+<div class="htmltoc">
+<h4 class="tochead">Contents:</h4>
+<p>
+<a href="ch14_01.htm">Tying Scalars</a>
+<br>
+<a href="ch14_02.htm">Tying Arrays</a>
+<br>
+<a href="ch14_03.htm">Tying Hashes</a>
+<br>
+<a href="ch14_04.htm">Tying Filehandles</a>
+<br>
+<a href="ch14_05.htm">A Subtle Untying Trap</a>
+<br>
+<a href="ch14_06.htm">Tie Modules on CPAN</a>
+<br>
+</p>
+</div>
+
+<a name="INDEX-2654"></a><a name="INDEX-2655"></a><a name="INDEX-2656"></a><a name="INDEX-2657"></a><a name="INDEX-2658"></a>
+<p>Some human endeavors require a disguise.  Sometimes the intent is to
+deceive, but more often, the intent is to communicate something true
+at a deeper level.  For instance, many job interviewers expect you to
+dress up in a tie to indicate that you're seriously interested in
+fitting in, even though both of you know you'll never wear a tie on
+the job.  It's odd when you think about it: tying a piece of cloth
+around your neck can magically get you a job.  In Perl culture, the
+<em class="emphasis">tie</em> operator plays a similar role: it lets you
+create a seemingly normal variable that, behind the disguise, is
+actually a full-fledged Perl object that is expected to have an
+interesting personality of its own.  It's just an odd bit of magic,
+like pulling Bugs Bunny out of a hat.</p>
+
+<p>
+<a name="INDEX-2659"></a><a name="INDEX-2660"></a>
+Put another way, the funny characters <tt class="literal">$</tt>,
+<tt class="literal">@</tt>, <tt class="literal">%</tt>, or <tt class="literal">*</tt> in
+front of a variable name tell Perl and its programmers a great
+deal--they each imply a particular set of archetypal behaviors.  You
+can warp those behaviors in various useful ways with
+<tt class="literal">tie</tt>, by associating the variable with a class that
+implements a new set of behaviors.  For instance, you can create a
+regular Perl hash, and then <tt class="literal">tie</tt> it to a class that
+makes the hash into a database, so that when you read values from the
+hash, Perl magically fetches data from an external database file, and
+when you set values in the hash, Perl magically stores data in the
+external database file.  In this case, "magically" means
+"transparently doing something very complicated".  You know the old
+saying: any technology sufficiently advanced is indistinguishable from
+a Perl script.  (Seriously, people who play with the guts of Perl use
+<em class="emphasis">magic</em> as a technical term referring to any extra
+semantics attached to variables such as <tt class="literal">%ENV</tt> or
+<tt class="literal">%SIG</tt>.  Tied variables are just an extension of
+that.)
+<a name="INDEX-2661"></a>
+</p>
+
+<p>
+<a name="INDEX-2662"></a><a name="INDEX-2663"></a><a name="INDEX-2664"></a>
+Perl already has built-in <tt class="literal">dbmopen</tt> and
+<tt class="literal">dbmclose</tt> functions that magically tie hash
+variables to databases, but those functions date back to the days when
+Perl had no <tt class="literal">tie</tt>.  Now <tt class="literal">tie</tt>
+provides a more general mechanism.  In fact, Perl itself implements
+<tt class="literal">dbmopen</tt> and <tt class="literal">dbmclose</tt> in terms of
+<tt class="literal">tie</tt>.</p>
+
+<p>
+<a name="INDEX-2665"></a><a name="INDEX-2666"></a><a name="INDEX-2667"></a>
+You can <tt class="literal">tie</tt> a scalar, array, hash, or filehandle
+(via its typeglob) to any class that provides appropriately named
+methods to intercept and emulate normal accesses to those variables.
+The first of those methods is invoked at the point of the
+<tt class="literal">tie</tt> itself: tying a variable always invokes a
+constructor, which, if successful, returns an object that Perl
+squirrels away where you don't see it, down inside the "normal"
+variable.  You can always retrieve that object later using the
+<tt class="literal">tied</tt> function on the normal variable:
+<blockquote>
+<pre class="programlisting">tie <em class="replaceable">VARIABLE</em>, <em class="replaceable">CLASSNAME</em>, <em class="replaceable">LIST</em>;  # binds <em class="replaceable">VARIABLE</em> to <em class="replaceable">CLASSNAME</em>
+$object = tied <em class="replaceable">VARIABLE</em>;</pre>
+</blockquote>
+
+Those two lines are equivalent to:
+<blockquote>
+<pre class="programlisting">$object = tie <em class="replaceable">VARIABLE</em>, <em class="replaceable">CLASSNAME</em>, <em class="replaceable">LIST</em>;</pre>
+</blockquote>
+
+Once it's tied, you treat the normal variable normally, but each
+access automatically invokes methods on the underlying object; all the
+complexity of the class is hidden behind those method invocations.  If
+later you want to break the association between the variable and the
+class, you can <tt class="literal">untie</tt> the variable:
+<blockquote>
+<pre class="programlisting">untie <em class="replaceable">VARIABLE</em>;</pre>
+</blockquote>
+<a name="INDEX-2668"></a><a name="INDEX-2669"></a>
+You can almost think of <tt class="literal">tie</tt> as a funny kind of
+<tt class="literal">bless</tt>, except that it blesses a bare variable
+instead of an object reference.  It also can take extra parameters,
+just as a constructor can--which is not terribly surprising, since it
+actually does invoke a constructor internally, whose name depends on
+which type of variable you're tying: either
+<tt class="literal">TIESCALAR</tt>, <tt class="literal">TIEARRAY</tt>,
+<tt class="literal">TIEHASH</tt>, or
+<tt class="literal">TIEHANDLE</tt>.<a href="#FOOTNOTE-1">[1]</a> These constructors are invoked as class
+methods with the specified <em class="replaceable">CLASSNAME</em> as
+their invocant, plus any additional arguments you supplied in
+<em class="replaceable">LIST</em>.  (The
+<em class="replaceable">VARIABLE</em> is not passed to the constructor.)
+<a name="INDEX-2670"></a>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-1"></a>
+<p>[1] Since the constructors
+have separate names, you could even provide a single class that
+implements all of them.  That would allow you to tie scalars, arrays,
+hashes, and filehandles all to the same class, although this is not
+generally done, since it would make the other magical methods tricky
+to write.</p>
+
+</blockquote>
+
+<p>These four constructors each return an object in the customary
+fashion.  They don't really care whether they were invoked from
+<tt class="literal">tie</tt>, nor do any of the other methods in the class,
+since you can always invoke them directly if you'd like.  In one
+sense, all the magic is in the <tt class="literal">tie</tt>, not in the
+class implementing the <tt class="literal">tie</tt>.  It's just an ordinary
+class with funny method names, as far as the class is concerned.
+(Indeed, some tied modules provide extra methods that aren't visible
+through the tied variable; these methods must be called explicitly as
+you would any other object method.  Such extra methods might provide
+services like file locking, transaction protection, or anything else
+an instance method might do.)</p>
+
+<p>So these constructors <tt class="literal">bless</tt> and return an object
+reference just as any other constructor would.  That reference need
+not refer to the same type of variable as the one being tied; it just
+has to be blessed, so that the tied variable can find its way back to
+your class for succor.  For instance, our long
+<tt class="literal">TIEARRAY</tt> example will use a hash-based object, so
+it can conveniently hold additional information about the array it's
+emulating.</p>
+
+<p>
+<a name="INDEX-2671"></a><a name="INDEX-2672"></a><a name="INDEX-2673"></a><a name="INDEX-2674"></a>
+The <tt class="literal">tie</tt> function will not <tt class="literal">use</tt> or
+<tt class="literal">require</tt> a module for you--you must do that yourself
+explicitly, if necessary, before calling the
+<tt class="literal">tie</tt>. (On the other hand, the
+<tt class="literal">dbmopen</tt> function will, for backward compatibility,
+attempt to <tt class="literal">use</tt> one or another DBM implementation.
+But you can preempt its selection with an explicit
+<tt class="literal">use</tt>, provided the module you <tt class="literal">use</tt>
+is one of the modules in <tt class="literal">dbmopen</tt>'s list of modules
+to try.  See the online docs for the <tt class="literal">AnyDBM_File</tt>
+module for a fuller explanation.)</p>
+
+<p>
+<a name="INDEX-2675"></a><a name="INDEX-2676"></a>
+The methods called by a tied variable have predetermined names like
+<tt class="literal">FETCH</tt> and <tt class="literal">STORE</tt>, since they're
+invoked implicitly (that is, triggered by particular events) from
+within the innards of Perl.  These names are in
+<tt class="literal">ALLCAPS</tt>, a convention we often follow for such
+implicitly called routines.  (Other special names that follow this
+convention include <tt class="literal">BEGIN</tt>, <tt class="literal">CHECK</tt>,
+<tt class="literal">INIT</tt>, <tt class="literal">END</tt>,
+<tt class="literal">DESTROY</tt>, and <tt class="literal">AUTOLOAD</tt>, not to
+mention <tt class="literal">UNIVERSAL-&gt;VERSION</tt>.  In fact, nearly all
+of Perl's predefined variables and filehandles are in uppercase:
+<tt class="literal">STDIN</tt>, <tt class="literal">SUPER</tt>,
+<tt class="literal">CORE</tt>, <tt class="literal">CORE::GLOBAL</tt>,
+<tt class="literal">DATA</tt>, <tt class="literal">@EXPORT</tt>,
+<tt class="literal">@INC</tt>, <tt class="literal">@ISA</tt>,
+<tt class="literal">@ARGV</tt>, and <tt class="literal">%ENV</tt>.  Of course,
+built-in operators and pragmas go to the opposite extreme and have no
+capitals at all.)
+<a name="INDEX-2677"></a>
+</p>
+
+<p>The first thing we'll cover is extremely simple: how to tie a scalar
+variable.</p>
+
+
+<h2 class="sect1">14.1. Tying Scalars</h2>
+
+<p>
+<a name="INDEX-2678"></a><a name="INDEX-2679"></a><a name="INDEX-2680"></a>
+To implement a tied scalar, a class must define the following methods:
+<tt class="literal">TIESCALAR</tt>, <tt class="literal">FETCH</tt>, and
+<tt class="literal">STORE</tt> (and possibly <tt class="literal">DESTROY</tt>).
+When you <tt class="literal">tie</tt> a scalar variable, Perl calls
+<tt class="literal">TIESCALAR</tt>.  When you read the tied variable, it
+calls <tt class="literal">FETCH</tt>, and when you assign a value to the
+variable, it calls <tt class="literal">STORE</tt>.  If you've kept the
+object returned by the initial <tt class="literal">tie</tt> (or if you
+retrieve it later using <tt class="literal">tied</tt>), you can access the
+underlying object yourself--this does not trigger its
+<tt class="literal">FETCH</tt> or <tt class="literal">STORE</tt> methods.  As an
+object, it's not magical at all, but rather quite objective.</p>
+
+<p>
+<a name="INDEX-2681"></a>
+If a <tt class="literal">DESTROY</tt> method exists, Perl invokes it when
+the last reference to the tied object disappears, just as for any
+other object.  That happens when your program ends or when you call
+<tt class="literal">untie</tt>, which eliminates the reference used by the
+tie.  However, <tt class="literal">untie</tt> doesn't eliminate any
+outstanding references you might have stored elsewhere;
+<tt class="literal">DESTROY</tt> is deferred until those references are
+gone, too.</p>
+
+<p>The <tt class="literal">Tie::Scalar</tt> and
+<tt class="literal">Tie::StdScalar</tt> packages, both found in the standard
+<tt class="literal">Tie::Scalar</tt> module, provide some simple base class
+definitions if you don't want to define all of these methods yourself.
+<tt class="literal">Tie::Scalar</tt> provides elemental methods that do very
+little, and <tt class="literal">Tie::StdScalar</tt> provides methods that
+make a tied scalar behave like a regular Perl scalar.  (Which seems
+singularly useless, but sometimes you just want a bit of a wrapper
+around the ordinary scalar semantics, for example, to count the number
+of times a particular variable is set.)
+<a name="INDEX-2682"></a><a name="INDEX-2683"></a>
+</p>
+
+<p>Before we show you our elaborate example and complete description of
+all the mechanics, here's a taste just to whet your appetite--and to
+show you how easy it really is.  Here's a complete program:
+<blockquote>
+<pre class="programlisting">#!/usr/bin/perl
+package Centsible;
+sub TIESCALAR { bless \my $self, shift }
+sub STORE { ${ $_[0] } = $_[1] }  # do the default thing
+sub FETCH { sprintf "%.02f", ${ my $self = shift } } # round value
+
+package main;
+tie $bucks, "Centsible";
+$bucks = 45.00;
+$bucks *= 1.0715; # tax
+$bucks *= 1.0715; # and double tax!
+print "That will be $bucks, please.\n";</pre>
+</blockquote>
+
+When run, that program produces:
+<blockquote>
+<pre class="programlisting">That will be 51.67, please.</pre>
+</blockquote>
+
+To see the difference it makes, comment out the call
+to <tt class="literal">tie</tt>; then you'll get:
+<blockquote>
+<pre class="programlisting">That will be 51.66505125, please.</pre>
+</blockquote>
+
+Admittedly, that's more work than you'd normally go through to
+round numbers.</p>
+
+
+<h3 class="sect2">14.1.1. Scalar-Tying Methods</h3>
+
+<p>
+<a name="INDEX-2684"></a><a name="INDEX-2685"></a><a name="INDEX-2686"></a>
+Now that you've seen a sample of what's to come, let's develop a more
+elaborate scalar-tying class.  Instead of using any canned package for
+the base class (especially since scalars are so simple), we'll look at
+each of the four methods in turn, building an example class named
+<tt class="literal">ScalarFile</tt>.  Scalars tied to this class contain
+regular strings, and each such variable is implicitly associated with
+a file where that string is stored.  (You might name your variables to
+remind you which file you're referring to.)  Variables are tied to the
+class this way:
+<blockquote>
+<pre class="programlisting">use ScalarFile;       # load ScalarFile.pm
+tie $camel, "ScalarFile", "/tmp/camel.lot";</pre>
+</blockquote>
+
+Once the variable has been tied, its previous contents are clobbered,
+and the internal connection between the variable and its object
+overrides the variable's normal semantics.  When you ask for the value
+of <tt class="literal">$camel</tt>, it now reads the contents of
+<em class="emphasis">/tmp/camel.lot</em>, and when you assign a value to
+<tt class="literal">$camel</tt>, it writes the new contents out to
+<em class="emphasis">/tmp/camel.lot</em>, obliterating any previous
+occupants.</p>
+
+<p>The tie is on the variable, not the value, so the tied nature of a
+variable does not propagate across assignment.  For example, let's say
+you copy a variable that's been tied:
+<blockquote>
+<pre class="programlisting">$dromedary = $camel;</pre>
+</blockquote>
+</p>
+
+<p>Instead of
+reading the value in the ordinary fashion from the
+<tt class="literal">$camel</tt> scalar variable, Perl invokes the
+<tt class="literal">FETCH</tt> method on the associated underlying object.
+It's as though you'd written this:
+<blockquote>
+<pre class="programlisting">$dromedary = (tied $camel)-&gt;FETCH():</pre>
+</blockquote>
+<a name="INDEX-2687"></a>
+Or if you remember the object returned by <tt class="literal">tie</tt>, you
+could use that reference directly, as in the following sample code:
+<blockquote>
+<pre class="programlisting">$clot = tie $camel, "ScalarFile", "/tmp/camel.lot";
+$dromedary = $camel;          # through the implicit interface
+$dromedary = $clot-&gt;FETCH();  # same thing, but explicitly</pre>
+</blockquote>
+
+If the class provides methods besides <tt class="literal">TIESCALAR</tt>,
+<tt class="literal">FETCH</tt>, <tt class="literal">STORE</tt>, and
+<tt class="literal">DESTROY</tt>, you could use <tt class="literal">$clot</tt> to
+invoke them manually.  However, one normally minds one's own business
+and leaves the underlying object alone, which is why you often see the
+return value from <tt class="literal">tie</tt> ignored.  You can still get
+at the object via <tt class="literal">tied</tt> if you need it later (for
+example, if the class happens to document any extra methods you need).
+Ignoring the returned object also eliminates certain kinds of errors,
+which we'll cover later.</p>
+
+<p>Here's the preamble of our class, which we will put into
+<em class="emphasis">ScalarFile.pm</em>:
+<blockquote>
+<pre class="programlisting">package ScalarFile;
+use Carp;                # Propagate error messages nicely.
+use strict;              # Enforce some discipline on ourselves.
+use warnings;            # Turn on lexically scoped warnings.
+use warnings::register;  # Allow user to say "use warnings 'ScalarFile'".
+my $count = 0;           # Internal count of tied ScalarFiles.</pre>
+</blockquote>
+<a name="INDEX-2688"></a>
+The standard <tt class="literal">Carp</tt> module exports the
+<tt class="literal">carp</tt>, <tt class="literal">croak</tt>, and
+<tt class="literal">confess</tt> subroutines, which we'll use in the code
+later in this section.  As usual, see <a href="ch32_01.htm">Chapter 32, "Standard Modules"</a>, or the online docs for more
+about <tt class="literal">Carp</tt>.</p>
+
+<p>The following methods are defined by the class.</p>
+
+<dl>
+<dt>
+<b><em class="replaceable">CLASSNAME</em><tt class="literal">-&gt;TIESCALAR(</tt><em class="replaceable">LIST</em><tt class="literal">)</tt></b>
+</dt>
+<dd>
+<p>  The <tt class="literal">TIESCALAR</tt> method
+of the class is triggered whenever you <tt class="literal">tie</tt> a scalar
+variable.  The optional <em class="replaceable">LIST</em> contains any
+parameters needed to initialize the object properly.  (In our example,
+there is only one parameter: the name of the file.) The method should
+return an object, but this doesn't have to be a reference to a scalar.
+In our example, though, it is.
+<blockquote>
+<pre class="programlisting">sub TIESCALAR {           # in ScalarFile.pm
+    my $class    = shift;
+    my $filename = shift;
+    $count++;             # A file-scoped lexical, private to class.
+    return bless \$filename, $class;
+}</pre>
+</blockquote>
+Since there's no scalar equivalent to the anonymous array and hash
+composers, <tt class="literal">[]</tt> and <tt class="literal">{}</tt>, we merely
+bless a lexical variable's referent, which effectively becomes
+anonymous as soon as the name goes out of scope.  This works fine (you
+could do the same thing with arrays and hashes) as long as the
+variable really is lexical.  If you try this trick on a global, you
+might think you're getting away with it, until you try to create
+another <em class="filename">camel.lot</em>.  Don't be tempted to write
+something like this:
+<blockquote>
+<pre class="programlisting">sub TIESCALAR { bless \$_[1], $_[0] }    # WRONG, could refer to global.</pre>
+</blockquote>
+A more robustly written constructor might check that the filename is
+accessible.  We check first to see if the file is readable, since we
+don't want to clobber the existing value.  (In other words, we
+shouldn't assume the user is going to write first.  They might be
+treasuring their old Camel Lot file from a previous run of the
+program.) If we can't open or create the filename specified, we'll
+indicate the error gently by returning <tt class="literal">undef</tt> and
+optionally printing a warning via <tt class="literal">carp</tt>.  (We could
+just <tt class="literal">croak</tt> instead--it's a matter of taste whether
+you prefer fish or frogs.) We'll use the <tt class="literal">warnings</tt>
+pragma to determine whether the user is interested in our warning:
+<blockquote>
+<pre class="programlisting">sub TIESCALAR {           # in ScalarFile.pm
+    my $class    = shift;
+    my $filename = shift;
+    my $fh;
+    if (open $fh, "&lt;", $filename or
+        open $fh, "&gt;", $filename)
+    {
+        close $fh;
+        $count++;
+        return bless \$filename, $class;
+    }
+    carp "Can't tie $filename: $!" if warnings::enabled();
+    return;
+}</pre>
+</blockquote>
+Given such a constructor, we can now associate the scalar
+<tt class="literal">$string</tt> with the file
+<em class="filename">camel.lot</em>:</p>
+
+<blockquote>
+<pre class="programlisting">tie ($string, "ScalarFile", "camel.lot") or die;</pre>
+</blockquote>
+
+<p>
+<a name="INDEX-"></a>
+(We're still assuming some things we shouldn't.  In a production
+version of this, we'd probably open the filehandle once and remember
+the filehandle as well as the filename for the duration of the tie,
+keeping the handle exclusively locked with <tt class="literal">flock</tt>
+the whole time.  Otherwise we're open to race conditions--see "Timing
+Glitches" in <a href="ch23_01.htm">Chapter 23, "Security"</a>.)</p>
+</dd>
+
+
+<dt>
+<b><em class="replaceable">SELF</em><tt class="literal">-&gt;FETCH</tt></b>
+</dt>
+<dd>
+<p>This method is invoked whenever you access the tied variable (that is,
+read its value).  It takes no arguments beyond the object tied to the
+variable.  In our example, that object contains the filename.
+<blockquote>
+<pre class="programlisting">sub FETCH {
+    my $self  = shift;
+    confess "I am not a class method" unless ref $self;
+    return unless open my $fh, $$self;
+    read($fh, my $value, -s $fh);  # NB: don't use -s on pipes!
+    return $value;
+}</pre>
+</blockquote>
+
+This time we've decided to blow up (raise an exception) if
+<tt class="literal">FETCH</tt> gets something other than a reference.
+(Either it was invoked as a class method, or someone miscalled it as a
+subroutine.) There's no other way for us to return an error, so it's
+probably the right thing to do.  In fact, Perl would have raised an
+exception in any event as soon as we tried to dereference
+<tt class="literal">$self</tt>; we're just being polite and using
+<tt class="literal">confess</tt> to spew a complete stack backtrace onto the
+user's screen.  (If that can be considered polite.)</p>
+
+<p>We can now see the contents of <em class="filename">camel.lot</em> when we say this:
+<blockquote>
+<pre class="programlisting">tie($string, "ScalarFile", "camel.lot");
+print $string;</pre>
+</blockquote>
+</p>
+</dd>
+
+
+<dt>
+<b><em class="replaceable">SELF</em><tt class="literal">-&gt;STORE(</tt><em class="replaceable">VALUE</em><tt class="literal">)</tt></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-"></a>
+This method is run when the tied variable is set (assigned).  The
+first argument, <em class="replaceable">SELF</em>, is as always the object associated with the
+variable; <em class="replaceable">VALUE</em> is whatever was assigned to the variable.  (We
+use the term "assigned" loosely--any operation that modifies
+the variable can call <tt class="literal">STORE</tt>.)
+<blockquote>
+<pre class="programlisting">sub STORE {
+    my($self,$value) = @_;
+    ref $self                   or confess "not a class method";
+    open my $fh, "&gt;", $$self    or croak "can't clobber $$self: $!";
+    syswrite($fh, $value) == length $value
+                                or croak "can't write to $$self: $!";
+    close $fh                   or croak "can't close $$self: $!";
+    return $value;
+}</pre>
+</blockquote>
+After "assigning" it, we return the new value--because that's what
+assignment does.  If the assignment wasn't successful, we
+<tt class="literal">croak</tt> out the error.  Possible causes might be that
+we didn't have permission to write to the associated file, or the disk
+filled up, or gremlins infested the disk controller.  Sometimes you
+control the magic, and sometimes the magic controls you.</p>
+
+<p>We can now write to <em class="filename">camel.lot</em> when we say this:
+<blockquote>
+<pre class="programlisting">tie($string, "ScalarFile", "camel.lot");
+$string  = "Here is the first line of camel.lot\n";
+$string .= "And here is another line, automatically appended.\n";</pre>
+</blockquote>
+</p>
+</dd>
+
+
+<dt>
+<b><em class="replaceable">SELF</em><tt class="literal">-&gt;DESTROY</tt></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-"></a>
+This method is triggered when the object associated with the tied
+variable is about to be garbage collected, in case it needs to do something
+special to clean up after itself.  As with other classes, such a
+method is seldom necessary, since Perl deallocates the moribund
+object's memory for you automatically.  Here, we'll define a
+<tt class="literal">DESTROY</tt> method that decrements our count of tied files:
+<blockquote>
+<pre class="programlisting">sub DESTROY {
+    my $self = shift;
+    confess "wrong type" unless ref $self;
+    $count--;
+}</pre>
+</blockquote>
+
+We might then also supply an extra class method to retrieve the current
+count.  Actually, it doesn't care whether it's called as a class method
+or an object method, but you don't have an object anymore after the
+<tt class="literal">DESTROY</tt>, now do you?
+<blockquote>
+<pre class="programlisting">sub count {
+    # my $invocant = shift;
+    $count;
+}</pre>
+</blockquote>
+
+You can call this as a class method at any time like this:
+<blockquote>
+<pre class="programlisting">if (ScalarFile-&gt;count) {
+    warn "Still some tied ScalarFiles sitting around somewhere...\n";
+}</pre>
+</blockquote>
+</p>
+</dd>
+
+</dl>
+
+<p>
+</p>
+
+<p>That's about all there is to it.  Actually, it's more than all there is
+to it, since we've done a few nice things here for the sake of
+completeness, robustness, and general aesthetics (or lack thereof).
+Simpler <tt class="literal">TIESCALAR</tt> classes are certainly possible.</p>
+
+<a name="INDEX-2689"></a><a name="INDEX-2690"></a><a name="INDEX-2691"></a>
+
+
+
+
+
+
+<h3 class="sect2">14.1.2. Magical Counter Variables</h3>
+
+<p>
+<a name="INDEX-2692"></a><a name="INDEX-2693"></a><a name="INDEX-2694"></a><a name="INDEX-2695"></a>
+Here's a simple <tt class="literal">Tie::Counter</tt> class, inspired by the
+CPAN module of the same name.  Variables tied to this class
+increment themselves by 1 every time they're used.  For example:
+<blockquote>
+<pre class="programlisting">tie my $counter, "Tie::Counter", 100;
+@array = qw /Red Green Blue/;
+for my $color (@array) {               # Prints:
+    print "  $counter  $color\n";      #   100  Red
+}                                      #   101  Green
+                                       #   102  Blue</pre>
+</blockquote>
+
+The constructor takes as an optional extra argument the first value
+of the counter, which defaults to 0.  Assigning to the counter will
+set a new value.  Here's the class:
+<blockquote>
+<pre class="programlisting">package Tie::Counter;
+sub FETCH     { ++ ${ $_[0] } }
+sub STORE     { ${ $_[0] } = $_[1] }
+sub TIESCALAR {
+    my ($class, $value) = @_;
+    $value = 0 unless defined $value;
+    bless \$value =&gt; $class;
+}
+1;  # if in module</pre>
+</blockquote>
+
+See how small that is?  It doesn't take much code to put together
+a class like this.</p>
+
+
+
+
+
+
+<h3 class="sect2">14.1.3. Magically Banishing $_</h3>
+
+<p>
+<a name="INDEX-2696"></a><a name="INDEX-2697"></a>
+This curiously exotic tie class is used to outlaw unlocalized uses of
+<tt class="literal">$_</tt>.  Instead of pulling in the module with
+<tt class="literal">use</tt>, which invokes the class's
+<tt class="literal">import</tt> method, this module should be loaded with
+<tt class="literal">no</tt> to call the seldom-used
+<tt class="literal">unimport</tt> method.  The user says:
+<blockquote>
+<pre class="programlisting">no Underscore;</pre>
+</blockquote>
+
+And then all uses of <tt class="literal">$_</tt> as an unlocalized global raise an exception.</p>
+
+<p>Here's a little test suite for the module:
+<blockquote>
+<pre class="programlisting">#!/usr/bin/perl
+no Underscore;
+@tests = (
+    "Assignment"  =&gt; sub { $_ = "Bad" },
+    "Reading"     =&gt; sub { print },
+    "Matching"    =&gt; sub { $x = /badness/ },
+    "Chop"        =&gt; sub { chop },
+    "Filetest"    =&gt; sub { -x },
+    "Nesting"     =&gt; sub { for (1..3) { print } },
+);
+
+while ( ($name, $code) = splice(@tests, 0, 2) ) {
+    print "Testing $name: ";
+    eval { &amp;$code };
+    print $@ ? "detected" : " missed!";
+    print "\n";
+}</pre>
+</blockquote>
+
+which prints out the following:
+<blockquote>
+<pre class="programlisting">Testing Assignment: detected
+Testing Reading: detected
+Testing Matching: detected
+Testing Chop: detected
+Testing Filetest: detected
+Testing Nesting: 123 missed!</pre>
+</blockquote>
+
+The last one was "missed" because it was properly localized
+by the <tt class="literal">for</tt> loop and thus safe to access.</p>
+
+<p>
+<a name="INDEX-2698"></a>
+Here's the curiously exotic <tt class="literal">Underscore</tt> module
+itself.  (Did we mention that it's curiously exotic?)  It works
+because tied magic is effectively hidden by a
+<tt class="literal">local</tt>.  The module does the <tt class="literal">tie</tt>
+in its own initialization code so that a <tt class="literal">require</tt>
+also works.
+<blockquote>
+<pre class="programlisting">package Underscore;
+use Carp;
+sub TIESCALAR { bless \my $dummy =&gt; shift }
+sub FETCH { croak 'Read access to $_ forbidden'  }
+sub STORE { croak 'Write access to $_ forbidden' }
+sub unimport { tie($_, __PACKAGE__) }
+sub import   { untie $_ }
+tie($_, __PACKAGE__) unless tied $_;
+1;</pre>
+</blockquote>
+
+It's hard to usefully mix calls to <tt class="literal">use</tt> and
+<tt class="literal">no</tt> for this class in your program, because they all
+happen at compile time, not run time.  You could call
+<tt class="literal">Underscore-&gt;import</tt> and
+<tt class="literal">Underscore-&gt;unimport</tt> directly, just as
+<tt class="literal">use</tt> and <tt class="literal">no</tt> do.  Normally,
+though, to renege and let yourself freely use <tt class="literal">$_</tt>
+again, you'd just use <tt class="literal">local</tt> on it, which is the
+whole point.</p>
+
+<a name="INDEX-2699"></a><a name="INDEX-2700"></a><a name="INDEX-2701"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a name="INDEX-2797"></a><a name="INDEX-2798"></a>
+
+
+<!-- BOTTOM NAV BAR -->
+
+<hr width="515" align="left">
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch13_10.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="index.htm"><img src="../gifs/txthome.gif" alt="Home" border="0"></a></td><td align="right" valign="top" width="172"><a href="ch14_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+<tr>
+<td align="left" valign="top" width="172">13.10. Overloading Diagnostics</td><td align="center" valign="top" width="171"><a href="index/index.htm"><img src="../gifs/index.gif" alt="Book Index" border="0"></a></td><td align="right" valign="top" width="172">14.2. Tying Arrays</td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- LIBRARY NAV BAR -->
+
+<img src="../gifs/smnavbar.gif" usemap="#library-map" border="0" alt="Library Navigation Links"><p>
+<font size="-1"><a href="copyrght.htm">Copyright &copy; 2001</a> O'Reilly &amp; Associates. All rights reserved.</font>
+</p>
+<map name="library-map"> <area shape="rect" coords="2,-1,79,99" href="../index.htm"><area shape="rect" coords="84,1,157,108" href="../perlnut/index.htm"><area shape="rect" coords="162,2,248,125" href="../prog3/index.htm"><area shape="rect" coords="253,2,326,130" href="../advprog/index.htm"><area shape="rect" coords="332,1,407,112" href="../cookbook/index.htm"><area shape="rect" coords="414,2,523,103" href="../sysadmin/index.htm">
+</map>
+
+<!-- END OF BODY -->
+
+</body>
+</html>
+
+
+<br>
+
+
+<table border=0 align=center>
+<tr><td>
+
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 468x60, main footer */
+google_ad_slot = "1100896219";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<script>
+user = "2823";
+page = "2";
+
+</script>
+
+
+
+</td>
+<td>
+
+<!-- Ukrainian Banner Network 468x60 START -->
+<center>
+<script>
+//<!--
+user = "2823";
+page = "2";
+pid = Math.round((Math.random() * (10000000 - 1)));
+document.write("<iframe src='http://banner.kiev.ua/cgi-bin/bi.cgi?h" +
+user + "&amp;"+ pid + "&amp;" + page + "' frameborder=0 vspace=0 hspace=0 " +
+" width=468 height=60 marginwidth=0 marginheight=0 scrolling=no>");
+document.write("<a href='http://banner.kiev.ua/cgi-bin/bg.cgi?" +
+user + "&amp;"+ pid + "&amp;" + page + "' target=_top>");
+document.write("<img border=0 src='http://banner.kiev.ua/" +
+"cgi-bin/bi.cgi?i" + user + "&amp;" + pid + "&amp;" + page +
+"' width=468 height=60 alt='хЋ“Ѕ…ќ”ЋЅ— вЅќќ≈“ќЅ— у≈‘Ў'></a>");
+document.write("</iframe>");
+//-->
+</script>
+</center>
+<!-- Ukrainian Banner Network 468x60 END -->
+
+
+</td></tr>
+<tr><td colspan=2>
+<br>
+<hr size=1>
+
+
+
+<!-- SpyLOG -->
+<script src="http://tools.spylog.ru/counter_cv.js" id="spylog_code" type="text/javascript" counter="1028713" part="docs" track_links="ext" page_level="0">
+</script>
+<noscript>
+<a href="http://u10287.13.spylog.com/cnt?cid=1028713&f=3&p=0" target="_blank">
+<img src="http://u10287.13.spylog.com/cnt?cid=1028713&p=0" alt="SpyLOG" border="0" width="88" height="31"></a>
+</noscript>
+<!--/ SpyLOG -->
+
+<!--bigmir)net TOP 100-->
+<script type="text/javascript" language="javascript"><!--
+function BM_Draw(oBM_STAT){
+document.write('<table cellpadding="0" cellspacing="0" border="0" style="display:inline;margin-right:4px;"><tr><td><div style="margin:0px;padding:0px;font-size:1px;width:88px;"><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_top.gif\') no-repeat bottom;">&nbsp;</div><div style="font:10px Tahoma;background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_center.gif\');"><div style="text-align:center;"><a href="http://www.bigmir.net/" target="_blank" style="color:#0000ab;text-decoration:none;font:10px Tahoma;">bigmir<span style="color:#ff0000;">)</span>net</a></div><div style="margin-top:3px;padding: 0px 6px 0px 6px;color:#003596;"><div style="float:left;font:10px Tahoma;">'+oBM_STAT.hosts+'</div><div style="float:right;font:10px Tahoma;">'+oBM_STAT.hits+'</div></div><br clear="all"/></div><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_bottom.gif\') no-repeat top;">&nbsp;</div></div></td></tr></table>');
+}
+//-->
+</script>
+
+<script type="text/javascript" language="javascript"><!--
+bmN=navigator,bmD=document,bmD.cookie='b=b',i=0,bs=[],bm={o:1,v:126595,s:126595,t:0,c:bmD.cookie?1:0,n:Math.round((Math.random()* 1000000)),w:0};
+for(var f=self;f!=f.parent;f=f.parent)bm.w++;
+try{if(bmN.plugins&&bmN.mimeTypes.length&&(x=bmN.plugins['Shockwave Flash']))bm.m=parseInt(x.description.replace(/([a-zA-Z]|s)+/,''));
+else for(var f=3;f<20;f++)if(eval('new ActiveXObject("ShockwaveFlash.ShockwaveFlash.'+f+'")'))bm.m=f}catch(e){;}
+try{bm.y=bmN.javaEnabled()?1:0}catch(e){;}
+try{bmS=screen;bm.v^=bm.d=bmS.colorDepth||bmS.pixelDepth;bm.v^=bm.r=bmS.width}catch(e){;}
+r=bmD.referrer.slice(7);if(r&&r.split('/')[0]!=window.location.host){bm.f=escape(r);bm.v^=r.length}
+bm.v^=window.location.href.length;for(var x in bm) if(/^[ovstcnwmydrf]$/.test(x)) bs[i++]=x+bm[x];
+bmD.write('<sc'+'ript type="text/javascript" language="javascript" src="http://c.bigmir.net/?'+bs.join('&')+'"></sc'+'ript>');
+//-->
+</script>
+<noscript>
+<a href="http://www.bigmir.net/" target="_blank"><img src="http://c.bigmir.net/?v126595&s126595&t2" width="88" height="31" alt="bigmir)net TOP 100" title="bigmir)net TOP 100" border="0" /></a>
+</noscript>
+<!--bigmir)net TOP 100-->
+
+<!--begin of Rambler's Top100 code -->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://counter.rambler.ru/top100.cnt?692798" alt="" width=1 height=1 border=0></a>
+<!--end of Top100 code-->
+
+<!--begin of Top100 logo-->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://top100-images.rambler.ru/top100/w1.gif" alt="Rambler's Top100" width=88 height=31 
+border=0></a>
+<!--end of Top100 logo -->
+
+
+<!-- hit.ua -->
+<a href='http://hit.ua/?x=3601' target='_blank'>
+<script language="javascript" type="text/javascript"><!--
+Cd=document;Cr="&"+Math.random();Cp="&s=1";
+Cd.cookie="b=b";if(Cd.cookie)Cp+="&c=1";
+Cp+="&t="+(new Date()).getTimezoneOffset();
+if(self!=top)Cp+="&f=1";
+//--></script>
+<script language="javascript1.1" type="text/javascript"><!--
+if(navigator.javaEnabled())Cp+="&j=1";
+//--></script>
+<script language="javascript1.2" type="text/javascript"><!--
+if(typeof(screen)!='undefined')Cp+="&w="+screen.width+"&h="+
+screen.height+"&d="+(screen.colorDepth?screen.colorDepth:screen.pixelDepth);
+//--></script>
+<script language="javascript" type="text/javascript"><!--
+Cd.write("<img src='http://c.hit.ua/hit?i=3601&g=0&x=1"+Cp+Cr+
+"&r="+escape(Cd.referrer)+"&u="+escape(window.location.href)+
+"' border='0' width='88' height='31' "+
+"alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>");
+//--></script>
+<noscript>
+<img src='http://c.hit.ua/hit?i=3601&amp;g=0&amp;x=1' border='0' width='88' height='31' alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>
+</noscript></a>
+<!-- / hit.ua -->
+
+<script language="javascript">//<!--
+mtI="012408140822";mtG="45";mtT="4";mtS='http://012408140822.c.mystat-in.net/?';
+mtD=document;mtN=navigator.appName;mtR=escape(mtD.referrer);
+mtW="";mtC="";mtV="0";mtJ="1";
+//--></script><script language="javascript1.1">//<!--
+mtV="1";mtJ = (navigator.javaEnabled()?"1":"0");
+//--></script><script language="javascript1.2">//<!--
+mtE=screen;mtW=mtE.width;mtN!="Netscape"?mtC=mtE.colorDepth:mtC=mtE.pixelDepth;mtV="2";
+//--></script><script language="javascript1.3">//<!--
+mtV="3";
+//--></script><script language="javascript">//<!--
+mtUrl="";mtUrl+="\""+mtS+"i"+mtI+"&t"+mtT+"&g"+mtG+"&w"+mtW+"&c"+mtC+"&r"+mtR+"&v"+mtV+"&j"+mtJ+"\"";
+mtUrl="<a href=http://mytop-in.net/ target=_blank><img src="+mtUrl+"width=88 height=31 border=0 alt=\"Rated by MyTOP\"></a>";
+mtD.write(mtUrl);
+//--></script>
+<noscript>
+<a href=http://mytop-in.net/ target=_blank><img src=http://012408140822.c.mystat-in.net/?i012408140822&t4&g45&j0 width=88 height=31 border=0 alt="Rated by MyTOP"></a>
+</noscript>
+
+<!--Rating@Mail.ru COUNTEr--><script language="JavaScript" type="text/javascript"><!--
+d=document;var a='';a+=';r='+escape(d.referrer)
+js=10//--></script><script language="JavaScript1.1" type="text/javascript"><!--
+a+=';j='+navigator.javaEnabled()
+js=11//--></script><script language="JavaScript1.2" type="text/javascript"><!--
+s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+js=12//--></script><script language="JavaScript1.3" type="text/javascript"><!--
+js=13//--></script><script language="JavaScript" type="text/javascript"><!--
+d.write('<a href="http://top.mail.ru/jump?from=1374183"'+
+' target=_top><img src="http://d7.cf.b4.a1.top.list.ru/counter'+
+'?id=1374183;t=48;js='+js+a+';rand='+Math.random()+
+'" alt="–ейтинг@Mail.ru"'+' border=0 height=31 width=88/><\/a>')
+if(11<js)d.write('<'+'!-- ')//--></script><noscript><a
+target=_top href="http://top.mail.ru/jump?from=1374183"><img
+src="http://d7.cf.b4.a1.top.list.ru/counter?js=na;id=1374183;t=48"
+border=0 height=31 width=88
+alt="–ейтинг@Mail.ru"/></a></noscript><script language="JavaScript" type="text/javascript"><!--
+if(11<js)d.write('--'+'>')//--></script><!--/COUNTER-->
+
+<!-- I.UA counter --><a href="http://www.i.ua/" target="_blank" onclick="this.href='http://i.ua/r.php?21595';" title="Rated by I.UA">
+<script type="text/javascript" language="javascript"><!--
+iS='<img src="http://r.i.ua/s?u21595&p66&n'+Math.random();
+iD=document;iD.cookie="iua=1";if(iD.cookie)iS+='&c1';
+iS+='&d'+(screen.colorDepth?screen.colorDepth:screen.pixelDepth)
++"&w"+screen.width+'&h'+screen.height
+iT=iD.referrer.slice(7);iH=window.location.href.slice(7);
+((iI=iT.indexOf('/'))!=-1)?(iT=iT.substring(0,iI)):(iI=iT.length);
+if(iT!=iH.substring(0,iI))iS+='&f'+escape(iD.referrer.slice(7))
+iS+='&r'+escape(iH);
+iD.write(iS+'" border="0" width="88" height="31" />');
+//--></script></a><!-- End of I.UA counter -->
+
+<script type="text/javascript">
+<!--
+Nnv=navigator;Nna=Nnv.appName;Nd=document;Nd.cookie="b=b";Nc=0;if(Nd.cookie)Nc=1;
+Nn=(Nna.substring(0,2)=="Mi")?0:1;Ns=screen;Npx=(Nn==0)?Ns.colorDepth:Ns.pixelDepth;
+str='<img src="http://c.uarating.com/199;'+Ns.width+'x'+Ns.height+';'+Npx+';'+Nc+';';
+str=str+escape(Nd.referrer)+';'+Math.random()+'" width="88" height="31" border="0">';
+document.write('<a href="http://www.uarating.com/" alt="uaRating" target="_blank">'+str+'<\/a>');
+// -->
+</script>
+<noscript><a href="http://www.uarating.com/" target="_blank"><img src="http://c.uarating.com/199;0x0;0;0;-;0" alt="uaRating" width="88" height="31" border="0"></a></noscript>
+
+
+</td></tr>
+</table>
+
+
+</body>
+</html>

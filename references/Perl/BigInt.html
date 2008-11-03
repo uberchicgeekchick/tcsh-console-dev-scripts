@@ -1,0 +1,1521 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>Math::BigInt - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="../css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="../label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 1;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="../onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='../close_purple.gif';" onmouseout="leftCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="../index-overview.html">Overview</a></li>
+        <li><a href="../index-tutorials.html">Tutorials</a></li>
+        <li><a href="../index-faq.html">FAQs</a></li>
+        <li><a href="../index-history.html">History / Changes</a></li>
+        <li><a href="../index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="../index-language.html">Language</a></li>
+        <li><a href="../index-functions.html">Functions</a></li>
+        <li><a href="../perlop.html">Operators</a></li>
+        <li><a href="../perlvar.html">Special variables</a></li>
+        <li><a href="../index-pragmas.html">Pragmas</a></li>
+        <li><a href="../index-modules-A.html">Core modules</a></li>
+        <li><a href="../index-utilities.html">Utilities</a></li>
+        <li><a href="../index-internals.html">Internals</a></li>
+        <li><a href="../index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="../index.html">Home</a> &gt; <a href="../index-modules-A.html">Core modules</a> &gt; <a href="../index-modules-M.html">M</a> &gt; Math::BigInt</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">Math::BigInt</div><div class="pdf_link"><a href="../Math/BigInt.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="../Math/BigInt.pdf"><img src="../pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#METHODS">METHODS</a><ul><li><a href="#config">config</a><li><a href="#accuracy">accuracy</a><li><a href="#precision">precision</a><li><a href="#brsft">brsft</a><li><a href="#new">new</a><li><a href="#bnan">bnan</a><li><a href="#bzero">bzero</a><li><a href="#binf">binf</a><li><a href="#bone">bone</a><li><a href="#is_one()%2fis_zero()%2fis_nan()%2fis_inf()">is_one()/is_zero()/is_nan()/is_inf()</a><li><a href="#is_pos()%2fis_neg()-%09-%09%24x-%3eis_pos()%3b%09%09%09%23-true-if-%3e-0-%09%24x-%3eis_neg()%3b%09%09%09%23-true-if-%3c-0">is_pos()/is_neg()
+	
+	$x-&gt;is_pos();			# true if &gt; 0
+	$x-&gt;is_neg();			# true if &lt; 0</a><li><a href="#is_odd()%2fis_even()%2fis_int()">is_odd()/is_even()/is_int()</a><li><a href="#bcmp">bcmp</a><li><a href="#bacmp">bacmp</a><li><a href="#sign">sign</a><li><a href="#digit">digit</a><li><a href="#bneg">bneg</a><li><a href="#babs">babs</a><li><a href="#bnorm">bnorm</a><li><a href="#bnot">bnot</a><li><a href="#binc">binc</a><li><a href="#bdec">bdec</a><li><a href="#badd">badd</a><li><a href="#bsub">bsub</a><li><a href="#bmul">bmul</a><li><a href="#bdiv">bdiv</a><li><a href="#bmod">bmod</a><li><a href="#bmodinv">bmodinv</a><li><a href="#bmodpow">bmodpow</a><li><a href="#bpow">bpow</a><li><a href="#blsft">blsft</a><li><a href="#brsft">brsft</a><li><a href="#band">band</a><li><a href="#bior">bior</a><li><a href="#bxor">bxor</a><li><a href="#bnot">bnot</a><li><a href="#bsqrt">bsqrt</a><li><a href="#bfac">bfac</a><li><a href="#round">round</a><li><a href="#bround">bround</a><li><a href="#bfround">bfround</a><li><a href="#bfloor">bfloor</a><li><a href="#bceil">bceil</a><li><a href="#bgcd">bgcd</a><li><a href="#blcm">blcm</a><li><a href="#exponent">exponent</a><li><a href="#mantissa">mantissa</a><li><a href="#parts">parts</a><li><a href="#copy">copy</a><li><a href="#as_int">as_int</a><li><a href="#bsstr">bsstr</a><li><a href="#as_hex">as_hex</a><li><a href="#as_bin">as_bin</a></ul><li><a href="#ACCURACY-and-PRECISION">ACCURACY and PRECISION</a><ul><li><a href="#Precision-P">Precision P</a><li><a href="#Accuracy-A">Accuracy A</a><li><a href="#Fallback-F">Fallback F</a><li><a href="#Rounding-mode-R">Rounding mode R</a></ul><li><a href="#Infinity-and-Not-a-Number">Infinity and Not a Number</a><li><a href="#INTERNALS">INTERNALS</a><ul><li><a href="#MATH-LIBRARY">MATH LIBRARY</a><li><a href="#SIGN">SIGN</a><li><a href="#mantissa()%2c-exponent()-and-parts()">mantissa(), exponent() and parts()</a></ul><li><a href="#EXAMPLES-----use-Math%3a%3aBigInt%3b">EXAMPLES
+ 
+  use Math::BigInt;</a><li><a href="#Autocreating-constants">Autocreating constants</a><li><a href="#PERFORMANCE">PERFORMANCE</a><ul><li><a href="#Alternative-math-libraries">Alternative math libraries</a><li><a href="#SUBCLASSING">SUBCLASSING</a></ul><li><a href="#Subclassing-Math%3a%3aBigInt">Subclassing Math::BigInt</a><li><a href="#UPGRADING">UPGRADING</a><ul><li><a href="#Auto-upgrade">Auto-upgrade</a></ul><li><a href="#BUGS">BUGS</a><li><a href="#CAVEATS">CAVEATS</a><li><a href="#LICENSE">LICENSE</a><li><a href="#SEE-ALSO">SEE ALSO</a><li><a href="#AUTHORS">AUTHORS</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>Math::BigInt - Arbitrary size integer/float math package</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<pre class="verbatim">  <a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a><span class="sc">;</span></pre>
+<pre class="verbatim">  <span class="c"># or make it faster: install (optional) Math::BigInt::GMP</span>
+  <span class="c"># and always use (it will fall back to pure Perl if the</span>
+  <span class="c"># GMP library is not installed):</span></pre>
+<pre class="verbatim">  <a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <a class="l_w" href="../lib.html">lib</a> <span class="cm">=&gt;</span> <span class="q">&#39;GMP&#39;</span><span class="sc">;</span></pre>
+<pre class="verbatim">  <a class="l_k" href="../functions/my.html">my</a> <span class="i">$str</span> = <span class="q">&#39;1234567890&#39;</span><span class="sc">;</span>
+  <a class="l_k" href="../functions/my.html">my</a> <span class="i">@values</span> = <span class="s">(</span><span class="n">64</span><span class="cm">,</span><span class="n">74</span><span class="cm">,</span><span class="n">18</span><span class="s">)</span><span class="sc">;</span>
+  <a class="l_k" href="../functions/my.html">my</a> <span class="i">$n</span> = <span class="n">1</span><span class="sc">;</span> <a class="l_k" href="../functions/my.html">my</a> <span class="i">$sign</span> = <span class="q">&#39;-&#39;</span><span class="sc">;</span></pre>
+<pre class="verbatim">  <span class="c"># Number creation	</span>
+  <span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="i">$str</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># defaults to 0</span>
+  <span class="i">$y</span> = <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># make a true copy</span>
+  <span class="i">$nan</span>  = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;bnan<span class="s">(</span><span class="s">)</span><span class="sc">;</span> 	<span class="c"># create a NotANumber</span>
+  <span class="i">$zero</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;bzero<span class="s">(</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># create a +0</span>
+  <span class="i">$inf</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;binf<span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># create a +inf</span>
+  <span class="i">$inf</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;binf<span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># create a -inf</span>
+  <span class="i">$one</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;bone<span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># create a +1</span>
+  <span class="i">$one</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;bone<span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># create a -1</span></pre>
+<pre class="verbatim">  <span class="c"># Testing (don&#39;t modify their arguments)</span>
+  <span class="c"># (return true if the condition is met, otherwise false)</span></pre>
+<pre class="verbatim">  <span class="i">$x</span><span class="i">-&gt;is_zero</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># if $x is +0</span>
+  <span class="i">$x</span><span class="i">-&gt;is_nan</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># if $x is NaN</span>
+  <span class="i">$x</span><span class="i">-&gt;is_one</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># if $x is +1</span>
+  <span class="i">$x</span><span class="i">-&gt;is_one</span><span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># if $x is -1</span>
+  <span class="i">$x</span><span class="i">-&gt;is_odd</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># if $x is odd</span>
+  <span class="i">$x</span><span class="i">-&gt;is_even</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># if $x is even</span>
+  <span class="i">$x</span><span class="i">-&gt;is_pos</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># if $x &gt;= 0</span>
+  <span class="i">$x</span><span class="i">-&gt;is_neg</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># if $x &lt;  0</span>
+  <span class="i">$x</span><span class="i">-&gt;is_inf</span><span class="s">(</span><span class="i">$sign</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># if $x is +inf, or -inf (sign is default &#39;+&#39;)</span>
+  <span class="i">$x</span><span class="i">-&gt;is_int</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># if $x is an integer (not a float)</span></pre>
+<pre class="verbatim">  <span class="c"># comparing and digit/sign extration</span>
+  <span class="i">$x</span><span class="i">-&gt;bcmp</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># compare numbers (undef,&lt;0,=0,&gt;0)</span>
+  <span class="i">$x</span><span class="i">-&gt;bacmp</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># compare absolutely (undef,&lt;0,=0,&gt;0)</span>
+  <span class="i">$x</span><span class="i">-&gt;sign</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># return the sign, either +,- or NaN</span>
+  <span class="i">$x</span><span class="i">-&gt;digit</span><span class="s">(</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># return the nth digit, counting from right</span>
+  <span class="i">$x</span><span class="i">-&gt;digit</span><span class="s">(</span>-<span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># return the nth digit, counting from left</span></pre>
+<pre class="verbatim">  <span class="c"># The following all modify their first argument. If you want to preserve</span>
+  <span class="c"># $x, use $z = $x-&gt;copy()-&gt;bXXX($y); See under L&lt;CAVEATS&gt; for why this is</span>
+  <span class="c"># neccessary when mixing $a = $b assigments with non-overloaded math.</span></pre>
+<pre class="verbatim">  <span class="i">$x</span><span class="i">-&gt;bzero</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># set $x to 0</span>
+  <span class="i">$x</span><span class="i">-&gt;bnan</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># set $x to NaN</span>
+  <span class="i">$x</span><span class="i">-&gt;bone</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># set $x to +1</span>
+  <span class="i">$x</span><span class="i">-&gt;bone</span><span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># set $x to -1</span>
+  <span class="i">$x</span><span class="i">-&gt;binf</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># set $x to inf</span>
+  <span class="i">$x</span><span class="i">-&gt;binf</span><span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># set $x to -inf</span></pre>
+<pre class="verbatim">  <span class="i">$x</span><span class="i">-&gt;bneg</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># negation</span>
+  <span class="i">$x</span><span class="i">-&gt;babs</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># absolute value</span>
+  <span class="i">$x</span><span class="i">-&gt;bnorm</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># normalize (no-op in BigInt)</span>
+  <span class="i">$x</span><span class="i">-&gt;bnot</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># two&#39;s complement (bit wise not)</span>
+  <span class="i">$x</span><span class="i">-&gt;binc</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># increment $x by 1</span>
+  <span class="i">$x</span><span class="i">-&gt;bdec</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># decrement $x by 1</span>
+  
+  <span class="i">$x</span><span class="i">-&gt;badd</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># addition (add $y to $x)</span>
+  <span class="i">$x</span><span class="i">-&gt;bsub</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># subtraction (subtract $y from $x)</span>
+  <span class="i">$x</span><span class="i">-&gt;bmul</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># multiplication (multiply $x by $y)</span>
+  <span class="i">$x</span><span class="i">-&gt;bdiv</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># divide, set $x to quotient</span>
+			<span class="c"># return (quo,rem) or quo if scalar</span></pre>
+<pre class="verbatim">  <span class="i">$x</span><span class="i">-&gt;bmod</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># modulus (x % y)</span>
+  <span class="i">$x</span><span class="i">-&gt;bmodpow</span><span class="s">(</span><span class="i">$exp</span><span class="cm">,</span><span class="i">$mod</span><span class="s">)</span><span class="sc">;</span>  <span class="c"># modular exponentation (($num**$exp) % $mod))</span>
+  <span class="i">$x</span><span class="i">-&gt;bmodinv</span><span class="s">(</span><span class="i">$mod</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># the inverse of $x in the given modulus $mod</span></pre>
+<pre class="verbatim">  <span class="i">$x</span><span class="i">-&gt;bpow</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># power of arguments (x ** y)</span>
+  <span class="i">$x</span><span class="i">-&gt;blsft</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># left shift</span>
+  <span class="i">$x</span><span class="i">-&gt;brsft</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># right shift </span>
+  <span class="i">$x</span><span class="i">-&gt;blsft</span><span class="s">(</span><span class="i">$y</span><span class="cm">,</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># left shift, by base $n (like 10)</span>
+  <span class="i">$x</span><span class="i">-&gt;brsft</span><span class="s">(</span><span class="i">$y</span><span class="cm">,</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># right shift, by base $n (like 10)</span>
+  
+  <span class="i">$x</span><span class="i">-&gt;band</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># bitwise and</span>
+  <span class="i">$x</span><span class="i">-&gt;bior</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># bitwise inclusive or</span>
+  <span class="i">$x</span><span class="i">-&gt;bxor</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># bitwise exclusive or</span>
+  <span class="i">$x</span><span class="i">-&gt;bnot</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># bitwise not (two&#39;s complement)</span></pre>
+<pre class="verbatim">  <span class="i">$x</span><span class="i">-&gt;bsqrt</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># calculate square-root</span>
+  <span class="i">$x</span><span class="i">-&gt;broot</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># $y&#39;th root of $x (e.g. $y == 3 =&gt; cubic root)</span>
+  <span class="i">$x</span><span class="i">-&gt;bfac</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># factorial of $x (1*2*3*4*..$x)</span></pre>
+<pre class="verbatim">  <span class="i">$x</span><span class="i">-&gt;round</span><span class="s">(</span><span class="i">$A</span><span class="cm">,</span><span class="i">$P</span><span class="cm">,</span><span class="i">$mode</span><span class="s">)</span><span class="sc">;</span>  <span class="c"># round to accuracy or precision using mode $mode</span>
+  <span class="i">$x</span><span class="i">-&gt;bround</span><span class="s">(</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># accuracy: preserve $n digits</span>
+  <span class="i">$x</span><span class="i">-&gt;bfround</span><span class="s">(</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># round to $nth digit, no-op for BigInts</span></pre>
+<pre class="verbatim">  <span class="c"># The following do not modify their arguments in BigInt (are no-ops),</span>
+  <span class="c"># but do so in BigFloat:</span></pre>
+<pre class="verbatim">  <span class="i">$x</span><span class="i">-&gt;bfloor</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># return integer less or equal than $x</span>
+  <span class="i">$x</span><span class="i">-&gt;bceil</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># return integer greater or equal than $x</span>
+  
+  <span class="c"># The following do not modify their arguments:</span></pre>
+<pre class="verbatim">  <span class="c"># greatest common divisor (no OO style)</span>
+  <a class="l_k" href="../functions/my.html">my</a> <span class="i">$gcd</span> = <span class="i">Math::BigInt::bgcd</span><span class="s">(</span><span class="i">@values</span><span class="s">)</span><span class="sc">;</span>
+  <span class="c"># lowest common multiplicator (no OO style)</span>
+  <a class="l_k" href="../functions/my.html">my</a> <span class="i">$lcm</span> = <span class="i">Math::BigInt::blcm</span><span class="s">(</span><span class="i">@values</span><span class="s">)</span><span class="sc">;</span>	
+ 
+  <span class="i">$x</span><span class="i">-&gt;length</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># return number of digits in number</span>
+  <span class="s">(</span><span class="i">$xl</span><span class="cm">,</span><span class="i">$f</span><span class="s">)</span> = <span class="i">$x</span><span class="i">-&gt;length</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span> <span class="c"># length of number and length of fraction part,</span>
+			   <span class="c"># latter is always 0 digits long for BigInts</span></pre>
+<pre class="verbatim">  <span class="i">$x</span><span class="i">-&gt;exponent</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># return exponent as BigInt</span>
+  <span class="i">$x</span><span class="i">-&gt;mantissa</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># return (signed) mantissa as BigInt</span>
+  <span class="i">$x</span><span class="i">-&gt;parts</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># return (mantissa,exponent) as BigInt</span>
+  <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># make a true copy of $x (unlike $y = $x;)</span>
+  <span class="i">$x</span><span class="i">-&gt;as_int</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># return as BigInt (in BigInt: same as copy())</span>
+  <span class="i">$x</span><span class="i">-&gt;numify</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># return as scalar (might overflow!)</span>
+  
+  <span class="c"># conversation to string (do not modify their argument)</span>
+  <span class="i">$x</span><span class="i">-&gt;bstr</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># normalized string (e.g. &#39;3&#39;)</span>
+  <span class="i">$x</span><span class="i">-&gt;bsstr</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># norm. string in scientific notation (e.g. &#39;3E0&#39;)</span>
+  <span class="i">$x</span><span class="i">-&gt;as_hex</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># as signed hexadecimal string with prefixed 0x</span>
+  <span class="i">$x</span><span class="i">-&gt;as_bin</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		   <span class="c"># as signed binary string with prefixed 0b</span></pre>
+<pre class="verbatim">  <span class="c"># precision and accuracy (see section about rounding for more)</span>
+  <span class="i">$x</span><span class="i">-&gt;precision</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># return P of $x (or global, if P of $x undef)</span>
+  <span class="i">$x</span><span class="i">-&gt;precision</span><span class="s">(</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># set P of $x to $n</span>
+  <span class="i">$x</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># return A of $x (or global, if A of $x undef)</span>
+  <span class="i">$x</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	   <span class="c"># set A $x to $n</span></pre>
+<pre class="verbatim">  <span class="c"># Global methods</span>
+  <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;precision<span class="s">(</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># get/set global P for all BigInt objects</span>
+  <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;accuracy<span class="s">(</span><span class="s">)</span><span class="sc">;</span> 	<span class="c"># get/set global A for all BigInt objects</span>
+  <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;round_mode<span class="s">(</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># get/set global round mode, one of</span>
+				<span class="c"># &#39;even&#39;, &#39;odd&#39;, &#39;+inf&#39;, &#39;-inf&#39;, &#39;zero&#39; or &#39;trunc&#39;</span>
+  <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;config<span class="s">(</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># return hash containing configuration</span></pre>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>All operators (inlcuding basic math operations) are overloaded if you
+declare your big integers as</p>
+<pre class="verbatim">  <span class="i">$i</span> = new <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <span class="q">&#39;123_456_789_123_456_789&#39;</span><span class="sc">;</span></pre>
+<p>Operations with overloaded operators preserve the arguments which is
+exactly what you expect.</p>
+<ul>
+<li><a name="Input"></a><b>Input</b>
+<p>Input values to these routines may be any string, that looks like a number
+and results in an integer, including hexadecimal and binary numbers.</p>
+<p>Scalars holding numbers may also be passed, but note that non-integer numbers
+may already have lost precision due to the conversation to float. Quote
+your input if you want BigInt to see all the digits:</p>
+<pre class="verbatim">	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">12345678890123456789</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># bad</span>
+	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="q">&#39;12345678901234567890&#39;</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># good</span></pre>
+<p>You can include one underscore between any two digits.</p>
+<p>This means integer values like 1.01E2 or even 1000E-2 are also accepted.
+Non-integer values result in NaN.</p>
+<p>Currently, Math::BigInt::new() defaults to 0, while Math::BigInt::new('')
+results in 'NaN'. This might change in the future, so use always the following
+explicit forms to get a zero or NaN:</p>
+<pre class="verbatim">	<span class="i">$zero</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;bzero<span class="s">(</span><span class="s">)</span><span class="sc">;</span> 
+	<span class="i">$nan</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;bnan<span class="s">(</span><span class="s">)</span><span class="sc">;</span> </pre>
+<p><code class="inline"><span class="i">bnorm</span><span class="s">(</span><span class="s">)</span></code>
+ on a BigInt object is now effectively a no-op, since the numbers 
+are always stored in normalized form. If passed a string, creates a BigInt 
+object from the input.</p>
+</li>
+<li><a name="Output"></a><b>Output</b>
+<p>Output values are BigInt objects (normalized), except for the methods which
+return a string (see <a href="http://search.cpan.org/perldoc/SYNOPSIS">SYNOPSIS</a>).</p>
+<p>Some routines (<code class="inline"><span class="i">is_odd</span><span class="s">(</span><span class="s">)</span></code>
+, <code class="inline"><span class="i">is_even</span><span class="s">(</span><span class="s">)</span></code>
+, <code class="inline"><span class="i">is_zero</span><span class="s">(</span><span class="s">)</span></code>
+, <code class="inline"><span class="i">is_one</span><span class="s">(</span><span class="s">)</span></code>
+,
+<code class="inline"><span class="i">is_nan</span><span class="s">(</span><span class="s">)</span></code>
+, etc.) return true or false, while others (<code class="inline"><span class="i">bcmp</span><span class="s">(</span><span class="s">)</span></code>
+, <code class="inline"><span class="i">bacmp</span><span class="s">(</span><span class="s">)</span></code>
+)
+return either undef (if NaN is involved), &lt;0, 0 or &gt;0 and are suited for sort.</p>
+</li>
+</ul>
+<a name="METHODS"></a><h1>METHODS</h1>
+<p>Each of the methods below (except config(), accuracy() and precision())
+accepts three additional parameters. These arguments <code class="inline"><span class="i">$A</span></code>
+, <code class="inline"><span class="i">$P</span></code>
+ and <code class="inline"><span class="i">$R</span></code>
+
+are <code class="inline">accuracy</code>
+, <code class="inline">precision</code>
+ and <code class="inline">round_mode</code>
+. Please see the section about
+<a href="#ACCURACY-and-PRECISION">"ACCURACY and PRECISION"</a> for more information.</p>
+<a name="config"></a><h2>config</h2>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Data/Dumper.html">Data::Dumper</a><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="../functions/print.html">print</a> <span class="i">Dumper</span> <span class="s">(</span> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;config<span class="s">(</span><span class="s">)</span> <span class="s">)</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">Math::BigInt</span><span class="i">-&gt;config</span><span class="s">(</span><span class="s">)</span>-&gt;{<a class="l_w" href="../lib.html">lib</a>}<span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<p>Returns a hash containing the configuration, e.g. the version number, lib
+loaded etc. The following hash keys are currently filled in with the
+appropriate information.</p>
+<pre class="verbatim">	key		Description
+			Example
+	============================================================
+	lib		Name of the low-level math library
+			Math::BigInt::Calc
+	lib_version 	Version of low-level math library (see 'lib')
+			0.30
+	class		The class name of config() you just called
+			Math::BigInt
+	upgrade		To which class math operations might be upgraded
+			Math::BigFloat
+	downgrade	To which class math operations might be downgraded
+			undef
+	precision	Global precision
+			undef
+	accuracy	Global accuracy
+			undef
+	round_mode	Global round mode
+			even
+	version		version number of the class you used
+			1.61
+	div_scale	Fallback acccuracy for div
+			40
+	trap_nan	If true, traps creation of NaN via croak()
+			1
+	trap_inf	If true, traps creation of +inf/-inf via croak()
+			1</pre><p>The following values can be set by passing <code class="inline"><span class="i">config</span><span class="s">(</span><span class="s">)</span></code>
+ a reference to a hash:</p>
+<pre class="verbatim">	trap_inf trap_nan
+        upgrade downgrade precision accuracy round_mode div_scale</pre>
+<p>Example:
+	
+	$new_cfg = Math::BigInt-&gt;config( { trap_inf =&gt; 1, precision =&gt; 5 } );</p>
+<a name="accuracy"></a><h2>accuracy</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="n">5</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># local for $x</span>
+	CLASS-&gt;accuracy<span class="s">(</span><span class="n">5</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># global for all members of CLASS</span>
+					<span class="c"># Note: This also applies to new()!</span></pre>
+<pre class="verbatim">	<span class="i">$A</span> = <span class="i">$x</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># read out accuracy that affects $x</span>
+	<span class="i">$A</span> = CLASS-&gt;accuracy<span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># read out global accuracy</span></pre>
+<p>Set or get the global or local accuracy, aka how many significant digits the
+results have. If you set a global accuracy, then this also applies to new()!</p>
+<p>Warning! The accuracy <i>sticks</i>, e.g. once you created a number under the
+influence of <code class="inline">CLASS-&gt;accuracy<span class="s">(</span><span class="i">$A</span><span class="s">)</span></code>
+, all results from math operations with
+that number will also be rounded. </p>
+<p>In most cases, you should probably round the results explicitely using one of
+<i>round()</i>, <i>bround()</i> or <i>bfround()</i> or by passing the desired accuracy
+to the math operation as additional parameter:</p>
+<pre class="verbatim">        <a class="l_k" href="../functions/my.html">my</a> <span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">30000</span><span class="s">)</span><span class="sc">;</span>
+        <a class="l_k" href="../functions/my.html">my</a> <span class="i">$y</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">7</span><span class="s">)</span><span class="sc">;</span>
+        <a class="l_k" href="../functions/print.html">print</a> <a class="l_k" href="../functions/scalar.html">scalar</a> <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;bdiv</span><span class="s">(</span><span class="i">$y</span><span class="cm">,</span> <span class="n">2</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># print 4300</span>
+        <a class="l_k" href="../functions/print.html">print</a> <a class="l_k" href="../functions/scalar.html">scalar</a> <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;bdiv</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="i">-&gt;bround</span><span class="s">(</span><span class="n">2</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># print 4300</span></pre>
+<p>Please see the section about <a href="#ACCURACY-AND-PRECISION">"ACCURACY AND PRECISION"</a> for further details.</p>
+<p>Value must be greater than zero. Pass an undef value to disable it:</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;accuracy</span><span class="s">(</span><a class="l_k" href="../functions/undef.html">undef</a><span class="s">)</span><span class="sc">;</span>
+	<a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;accuracy<span class="s">(</span><a class="l_k" href="../functions/undef.html">undef</a><span class="s">)</span><span class="sc">;</span></pre>
+<p>Returns the current accuracy. For <code class="inline"><span class="i">$x</span>-</code>
+accuracy()&gt; it will return either the
+local accuracy, or if not defined, the global. This means the return value
+represents the accuracy that will be in effect for $x:</p>
+<pre class="verbatim">	<span class="i">$y</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">1234567</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># unrounded</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">Math::BigInt</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="n">4</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># set 4, print 4</span>
+	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">123456</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># $x will be automatically rounded!</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="q">&quot;$x $y\n&quot;</span><span class="sc">;</span>			<span class="c"># &#39;123500 1234567&#39;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>		<span class="c"># will be 4</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$y</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>		<span class="c"># also 4, since global is 4</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">Math::BigInt</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="n">5</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># set to 5, print 5</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>		<span class="c"># still 4</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$y</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>		<span class="c"># 5, since global is 5</span></pre>
+<p>Note: Works also for subclasses like Math::BigFloat. Each class has it's own
+globals separated from Math::BigInt, but it is possible to subclass
+Math::BigInt and make the globals of the subclass aliases to the ones from
+Math::BigInt.</p>
+<a name="precision"></a><h2>precision</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;precision</span><span class="s">(</span><span class="n">-2</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># local for $x, round at the second digit right of the dot</span>
+	<span class="i">$x</span><span class="i">-&gt;precision</span><span class="s">(</span><span class="n">2</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># ditto, round at the second digit left of the dot</span></pre>
+<pre class="verbatim">	CLASS-&gt;precision<span class="s">(</span><span class="n">5</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># Global for all members of CLASS</span>
+				<span class="c"># This also applies to new()!</span>
+	CLASS-&gt;precision<span class="s">(</span><span class="n">-5</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># ditto</span></pre>
+<pre class="verbatim">	<span class="i">$P</span> = CLASS-&gt;precision<span class="s">(</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># read out global precision </span>
+	<span class="i">$P</span> = <span class="i">$x</span><span class="i">-&gt;precision</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># read out precision that affects $x</span></pre>
+<p>Note: You probably want to use <i>accuracy()</i> instead. With <a href="http://search.cpan.org/perldoc/accuracy">accuracy</a> you
+set the number of digits each result should have, with <a href="http://search.cpan.org/perldoc/precision">precision</a> you
+set the place where to round!</p>
+<p><code class="inline"><span class="i">precision</span><span class="s">(</span><span class="s">)</span></code>
+ sets or gets the global or local precision, aka at which digit
+before or after the dot to round all results. A set global precision also
+applies to all newly created numbers!</p>
+<p>In Math::BigInt, passing a negative number precision has no effect since no
+numbers have digits after the dot. In <a href="../Math/BigFloat.html">Math::BigFloat</a>, it will round all
+results to P digits after the dot.</p>
+<p>Please see the section about <a href="#ACCURACY-AND-PRECISION">"ACCURACY AND PRECISION"</a> for further details.</p>
+<p>Pass an undef value to disable it:</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;precision</span><span class="s">(</span><a class="l_k" href="../functions/undef.html">undef</a><span class="s">)</span><span class="sc">;</span>
+	<a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;precision<span class="s">(</span><a class="l_k" href="../functions/undef.html">undef</a><span class="s">)</span><span class="sc">;</span></pre>
+<p>Returns the current precision. For <code class="inline"><span class="i">$x</span>-</code>
+precision()&gt; it will return either the
+local precision of $x, or if not defined, the global. This means the return
+value represents the prevision that will be in effect for $x:</p>
+<pre class="verbatim">	<span class="i">$y</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">1234567</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># unrounded</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">Math::BigInt</span><span class="i">-&gt;precision</span><span class="s">(</span><span class="n">4</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># set 4, print 4</span>
+	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">123456</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># will be automatically rounded</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="sc">;</span>				<span class="c"># print &quot;120000&quot;!</span></pre>
+<p>Note: Works also for subclasses like <a href="../Math/BigFloat.html">Math::BigFloat</a>. Each class has its
+own globals separated from Math::BigInt, but it is possible to subclass
+Math::BigInt and make the globals of the subclass aliases to the ones from
+Math::BigInt.</p>
+<a name="brsft"></a><h2>brsft</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;brsft</span><span class="s">(</span><span class="i">$y</span><span class="cm">,</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>		</pre>
+<p>Shifts $x right by $y in base $n. Default is base 2, used are usually 10 and
+2, but others work, too.</p>
+<p>Right shifting usually amounts to dividing $x by $n ** $y and truncating the
+result:</p>
+<pre class="verbatim">	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">10</span><span class="s">)</span><span class="sc">;</span>
+	<span class="i">$x</span><span class="i">-&gt;brsft</span><span class="s">(</span><span class="n">1</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># same as $x &gt;&gt; 1: 5</span>
+	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">1234</span><span class="s">)</span><span class="sc">;</span>
+	<span class="i">$x</span><span class="i">-&gt;brsft</span><span class="s">(</span><span class="n">2</span><span class="cm">,</span><span class="n">10</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># result 12</span></pre>
+<p>There is one exception, and that is base 2 with negative $x:</p>
+<pre class="verbatim">	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">-5</span><span class="s">)</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;brsft</span><span class="s">(</span><span class="n">1</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>This will print -3, not -2 (as it would if you divide -5 by 2 and truncate the
+result).</p>
+<a name="new"></a><h2>new</h2>
+<pre class="verbatim">  	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="i">$str</span><span class="cm">,</span><span class="i">$A</span><span class="cm">,</span><span class="i">$P</span><span class="cm">,</span><span class="i">$R</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Creates a new BigInt object from a scalar or another BigInt object. The
+input is accepted as decimal, hex (with leading '0x') or binary (with leading
+'0b').</p>
+<p>See <a href="http://search.cpan.org/perldoc/Input">Input</a> for more info on accepted input formats.</p>
+<a name="bnan"></a><h2>bnan</h2>
+<pre class="verbatim">  	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;bnan<span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Creates a new BigInt object representing NaN (Not A Number).
+If used on an object, it will set it to NaN:</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bnan</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<a name="bzero"></a><h2>bzero</h2>
+<pre class="verbatim">  	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;bzero<span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Creates a new BigInt object representing zero.
+If used on an object, it will set it to zero:</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bzero</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<a name="binf"></a><h2>binf</h2>
+<pre class="verbatim">  	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;binf<span class="s">(</span><span class="i">$sign</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Creates a new BigInt object representing infinity. The optional argument is
+either '-' or '+', indicating whether you want infinity or minus infinity.
+If used on an object, it will set it to infinity:</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;binf</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+	<span class="i">$x</span><span class="i">-&gt;binf</span><span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span></pre>
+<a name="bone"></a><h2>bone</h2>
+<pre class="verbatim">  	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;binf<span class="s">(</span><span class="i">$sign</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Creates a new BigInt object representing one. The optional argument is
+either '-' or '+', indicating whether you want one or minus one.
+If used on an object, it will set it to one:</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bone</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># +1</span>
+	<span class="i">$x</span><span class="i">-&gt;bone</span><span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># -1</span></pre>
+<a name="is_one()%2fis_zero()%2fis_nan()%2fis_inf()"></a><h2>is_one()/is_zero()/is_nan()/is_inf()</h2>
+<pre class="verbatim">  
+	<span class="i">$x</span><span class="i">-&gt;is_zero</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># true if arg is +0</span>
+	<span class="i">$x</span><span class="i">-&gt;is_nan</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># true if arg is NaN</span>
+	<span class="i">$x</span><span class="i">-&gt;is_one</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># true if arg is +1</span>
+	<span class="i">$x</span><span class="i">-&gt;is_one</span><span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># true if arg is -1</span>
+	<span class="i">$x</span><span class="i">-&gt;is_inf</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># true if +inf</span>
+	<span class="i">$x</span><span class="i">-&gt;is_inf</span><span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># true if -inf (sign is default &#39;+&#39;)</span></pre>
+<p>These methods all test the BigInt for beeing one specific value and return
+true or false depending on the input. These are faster than doing something
+like:</p>
+<pre class="verbatim">	if <span class="s">(</span><span class="i">$x</span> == <span class="n">0</span><span class="s">)</span></pre>
+<a name="is_pos()%2fis_neg()-%09-%09%24x-%3eis_pos()%3b%09%09%09%23-true-if-%3e-0-%09%24x-%3eis_neg()%3b%09%09%09%23-true-if-%3c-0"></a><h2>is_pos()/is_neg()
+	
+	$x-&gt;is_pos();			# true if &gt; 0
+	$x-&gt;is_neg();			# true if &lt; 0</h2>
+<p>The methods return true if the argument is positive or negative, respectively.
+<code class="inline">NaN</code>
+ is neither positive nor negative, while <code class="inline">+inf</code>
+ counts as positive, and
+<code class="inline">-inf</code>
+ is negative. A <code class="inline">zero</code>
+ is neither positive nor negative.</p>
+<p>These methods are only testing the sign, and not the value.</p>
+<p><code class="inline"><span class="i">is_positive</span><span class="s">(</span><span class="s">)</span></code>
+ and <code class="inline"><span class="i">is_negative</span><span class="s">(</span><span class="s">)</span></code>
+ are aliase to <code class="inline"><span class="i">is_pos</span><span class="s">(</span><span class="s">)</span></code>
+ and
+<code class="inline"><span class="i">is_neg</span><span class="s">(</span><span class="s">)</span></code>
+, respectively. <code class="inline"><span class="i">is_positive</span><span class="s">(</span><span class="s">)</span></code>
+ and <code class="inline"><span class="i">is_negative</span><span class="s">(</span><span class="s">)</span></code>
+ were
+introduced in v1.36, while <code class="inline"><span class="i">is_pos</span><span class="s">(</span><span class="s">)</span></code>
+ and <code class="inline"><span class="i">is_neg</span><span class="s">(</span><span class="s">)</span></code>
+ were only introduced
+in v1.68.</p>
+<a name="is_odd()%2fis_even()%2fis_int()"></a><h2>is_odd()/is_even()/is_int()</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;is_odd</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># true if odd, false for even</span>
+	<span class="i">$x</span><span class="i">-&gt;is_even</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># true if even, false for odd</span>
+	<span class="i">$x</span><span class="i">-&gt;is_int</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># true if $x is an integer</span></pre>
+<p>The return true when the argument satisfies the condition. <code class="inline">NaN</code>
+, <code class="inline">+inf</code>
+,
+<code class="inline">-inf</code>
+ are not integers and are neither odd nor even.</p>
+<p>In BigInt, all numbers except <code class="inline">NaN</code>
+, <code class="inline">+inf</code>
+ and <code class="inline">-inf</code>
+ are integers.</p>
+<a name="bcmp"></a><h2>bcmp</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bcmp</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Compares $x with $y and takes the sign into account.
+Returns -1, 0, 1 or undef.</p>
+<a name="bacmp"></a><h2>bacmp</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bacmp</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Compares $x with $y while ignoring their. Returns -1, 0, 1 or undef.</p>
+<a name="sign"></a><h2>sign</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;sign</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Return the sign, of $x, meaning either <code class="inline">+</code>
+, <code class="inline">-</code>
+, <code class="inline">-inf</code>
+, <code class="inline">+inf</code>
+ or NaN.</p>
+<p>If you want $x to have a certain sign, use one of the following methods:</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;babs</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># &#39;+&#39;</span>
+	<span class="i">$x</span><span class="i">-&gt;babs</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;bneg</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># &#39;-&#39;</span>
+	<span class="i">$x</span><span class="i">-&gt;bnan</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># &#39;NaN&#39;</span>
+	<span class="i">$x</span><span class="i">-&gt;binf</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># &#39;+inf&#39;</span>
+	<span class="i">$x</span><span class="i">-&gt;binf</span><span class="s">(</span><span class="q">&#39;-&#39;</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># &#39;-inf&#39;</span></pre>
+<a name="digit"></a><h2>digit</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;digit</span><span class="s">(</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># return the nth digit, counting from right</span></pre>
+<p>If <code class="inline"><span class="i">$n</span></code>
+ is negative, returns the digit counting from left.</p>
+<a name="bneg"></a><h2>bneg</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bneg</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Negate the number, e.g. change the sign between '+' and '-', or between '+inf'
+and '-inf', respectively. Does nothing for NaN or zero.</p>
+<a name="babs"></a><h2>babs</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;babs</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Set the number to it's absolute value, e.g. change the sign from '-' to '+'
+and from '-inf' to '+inf', respectively. Does nothing for NaN or positive
+numbers.</p>
+<a name="bnorm"></a><h2>bnorm</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bnorm</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># normalize (no-op)</span></pre>
+<a name="bnot"></a><h2>bnot</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bnot</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			</pre>
+<p>Two's complement (bit wise not). This is equivalent to</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;binc</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;bneg</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>but faster.</p>
+<a name="binc"></a><h2>binc</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;binc</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># increment x by 1</span></pre>
+<a name="bdec"></a><h2>bdec</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bdec</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># decrement x by 1</span></pre>
+<a name="badd"></a><h2>badd</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;badd</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># addition (add $y to $x)</span></pre>
+<a name="bsub"></a><h2>bsub</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bsub</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># subtraction (subtract $y from $x)</span></pre>
+<a name="bmul"></a><h2>bmul</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bmul</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># multiplication (multiply $x by $y)</span></pre>
+<a name="bdiv"></a><h2>bdiv</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bdiv</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># divide, set $x to quotient</span>
+					<span class="c"># return (quo,rem) or quo if scalar</span></pre>
+<a name="bmod"></a><h2>bmod</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bmod</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># modulus (x % y)</span></pre>
+<a name="bmodinv"></a><h2>bmodinv</h2>
+<pre class="verbatim">	num-&gt;bmodinv<span class="s">(</span><span class="i">$mod</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># modular inverse</span></pre>
+<p>Returns the inverse of <code class="inline"><span class="i">$num</span></code>
+ in the given modulus <code class="inline"><span class="i">$mod</span></code>
+.  '<code class="inline">NaN</code>
+' is
+returned unless <code class="inline"><span class="i">$num</span></code>
+ is relatively prime to <code class="inline"><span class="i">$mod</span></code>
+, i.e. unless
+<code class="inline"><span class="i">bgcd</span><span class="s">(</span><span class="i">$num</span><span class="cm">,</span> <span class="i">$mod</span><span class="s">)</span>==<span class="n">1</span></code>
+.</p>
+<a name="bmodpow"></a><h2>bmodpow</h2>
+<pre class="verbatim">	<span class="i">$num</span><span class="i">-&gt;bmodpow</span><span class="s">(</span><span class="i">$exp</span><span class="cm">,</span><span class="i">$mod</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># modular exponentation</span>
+					<span class="c"># ($num**$exp % $mod)</span></pre>
+<p>Returns the value of <code class="inline"><span class="i">$num</span></code>
+ taken to the power <code class="inline"><span class="i">$exp</span></code>
+ in the modulus
+<code class="inline"><span class="i">$mod</span></code>
+ using binary exponentation.  <code class="inline">bmodpow</code>
+ is far superior to
+writing</p>
+<pre class="verbatim">	<span class="i">$num</span> ** <span class="i">$exp</span> % <span class="i">$mod</span></pre>
+<p>because it is much faster - it reduces internal variables into
+the modulus whenever possible, so it operates on smaller numbers.</p>
+<p><code class="inline">bmodpow</code>
+ also supports negative exponents.</p>
+<pre class="verbatim">	<span class="i">bmodpow</span><span class="s">(</span><span class="i">$num</span><span class="cm">,</span> <span class="n">-1</span><span class="cm">,</span> <span class="i">$mod</span><span class="s">)</span></pre>
+<p>is exactly equivalent to</p>
+<pre class="verbatim">	<span class="i">bmodinv</span><span class="s">(</span><span class="i">$num</span><span class="cm">,</span> <span class="i">$mod</span><span class="s">)</span></pre>
+<a name="bpow"></a><h2>bpow</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bpow</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># power of arguments (x ** y)</span></pre>
+<a name="blsft"></a><h2>blsft</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;blsft</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># left shift</span>
+	<span class="i">$x</span><span class="i">-&gt;blsft</span><span class="s">(</span><span class="i">$y</span><span class="cm">,</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># left shift, in base $n (like 10)</span></pre>
+<a name="brsft"></a><h2>brsft</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;brsft</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># right shift </span>
+	<span class="i">$x</span><span class="i">-&gt;brsft</span><span class="s">(</span><span class="i">$y</span><span class="cm">,</span><span class="i">$n</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># right shift, in base $n (like 10)</span></pre>
+<a name="band"></a><h2>band</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;band</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># bitwise and</span></pre>
+<a name="bior"></a><h2>bior</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bior</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># bitwise inclusive or</span></pre>
+<a name="bxor"></a><h2>bxor</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bxor</span><span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># bitwise exclusive or</span></pre>
+<a name="bnot"></a><h2>bnot</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bnot</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># bitwise not (two&#39;s complement)</span></pre>
+<a name="bsqrt"></a><h2>bsqrt</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bsqrt</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># calculate square-root</span></pre>
+<a name="bfac"></a><h2>bfac</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bfac</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># factorial of $x (1*2*3*4*..$x)</span></pre>
+<a name="round"></a><h2>round</h2>
+<pre class="verbatim">	$x-&gt;round($A,$P,$round_mode);
+	
+Round $x to accuracy C&lt;$A&gt; or precision C&lt;$P&gt; using the round mode
+C&lt;$round_mode&gt;.</pre><a name="bround"></a><h2>bround</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bround</span><span class="s">(</span><span class="i">$N</span><span class="s">)</span><span class="sc">;</span>               <span class="c"># accuracy: preserve $N digits</span></pre>
+<a name="bfround"></a><h2>bfround</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bfround</span><span class="s">(</span><span class="i">$N</span><span class="s">)</span><span class="sc">;</span>              <span class="c"># round to $Nth digit, no-op for BigInts</span></pre>
+<a name="bfloor"></a><h2>bfloor</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bfloor</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			</pre>
+<p>Set $x to the integer less or equal than $x. This is a no-op in BigInt, but
+does change $x in BigFloat.</p>
+<a name="bceil"></a><h2>bceil</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bceil</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Set $x to the integer greater or equal than $x. This is a no-op in BigInt, but
+does change $x in BigFloat.</p>
+<a name="bgcd"></a><h2>bgcd</h2>
+<pre class="verbatim">	<span class="i">bgcd</span><span class="s">(</span><span class="i">@values</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># greatest common divisor (no OO style)</span></pre>
+<a name="blcm"></a><h2>blcm</h2>
+<pre class="verbatim">	<span class="i">blcm</span><span class="s">(</span><span class="i">@values</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># lowest common multiplicator (no OO style)</span>
+ 
+head2 <a class="l_k" href="../functions/length.html">length</a></pre>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;length</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+        <span class="s">(</span><span class="i">$xl</span><span class="cm">,</span><span class="i">$fl</span><span class="s">)</span> = <span class="i">$x</span><span class="i">-&gt;length</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Returns the number of digits in the decimal representation of the number.
+In list context, returns the length of the integer and fraction part. For
+BigInt's, the length of the fraction part will always be 0.</p>
+<a name="exponent"></a><h2>exponent</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;exponent</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Return the exponent of $x as BigInt.</p>
+<a name="mantissa"></a><h2>mantissa</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;mantissa</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Return the signed mantissa of $x as BigInt.</p>
+<a name="parts"></a><h2>parts</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;parts</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># return (mantissa,exponent) as BigInt</span></pre>
+<a name="copy"></a><h2>copy</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># make a true copy of $x (unlike $y = $x;)</span></pre>
+<a name="as_int"></a><h2>as_int</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;as_int</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>	</pre>
+<p>Returns $x as a BigInt (truncated towards zero). In BigInt this is the same as
+<code class="inline"><span class="i">copy</span><span class="s">(</span><span class="s">)</span></code>
+. </p>
+<p><code class="inline"><span class="i">as_number</span><span class="s">(</span><span class="s">)</span></code>
+ is an alias to this method. <code class="inline">as_number</code>
+ was introduced in
+v1.22, while <code class="inline"><span class="i">as_int</span><span class="s">(</span><span class="s">)</span></code>
+ was only introduced in v1.68.
+  
+=head2 bstr</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bstr</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Returns a normalized string represantation of <code class="inline"><span class="i">$x</span></code>
+.</p>
+<a name="bsstr"></a><h2>bsstr</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bsstr</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># normalized string in scientific notation</span></pre>
+<a name="as_hex"></a><h2>as_hex</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;as_hex</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># as signed hexadecimal string with prefixed 0x</span></pre>
+<a name="as_bin"></a><h2>as_bin</h2>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;as_bin</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># as signed binary string with prefixed 0b</span></pre>
+<a name="ACCURACY-and-PRECISION"></a><h1>ACCURACY and PRECISION</h1>
+<p>Since version v1.33, Math::BigInt and Math::BigFloat have full support for
+accuracy and precision based rounding, both automatically after every
+operation, as well as manually.</p>
+<p>This section describes the accuracy/precision handling in Math::Big* as it
+used to be and as it is now, complete with an explanation of all terms and
+abbreviations.</p>
+<p>Not yet implemented things (but with correct description) are marked with '!',
+things that need to be answered are marked with '?'.</p>
+<p>In the next paragraph follows a short description of terms used here (because
+these may differ from terms used by others people or documentation).</p>
+<p>During the rest of this document, the shortcuts A (for accuracy), P (for
+precision), F (fallback) and R (rounding mode) will be used.</p>
+<a name="Precision-P"></a><h2>Precision P</h2>
+<p>A fixed number of digits before (positive) or after (negative)
+the decimal point. For example, 123.45 has a precision of -2. 0 means an
+integer like 123 (or 120). A precision of 2 means two digits to the left
+of the decimal point are zero, so 123 with P = 1 becomes 120. Note that
+numbers with zeros before the decimal point may have different precisions,
+because 1200 can have p = 0, 1 or 2 (depending on what the inital value
+was). It could also have p &lt; 0, when the digits after the decimal point
+are zero.</p>
+<p>The string output (of floating point numbers) will be padded with zeros:
+ 
+	Initial value   P       A	Result          String
+	------------------------------------------------------------
+	1234.01         -3      	1000            1000
+	1234            -2      	1200            1200
+	1234.5          -1      	1230            1230
+	1234.001        1       	1234            1234.0
+	1234.01         0       	1234            1234
+	1234.01         2       	1234.01		1234.01
+	1234.01         5       	1234.01		1234.01000</p>
+<p>For BigInts, no padding occurs.</p>
+<a name="Accuracy-A"></a><h2>Accuracy A</h2>
+<p>Number of significant digits. Leading zeros are not counted. A
+number may have an accuracy greater than the non-zero digits
+when there are zeros in it or trailing zeros. For example, 123.456 has
+A of 6, 10203 has 5, 123.0506 has 7, 123.450000 has 8 and 0.000123 has 3.</p>
+<p>The string output (of floating point numbers) will be padded with zeros:</p>
+<pre class="verbatim">	Initial value   P       A	Result          String
+	------------------------------------------------------------
+	1234.01			3	1230		1230
+	1234.01			6	1234.01		1234.01
+	1234.1			8	1234.1		1234.1000</pre><p>For BigInts, no padding occurs.</p>
+<a name="Fallback-F"></a><h2>Fallback F</h2>
+<p>When both A and P are undefined, this is used as a fallback accuracy when
+dividing numbers.</p>
+<a name="Rounding-mode-R"></a><h2>Rounding mode R</h2>
+<p>When rounding a number, different 'styles' or 'kinds'
+of rounding are possible. (Note that random rounding, as in
+Math::Round, is not implemented.)</p>
+<ul>
+<li><a name="'trunc'"></a><b>'trunc'</b>
+<p>truncation invariably removes all digits following the
+rounding place, replacing them with zeros. Thus, 987.65 rounded
+to tens (P=1) becomes 980, and rounded to the fourth sigdig
+becomes 987.6 (A=4). 123.456 rounded to the second place after the
+decimal point (P=-2) becomes 123.46.</p>
+<p>All other implemented styles of rounding attempt to round to the
+"nearest digit." If the digit D immediately to the right of the
+rounding place (skipping the decimal point) is greater than 5, the
+number is incremented at the rounding place (possibly causing a
+cascade of incrementation): e.g. when rounding to units, 0.9 rounds
+to 1, and -19.9 rounds to -20. If D &lt; 5, the number is similarly
+truncated at the rounding place: e.g. when rounding to units, 0.4
+rounds to 0, and -19.4 rounds to -19.</p>
+<p>However the results of other styles of rounding differ if the
+digit immediately to the right of the rounding place (skipping the
+decimal point) is 5 and if there are no digits, or no digits other
+than 0, after that 5. In such cases:</p>
+</li>
+<li><a name="'even'"></a><b>'even'</b>
+<p>rounds the digit at the rounding place to 0, 2, 4, 6, or 8
+if it is not already. E.g., when rounding to the first sigdig, 0.45
+becomes 0.4, -0.55 becomes -0.6, but 0.4501 becomes 0.5.</p>
+</li>
+<li><a name="'odd'"></a><b>'odd'</b>
+<p>rounds the digit at the rounding place to 1, 3, 5, 7, or 9 if
+it is not already. E.g., when rounding to the first sigdig, 0.45
+becomes 0.5, -0.55 becomes -0.5, but 0.5501 becomes 0.6.</p>
+</li>
+<li><a name="'%2binf'"></a><b>'+inf'</b>
+<p>round to plus infinity, i.e. always round up. E.g., when
+rounding to the first sigdig, 0.45 becomes 0.5, -0.55 becomes -0.5,
+and 0.4501 also becomes 0.5.</p>
+</li>
+<li><a name="'-inf'"></a><b>'-inf'</b>
+<p>round to minus infinity, i.e. always round down. E.g., when
+rounding to the first sigdig, 0.45 becomes 0.4, -0.55 becomes -0.6,
+but 0.4501 becomes 0.5.</p>
+</li>
+<li><a name="'zero'"></a><b>'zero'</b>
+<p>round to zero, i.e. positive numbers down, negative ones up.
+E.g., when rounding to the first sigdig, 0.45 becomes 0.4, -0.55
+becomes -0.5, but 0.4501 becomes 0.5.</p>
+</li>
+</ul>
+<p>The handling of A &amp; P in MBI/MBF (the old core code shipped with Perl
+versions &lt;= 5.7.2) is like this:</p>
+<ul>
+<li><a name="Precision"></a><b>Precision</b>
+<pre class="verbatim">  * ffround($p) is able to round to $p number of digits after the decimal
+    point
+  * otherwise P is unused</pre></li>
+<li><a name="Accuracy-(significant-digits)"></a><b>Accuracy (significant digits)</b>
+<pre class="verbatim">  * fround($a) rounds to $a significant digits
+  * only fdiv() and fsqrt() take A as (optional) paramater
+    + other operations simply create the same number (fneg etc), or more (fmul)
+      of digits
+    + rounding/truncating is only done when explicitly calling one of fround
+      or ffround, and never for BigInt (not implemented)
+  * fsqrt() simply hands its accuracy argument over to fdiv.
+  * the documentation and the comment in the code indicate two different ways
+    on how fdiv() determines the maximum number of digits it should calculate,
+    and the actual code does yet another thing
+    POD:
+      max($Math::BigFloat::div_scale,length(dividend)+length(divisor))
+    Comment:
+      result has at most max(scale, length(dividend), length(divisor)) digits
+    Actual code:
+      scale = max(scale, length(dividend)-1,length(divisor)-1);
+      scale += length(divisior) - length(dividend);
+    So for lx = 3, ly = 9, scale = 10, scale will actually be 16 (10+9-3).
+    Actually, the 'difference' added to the scale is calculated from the
+    number of "significant digits" in dividend and divisor, which is derived
+    by looking at the length of the mantissa. Which is wrong, since it includes
+    the + sign (oops) and actually gets 2 for '+100' and 4 for '+101'. Oops
+    again. Thus 124/3 with div_scale=1 will get you '41.3' based on the strange
+    assumption that 124 has 3 significant digits, while 120/7 will get you
+    '17', not '17.1' since 120 is thought to have 2 significant digits.
+    The rounding after the division then uses the remainder and $y to determine
+    wether it must round up or down.
+ ?  I have no idea which is the right way. That's why I used a slightly more
+ ?  simple scheme and tweaked the few failing testcases to match it.</pre></li>
+</ul>
+<p>This is how it works now:</p>
+<ul>
+<li><a name="Setting%2fAccessing"></a><b>Setting/Accessing</b>
+<pre class="verbatim">  * You can set the A global via C&lt;&lt; Math::BigInt-&gt;accuracy() &gt;&gt; or
+    C&lt;&lt; Math::BigFloat-&gt;accuracy() &gt;&gt; or whatever class you are using.
+  * You can also set P globally by using C&lt;&lt; Math::SomeClass-&gt;precision() &gt;&gt;
+    likewise.
+  * Globals are classwide, and not inherited by subclasses.
+  * to undefine A, use C&lt;&lt; Math::SomeCLass-&gt;accuracy(undef); &gt;&gt;
+  * to undefine P, use C&lt;&lt; Math::SomeClass-&gt;precision(undef); &gt;&gt;
+  * Setting C&lt;&lt; Math::SomeClass-&gt;accuracy() &gt;&gt; clears automatically
+    C&lt;&lt; Math::SomeClass-&gt;precision() &gt;&gt;, and vice versa.
+  * To be valid, A must be &gt; 0, P can have any value.
+  * If P is negative, this means round to the P'th place to the right of the
+    decimal point; positive values mean to the left of the decimal point.
+    P of 0 means round to integer.
+  * to find out the current global A, use C&lt;&lt; Math::SomeClass-&gt;accuracy() &gt;&gt;
+  * to find out the current global P, use C&lt;&lt; Math::SomeClass-&gt;precision() &gt;&gt;
+  * use C&lt;&lt; $x-&gt;accuracy() &gt;&gt; respective C&lt;&lt; $x-&gt;precision() &gt;&gt; for the local
+    setting of C&lt;&lt; $x &gt;&gt;.
+  * Please note that C&lt;&lt; $x-&gt;accuracy() &gt;&gt; respecive C&lt;&lt; $x-&gt;precision() &gt;&gt;
+    return eventually defined global A or P, when C&lt;&lt; $x &gt;&gt;'s A or P is not
+    set.</pre></li>
+<li><a name="Creating-numbers"></a><b>Creating numbers</b>
+<pre class="verbatim">  * When you create a number, you can give it's desired A or P via:
+    $x = Math::BigInt-&gt;new($number,$A,$P);
+  * Only one of A or P can be defined, otherwise the result is NaN
+  * If no A or P is give ($x = Math::BigInt-&gt;new($number) form), then the
+    globals (if set) will be used. Thus changing the global defaults later on
+    will not change the A or P of previously created numbers (i.e., A and P of
+    $x will be what was in effect when $x was created)
+  * If given undef for A and P, B&lt;no&gt; rounding will occur, and the globals will
+    B&lt;not&gt; be used. This is used by subclasses to create numbers without
+    suffering rounding in the parent. Thus a subclass is able to have it's own
+    globals enforced upon creation of a number by using
+    C&lt;&lt; $x = Math::BigInt-&gt;new($number,undef,undef) &gt;&gt;:</pre><pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> Math::BigInt::SomeSubclass<span class="sc">;</span>
+	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;accuracy<span class="s">(</span><span class="n">2</span><span class="s">)</span><span class="sc">;</span>
+	Math::BigInt::SomeSubClass-&gt;accuracy<span class="s">(</span><span class="n">3</span><span class="s">)</span><span class="sc">;</span>
+	<span class="i">$x</span> = Math::BigInt::SomeSubClass-&gt;new<span class="s">(</span><span class="n">1234</span><span class="s">)</span><span class="sc">;</span>	</pre>
+<pre class="verbatim">    $x is now 1230, and not 1200. A subclass might choose to implement
+    this otherwise, e.g. falling back to the parent's A and P.</pre></li>
+<li><a name="Usage"></a><b>Usage</b>
+<pre class="verbatim">  * If A or P are enabled/defined, they are used to round the result of each
+    operation according to the rules below
+  * Negative P is ignored in Math::BigInt, since BigInts never have digits
+    after the decimal point
+  * Math::BigFloat uses Math::BigInt internally, but setting A or P inside
+    Math::BigInt as globals does not tamper with the parts of a BigFloat.
+    A flag is used to mark all Math::BigFloat numbers as 'never round'.</pre></li>
+<li><a name="Precedence"></a><b>Precedence</b>
+<pre class="verbatim">  * It only makes sense that a number has only one of A or P at a time.
+    If you set either A or P on one object, or globally, the other one will
+    be automatically cleared.
+  * If two objects are involved in an operation, and one of them has A in
+    effect, and the other P, this results in an error (NaN).
+  * A takes precendence over P (Hint: A comes before P).
+    If neither of them is defined, nothing is used, i.e. the result will have
+    as many digits as it can (with an exception for fdiv/fsqrt) and will not
+    be rounded.
+  * There is another setting for fdiv() (and thus for fsqrt()). If neither of
+    A or P is defined, fdiv() will use a fallback (F) of $div_scale digits.
+    If either the dividend's or the divisor's mantissa has more digits than
+    the value of F, the higher value will be used instead of F.
+    This is to limit the digits (A) of the result (just consider what would
+    happen with unlimited A and P in the case of 1/3 :-)
+  * fdiv will calculate (at least) 4 more digits than required (determined by
+    A, P or F), and, if F is not used, round the result
+    (this will still fail in the case of a result like 0.12345000000001 with A
+    or P of 5, but this can not be helped - or can it?)
+  * Thus you can have the math done by on Math::Big* class in two modi:
+    + never round (this is the default):
+      This is done by setting A and P to undef. No math operation
+      will round the result, with fdiv() and fsqrt() as exceptions to guard
+      against overflows. You must explicitely call bround(), bfround() or
+      round() (the latter with parameters).
+      Note: Once you have rounded a number, the settings will 'stick' on it
+      and 'infect' all other numbers engaged in math operations with it, since
+      local settings have the highest precedence. So, to get SaferRound[tm],
+      use a copy() before rounding like this:</pre><pre class="verbatim">        <span class="i">$x</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">12.34</span><span class="s">)</span><span class="sc">;</span>
+        <span class="i">$y</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">98.76</span><span class="s">)</span><span class="sc">;</span>
+        <span class="i">$z</span> = <span class="i">$x</span> * <span class="i">$y</span><span class="sc">;</span>                           <span class="c"># 1218.6984</span>
+        <a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;fround</span><span class="s">(</span><span class="n">3</span><span class="s">)</span><span class="sc">;</span>            <span class="c"># 12.3 (but A is now 3!)</span>
+        <span class="i">$z</span> = <span class="i">$x</span> * <span class="i">$y</span><span class="sc">;</span>                           <span class="c"># still 1218.6984, without</span>
+                                                <span class="c"># copy would have been 1210!</span></pre>
+<pre class="verbatim">    + round after each op:
+      After each single operation (except for testing like is_zero()), the
+      method round() is called and the result is rounded appropriately. By
+      setting proper values for A and P, you can have all-the-same-A or
+      all-the-same-P modes. For example, Math::Currency might set A to undef,
+      and P to -2, globally.</pre><pre class="verbatim"> ?Maybe an extra option that forbids local A &amp; P settings would be in order,
+ ?so that intermediate rounding does not 'poison' further math? </pre></li>
+<li><a name="Overriding-globals"></a><b>Overriding globals</b>
+<pre class="verbatim">  * you will be able to give A, P and R as an argument to all the calculation
+    routines; the second parameter is A, the third one is P, and the fourth is
+    R (shift right by one for binary operations like badd). P is used only if
+    the first parameter (A) is undefined. These three parameters override the
+    globals in the order detailed as follows, i.e. the first defined value
+    wins:
+    (local: per object, global: global default, parameter: argument to sub)
+      + parameter A
+      + parameter P
+      + local A (if defined on both of the operands: smaller one is taken)
+      + local P (if defined on both of the operands: bigger one is taken)
+      + global A
+      + global P
+      + global F
+  * fsqrt() will hand its arguments to fdiv(), as it used to, only now for two
+    arguments (A and P) instead of one</pre></li>
+<li><a name="Local-settings"></a><b>Local settings</b>
+<pre class="verbatim">  * You can set A or P locally by using C&lt;&lt; $x-&gt;accuracy() &gt;&gt; or
+    C&lt;&lt; $x-&gt;precision() &gt;&gt;
+    and thus force different A and P for different objects/numbers.
+  * Setting A or P this way immediately rounds $x to the new value.
+  * C&lt;&lt; $x-&gt;accuracy() &gt;&gt; clears C&lt;&lt; $x-&gt;precision() &gt;&gt;, and vice versa.</pre></li>
+<li><a name="Rounding"></a><b>Rounding</b>
+<pre class="verbatim">  * the rounding routines will use the respective global or local settings.
+    fround()/bround() is for accuracy rounding, while ffround()/bfround()
+    is for precision
+  * the two rounding functions take as the second parameter one of the
+    following rounding modes (R):
+    'even', 'odd', '+inf', '-inf', 'zero', 'trunc'
+  * you can set/get the global R by using C&lt;&lt; Math::SomeClass-&gt;round_mode() &gt;&gt;
+    or by setting C&lt;&lt; $Math::SomeClass::round_mode &gt;&gt;
+  * after each operation, C&lt;&lt; $result-&gt;round() &gt;&gt; is called, and the result may
+    eventually be rounded (that is, if A or P were set either locally,
+    globally or as parameter to the operation)
+  * to manually round a number, call C&lt;&lt; $x-&gt;round($A,$P,$round_mode); &gt;&gt;
+    this will round the number by using the appropriate rounding function
+    and then normalize it.
+  * rounding modifies the local settings of the number:</pre><pre class="verbatim">        <span class="i">$x</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">123.456</span><span class="s">)</span><span class="sc">;</span>
+        <span class="i">$x</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="n">5</span><span class="s">)</span><span class="sc">;</span>
+        <span class="i">$x</span><span class="i">-&gt;bround</span><span class="s">(</span><span class="n">4</span><span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">    Here 4 takes precedence over 5, so 123.5 is the result and $x-&gt;accuracy()
+    will be 4 from now on.</pre></li>
+<li><a name="Default-values"></a><b>Default values</b>
+<pre class="verbatim">  * R: 'even'
+  * F: 40
+  * A: undef
+  * P: undef</pre></li>
+<li><a name="Remarks"></a><b>Remarks</b>
+<pre class="verbatim">  * The defaults are set up so that the new code gives the same results as
+    the old code (except in a few cases on fdiv):
+    + Both A and P are undefined and thus will not be used for rounding
+      after each operation.
+    + round() is thus a no-op, unless given extra parameters A and P</pre></li>
+</ul>
+<a name="Infinity-and-Not-a-Number"></a><h1>Infinity and Not a Number</h1>
+<p>While BigInt has extensive handling of inf and NaN, certain quirks remain.</p>
+<ul>
+<li><a name="oct()%2fhex()"></a><b>oct()/hex()</b>
+<p>These perl routines currently (as of Perl v.5.8.6) cannot handle passed
+inf.</p>
+<pre class="verbatim">	te@linux:~&gt; perl -wle 'print 2 ** 3333'
+	inf
+	te@linux:~&gt; perl -wle 'print 2 ** 3333 == 2 ** 3333'
+	1
+	te@linux:~&gt; perl -wle 'print oct(2 ** 3333)'
+	0
+	te@linux:~&gt; perl -wle 'print hex(2 ** 3333)'
+	Illegal hexadecimal digit 'i' ignored at -e line 1.
+	0</pre><p>The same problems occur if you pass them Math::BigInt-&gt;binf() objects. Since
+overloading these routines is not possible, this cannot be fixed from BigInt.</p>
+</li>
+<li><a name="%3d%3d%2c-!%3d%2c-%3c%2c-%3e%2c-%3c%3d%2c-%3e%3d-with-NaNs"></a><b>==, !=, &lt;, &gt;, &lt;=, &gt;= with NaNs</b>
+<p>BigInt's bcmp() routine currently returns undef to signal that a NaN was
+involved in a comparisation. However, the overload code turns that into
+either 1 or '' and thus operations like <code class="inline">NaN != NaN</code>
+ might return
+wrong values.</p>
+</li>
+<li><a name="log(-inf)"></a><b>log(-inf)</b>
+<p><code class="inline"><a class="l_k" href="../functions/log.html">log(-inf)</a></code> is highly weird. Since log(-x)=pi*i+log(x), then
+log(-inf)=pi*i+inf. However, since the imaginary part is finite, the real
+infinity "overshadows" it, so the number might as well just be infinity.
+However, the result is a complex number, and since BigInt/BigFloat can only
+have real numbers as results, the result is NaN.</p>
+</li>
+<li><a name="exp()%2c-cos()%2c-sin()%2c-atan2()"></a><b>exp(), cos(), sin(), atan2()</b>
+<p>These all might have problems handling infinity right.
+ 
+=back</p>
+</li>
+</ul>
+<a name="INTERNALS"></a><h1>INTERNALS</h1>
+<p>The actual numbers are stored as unsigned big integers (with seperate sign).</p>
+<p>You should neither care about nor depend on the internal representation; it
+might change without notice. Use <b>ONLY</b> method calls like <code class="inline"><span class="i">$x</span><span class="i">-&gt;sign</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></code>
+
+instead relying on the internal representation.</p>
+<a name="MATH-LIBRARY"></a><h2>MATH LIBRARY</h2>
+<p>Math with the numbers is done (by default) by a module called
+<code class="inline"><a class="l_w" href="../Math/BigInt/Calc.html">Math::BigInt::Calc</a></code>. This is equivalent to saying:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <a class="l_w" href="../lib.html">lib</a> <span class="cm">=&gt;</span> <span class="q">&#39;Calc&#39;</span><span class="sc">;</span></pre>
+<p>You can change this by using:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <a class="l_w" href="../lib.html">lib</a> <span class="cm">=&gt;</span> <span class="q">&#39;BitVect&#39;</span><span class="sc">;</span></pre>
+<p>The following would first try to find Math::BigInt::Foo, then
+Math::BigInt::Bar, and when this also fails, revert to Math::BigInt::Calc:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <a class="l_w" href="../lib.html">lib</a> <span class="cm">=&gt;</span> <span class="q">&#39;Foo,Math::BigInt::Bar&#39;</span><span class="sc">;</span></pre>
+<p>Since Math::BigInt::GMP is in almost all cases faster than Calc (especially in
+math involving really big numbers, where it is <b>much</b> faster), and there is
+no penalty if Math::BigInt::GMP is not installed, it is a good idea to always
+use the following:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <a class="l_w" href="../lib.html">lib</a> <span class="cm">=&gt;</span> <span class="q">&#39;GMP&#39;</span><span class="sc">;</span></pre>
+<p>Different low-level libraries use different formats to store the
+numbers. You should <b>NOT</b> depend on the number having a specific format
+internally.</p>
+<p>See the respective math library module documentation for further details.</p>
+<a name="SIGN"></a><h2>SIGN</h2>
+<p>The sign is either '+', '-', 'NaN', '+inf' or '-inf'.</p>
+<p>A sign of 'NaN' is used to represent the result when input arguments are not
+numbers or as a result of 0/0. '+inf' and '-inf' represent plus respectively
+minus infinity. You will get '+inf' when dividing a positive number by 0, and
+'-inf' when dividing any negative number by 0.</p>
+<a name="mantissa()%2c-exponent()-and-parts()"></a><h2>mantissa(), exponent() and parts()</h2>
+<p><code class="inline"><span class="i">mantissa</span><span class="s">(</span><span class="s">)</span></code>
+ and <code class="inline"><span class="i">exponent</span><span class="s">(</span><span class="s">)</span></code>
+ return the said parts of the BigInt such
+that:</p>
+<pre class="verbatim">        <span class="i">$m</span> = <span class="i">$x</span><span class="i">-&gt;mantissa</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+        <span class="i">$e</span> = <span class="i">$x</span><span class="i">-&gt;exponent</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>
+        <span class="i">$y</span> = <span class="i">$m</span> * <span class="s">(</span> <span class="n">10</span> ** <span class="i">$e</span> <span class="s">)</span><span class="sc">;</span>
+        <a class="l_k" href="../functions/print.html">print</a> <span class="q">&quot;ok\n&quot;</span> if <span class="i">$x</span> == <span class="i">$y</span><span class="sc">;</span></pre>
+<p><code class="inline"><span class="s">(</span><span class="i">$m</span><span class="cm">,</span><span class="i">$e</span><span class="s">)</span> = <span class="i">$x</span><span class="i">-&gt;parts</span><span class="s">(</span><span class="s">)</span></code>
+ is just a shortcut that gives you both of them
+in one go. Both the returned mantissa and exponent have a sign.</p>
+<p>Currently, for BigInts <code class="inline"><span class="i">$e</span></code>
+ is always 0, except for NaN, +inf and -inf,
+where it is <code class="inline">NaN</code>
+; and for <code class="inline"><span class="i">$x</span> == <span class="n">0</span></code>
+, where it is <code class="inline"><span class="n">1</span></code>
+ (to be compatible
+with Math::BigFloat's internal representation of a zero as <code class="inline"><span class="n">0E1</span></code>
+).</p>
+<p><code class="inline"><span class="i">$m</span></code>
+ is currently just a copy of the original number. The relation between
+<code class="inline"><span class="i">$e</span></code>
+ and <code class="inline"><span class="i">$m</span></code>
+ will stay always the same, though their real values might
+change.</p>
+<a name="EXAMPLES-----use-Math%3a%3aBigInt%3b"></a><h1>EXAMPLES
+ 
+  use Math::BigInt;</h1>
+<pre class="verbatim"><a name="bint"></a>  sub <span class="m">bint</span> <span class="s">{</span> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><a class="l_k" href="../functions/shift.html">shift</a><span class="s">)</span><span class="sc">;</span> <span class="s">}</span></pre>
+<pre class="verbatim">  $x = Math::BigInt-&gt;bstr("1234")      	# string "1234"
+  $x = "$x";                         	# same as bstr()
+  $x = Math::BigInt-&gt;bneg("1234");   	# BigInt "-1234"
+  $x = Math::BigInt-&gt;babs("-12345"); 	# BigInt "12345"
+  $x = Math::BigInt-&gt;bnorm("-0 00"); 	# BigInt "0"
+  $x = bint(1) + bint(2);            	# BigInt "3"
+  $x = bint(1) + "2";                	# ditto (auto-BigIntify of "2")
+  $x = bint(1);                      	# BigInt "1"
+  $x = $x + 5 / 2;                   	# BigInt "3"
+  $x = $x ** 3;                      	# BigInt "27"
+  $x *= 2;                           	# BigInt "54"
+  $x = Math::BigInt-&gt;new(0);       	# BigInt "0"
+  $x--;                              	# BigInt "-1"
+  $x = Math::BigInt-&gt;badd(4,5)		# BigInt "9"
+  print $x-&gt;bsstr();			# 9e+0</pre><p>Examples for rounding:</p>
+<pre class="verbatim">  <a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a><span class="sc">;</span>
+  <a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Test.html">Test</a><span class="sc">;</span></pre>
+<pre class="verbatim">  <span class="i">$x</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">123.4567</span><span class="s">)</span><span class="sc">;</span>
+  <span class="i">$y</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">123.456789</span><span class="s">)</span><span class="sc">;</span>
+  <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;accuracy<span class="s">(</span><span class="n">4</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># no more A than 4</span></pre>
+<pre class="verbatim">  ok <span class="s">(</span><span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;fround</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="n">123.4</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># even rounding</span>
+  <a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;fround</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># 123.4</span>
+  <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;round_mode<span class="s">(</span><span class="q">&#39;odd&#39;</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># round to odd</span>
+  <a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;fround</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># 123.5</span>
+  <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;accuracy<span class="s">(</span><span class="n">5</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># no more A than 5</span>
+  <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;round_mode<span class="s">(</span><span class="q">&#39;odd&#39;</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># round to odd</span>
+  <a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;fround</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># 123.46</span>
+  <span class="i">$y</span> = <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;fround</span><span class="s">(</span><span class="n">4</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># A = 4: 123.4</span>
+  <a class="l_k" href="../functions/print.html">print</a> <span class="q">&quot;$y, &quot;</span><span class="cm">,</span><span class="i">$y</span><span class="i">-&gt;accuracy</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># 123.4, 4</span></pre>
+<pre class="verbatim">  <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;accuracy<span class="s">(</span><a class="l_k" href="../functions/undef.html">undef</a><span class="s">)</span><span class="sc">;</span>	<span class="c"># A not important now</span>
+  <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;precision<span class="s">(</span><span class="n">2</span><span class="s">)</span><span class="sc">;</span> 	<span class="c"># P important</span>
+  <a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;bnorm</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># 123.46</span>
+  <a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;fround</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>	<span class="c"># 123.46</span></pre>
+<p>Examples for converting:</p>
+<pre class="verbatim">  <a class="l_k" href="../functions/my.html">my</a> <span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="q">&#39;0b1&#39;</span>.<span class="q">&#39;01&#39;</span> x <span class="n">123</span><span class="s">)</span><span class="sc">;</span>
+  <a class="l_k" href="../functions/print.html">print</a> <span class="q">&quot;bin: &quot;</span><span class="cm">,</span><span class="i">$x</span><span class="i">-&gt;as_bin</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot; hex:&quot;</span><span class="cm">,</span><span class="i">$x</span><span class="i">-&gt;as_hex</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot; dec: &quot;</span><span class="cm">,</span><span class="i">$x</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<a name="Autocreating-constants"></a><h1>Autocreating constants</h1>
+<p>After <code class="inline"><a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <span class="q">&#39;:constant&#39;</span></code>
+ all the <b>integer</b> decimal, hexadecimal
+and binary constants in the given scope are converted to <code class="inline"><a class="l_w" href="../Math/BigInt.html">Math::BigInt</a></code>.
+This conversion happens at compile time. </p>
+<p>In particular,</p>
+<pre class="verbatim">  perl -MMath::BigInt=:constant -e 'print 2**100,"\n"'</pre><p>prints the integer value of <code class="inline"><span class="n">2</span>**<span class="n">100</span></code>
+. Note that without conversion of 
+constants the expression 2**100 will be calculated as perl scalar.</p>
+<p>Please note that strings and floating point constants are not affected,
+so that</p>
+<pre class="verbatim">  	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <span class="q">qw/:constant/</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="i">$x</span> = <span class="n">1234567890123456789012345678901234567890</span>
+		+ <span class="n">123456789123456789</span><span class="sc">;</span>
+	<span class="i">$y</span> = <span class="q">&#39;1234567890123456789012345678901234567890&#39;</span>
+		+ <span class="q">&#39;123456789123456789&#39;</span><span class="sc">;</span></pre>
+<p>do not work. You need an explicit Math::BigInt-&gt;new() around one of the
+operands. You should also quote large constants to protect loss of precision:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="q">&#39;1234567889123456789123456789123456789&#39;</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Without the quotes Perl would convert the large number to a floating point
+constant at compile time and then hand the result to BigInt, which results in
+an truncated result or a NaN.</p>
+<p>This also applies to integers that look like floating point constants:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <span class="q">&#39;:constant&#39;</span><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="../functions/print.html">print</a> <a class="l_k" href="../functions/ref.html">ref</a><span class="s">(</span><span class="n">123e2</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <a class="l_k" href="../functions/ref.html">ref</a><span class="s">(</span><span class="n">123.2e2</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<p>will print nothing but newlines. Use either <a href="../bignum.html">bignum</a> or <a href="../Math/BigFloat.html">Math::BigFloat</a>
+to get this to work.</p>
+<a name="PERFORMANCE"></a><h1>PERFORMANCE</h1>
+<p>Using the form $x += $y; etc over $x = $x + $y is faster, since a copy of $x
+must be made in the second case. For long numbers, the copy can eat up to 20%
+of the work (in the case of addition/subtraction, less for
+multiplication/division). If $y is very small compared to $x, the form
+$x += $y is MUCH faster than $x = $x + $y since making the copy of $x takes
+more time then the actual addition.</p>
+<p>With a technique called copy-on-write, the cost of copying with overload could
+be minimized or even completely avoided. A test implementation of COW did show
+performance gains for overloaded math, but introduced a performance loss due
+to a constant overhead for all other operatons. So Math::BigInt does currently
+not COW.</p>
+<p>The rewritten version of this module (vs. v0.01) is slower on certain
+operations, like <code class="inline"><span class="i">new</span><span class="s">(</span><span class="s">)</span></code>
+, <code class="inline"><span class="i">bstr</span><span class="s">(</span><span class="s">)</span></code>
+ and <code class="inline"><span class="i">numify</span><span class="s">(</span><span class="s">)</span></code>
+. The reason are that it
+does now more work and handles much more cases. The time spent in these
+operations is usually gained in the other math operations so that code on
+the average should get (much) faster. If they don't, please contact the author.</p>
+<p>Some operations may be slower for small numbers, but are significantly faster
+for big numbers. Other operations are now constant (O(1), like <code class="inline"><span class="i">bneg</span><span class="s">(</span><span class="s">)</span></code>
+,
+<code class="inline"><span class="i">babs</span><span class="s">(</span><span class="s">)</span></code>
+ etc), instead of O(N) and thus nearly always take much less time.
+These optimizations were done on purpose.</p>
+<p>If you find the Calc module to slow, try to install any of the replacement
+modules and see if they help you. </p>
+<a name="Alternative-math-libraries"></a><h2>Alternative math libraries</h2>
+<p>You can use an alternative library to drive Math::BigInt via:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <a class="l_w" href="../lib.html">lib</a> <span class="cm">=&gt;</span> <span class="q">&#39;Module&#39;</span><span class="sc">;</span></pre>
+<p>See <a href="#MATH-LIBRARY">"MATH LIBRARY"</a> for more information.</p>
+<p>For more benchmark results see <a href="http://bloodgate.com/perl/benchmarks.html">http://bloodgate.com/perl/benchmarks.html</a>.</p>
+<a name="SUBCLASSING"></a><h2>SUBCLASSING</h2>
+<a name="Subclassing-Math%3a%3aBigInt"></a><h1>Subclassing Math::BigInt</h1>
+<p>The basic design of Math::BigInt allows simple subclasses with very little
+work, as long as a few simple rules are followed:</p>
+<ul>
+<li>
+<p>The public API must remain consistent, i.e. if a sub-class is overloading
+addition, the sub-class must use the same name, in this case badd(). The
+reason for this is that Math::BigInt is optimized to call the object methods
+directly.</p>
+</li>
+<li>
+<p>The private object hash keys like <code class="inline"><span class="i">$x</span>-</code>
+{sign}&gt; may not be changed, but
+additional keys can be added, like <code class="inline"><span class="i">$x</span>-</code>
+{_custom}&gt;.</p>
+</li>
+<li>
+<p>Accessor functions are available for all existing object hash keys and should
+be used instead of directly accessing the internal hash keys. The reason for
+this is that Math::BigInt itself has a pluggable interface which permits it
+to support different storage methods.</p>
+</li>
+</ul>
+<p>More complex sub-classes may have to replicate more of the logic internal of
+Math::BigInt if they need to change more basic behaviors. A subclass that
+needs to merely change the output only needs to overload <code class="inline"><span class="i">bstr</span><span class="s">(</span><span class="s">)</span></code>
+. </p>
+<p>All other object methods and overloaded functions can be directly inherited
+from the parent class.</p>
+<p>At the very minimum, any subclass will need to provide it's own <code class="inline"><span class="i">new</span><span class="s">(</span><span class="s">)</span></code>
+ and can
+store additional hash keys in the object. There are also some package globals
+that must be defined, e.g.:</p>
+<pre class="verbatim">  <span class="c"># Globals</span>
+  <span class="i">$accuracy</span> = <a class="l_k" href="../functions/undef.html">undef</a><span class="sc">;</span>
+  <span class="i">$precision</span> = <span class="n">-2</span><span class="sc">;</span>       <span class="c"># round to 2 decimal places</span>
+  <span class="i">$round_mode</span> = <span class="q">&#39;even&#39;</span><span class="sc">;</span>
+  <span class="i">$div_scale</span> = <span class="n">40</span><span class="sc">;</span></pre>
+<p>Additionally, you might want to provide the following two globals to allow
+auto-upgrading and auto-downgrading to work correctly:</p>
+<pre class="verbatim">  <span class="i">$upgrade</span> = <a class="l_k" href="../functions/undef.html">undef</a><span class="sc">;</span>
+  <span class="i">$downgrade</span> = <a class="l_k" href="../functions/undef.html">undef</a><span class="sc">;</span></pre>
+<p>This allows Math::BigInt to correctly retrieve package globals from the 
+subclass, like <code class="inline"><span class="i">$SubClass::precision</span></code>
+.  See t/Math/BigInt/Subclass.pm or
+t/Math/BigFloat/SubClass.pm completely functional subclass examples.</p>
+<p>Don't forget to </p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../overload.html">overload</a><span class="sc">;</span></pre>
+<p>in your subclass to automatically inherit the overloading from the parent. If
+you like, you can change part of the overloading, look at Math::String for an
+example.</p>
+<a name="UPGRADING"></a><h1>UPGRADING</h1>
+<p>When used like this:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> upgrade <span class="cm">=&gt;</span> <span class="q">&#39;Foo::Bar&#39;</span><span class="sc">;</span></pre>
+<p>certain operations will 'upgrade' their calculation and thus the result to
+the class Foo::Bar. Usually this is used in conjunction with Math::BigFloat:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> upgrade <span class="cm">=&gt;</span> <span class="q">&#39;Math::BigFloat&#39;</span><span class="sc">;</span></pre>
+<p>As a shortcut, you can use the module <code class="inline"><a class="l_w" href="../bignum.html">bignum</a></code>:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../bignum.html">bignum</a><span class="sc">;</span></pre>
+<p>Also good for oneliners:</p>
+<pre class="verbatim">	perl -Mbignum -le <span class="q">&#39;print 2 ** 255&#39;</span></pre>
+<p>This makes it possible to mix arguments of different classes (as in 2.5 + 2)
+as well es preserve accuracy (as in sqrt(3)).</p>
+<p>Beware: This feature is not fully implemented yet.</p>
+<a name="Auto-upgrade"></a><h2>Auto-upgrade</h2>
+<p>The following methods upgrade themselves unconditionally; that is if upgrade
+is in effect, they will always hand up their work:</p>
+<ul>
+<li><a name="bsqrt()"></a><b>bsqrt()</b>
+</li>
+<li><a name="div()"></a><b>div()</b>
+</li>
+<li><a name="blog()"></a><b>blog()</b>
+</li>
+</ul>
+<p>Beware: This list is not complete.</p>
+<p>All other methods upgrade themselves only when one (or all) of their
+arguments are of the class mentioned in $upgrade (This might change in later
+versions to a more sophisticated scheme):</p>
+<a name="BUGS"></a><h1>BUGS</h1>
+<ul>
+<li><a name="broot()-does-not-work"></a><b>broot() does not work</b>
+<p>The broot() function in BigInt may only work for small values. This will be
+fixed in a later version.</p>
+</li>
+<li><a name="Out-of-Memory!"></a><b>Out of Memory!</b>
+<p>Under Perl prior to 5.6.0 having an <code class="inline"><a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <span class="q">&#39;:constant&#39;</span><span class="sc">;</span></code>
+ and 
+<code class="inline"><a class="l_k" href="../functions/eval.html">eval()</a></code> in your code will crash with "Out of memory". This is probably an
+overload/exporter bug. You can workaround by not having <code class="inline"><a class="l_k" href="../functions/eval.html">eval()</a></code> 
+and ':constant' at the same time or upgrade your Perl to a newer version.</p>
+</li>
+<li><a name="Fails-to-load-Calc-on-Perl-prior-5.6.0"></a><b>Fails to load Calc on Perl prior 5.6.0</b>
+<p>Since eval(' use ...') can not be used in conjunction with ':constant', BigInt
+will fall back to eval { require ... } when loading the math lib on Perls
+prior to 5.6.0. This simple replaces '::' with '/' and thus might fail on
+filesystems using a different seperator.  </p>
+</li>
+</ul>
+<a name="CAVEATS"></a><h1>CAVEATS</h1>
+<p>Some things might not work as you expect them. Below is documented what is
+known to be troublesome:</p>
+<ul>
+<li><a name="bstr()%2c-bsstr()-and-'cmp'"></a><b>bstr(), bsstr() and 'cmp'</b>
+<p>Both <code class="inline"><span class="i">bstr</span><span class="s">(</span><span class="s">)</span></code>
+ and <code class="inline"><span class="i">bsstr</span><span class="s">(</span><span class="s">)</span></code>
+ as well as automated stringify via overload now
+drop the leading '+'. The old code would return '+3', the new returns '3'.
+This is to be consistent with Perl and to make <code class="inline">cmp</code>
+ (especially with
+overloading) to work as you expect. It also solves problems with <code class="inline"><a class="l_w" href="../Test.html">Test</a>.pm</code>
+,
+because it's <code class="inline"><span class="i">ok</span><span class="s">(</span><span class="s">)</span></code>
+ uses 'eq' internally. </p>
+<p>Mark Biggar said, when asked about to drop the '+' altogether, or make only
+<code class="inline">cmp</code>
+ work:</p>
+<pre class="verbatim">	I agree (with the first alternative), don't add the '+' on positive
+	numbers.  It's not as important anymore with the new internal 
+	form for numbers.  It made doing things like abs and neg easier,
+	but those have to be done differently now anyway.</pre><p>So, the following examples will now work all as expected:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Test.html">Test</a><span class="sc">;</span>
+        BEGIN <span class="s">{</span> plan tests <span class="cm">=&gt;</span> <span class="n">1</span> <span class="s">}</span>
+	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a><span class="sc">;</span></pre>
+<pre class="verbatim">	<a class="l_k" href="../functions/my.html">my</a> <span class="i">$x</span> = new <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <span class="n">3</span>*<span class="n">3</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/my.html">my</a> <span class="i">$y</span> = new <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a> <span class="n">3</span>*<span class="n">3</span><span class="sc">;</span></pre>
+<pre class="verbatim">	ok <span class="s">(</span><span class="i">$x</span><span class="cm">,</span><span class="n">3</span>*<span class="n">3</span><span class="s">)</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="q">&quot;$x eq 9&quot;</span> if <span class="i">$x</span> eq <span class="i">$y</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="q">&quot;$x eq 9&quot;</span> if <span class="i">$x</span> eq <span class="q">&#39;9&#39;</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="q">&quot;$x eq 9&quot;</span> if <span class="i">$x</span> eq <span class="n">3</span>*<span class="n">3</span><span class="sc">;</span></pre>
+<p>Additionally, the following still works:
+	
+	print "$x == 9" if $x == $y;
+	print "$x == 9" if $x == 9;
+	print "$x == 9" if $x == 3*3;</p>
+<p>There is now a <code class="inline"><span class="i">bsstr</span><span class="s">(</span><span class="s">)</span></code>
+ method to get the string in scientific notation aka
+<code class="inline"><span class="n">1e+2</span></code>
+ instead of <code class="inline"><span class="n">100</span></code>
+. Be advised that overloaded 'eq' always uses bstr()
+for comparisation, but Perl will represent some numbers as 100 and others
+as 1e+308. If in doubt, convert both arguments to Math::BigInt before 
+comparing them as strings:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Test.html">Test</a><span class="sc">;</span>
+        BEGIN <span class="s">{</span> plan tests <span class="cm">=&gt;</span> <span class="n">3</span> <span class="s">}</span>
+	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a><span class="sc">;</span></pre>
+<pre class="verbatim">	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="q">&#39;1e56&#39;</span><span class="s">)</span><span class="sc">;</span> <span class="i">$y</span> = <span class="n">1e56</span><span class="sc">;</span>
+	ok <span class="s">(</span><span class="i">$x</span><span class="cm">,</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># will fail</span>
+	ok <span class="s">(</span><span class="i">$x</span><span class="i">-&gt;bsstr</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>		<span class="c"># okay</span>
+	<span class="i">$y</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>
+	ok <span class="s">(</span><span class="i">$x</span><span class="cm">,</span><span class="i">$y</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># okay</span></pre>
+<p>Alternatively, simple use <code class="inline">&lt;=&gt;</code>
+ for comparisations, this will get it
+always right. There is not yet a way to get a number automatically represented
+as a string that matches exactly the way Perl represents it.</p>
+<p>See also the section about <a href="#Infinity-and-Not-a-Number">"Infinity and Not a Number"</a> for problems in
+comparing NaNs.</p>
+</li>
+<li><a name="int()"></a><b>int()</b>
+<p><code class="inline"><a class="l_k" href="../functions/int.html">int()</a></code> will return (at least for Perl v5.7.1 and up) another BigInt, not a 
+Perl scalar:</p>
+<pre class="verbatim">	<span class="i">$x</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">123</span><span class="s">)</span><span class="sc">;</span>
+	<span class="i">$y</span> = <a class="l_k" href="../functions/int.html">int</a><span class="s">(</span><span class="i">$x</span><span class="s">)</span><span class="sc">;</span>				<span class="c"># BigInt 123</span>
+	<span class="i">$x</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">123.45</span><span class="s">)</span><span class="sc">;</span>
+	<span class="i">$y</span> = <a class="l_k" href="../functions/int.html">int</a><span class="s">(</span><span class="i">$x</span><span class="s">)</span><span class="sc">;</span>				<span class="c"># BigInt 123</span></pre>
+<p>In all Perl versions you can use <code class="inline"><span class="i">as_number</span><span class="s">(</span><span class="s">)</span></code>
+ or <code class="inline">as_int</code>
+ for the same
+effect:</p>
+<pre class="verbatim">	<span class="i">$x</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">123.45</span><span class="s">)</span><span class="sc">;</span>
+	<span class="i">$y</span> = <span class="i">$x</span><span class="i">-&gt;as_number</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># BigInt 123</span>
+	<span class="i">$y</span> = <span class="i">$x</span><span class="i">-&gt;as_int</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># ditto</span></pre>
+<p>This also works for other subclasses, like Math::String.</p>
+<p>It is yet unlcear whether overloaded int() should return a scalar or a BigInt.</p>
+<p>If you want a real Perl scalar, use <code class="inline"><span class="i">numify</span><span class="s">(</span><span class="s">)</span></code>
+:</p>
+<pre class="verbatim">	<span class="i">$y</span> = <span class="i">$x</span><span class="i">-&gt;numify</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span>			<span class="c"># 123 as scalar</span></pre>
+<p>This is seldom necessary, though, because this is done automatically, like
+when you access an array:</p>
+<pre class="verbatim">	<span class="i">$z</span> = <span class="i">$array</span>[<span class="i">$x</span>]<span class="sc">;</span>			<span class="c"># does work automatically</span></pre>
+</li>
+<li><a name="length"></a><b>length</b>
+<p>The following will probably not do what you expect:</p>
+<pre class="verbatim">	<span class="i">$c</span> = <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a>-&gt;new<span class="s">(</span><span class="n">123</span><span class="s">)</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$c</span><span class="i">-&gt;length</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>		<span class="c"># prints 30</span></pre>
+<p>It prints both the number of digits in the number and in the fraction part
+since print calls <code class="inline"><a class="l_k" href="../functions/length.html">length()</a></code> in list context. Use something like: 
+	
+	print scalar $c-&gt;length(),"\n";		# prints 3 </p>
+</li>
+<li><a name="bdiv"></a><b>bdiv</b>
+<p>The following will probably not do what you expect:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$c</span><span class="i">-&gt;bdiv</span><span class="s">(</span><span class="n">10000</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<p>It prints both quotient and remainder since print calls <code class="inline"><span class="i">bdiv</span><span class="s">(</span><span class="s">)</span></code>
+ in list
+context. Also, <code class="inline"><span class="i">bdiv</span><span class="s">(</span><span class="s">)</span></code>
+ will modify $c, so be carefull. You probably want
+to use
+	
+	print $c / 10000,"\n";
+	print scalar $c-&gt;bdiv(10000),"\n";  # or if you want to modify $c</p>
+<p>instead.</p>
+<p>The quotient is always the greatest integer less than or equal to the
+real-valued quotient of the two operands, and the remainder (when it is
+nonzero) always has the same sign as the second operand; so, for
+example,</p>
+<pre class="verbatim">	  1 / 4  =&gt; ( 0, 1)
+	  1 / -4 =&gt; (-1,-3)
+	 -3 / 4  =&gt; (-1, 1)
+	 -3 / -4 =&gt; ( 0,-3)
+	-11 / 2  =&gt; (-5,1)
+	 11 /-2  =&gt; (-5,-1)</pre><p>As a consequence, the behavior of the operator % agrees with the
+behavior of Perl's built-in % operator (as documented in the perlop
+manpage), and the equation</p>
+<pre class="verbatim">	<span class="i">$x</span> == <span class="s">(</span><span class="i">$x</span> / <span class="i">$y</span><span class="s">)</span> * <span class="i">$y</span> + <span class="s">(</span><span class="i">$x</span> % <span class="i">$y</span><span class="s">)</span></pre>
+<p>holds true for any $x and $y, which justifies calling the two return
+values of bdiv() the quotient and remainder. The only exception to this rule
+are when $y == 0 and $x is negative, then the remainder will also be
+negative. See below under "infinity handling" for the reasoning behing this.</p>
+<p>Perl's 'use integer;' changes the behaviour of % and / for scalars, but will
+not change BigInt's way to do things. This is because under 'use integer' Perl
+will do what the underlying C thinks is right and this is different for each
+system. If you need BigInt's behaving exactly like Perl's 'use integer', bug
+the author to implement it ;)</p>
+</li>
+<li><a name="infinity-handling"></a><b>infinity handling</b>
+<p>Here are some examples that explain the reasons why certain results occur while
+handling infinity:</p>
+<p>The following table shows the result of the division and the remainder, so that
+the equation above holds true. Some "ordinary" cases are strewn in to show more
+clearly the reasoning:</p>
+<pre class="verbatim">	A /  B  =   C,     R so that C *    B +    R =    A
+     =========================================================
+	5 /   8 =   0,     5 	     0 *    8 +    5 =    5
+	0 /   8 =   0,     0	     0 *    8 +    0 =    0
+	0 / inf =   0,     0	     0 *  inf +    0 =    0
+	0 /-inf =   0,     0	     0 * -inf +    0 =    0
+	5 / inf =   0,     5	     0 *  inf +    5 =    5
+	5 /-inf =   0,     5	     0 * -inf +    5 =    5
+	-5/ inf =   0,    -5	     0 *  inf +   -5 =   -5
+	-5/-inf =   0,    -5	     0 * -inf +   -5 =   -5
+       inf/   5 =  inf,    0	   inf *    5 +    0 =  inf
+      -inf/   5 = -inf,    0      -inf *    5 +    0 = -inf
+       inf/  -5 = -inf,    0	  -inf *   -5 +    0 =  inf
+      -inf/  -5 =  inf,    0       inf *   -5 +    0 = -inf
+	 5/   5 =    1,    0         1 *    5 +    0 =    5
+	-5/  -5 =    1,    0         1 *   -5 +    0 =   -5
+       inf/ inf =    1,    0         1 *  inf +    0 =  inf
+      -inf/-inf =    1,    0         1 * -inf +    0 = -inf
+       inf/-inf =   -1,    0        -1 * -inf +    0 =  inf
+      -inf/ inf =   -1,    0         1 * -inf +    0 = -inf
+	 8/   0 =  inf,    8       inf *    0 +    8 =    8 
+       inf/   0 =  inf,  inf       inf *    0 +  inf =  inf 
+         0/   0 =  NaN</pre><p>These cases below violate the "remainder has the sign of the second of the two
+arguments", since they wouldn't match up otherwise.</p>
+<pre class="verbatim">	A /  <a class="l_w" href="../B.html">B</a>  =   C<span class="cm">,</span>     R so that C *    <a class="l_w" href="../B.html">B</a> +    R =    A
+     ========================================================
+      -inf/   <span class="n">0</span> = -inf<span class="cm">,</span> -inf      -inf *    <span class="n">0</span> +  inf = -inf 
+	-<span class="n">8</span>/   <span class="n">0</span> = -inf<span class="cm">,</span>   <span class="n">-8</span>      -inf *    <span class="n">0</span> +    <span class="n">8</span> = <span class="n">-8</span> </pre>
+</li>
+<li><a name="Modifying-and-%3d"></a><b>Modifying and =</b>
+<p>Beware of:</p>
+<pre class="verbatim">        <span class="i">$x</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">5</span><span class="s">)</span><span class="sc">;</span>
+        <span class="i">$y</span> = <span class="i">$x</span><span class="sc">;</span></pre>
+<p>It will not do what you think, e.g. making a copy of $x. Instead it just makes
+a second reference to the <b>same</b> object and stores it in $y. Thus anything
+that modifies $x (except overloaded operators) will modify $y, and vice versa.
+Or in other words, <code class="inline">=</code>
+ is only safe if you modify your BigInts only via
+overloaded math. As soon as you use a method call it breaks:</p>
+<pre class="verbatim">        <span class="i">$x</span><span class="i">-&gt;bmul</span><span class="s">(</span><span class="n">2</span><span class="s">)</span><span class="sc">;</span>
+        <a class="l_k" href="../functions/print.html">print</a> <span class="q">&quot;$x, $y\n&quot;</span><span class="sc">;</span>       <span class="c"># prints &#39;10, 10&#39;</span></pre>
+<p>If you want a true copy of $x, use:</p>
+<pre class="verbatim">        <span class="i">$y</span> = <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>You can also chain the calls like this, this will make first a copy and then
+multiply it by 2:</p>
+<pre class="verbatim">        <span class="i">$y</span> = <span class="i">$x</span><span class="i">-&gt;copy</span><span class="s">(</span><span class="s">)</span><span class="i">-&gt;bmul</span><span class="s">(</span><span class="n">2</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>See also the documentation for overload.pm regarding <code class="inline">=</code>
+.</p>
+</li>
+<li><a name="bpow"></a><b>bpow</b>
+<p><code class="inline"><span class="i">bpow</span><span class="s">(</span><span class="s">)</span></code>
+ (and the rounding functions) now modifies the first argument and
+returns it, unlike the old code which left it alone and only returned the
+result. This is to be consistent with <code class="inline"><span class="i">badd</span><span class="s">(</span><span class="s">)</span></code>
+ etc. The first three will
+modify $x, the last one won't:</p>
+<pre class="verbatim">	print bpow($x,$i),"\n"; 	# modify $x
+	print $x-&gt;bpow($i),"\n"; 	# ditto
+	print $x **= $i,"\n";		# the same
+	print $x ** $i,"\n";		# leave $x alone </pre><p>The form <code class="inline"><span class="i">$x</span> **= <span class="i">$y</span></code>
+ is faster than <code class="inline"><span class="i">$x</span> = <span class="i">$x</span> ** <span class="i">$y</span><span class="sc">;</span></code>
+, though.</p>
+</li>
+<li><a name="Overloading--%24x"></a><b>Overloading -$x</b>
+<p>The following:</p>
+<pre class="verbatim">	<span class="i">$x</span> = -<span class="i">$x</span><span class="sc">;</span></pre>
+<p>is slower than</p>
+<pre class="verbatim">	<span class="i">$x</span><span class="i">-&gt;bneg</span><span class="s">(</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>since overload calls <code class="inline"><a class="l_k" href="../functions/sub.html">sub($x,0,1);</a></code> instead of <code class="inline"><span class="i">neg</span><span class="s">(</span><span class="i">$x</span><span class="s">)</span></code>
+. The first variant
+needs to preserve $x since it does not know that it later will get overwritten.
+This makes a copy of $x and takes O(N), but $x-&gt;bneg() is O(1).</p>
+</li>
+<li><a name="Mixing-different-object-types"></a><b>Mixing different object types</b>
+<p>In Perl you will get a floating point value if you do one of the following:</p>
+<pre class="verbatim">	<span class="i">$float</span> = <span class="n">5.0</span> + <span class="n">2</span><span class="sc">;</span>
+	<span class="i">$float</span> = <span class="n">2</span> + <span class="n">5.0</span><span class="sc">;</span>
+	<span class="i">$float</span> = <span class="n">5</span> / <span class="n">2</span><span class="sc">;</span></pre>
+<p>With overloaded math, only the first two variants will result in a BigFloat:</p>
+<pre class="verbatim">	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigInt.html">Math::BigInt</a><span class="sc">;</span>
+	<a class="l_k" href="../functions/use.html">use</a> <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a><span class="sc">;</span>
+	
+	<span class="i">$mbf</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">5</span><span class="s">)</span><span class="sc">;</span>
+	<span class="i">$mbi2</span> = Math::BigInteger-&gt;new<span class="s">(</span><span class="n">5</span><span class="s">)</span><span class="sc">;</span>
+	<span class="i">$mbi</span> = Math::BigInteger-&gt;new<span class="s">(</span><span class="n">2</span><span class="s">)</span><span class="sc">;</span></pre>
+<pre class="verbatim">					<span class="c"># what actually gets called:</span>
+	<span class="i">$float</span> = <span class="i">$mbf</span> + <span class="i">$mbi</span><span class="sc">;</span>		<span class="c"># $mbf-&gt;badd()</span>
+	<span class="i">$float</span> = <span class="i">$mbf</span> / <span class="i">$mbi</span><span class="sc">;</span>		<span class="c"># $mbf-&gt;bdiv()</span>
+	<span class="i">$integer</span> = <span class="i">$mbi</span> + <span class="i">$mbf</span><span class="sc">;</span>		<span class="c"># $mbi-&gt;badd()</span>
+	<span class="i">$integer</span> = <span class="i">$mbi2</span> / <span class="i">$mbi</span><span class="sc">;</span>	<span class="c"># $mbi2-&gt;bdiv()</span>
+	<span class="i">$integer</span> = <span class="i">$mbi2</span> / <span class="i">$mbf</span><span class="sc">;</span>	<span class="c"># $mbi2-&gt;bdiv()</span></pre>
+<p>This is because math with overloaded operators follows the first (dominating)
+operand, and the operation of that is called and returns thus the result. So,
+Math::BigInt::bdiv() will always return a Math::BigInt, regardless whether
+the result should be a Math::BigFloat or the second operant is one.</p>
+<p>To get a Math::BigFloat you either need to call the operation manually,
+make sure the operands are already of the proper type or casted to that type
+via Math::BigFloat-&gt;new():
+	
+	$float = Math::BigFloat-&gt;new($mbi2) / $mbi;	# = 2.5</p>
+<p>Beware of simple "casting" the entire expression, this would only convert
+the already computed result:</p>
+<pre class="verbatim">	<span class="i">$float</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="i">$mbi2</span> / <span class="i">$mbi</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># = 2.0 thus wrong!</span></pre>
+<p>Beware also of the order of more complicated expressions like:</p>
+<pre class="verbatim">	<span class="i">$integer</span> = <span class="s">(</span><span class="i">$mbi2</span> + <span class="i">$mbi</span><span class="s">)</span> / <span class="i">$mbf</span><span class="sc">;</span>		<span class="c"># int / float =&gt; int</span>
+	<span class="i">$integer</span> = <span class="i">$mbi2</span> / <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="i">$mbi</span><span class="s">)</span><span class="sc">;</span>	<span class="c"># ditto</span></pre>
+<p>If in doubt, break the expression into simpler terms, or cast all operands
+to the desired resulting type.</p>
+<p>Scalar values are a bit different, since:
+	
+	$float = 2 + $mbf;
+	$float = $mbf + 2;</p>
+<p>will both result in the proper type due to the way the overloaded math works.</p>
+<p>This section also applies to other overloaded math packages, like Math::String.</p>
+<p>One solution to you problem might be autoupgrading|upgrading. See the
+pragmas <a href="../bignum.html">bignum</a>, <a href="../bigint.html">bigint</a> and <a href="../bigrat.html">bigrat</a> for an easy way to do this.</p>
+</li>
+<li><a name="bsqrt()"></a><b>bsqrt()</b>
+<p><code class="inline"><span class="i">bsqrt</span><span class="s">(</span><span class="s">)</span></code>
+ works only good if the result is a big integer, e.g. the square
+root of 144 is 12, but from 12 the square root is 3, regardless of rounding
+mode. The reason is that the result is always truncated to an integer.</p>
+<p>If you want a better approximation of the square root, then use:</p>
+<pre class="verbatim">	<span class="i">$x</span> = <a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;new<span class="s">(</span><span class="n">12</span><span class="s">)</span><span class="sc">;</span>
+	<a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;precision<span class="s">(</span><span class="n">0</span><span class="s">)</span><span class="sc">;</span>
+	<a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;round_mode<span class="s">(</span><span class="q">&#39;even&#39;</span><span class="s">)</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;copy</span><span class="i">-&gt;bsqrt</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>		<span class="c"># 4</span></pre>
+<pre class="verbatim">	<a class="l_w" href="../Math/BigFloat.html">Math::BigFloat</a>-&gt;precision<span class="s">(</span><span class="n">2</span><span class="s">)</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;bsqrt</span><span class="s">(</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>			<span class="c"># 3.46</span>
+	<a class="l_k" href="../functions/print.html">print</a> <span class="i">$x</span><span class="i">-&gt;bsqrt</span><span class="s">(</span><span class="n">3</span><span class="s">)</span><span class="cm">,</span><span class="q">&quot;\n&quot;</span><span class="sc">;</span>		<span class="c"># 3.464</span></pre>
+</li>
+<li><a name="brsft()"></a><b>brsft()</b>
+<p>For negative numbers in base see also <a href="http://search.cpan.org/perldoc/brsft">brsft</a>.</p>
+</li>
+</ul>
+<a name="LICENSE"></a><h1>LICENSE</h1>
+<p>This program is free software; you may redistribute it and/or modify it under
+the same terms as Perl itself.</p>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><a href="../Math/BigFloat.html">Math::BigFloat</a>, <a href="../Math/BigRat.html">Math::BigRat</a> and <a href="http://search.cpan.org/perldoc/Math::Big">Math::Big</a> as well as
+<a href="http://search.cpan.org/perldoc/Math::BigInt::BitVect">Math::BigInt::BitVect</a>, <a href="http://search.cpan.org/perldoc/Math::BigInt::Pari">Math::BigInt::Pari</a> and  <a href="http://search.cpan.org/perldoc/Math::BigInt::GMP">Math::BigInt::GMP</a>.</p>
+<p>The pragmas <a href="../bignum.html">bignum</a>, <a href="../bigint.html">bigint</a> and <a href="../bigrat.html">bigrat</a> also might be of interest
+because they solve the autoupgrading/downgrading issue, at least partly.</p>
+<p>The package at
+<a href="http://search.cpan.org/search?mode=module&amp;query=Math%3A%3ABigInt">http://search.cpan.org/search?mode=module&amp;query=Math%3A%3ABigInt</a> contains
+more documentation including a full version history, testcases, empty
+subclass files and benchmarks.</p>
+<a name="AUTHORS"></a><h1>AUTHORS</h1>
+<p>Original code by Mark Biggar, overloaded interface by Ilya Zakharevich.
+Completely rewritten by Tels <a href="http://bloodgate.com">http://bloodgate.com</a> in late 2000, 2001 - 2004
+and still at it in 2005.</p>
+<p>Many people contributed in one or more ways to the final beast, see the file
+CREDITS for an (uncomplete) list. If you miss your name, please drop me a
+mail. Thank you!</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="../perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='../close_purple.gif';" onmouseout="rightCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="../search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('Math::BigInt','Math/BigInt.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

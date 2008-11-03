@@ -1,0 +1,888 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perlboot - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-tutorials.html">Tutorials</a> &gt; perlboot</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perlboot</div><div class="pdf_link"><a href="perlboot.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perlboot.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#If-we-could-talk-to-the-animals...">If we could talk to the animals...</a><li><a href="#Introducing-the-method-invocation-arrow">Introducing the method invocation arrow</a><li><a href="#Invoking-a-barnyard">Invoking a barnyard</a><li><a href="#The-extra-parameter-of-method-invocation">The extra parameter of method invocation</a><li><a href="#Calling-a-second-method-to-simplify-things">Calling a second method to simplify things</a><li><a href="#Inheriting-the-windpipes">Inheriting the windpipes</a><li><a href="#A-few-notes-about-%40ISA">A few notes about @ISA</a><li><a href="#Overriding-the-methods">Overriding the methods</a><li><a href="#Starting-the-search-from-a-different-place">Starting the search from a different place</a><li><a href="#The-SUPER-way-of-doing-things">The SUPER way of doing things</a><li><a href="#Where-we're-at-so-far...">Where we're at so far...</a><li><a href="#A-horse-is-a-horse%2c-of-course-of-course----or-is-it%3f">A horse is a horse, of course of course -- or is it?</a><li><a href="#Invoking-an-instance-method">Invoking an instance method</a><li><a href="#Accessing-the-instance-data">Accessing the instance data</a><li><a href="#How-to-build-a-horse">How to build a horse</a><li><a href="#Inheriting-the-constructor">Inheriting the constructor</a><li><a href="#Making-a-method-work-with-either-classes-or-instances">Making a method work with either classes or instances</a><li><a href="#Adding-parameters-to-a-method">Adding parameters to a method</a><li><a href="#More-interesting-instances">More interesting instances</a><li><a href="#A-horse-of-a-different-color">A horse of a different color</a><li><a href="#Summary">Summary</a></ul><li><a href="#SEE-ALSO">SEE ALSO</a><li><a href="#COPYRIGHT">COPYRIGHT</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perlboot - Beginner's Object-Oriented Tutorial</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>If you're not familiar with objects from other languages, some of the
+other Perl object documentation may be a little daunting, such as
+<a href="perlobj.html">perlobj</a>, a basic reference in using objects, and <a href="perltoot.html">perltoot</a>, which
+introduces readers to the peculiarities of Perl's object system in a
+tutorial way.</p>
+<p>So, let's take a different approach, presuming no prior object
+experience. It helps if you know about subroutines (<a href="perlsub.html">perlsub</a>),
+references (<a href="perlref.html">perlref</a> et. seq.), and packages (<a href="perlmod.html">perlmod</a>), so become
+familiar with those first if you haven't already.</p>
+<a name="If-we-could-talk-to-the-animals..."></a><h2>If we could talk to the animals...</h2>
+<p>Let's let the animals talk for a moment:</p>
+<pre class="verbatim"><a name="Cow::speak"></a>    sub <span class="m">Cow::speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a Cow goes moooo!\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="Horse::speak"></a>    sub <span class="m">Horse::speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a Horse goes neigh!\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="Sheep::speak"></a>    sub <span class="m">Sheep::speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a Sheep goes baaaah!\n&quot;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    Cow::speak<span class="sc">;</span>
+    Horse::speak<span class="sc">;</span>
+    Sheep::speak<span class="sc">;</span></pre>
+<p>This results in:</p>
+<pre class="verbatim">    a Cow goes moooo!
+    a Horse goes neigh!
+    a Sheep goes baaaah!</pre>
+<p>Nothing spectacular here.  Simple subroutines, albeit from separate
+packages, and called using the full package name.  So let's create
+an entire pasture:</p>
+<pre class="verbatim">    <span class="c"># Cow::speak, Horse::speak, Sheep::speak as before</span>
+    <span class="i">@pasture</span> = <span class="q">qw(Cow Cow Horse Sheep Sheep)</span><span class="sc">;</span>
+    foreach <span class="i">$animal</span> <span class="s">(</span><span class="i">@pasture</span><span class="s">)</span> <span class="s">{</span>
+      <span class="i">&amp;</span>{<span class="i">$animal</span>.<span class="q">&quot;::speak&quot;</span>}<span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>This results in:</p>
+<pre class="verbatim">    a Cow goes moooo!
+    a Cow goes moooo!
+    a Horse goes neigh!
+    a Sheep goes baaaah!
+    a Sheep goes baaaah!</pre>
+<p>Wow.  That symbolic coderef de-referencing there is pretty nasty.
+We're counting on <code class="inline"><a class="l_k" href="functions/no.html">no</a> <a class="l_w" href="strict.html">strict</a> <a class="l_w" href="subs.html">subs</a></code>
+ mode, certainly not recommended
+for larger programs.  And why was that necessary?  Because the name of
+the package seems to be inseparable from the name of the subroutine we
+want to invoke within that package.</p>
+<p>Or is it?</p>
+<a name="Introducing-the-method-invocation-arrow"></a><h2>Introducing the method invocation arrow</h2>
+<p>For now, let's say that <code class="inline">Class-&gt;method</code>
+ invokes subroutine
+<code class="inline">method</code>
+ in package <code class="inline">Class</code>
+.  (Here, "Class" is used in its
+"category" meaning, not its "scholastic" meaning.) That's not
+completely accurate, but we'll do this one step at a time.  Now let's
+use it like so:</p>
+<pre class="verbatim">    <span class="c"># Cow::speak, Horse::speak, Sheep::speak as before</span>
+    Cow-&gt;speak<span class="sc">;</span>
+    Horse-&gt;speak<span class="sc">;</span>
+    Sheep-&gt;speak<span class="sc">;</span></pre>
+<p>And once again, this results in:</p>
+<pre class="verbatim">    a Cow goes moooo!
+    a Horse goes neigh!
+    a Sheep goes baaaah!</pre>
+<p>That's not fun yet.  Same number of characters, all constant, no
+variables.  But yet, the parts are separable now.  Watch:</p>
+<pre class="verbatim">    <span class="i">$a</span> = <span class="q">&quot;Cow&quot;</span><span class="sc">;</span>
+    <span class="i">$a</span><span class="i">-&gt;speak</span><span class="sc">;</span> <span class="c"># invokes Cow-&gt;speak</span></pre>
+<p>Ahh!  Now that the package name has been parted from the subroutine
+name, we can use a variable package name.  And this time, we've got
+something that works even when <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="strict.html">strict</a> refs</code>
+ is enabled.</p>
+<a name="Invoking-a-barnyard"></a><h2>Invoking a barnyard</h2>
+<p>Let's take that new arrow invocation and put it back in the barnyard
+example:</p>
+<pre class="verbatim"><a name="Cow::speak"></a>    sub <span class="m">Cow::speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a Cow goes moooo!\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="Horse::speak"></a>    sub <span class="m">Horse::speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a Horse goes neigh!\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="Sheep::speak"></a>    sub <span class="m">Sheep::speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a Sheep goes baaaah!\n&quot;</span>
+    <span class="s">}</span></pre>
+<pre class="verbatim">    <span class="i">@pasture</span> = <span class="q">qw(Cow Cow Horse Sheep Sheep)</span><span class="sc">;</span>
+    foreach <span class="i">$animal</span> <span class="s">(</span><span class="i">@pasture</span><span class="s">)</span> <span class="s">{</span>
+      <span class="i">$animal</span><span class="i">-&gt;speak</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>There!  Now we have the animals all talking, and safely at that,
+without the use of symbolic coderefs.</p>
+<p>But look at all that common code.  Each of the <code class="inline">speak</code>
+ routines has a
+similar structure: a <code class="inline"><a class="l_k" href="functions/print.html">print</a></code> operator and a string that contains
+common text, except for two of the words.  It'd be nice if we could
+factor out the commonality, in case we decide later to change it all
+to <code class="inline">says</code>
+ instead of <code class="inline">goes</code>
+.</p>
+<p>And we actually have a way of doing that without much fuss, but we
+have to hear a bit more about what the method invocation arrow is
+actually doing for us.</p>
+<a name="The-extra-parameter-of-method-invocation"></a><h2>The extra parameter of method invocation</h2>
+<p>The invocation of:</p>
+<pre class="verbatim">    Class-&gt;method<span class="s">(</span><span class="i">@args</span><span class="s">)</span></pre>
+<p>attempts to invoke subroutine <code class="inline">Class::method</code>
+ as:</p>
+<pre class="verbatim">    <span class="i">Class::method</span><span class="s">(</span><span class="q">&quot;Class&quot;</span><span class="cm">,</span> <span class="i">@args</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>(If the subroutine can't be found, "inheritance" kicks in, but we'll
+get to that later.)  This means that we get the class name as the
+first parameter (the only parameter, if no arguments are given).  So
+we can rewrite the <code class="inline">Sheep</code>
+ speaking subroutine as:</p>
+<pre class="verbatim"><a name="Sheep::speak"></a>    sub <span class="m">Sheep::speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a $class goes baaaah!\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>And the other two animals come out similarly:</p>
+<pre class="verbatim"><a name="Cow::speak"></a>    sub <span class="m">Cow::speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a $class goes moooo!\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="Horse::speak"></a>    sub <span class="m">Horse::speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a $class goes neigh!\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>In each case, <code class="inline"><span class="i">$class</span></code>
+ will get the value appropriate for that
+subroutine.  But once again, we have a lot of similar structure.  Can
+we factor that out even further?  Yes, by calling another method in
+the same class.</p>
+<a name="Calling-a-second-method-to-simplify-things"></a><h2>Calling a second method to simplify things</h2>
+<p>Let's call out from <code class="inline">speak</code>
+ to a helper method called <code class="inline">sound</code>
+.
+This method provides the constant text for the sound itself.</p>
+<pre class="verbatim"><a name="package-Cow"></a>    <span class="s">{</span> package <span class="i">Cow</span><span class="sc">;</span>
+<a name="sound"></a>      sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;moooo&quot;</span> <span class="s">}</span>
+<a name="speak"></a>      sub <span class="m">speak</span> <span class="s">{</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a $class goes &quot;</span><span class="cm">,</span> <span class="i">$class</span><span class="i">-&gt;sound</span><span class="cm">,</span> <span class="q">&quot;!\n&quot;</span>
+      <span class="s">}</span>
+<a name="package-main"></a>    <span class="s">}</span></pre>
+<p>Now, when we call <code class="inline">Cow-&gt;speak</code>
+, we get a <code class="inline"><span class="i">$class</span></code>
+ of <code class="inline">Cow</code>
+ in
+<code class="inline">speak</code>
+.  This in turn selects the <code class="inline">Cow-&gt;sound</code>
+ method, which
+returns <code class="inline">moooo</code>
+.  But how different would this be for the <code class="inline">Horse</code>
+?</p>
+<pre class="verbatim"><a name="package-Horse"></a>    <span class="s">{</span> package <span class="i">Horse</span><span class="sc">;</span>
+<a name="sound"></a>      sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;neigh&quot;</span> <span class="s">}</span>
+<a name="speak"></a>      sub <span class="m">speak</span> <span class="s">{</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a $class goes &quot;</span><span class="cm">,</span> <span class="i">$class</span><span class="i">-&gt;sound</span><span class="cm">,</span> <span class="q">&quot;!\n&quot;</span>
+      <span class="s">}</span>
+<a name="package-main"></a>    <span class="s">}</span></pre>
+<p>Only the name of the package and the specific sound change.  So can we
+somehow share the definition for <code class="inline">speak</code>
+ between the Cow and the
+Horse?  Yes, with inheritance!</p>
+<a name="Inheriting-the-windpipes"></a><h2>Inheriting the windpipes</h2>
+<p>We'll define a common subroutine package called <code class="inline">Animal</code>
+, with the
+definition for <code class="inline">speak</code>
+:</p>
+<pre class="verbatim"><a name="package-Animal"></a>    <span class="s">{</span> package <span class="i">Animal</span><span class="sc">;</span>
+<a name="speak"></a>      sub <span class="m">speak</span> <span class="s">{</span>
+	<a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a $class goes &quot;</span><span class="cm">,</span> <span class="i">$class</span><span class="i">-&gt;sound</span><span class="cm">,</span> <span class="q">&quot;!\n&quot;</span>
+      <span class="s">}</span>
+<a name="package-main"></a>    <span class="s">}</span></pre>
+<p>Then, for each animal, we say it "inherits" from <code class="inline">Animal</code>
+, along
+with the animal-specific sound:</p>
+<pre class="verbatim"><a name="package-Cow"></a>    <span class="s">{</span> package <span class="i">Cow</span><span class="sc">;</span>
+      <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span>
+<a name="sound"></a>      sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;moooo&quot;</span> <span class="s">}</span>
+<a name="package-main"></a>    <span class="s">}</span></pre>
+<p>Note the added <code class="inline"><span class="i">@ISA</span></code>
+ array.  We'll get to that in a minute.</p>
+<p>But what happens when we invoke <code class="inline">Cow-&gt;speak</code>
+ now?</p>
+<p>First, Perl constructs the argument list.  In this case, it's just
+<code class="inline">Cow</code>
+.  Then Perl looks for <code class="inline">Cow::speak</code>
+.  But that's not there, so
+Perl checks for the inheritance array <code class="inline"><span class="i">@Cow::ISA</span></code>
+.  It's there,
+and contains the single name <code class="inline">Animal</code>
+.</p>
+<p>Perl next checks for <code class="inline">speak</code>
+ inside <code class="inline">Animal</code>
+ instead, as in
+<code class="inline">Animal::speak</code>
+.  And that's found, so Perl invokes that subroutine
+with the already frozen argument list.</p>
+<p>Inside the <code class="inline">Animal::speak</code>
+ subroutine, <code class="inline"><span class="i">$class</span></code>
+ becomes <code class="inline">Cow</code>
+ (the
+first argument).  So when we get to the step of invoking
+<code class="inline"><span class="i">$class</span><span class="i">-&gt;sound</span></code>
+, it'll be looking for <code class="inline">Cow-&gt;sound</code>
+, which
+gets it on the first try without looking at <code class="inline"><span class="i">@ISA</span></code>
+.  Success!</p>
+<a name="A-few-notes-about-%40ISA"></a><h2>A few notes about @ISA</h2>
+<p>This magical <code class="inline"><span class="i">@ISA</span></code>
+ variable (pronounced "is a" not "ice-uh"), has
+declared that <code class="inline">Cow</code>
+ "is a" <code class="inline">Animal</code>
+.  Note that it's an array,
+not a simple single value, because on rare occasions, it makes sense
+to have more than one parent class searched for the missing methods.</p>
+<p>If <code class="inline">Animal</code>
+ also had an <code class="inline"><span class="i">@ISA</span></code>
+, then we'd check there too.  The
+search is recursive, depth-first, left-to-right in each <code class="inline"><span class="i">@ISA</span></code>
+.
+Typically, each <code class="inline"><span class="i">@ISA</span></code>
+ has only one element (multiple elements means
+multiple inheritance and multiple headaches), so we get a nice tree of
+inheritance.</p>
+<p>When we turn on <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="strict.html">strict</a></code>
+, we'll get complaints on <code class="inline"><span class="i">@ISA</span></code>
+, since
+it's not a variable containing an explicit package name, nor is it a
+lexical ("my") variable.  We can't make it a lexical variable though
+(it has to belong to the package to be found by the inheritance mechanism),
+so there's a couple of straightforward ways to handle that.</p>
+<p>The easiest is to just spell the package name out:</p>
+<pre class="verbatim">    <span class="i">@Cow::ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span></pre>
+<p>Or allow it as an implicitly named package variable:</p>
+<pre class="verbatim"><a name="package-Cow"></a>    package <span class="i">Cow</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="vars.html">vars</a> <span class="q">qw(@ISA)</span><span class="sc">;</span>
+    <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span></pre>
+<p>If you're bringing in the class from outside, via an object-oriented
+module, you change:</p>
+<pre class="verbatim"><a name="package-Cow"></a>    package <span class="i">Cow</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> Animal<span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="vars.html">vars</a> <span class="q">qw(@ISA)</span><span class="sc">;</span>
+    <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span></pre>
+<p>into just:</p>
+<pre class="verbatim"><a name="package-Cow"></a>    package <span class="i">Cow</span><span class="sc">;</span>
+    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="base.html">base</a> <span class="q">qw(Animal)</span><span class="sc">;</span></pre>
+<p>And that's pretty darn compact.</p>
+<a name="Overriding-the-methods"></a><h2>Overriding the methods</h2>
+<p>Let's add a mouse, which can barely be heard:</p>
+<pre class="verbatim">    <span class="c"># Animal package from before</span>
+<a name="package-Mouse"></a>    <span class="s">{</span> package <span class="i">Mouse</span><span class="sc">;</span>
+      <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span>
+<a name="sound"></a>      sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;squeak&quot;</span> <span class="s">}</span>
+<a name="speak"></a>      sub <span class="m">speak</span> <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a $class goes &quot;</span><span class="cm">,</span> <span class="i">$class</span><span class="i">-&gt;sound</span><span class="cm">,</span> <span class="q">&quot;!\n&quot;</span><span class="sc">;</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;[but you can barely hear it!]\n&quot;</span><span class="sc">;</span>
+      <span class="s">}</span>
+<a name="package-main"></a>    <span class="s">}</span></pre>
+<pre class="verbatim">    Mouse-&gt;speak<span class="sc">;</span></pre>
+<p>which results in:</p>
+<pre class="verbatim">    a Mouse goes squeak!
+    <span class="s">[</span>but you can barely hear it!<span class="s">]</span></pre>
+<p>Here, <code class="inline">Mouse</code>
+ has its own speaking routine, so <code class="inline">Mouse-&gt;speak</code>
+
+doesn't immediately invoke <code class="inline">Animal-&gt;speak</code>
+.  This is known as
+"overriding".  In fact, we didn't even need to say that a <code class="inline">Mouse</code>
+ was
+an <code class="inline">Animal</code>
+ at all, since all of the methods needed for <code class="inline">speak</code>
+ are
+completely defined with <code class="inline">Mouse</code>
+.</p>
+<p>But we've now duplicated some of the code from <code class="inline">Animal-&gt;speak</code>
+,
+and this can once again be a maintenance headache.  So, can we avoid
+that?  Can we say somehow that a <code class="inline">Mouse</code>
+ does everything any other
+<code class="inline">Animal</code>
+ does, but add in the extra comment?  Sure!</p>
+<p>First, we can invoke the <code class="inline">Animal::speak</code>
+ method directly:</p>
+<pre class="verbatim">    <span class="c"># Animal package from before</span>
+<a name="package-Mouse"></a>    <span class="s">{</span> package <span class="i">Mouse</span><span class="sc">;</span>
+      <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span>
+<a name="sound"></a>      sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;squeak&quot;</span> <span class="s">}</span>
+<a name="speak"></a>      sub <span class="m">speak</span> <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+        <span class="i">Animal::speak</span><span class="s">(</span><span class="i">$class</span><span class="s">)</span><span class="sc">;</span>
+	<a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;[but you can barely hear it!]\n&quot;</span><span class="sc">;</span>
+      <span class="s">}</span>
+<a name="package-main"></a>    <span class="s">}</span></pre>
+<p>Note that we have to include the <code class="inline"><span class="i">$class</span></code>
+ parameter (almost surely
+the value of <code class="inline"><span class="q">&quot;Mouse&quot;</span></code>
+) as the first parameter to <code class="inline">Animal::speak</code>
+,
+since we've stopped using the method arrow.  Why did we stop?  Well,
+if we invoke <code class="inline">Animal-&gt;speak</code>
+ there, the first parameter to the
+method will be <code class="inline"><span class="q">&quot;Animal&quot;</span></code>
+ not <code class="inline"><span class="q">&quot;Mouse&quot;</span></code>
+, and when time comes for it
+to call for the <code class="inline">sound</code>
+, it won't have the right class to come back
+to this package.</p>
+<p>Invoking <code class="inline">Animal::speak</code>
+ directly is a mess, however.  What if
+<code class="inline">Animal::speak</code>
+ didn't exist before, and was being inherited from a
+class mentioned in <code class="inline"><span class="i">@Animal::ISA</span></code>
+?  Because we are no longer using
+the method arrow, we get one and only one chance to hit the right
+subroutine.</p>
+<p>Also note that the <code class="inline">Animal</code>
+ classname is now hardwired into the
+subroutine selection.  This is a mess if someone maintains the code,
+changing <code class="inline"><span class="i">@ISA</span></code>
+ for &lt;Mouse&gt; and didn't notice <code class="inline">Animal</code>
+ there in
+<code class="inline">speak</code>
+.  So, this is probably not the right way to go.</p>
+<a name="Starting-the-search-from-a-different-place"></a><h2>Starting the search from a different place</h2>
+<p>A better solution is to tell Perl to search from a higher place
+in the inheritance chain:</p>
+<pre class="verbatim">    <span class="c"># same Animal as before</span>
+<a name="package-Mouse"></a>    <span class="s">{</span> package <span class="i">Mouse</span><span class="sc">;</span>
+      <span class="c"># same @ISA, &amp;sound as before</span>
+<a name="speak"></a>      sub <span class="m">speak</span> <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+        <span class="i">$class</span><span class="i">-&gt;Animal::speak</span><span class="sc">;</span>
+        <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;[but you can barely hear it!]\n&quot;</span><span class="sc">;</span>
+      <span class="s">}</span>
+<a name="package-main"></a>    <span class="s">}</span></pre>
+<p>Ahh.  This works.  Using this syntax, we start with <code class="inline">Animal</code>
+ to find
+<code class="inline">speak</code>
+, and use all of <code class="inline">Animal</code>
+'s inheritance chain if not found
+immediately.  And yet the first parameter will be <code class="inline"><span class="i">$class</span></code>
+, so the
+found <code class="inline">speak</code>
+ method will get <code class="inline">Mouse</code>
+ as its first entry, and
+eventually work its way back to <code class="inline">Mouse::sound</code>
+ for the details.</p>
+<p>But this isn't the best solution.  We still have to keep the <code class="inline"><span class="i">@ISA</span></code>
+
+and the initial search package coordinated.  Worse, if <code class="inline">Mouse</code>
+ had
+multiple entries in <code class="inline"><span class="i">@ISA</span></code>
+, we wouldn't necessarily know which one
+had actually defined <code class="inline">speak</code>
+.  So, is there an even better way?</p>
+<a name="The-SUPER-way-of-doing-things"></a><h2>The SUPER way of doing things</h2>
+<p>By changing the <code class="inline">Animal</code>
+ class to the <code class="inline">SUPER</code>
+ class in that
+invocation, we get a search of all of our super classes (classes
+listed in <code class="inline"><span class="i">@ISA</span></code>
+) automatically:</p>
+<pre class="verbatim">    <span class="c"># same Animal as before</span>
+<a name="package-Mouse"></a>    <span class="s">{</span> package <span class="i">Mouse</span><span class="sc">;</span>
+      <span class="c"># same @ISA, &amp;sound as before</span>
+<a name="speak"></a>      sub <span class="m">speak</span> <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+        <span class="i">$class</span><span class="i">-&gt;SUPER::speak</span><span class="sc">;</span>
+        <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;[but you can barely hear it!]\n&quot;</span><span class="sc">;</span>
+      <span class="s">}</span>
+<a name="package-main"></a>    <span class="s">}</span></pre>
+<p>So, <code class="inline">SUPER::speak</code>
+ means look in the current package's <code class="inline"><span class="i">@ISA</span></code>
+ for
+<code class="inline">speak</code>
+, invoking the first one found. Note that it does <i>not</i> look in
+the <code class="inline"><span class="i">@ISA</span></code>
+ of <code class="inline"><span class="i">$class</span></code>
+.</p>
+<a name="Where-we're-at-so-far..."></a><h2>Where we're at so far...</h2>
+<p>So far, we've seen the method arrow syntax:</p>
+<pre class="verbatim">  Class-&gt;method<span class="s">(</span><span class="i">@args</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>or the equivalent:</p>
+<pre class="verbatim">  <span class="i">$a</span> = <span class="q">&quot;Class&quot;</span><span class="sc">;</span>
+  <span class="i">$a</span><span class="i">-&gt;method</span><span class="s">(</span><span class="i">@args</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>which constructs an argument list of:</p>
+<pre class="verbatim">  <span class="s">(</span><span class="q">&quot;Class&quot;</span><span class="cm">,</span> <span class="i">@args</span><span class="s">)</span></pre>
+<p>and attempts to invoke</p>
+<pre class="verbatim">  <span class="i">Class::method</span><span class="s">(</span><span class="q">&quot;Class&quot;</span><span class="cm">,</span> <span class="i">@Args</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>However, if <code class="inline">Class::method</code>
+ is not found, then <code class="inline"><span class="i">@Class::ISA</span></code>
+ is examined
+(recursively) to locate a package that does indeed contain <code class="inline">method</code>
+,
+and that subroutine is invoked instead.</p>
+<p>Using this simple syntax, we have class methods, (multiple)
+inheritance, overriding, and extending.  Using just what we've seen so
+far, we've been able to factor out common code, and provide a nice way
+to reuse implementations with variations.  This is at the core of what
+objects provide, but objects also provide instance data, which we
+haven't even begun to cover.</p>
+<a name="A-horse-is-a-horse%2c-of-course-of-course----or-is-it%3f"></a><h2>A horse is a horse, of course of course -- or is it?</h2>
+<p>Let's start with the code for the <code class="inline">Animal</code>
+ class
+and the <code class="inline">Horse</code>
+ class:</p>
+<pre class="verbatim"><a name="package-Animal"></a>  <span class="s">{</span> package <span class="i">Animal</span><span class="sc">;</span>
+<a name="speak"></a>    sub <span class="m">speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a $class goes &quot;</span><span class="cm">,</span> <span class="i">$class</span><span class="i">-&gt;sound</span><span class="cm">,</span> <span class="q">&quot;!\n&quot;</span>
+    <span class="s">}</span>
+<a name="package-main"></a>  <span class="s">}</span>
+<a name="package-Horse"></a>  <span class="s">{</span> package <span class="i">Horse</span><span class="sc">;</span>
+    <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span>
+<a name="sound"></a>    sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;neigh&quot;</span> <span class="s">}</span>
+<a name="package-main-1"></a>  <span class="s">}</span></pre>
+<p>This lets us invoke <code class="inline">Horse-&gt;speak</code>
+ to ripple upward to
+<code class="inline">Animal::speak</code>
+, calling back to <code class="inline">Horse::sound</code>
+ to get the specific
+sound, and the output of:</p>
+<pre class="verbatim">  a Horse goes neigh!</pre>
+<p>But all of our Horse objects would have to be absolutely identical.
+If I add a subroutine, all horses automatically share it.  That's
+great for making horses the same, but how do we capture the
+distinctions about an individual horse?  For example, suppose I want
+to give my first horse a name.  There's got to be a way to keep its
+name separate from the other horses.</p>
+<p>We can do that by drawing a new distinction, called an "instance".
+An "instance" is generally created by a class.  In Perl, any reference
+can be an instance, so let's start with the simplest reference
+that can hold a horse's name: a scalar reference.</p>
+<pre class="verbatim">  <a class="l_k" href="functions/my.html">my</a> <span class="i">$name</span> = <span class="q">&quot;Mr. Ed&quot;</span><span class="sc">;</span>
+  <a class="l_k" href="functions/my.html">my</a> <span class="i">$talking</span> = \<span class="i">$name</span><span class="sc">;</span></pre>
+<p>So now <code class="inline"><span class="i">$talking</span></code>
+ is a reference to what will be the instance-specific
+data (the name).  The final step in turning this into a real instance
+is with a special operator called <code class="inline"><a class="l_k" href="functions/bless.html">bless</a></code>:</p>
+<pre class="verbatim">  <a class="l_k" href="functions/bless.html">bless</a> <span class="i">$talking</span><span class="cm">,</span> Horse<span class="sc">;</span></pre>
+<p>This operator stores information about the package named <code class="inline">Horse</code>
+ into
+the thing pointed at by the reference.  At this point, we say
+<code class="inline"><span class="i">$talking</span></code>
+ is an instance of <code class="inline">Horse</code>
+.  That is, it's a specific
+horse.  The reference is otherwise unchanged, and can still be used
+with traditional dereferencing operators.</p>
+<a name="Invoking-an-instance-method"></a><h2>Invoking an instance method</h2>
+<p>The method arrow can be used on instances, as well as names of
+packages (classes).  So, let's get the sound that <code class="inline"><span class="i">$talking</span></code>
+ makes:</p>
+<pre class="verbatim">  <a class="l_k" href="functions/my.html">my</a> <span class="i">$noise</span> = <span class="i">$talking</span><span class="i">-&gt;sound</span><span class="sc">;</span></pre>
+<p>To invoke <code class="inline">sound</code>
+, Perl first notes that <code class="inline"><span class="i">$talking</span></code>
+ is a blessed
+reference (and thus an instance).  It then constructs an argument
+list, in this case from just <code class="inline"><span class="s">(</span><span class="i">$talking</span><span class="s">)</span></code>
+.  (Later we'll see that
+arguments will take their place following the instance variable,
+just like with classes.)</p>
+<p>Now for the fun part: Perl takes the class in which the instance was
+blessed, in this case <code class="inline">Horse</code>
+, and uses that to locate the subroutine
+to invoke the method.  In this case, <code class="inline">Horse::sound</code>
+ is found directly
+(without using inheritance), yielding the final subroutine invocation:</p>
+<pre class="verbatim">  <span class="i">Horse::sound</span><span class="s">(</span><span class="i">$talking</span><span class="s">)</span></pre>
+<p>Note that the first parameter here is still the instance, not the name
+of the class as before.  We'll get <code class="inline">neigh</code>
+ as the return value, and
+that'll end up as the <code class="inline"><span class="i">$noise</span></code>
+ variable above.</p>
+<p>If Horse::sound had not been found, we'd be wandering up the
+<code class="inline"><span class="i">@Horse::ISA</span></code>
+ list to try to find the method in one of the
+superclasses, just as for a class method.  The only difference between
+a class method and an instance method is whether the first parameter
+is an instance (a blessed reference) or a class name (a string).</p>
+<a name="Accessing-the-instance-data"></a><h2>Accessing the instance data</h2>
+<p>Because we get the instance as the first parameter, we can now access
+the instance-specific data.  In this case, let's add a way to get at
+the name:</p>
+<pre class="verbatim"><a name="package-Horse"></a>  <span class="s">{</span> package <span class="i">Horse</span><span class="sc">;</span>
+    <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span>
+<a name="sound"></a>    sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;neigh&quot;</span> <span class="s">}</span>
+<a name="name"></a>    sub <span class="m">name</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$self</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <span class="i">$$self</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="package-main"></a>  <span class="s">}</span></pre>
+<p>Now we call for the name:</p>
+<pre class="verbatim">  <a class="l_k" href="functions/print.html">print</a> <span class="i">$talking</span><span class="i">-&gt;name</span><span class="cm">,</span> <span class="q">&quot; says &quot;</span><span class="cm">,</span> <span class="i">$talking</span><span class="i">-&gt;sound</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<p>Inside <code class="inline">Horse::name</code>
+, the <code class="inline"><span class="i">@_</span></code>
+ array contains just <code class="inline"><span class="i">$talking</span></code>
+,
+which the <code class="inline"><a class="l_k" href="functions/shift.html">shift</a></code> stores into <code class="inline"><span class="i">$self</span></code>
+.  (It's traditional to shift
+the first parameter off into a variable named <code class="inline"><span class="i">$self</span></code>
+ for instance
+methods, so stay with that unless you have strong reasons otherwise.)
+Then, <code class="inline"><span class="i">$self</span></code>
+ gets de-referenced as a scalar ref, yielding <code class="inline">Mr. Ed</code>
+,
+and we're done with that.  The result is:</p>
+<pre class="verbatim">  Mr. Ed says neigh.</pre>
+<a name="How-to-build-a-horse"></a><h2>How to build a horse</h2>
+<p>Of course, if we constructed all of our horses by hand, we'd most
+likely make mistakes from time to time.  We're also violating one of
+the properties of object-oriented programming, in that the "inside
+guts" of a Horse are visible.  That's good if you're a veterinarian,
+but not if you just like to own horses.  So, let's let the Horse class
+build a new horse:</p>
+<pre class="verbatim"><a name="package-Horse"></a>  <span class="s">{</span> package <span class="i">Horse</span><span class="sc">;</span>
+    <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span>
+<a name="sound"></a>    sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;neigh&quot;</span> <span class="s">}</span>
+<a name="name"></a>    sub <span class="m">name</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$self</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <span class="i">$$self</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="named"></a>    sub <span class="m">named</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$name</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/bless.html">bless</a> \<span class="i">$name</span><span class="cm">,</span> <span class="i">$class</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="package-main"></a>  <span class="s">}</span></pre>
+<p>Now with the new <code class="inline">named</code>
+ method, we can build a horse:</p>
+<pre class="verbatim">  <a class="l_k" href="functions/my.html">my</a> <span class="i">$talking</span> = Horse-&gt;named<span class="s">(</span><span class="q">&quot;Mr. Ed&quot;</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>Notice we're back to a class method, so the two arguments to
+<code class="inline">Horse::named</code>
+ are <code class="inline">Horse</code>
+ and <code class="inline">Mr. Ed</code>
+.  The <code class="inline"><a class="l_k" href="functions/bless.html">bless</a></code> operator
+not only blesses <code class="inline"><span class="i">$name</span></code>
+, it also returns the reference to <code class="inline"><span class="i">$name</span></code>
+,
+so that's fine as a return value.  And that's how to build a horse.</p>
+<p>We've called the constructor <code class="inline">named</code>
+ here, so that it quickly denotes
+the constructor's argument as the name for this particular <code class="inline">Horse</code>
+.
+You can use different constructors with different names for different
+ways of "giving birth" to the object (like maybe recording its
+pedigree or date of birth).  However, you'll find that most people
+coming to Perl from more limited languages use a single constructor
+named <code class="inline">new</code>
+, with various ways of interpreting the arguments to
+<code class="inline">new</code>
+.  Either style is fine, as long as you document your particular
+way of giving birth to an object.  (And you <i>were</i> going to do that,
+right?)</p>
+<a name="Inheriting-the-constructor"></a><h2>Inheriting the constructor</h2>
+<p>But was there anything specific to <code class="inline">Horse</code>
+ in that method?  No.  Therefore,
+it's also the same recipe for building anything else that inherited from
+<code class="inline">Animal</code>
+, so let's put it there:</p>
+<pre class="verbatim"><a name="package-Animal"></a>  <span class="s">{</span> package <span class="i">Animal</span><span class="sc">;</span>
+<a name="speak"></a>    sub <span class="m">speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="q">&quot;a $class goes &quot;</span><span class="cm">,</span> <span class="i">$class</span><span class="i">-&gt;sound</span><span class="cm">,</span> <span class="q">&quot;!\n&quot;</span>
+    <span class="s">}</span>
+<a name="name"></a>    sub <span class="m">name</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$self</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <span class="i">$$self</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="named"></a>    sub <span class="m">named</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$name</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/bless.html">bless</a> \<span class="i">$name</span><span class="cm">,</span> <span class="i">$class</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="package-main"></a>  <span class="s">}</span>
+<a name="package-Horse"></a>  <span class="s">{</span> package <span class="i">Horse</span><span class="sc">;</span>
+    <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span>
+<a name="sound"></a>    sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;neigh&quot;</span> <span class="s">}</span>
+<a name="package-main-1"></a>  <span class="s">}</span></pre>
+<p>Ahh, but what happens if we invoke <code class="inline">speak</code>
+ on an instance?</p>
+<pre class="verbatim">  <a class="l_k" href="functions/my.html">my</a> <span class="i">$talking</span> = Horse-&gt;named<span class="s">(</span><span class="q">&quot;Mr. Ed&quot;</span><span class="s">)</span><span class="sc">;</span>
+  <span class="i">$talking</span><span class="i">-&gt;speak</span><span class="sc">;</span></pre>
+<p>We get a debugging value:</p>
+<pre class="verbatim">  a Horse=SCALAR(0xaca42ac) goes neigh!</pre><p>Why?  Because the <code class="inline">Animal::speak</code>
+ routine is expecting a classname as
+its first parameter, not an instance.  When the instance is passed in,
+we'll end up using a blessed scalar reference as a string, and that
+shows up as we saw it just now.</p>
+<a name="Making-a-method-work-with-either-classes-or-instances"></a><h2>Making a method work with either classes or instances</h2>
+<p>All we need is for a method to detect if it is being called on a class
+or called on an instance.  The most straightforward way is with the
+<code class="inline"><a class="l_k" href="functions/ref.html">ref</a></code> operator.  This returns a string (the classname) when used on a
+blessed reference, and <code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code> when used on a string (like a
+classname).  Let's modify the <code class="inline">name</code>
+ method first to notice the change:</p>
+<pre class="verbatim"><a name="name"></a>  sub <span class="m">name</span> <span class="s">{</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$either</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+    <a class="l_k" href="functions/ref.html">ref</a> <span class="i">$either</span>
+      ? <span class="i">$$either</span> <span class="c"># it&#39;s an instance, return name</span>
+      <span class="co">:</span> <span class="q">&quot;an unnamed $either&quot;</span><span class="sc">;</span> <span class="c"># it&#39;s a class, return generic</span>
+  <span class="s">}</span></pre>
+<p>Here, the <code class="inline">?:</code> operator comes in handy to select either the
+dereference or a derived string.  Now we can use this with either an
+instance or a class.  Note that I've changed the first parameter
+holder to <code class="inline"><span class="i">$either</span></code>
+ to show that this is intended:</p>
+<pre class="verbatim">  <a class="l_k" href="functions/my.html">my</a> <span class="i">$talking</span> = Horse-&gt;named<span class="s">(</span><span class="q">&quot;Mr. Ed&quot;</span><span class="s">)</span><span class="sc">;</span>
+  <a class="l_k" href="functions/print.html">print</a> <span class="i">Horse</span><span class="i">-&gt;name</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span> <span class="c"># prints &quot;an unnamed Horse\n&quot;</span>
+  <a class="l_k" href="functions/print.html">print</a> <span class="i">$talking</span><span class="i">-&gt;name</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span> <span class="c"># prints &quot;Mr Ed.\n&quot;</span></pre>
+<p>and now we'll fix <code class="inline">speak</code>
+ to use this:</p>
+<pre class="verbatim"><a name="speak"></a>  sub <span class="m">speak</span> <span class="s">{</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$either</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+    <a class="l_k" href="functions/print.html">print</a> <span class="i">$either</span><span class="i">-&gt;name</span><span class="cm">,</span> <span class="q">&quot; goes &quot;</span><span class="cm">,</span> <span class="i">$either</span><span class="i">-&gt;sound</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span>
+  <span class="s">}</span></pre>
+<p>And since <code class="inline">sound</code>
+ already worked with either a class or an instance,
+we're done!</p>
+<a name="Adding-parameters-to-a-method"></a><h2>Adding parameters to a method</h2>
+<p>Let's train our animals to eat:</p>
+<pre class="verbatim"><a name="package-Animal"></a>  <span class="s">{</span> package <span class="i">Animal</span><span class="sc">;</span>
+<a name="named"></a>    sub <span class="m">named</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$name</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/bless.html">bless</a> \<span class="i">$name</span><span class="cm">,</span> <span class="i">$class</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="name"></a>    sub <span class="m">name</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$either</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/ref.html">ref</a> <span class="i">$either</span>
+	? <span class="i">$$either</span> <span class="c"># it&#39;s an instance, return name</span>
+	<span class="co">:</span> <span class="q">&quot;an unnamed $either&quot;</span><span class="sc">;</span> <span class="c"># it&#39;s a class, return generic</span>
+    <span class="s">}</span>
+<a name="speak"></a>    sub <span class="m">speak</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$either</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="i">$either</span><span class="i">-&gt;name</span><span class="cm">,</span> <span class="q">&quot; goes &quot;</span><span class="cm">,</span> <span class="i">$either</span><span class="i">-&gt;sound</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="eat"></a>    sub <span class="m">eat</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$either</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/my.html">my</a> <span class="i">$food</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/print.html">print</a> <span class="i">$either</span><span class="i">-&gt;name</span><span class="cm">,</span> <span class="q">&quot; eats $food.\n&quot;</span><span class="sc">;</span>
+    <span class="s">}</span>
+<a name="package-main"></a>  <span class="s">}</span>
+<a name="package-Horse"></a>  <span class="s">{</span> package <span class="i">Horse</span><span class="sc">;</span>
+    <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span>
+<a name="sound"></a>    sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;neigh&quot;</span> <span class="s">}</span>
+<a name="package-main-1"></a>  <span class="s">}</span>
+<a name="package-Sheep"></a>  <span class="s">{</span> package <span class="i">Sheep</span><span class="sc">;</span>
+    <span class="i">@ISA</span> = <span class="q">qw(Animal)</span><span class="sc">;</span>
+<a name="sound-1"></a>    sub <span class="m">sound</span> <span class="s">{</span> <span class="q">&quot;baaaah&quot;</span> <span class="s">}</span>
+<a name="package-main-2"></a>  <span class="s">}</span></pre>
+<p>And now try it out:</p>
+<pre class="verbatim">  <a class="l_k" href="functions/my.html">my</a> <span class="i">$talking</span> = Horse-&gt;named<span class="s">(</span><span class="q">&quot;Mr. Ed&quot;</span><span class="s">)</span><span class="sc">;</span>
+  <span class="i">$talking</span><span class="i">-&gt;eat</span><span class="s">(</span><span class="q">&quot;hay&quot;</span><span class="s">)</span><span class="sc">;</span>
+  Sheep-&gt;eat<span class="s">(</span><span class="q">&quot;grass&quot;</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>which prints:</p>
+<pre class="verbatim">  Mr. Ed eats hay.
+  an unnamed Sheep eats grass.</pre>
+<p>An instance method with parameters gets invoked with the instance,
+and then the list of parameters.  So that first invocation is like:</p>
+<pre class="verbatim">  <span class="i">Animal::eat</span><span class="s">(</span><span class="i">$talking</span><span class="cm">,</span> <span class="q">&quot;hay&quot;</span><span class="s">)</span><span class="sc">;</span></pre>
+<a name="More-interesting-instances"></a><h2>More interesting instances</h2>
+<p>What if an instance needs more data?  Most interesting instances are
+made of many items, each of which can in turn be a reference or even
+another object.  The easiest way to store these is often in a hash.
+The keys of the hash serve as the names of parts of the object (often
+called "instance variables" or "member variables"), and the
+corresponding values are, well, the values.</p>
+<p>But how do we turn the horse into a hash?  Recall that an object was
+any blessed reference.  We can just as easily make it a blessed hash
+reference as a blessed scalar reference, as long as everything that
+looks at the reference is changed accordingly.</p>
+<p>Let's make a sheep that has a name and a color:</p>
+<pre class="verbatim">  <a class="l_k" href="functions/my.html">my</a> <span class="i">$bad</span> = <a class="l_k" href="functions/bless.html">bless</a> <span class="s">{</span> Name <span class="cm">=&gt;</span> <span class="q">&quot;Evil&quot;</span><span class="cm">,</span> Color <span class="cm">=&gt;</span> <span class="q">&quot;black&quot;</span> <span class="s">}</span><span class="cm">,</span> Sheep<span class="sc">;</span></pre>
+<p>so <code class="inline"><span class="i">$bad</span>-&gt;{Name}</code>
+ has <code class="inline">Evil</code>
+, and <code class="inline"><span class="i">$bad</span>-&gt;{Color}</code>
+ has
+<code class="inline">black</code>
+.  But we want to make <code class="inline"><span class="i">$bad</span><span class="i">-&gt;name</span></code>
+ access the name, and
+that's now messed up because it's expecting a scalar reference.  Not
+to worry, because that's pretty easy to fix up:</p>
+<pre class="verbatim">  <span class="c">## in Animal</span>
+<a name="name"></a>  sub <span class="m">name</span> <span class="s">{</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$either</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+    <a class="l_k" href="functions/ref.html">ref</a> <span class="i">$either</span> ?
+      <span class="i">$either</span>-&gt;{Name} <span class="co">:</span>
+      <span class="q">&quot;an unnamed $either&quot;</span><span class="sc">;</span>
+  <span class="s">}</span></pre>
+<p>And of course <code class="inline">named</code>
+ still builds a scalar sheep, so let's fix that
+as well:</p>
+<pre class="verbatim">  <span class="c">## in Animal</span>
+<a name="named"></a>  sub <span class="m">named</span> <span class="s">{</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$class</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$name</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+    <a class="l_k" href="functions/my.html">my</a> <span class="i">$self</span> = <span class="s">{</span> Name <span class="cm">=&gt;</span> <span class="i">$name</span><span class="cm">,</span> Color <span class="cm">=&gt;</span> <span class="i">$class</span><span class="i">-&gt;default_color</span> <span class="s">}</span><span class="sc">;</span>
+    <a class="l_k" href="functions/bless.html">bless</a> <span class="i">$self</span><span class="cm">,</span> <span class="i">$class</span><span class="sc">;</span>
+  <span class="s">}</span></pre>
+<p>What's this <code class="inline">default_color</code>
+?  Well, if <code class="inline">named</code>
+ has only the name,
+we still need to set a color, so we'll have a class-specific initial color.
+For a sheep, we might define it as white:</p>
+<pre class="verbatim">  <span class="c">## in Sheep</span>
+<a name="default_color"></a>  sub <span class="m">default_color</span> <span class="s">{</span> <span class="q">&quot;white&quot;</span> <span class="s">}</span></pre>
+<p>And then to keep from having to define one for each additional class,
+we'll define a "backstop" method that serves as the "default default",
+directly in <code class="inline">Animal</code>
+:</p>
+<pre class="verbatim">  <span class="c">## in Animal</span>
+<a name="default_color"></a>  sub <span class="m">default_color</span> <span class="s">{</span> <span class="q">&quot;brown&quot;</span> <span class="s">}</span></pre>
+<p>Now, because <code class="inline">name</code>
+ and <code class="inline">named</code>
+ were the only methods that
+referenced the "structure" of the object, the rest of the methods can
+remain the same, so <code class="inline">speak</code>
+ still works as before.</p>
+<a name="A-horse-of-a-different-color"></a><h2>A horse of a different color</h2>
+<p>But having all our horses be brown would be boring.  So let's add a
+method or two to get and set the color.</p>
+<pre class="verbatim">  <span class="c">## in Animal</span>
+<a name="color"></a>  sub <span class="m">color</span> <span class="s">{</span>
+    <span class="i">$_</span>[<span class="n">0</span>]-&gt;{Color}
+  <span class="s">}</span>
+<a name="set_color"></a>  sub <span class="m">set_color</span> <span class="s">{</span>
+    <span class="i">$_</span>[<span class="n">0</span>]-&gt;{Color} = <span class="i">$_</span>[<span class="n">1</span>]<span class="sc">;</span>
+  <span class="s">}</span></pre>
+<p>Note the alternate way of accessing the arguments: <code class="inline"><span class="i">$_</span>[<span class="n">0</span>]</code>
+ is used
+in-place, rather than with a <code class="inline"><a class="l_k" href="functions/shift.html">shift</a></code>.  (This saves us a bit of time
+for something that may be invoked frequently.)  And now we can fix
+that color for Mr. Ed:</p>
+<pre class="verbatim">  <a class="l_k" href="functions/my.html">my</a> <span class="i">$talking</span> = Horse-&gt;named<span class="s">(</span><span class="q">&quot;Mr. Ed&quot;</span><span class="s">)</span><span class="sc">;</span>
+  <span class="i">$talking</span><span class="i">-&gt;set_color</span><span class="s">(</span><span class="q">&quot;black-and-white&quot;</span><span class="s">)</span><span class="sc">;</span>
+  <a class="l_k" href="functions/print.html">print</a> <span class="i">$talking</span><span class="i">-&gt;name</span><span class="cm">,</span> <span class="q">&quot; is colored &quot;</span><span class="cm">,</span> <span class="i">$talking</span><span class="i">-&gt;color</span><span class="cm">,</span> <span class="q">&quot;\n&quot;</span><span class="sc">;</span></pre>
+<p>which results in:</p>
+<pre class="verbatim">  Mr. Ed is colored black-and-white</pre>
+<a name="Summary"></a><h2>Summary</h2>
+<p>So, now we have class methods, constructors, instance methods,
+instance data, and even accessors.  But that's still just the
+beginning of what Perl has to offer.  We haven't even begun to talk
+about accessors that double as getters and setters, destructors,
+indirect object notation, subclasses that add instance data, per-class
+data, overloading, "isa" and "can" tests, <code class="inline"><a class="l_w" href="UNIVERSAL.html">UNIVERSAL</a></code> class, and so
+on.  That's for the rest of the Perl documentation to cover.
+Hopefully, this gets you started, though.</p>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p>For more information, see <a href="perlobj.html">perlobj</a> (for all the gritty details about
+Perl objects, now that you've seen the basics), <a href="perltoot.html">perltoot</a> (the
+tutorial for those who already know objects), <a href="perltooc.html">perltooc</a> (dealing
+with class data), <a href="perlbot.html">perlbot</a> (for some more tricks), and books such as
+Damian Conway's excellent <i>Object Oriented Perl</i>.</p>
+<p>Some modules which might prove interesting are Class::Accessor,
+Class::Class, Class::Contract, Class::Data::Inheritable,
+Class::MethodMaker and Tie::SecureHash</p>
+<a name="COPYRIGHT"></a><h1>COPYRIGHT</h1>
+<p>Copyright (c) 1999, 2000 by Randal L. Schwartz and Stonehenge
+Consulting Services, Inc.  Permission is hereby granted to distribute
+this document intact with the Perl distribution, and in accordance
+with the licenses of the Perl distribution; derived documents must
+include this copyright notice intact.</p>
+<p>Portions of this text have been derived from Perl Training materials
+originally appearing in the <i>Packages, References, Objects, and
+Modules</i> course taught by instructors for Stonehenge Consulting
+Services, Inc. and used with permission.</p>
+<p>Portions of this text have been derived from materials originally
+appearing in <i>Linux Magazine</i> and used with permission.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perlboot','perlboot.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

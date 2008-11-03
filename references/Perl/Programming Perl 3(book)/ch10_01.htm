@@ -1,0 +1,1007 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Packages (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Packages">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+</div>
+<style type="text/css">
+  #fixunixgb { position: absolute; right: 0px; bottom: 0px; }
+  div > div#fixunixgb { position: fixed; }
+  pre.fixit { overflow:auto;border-left:1px dashed #000;border-right:1px dashed #000;padding-left:2px; }
+</style><!--[if gte IE 5.5]><![if lt IE 7]>
+<style type="text/css">
+  div#fixunixgb {
+  right: auto; bottom: auto;
+  left: expression( ( 0 - fixunixgb.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );
+  top: expression( ( 0 - fixunixgb.offsetHeight + ( document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
+}
+</style>
+<![endif]><![endif]-->
+<div id="fixunixgb" align=right style="position:fixed; bottom: 5; right: 5; color:black; background-color: white; width: 170px; height: 120px; padding: 5px; z-index:3">
+<script language="javascript">
+<!--
+var state = 'visible';
+
+function gushowhide(layer_ref) {
+
+if (state == 'visible') {
+state = 'hidden';
+}
+else {
+state = 'visible';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.visibility = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].visibility = state;
+}
+if (document.getElementById && !document.all) {
+maxwell_smart = document.getElementById(layer_ref);
+maxwell_smart.style.visibility = state;
+}
+}
+//-->
+</script>
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 160x90, bottomleft fixed */
+google_ad_slot = "2032737097";
+google_ad_width = 160;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<font size=-1><a href="javascript://" onclick="gushowhide('fixunixgb');">close (x)</a></font>
+</div>
+</div>
+<br>
+<center>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+//728x90, создано 30.01.08 (main top)
+google_ad_slot = "2783893649";
+google_ad_width = 728;
+google_ad_height = 90;
+//--></script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+
+<a href="http://www.internetmap.info/cgi-bin/go.cgi?site_id=49589" target=_blank><img src="http://www.internetmap.info/images/im_88x85.gif" border=0 alt="Internet Map"></a>
+<br>
+
+<b><a href="http://www.unix.org.ua/forum/">Do not forget register in our new UNIX and CISCO forum</a></b>
+
+</center>
+<p>
+
+
+<html>
+<head>
+<title>Packages (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Packages">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+
+<!-- START OF BODY -->
+
+
+
+<!-- TOP BANNER -->
+
+<img src="gifs/smbanner.gif" usemap="#banner-map" border="0" alt="Book Home">
+<map name="banner-map"><AREA SHAPE="RECT" COORDS="0,0,466,71" HREF="index.htm" ALT="Programming Perl"><AREA SHAPE="RECT" COORDS="467,0,514,18" HREF="jobjects/fsearch.htm" ALT="Search this book">
+</map>
+
+<!-- TOP NAV BAR -->
+
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch09_07.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="part2.htm">Part 2: The Gory Details</a></td><td align="right" valign="top" width="172"><a href="ch10_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- SECTION BODY -->
+<h1 class="chapter">Chapter 10.  Packages</h1>
+<div class="htmltoc">
+<h4 class="tochead">Contents:</h4>
+<p>
+<a href="ch10_01.htm">Symbol Tables</a>
+<br>
+<a href="ch10_02.htm">Autoloading</a>
+<br>
+</p>
+</div>
+
+<p>
+<a name="INDEX-2178"></a>
+In this chapter, we get to start having fun, because we get to start
+talking about software design.  If we're going to talk about good
+software design, we have to talk about Laziness, Impatience, and
+Hubris, the basis of good software design.</p>
+
+<p>
+<a name="INDEX-2179"></a>
+We've all fallen into the trap of using cut-and-paste when we should
+have defined a higher-level abstraction, if only just a loop or
+subroutine.<a href="#FOOTNOTE-1">[1]</a> To be sure, some folks have gone to the
+opposite extreme of defining ever-growing mounds of higher-level
+abstractions when they should have used cut-and-paste.<a href="#FOOTNOTE-2">[2]</a> Generally, though,
+most of us need to think about using more abstraction rather than
+less.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-1"></a>
+<p>[1] This is a form of False
+Laziness.</p>
+
+</blockquote>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-2"></a>
+<p>[2]This is a form of False Hubris.</p>
+
+</blockquote>
+
+<p>Caught somewhere in the middle are the people who have a balanced view
+of how much abstraction is good, but who jump the gun on writing their
+own abstractions when they should be reusing existing
+code.<a href="#FOOTNOTE-3">[3]</a>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-3"></a>
+<p>[3] You guessed it--this is False Impatience.
+But if you're determined to reinvent the wheel, at least try to invent
+a better one.</p>
+
+</blockquote>
+
+<p>Whenever you're tempted to do any of these things, you need to sit
+back and think about what will do the most good for you and your
+neighbor over the long haul.  If you're going to pour your creative
+energies into a lump of code, why not make the world a better place
+while you're at it?  (Even if you're only aiming for the program to
+<em class="emphasis">succeed</em>, you need to make sure it fits the right
+ecological niche.)</p>
+
+<p>
+<a name="INDEX-2180"></a>
+The first step toward ecologically sustainable programming is simply this:
+don't litter in the park.  When you write a chunk of code, think about
+giving the code its own namespace, so that your variables and functions
+don't clobber anyone else's, or vice versa.  A namespace is a bit like
+your home, where you're allowed to be as messy as you like, as long as
+you keep your external interface to other citizens moderately civil. In
+Perl, a namespace is called a <em class="emphasis">package</em>.  Packages provide the
+fundamental building block upon which the higher-level concepts of
+modules and classes are constructed.</p>
+
+<p>
+<a name="INDEX-2181"></a><a name="INDEX-2182"></a><a name="INDEX-2183"></a><a name="INDEX-2184"></a>
+Like the notion of "home", the notion of "package" is a bit nebulous.
+Packages are independent of files.  You can have many packages in a
+single file, or a single package that spans several files, just as
+your home could be one small garret in a larger building (if you're a
+starving artist), or it could comprise several buildings (if your name happens
+to be Queen Elizabeth).  But the usual size of a home is one building,
+and the usual size of a package is one file.  Perl provides some
+special help for people who want to put one package in one file, as
+long as you're willing to give the file the same name as the package
+and use an extension of <em class="emphasis">.pm</em>, which is short for "perl
+module". The <em class="emphasis">module</em> is the fundamental unit of reusability in Perl.
+Indeed, the way you use a module is with the <tt class="literal">use</tt> command, which is
+a compiler directive that controls the importation of subroutines and
+variables from a module.  Every example of <tt class="literal">use</tt> you've seen until
+now has been an example of module reuse.
+<a name="INDEX-2185"></a>
+</p>
+
+<p>
+<a name="INDEX-2186"></a><a name="INDEX-2187"></a><a name="INDEX-2188"></a> The Comprehensive Perl
+Archive Network, or CPAN, is where you should put your modules if
+other people might find them useful.  Perl has thrived because of the
+willingness of programmers to share the fruits of their labor with the
+community.  Naturally, CPAN is also where you can find modules that
+others have thoughtfully uploaded for everyone to use.  See <a href="ch22_01.htm">Chapter 22, "CPAN"</a>, and www.cpan.org for
+details.</p>
+
+<p>
+<a name="INDEX-2189"></a><a name="INDEX-2190"></a>
+The trend over the last 25 years or so has been to design computer
+languages that enforce a state of paranoia.  You're expected to
+program every module as if it were in a state of siege.  Certainly
+there are some feudal cultures where this is appropriate, but not all
+cultures are like this.  In Perl culture, for instance, you're
+expected to stay out of someone's home because you weren't invited in,
+not because there are bars on the windows.<a href="#FOOTNOTE-4">[4]</a>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-4"></a>
+<p>[4] But Perl
+provides some bars if you want them, too.  See "Handling Insecure
+Code" in <a href="ch23_01.htm">Chapter 23, "Security"</a>.</p>
+
+</blockquote>
+
+<p>
+<a name="INDEX-2191"></a>
+This is not a book about object-oriented methodology, and we're not
+here to convert you into a raving object-oriented zealot, even if you
+want to be converted.  There are already plenty of books out there for
+that. Perl's philosophy of object-oriented design fits right in with
+Perl's philosophy of everything else: use object-oriented design where
+it makes sense, and avoid it where it doesn't.  Your call.</p>
+
+<p>
+<a name="INDEX-2192"></a><a name="INDEX-2193"></a>
+In OO-speak, every object belongs to a grouping called a <em class="emphasis">class</em>.  In
+Perl, classes and packages and modules are all so closely related that
+novices can often think of them as being interchangeable.  The typical
+
+class is implemented by a module that defines a package with the
+same name as the class.  We'll explain all of this in the next few chapters.</p>
+
+<p>
+<a name="INDEX-2194"></a>
+When you <tt class="literal">use</tt> a module, you benefit from direct software reuse.
+With classes, you benefit from indirect software reuse when one class
+uses another through inheritance.  And with classes, you get something
+more: a clean interface to another namespace.  Everything in a class
+is accessed indirectly, insulating the class from the outside world.</p>
+
+<p>As we mentioned in <a href="ch08_01.htm">Chapter 8, "References"</a>, object-oriented programming
+in Perl is accomplished through references whose referents 
+know which class they belong to.  In fact, now that you know about
+references, you know almost everything difficult about objects.  The rest
+of it just "lays under the fingers", as a pianist would say.  You
+will need to practice a little, though.
+<a name="INDEX-2195"></a><a name="INDEX-2196"></a>
+</p>
+
+<p>
+<a name="INDEX-2197"></a><a name="INDEX-2198"></a><a name="INDEX-2199"></a><a name="INDEX-2200"></a>
+One of your basic finger exercises consists of learning how to protect
+different chunks of code from inadvertently tampering with each
+other's variables.  Every chunk of code belongs to a particular
+<em class="emphasis">package</em>, which determines what variables and
+subroutines are available to it.  As Perl encounters a chunk of code,
+it is compiled into what we call the <em class="emphasis">current
+package</em>.  The initial current package is called
+"<tt class="literal">main</tt>", but you can switch the current package to
+another one at any time with the <tt class="literal">package</tt>
+declaration.  The current package determines which symbol table is
+used to find your variables, subroutines, I/O handles, and formats.
+<a name="INDEX-2201"></a>
+</p>
+
+<p>
+<a name="INDEX-2202"></a>
+Any variable not declared with <tt class="literal">my</tt> is associated
+with a package--even seemingly omnipresent variables like
+<tt class="literal">$_</tt> and <tt class="literal">%SIG</tt>.  In fact, there's
+really no such thing as a global variable in Perl, just package
+variables.  (Special identifiers like <tt class="literal">_</tt> and
+<tt class="literal">SIG</tt> merely seem global because they default to the
+<tt class="literal">main</tt> package instead of the current one.)</p>
+
+<p>
+<a name="INDEX-2203"></a><a name="INDEX-2204"></a><a name="INDEX-2205"></a> 
+The scope of a <tt class="literal">package</tt> declaration 
+is from the declaration itself
+through the end of the enclosing scope (block, file, or
+<tt class="literal">eval</tt>--whichever comes first) or until another
+<tt class="literal">package</tt> declaration at the same level, which
+supersedes the earlier one.  (This is a common practice).</p>
+
+<p>
+<a name="INDEX-2206"></a>
+All subsequent identifiers (including those declared with <tt class="literal">our</tt>, but
+not including those declared with <tt class="literal">my</tt> or those qualified with a
+different package name) will be placed in the symbol table belonging to
+the current package.  (Variables declared with <tt class="literal">my</tt> are independent of
+packages; they are always visible within, and only within, their
+enclosing scope, regardless of any package declarations.)</p>
+
+<p>
+<a name="INDEX-2207"></a>
+Typically, a <tt class="literal">package</tt> declaration will be the first statement of a
+file meant to be included by <tt class="literal">require</tt> or <tt class="literal">use</tt>.  But again, that's
+by convention.  You can put a <tt class="literal">package</tt> declaration anywhere you can
+put a statement.  You could even put it at the end of a block, in
+which case it would have no effect whatsoever.  You can switch into a
+package in more than one place; a package declaration merely selects
+the symbol table to be used by the compiler for the rest of that
+block.  (This is how a given package can span more than one file.)</p>
+
+<p>
+<a name="INDEX-2208"></a><a name="INDEX-2209"></a><a name="INDEX-2210"></a><a name="INDEX-2211"></a>
+You can refer to identifiers<a href="#FOOTNOTE-5">[5]</a> in other packages by prefixing
+("qualifying") the identifier with the package name and a double
+colon: <tt class="literal">$Package::Variable</tt>.  If the package name is null, the
+<tt class="literal">main</tt> package is assumed.  That is, <tt class="literal">$::sail</tt> is equivalent to
+<tt class="literal">$main::sail</tt>.<a href="#FOOTNOTE-6">[6]</a>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-5"></a>
+<p>[5] By identifiers, we mean the
+names used as symbol table keys for accessing scalar variables, array
+variables, hash variables, subroutines, file or directory handles, and
+formats.  Syntactically speaking, labels are also identifiers, but
+they aren't put into a particular symbol table; rather, they are
+attached directly to the statements in your program.  Labels cannot be
+package qualified.</p>
+
+</blockquote>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-6"></a>
+<p>[6] To clear up another bit of potential
+confusion, in a variable name like <tt class="literal">$main::sail</tt>, we use the term
+"identifier" to talk about <tt class="literal">main</tt> and <tt class="literal">sail</tt>, but not <tt class="literal">main::sail</tt>.
+We call that a variable name instead, because identifiers cannot
+contain colons.</p>
+
+</blockquote>
+
+<p>
+<a name="INDEX-2212"></a><a name="INDEX-2213"></a>
+The old package delimiter was a single quote, so in old Perl programs
+you'll see variables like <tt class="literal">$main'sail</tt> and <tt class="literal">$somepack'horse</tt>.  But
+the double colon is now the preferred delimiter, in part because it's
+more readable to humans, and in part because it's more readable to
+<em class="emphasis">emacs</em> macros.  It also makes C++ programmers feel like they know
+what's going on--as opposed to using the single quote as the separator,
+which was there to make Ada programmers feel like they knew what's
+going on.  Because the old-fashioned syntax is still supported for
+backward compatibility, if you try to use a string like <tt class="literal">"This is
+$owner's house"</tt>, you'll be accessing
+<tt class="literal">$owner::s</tt>; that is, the <tt class="literal">$s</tt>
+variable in package <tt class="literal">owner</tt>, which is probably not what you meant.
+Use braces to disambiguate, as in <tt class="literal">"This is ${owner}'s house"</tt>.</p>
+
+<p>The double colon can be used to chain together identifiers in a package
+name: <tt class="literal">$Red::Blue::var</tt>.  This means the <tt class="literal">$var</tt> belonging to the
+<tt class="literal">Red::Blue</tt> package.  The <tt class="literal">Red::Blue</tt> package has nothing to do with
+any <tt class="literal">Red</tt> or <tt class="literal">Blue</tt> packages that might happen to exist.  That is, a
+relationship between <tt class="literal">Red::Blue</tt> and <tt class="literal">Red</tt> or <tt class="literal">Blue</tt> may have
+meaning to the person writing or using the program, but it means
+nothing to Perl.  (Well, other than the fact that, in the current
+implementation, the symbol table <tt class="literal">Red::Blue</tt> happens to be stored in
+the symbol table <tt class="literal">Red</tt>.  But the Perl language makes no use of that
+directly.)</p>
+
+<p>For this reason, every <tt class="literal">package</tt> declaration must declare a complete
+package name.  No package name ever assumes any kind of implied
+"prefix", even if (seemingly) declared within the scope of some other
+package declaration.</p>
+
+<p>
+<a name="INDEX-2214"></a><a name="INDEX-2215"></a><a name="INDEX-2216"></a>
+Only identifiers (names starting with letters or an underscore) are
+stored in a package's symbol table.  All other symbols are kept in the
+<tt class="literal">main</tt> package, including all the nonalphabetic
+variables, like <tt class="literal">$!</tt>, <tt class="literal">$?</tt>, and
+<tt class="literal">$_</tt>.  In addition, when unqualified, the
+identifiers <tt class="literal">STDIN</tt>, <tt class="literal">STDOUT</tt>,
+<tt class="literal">STDERR</tt>, <tt class="literal">ARGV</tt>,
+<tt class="literal">ARGVOUT</tt>, <tt class="literal">ENV</tt>,
+<tt class="literal">INC</tt>, and <tt class="literal">SIG</tt> are forced to be in
+package <tt class="literal">main</tt>, even when used for other purposes
+than their built-in ones.  Don't name your package
+<tt class="literal">m</tt>, <tt class="literal">s</tt>, <tt class="literal">y</tt>,
+<tt class="literal">tr</tt>, <tt class="literal">q</tt>, <tt class="literal">qq</tt>,
+<tt class="literal">qr</tt>, <tt class="literal">qw</tt>, or <tt class="literal">qx</tt>
+unless you're looking for a lot of trouble.  For instance, you won't
+be able to use the qualified form of an identifier as a filehandle
+because it will be interpreted instead as a pattern match, a
+substitution, or a transliteration.</p>
+
+<p>
+<a name="INDEX-2217"></a>
+Long ago, variables beginning with an underscore were forced into the
+<tt class="literal">main</tt> package, but we decided it was more useful for
+package writers to be able to use a leading underscore to indicate
+semi-private identifiers meant for internal use by that package only.
+(Truly private variables can be declared as file-scoped lexicals, but
+that works best when the package and module have a one-to-one
+relationship, which is common but not required.)</p>
+
+<p>
+<a name="INDEX-2218"></a>
+The <tt class="literal">%SIG</tt> hash (which is for trapping signals; see
+<a href="ch16_01.htm">Chapter 16, "Interprocess Communication"</a>) is also
+special.  If you define a signal handler as a string, it's assumed to
+refer to a subroutine in the <tt class="literal">main</tt> package unless
+another package name is explicitly used.  Use a fully qualified signal
+handler name if you want to specify a particular package, or avoid
+strings entirely by assigning a typeglob or a function reference
+instead:
+<blockquote>
+<pre class="programlisting">$SIG{QUIT} = "Pkg::quit_catcher"; # fully qualified handler name
+$SIG{QUIT} = "quit_catcher";      # implies "main::quit_catcher"
+$SIG{QUIT} = *quit_catcher;       # forces current package's sub
+$SIG{QUIT} = \&amp;quit_catcher;      # forces current package's sub
+$SIG{QUIT} = sub { print "Caught SIGQUIT\n" };   # anonymous sub</pre>
+</blockquote>
+<a name="INDEX-2219"></a>
+The notion of "current package" is both a compile-time and run-time
+concept.  Most variable name lookups happen at compile time, but
+run-time lookups happen when symbolic references are dereferenced, and
+also when new bits of code are parsed under <tt class="literal">eval</tt>.
+In particular, when you <tt class="literal">eval</tt> a string, Perl knows
+which package the <tt class="literal">eval</tt> was invoked in and
+propagates that package inward when evaluating the string.  (You can
+always switch to a different package inside the
+<tt class="literal">eval</tt> string, of course, since an
+<tt class="literal">eval</tt> string counts as a block, just like a file
+loaded in with <tt class="literal">do</tt>, <tt class="literal">require</tt>, or
+<tt class="literal">use</tt>.)</p>
+
+<p>Alternatively, if an <tt class="literal">eval</tt> wants to find out what package it's in,
+the special symbol <tt class="literal">__PACKAGE__</tt> contains the current package name.  Since
+you can treat it as a string, you could use it in a symbolic reference
+to access a package variable.  But if you were doing that, chances are
+you should have declared the variable with <tt class="literal">our</tt> instead so it could
+be accessed as if it were a lexical.</p>
+
+
+<h2 class="sect1">10.1. Symbol Tables</h2>
+
+<p>
+<a name="INDEX-2220"></a><a name="INDEX-2221"></a><a name="INDEX-2222"></a><a name="INDEX-2223"></a>
+The contents of a package are collectively called a <em class="emphasis">symbol table</em>.
+Symbol tables are stored in a hash whose name is the same as the
+package, but with two colons appended.  The <tt class="literal">main</tt> symbol table's name
+is thus <tt class="literal">%main::</tt>.  Since <tt class="literal">main</tt> also happens to be the default
+package, Perl provides <tt class="literal">%::</tt> as an abbreviation for <tt class="literal">%main::</tt>.</p>
+
+<p>Likewise, the symbol table for the <tt class="literal">Red::Blue</tt> package is named
+<tt class="literal">%Red::Blue::</tt>.  As it happens, the <tt class="literal">main</tt> symbol table contains all
+other top-level symbol tables, including itself, so <tt class="literal">%Red::Blue::</tt> is
+also <tt class="literal">%main::Red::Blue::</tt>.</p>
+
+<p>
+<a name="INDEX-2224"></a><a name="INDEX-2225"></a>
+When we say that a symbol table "contains" another symbol table, we
+mean that it contains a reference to the other symbol table.  Since
+<tt class="literal">main</tt> is the top-level package, it contains a reference to itself, with
+the result that <tt class="literal">%main::</tt> is the same as <tt class="literal">%main::main::</tt>, and
+<tt class="literal">%main::main::main::</tt>, and so on, ad infinitum. It's important to
+check for this special case if you write code that traverses all symbol
+tables.</p>
+
+<p>
+<a name="INDEX-2226"></a><a name="INDEX-2227"></a><a name="INDEX-2228"></a>
+Inside a symbol table's hash, each key/value pair matches a variable
+name to its value.  The keys are the symbol identifiers, and the
+values are the corresponding typeglobs.  So when you use the
+<tt class="literal">*</tt><em class="replaceable">NAME</em> typeglob notation,
+you're really just accessing a value in the hash that holds the
+current package's symbol table.  In fact, the following have (nearly)
+the same effect:
+<blockquote>
+<pre class="programlisting">*sym = *main::variable;
+*sym = $main::{"variable"};</pre>
+</blockquote>
+
+The first is more efficient because the <tt class="literal">main</tt> symbol table is
+accessed at compile time.  It will also create a new typeglob by that
+name if none previously exists, whereas the second form will not.</p>
+
+<p>
+<a name="INDEX-2229"></a><a name="INDEX-2230"></a>
+Since a package is a hash, you can look up the keys of the package and
+get to all the variables of the package.  Since the values of the hash
+are typeglobs, you can dereference them in several ways.  Try this:
+<blockquote>
+<pre class="programlisting">foreach $symname (sort keys %main::) {
+    local *sym = $main::{$symname};
+    print "\$$symname is defined\n" if defined $sym;
+    print "\@$symname is nonnull\n" if         @sym;
+    print "\%$symname is nonnull\n" if         %sym;
+}</pre>
+</blockquote>
+<a name="INDEX-2231"></a>
+Since all packages are accessible (directly or indirectly) through the
+<tt class="literal">main</tt> package, you can write Perl code to visit
+every package variable in your program.  The Perl debugger does
+precisely that when you ask it to dump all your variables with the
+<tt class="literal">V</tt> command.  Note that if you do this, you won't see
+variables declared with <tt class="literal">my</tt> since those are
+independent of packages, although you will see variables declared with
+<tt class="literal">our</tt>.  See <a href="ch20_01.htm">Chapter 20, "The Perl Debugger"</a>.</p>
+
+<p>Earlier we said that only identifiers are stored in packages other than
+<tt class="literal">main</tt>.  That was a bit of a fib: you can use any string you want as the
+key in a symbol table hash--it's just that it wouldn't be valid Perl if
+you tried to use a non-identifier directly:
+<blockquote>
+<pre class="programlisting">$!@#$%           = 0;         # WRONG, syntax error.
+${'!@#$%'}       = 1;         # Ok, though unqualified.
+
+${'main::!@#$%'} = 2;         # Can qualify within the string.
+print ${ $main::{'!@#$%'} }   # Ok, prints 2!</pre>
+</blockquote>
+<a name="INDEX-2232"></a>
+Assignment to a typeglob performs an aliasing operation; that is,
+<blockquote>
+<pre class="programlisting">*dick = *richard;</pre>
+</blockquote>
+
+causes variables, subroutines, formats, and file and directory handles
+accessible via the identifier <tt class="literal">richard</tt> to also be
+accessible via the symbol <tt class="literal">dick</tt>.  If you want to
+alias only a particular variable or subroutine, assign a reference
+instead:
+<blockquote>
+<pre class="programlisting">*dick = \$richard;</pre>
+</blockquote>
+
+That makes <tt class="literal">$richard</tt> and <tt class="literal">$dick</tt> the same variable, but leaves
+<tt class="literal">@richard</tt> and <tt class="literal">@dick</tt> as separate arrays.  Tricky, eh?</p>
+
+<p>
+<a name="INDEX-2233"></a>
+This is how the <tt class="literal">Exporter</tt> works when importing symbols from one
+package to another. For example:
+<blockquote>
+<pre class="programlisting">*SomePack::dick = \&amp;OtherPack::richard;</pre>
+</blockquote>
+
+imports the <tt class="literal">&amp;richard</tt> function from package <tt class="literal">OtherPack</tt> into
+<tt class="literal">SomePack</tt>, making it available as the <tt class="literal">&amp;dick</tt> function.  (The
+<tt class="literal">Exporter</tt> module is described in the next chapter.)  If you
+precede the assignment with a <tt class="literal">local</tt>, the aliasing will only last as
+long as the current dynamic scope.</p>
+
+<p>
+<a name="INDEX-2234"></a><a name="INDEX-2235"></a>
+This mechanism may be used to retrieve a reference from a subroutine,
+making the referent available as the appropriate data type:
+<blockquote>
+<pre class="programlisting">*units = populate() ;         # Assign \%newhash to the typeglob
+print $units{kg};             # Prints 70; no dereferencing needed!
+
+sub populate {
+    my %newhash = (km =&gt; 10, kg =&gt; 70);
+    return \%newhash;
+}</pre>
+</blockquote>
+
+Likewise, you can pass a reference into a subroutine and use it
+without dereferencing:
+<blockquote>
+<pre class="programlisting">%units = (miles =&gt; 6, stones =&gt; 11);  
+fillerup( \%units );          # Pass in a reference
+print $units{quarts};         # Prints 4
+
+sub fillerup {
+    local *hashsym = shift;   # Assign \%units to the typeglob
+    $hashsym{quarts} = 4;     # Affects %units; no dereferencing needed!
+}</pre>
+</blockquote>
+
+These are tricky ways to pass around references cheaply when you don't
+want to have to explicitly dereference them.  Note that both
+techniques only work with package variables; they would not have
+worked had we declared <tt class="literal">%units</tt> with
+<tt class="literal">my</tt>.</p>
+
+<p>
+<a name="INDEX-2236"></a><a name="INDEX-2237"></a><a name="INDEX-2238"></a><a name="INDEX-2239"></a>
+Another use of symbol tables is for making "constant" scalars:
+<blockquote>
+<pre class="programlisting">*PI = \3.14159265358979;</pre>
+</blockquote>
+<a name="INDEX-2240"></a><a name="INDEX-2241"></a>
+Now you cannot alter <tt class="literal">$PI</tt>, which is probably a good
+thing, all in all.  This isn't the same as a constant subroutine,
+which is optimized at compile time.  A constant subroutine is one
+prototyped to take no arguments and to return a constant expression;
+see <a href="ch06_04.htm#ch06-sect-icf">Section 10.4.1, "Inlining Constant Functions"</a> in <a href="ch06_01.htm">Chapter 6, "Subroutines"</a>, for details.  The <tt class="literal">use
+constant</tt> pragma (see <a href="ch31_01.htm">Chapter 31, "Pragmatic Modules"</a>) is a convenient shorthand:
+<blockquote>
+<pre class="programlisting">use constant PI =&gt; 3.14159;</pre>
+</blockquote>
+
+Under the hood, this uses the subroutine slot of
+<tt class="literal">*PI</tt>, instead of the scalar slot used earlier.  It's
+equivalent to the more compact (but less readable):
+<blockquote>
+<pre class="programlisting">*PI = sub () { 3.14159 };</pre>
+</blockquote>
+
+That's a handy idiom to know anyway--assigning a <tt class="literal">sub
+{}</tt> to a typeglob is the way to give a name to an anonymous
+subroutine at run time.</p>
+
+<p>
+<a name="INDEX-2242"></a><a name="INDEX-2243"></a>
+Assigning a typeglob reference to another typeglob (<tt class="literal">*sym =
+\*oldvar</tt>) is the same as assigning the entire typeglob,
+because Perl automatically dereferences the typeglob reference for
+you.  And when you set a typeglob to a simple string, you get the
+entire typeglob named by that string, because Perl looks up the string
+in the current symbol table.  The following are all equivalent to one
+another, though the first two compute the symbol table entry at
+compile time, while the last two do so at run time:
+<blockquote>
+<pre class="programlisting">*sym =   *oldvar;
+*sym =  \*oldvar;       # autodereference
+*sym = *{"oldvar"};     # explicit symbol table lookup
+*sym =   "oldvar";      # implicit symbol table lookup</pre>
+</blockquote>
+
+When you perform any of the following assignments, you're replacing just
+one of the references within the typeglob:
+<blockquote>
+<pre class="programlisting">*sym = \$frodo;
+*sym = \@sam;
+*sym = \%merry;
+*sym = \&amp;pippin;</pre>
+</blockquote>
+
+If you think about it sideways, the typeglob itself can be viewed as a
+kind of hash, with entries for the different variable types in it.  In
+this case, the keys are fixed, since a typeglob can contain exactly one
+scalar, one array, one hash, and so on.  But you can pull out the
+individual references, like this:
+<blockquote>
+<pre class="programlisting">*pkg::sym{SCALAR}      # same as \$pkg::sym
+*pkg::sym{ARRAY}       # same as \@pkg::sym
+*pkg::sym{HASH}        # same as \%pkg::sym
+*pkg::sym{CODE}        # same as \&amp;pkg::sym
+*pkg::sym{GLOB}        # same as \*pkg::sym
+*pkg::sym{IO}          # internal file/dir handle, no direct equivalent
+*pkg::sym{NAME}        # "sym" (not a reference)
+*pkg::sym{PACKAGE}     # "pkg" (not a reference)</pre>
+</blockquote>
+
+You can say <tt class="literal">*foo{PACKAGE}</tt> and
+<tt class="literal">*foo{NAME}</tt> to find out what name and package the
+<tt class="literal">*foo</tt> symbol table entry comes from.  This may be
+useful in a subroutine that is passed typeglobs as arguments:
+<blockquote>
+<pre class="programlisting">sub identify_typeglob {
+    my $glob = shift;
+    print 'You gave me ', *{$glob}{PACKAGE}, '::', *{$glob}{NAME}, "\n";
+}
+
+identify_typeglob(*foo);
+identify_typeglob(*bar::glarch);</pre>
+</blockquote>
+
+This prints:
+<blockquote>
+<pre class="programlisting">You gave me main::foo
+You gave me bar::glarch</pre>
+</blockquote>
+
+The
+<tt class="literal">*foo{</tt><em class="replaceable">THING</em><tt class="literal">}</tt>
+notation can be used to obtain references to individual elements of
+<tt class="literal">*foo</tt>.  See the section <a href="ch08_02.htm#ch08-sect-str">Section 10.2.5, "Symbol Table References"</a> in
+<a href="ch08_01.htm">Chapter 8, "References"</a> for details.</p>
+
+<p>This syntax is primarily used to get at the internal filehandle or
+directory handle reference, because the other internal references are
+already accessible in other ways.  (The old
+<tt class="literal">*foo{FILEHANDLE}</tt> is still supported to mean
+<tt class="literal">*foo{IO}</tt>, but don't let its name fool you into
+thinking it can distinguish filehandles from directory handles.)  But
+we thought we'd generalize it because it looks kind of pretty.  Sort
+of.  You probably don't need to remember all this unless you're
+planning to write another Perl debugger.</p>
+
+<a name="INDEX-2244"></a><a name="INDEX-2245"></a><a name="INDEX-2246"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a name="INDEX-2267"></a>
+
+
+<!-- BOTTOM NAV BAR -->
+
+<hr width="515" align="left">
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch09_07.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="index.htm"><img src="../gifs/txthome.gif" alt="Home" border="0"></a></td><td align="right" valign="top" width="172"><a href="ch10_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+<tr>
+<td align="left" valign="top" width="172">9.7. Saving Data Structures</td><td align="center" valign="top" width="171"><a href="index/index.htm"><img src="../gifs/index.gif" alt="Book Index" border="0"></a></td><td align="right" valign="top" width="172">10.2. Autoloading</td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- LIBRARY NAV BAR -->
+
+<img src="../gifs/smnavbar.gif" usemap="#library-map" border="0" alt="Library Navigation Links"><p>
+<font size="-1"><a href="copyrght.htm">Copyright &copy; 2001</a> O'Reilly &amp; Associates. All rights reserved.</font>
+</p>
+<map name="library-map"> <area shape="rect" coords="2,-1,79,99" href="../index.htm"><area shape="rect" coords="84,1,157,108" href="../perlnut/index.htm"><area shape="rect" coords="162,2,248,125" href="../prog3/index.htm"><area shape="rect" coords="253,2,326,130" href="../advprog/index.htm"><area shape="rect" coords="332,1,407,112" href="../cookbook/index.htm"><area shape="rect" coords="414,2,523,103" href="../sysadmin/index.htm">
+</map>
+
+<!-- END OF BODY -->
+
+</body>
+</html>
+
+
+<br>
+
+
+<table border=0 align=center>
+<tr><td>
+
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 468x60, main footer */
+google_ad_slot = "1100896219";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<script>
+user = "2823";
+page = "2";
+
+</script>
+
+
+
+</td>
+<td>
+
+<!-- Ukrainian Banner Network 468x60 START -->
+<center>
+<script>
+//<!--
+user = "2823";
+page = "2";
+pid = Math.round((Math.random() * (10000000 - 1)));
+document.write("<iframe src='http://banner.kiev.ua/cgi-bin/bi.cgi?h" +
+user + "&amp;"+ pid + "&amp;" + page + "' frameborder=0 vspace=0 hspace=0 " +
+" width=468 height=60 marginwidth=0 marginheight=0 scrolling=no>");
+document.write("<a href='http://banner.kiev.ua/cgi-bin/bg.cgi?" +
+user + "&amp;"+ pid + "&amp;" + page + "' target=_top>");
+document.write("<img border=0 src='http://banner.kiev.ua/" +
+"cgi-bin/bi.cgi?i" + user + "&amp;" + pid + "&amp;" + page +
+"' width=468 height=60 alt='хЋ“Ѕ…ќ”ЋЅ— вЅќќ≈“ќЅ— у≈‘Ў'></a>");
+document.write("</iframe>");
+//-->
+</script>
+</center>
+<!-- Ukrainian Banner Network 468x60 END -->
+
+
+</td></tr>
+<tr><td colspan=2>
+<br>
+<hr size=1>
+
+
+
+<!-- SpyLOG -->
+<script src="http://tools.spylog.ru/counter_cv.js" id="spylog_code" type="text/javascript" counter="1028713" part="docs" track_links="ext" page_level="0">
+</script>
+<noscript>
+<a href="http://u10287.13.spylog.com/cnt?cid=1028713&f=3&p=0" target="_blank">
+<img src="http://u10287.13.spylog.com/cnt?cid=1028713&p=0" alt="SpyLOG" border="0" width="88" height="31"></a>
+</noscript>
+<!--/ SpyLOG -->
+
+<!--bigmir)net TOP 100-->
+<script type="text/javascript" language="javascript"><!--
+function BM_Draw(oBM_STAT){
+document.write('<table cellpadding="0" cellspacing="0" border="0" style="display:inline;margin-right:4px;"><tr><td><div style="margin:0px;padding:0px;font-size:1px;width:88px;"><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_top.gif\') no-repeat bottom;">&nbsp;</div><div style="font:10px Tahoma;background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_center.gif\');"><div style="text-align:center;"><a href="http://www.bigmir.net/" target="_blank" style="color:#0000ab;text-decoration:none;font:10px Tahoma;">bigmir<span style="color:#ff0000;">)</span>net</a></div><div style="margin-top:3px;padding: 0px 6px 0px 6px;color:#003596;"><div style="float:left;font:10px Tahoma;">'+oBM_STAT.hosts+'</div><div style="float:right;font:10px Tahoma;">'+oBM_STAT.hits+'</div></div><br clear="all"/></div><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_bottom.gif\') no-repeat top;">&nbsp;</div></div></td></tr></table>');
+}
+//-->
+</script>
+
+<script type="text/javascript" language="javascript"><!--
+bmN=navigator,bmD=document,bmD.cookie='b=b',i=0,bs=[],bm={o:1,v:126595,s:126595,t:0,c:bmD.cookie?1:0,n:Math.round((Math.random()* 1000000)),w:0};
+for(var f=self;f!=f.parent;f=f.parent)bm.w++;
+try{if(bmN.plugins&&bmN.mimeTypes.length&&(x=bmN.plugins['Shockwave Flash']))bm.m=parseInt(x.description.replace(/([a-zA-Z]|s)+/,''));
+else for(var f=3;f<20;f++)if(eval('new ActiveXObject("ShockwaveFlash.ShockwaveFlash.'+f+'")'))bm.m=f}catch(e){;}
+try{bm.y=bmN.javaEnabled()?1:0}catch(e){;}
+try{bmS=screen;bm.v^=bm.d=bmS.colorDepth||bmS.pixelDepth;bm.v^=bm.r=bmS.width}catch(e){;}
+r=bmD.referrer.slice(7);if(r&&r.split('/')[0]!=window.location.host){bm.f=escape(r);bm.v^=r.length}
+bm.v^=window.location.href.length;for(var x in bm) if(/^[ovstcnwmydrf]$/.test(x)) bs[i++]=x+bm[x];
+bmD.write('<sc'+'ript type="text/javascript" language="javascript" src="http://c.bigmir.net/?'+bs.join('&')+'"></sc'+'ript>');
+//-->
+</script>
+<noscript>
+<a href="http://www.bigmir.net/" target="_blank"><img src="http://c.bigmir.net/?v126595&s126595&t2" width="88" height="31" alt="bigmir)net TOP 100" title="bigmir)net TOP 100" border="0" /></a>
+</noscript>
+<!--bigmir)net TOP 100-->
+
+<!--begin of Rambler's Top100 code -->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://counter.rambler.ru/top100.cnt?692798" alt="" width=1 height=1 border=0></a>
+<!--end of Top100 code-->
+
+<!--begin of Top100 logo-->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://top100-images.rambler.ru/top100/w1.gif" alt="Rambler's Top100" width=88 height=31 
+border=0></a>
+<!--end of Top100 logo -->
+
+
+<!-- hit.ua -->
+<a href='http://hit.ua/?x=3601' target='_blank'>
+<script language="javascript" type="text/javascript"><!--
+Cd=document;Cr="&"+Math.random();Cp="&s=1";
+Cd.cookie="b=b";if(Cd.cookie)Cp+="&c=1";
+Cp+="&t="+(new Date()).getTimezoneOffset();
+if(self!=top)Cp+="&f=1";
+//--></script>
+<script language="javascript1.1" type="text/javascript"><!--
+if(navigator.javaEnabled())Cp+="&j=1";
+//--></script>
+<script language="javascript1.2" type="text/javascript"><!--
+if(typeof(screen)!='undefined')Cp+="&w="+screen.width+"&h="+
+screen.height+"&d="+(screen.colorDepth?screen.colorDepth:screen.pixelDepth);
+//--></script>
+<script language="javascript" type="text/javascript"><!--
+Cd.write("<img src='http://c.hit.ua/hit?i=3601&g=0&x=1"+Cp+Cr+
+"&r="+escape(Cd.referrer)+"&u="+escape(window.location.href)+
+"' border='0' width='88' height='31' "+
+"alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>");
+//--></script>
+<noscript>
+<img src='http://c.hit.ua/hit?i=3601&amp;g=0&amp;x=1' border='0' width='88' height='31' alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>
+</noscript></a>
+<!-- / hit.ua -->
+
+<script language="javascript">//<!--
+mtI="012408140822";mtG="45";mtT="4";mtS='http://012408140822.c.mystat-in.net/?';
+mtD=document;mtN=navigator.appName;mtR=escape(mtD.referrer);
+mtW="";mtC="";mtV="0";mtJ="1";
+//--></script><script language="javascript1.1">//<!--
+mtV="1";mtJ = (navigator.javaEnabled()?"1":"0");
+//--></script><script language="javascript1.2">//<!--
+mtE=screen;mtW=mtE.width;mtN!="Netscape"?mtC=mtE.colorDepth:mtC=mtE.pixelDepth;mtV="2";
+//--></script><script language="javascript1.3">//<!--
+mtV="3";
+//--></script><script language="javascript">//<!--
+mtUrl="";mtUrl+="\""+mtS+"i"+mtI+"&t"+mtT+"&g"+mtG+"&w"+mtW+"&c"+mtC+"&r"+mtR+"&v"+mtV+"&j"+mtJ+"\"";
+mtUrl="<a href=http://mytop-in.net/ target=_blank><img src="+mtUrl+"width=88 height=31 border=0 alt=\"Rated by MyTOP\"></a>";
+mtD.write(mtUrl);
+//--></script>
+<noscript>
+<a href=http://mytop-in.net/ target=_blank><img src=http://012408140822.c.mystat-in.net/?i012408140822&t4&g45&j0 width=88 height=31 border=0 alt="Rated by MyTOP"></a>
+</noscript>
+
+<!--Rating@Mail.ru COUNTEr--><script language="JavaScript" type="text/javascript"><!--
+d=document;var a='';a+=';r='+escape(d.referrer)
+js=10//--></script><script language="JavaScript1.1" type="text/javascript"><!--
+a+=';j='+navigator.javaEnabled()
+js=11//--></script><script language="JavaScript1.2" type="text/javascript"><!--
+s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+js=12//--></script><script language="JavaScript1.3" type="text/javascript"><!--
+js=13//--></script><script language="JavaScript" type="text/javascript"><!--
+d.write('<a href="http://top.mail.ru/jump?from=1374183"'+
+' target=_top><img src="http://d7.cf.b4.a1.top.list.ru/counter'+
+'?id=1374183;t=48;js='+js+a+';rand='+Math.random()+
+'" alt="–ейтинг@Mail.ru"'+' border=0 height=31 width=88/><\/a>')
+if(11<js)d.write('<'+'!-- ')//--></script><noscript><a
+target=_top href="http://top.mail.ru/jump?from=1374183"><img
+src="http://d7.cf.b4.a1.top.list.ru/counter?js=na;id=1374183;t=48"
+border=0 height=31 width=88
+alt="–ейтинг@Mail.ru"/></a></noscript><script language="JavaScript" type="text/javascript"><!--
+if(11<js)d.write('--'+'>')//--></script><!--/COUNTER-->
+
+<!-- I.UA counter --><a href="http://www.i.ua/" target="_blank" onclick="this.href='http://i.ua/r.php?21595';" title="Rated by I.UA">
+<script type="text/javascript" language="javascript"><!--
+iS='<img src="http://r.i.ua/s?u21595&p66&n'+Math.random();
+iD=document;iD.cookie="iua=1";if(iD.cookie)iS+='&c1';
+iS+='&d'+(screen.colorDepth?screen.colorDepth:screen.pixelDepth)
++"&w"+screen.width+'&h'+screen.height
+iT=iD.referrer.slice(7);iH=window.location.href.slice(7);
+((iI=iT.indexOf('/'))!=-1)?(iT=iT.substring(0,iI)):(iI=iT.length);
+if(iT!=iH.substring(0,iI))iS+='&f'+escape(iD.referrer.slice(7))
+iS+='&r'+escape(iH);
+iD.write(iS+'" border="0" width="88" height="31" />');
+//--></script></a><!-- End of I.UA counter -->
+
+<script type="text/javascript">
+<!--
+Nnv=navigator;Nna=Nnv.appName;Nd=document;Nd.cookie="b=b";Nc=0;if(Nd.cookie)Nc=1;
+Nn=(Nna.substring(0,2)=="Mi")?0:1;Ns=screen;Npx=(Nn==0)?Ns.colorDepth:Ns.pixelDepth;
+str='<img src="http://c.uarating.com/199;'+Ns.width+'x'+Ns.height+';'+Npx+';'+Nc+';';
+str=str+escape(Nd.referrer)+';'+Math.random()+'" width="88" height="31" border="0">';
+document.write('<a href="http://www.uarating.com/" alt="uaRating" target="_blank">'+str+'<\/a>');
+// -->
+</script>
+<noscript><a href="http://www.uarating.com/" target="_blank"><img src="http://c.uarating.com/199;0x0;0;0;-;0" alt="uaRating" width="88" height="31" border="0"></a></noscript>
+
+
+</td></tr>
+</table>
+
+
+</body>
+</html>

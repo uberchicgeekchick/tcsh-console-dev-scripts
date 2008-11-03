@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perl585delta - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-history.html">History / Changes</a> &gt; perl585delta</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perl585delta</div><div class="pdf_link"><a href="perl585delta.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perl585delta.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#Incompatible-Changes">Incompatible Changes</a><li><a href="#Core-Enhancements">Core Enhancements</a><li><a href="#Modules-and-Pragmata">Modules and Pragmata</a><li><a href="#Utility-Changes">Utility Changes</a><ul><li><a href="#Perl's-debugger">Perl's debugger</a><li><a href="#h2ph">h2ph</a></ul><li><a href="#Installation-and-Configuration-Improvements">Installation and Configuration Improvements</a><li><a href="#Selected-Bug-Fixes">Selected Bug Fixes</a><li><a href="#New-or-Changed-Diagnostics">New or Changed Diagnostics</a><li><a href="#Changed-Internals">Changed Internals</a><li><a href="#Known-Problems">Known Problems</a><li><a href="#Platform-Specific-Problems">Platform Specific Problems</a><li><a href="#Reporting-Bugs">Reporting Bugs</a><li><a href="#SEE-ALSO">SEE ALSO</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perl585delta - what is new for perl v5.8.5</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>This document describes differences between the 5.8.4 release and
+the 5.8.5 release.</p>
+<a name="Incompatible-Changes"></a><h1>Incompatible Changes</h1>
+<p>There are no changes incompatible with 5.8.4.</p>
+<a name="Core-Enhancements"></a><h1>Core Enhancements</h1>
+<p>Perl's regular expression engine now contains support for matching on the
+intersection of two Unicode character classes. You can also now refer to
+user-defined character classes from within other user defined character
+classes.</p>
+<a name="Modules-and-Pragmata"></a><h1>Modules and Pragmata</h1>
+<ul>
+<li>
+<p>Carp improved to work nicely with Safe. Carp's message reporting should now
+be anomaly free - it will always print out line number information.</p>
+</li>
+<li>
+<p>CGI upgraded to version 3.05</p>
+</li>
+<li>
+<p>charnames now avoids clobbering $_</p>
+</li>
+<li>
+<p>Digest upgraded to version 1.08</p>
+</li>
+<li>
+<p>Encode upgraded to version 2.01</p>
+</li>
+<li>
+<p>FileCache upgraded to version 1.04</p>
+</li>
+<li>
+<p>libnet upgraded to version 1.19</p>
+</li>
+<li>
+<p>Pod::Parser upgraded to version 1.28</p>
+</li>
+<li>
+<p>Pod::Perldoc upgraded to version 3.13</p>
+</li>
+<li>
+<p>Pod::LaTeX upgraded to version 0.57</p>
+</li>
+<li>
+<p>Safe now works properly with Carp</p>
+</li>
+<li>
+<p>Scalar-List-Utils upgraded to version 1.14</p>
+</li>
+<li>
+<p>Shell's documentation has been re-written, and its historical partial
+auto-quoting of command arguments can now be disabled.</p>
+</li>
+<li>
+<p>Test upgraded to version 1.25</p>
+</li>
+<li>
+<p>Test::Harness upgraded to version 2.42</p>
+</li>
+<li>
+<p>Time::Local upgraded to version 1.10</p>
+</li>
+<li>
+<p>Unicode::Collate upgraded to version 0.40</p>
+</li>
+<li>
+<p>Unicode::Normalize upgraded to version 0.30</p>
+</li>
+</ul>
+<a name="Utility-Changes"></a><h1>Utility Changes</h1>
+<a name="Perl's-debugger"></a><h2>Perl's debugger</h2>
+<p>The debugger can now emulate stepping backwards, by restarting and rerunning
+all bar the last command from a saved command history.</p>
+<a name="h2ph"></a><h2>h2ph</h2>
+<p><i>h2ph</i> is now able to understand a very limited set of C inline functions
+-- basically, the inline functions that look like CPP macros. This has
+been introduced to deal with some of the headers of the newest versions of
+the glibc. The standard warning still applies; to quote <i>h2ph</i>'s
+documentation, <i>you may need to dicker with the files produced</i>.</p>
+<a name="Installation-and-Configuration-Improvements"></a><h1>Installation and Configuration Improvements</h1>
+<p>Perl 5.8.5 should build cleanly from source on LynxOS.</p>
+<a name="Selected-Bug-Fixes"></a><h1>Selected Bug Fixes</h1>
+<ul>
+<li>
+<p>The in-place sort optimisation introduced in 5.8.4 had a bug. For example,
+in code such as</p>
+<pre class="verbatim">    <span class="i">@a</span> = <a class="l_k" href="functions/sort.html">sort</a> <span class="s">(</span><span class="i">$b</span><span class="cm">,</span> <span class="i">@a</span><span class="s">)</span></pre>
+<p>the result would omit the value $b. This is now fixed.</p>
+</li>
+<li>
+<p>The optimisation for unnecessary assignments introduced in 5.8.4 could give
+spurious warnings. This has been fixed.</p>
+</li>
+<li>
+<p>Perl should now correctly detect and read BOM-marked and (BOMless) UTF-16
+scripts of either endianness.</p>
+</li>
+<li>
+<p>Creating a new thread when weak references exist was buggy, and would often
+cause warnings at interpreter destruction time. The known bug is now fixed.</p>
+</li>
+<li>
+<p>Several obscure bugs involving manipulating Unicode strings with <code class="inline"><a class="l_k" href="functions/substr.html">substr</a></code> have
+been fixed.</p>
+</li>
+<li>
+<p>Previously if Perl's file globbing function encountered a directory that it
+did not have permission to open it would return immediately, leading to
+unexpected truncation of the list of results. This has been fixed, to be
+consistent with Unix shells' globbing behaviour.</p>
+</li>
+<li>
+<p>Thread creation time could vary wildly between identical runs. This was caused
+by a poor hashing algorithm in the thread cloning routines, which has now
+been fixed.</p>
+</li>
+<li>
+<p>The internals of the ithreads implementation were not checking if OS-level
+thread creation had failed. threads-&gt;create() now returns <code class="inline"><a class="l_k" href="functions/undef.html">undef</a></code> in if
+thread creation fails instead of crashing perl.</p>
+</li>
+</ul>
+<a name="New-or-Changed-Diagnostics"></a><h1>New or Changed Diagnostics</h1>
+<ul>
+<li>
+<p>Perl -V has several improvements</p>
+<ul>
+<li>
+<p>correctly outputs local patch names that contain embedded code snippets
+or other characters that used to confuse it.</p>
+</li>
+<li>
+<p>arguments to -V that look like regexps will give multiple lines of output.</p>
+</li>
+<li>
+<p>a trailing colon suppresses the linefeed and ';'  terminator, allowing
+embedding of queries into shell commands.</p>
+</li>
+<li>
+<p>a leading colon removes the 'name=' part of the response, allowing mapping to
+any name.</p>
+</li>
+</ul>
+</li>
+<li>
+<p>When perl fails to find the specified script, it now outputs a second line
+suggesting that the user use the <code class="inline">-S</code>
+ flag:</p>
+<pre class="verbatim">    $ perl5.8.5 missing.pl
+    Can't open perl script "missing.pl": No such file or directory.
+    Use -S to search $PATH for it.</pre></li>
+</ul>
+<a name="Changed-Internals"></a><h1>Changed Internals</h1>
+<p>The Unicode character class files used by the regular expression engine are
+now built at build time from the supplied Unicode consortium data files,
+instead of being shipped prebuilt. This makes the compressed Perl source
+tarball about 200K smaller. A side effect is that the layout of files inside
+lib/unicore has changed.</p>
+<a name="Known-Problems"></a><h1>Known Problems</h1>
+<p>The regression test <i>t/uni/class.t</i> is now performing considerably more
+tests, and can take several minutes to run even on a fast machine.</p>
+<a name="Platform-Specific-Problems"></a><h1>Platform Specific Problems</h1>
+<p>This release is known not to build on Windows 95.</p>
+<a name="Reporting-Bugs"></a><h1>Reporting Bugs</h1>
+<p>If you find what you think is a bug, you might check the articles
+recently posted to the comp.lang.perl.misc newsgroup and the perl
+bug database at <a href="http://bugs.perl.org">http://bugs.perl.org</a>.  There may also be
+information at <a href="http://www.perl.org">http://www.perl.org</a>, the Perl Home Page.</p>
+<p>If you believe you have an unreported bug, please run the <b>perlbug</b>
+program included with your release.  Be sure to trim your bug down
+to a tiny but sufficient test case.  Your bug report, along with the
+output of <code class="inline">perl -V</code>
+, will be sent off to perlbug@perl.org to be
+analysed by the Perl porting team.  You can browse and search
+the Perl 5 bugs at <a href="http://bugs.perl.org/">http://bugs.perl.org/</a></p>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p>The <i>Changes</i> file for exhaustive details on what changed.</p>
+<p>The <i>INSTALL</i> file for how to build Perl.</p>
+<p>The <i>README</i> file for general stuff.</p>
+<p>The <i>Artistic</i> and <i>Copying</i> files for copyright information.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perl585delta','perl585delta.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

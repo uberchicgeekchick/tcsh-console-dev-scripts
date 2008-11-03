@@ -1,0 +1,1451 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perlunicode - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-language.html">Language reference</a> &gt; perlunicode</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perlunicode</div><div class="pdf_link"><a href="perlunicode.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perlunicode.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#Important-Caveats">Important Caveats</a><li><a href="#Byte-and-Character-Semantics">Byte and Character Semantics</a><li><a href="#Effects-of-Character-Semantics">Effects of Character Semantics</a><li><a href="#Scripts">Scripts</a><li><a href="#Blocks">Blocks</a><li><a href="#User-Defined-Character-Properties">User-Defined Character Properties</a><li><a href="#Character-Encodings-for-Input-and-Output">Character Encodings for Input and Output</a><li><a href="#Unicode-Regular-Expression-Support-Level">Unicode Regular Expression Support Level</a><li><a href="#Unicode-Encodings">Unicode Encodings</a><li><a href="#Security-Implications-of-Unicode">Security Implications of Unicode</a><li><a href="#Unicode-in-Perl-on-EBCDIC">Unicode in Perl on EBCDIC</a><li><a href="#Locales">Locales</a><li><a href="#When-Unicode-Does-Not-Happen">When Unicode Does Not Happen</a><li><a href="#Forcing-Unicode-in-Perl-(Or-Unforcing-Unicode-in-Perl)">Forcing Unicode in Perl (Or Unforcing Unicode in Perl)</a><li><a href="#Using-Unicode-in-XS">Using Unicode in XS</a></ul><li><a href="#BUGS">BUGS</a><ul><li><a href="#Interaction-with-Locales">Interaction with Locales</a><li><a href="#Interaction-with-Extensions">Interaction with Extensions</a><li><a href="#Speed">Speed</a><li><a href="#Porting-code-from-perl-5.6.X">Porting code from perl-5.6.X</a></ul><li><a href="#SEE-ALSO">SEE ALSO</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perlunicode - Unicode support in Perl</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<a name="Important-Caveats"></a><h2>Important Caveats</h2>
+<p>Unicode support is an extensive requirement. While Perl does not
+implement the Unicode standard or the accompanying technical reports
+from cover to cover, Perl does support many Unicode features.</p>
+<ul>
+<li><a name="Input-and-Output-Layers"></a><b>Input and Output Layers</b>
+<p>Perl knows when a filehandle uses Perl's internal Unicode encodings
+(UTF-8, or UTF-EBCDIC if in EBCDIC) if the filehandle is opened with
+the ":utf8" layer.  Other encodings can be converted to Perl's
+encoding on input or from Perl's encoding on output by use of the
+":encoding(...)"  layer.  See <a href="open.html">open</a>.</p>
+<p>To indicate that Perl source itself is using a particular encoding,
+see <a href="encoding.html">encoding</a>.</p>
+</li>
+<li><a name="Regular-Expressions"></a><b>Regular Expressions</b>
+<p>The regular expression compiler produces polymorphic opcodes.  That is,
+the pattern adapts to the data and automatically switches to the Unicode
+character scheme when presented with Unicode data--or instead uses
+a traditional byte scheme when presented with byte data.</p>
+</li>
+<li><a name="'use-utf8'-still-needed-to-enable-UTF-8%2fUTF-EBCDIC-in-scripts"></a><b><code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="utf8.html">utf8</a></code>
+ still needed to enable UTF-8/UTF-EBCDIC in scripts</b>
+<p>As a compatibility measure, the <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="utf8.html">utf8</a></code>
+ pragma must be explicitly
+included to enable recognition of UTF-8 in the Perl scripts themselves
+(in string or regular expression literals, or in identifier names) on
+ASCII-based machines or to recognize UTF-EBCDIC on EBCDIC-based
+machines.  <b>These are the only times when an explicit <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="utf8.html">utf8</a></code>
+
+is needed.</b>  See <a href="utf8.html">utf8</a>.</p>
+<p>You can also use the <code class="inline"><a class="l_w" href="encoding.html">encoding</a></code> pragma to change the default encoding
+of the data in your script; see <a href="encoding.html">encoding</a>.</p>
+</li>
+<li><a name="BOM-marked-scripts-and-UTF-16-scripts-autodetected"></a><b>BOM-marked scripts and UTF-16 scripts autodetected</b>
+<p>If a Perl script begins marked with the Unicode BOM (UTF-16LE, UTF16-BE,
+or UTF-8), or if the script looks like non-BOM-marked UTF-16 of either
+endianness, Perl will correctly read in the script as Unicode.
+(BOMless UTF-8 cannot be effectively recognized or differentiated from
+ISO 8859-1 or other eight-bit encodings.)</p>
+</li>
+<li><a name="'use-encoding'-needed-to-upgrade-non-Latin-1-byte-strings"></a><b><code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="encoding.html">encoding</a></code>
+ needed to upgrade non-Latin-1 byte strings</b>
+<p>By default, there is a fundamental asymmetry in Perl's unicode model:
+implicit upgrading from byte strings to Unicode strings assumes that
+they were encoded in <i>ISO 8859-1 (Latin-1)</i>, but Unicode strings are
+downgraded with UTF-8 encoding.  This happens because the first 256
+codepoints in Unicode happens to agree with Latin-1.  </p>
+<p>If you wish to interpret byte strings as UTF-8 instead, use the
+<code class="inline"><a class="l_w" href="encoding.html">encoding</a></code> pragma:</p>
+<pre class="verbatim">    <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="encoding.html">encoding</a> <span class="q">&#39;utf8&#39;</span><span class="sc">;</span></pre>
+<p>See <a href="#Byte-and-Character-Semantics">"Byte and Character Semantics"</a> for more details.</p>
+</li>
+</ul>
+<a name="Byte-and-Character-Semantics"></a><h2>Byte and Character Semantics</h2>
+<p>Beginning with version 5.6, Perl uses logically-wide characters to
+represent strings internally.</p>
+<p>In future, Perl-level operations will be expected to work with
+characters rather than bytes.</p>
+<p>However, as an interim compatibility measure, Perl aims to
+provide a safe migration path from byte semantics to character
+semantics for programs.  For operations where Perl can unambiguously
+decide that the input data are characters, Perl switches to
+character semantics.  For operations where this determination cannot
+be made without additional information from the user, Perl decides in
+favor of compatibility and chooses to use byte semantics.</p>
+<p>This behavior preserves compatibility with earlier versions of Perl,
+which allowed byte semantics in Perl operations only if
+none of the program's inputs were marked as being as source of Unicode
+character data.  Such data may come from filehandles, from calls to
+external programs, from information provided by the system (such as %ENV),
+or from literals and constants in the source text.</p>
+<p>The <code class="inline"><a class="l_w" href="bytes.html">bytes</a></code> pragma will always, regardless of platform, force byte
+semantics in a particular lexical scope.  See <a href="bytes.html">bytes</a>.</p>
+<p>The <code class="inline"><a class="l_w" href="utf8.html">utf8</a></code> pragma is primarily a compatibility device that enables
+recognition of UTF-(8|EBCDIC) in literals encountered by the parser.
+Note that this pragma is only required while Perl defaults to byte
+semantics; when character semantics become the default, this pragma
+may become a no-op.  See <a href="utf8.html">utf8</a>.</p>
+<p>Unless explicitly stated, Perl operators use character semantics
+for Unicode data and byte semantics for non-Unicode data.
+The decision to use character semantics is made transparently.  If
+input data comes from a Unicode source--for example, if a character
+encoding layer is added to a filehandle or a literal Unicode
+string constant appears in a program--character semantics apply.
+Otherwise, byte semantics are in effect.  The <code class="inline"><a class="l_w" href="bytes.html">bytes</a></code> pragma should
+be used to force byte semantics on Unicode data.</p>
+<p>If strings operating under byte semantics and strings with Unicode
+character data are concatenated, the new string will be created by
+decoding the byte strings as <i>ISO 8859-1 (Latin-1)</i>, even if the
+old Unicode string used EBCDIC.  This translation is done without
+regard to the system's native 8-bit encoding.  To change this for
+systems with non-Latin-1 and non-EBCDIC native encodings, use the
+<code class="inline"><a class="l_w" href="encoding.html">encoding</a></code> pragma.  See <a href="encoding.html">encoding</a>.</p>
+<p>Under character semantics, many operations that formerly operated on
+bytes now operate on characters. A character in Perl is
+logically just a number ranging from 0 to 2**31 or so. Larger
+characters may encode into longer sequences of bytes internally, but
+this internal detail is mostly hidden for Perl code.
+See <a href="perluniintro.html">perluniintro</a> for more.</p>
+<a name="Effects-of-Character-Semantics"></a><h2>Effects of Character Semantics</h2>
+<p>Character semantics have the following effects:</p>
+<ul>
+<li>
+<p>Strings--including hash keys--and regular expression patterns may
+contain characters that have an ordinal value larger than 255.</p>
+<p>If you use a Unicode editor to edit your program, Unicode characters
+may occur directly within the literal strings in one of the various
+Unicode encodings (UTF-8, UTF-EBCDIC, UCS-2, etc.), but will be recognized
+as such and converted to Perl's internal representation only if the
+appropriate <a href="encoding.html">encoding</a> is specified.</p>
+<p>Unicode characters can also be added to a string by using the
+<code class="inline">\<span class="i">x</span><span class="s">{</span>...<span class="s">}</span></code>
+ notation.  The Unicode code for the desired character, in
+hexadecimal, should be placed in the braces. For instance, a smiley
+face is <code class="inline">\x{263A}</code>.  This encoding scheme only works for characters
+with a code of 0x100 or above.</p>
+<p>Additionally, if you</p>
+<pre class="verbatim">   <a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="charnames.html">charnames</a> <span class="q">&#39;:full&#39;</span><span class="sc">;</span></pre>
+<p>you can use the <code class="inline">\<span class="i">N</span><span class="s">{</span>...<span class="s">}</span></code>
+ notation and put the official Unicode
+character name within the braces, such as <code class="inline">\<span class="i">N</span><span class="s">{</span>WHITE SMILING FACE<span class="s">}</span></code>
+.</p>
+</li>
+<li>
+<p>If an appropriate <a href="encoding.html">encoding</a> is specified, identifiers within the
+Perl script may contain Unicode alphanumeric characters, including
+ideographs.  Perl does not currently attempt to canonicalize variable
+names.</p>
+</li>
+<li>
+<p>Regular expressions match characters instead of bytes.  "." matches
+a character instead of a byte.  The <code class="inline">\C</code>
+ pattern is provided to force
+a match a single byte--a <code class="inline">char</code>
+ in C, hence <code class="inline">\C</code>
+.</p>
+</li>
+<li>
+<p>Character classes in regular expressions match characters instead of
+bytes and match against the character properties specified in the
+Unicode properties database.  <code class="inline">\w</code>
+ can be used to match a Japanese
+ideograph, for instance.</p>
+<p>(However, and as a limitation of the current implementation, using
+<code class="inline">\w</code>
+ or <code class="inline">\W</code>
+ <i>inside</i> a <code class="inline"><span class="s">[</span>...<span class="s">]</span></code>
+ character class will still match
+with byte semantics.)</p>
+</li>
+<li>
+<p>Named Unicode properties, scripts, and block ranges may be used like
+character classes via the <code class="inline">\p<span class="s">{</span><span class="s">}</span></code>
+ "matches property" construct and
+the  <code class="inline">\P<span class="s">{</span><span class="s">}</span></code>
+ negation, "doesn't match property".</p>
+<p>For instance, <code class="inline">\<span class="i">p</span><span class="s">{</span>Lu<span class="s">}</span></code>
+ matches any character with the Unicode "Lu"
+(Letter, uppercase) property, while <code class="inline">\<span class="i">p</span><span class="s">{</span>M<span class="s">}</span></code>
+ matches any character
+with an "M" (mark--accents and such) property.  Brackets are not
+required for single letter properties, so <code class="inline">\<span class="i">p</span><span class="s">{</span>M<span class="s">}</span></code>
+ is equivalent to
+<code class="inline">\pM</code>
+. Many predefined properties are available, such as
+<code class="inline">\<span class="i">p</span><span class="s">{</span>Mirrored<span class="s">}</span></code>
+ and <code class="inline">\<span class="i">p</span><span class="s">{</span>Tibetan<span class="s">}</span></code>
+.</p>
+<p>The official Unicode script and block names have spaces and dashes as
+separators, but for convenience you can use dashes, spaces, or
+underbars, and case is unimportant. It is recommended, however, that
+for consistency you use the following naming: the official Unicode
+script, property, or block name (see below for the additional rules
+that apply to block names) with whitespace and dashes removed, and the
+words "uppercase-first-lowercase-rest". <code class="inline">Latin-1 Supplement</code> thus
+becomes <code class="inline">Latin1Supplement</code>
+.</p>
+<p>You can also use negation in both <code class="inline">\p<span class="s">{</span><span class="s">}</span></code>
+ and <code class="inline">\P<span class="s">{</span><span class="s">}</span></code>
+ by introducing a caret
+(^) between the first brace and the property name: <code class="inline">\<span class="i">p</span><span class="s">{</span>^Tamil<span class="s">}</span></code>
+ is
+equal to <code class="inline">\<span class="i">P</span><span class="s">{</span>Tamil<span class="s">}</span></code>
+.</p>
+<p><b>NOTE: the properties, scripts, and blocks listed here are as of
+Unicode 3.2.0, March 2002, or Perl 5.8.0, July 2002.  Unicode 4.0.0
+came out in April 2003, and Perl 5.8.1 in September 2003.</b></p>
+<p>Here are the basic Unicode General Category properties, followed by their
+long form.  You can use either; <code class="inline">\<span class="i">p</span><span class="s">{</span>Lu<span class="s">}</span></code>
+ and <code class="inline">\<span class="i">p</span><span class="s">{</span>UppercaseLetter<span class="s">}</span></code>
+,
+for instance, are identical.</p>
+<pre class="verbatim">    Short       Long</pre>
+<pre class="verbatim">    L           Letter
+    LC          CasedLetter
+    Lu          UppercaseLetter
+    Ll          LowercaseLetter
+    Lt          TitlecaseLetter
+    Lm          ModifierLetter
+    Lo          OtherLetter</pre>
+<pre class="verbatim">    M           Mark
+    Mn          NonspacingMark
+    Mc          SpacingMark
+    Me          EnclosingMark</pre>
+<pre class="verbatim">    N           Number
+    Nd          DecimalNumber
+    Nl          LetterNumber
+    No          OtherNumber</pre>
+<pre class="verbatim">    P           Punctuation
+    Pc          ConnectorPunctuation
+    Pd          DashPunctuation
+    Ps          OpenPunctuation
+    Pe          ClosePunctuation
+    Pi          InitialPunctuation
+                (may behave like Ps or Pe depending on usage)
+    Pf          FinalPunctuation
+                (may behave like Ps or Pe depending on usage)
+    Po          OtherPunctuation</pre><pre class="verbatim">    S           <a class="l_w" href="Symbol.html">Symbol</a>
+    Sm          MathSymbol
+    Sc          CurrencySymbol
+    Sk          ModifierSymbol
+    So          OtherSymbol</pre>
+<pre class="verbatim">    Z           Separator
+    Zs          SpaceSeparator
+    Zl          LineSeparator
+    Zp          ParagraphSeparator</pre>
+<pre class="verbatim">    C           Other
+    Cc          Control
+    Cf          Format
+    Cs          Surrogate   (not usable)
+    Co          PrivateUse
+    Cn          Unassigned</pre><p>Single-letter properties match all characters in any of the
+two-letter sub-properties starting with the same letter.
+<code class="inline">LC</code>
+ and <code class="inline">L<span class="i">&amp;</span></code>
+ are special cases, which are aliases for the set of
+<code class="inline">Ll</code>
+, <code class="inline">Lu</code>
+, and <code class="inline">Lt</code>
+.</p>
+<p>Because Perl hides the need for the user to understand the internal
+representation of Unicode characters, there is no need to implement
+the somewhat messy concept of surrogates. <code class="inline">Cs</code>
+ is therefore not
+supported.</p>
+<p>Because scripts differ in their directionality--Hebrew is
+written right to left, for example--Unicode supplies these properties in
+the BidiClass class:</p>
+<pre class="verbatim">    Property    Meaning</pre>
+<pre class="verbatim">    L           Left-to-Right
+    LRE         Left-to-Right Embedding
+    LRO         Left-to-Right Override
+    R           Right-to-Left
+    AL          Right-to-Left Arabic
+    RLE         Right-to-Left Embedding
+    RLO         Right-to-Left Override
+    PDF         Pop Directional Format
+    EN          European Number
+    ES          European Number Separator
+    ET          European Number Terminator
+    AN          Arabic Number
+    CS          Common Number Separator
+    NSM         Non-Spacing Mark
+    BN          Boundary Neutral
+    <a class="l_w" href="B.html">B</a>           Paragraph Separator
+    S           Segment Separator
+    WS          Whitespace
+    ON          Other Neutrals</pre>
+<p>For example, <code class="inline">\<span class="i">p</span><span class="s">{</span><span class="j">BidiClass:</span>R<span class="s">}</span></code>
+ matches characters that are normally
+written right to left.</p>
+</li>
+</ul>
+<a name="Scripts"></a><h2>Scripts</h2>
+<p>The script names which can be used by <code class="inline">\<span class="i">p</span><span class="s">{</span>...<span class="s">}</span></code>
+ and <code class="inline">\<span class="i">P</span><span class="s">{</span>...<span class="s">}</span></code>
+,
+such as in <code class="inline">\<span class="i">p</span><span class="s">{</span>Latin<span class="s">}</span></code>
+ or <code class="inline">\<span class="i">p</span><span class="s">{</span>Cyrillic<span class="s">}</span></code>
+, are as follows:</p>
+<pre class="verbatim">    Arabic
+    Armenian
+    Bengali
+    Bopomofo
+    Buhid
+    CanadianAboriginal
+    Cherokee
+    Cyrillic
+    Deseret
+    Devanagari
+    Ethiopic
+    Georgian
+    Gothic
+    Greek
+    Gujarati
+    Gurmukhi
+    Han
+    Hangul
+    Hanunoo
+    Hebrew
+    Hiragana
+    Inherited
+    Kannada
+    Katakana
+    Khmer
+    Lao
+    Latin
+    Malayalam
+    Mongolian
+    Myanmar
+    Ogham
+    OldItalic
+    Oriya
+    Runic
+    Sinhala
+    Syriac
+    Tagalog
+    Tagbanwa
+    Tamil
+    Telugu
+    Thaana
+    Thai
+    Tibetan
+    Yi</pre>
+<p>Extended property classes can supplement the basic
+properties, defined by the <i>PropList</i> Unicode database:</p>
+<pre class="verbatim">    ASCIIHexDigit
+    BidiControl
+    Dash
+    Deprecated
+    Diacritic
+    Extender
+    GraphemeLink
+    HexDigit
+    Hyphen
+    Ideographic
+    IDSBinaryOperator
+    IDSTrinaryOperator
+    JoinControl
+    LogicalOrderException
+    NoncharacterCodePoint
+    OtherAlphabetic
+    OtherDefaultIgnorableCodePoint
+    OtherGraphemeExtend
+    OtherLowercase
+    OtherMath
+    OtherUppercase
+    QuotationMark
+    Radical
+    SoftDotted
+    TerminalPunctuation
+    UnifiedIdeograph
+    WhiteSpace</pre>
+<p>and there are further derived properties:</p>
+<pre class="verbatim">    Alphabetic      Lu + Ll + Lt + Lm + Lo + OtherAlphabetic
+    Lowercase       Ll + OtherLowercase
+    Uppercase       Lu + OtherUppercase
+    Math            Sm + OtherMath</pre>
+<pre class="verbatim">    ID_Start        Lu + Ll + Lt + Lm + Lo + Nl
+    ID_Continue     ID_Start + Mn + Mc + Nd + Pc</pre>
+<pre class="verbatim">    Any             Any character
+    Assigned        Any non-Cn character (i.e. synonym for \P{Cn})
+    Unassigned      Synonym for \p{Cn}
+    Common          Any character (or unassigned code point)
+                    not explicitly assigned to a script</pre><p>For backward compatibility (with Perl 5.6), all properties mentioned
+so far may have <code class="inline">Is</code>
+ prepended to their name, so <code class="inline">\<span class="i">P</span><span class="s">{</span>IsLu<span class="s">}</span></code>
+, for
+example, is equal to <code class="inline">\<span class="i">P</span><span class="s">{</span>Lu<span class="s">}</span></code>
+.</p>
+<a name="Blocks"></a><h2>Blocks</h2>
+<p>In addition to <b>scripts</b>, Unicode also defines <b>blocks</b> of
+characters.  The difference between scripts and blocks is that the
+concept of scripts is closer to natural languages, while the concept
+of blocks is more of an artificial grouping based on groups of 256
+Unicode characters. For example, the <code class="inline">Latin</code>
+ script contains letters
+from many blocks but does not contain all the characters from those
+blocks. It does not, for example, contain digits, because digits are
+shared across many scripts. Digits and similar groups, like
+punctuation, are in a category called <code class="inline">Common</code>
+.</p>
+<p>For more about scripts, see the UTR #24:</p>
+<pre class="verbatim">   http://www.unicode.org/unicode/reports/tr24/</pre><p>For more about blocks, see:</p>
+<pre class="verbatim">   http://www.unicode.org/Public/UNIDATA/Blocks.txt</pre><p>Block names are given with the <code class="inline">In</code>
+ prefix. For example, the
+Katakana block is referenced via <code class="inline">\<span class="i">p</span><span class="s">{</span>InKatakana<span class="s">}</span></code>
+.  The <code class="inline">In</code>
+
+prefix may be omitted if there is no naming conflict with a script
+or any other property, but it is recommended that <code class="inline">In</code>
+ always be used
+for block tests to avoid confusion.</p>
+<p>These block names are supported:</p>
+<pre class="verbatim">    InAlphabeticPresentationForms
+    InArabic
+    InArabicPresentationFormsA
+    InArabicPresentationFormsB
+    InArmenian
+    InArrows
+    InBasicLatin
+    InBengali
+    InBlockElements
+    InBopomofo
+    InBopomofoExtended
+    InBoxDrawing
+    InBraillePatterns
+    InBuhid
+    InByzantineMusicalSymbols
+    InCJKCompatibility
+    InCJKCompatibilityForms
+    InCJKCompatibilityIdeographs
+    InCJKCompatibilityIdeographsSupplement
+    InCJKRadicalsSupplement
+    InCJKSymbolsAndPunctuation
+    InCJKUnifiedIdeographs
+    InCJKUnifiedIdeographsExtensionA
+    InCJKUnifiedIdeographsExtensionB
+    InCherokee
+    InCombiningDiacriticalMarks
+    InCombiningDiacriticalMarksforSymbols
+    InCombiningHalfMarks
+    InControlPictures
+    InCurrencySymbols
+    InCyrillic
+    InCyrillicSupplementary
+    InDeseret
+    InDevanagari
+    InDingbats
+    InEnclosedAlphanumerics
+    InEnclosedCJKLettersAndMonths
+    InEthiopic
+    InGeneralPunctuation
+    InGeometricShapes
+    InGeorgian
+    InGothic
+    InGreekExtended
+    InGreekAndCoptic
+    InGujarati
+    InGurmukhi
+    InHalfwidthAndFullwidthForms
+    InHangulCompatibilityJamo
+    InHangulJamo
+    InHangulSyllables
+    InHanunoo
+    InHebrew
+    InHighPrivateUseSurrogates
+    InHighSurrogates
+    InHiragana
+    InIPAExtensions
+    InIdeographicDescriptionCharacters
+    InKanbun
+    InKangxiRadicals
+    InKannada
+    InKatakana
+    InKatakanaPhoneticExtensions
+    InKhmer
+    InLao
+    InLatin1Supplement
+    InLatinExtendedA
+    InLatinExtendedAdditional
+    InLatinExtendedB
+    InLetterlikeSymbols
+    InLowSurrogates
+    InMalayalam
+    InMathematicalAlphanumericSymbols
+    InMathematicalOperators
+    InMiscellaneousMathematicalSymbolsA
+    InMiscellaneousMathematicalSymbolsB
+    InMiscellaneousSymbols
+    InMiscellaneousTechnical
+    InMongolian
+    InMusicalSymbols
+    InMyanmar
+    InNumberForms
+    InOgham
+    InOldItalic
+    InOpticalCharacterRecognition
+    InOriya
+    InPrivateUseArea
+    InRunic
+    InSinhala
+    InSmallFormVariants
+    InSpacingModifierLetters
+    InSpecials
+    InSuperscriptsAndSubscripts
+    InSupplementalArrowsA
+    InSupplementalArrowsB
+    InSupplementalMathematicalOperators
+    InSupplementaryPrivateUseAreaA
+    InSupplementaryPrivateUseAreaB
+    InSyriac
+    InTagalog
+    InTagbanwa
+    InTags
+    InTamil
+    InTelugu
+    InThaana
+    InThai
+    InTibetan
+    InUnifiedCanadianAboriginalSyllabics
+    InVariationSelectors
+    InYiRadicals
+    InYiSyllables</pre>
+<ul>
+<li>
+<p>The special pattern <code class="inline">\X</code>
+ matches any extended Unicode
+sequence--"a combining character sequence" in Standardese--where the
+first character is a base character and subsequent characters are mark
+characters that apply to the base character.  <code class="inline">\X</code>
+ is equivalent to
+<code class="inline">(?:\PM\pM*)</code>.</p>
+</li>
+<li>
+<p>The <code class="inline"><a class="l_k" href="functions/tr.html">tr///</a></code> operator translates characters instead of bytes.  Note
+that the <code class="inline"><a class="l_k" href="functions/tr.html">tr///CU</a></code> functionality has been removed.  For similar
+functionality see pack('U0', ...) and pack('C0', ...).</p>
+</li>
+<li>
+<p>Case translation operators use the Unicode case translation tables
+when character input is provided.  Note that <code class="inline"><a class="l_k" href="functions/uc.html">uc()</a></code>, or <code class="inline">\U</code>
+ in
+interpolated strings, translates to uppercase, while <code class="inline"><a class="l_k" href="functions/ucfirst.html">ucfirst</a></code>,
+or <code class="inline">\u</code>
+ in interpolated strings, translates to titlecase in languages
+that make the distinction.</p>
+</li>
+<li>
+<p>Most operators that deal with positions or lengths in a string will
+automatically switch to using character positions, including
+<code class="inline"><a class="l_k" href="functions/chop.html">chop()</a></code>, <code class="inline"><a class="l_k" href="functions/chomp.html">chomp()</a></code>, <code class="inline"><a class="l_k" href="functions/substr.html">substr()</a></code>, <code class="inline"><a class="l_k" href="functions/pos.html">pos()</a></code>, <code class="inline"><a class="l_k" href="functions/index.html">index()</a></code>, <code class="inline"><a class="l_k" href="functions/rindex.html">rindex()</a></code>,
+<code class="inline"><a class="l_k" href="functions/sprintf.html">sprintf()</a></code>, <code class="inline"><a class="l_k" href="functions/write.html">write()</a></code>, and <code class="inline"><a class="l_k" href="functions/length.html">length()</a></code>.  Operators that
+specifically do not switch include <code class="inline"><a class="l_k" href="functions/vec.html">vec()</a></code>, <code class="inline"><a class="l_k" href="functions/pack.html">pack()</a></code>, and
+<code class="inline"><a class="l_k" href="functions/unpack.html">unpack()</a></code>.  Operators that really don't care include
+operators that treats strings as a bucket of bits such as <code class="inline"><a class="l_k" href="functions/sort.html">sort()</a></code>,
+and operators dealing with filenames.</p>
+</li>
+<li>
+<p>The <code class="inline"><a class="l_k" href="functions/pack.html">pack()</a></code>/<code class="inline"><a class="l_k" href="functions/unpack.html">unpack()</a></code> letters <code class="inline">c</code>
+ and <code class="inline">C</code>
+ do <i>not</i> change,
+since they are often used for byte-oriented formats.  Again, think
+<code class="inline">char</code>
+ in the C language.</p>
+<p>There is a new <code class="inline">U</code>
+ specifier that converts between Unicode characters
+and code points.</p>
+</li>
+<li>
+<p>The <code class="inline"><a class="l_k" href="functions/chr.html">chr()</a></code> and <code class="inline"><a class="l_k" href="functions/ord.html">ord()</a></code> functions work on characters, similar to
+<code class="inline"><a class="l_k" href="functions/pack.html">pack("U")</a></code> and <code class="inline"><a class="l_k" href="functions/unpack.html">unpack("U")</a></code>, <i>not</i> <code class="inline"><a class="l_k" href="functions/pack.html">pack("C")</a></code> and
+<code class="inline"><a class="l_k" href="functions/unpack.html">unpack("C")</a></code>.  <code class="inline"><a class="l_k" href="functions/pack.html">pack("C")</a></code> and <code class="inline"><a class="l_k" href="functions/unpack.html">unpack("C")</a></code> are methods for
+emulating byte-oriented <code class="inline"><a class="l_k" href="functions/chr.html">chr()</a></code> and <code class="inline"><a class="l_k" href="functions/ord.html">ord()</a></code> on Unicode strings.
+While these methods reveal the internal encoding of Unicode strings,
+that is not something one normally needs to care about at all.</p>
+</li>
+<li>
+<p>The bit string operators, <code class="inline"><span class="i">&amp; |</span> ^ ~</code>
+, can operate on character data.
+However, for backward compatibility, such as when using bit string
+operations when characters are all less than 256 in ordinal value, one
+should not use <code class="inline">~</code>
+ (the bit complement) with characters of both
+values less than 256 and values greater than 256.  Most importantly,
+DeMorgan's laws (<code class="inline">~<span class="s">(</span><span class="i">$x</span>|<span class="i">$y</span><span class="s">)</span> eq ~<span class="i">$x</span>&amp;~<span class="i">$y</span></code>
+ and <code class="inline">~<span class="s">(</span><span class="i">$x</span>&amp;<span class="i">$y</span><span class="s">)</span> eq ~<span class="i">$x</span>|~<span class="i">$y</span></code>
+)
+will not hold.  The reason for this mathematical <i>faux pas</i> is that
+the complement cannot return <b>both</b> the 8-bit (byte-wide) bit
+complement <b>and</b> the full character-wide bit complement.</p>
+</li>
+<li>
+<p>lc(), uc(), lcfirst(), and ucfirst() work for the following cases:</p>
+<ul>
+<li>
+<p>the case mapping is from a single Unicode character to another
+single Unicode character, or</p>
+</li>
+<li>
+<p>the case mapping is from a single Unicode character to more
+than one Unicode character.</p>
+</li>
+</ul>
+<p>Things to do with locales (Lithuanian, Turkish, Azeri) do <b>not</b> work
+since Perl does not understand the concept of Unicode locales.</p>
+<p>See the Unicode Technical Report #21, Case Mappings, for more details.</p>
+</li>
+</ul>
+<ul>
+<li>
+<p>And finally, <code class="inline"><a class="l_k" href="functions/scalar.html">scalar</a> <a class="l_k" href="functions/reverse.html">reverse</a><span class="s">(</span><span class="s">)</span></code>
+ reverses by character rather than by byte.</p>
+</li>
+</ul>
+<a name="User-Defined-Character-Properties"></a><h2>User-Defined Character Properties</h2>
+<p>You can define your own character properties by defining subroutines
+whose names begin with "In" or "Is".  The subroutines can be defined in
+any package.  The user-defined properties can be used in the regular
+expression <code class="inline">\p</code>
+ and <code class="inline">\P</code>
+ constructs; if you are using a user-defined
+property from a package other than the one you are in, you must specify
+its package in the <code class="inline">\p</code>
+ or <code class="inline">\P</code>
+ construct.</p>
+<pre class="verbatim">    <span class="c"># assuming property IsForeign defined in Lang::</span>
+<a name="package-main"></a>    package <span class="i">main</span><span class="sc">;</span>  <span class="c"># property package name required</span>
+    if <span class="s">(</span><span class="i">$txt</span> =~ <span class="q">/\p{Lang::IsForeign}+/</span><span class="s">)</span> <span class="s">{</span> ... <span class="s">}</span></pre>
+<pre class="verbatim"><a name="package-Lang"></a>    package <span class="i">Lang</span><span class="sc">;</span>  <span class="c"># property package name not required</span>
+    if <span class="s">(</span><span class="i">$txt</span> =~ <span class="q">/\p{IsForeign}+/</span><span class="s">)</span> <span class="s">{</span> ... <span class="s">}</span></pre>
+<p>Note that the effect is compile-time and immutable once defined.</p>
+<p>The subroutines must return a specially-formatted string, with one
+or more newline-separated lines.  Each line must be one of the following:</p>
+<ul>
+<li>
+<p>Two hexadecimal numbers separated by horizontal whitespace (space or
+tabular characters) denoting a range of Unicode code points to include.</p>
+</li>
+<li>
+<p>Something to include, prefixed by "+": a built-in character
+property (prefixed by "utf8::") or a user-defined character property,
+to represent all the characters in that property; two hexadecimal code
+points for a range; or a single hexadecimal code point.</p>
+</li>
+<li>
+<p>Something to exclude, prefixed by "-": an existing character
+property (prefixed by "utf8::") or a user-defined character property,
+to represent all the characters in that property; two hexadecimal code
+points for a range; or a single hexadecimal code point.</p>
+</li>
+<li>
+<p>Something to negate, prefixed "!": an existing character
+property (prefixed by "utf8::") or a user-defined character property,
+to represent all the characters in that property; two hexadecimal code
+points for a range; or a single hexadecimal code point.</p>
+</li>
+<li>
+<p>Something to intersect with, prefixed by "&amp;": an existing character
+property (prefixed by "utf8::") or a user-defined character property,
+for all the characters except the characters in the property; two
+hexadecimal code points for a range; or a single hexadecimal code point.</p>
+</li>
+</ul>
+<p>For example, to define a property that covers both the Japanese
+syllabaries (hiragana and katakana), you can define</p>
+<pre class="verbatim">    sub InKana {
+	return &lt;&lt;END;
+    3040\t309F
+    30A0\t30FF
+    END
+    }</pre><p>Imagine that the here-doc end marker is at the beginning of the line.
+Now you can use <code class="inline">\<span class="i">p</span><span class="s">{</span>InKana<span class="s">}</span></code>
+ and <code class="inline">\<span class="i">P</span><span class="s">{</span>InKana<span class="s">}</span></code>
+.</p>
+<p>You could also have used the existing block property names:</p>
+<pre class="verbatim">    sub InKana {
+	return &lt;&lt;'END';
+    +utf8::InHiragana
+    +utf8::InKatakana
+    END
+    }</pre><p>Suppose you wanted to match only the allocated characters,
+not the raw block ranges: in other words, you want to remove
+the non-characters:</p>
+<pre class="verbatim">    sub InKana {
+	return &lt;&lt;'END';
+    +utf8::InHiragana
+    +utf8::InKatakana
+    -utf8::IsCn
+    END
+    }</pre><p>The negation is useful for defining (surprise!) negated classes.</p>
+<pre class="verbatim">    sub InNotKana {
+	return &lt;&lt;'END';
+    !utf8::InHiragana
+    -utf8::InKatakana
+    +utf8::IsCn
+    END
+    }</pre><p>Intersection is useful for getting the common characters matched by
+two (or more) classes.</p>
+<pre class="verbatim">    sub InFooAndBar {
+        return &lt;&lt;'END';
+    +main::Foo
+    &amp;main::Bar
+    END
+    }</pre><p>It's important to remember not to use "&amp;" for the first set -- that
+would be intersecting with nothing (resulting in an empty set).</p>
+<p>You can also define your own mappings to be used in the lc(),
+lcfirst(), uc(), and ucfirst() (or their string-inlined versions).
+The principle is the same: define subroutines in the <code class="inline">main</code>
+ package
+with names like <code class="inline">ToLower</code>
+ (for lc() and lcfirst()), <code class="inline">ToTitle</code>
+ (for
+the first character in ucfirst()), and <code class="inline">ToUpper</code>
+ (for uc(), and the
+rest of the characters in ucfirst()).</p>
+<p>The string returned by the subroutines needs now to be three
+hexadecimal numbers separated by tabulators: start of the source
+range, end of the source range, and start of the destination range.
+For example:</p>
+<pre class="verbatim">    sub ToUpper {
+	return &lt;&lt;END;
+    0061\t0063\t0041
+    END
+    }</pre><p>defines an uc() mapping that causes only the characters "a", "b", and
+"c" to be mapped to "A", "B", "C", all other characters will remain
+unchanged.</p>
+<p>If there is no source range to speak of, that is, the mapping is from
+a single character to another single character, leave the end of the
+source range empty, but the two tabulator characters are still needed.
+For example:</p>
+<pre class="verbatim">    sub ToLower {
+	return &lt;&lt;END;
+    0041\t\t0061
+    END
+    }</pre><p>defines a lc() mapping that causes only "A" to be mapped to "a", all
+other characters will remain unchanged.</p>
+<p>(For serious hackers only)  If you want to introspect the default
+mappings, you can find the data in the directory
+<code class="inline"><span class="i">$Config</span>{privlib}</code>
+/<i>unicore/To/</i>.  The mapping data is returned as
+the here-document, and the <code class="inline">utf8::ToSpecFoo</code>
+ are special exception
+mappings derived from &lt;$Config{privlib}&gt;/<i>unicore/SpecialCasing.txt</i>.
+The <code class="inline">Digit</code>
+ and <code class="inline">Fold</code>
+ mappings that one can see in the directory
+are not directly user-accessible, one can use either the
+<code class="inline"><a class="l_w" href="Unicode/UCD.html">Unicode::UCD</a></code> module, or just match case-insensitively (that's when
+the <code class="inline">Fold</code>
+ mapping is used).</p>
+<p>A final note on the user-defined property tests and mappings: they
+will be used only if the scalar has been marked as having Unicode
+characters.  Old byte-style strings will not be affected.</p>
+<a name="Character-Encodings-for-Input-and-Output"></a><h2>Character Encodings for Input and Output</h2>
+<p>See <a href="Encode.html">Encode</a>.</p>
+<a name="Unicode-Regular-Expression-Support-Level"></a><h2>Unicode Regular Expression Support Level</h2>
+<p>The following list of Unicode support for regular expressions describes
+all the features currently supported.  The references to "Level N"
+and the section numbers refer to the Unicode Technical Report 18,
+"Unicode Regular Expression Guidelines", version 6 (Unicode 3.2.0,
+Perl 5.8.0).</p>
+<ul>
+<li>
+<p>Level 1 - Basic Unicode Support</p>
+<pre class="verbatim">        2.1 Hex Notation                        - done          [1]
+            Named Notation                      - done          [2]
+        2.2 Categories                          - done          [3][4]
+        2.3 Subtraction                         - MISSING       [5][6]
+        2.4 Simple Word Boundaries              - done          [7]
+        2.5 Simple Loose Matches                - done          [8]
+        2.6 End of Line                         - MISSING       [9][10]</pre><pre class="verbatim">        [ 1] \x{...}
+        [ 2] \N{...}
+        [ 3] . \p{...} \P{...}
+        [ 4] support for scripts (see UTR#24 Script Names), blocks,
+             binary properties, enumerated non-binary properties, and
+             numeric properties (as listed in UTR#18 Other Properties)
+        [ 5] have negation
+        [ 6] can use regular expression look-ahead [a]
+             or user-defined character properties [b] to emulate subtraction
+        [ 7] include Letters in word characters
+        [ 8] note that Perl does Full case-folding in matching, not Simple:
+             for example U+1F88 is equivalent with U+1F00 U+03B9,
+             not with 1F80.  This difference matters for certain Greek
+             capital letters with certain modifiers: the Full case-folding
+             decomposes the letter, while the Simple case-folding would map
+             it to a single character.
+        [ 9] see UTR #13 Unicode Newline Guidelines
+        [10] should do ^ and $ also on \x{85}, \x{2028} and \x{2029}
+             (should also affect &lt;&gt;, $., and script line numbers)
+             (the \x{85}, \x{2028} and \x{2029} do match \s)</pre><p>[a] You can mimic class subtraction using lookahead.
+For example, what UTR #18 might write as</p>
+<pre class="verbatim">    <span class="s">[</span><span class="s">{</span>Greek<span class="s">}</span>-<span class="s">[</span><span class="s">{</span>UNASSIGNED<span class="s">}</span><span class="s">]</span><span class="s">]</span></pre>
+<p>in Perl can be written as:</p>
+<pre class="verbatim">    <span class="s">(</span><span class="q">?!\p{Unassigned})\p{InGreekAndCoptic}</span>
+    <span class="q">    (?</span>=\<span class="i">p</span><span class="s">{</span>Assigned<span class="s">}</span><span class="s">)</span>\<span class="i">p</span><span class="s">{</span>InGreekAndCoptic<span class="s">}</span></pre>
+<p>But in this particular example, you probably really want</p>
+<pre class="verbatim">    \<span class="i">p</span><span class="s">{</span>GreekAndCoptic<span class="s">}</span></pre>
+<p>which will match assigned characters known to be part of the Greek script.</p>
+<p>Also see the Unicode::Regex::Set module, it does implement the full
+UTR #18 grouping, intersection, union, and removal (subtraction) syntax.</p>
+<p>[b] See <a href="#User-Defined-Character-Properties">"User-Defined Character Properties"</a>.</p>
+</li>
+<li>
+<p>Level 2 - Extended Unicode Support</p>
+<pre class="verbatim">        3.1 Surrogates                          - MISSING	[11]
+        3.2 Canonical Equivalents               - MISSING       [12][13]
+        3.3 Locale-Independent Graphemes        - MISSING       [14]
+        3.4 Locale-Independent Words            - MISSING       [15]
+        3.5 Locale-Independent Loose Matches    - MISSING       [16]</pre><pre class="verbatim">        [11] Surrogates are solely a UTF-16 concept and Perl's internal
+             representation is UTF-8.  The Encode module does UTF-16, though.
+        [12] see UTR#15 Unicode Normalization
+        [13] have Unicode::Normalize but not integrated to regexes
+        [14] have \X but at this level . should equal that
+        [15] need three classes, not just \w and \W
+        [16] see UTR#21 Case Mappings</pre></li>
+<li>
+<p>Level 3 - Locale-Sensitive Support</p>
+<pre class="verbatim">        4.1 Locale-Dependent Categories         - MISSING
+        4.2 Locale-Dependent Graphemes          - MISSING       [16][17]
+        4.3 Locale-Dependent Words              - MISSING
+        4.4 Locale-Dependent Loose Matches      - MISSING
+        4.5 Locale-Dependent Ranges             - MISSING</pre><pre class="verbatim">        <span class="s">[</span><span class="n">16</span><span class="s">]</span> see UTR<span class="c">#10 Unicode Collation Algorithms</span>
+        <span class="s">[</span><span class="n">17</span><span class="s">]</span> have <a class="l_w" href="Unicode/Collate.html">Unicode::Collate</a> but not integrated to regexes</pre>
+</li>
+</ul>
+<a name="Unicode-Encodings"></a><h2>Unicode Encodings</h2>
+<p>Unicode characters are assigned to <i>code points</i>, which are abstract
+numbers.  To use these numbers, various encodings are needed.</p>
+<ul>
+<li>
+<p>UTF-8</p>
+<p>UTF-8 is a variable-length (1 to 6 bytes, current character allocations
+require 4 bytes), byte-order independent encoding. For ASCII (and we
+really do mean 7-bit ASCII, not another 8-bit encoding), UTF-8 is
+transparent.</p>
+<p>The following table is from Unicode 3.2.</p>
+<pre class="verbatim"> Code Points            1st Byte  2nd Byte  3rd Byte  4th Byte</pre><pre class="verbatim">   U+0000..U+007F       00..7F
+   U+0080..U+07FF       C2..DF    80..BF
+   U+0800..U+0FFF       E0        A0..BF    80..BF
+   U+1000..U+CFFF       E1..EC    80..BF    80..BF
+   U+D000..U+D7FF       ED        80..9F    80..BF
+   U+D800..U+DFFF       ******* ill-formed *******
+   U+E000..U+FFFF       EE..EF    80..BF    80..BF
+  U+10000..U+3FFFF      F0        90..BF    80..BF    80..BF
+  U+40000..U+FFFFF      F1..F3    80..BF    80..BF    80..BF
+ U+100000..U+10FFFF     F4        80..8F    80..BF    80..BF</pre><p>Note the <code class="inline">A0..BF</code>
+ in <code class="inline">U+0800..U+0FFF</code>, the <code class="inline">80..9F</code> in
+<code class="inline">U+D000...U+D7FF</code>
+, the <code class="inline"><span class="n">90</span>..<a class="l_w" href="B.html">B</a></code>
+F in <code class="inline">U+10000..U+3FFFF</code>, and the
+<code class="inline">80...8F</code> in <code class="inline">U+100000..U+10FFFF</code>.  The "gaps" are caused by legal
+UTF-8 avoiding non-shortest encodings: it is technically possible to
+UTF-8-encode a single code point in different ways, but that is
+explicitly forbidden, and the shortest possible encoding should always
+be used.  So that's what Perl does.</p>
+<p>Another way to look at it is via bits:</p>
+<pre class="verbatim"> Code Points                    1st Byte   2nd Byte  3rd Byte  4th Byte</pre><pre class="verbatim">                    0aaaaaaa     0aaaaaaa
+            00000bbbbbaaaaaa     110bbbbb  10aaaaaa
+            ccccbbbbbbaaaaaa     1110cccc  10bbbbbb  10aaaaaa
+  00000dddccccccbbbbbbaaaaaa     11110ddd  10cccccc  10bbbbbb  10aaaaaa</pre><p>As you can see, the continuation bytes all begin with <code class="inline"><span class="n">10</span></code>
+, and the
+leading bits of the start byte tell how many bytes the are in the
+encoded character.</p>
+</li>
+<li>
+<p>UTF-EBCDIC</p>
+<p>Like UTF-8 but EBCDIC-safe, in the way that UTF-8 is ASCII-safe.</p>
+</li>
+<li>
+<p>UTF-16, UTF-16BE, UTF-16LE, Surrogates, and BOMs (Byte Order Marks)</p>
+<p>The followings items are mostly for reference and general Unicode
+knowledge, Perl doesn't use these constructs internally.</p>
+<p>UTF-16 is a 2 or 4 byte encoding.  The Unicode code points
+<code class="inline">U+<span class="n">0000</span>..U+FFFF</code>
+ are stored in a single 16-bit unit, and the code
+points <code class="inline">U+10000..U+10FFFF</code> in two 16-bit units.  The latter case is
+using <i>surrogates</i>, the first 16-bit unit being the <i>high
+surrogate</i>, and the second being the <i>low surrogate</i>.</p>
+<p>Surrogates are code points set aside to encode the <code class="inline">U+10000..U+10FFFF</code>
+range of Unicode code points in pairs of 16-bit units.  The <i>high
+surrogates</i> are the range <code class="inline">U+D800..U+DBFF</code>
+, and the <i>low surrogates</i>
+are the range <code class="inline">U+DC00..U+DFFF</code>
+.  The surrogate encoding is</p>
+<pre class="verbatim">	<span class="i">$hi</span> = <span class="s">(</span><span class="i">$uni</span> - <span class="n">0x10000</span><span class="s">)</span> / <span class="n">0x400</span> + <span class="n">0xD800</span><span class="sc">;</span>
+	<span class="i">$lo</span> = <span class="s">(</span><span class="i">$uni</span> - <span class="n">0x10000</span><span class="s">)</span> % <span class="n">0x400</span> + <span class="n">0xDC00</span><span class="sc">;</span></pre>
+<p>and the decoding is</p>
+<pre class="verbatim">	<span class="i">$uni</span> = <span class="n">0x10000</span> + <span class="s">(</span><span class="i">$hi</span> - <span class="n">0xD800</span><span class="s">)</span> * <span class="n">0x400</span> + <span class="s">(</span><span class="i">$lo</span> - <span class="n">0xDC00</span><span class="s">)</span><span class="sc">;</span></pre>
+<p>If you try to generate surrogates (for example by using chr()), you
+will get a warning if warnings are turned on, because those code
+points are not valid for a Unicode character.</p>
+<p>Because of the 16-bitness, UTF-16 is byte-order dependent.  UTF-16
+itself can be used for in-memory computations, but if storage or
+transfer is required either UTF-16BE (big-endian) or UTF-16LE
+(little-endian) encodings must be chosen.</p>
+<p>This introduces another problem: what if you just know that your data
+is UTF-16, but you don't know which endianness?  Byte Order Marks, or
+BOMs, are a solution to this.  A special character has been reserved
+in Unicode to function as a byte order marker: the character with the
+code point <code class="inline">U+FEFF</code>
+ is the BOM.</p>
+<p>The trick is that if you read a BOM, you will know the byte order,
+since if it was written on a big-endian platform, you will read the
+bytes <code class="inline">0xFE 0xFF</code>, but if it was written on a little-endian platform,
+you will read the bytes <code class="inline">0xFF 0xFE</code>.  (And if the originating platform
+was writing in UTF-8, you will read the bytes <code class="inline">0xEF 0xBB 0xBF</code>.)</p>
+<p>The way this trick works is that the character with the code point
+<code class="inline">U+FFFE</code>
+ is guaranteed not to be a valid Unicode character, so the
+sequence of bytes <code class="inline">0xFF 0xFE</code> is unambiguously "BOM, represented in
+little-endian format" and cannot be <code class="inline">U+FFFE</code>
+, represented in big-endian
+format".</p>
+</li>
+<li>
+<p>UTF-32, UTF-32BE, UTF-32LE</p>
+<p>The UTF-32 family is pretty much like the UTF-16 family, expect that
+the units are 32-bit, and therefore the surrogate scheme is not
+needed.  The BOM signatures will be <code class="inline">0x00 0x00 0xFE 0xFF</code> for BE and
+<code class="inline">0xFF 0xFE 0x00 0x00</code> for LE.</p>
+</li>
+<li>
+<p>UCS-2, UCS-4</p>
+<p>Encodings defined by the ISO 10646 standard.  UCS-2 is a 16-bit
+encoding.  Unlike UTF-16, UCS-2 is not extensible beyond <code class="inline">U+FFFF</code>
+,
+because it does not use surrogates.  UCS-4 is a 32-bit encoding,
+functionally identical to UTF-32.</p>
+</li>
+<li>
+<p>UTF-7</p>
+<p>A seven-bit safe (non-eight-bit) encoding, which is useful if the
+transport or storage is not eight-bit safe.  Defined by RFC 2152.</p>
+</li>
+</ul>
+<a name="Security-Implications-of-Unicode"></a><h2>Security Implications of Unicode</h2>
+<ul>
+<li>
+<p>Malformed UTF-8</p>
+<p>Unfortunately, the specification of UTF-8 leaves some room for
+interpretation of how many bytes of encoded output one should generate
+from one input Unicode character.  Strictly speaking, the shortest
+possible sequence of UTF-8 bytes should be generated,
+because otherwise there is potential for an input buffer overflow at
+the receiving end of a UTF-8 connection.  Perl always generates the
+shortest length UTF-8, and with warnings on Perl will warn about
+non-shortest length UTF-8 along with other malformations, such as the
+surrogates, which are not real Unicode code points.</p>
+</li>
+<li>
+<p>Regular expressions behave slightly differently between byte data and
+character (Unicode) data.  For example, the "word character" character
+class <code class="inline">\w</code>
+ will work differently depending on if data is eight-bit bytes
+or Unicode.</p>
+<p>In the first case, the set of <code class="inline">\w</code>
+ characters is either small--the
+default set of alphabetic characters, digits, and the "_"--or, if you
+are using a locale (see <a href="perllocale.html">perllocale</a>), the <code class="inline">\w</code>
+ might contain a few
+more letters according to your language and country.</p>
+<p>In the second case, the <code class="inline">\w</code>
+ set of characters is much, much larger.
+Most importantly, even in the set of the first 256 characters, it will
+probably match different characters: unlike most locales, which are
+specific to a language and country pair, Unicode classifies all the
+characters that are letters <i>somewhere</i> as <code class="inline">\w</code>
+.  For example, your
+locale might not think that LATIN SMALL LETTER ETH is a letter (unless
+you happen to speak Icelandic), but Unicode does.</p>
+<p>As discussed elsewhere, Perl has one foot (two hooves?) planted in
+each of two worlds: the old world of bytes and the new world of
+characters, upgrading from bytes to characters when necessary.
+If your legacy code does not explicitly use Unicode, no automatic
+switch-over to characters should happen.  Characters shouldn't get
+downgraded to bytes, either.  It is possible to accidentally mix bytes
+and characters, however (see <a href="perluniintro.html">perluniintro</a>), in which case <code class="inline">\w</code>
+ in
+regular expressions might start behaving differently.  Review your
+code.  Use warnings and the <code class="inline"><a class="l_w" href="strict.html">strict</a></code> pragma.</p>
+</li>
+</ul>
+<a name="Unicode-in-Perl-on-EBCDIC"></a><h2>Unicode in Perl on EBCDIC</h2>
+<p>The way Unicode is handled on EBCDIC platforms is still
+experimental.  On such platforms, references to UTF-8 encoding in this
+document and elsewhere should be read as meaning the UTF-EBCDIC
+specified in Unicode Technical Report 16, unless ASCII vs. EBCDIC issues
+are specifically discussed. There is no <code class="inline">utfebcdic</code>
+ pragma or
+":utfebcdic" layer; rather, "utf8" and ":utf8" are reused to mean
+the platform's "natural" 8-bit encoding of Unicode. See <a href="perlebcdic.html">perlebcdic</a>
+for more discussion of the issues.</p>
+<a name="Locales"></a><h2>Locales</h2>
+<p>Usually locale settings and Unicode do not affect each other, but
+there are a couple of exceptions:</p>
+<ul>
+<li>
+<p>You can enable automatic UTF-8-ification of your standard file
+handles, default <code class="inline"><a class="l_k" href="functions/open.html">open()</a></code> layer, and <code class="inline"><span class="i">@ARGV</span></code>
+ by using either
+the <code class="inline">-C</code>
+ command line switch or the <code class="inline">PERL_UNICODE</code>
+ environment
+variable, see <a href="perlrun.html">perlrun</a> for the documentation of the <code class="inline">-C</code>
+ switch.</p>
+</li>
+<li>
+<p>Perl tries really hard to work both with Unicode and the old
+byte-oriented world. Most often this is nice, but sometimes Perl's
+straddling of the proverbial fence causes problems.</p>
+</li>
+</ul>
+<a name="When-Unicode-Does-Not-Happen"></a><h2>When Unicode Does Not Happen</h2>
+<p>While Perl does have extensive ways to input and output in Unicode,
+and few other 'entry points' like the @ARGV which can be interpreted
+as Unicode (UTF-8), there still are many places where Unicode (in some
+encoding or another) could be given as arguments or received as
+results, or both, but it is not.</p>
+<p>The following are such interfaces.  For all of these interfaces Perl
+currently (as of 5.8.3) simply assumes byte strings both as arguments
+and results, or UTF-8 strings if the <code class="inline"><a class="l_w" href="encoding.html">encoding</a></code> pragma has been used.</p>
+<p>One reason why Perl does not attempt to resolve the role of Unicode in
+this cases is that the answers are highly dependent on the operating
+system and the file system(s).  For example, whether filenames can be
+in Unicode, and in exactly what kind of encoding, is not exactly a
+portable concept.  Similarly for the qx and system: how well will the
+'command line interface' (and which of them?) handle Unicode?</p>
+<ul>
+<li>
+<p>chdir, chmod, chown, chroot, exec, link, lstat, mkdir, 
+rename, rmdir, stat, symlink, truncate, unlink, utime, -X</p>
+</li>
+<li>
+<p>%ENV</p>
+</li>
+<li>
+<p>glob (aka the &lt;*&gt;)</p>
+</li>
+<li>
+<p>open, opendir, sysopen</p>
+</li>
+<li>
+<p>qx (aka the backtick operator), system</p>
+</li>
+<li>
+<p>readdir, readlink</p>
+</li>
+</ul>
+<a name="Forcing-Unicode-in-Perl-(Or-Unforcing-Unicode-in-Perl)"></a><h2>Forcing Unicode in Perl (Or Unforcing Unicode in Perl)</h2>
+<p>Sometimes (see <a href="#When-Unicode-Does-Not-Happen">"When Unicode Does Not Happen"</a>) there are
+situations where you simply need to force Perl to believe that a byte
+string is UTF-8, or vice versa.  The low-level calls
+utf8::upgrade($bytestring) and utf8::downgrade($utf8string) are
+the answers.</p>
+<p>Do not use them without careful thought, though: Perl may easily get
+very confused, angry, or even crash, if you suddenly change the 'nature'
+of scalar like that.  Especially careful you have to be if you use the
+utf8::upgrade(): any random byte string is not valid UTF-8.</p>
+<a name="Using-Unicode-in-XS"></a><h2>Using Unicode in XS</h2>
+<p>If you want to handle Perl Unicode in XS extensions, you may find the
+following C APIs useful.  See also <a href="perlguts.html#Unicode-Support">"Unicode Support" in perlguts</a> for an
+explanation about Unicode at the XS level, and <a href="perlapi.html">perlapi</a> for the API
+details.</p>
+<ul>
+<li>
+<p><code class="inline"><span class="i">DO_UTF8</span><span class="s">(</span>sv<span class="s">)</span></code>
+ returns true if the <code class="inline">UTF8</code>
+ flag is on and the bytes
+pragma is not in effect.  <code class="inline"><span class="i">SvUTF8</span><span class="s">(</span>sv<span class="s">)</span></code>
+ returns true is the <code class="inline">UTF8</code>
+
+flag is on; the bytes pragma is ignored.  The <code class="inline">UTF8</code>
+ flag being on
+does <b>not</b> mean that there are any characters of code points greater
+than 255 (or 127) in the scalar or that there are even any characters
+in the scalar.  What the <code class="inline">UTF8</code>
+ flag means is that the sequence of
+octets in the representation of the scalar is the sequence of UTF-8
+encoded code points of the characters of a string.  The <code class="inline">UTF8</code>
+ flag
+being off means that each octet in this representation encodes a
+single character with code point 0..255 within the string.  Perl's
+Unicode model is not to use UTF-8 until it is absolutely necessary.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">uvuni_to_utf8</span><span class="s">(</span>buf<span class="cm">,</span> <a class="l_k" href="functions/chr.html">chr</a><span class="s">)</span></code>
+ writes a Unicode character code point into
+a buffer encoding the code point as UTF-8, and returns a pointer
+pointing after the UTF-8 bytes.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">utf8_to_uvuni</span><span class="s">(</span>buf<span class="cm">,</span> lenp<span class="s">)</span></code>
+ reads UTF-8 encoded bytes from a buffer and
+returns the Unicode character code point and, optionally, the length of
+the UTF-8 byte sequence.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">utf8_length</span><span class="s">(</span>start<span class="cm">,</span> end<span class="s">)</span></code>
+ returns the length of the UTF-8 encoded buffer
+in characters.  <code class="inline"><span class="i">sv_len_utf8</span><span class="s">(</span>sv<span class="s">)</span></code>
+ returns the length of the UTF-8 encoded
+scalar.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">sv_utf8_upgrade</span><span class="s">(</span>sv<span class="s">)</span></code>
+ converts the string of the scalar to its UTF-8
+encoded form.  <code class="inline"><span class="i">sv_utf8_downgrade</span><span class="s">(</span>sv<span class="s">)</span></code>
+ does the opposite, if
+possible.  <code class="inline"><span class="i">sv_utf8_encode</span><span class="s">(</span>sv<span class="s">)</span></code>
+ is like sv_utf8_upgrade except that
+it does not set the <code class="inline">UTF8</code>
+ flag.  <code class="inline"><span class="i">sv_utf8_decode</span><span class="s">(</span><span class="s">)</span></code>
+ does the
+opposite of <code class="inline"><span class="i">sv_utf8_encode</span><span class="s">(</span><span class="s">)</span></code>
+.  Note that none of these are to be
+used as general-purpose encoding or decoding interfaces: <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="Encode.html">Encode</a></code>
+
+for that.  <code class="inline"><span class="i">sv_utf8_upgrade</span><span class="s">(</span><span class="s">)</span></code>
+ is affected by the encoding pragma
+but <code class="inline"><span class="i">sv_utf8_downgrade</span><span class="s">(</span><span class="s">)</span></code>
+ is not (since the encoding pragma is
+designed to be a one-way street).</p>
+</li>
+<li>
+<p><code class="inline">is_utf8_char(s)</code> returns true if the pointer points to a valid UTF-8
+character.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">is_utf8_string</span><span class="s">(</span>buf<span class="cm">,</span> len<span class="s">)</span></code>
+ returns true if <code class="inline">len</code>
+ bytes of the buffer
+are valid UTF-8.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">UTF8SKIP</span><span class="s">(</span>buf<span class="s">)</span></code>
+ will return the number of bytes in the UTF-8 encoded
+character in the buffer.  <code class="inline"><span class="i">UNISKIP</span><span class="s">(</span><a class="l_k" href="functions/chr.html">chr</a><span class="s">)</span></code>
+ will return the number of bytes
+required to UTF-8-encode the Unicode character code point.  <code class="inline"><span class="i">UTF8SKIP</span><span class="s">(</span><span class="s">)</span></code>
+
+is useful for example for iterating over the characters of a UTF-8
+encoded buffer; <code class="inline"><span class="i">UNISKIP</span><span class="s">(</span><span class="s">)</span></code>
+ is useful, for example, in computing
+the size required for a UTF-8 encoded buffer.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">utf8_distance</span><span class="s">(</span>a<span class="cm">,</span> b<span class="s">)</span></code>
+ will tell the distance in characters between the
+two pointers pointing to the same UTF-8 encoded buffer.</p>
+</li>
+<li>
+<p><code class="inline">utf8_hop(s, off)</code> will return a pointer to an UTF-8 encoded buffer
+that is <code class="inline">off</code>
+ (positive or negative) Unicode characters displaced
+from the UTF-8 buffer <code class="inline"><a class="l_k" href="functions/s.html">s</a></code>.  Be careful not to overstep the buffer:
+<code class="inline"><span class="i">utf8_hop</span><span class="s">(</span><span class="s">)</span></code>
+ will merrily run off the end or the beginning of the
+buffer if told to do so.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">pv_uni_display</span><span class="s">(</span>dsv<span class="cm">,</span> spv<span class="cm">,</span> len<span class="cm">,</span> pvlim<span class="cm">,</span> flags<span class="s">)</span></code>
+ and
+<code class="inline"><span class="i">sv_uni_display</span><span class="s">(</span>dsv<span class="cm">,</span> ssv<span class="cm">,</span> pvlim<span class="cm">,</span> flags<span class="s">)</span></code>
+ are useful for debugging the
+output of Unicode strings and scalars.  By default they are useful
+only for debugging--they display <b>all</b> characters as hexadecimal code
+points--but with the flags <code class="inline">UNI_DISPLAY_ISPRINT</code>
+,
+<code class="inline">UNI_DISPLAY_BACKSLASH</code>
+, and <code class="inline">UNI_DISPLAY_QQ</code>
+ you can make the
+output more readable.</p>
+</li>
+<li>
+<p><code class="inline"><span class="i">ibcmp_utf8</span><span class="s">(</span>s1<span class="cm">,</span> pe1<span class="cm">,</span> u1<span class="cm">,</span> l1<span class="cm">,</span> u1<span class="cm">,</span> s2<span class="cm">,</span> pe2<span class="cm">,</span> l2<span class="cm">,</span> u2<span class="s">)</span></code>
+ can be used to
+compare two strings case-insensitively in Unicode.  For case-sensitive
+comparisons you can just use <code class="inline"><span class="i">memEQ</span><span class="s">(</span><span class="s">)</span></code>
+ and <code class="inline"><span class="i">memNE</span><span class="s">(</span><span class="s">)</span></code>
+ as usual.</p>
+</li>
+</ul>
+<p>For more information, see <a href="perlapi.html">perlapi</a>, and <i>utf8.c</i> and <i>utf8.h</i>
+in the Perl source code distribution.</p>
+<a name="BUGS"></a><h1>BUGS</h1>
+<a name="Interaction-with-Locales"></a><h2>Interaction with Locales</h2>
+<p>Use of locales with Unicode data may lead to odd results.  Currently,
+Perl attempts to attach 8-bit locale info to characters in the range
+0..255, but this technique is demonstrably incorrect for locales that
+use characters above that range when mapped into Unicode.  Perl's
+Unicode support will also tend to run slower.  Use of locales with
+Unicode is discouraged.</p>
+<a name="Interaction-with-Extensions"></a><h2>Interaction with Extensions</h2>
+<p>When Perl exchanges data with an extension, the extension should be
+able to understand the UTF-8 flag and act accordingly. If the
+extension doesn't know about the flag, it's likely that the extension
+will return incorrectly-flagged data.</p>
+<p>So if you're working with Unicode data, consult the documentation of
+every module you're using if there are any issues with Unicode data
+exchange. If the documentation does not talk about Unicode at all,
+suspect the worst and probably look at the source to learn how the
+module is implemented. Modules written completely in Perl shouldn't
+cause problems. Modules that directly or indirectly access code written
+in other programming languages are at risk.</p>
+<p>For affected functions, the simple strategy to avoid data corruption is
+to always make the encoding of the exchanged data explicit. Choose an
+encoding that you know the extension can handle. Convert arguments passed
+to the extensions to that encoding and convert results back from that
+encoding. Write wrapper functions that do the conversions for you, so
+you can later change the functions when the extension catches up.</p>
+<p>To provide an example, let's say the popular Foo::Bar::escape_html
+function doesn't deal with Unicode data yet. The wrapper function
+would convert the argument to raw UTF-8 and convert the result back to
+Perl's internal representation like so:</p>
+<pre class="verbatim"><a name="my_escape_html"></a>    sub <span class="m">my_escape_html ($)</span> <span class="s">{</span>
+      <a class="l_k" href="functions/my.html">my</a><span class="s">(</span><span class="i">$what</span><span class="s">)</span> = <a class="l_k" href="functions/shift.html">shift</a><span class="sc">;</span>
+      <a class="l_k" href="functions/return.html">return</a> unless <a class="l_k" href="functions/defined.html">defined</a> <span class="i">$what</span><span class="sc">;</span>
+      <span class="i">Encode::decode_utf8</span><span class="s">(</span><span class="i">Foo::Bar::escape_html</span><span class="s">(</span><span class="i">Encode::encode_utf8</span><span class="s">(</span><span class="i">$what</span><span class="s">)</span><span class="s">)</span><span class="s">)</span><span class="sc">;</span>
+    <span class="s">}</span></pre>
+<p>Sometimes, when the extension does not convert data but just stores
+and retrieves them, you will be in a position to use the otherwise
+dangerous Encode::_utf8_on() function. Let's say the popular
+<code class="inline">Foo::Bar</code>
+ extension, written in C, provides a <code class="inline">param</code>
+ method that
+lets you store and retrieve data according to these prototypes:</p>
+<pre class="verbatim">    <span class="i">$self</span><span class="i">-&gt;param</span><span class="s">(</span><span class="i">$name</span><span class="cm">,</span> <span class="i">$value</span><span class="s">)</span><span class="sc">;</span>            <span class="c"># set a scalar</span>
+    <span class="i">$value</span> = <span class="i">$self</span><span class="i">-&gt;param</span><span class="s">(</span><span class="i">$name</span><span class="s">)</span><span class="sc">;</span>           <span class="c"># retrieve a scalar</span></pre>
+<p>If it does not yet provide support for any encoding, one could write a
+derived class with such a <code class="inline">param</code>
+ method:</p>
+<pre class="verbatim">    sub param {
+      my($self,$name,$value) = @_;
+      utf8::upgrade($name);     # make sure it is UTF-8 encoded
+      if (defined $value)
+        utf8::upgrade($value);  # make sure it is UTF-8 encoded
+        return $self-&gt;SUPER::param($name,$value);
+      } else {
+        my $ret = $self-&gt;SUPER::param($name);
+        Encode::_utf8_on($ret); # we know, it is UTF-8 encoded
+        return $ret;
+      }
+    }</pre><p>Some extensions provide filters on data entry/exit points, such as
+DB_File::filter_store_key and family. Look out for such filters in
+the documentation of your extensions, they can make the transition to
+Unicode data much easier.</p>
+<a name="Speed"></a><h2>Speed</h2>
+<p>Some functions are slower when working on UTF-8 encoded strings than
+on byte encoded strings.  All functions that need to hop over
+characters such as length(), substr() or index(), or matching regular
+expressions can work <b>much</b> faster when the underlying data are
+byte-encoded.</p>
+<p>In Perl 5.8.0 the slowness was often quite spectacular; in Perl 5.8.1
+a caching scheme was introduced which will hopefully make the slowness
+somewhat less spectacular, at least for some operations.  In general,
+operations with UTF-8 encoded strings are still slower. As an example,
+the Unicode properties (character classes) like <code class="inline">\<span class="i">p</span><span class="s">{</span>Nd<span class="s">}</span></code>
+ are known to
+be quite a bit slower (5-20 times) than their simpler counterparts
+like <code class="inline">\d</code>
+ (then again, there 268 Unicode characters matching <code class="inline">Nd</code>
+
+compared with the 10 ASCII characters matching <code class="inline">d</code>
+).</p>
+<a name="Porting-code-from-perl-5.6.X"></a><h2>Porting code from perl-5.6.X</h2>
+<p>Perl 5.8 has a different Unicode model from 5.6. In 5.6 the programmer
+was required to use the <code class="inline"><a class="l_w" href="utf8.html">utf8</a></code> pragma to declare that a given scope
+expected to deal with Unicode data and had to make sure that only
+Unicode data were reaching that scope. If you have code that is
+working with 5.6, you will need some of the following adjustments to
+your code. The examples are written such that the code will continue
+to work under 5.6, so you should be safe to try them out.</p>
+<ul>
+<li>
+<p>A filehandle that should read or write UTF-8</p>
+<pre class="verbatim">  if <span class="s">(</span><span class="i">$]</span> &gt; <span class="n">5.007</span><span class="s">)</span> <span class="s">{</span>
+    <a class="l_k" href="functions/binmode.html">binmode</a> <span class="i">$fh</span><span class="cm">,</span> <span class="q">&quot;:utf8&quot;</span><span class="sc">;</span>
+  <span class="s">}</span></pre>
+</li>
+<li>
+<p>A scalar that is going to be passed to some extension</p>
+<p>Be it Compress::Zlib, Apache::Request or any extension that has no
+mention of Unicode in the manpage, you need to make sure that the
+UTF-8 flag is stripped off. Note that at the time of this writing
+(October 2002) the mentioned modules are not UTF-8-aware. Please
+check the documentation to verify if this is still true.</p>
+<pre class="verbatim">  if <span class="s">(</span><span class="i">$]</span> &gt; <span class="n">5.007</span><span class="s">)</span> <span class="s">{</span>
+    <a class="l_k" href="functions/require.html">require</a> <a class="l_w" href="Encode.html">Encode</a><span class="sc">;</span>
+    <span class="i">$val</span> = <span class="i">Encode::encode_utf8</span><span class="s">(</span><span class="i">$val</span><span class="s">)</span><span class="sc">;</span> <span class="c"># make octets</span>
+  <span class="s">}</span></pre>
+</li>
+<li>
+<p>A scalar we got back from an extension</p>
+<p>If you believe the scalar comes back as UTF-8, you will most likely
+want the UTF-8 flag restored:</p>
+<pre class="verbatim">  if <span class="s">(</span><span class="i">$]</span> &gt; <span class="n">5.007</span><span class="s">)</span> <span class="s">{</span>
+    <a class="l_k" href="functions/require.html">require</a> <a class="l_w" href="Encode.html">Encode</a><span class="sc">;</span>
+    <span class="i">$val</span> = <span class="i">Encode::decode_utf8</span><span class="s">(</span><span class="i">$val</span><span class="s">)</span><span class="sc">;</span>
+  <span class="s">}</span></pre>
+</li>
+<li>
+<p>Same thing, if you are really sure it is UTF-8</p>
+<pre class="verbatim">  if <span class="s">(</span><span class="i">$]</span> &gt; <span class="n">5.007</span><span class="s">)</span> <span class="s">{</span>
+    <a class="l_k" href="functions/require.html">require</a> <a class="l_w" href="Encode.html">Encode</a><span class="sc">;</span>
+    <span class="i">Encode::_utf8_on</span><span class="s">(</span><span class="i">$val</span><span class="s">)</span><span class="sc">;</span>
+  <span class="s">}</span></pre>
+</li>
+<li>
+<p>A wrapper for fetchrow_array and fetchrow_hashref</p>
+<p>When the database contains only UTF-8, a wrapper function or method is
+a convenient way to replace all your fetchrow_array and
+fetchrow_hashref calls. A wrapper function will also make it easier to
+adapt to future enhancements in your database driver. Note that at the
+time of this writing (October 2002), the DBI has no standardized way
+to deal with UTF-8 data. Please check the documentation to verify if
+that is still true.</p>
+<pre class="verbatim"><a name="fetchrow"></a>  sub <span class="m">fetchrow</span> <span class="s">{</span>
+    <a class="l_k" href="functions/my.html">my</a><span class="s">(</span><span class="i">$self</span><span class="cm">,</span> <span class="i">$sth</span><span class="cm">,</span> <span class="i">$what</span><span class="s">)</span> = <span class="i">@_</span><span class="sc">;</span> <span class="c"># $what is one of fetchrow_{array,hashref}</span>
+    if <span class="s">(</span><span class="i">$]</span> &lt; <span class="n">5.007</span><span class="s">)</span> <span class="s">{</span>
+      <a class="l_k" href="functions/return.html">return</a> <span class="i">$sth</span><span class="i">-&gt;$what</span><span class="sc">;</span>
+    <span class="s">}</span> else <span class="s">{</span>
+      <a class="l_k" href="functions/require.html">require</a> <a class="l_w" href="Encode.html">Encode</a><span class="sc">;</span>
+      if <span class="s">(</span><a class="l_k" href="functions/wantarray.html">wantarray</a><span class="s">)</span> <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">@arr</span> = <span class="i">$sth</span><span class="i">-&gt;$what</span><span class="sc">;</span>
+        for <span class="s">(</span><span class="i">@arr</span><span class="s">)</span> <span class="s">{</span>
+          <a class="l_k" href="functions/defined.html">defined</a> &amp;&amp; <span class="q">/[^\000-\177]/</span> &amp;&amp; <span class="i">Encode::_utf8_on</span><span class="s">(</span><span class="i">$_</span><span class="s">)</span><span class="sc">;</span>
+        <span class="s">}</span>
+        <a class="l_k" href="functions/return.html">return</a> <span class="i">@arr</span><span class="sc">;</span>
+      <span class="s">}</span> else <span class="s">{</span>
+        <a class="l_k" href="functions/my.html">my</a> <span class="i">$ret</span> = <span class="i">$sth</span><span class="i">-&gt;$what</span><span class="sc">;</span>
+        if <span class="s">(</span><a class="l_k" href="functions/ref.html">ref</a> <span class="i">$ret</span><span class="s">)</span> <span class="s">{</span>
+          for <a class="l_k" href="functions/my.html">my</a> <span class="i">$k</span> <span class="s">(</span><a class="l_k" href="functions/keys.html">keys</a> <span class="i">%$ret</span><span class="s">)</span> <span class="s">{</span>
+            <a class="l_k" href="functions/defined.html">defined</a> &amp;&amp; <span class="q">/[^\000-\177]/</span> &amp;&amp; <span class="i">Encode::_utf8_on</span><span class="s">(</span><span class="i">$_</span><span class="s">)</span> for <span class="i">$ret</span>-&gt;{<span class="i">$k</span>}<span class="sc">;</span>
+          <span class="s">}</span>
+          <a class="l_k" href="functions/return.html">return</a> <span class="i">$ret</span><span class="sc">;</span>
+        <span class="s">}</span> else <span class="s">{</span>
+          <a class="l_k" href="functions/defined.html">defined</a> &amp;&amp; <span class="q">/[^\000-\177]/</span> &amp;&amp; <span class="i">Encode::_utf8_on</span><span class="s">(</span><span class="i">$_</span><span class="s">)</span> for <span class="i">$ret</span><span class="sc">;</span>
+          <a class="l_k" href="functions/return.html">return</a> <span class="i">$ret</span><span class="sc">;</span>
+        <span class="s">}</span>
+      <span class="s">}</span>
+    <span class="s">}</span>
+  <span class="s">}</span></pre>
+</li>
+<li>
+<p>A large scalar that you know can only contain ASCII</p>
+<p>Scalars that contain only ASCII and are marked as UTF-8 are sometimes
+a drag to your program. If you recognize such a situation, just remove
+the UTF-8 flag:</p>
+<pre class="verbatim">  <span class="i">utf8::downgrade</span><span class="s">(</span><span class="i">$val</span><span class="s">)</span> if <span class="i">$]</span> &gt; <span class="n">5.007</span><span class="sc">;</span></pre>
+</li>
+</ul>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><a href="perluniintro.html">perluniintro</a>, <a href="encoding.html">encoding</a>, <a href="Encode.html">Encode</a>, <a href="open.html">open</a>, <a href="utf8.html">utf8</a>, <a href="bytes.html">bytes</a>,
+<a href="perlretut.html">perlretut</a>, <a href="perlvar.html#%24%7b%5eUNICODE%7d">"${^UNICODE}" in perlvar</a></p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perlunicode','perlunicode.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

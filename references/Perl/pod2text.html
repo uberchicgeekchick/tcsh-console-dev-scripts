@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>pod2text - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-utilities.html">Utilities</a> &gt; pod2text</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">pod2text</div><div class="pdf_link"><a href="pod2text.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="pod2text.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#OPTIONS">OPTIONS</a><li><a href="#DIAGNOSTICS">DIAGNOSTICS</a><li><a href="#ENVIRONMENT">ENVIRONMENT</a><li><a href="#SEE-ALSO">SEE ALSO</a><li><a href="#AUTHOR">AUTHOR</a><li><a href="#COPYRIGHT-AND-LICENSE">COPYRIGHT AND LICENSE</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>pod2text - Convert POD data to formatted ASCII text</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<p>pod2text [<b>-aclost</b>] [<b>--code</b>] [<b>-i</b> <i>indent</i>] [<b>-q</b>&nbsp;<i>quotes</i>]
+[<b>-w</b>&nbsp;<i>width</i>] [<i>input</i> [<i>output</i>]]</p>
+<p>pod2text <b>-h</b></p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p><b>pod2text</b> is a front-end for Pod::Text and its subclasses.  It uses them
+to generate formatted ASCII text from POD source.  It can optionally use
+either termcap sequences or ANSI color escape sequences to format the text.</p>
+<p><i>input</i> is the file to read for POD source (the POD can be embedded in
+code).  If <i>input</i> isn't given, it defaults to STDIN.  <i>output</i>, if given,
+is the file to which to write the formatted output.  If <i>output</i> isn't
+given, the formatted output is written to STDOUT.</p>
+<a name="OPTIONS"></a><h1>OPTIONS</h1>
+<ul>
+<li><a name="*-a*%2c-*--alt*"></a><b><b>-a</b>, <b>--alt</b></b>
+<p>Use an alternate output format that, among other things, uses a different
+heading style and marks <code class="inline"><span class="pd">=item</span></code>
+ entries with a colon in the left margin.</p>
+</li>
+<li><a name="*--code*"></a><b><b>--code</b></b>
+<p>Include any non-POD text from the input file in the output as well.  Useful
+for viewing code documented with POD blocks with the POD rendered and the
+code left intact.</p>
+</li>
+<li><a name="*-c*%2c-*--color*"></a><b><b>-c</b>, <b>--color</b></b>
+<p>Format the output with ANSI color escape sequences.  Using this option
+requires that Term::ANSIColor be installed on your system.</p>
+</li>
+<li><a name="*-i*-_indent_%2c-*--indent%3d*_indent_"></a><b><b>-i</b> <i>indent</i>, <b>--indent=</b><i>indent</i></b>
+<p>Set the number of spaces to indent regular text, and the default indentation
+for <code class="inline"><span class="pd">=over</span></code>
+ blocks.  Defaults to 4 spaces if this option isn't given.</p>
+</li>
+<li><a name="*-h*%2c-*--help*"></a><b><b>-h</b>, <b>--help</b></b>
+<p>Print out usage information and exit.</p>
+</li>
+<li><a name="*-l*%2c-*--loose*"></a><b><b>-l</b>, <b>--loose</b></b>
+<p>Print a blank line after a <code class="inline"><span class="pd">=head1</span></code>
+ heading.  Normally, no blank line is
+printed after <code class="inline"><span class="pd">=head1</span></code>
+, although one is still printed after <code class="inline"><span class="pd">=head2</span></code>
+,
+because this is the expected formatting for manual pages; if you're
+formatting arbitrary text documents, using this option is recommended.</p>
+</li>
+<li><a name="*-m*-_width_%2c-*--left-margin*%3d_width_%2c-*--margin*%3d_width_"></a><b><b>-m</b> <i>width</i>, <b>--left-margin</b>=<i>width</i>, <b>--margin</b>=<i>width</i></b>
+<p>The width of the left margin in spaces.  Defaults to 0.  This is the margin
+for all text, including headings, not the amount by which regular text is
+indented; for the latter, see <b>-i</b> option.</p>
+</li>
+<li><a name="*-o*%2c-*--overstrike*"></a><b><b>-o</b>, <b>--overstrike</b></b>
+<p>Format the output with overstruck printing.  Bold text is rendered as
+character, backspace, character.  Italics and file names are rendered as
+underscore, backspace, character.  Many pagers, such as <b>less</b>, know how
+to convert this to bold or underlined text.</p>
+</li>
+<li><a name="*-q*-_quotes_%2c-*--quotes*%3d_quotes_"></a><b><b>-q</b> <i>quotes</i>, <b>--quotes</b>=<i>quotes</i></b>
+<p>Sets the quote marks used to surround C&lt;&gt; text to <i>quotes</i>.  If
+<i>quotes</i> is a single character, it is used as both the left and right
+quote; if <i>quotes</i> is two characters, the first character is used as the
+left quote and the second as the right quoted; and if <i>quotes</i> is four
+characters, the first two are used as the left quote and the second two as
+the right quote.</p>
+<p><i>quotes</i> may also be set to the special value <code class="inline">none</code>
+, in which case no
+quote marks are added around C&lt;&gt; text.</p>
+</li>
+<li><a name="*-s*%2c-*--sentence*"></a><b><b>-s</b>, <b>--sentence</b></b>
+<p>Assume each sentence ends with two spaces and try to preserve that spacing.
+Without this option, all consecutive whitespace in non-verbatim paragraphs
+is compressed into a single space.</p>
+</li>
+<li><a name="*-t*%2c-*--termcap*"></a><b><b>-t</b>, <b>--termcap</b></b>
+<p>Try to determine the width of the screen and the bold and underline
+sequences for the terminal from termcap, and use that information in
+formatting the output.  Output will be wrapped at two columns less than the
+width of your terminal device.  Using this option requires that your system
+have a termcap file somewhere where Term::Cap can find it and requires that
+your system support termios.  With this option, the output of <b>pod2text</b>
+will contain terminal control sequences for your current terminal type.</p>
+</li>
+<li><a name="*-w*%2c-*--width%3d*_width_%2c-*-*_width_"></a><b><b>-w</b>, <b>--width=</b><i>width</i>, <b>-</b><i>width</i></b>
+<p>The column at which to wrap text on the right-hand side.  Defaults to 76,
+unless <b>-t</b> is given, in which case it's two columns less than the width of
+your terminal device.</p>
+</li>
+</ul>
+<a name="DIAGNOSTICS"></a><h1>DIAGNOSTICS</h1>
+<p>If <b>pod2text</b> fails with errors, see <a href="Pod/Text.html">Pod::Text</a> and <a href="Pod/Parser.html">Pod::Parser</a> for
+information about what those errors might mean.  Internally, it can also
+produce the following diagnostics:</p>
+<ul>
+<li><a name="-c-(--color)-requires-Term%3a%3aANSIColor-be-installed"></a><b>-c (--color) requires Term::ANSIColor be installed</b>
+<p>(F) <b>-c</b> or <b>--color</b> were given, but Term::ANSIColor could not be
+loaded.</p>
+</li>
+<li><a name="Unknown-option%3a-%25s"></a><b>Unknown option: %s</b>
+<p>(F) An unknown command line option was given.</p>
+</li>
+</ul>
+<p>In addition, other <a href="Getopt/Long.html">Getopt::Long</a> error messages may result
+from invalid command-line options.</p>
+<a name="ENVIRONMENT"></a><h1>ENVIRONMENT</h1>
+<ul>
+<li><a name="COLUMNS"></a><b>COLUMNS</b>
+<p>If <b>-t</b> is given, <b>pod2text</b> will take the current width of your screen
+from this environment variable, if available.  It overrides terminal width
+information in TERMCAP.</p>
+</li>
+<li><a name="TERMCAP"></a><b>TERMCAP</b>
+<p>If <b>-t</b> is given, <b>pod2text</b> will use the contents of this environment
+variable if available to determine the correct formatting sequences for your
+current terminal device.</p>
+</li>
+</ul>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><a href="Pod/Text.html">Pod::Text</a>, <a href="Pod/Text/Color.html">Pod::Text::Color</a>, <a href="Pod/Text/Overstrike.html">Pod::Text::Overstrike</a>,
+<a href="Pod/Text/Termcap.html">Pod::Text::Termcap</a>, <a href="Pod/Parser.html">Pod::Parser</a></p>
+<p>The current version of this script is always available from its web site at
+<a href="http://www.eyrie.org/~eagle/software/podlators/">http://www.eyrie.org/~eagle/software/podlators/</a>.  It is also part of the
+Perl core distribution as of 5.6.0.</p>
+<a name="AUTHOR"></a><h1>AUTHOR</h1>
+<p>Russ Allbery &lt;rra@stanford.edu&gt;.</p>
+<a name="COPYRIGHT-AND-LICENSE"></a><h1>COPYRIGHT AND LICENSE</h1>
+<p>Copyright 1999, 2000, 2001 by Russ Allbery &lt;rra@stanford.edu&gt;.</p>
+<p>This program is free software; you may redistribute it and/or modify it
+under the same terms as Perl itself.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('pod2text','pod2text.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

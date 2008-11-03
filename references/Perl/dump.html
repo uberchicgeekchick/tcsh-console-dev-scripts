@@ -1,0 +1,150 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>dump - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="../css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="../label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 1;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="../onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='../close_purple.gif';" onmouseout="leftCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="../index-overview.html">Overview</a></li>
+        <li><a href="../index-tutorials.html">Tutorials</a></li>
+        <li><a href="../index-faq.html">FAQs</a></li>
+        <li><a href="../index-history.html">History / Changes</a></li>
+        <li><a href="../index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="../index-language.html">Language</a></li>
+        <li><a href="../index-functions.html">Functions</a></li>
+        <li><a href="../perlop.html">Operators</a></li>
+        <li><a href="../perlvar.html">Special variables</a></li>
+        <li><a href="../index-pragmas.html">Pragmas</a></li>
+        <li><a href="../index-modules-A.html">Core modules</a></li>
+        <li><a href="../index-utilities.html">Utilities</a></li>
+        <li><a href="../index-internals.html">Internals</a></li>
+        <li><a href="../index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="../index.html">Home</a> &gt; <a href="../index-language.html">Language reference</a> &gt; <a href="../index-functions.html">Functions</a> &gt; dump</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">dump</div></div><div class="mod_az_list"><a href="../index-functions.html">Perl functions A-Z</a> | <a href="../index-functions-by-cat.html">Perl functions by category</a> | <a href="../perlfunc.html">The 'perlfunc' manpage</a></div><ul>
+<li><a name="dump-LABEL"></a><b>dump LABEL</b>
+<p>  </p>
+</li>
+</ul>
+<ul>
+<li><a name="dump"></a><b>dump</b>
+<p>This function causes an immediate core dump.  See also the <b>-u</b>
+command-line switch in <a href="../perlrun.html">perlrun</a>, which does the same thing.
+Primarily this is so that you can use the <b>undump</b> program (not
+supplied) to turn your core dump into an executable binary after
+having initialized all your variables at the beginning of the
+program.  When the new binary is executed it will begin by executing
+a <code class="inline"><a class="l_k" href="../functions/goto.html">goto</a> <span class="j">LABEL</span></code>
+ (with all the restrictions that <code class="inline"><a class="l_k" href="../functions/goto.html">goto</a></code> suffers).
+Think of it as a goto with an intervening core dump and reincarnation.
+If <code class="inline">LABEL</code>
+ is omitted, restarts the program from the top.</p>
+<p><b>WARNING</b>: Any files opened at the time of the dump will <i>not</i>
+be open any more when the program is reincarnated, with possible
+resulting confusion on the part of Perl.</p>
+<p>This function is now largely obsolete, partly because it's very
+hard to convert a core file into an executable, and because the
+real compiler backends for generating portable bytecode and compilable
+C code have superseded it.  That's why you should now invoke it as
+<code class="inline"><span class="i">CORE::dump</span><span class="s">(</span><span class="s">)</span></code>
+, if you don't want to be warned against a possible
+typo.</p>
+<p>If you're looking to use <a href="../functions/dump.html">dump</a> to speed up your program, consider
+generating bytecode or native C code as described in <a href="../perlcc.html">perlcc</a>.  If
+you're just trying to accelerate a CGI script, consider using the
+<code class="inline">mod_perl</code>
+ extension to <b>Apache</b>, or the CPAN module, CGI::Fast.
+You might also consider autoloading or selfloading, which at least
+make your program <i>appear</i> to run faster.</p>
+</li>
+</ul>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="../perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='../close_purple.gif';" onmouseout="rightCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="../search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('dump','functions/dump.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

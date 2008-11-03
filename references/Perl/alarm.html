@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>alarm - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="../css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="../label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 1;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="../onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='../close_purple.gif';" onmouseout="leftCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="../index-overview.html">Overview</a></li>
+        <li><a href="../index-tutorials.html">Tutorials</a></li>
+        <li><a href="../index-faq.html">FAQs</a></li>
+        <li><a href="../index-history.html">History / Changes</a></li>
+        <li><a href="../index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="../index-language.html">Language</a></li>
+        <li><a href="../index-functions.html">Functions</a></li>
+        <li><a href="../perlop.html">Operators</a></li>
+        <li><a href="../perlvar.html">Special variables</a></li>
+        <li><a href="../index-pragmas.html">Pragmas</a></li>
+        <li><a href="../index-modules-A.html">Core modules</a></li>
+        <li><a href="../index-utilities.html">Utilities</a></li>
+        <li><a href="../index-internals.html">Internals</a></li>
+        <li><a href="../index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="../index.html">Home</a> &gt; <a href="../index-language.html">Language reference</a> &gt; <a href="../index-functions.html">Functions</a> &gt; alarm</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">alarm</div></div><div class="mod_az_list"><a href="../index-functions.html">Perl functions A-Z</a> | <a href="../index-functions-by-cat.html">Perl functions by category</a> | <a href="../perlfunc.html">The 'perlfunc' manpage</a></div><ul>
+<li><a name="alarm-SECONDS"></a><b>alarm SECONDS</b>
+<p>
+
+</p>
+</li>
+</ul>
+<ul>
+<li><a name="alarm"></a><b>alarm</b>
+<p>Arranges to have a SIGALRM delivered to this process after the
+specified number of wallclock seconds has elapsed.  If SECONDS is not
+specified, the value stored in <code class="inline"><span class="i">$_</span></code>
+ is used. (On some machines,
+unfortunately, the elapsed time may be up to one second less or more
+than you specified because of how seconds are counted, and process
+scheduling may delay the delivery of the signal even further.)</p>
+<p>Only one timer may be counting at once.  Each call disables the
+previous timer, and an argument of <code class="inline"><span class="n">0</span></code>
+ may be supplied to cancel the
+previous timer without starting a new one.  The returned value is the
+amount of time remaining on the previous timer.</p>
+<p>For delays of finer granularity than one second, you may use Perl's
+four-argument version of select() leaving the first three arguments
+undefined, or you might be able to use the <code class="inline"><a class="l_k" href="../functions/syscall.html">syscall</a></code> interface to
+access setitimer(2) if your system supports it.  The Time::HiRes
+module (from CPAN, and starting from Perl 5.8 part of the standard
+distribution) may also prove useful.</p>
+<p>It is usually a mistake to intermix <code class="inline"><a class="l_k" href="../functions/alarm.html">alarm</a></code> and <code class="inline"><a class="l_k" href="../functions/sleep.html">sleep</a></code> calls.
+(<code class="inline"><a class="l_k" href="../functions/sleep.html">sleep</a></code> may be internally implemented in your system with <code class="inline"><a class="l_k" href="../functions/alarm.html">alarm</a></code>)</p>
+<p>If you want to use <code class="inline"><a class="l_k" href="../functions/alarm.html">alarm</a></code> to time out a system call you need to use an
+<code class="inline"><a class="l_k" href="../functions/eval.html">eval</a></code>/<code class="inline"><a class="l_k" href="../functions/die.html">die</a></code> pair.  You can't rely on the alarm causing the system call to
+fail with <code class="inline"><span class="i">$!</span></code>
+ set to <code class="inline">EINTR</code>
+ because Perl sets up signal handlers to
+restart system calls on some systems.  Using <code class="inline"><a class="l_k" href="../functions/eval.html">eval</a></code>/<code class="inline"><a class="l_k" href="../functions/die.html">die</a></code> always works,
+modulo the caveats given in <a href="../perlipc.html#Signals">"Signals" in perlipc</a>.</p>
+<pre class="verbatim">    <a class="l_k" href="../functions/eval.html">eval</a> <span class="s">{</span>
+	<a class="l_k" href="../functions/local.html">local</a> <span class="i">$SIG</span>{ALRM} = <a class="l_k" href="../functions/sub.html">sub</a> <span class="s">{</span> <a class="l_k" href="../functions/die.html">die</a> <span class="q">&quot;alarm\n&quot;</span> <span class="s">}</span><span class="sc">;</span> <span class="c"># NB: \n required</span>
+	<a class="l_k" href="../functions/alarm.html">alarm</a> <span class="i">$timeout</span><span class="sc">;</span>
+	<span class="i">$nread</span> = <a class="l_k" href="../functions/sysread.html">sysread</a> SOCKET<span class="cm">,</span> <span class="i">$buffer</span><span class="cm">,</span> <span class="i">$size</span><span class="sc">;</span>
+	<a class="l_k" href="../functions/alarm.html">alarm</a> <span class="n">0</span><span class="sc">;</span>
+    <span class="s">}</span><span class="sc">;</span>
+    if <span class="s">(</span><span class="i">$@</span><span class="s">)</span> <span class="s">{</span>
+	<a class="l_k" href="../functions/die.html">die</a> unless <span class="i">$@</span> eq <span class="q">&quot;alarm\n&quot;</span><span class="sc">;</span>   <span class="c"># propagate unexpected errors</span>
+    	<span class="c"># timed out</span>
+    <span class="s">}</span>
+    else <span class="s">{</span>
+    	<span class="c"># didn&#39;t</span>
+    <span class="s">}</span></pre>
+<p>For more information see <a href="../perlipc.html">perlipc</a>.</p>
+</li>
+</ul>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="../perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='../close_purple.gif';" onmouseout="rightCloseIcon.src='../close_blue.gif';"><img src="../close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="../search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('alarm','functions/alarm.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

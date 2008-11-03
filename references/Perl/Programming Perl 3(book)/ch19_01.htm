@@ -1,0 +1,1914 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>The Command-Line Interface (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="The Command-Line Interface">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+</div>
+<style type="text/css">
+  #fixunixgb { position: absolute; right: 0px; bottom: 0px; }
+  div > div#fixunixgb { position: fixed; }
+  pre.fixit { overflow:auto;border-left:1px dashed #000;border-right:1px dashed #000;padding-left:2px; }
+</style><!--[if gte IE 5.5]><![if lt IE 7]>
+<style type="text/css">
+  div#fixunixgb {
+  right: auto; bottom: auto;
+  left: expression( ( 0 - fixunixgb.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );
+  top: expression( ( 0 - fixunixgb.offsetHeight + ( document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
+}
+</style>
+<![endif]><![endif]-->
+<div id="fixunixgb" align=right style="position:fixed; bottom: 5; right: 5; color:black; background-color: white; width: 170px; height: 120px; padding: 5px; z-index:3">
+<script language="javascript">
+<!--
+var state = 'visible';
+
+function gushowhide(layer_ref) {
+
+if (state == 'visible') {
+state = 'hidden';
+}
+else {
+state = 'visible';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.visibility = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].visibility = state;
+}
+if (document.getElementById && !document.all) {
+maxwell_smart = document.getElementById(layer_ref);
+maxwell_smart.style.visibility = state;
+}
+}
+//-->
+</script>
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 160x90, bottomleft fixed */
+google_ad_slot = "2032737097";
+google_ad_width = 160;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<font size=-1><a href="javascript://" onclick="gushowhide('fixunixgb');">close (x)</a></font>
+</div>
+</div>
+<br>
+<center>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+//728x90, создано 30.01.08 (main top)
+google_ad_slot = "2783893649";
+google_ad_width = 728;
+google_ad_height = 90;
+//--></script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+
+<a href="http://www.internetmap.info/cgi-bin/go.cgi?site_id=49589" target=_blank><img src="http://www.internetmap.info/images/im_88x85.gif" border=0 alt="Internet Map"></a>
+<br>
+
+<b><a href="http://www.unix.org.ua/forum/">Do not forget register in our new UNIX and CISCO forum</a></b>
+
+</center>
+<p>
+
+
+<html>
+<head>
+<title>The Command-Line Interface (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="The Command-Line Interface">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+
+<!-- START OF BODY -->
+
+
+
+<!-- TOP BANNER -->
+
+<img src="gifs/smbanner.gif" usemap="#banner-map" border="0" alt="Book Home">
+<map name="banner-map"><AREA SHAPE="RECT" COORDS="0,0,466,71" HREF="index.htm" ALT="Programming Perl"><AREA SHAPE="RECT" COORDS="467,0,514,18" HREF="jobjects/fsearch.htm" ALT="Search this book">
+</map>
+
+<!-- TOP NAV BAR -->
+
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch18_07.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="part3.htm">Part 3: Perl as Technology</a></td><td align="right" valign="top" width="172"><a href="ch19_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- SECTION BODY -->
+<h1 class="chapter">Chapter 19.  The Command-Line Interface</h1>
+<div class="htmltoc">
+<h4 class="tochead">Contents:</h4>
+<p>
+<a href="ch19_01.htm">Command Processing</a>
+<br>
+<a href="ch19_02.htm">Environment Variables</a>
+<br>
+</p>
+</div>
+
+<p>This chapter is about aiming Perl in the right direction before you
+fire it off.  There are various ways to aim Perl, but the two
+primary ways are through switches on the command line and through
+environment variables.  Switches are the more immediate and precise
+way to aim a particular command.  Environment variables are more
+often used to set general policy.</p>
+
+
+<h2 class="sect1">19.1. Command Processing</h2>
+
+<p>
+<a name="INDEX-3320"></a><a name="INDEX-3321"></a><a name="INDEX-3322"></a><a name="INDEX-3323"></a><a name="INDEX-3324"></a>
+It is fortunate that Perl grew up in the Unix world, because that means
+its invocation syntax works pretty well under the command interpreters
+of other operating systems, too.  Most command interpreters know how to
+deal with a list of words as arguments and don't care if an argument
+starts with a minus sign.  There are, of course, some sticky spots
+where you'll get fouled up if you move from one system to another.  You
+can't use single quotes under MS-DOS as you do under Unix, for
+instance.  And on systems like VMS, some wrapper code has to jump
+through hoops to emulate Unix I/O redirection.  Wildcard
+interpretation is a wildcard.  Once you get past those issues,
+however, Perl treats its switches and arguments much the same on any
+operating system.</p>
+
+<p>Even when you don't have a command interpreter per se, it's easy to
+execute a Perl program from another program written in any language.
+Not only can the calling program pass arguments in the ordinary way,
+it can also pass information via environment variables and, if your
+operating system supports them, inherited file descriptors (see
+"Passing Filehandles" in <a href="ch16_01.htm">Chapter 16, "Interprocess Communication"</a>.  Even exotic
+argument-passing mechanisms can easily be encapsulated in a module,
+then brought into your Perl program via a simple
+<tt class="literal">use</tt> directive.</p>
+
+<p>
+<a name="INDEX-3325"></a><a name="INDEX-3326"></a>
+Perl parses command-line switches in the standard
+fashion.<a href="#FOOTNOTE-1">[1]</a> That is, it expects any
+switches (words beginning with a minus) to come first on the command
+line.  After that usually comes the name of the script, followed by
+any additional arguments to be passed into the script.  Some of these
+additional arguments may themselves look like switches, but if so,
+they must be processed by the script, because Perl quits parsing
+switches as soon as it sees a nonswitch, or the special
+"<tt class="literal">--</tt>" switch that says, "I am the last
+switch."</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-1"></a>
+<p>[1] Presuming you agree that Unix is both
+standard and fashionable.</p>
+
+</blockquote>
+
+<p>
+<a name="INDEX-3327"></a>
+Perl gives you some flexibility in where you place the source code
+for your program.  For small, quick-and-dirty jobs, you can program
+Perl entirely from the command line.  For larger, more permanent
+jobs, you can supply a Perl script as a separate file.  Perl looks
+for a script to compile and run in any one of these three ways:</p>
+
+<ol>
+<li>
+<p>
+<a name="INDEX-3328"></a>
+Specified line by line via <tt class="userinput"><b>-e</b></tt>
+switches on the command line.  For 
+
+example:
+</p>
+
+<p>
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -e "print 'Hello, World.'"</b></tt>
+Hello, World.</pre>
+</blockquote>
+</p>
+</li>
+<li>
+<p>
+<a name="INDEX-3329"></a><a name="INDEX-3330"></a>
+Contained in the file specified by the first filename on the command
+line.  Systems supporting the <tt class="literal">#!</tt> notation on the first
+line of an executable script invoke interpreters this way on your behalf.
+<a name="INDEX-3331"></a>
+</p>
+</li>
+<li>
+<p>
+<a name="INDEX-3332"></a>
+Passed in implicitly via standard input.  This method works only when
+there are no filename arguments; to pass arguments to a standard-input
+script you must use method 2, explicitly specifying a
+"<tt class="literal">-</tt>" for the script name.  For
+
+example:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>echo "print qq(Hello, @ARGV.)" | perl - World</b></tt>
+Hello, World.</pre>
+</blockquote>
+</p>
+</li>
+</ol>
+<p>
+<a name="INDEX-3333"></a><a name="INDEX-3334"></a>
+With methods 2 and 3, Perl starts parsing the input file from the
+beginning--unless you've specified a <tt class="userinput"><b>-x</b></tt> switch,
+in which case it scans for the first line starting with
+<tt class="literal">#!</tt> and containing the word
+"<tt class="literal">perl</tt>", and starts there instead.  This is useful
+for running a script embedded in a larger message.  If so, you might
+indicate the end of the script using the <tt class="literal">__END__</tt>
+token.</p>
+
+<p>Whether or not you use <tt class="userinput"><b>-x</b></tt>, the
+<tt class="literal">#!</tt> line is always examined for switches when the
+line is parsed.  That way, if you're on a platform that allows only
+one argument with the <tt class="literal">#!</tt> line, or worse, doesn't
+even recognize the <tt class="literal">#!</tt> line as special, you can
+still get consistent switch behavior regardless of how Perl was
+invoked, even if <tt class="userinput"><b>-x</b></tt> was used to find the
+beginning of the script.</p>
+
+<p>
+<a name="INDEX-3335"></a><a name="INDEX-3336"></a><a name="INDEX-3337"></a><a name="INDEX-3338"></a><a name="INDEX-3339"></a>
+Warning: because older versions of Unix silently chop off kernel
+interpretation of the <tt class="literal">#!</tt> line after 32 characters,
+some switches may end up getting to your program intact, and others
+not; you could even get a "<tt class="literal">-</tt>" without its letter,
+if you're not careful.  You probably want to make sure that all your
+switches fall either before or after that 32-character boundary.  Most
+switches don't care whether they're processed redundantly, but getting
+a "<tt class="literal">-</tt>" instead of a complete switch would cause Perl
+to try to read its source code from the standard input instead of from
+your script.  And a partial <tt class="userinput"><b>-I</b></tt> switch could
+also cause odd results.  However, some switches do care if they are
+processed twice, like combinations of <tt class="userinput"><b>-l</b></tt> and
+<tt class="userinput"><b>-0</b></tt>.  Either put all the switches after the
+32-character boundary (if applicable), or replace the use of
+<tt class="userinput"><b>-0</b></tt><em class="replaceable">DIGITS</em> with
+<tt class="literal">BEGIN{ $/ =
+"\0</tt><em class="replaceable">DIGITS</em><tt class="literal">";
+}</tt>.  Of course, if you're not on a Unix system, you're
+guaranteed not to have this particular problem.</p>
+
+<p>Parsing of <tt class="literal">#!</tt> switches starts from where
+"<tt class="literal">perl</tt>" is first mentioned in the line.  The
+sequences "<tt class="literal">-*</tt>" and "<tt class="literal">-&nbsp;</tt>" are
+specifically ignored for the benefit of <em class="emphasis">emacs</em>
+users, so that, if you're so inclined, you can say:
+<blockquote>
+<pre class="programlisting">#!/bin/sh -- # -*- perl -*- -p
+eval 'exec perl -S $0 ${1+"$@"}'
+    if 0;</pre>
+</blockquote>
+<a name="INDEX-3340"></a><a name="INDEX-3341"></a>
+</p>
+
+<p>and Perl will see only the <tt class="userinput"><b>-p</b></tt> switch.  The
+fancy "<tt class="literal">-*- perl -*-</tt>" gizmo tells
+<em class="emphasis">emacs</em> to start up in Perl mode; you don't need it
+if you don't use <em class="emphasis">emacs</em>.  The
+<tt class="userinput"><b>-S</b></tt> mess is explained later under the
+description of that switch.</p>
+
+<p>
+<a name="INDEX-3342"></a>
+A similar trick involves the <em class="emphasis">env</em>(1)
+program, if you have it:
+<blockquote>
+<pre class="programlisting">#!/usr/bin/env perl</pre>
+</blockquote>
+<a name="INDEX-3343"></a>
+The previous examples use a relative path to the Perl interpreter,
+getting whatever version is first in the user's path.  If you want a
+specific version of Perl, say, <em class="emphasis">perl5.6.1</em>, place
+it directly in the <tt class="literal">#!</tt> line's path, whether with the
+<em class="emphasis">env</em> program, with the <tt class="userinput"><b>-S</b></tt>
+mess, or with a regular <tt class="literal">#!</tt> processing.</p>
+
+<p>If the <tt class="literal">#!</tt> line does <em class="emphasis">not</em>
+contain the word "<tt class="literal">perl</tt>", the program named after
+the <tt class="literal">#!</tt> is executed instead of the Perl interpreter.
+For example, suppose you have an ordinary Bourne shell script out
+there that says:
+<blockquote>
+<pre class="programlisting">#!/bin/sh
+echo "I am a shell script"</pre>
+</blockquote>
+<a name="INDEX-3344"></a><a name="INDEX-3345"></a>
+</p>
+
+<p>If you feed that file to Perl, then Perl will run
+<em class="emphasis">/bin/sh</em> for you.  This is slightly bizarre, but
+it helps people on machines that don't recognize
+<tt class="literal">#!</tt>, because--by setting their
+<tt class="literal">SHELL</tt> environment variable--they can tell a program
+(such as a mailer) that their shell is
+<em class="emphasis">/usr/bin/perl</em>, and Perl will then dispatch the
+program to the correct interpreter for them, even though their kernel
+is too stupid to do so.</p>
+
+<p>But back to Perl scripts that are really Perl scripts.  After locating
+your script, Perl compiles the entire program into an internal form
+(see <a href="ch18_01.htm">Chapter 18, "Compiling"</a>).  If any
+compilation errors arise, execution does not even begin.  (This is
+unlike the typical shell script or command file, which might run
+part-way through before finding a syntax error.) If the script is
+syntactically correct, it is executed.  If the script runs off the end
+without hitting an <tt class="literal">exit</tt> or <tt class="literal">die</tt>
+operator, an implicit <tt class="literal">exit(0)</tt> is supplied by Perl
+to indicate successful completion to your caller.  (This is unlike the
+typical C program, where you're likely to get a random exit status if
+your program just terminates in the normal way.)</p>
+
+
+<h3 class="sect2">19.1.1. <tt class="literal">#!</tt> and Quoting on Non-Unix Systems</h3>
+
+<p>
+<a name="INDEX-3346"></a>
+Unix's <tt class="literal">#!</tt> technique can be simulated on other systems:
+<a name="INDEX-3347"></a>
+</p>
+
+<dl>
+<dt>
+<b>Macintosh</b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3348"></a>
+A Perl program on a Macintosh will have the appropriate Creator and
+Type, so that double-clicking them will invoke the Perl application.</p>
+</dd>
+
+
+<dt>
+<b>MS-DOS</b>
+</dt>
+<dd>
+<p>Create a batch file to run your program, and codify it in
+<tt class="literal">ALTERNATIVE_SHEBANG</tt>.  See the
+<em class="emphasis">dosish.h</em> file in the top level of the Perl source
+distribution for more information about this.
+<a name="INDEX-3349"></a><a name="INDEX-3350"></a>
+</p>
+</dd>
+
+
+<dt>
+<b>OS/2</b>
+</dt>
+<dd>
+<p>Put this line:
+<blockquote>
+<pre class="programlisting">extproc perl -S -your_switches</pre>
+</blockquote>
+
+as the first line in <em class="emphasis">*.cmd</em> file (<tt class="userinput"><b>-S</b></tt>
+works around a bug in <em class="emphasis">cmd.exe</em>'s
+"<tt class="literal">extproc</tt>" handling).
+<a name="INDEX-3351"></a>
+</p>
+</dd>
+
+
+<dt>
+<b>VMS</b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3352"></a>
+Put these lines:
+<blockquote>
+<pre class="programlisting">% perl <em class="replaceable">-mysw</em> 'f$env("procedure")' 'p1' 'p2' 'p3' 'p4' 'p5' 'p6' 'p7' 'p8' !
+$ exit++ + ++$status != 0 and $exit = $status = undef;</pre>
+</blockquote>
+
+at the top of your program, where <em class="replaceable">-mysw</em> are
+any command-line switches you want to pass to Perl.  You can now
+invoke the program directly by typing <tt class="literal">perl program</tt>,
+as a DCL procedure by saying <tt class="literal">@program</tt>, or
+implicitly via <tt class="literal">DCL$PATH</tt> by using just the name of
+the program.  This incantation is a bit much to remember, but Perl
+will display it for you if you type in <tt class="literal">perl
+"-V:startperl"</tt>.  If you can't remember that--well,
+that's why you bought this book.</p>
+</dd>
+
+
+<dt>
+<b>Win??</b>
+</dt>
+<dd>
+<p>When using the ActiveState
+distribution of Perl under some variant of Microsoft's Windows suite
+of operating systems (that is, Win95, Win98, Win00,<a href="#FOOTNOTE-2">[2]</a> WinNT, but
+not Win3.1), the installation procedure for Perl modifies the Windows
+Registry to associate the <em class="emphasis">.pl</em> extension with the
+Perl interpreter.
+<a name="INDEX-3353"></a><a name="INDEX-3354"></a>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-2"></a>
+<p>[2]Er, pardon the technical difficulties...</p>
+
+</blockquote>
+
+<p>If you install another port of Perl, including the one in the Win32
+directory of the Perl distribution, then you'll have to modify the
+Windows Registry yourself.</p>
+
+<p>Note that using a <em class="emphasis">.pl</em> extension means you can no
+longer tell the difference between an executable Perl program and a
+"perl library" file.  You could use <em class="emphasis">.plx</em> for a
+Perl program instead to avoid this.  This is much less of an issue
+these days, since most Perl modules are now in
+<em class="emphasis">.pm</em> files.</p>
+</dd>
+
+</dl>
+
+<p>
+<a name="INDEX-3355"></a><a name="INDEX-3356"></a>
+Command interpreters on non-Unix systems often have extraordinarily
+different ideas about quoting than Unix shells have.  You'll need to
+learn the special characters in your command interpreter
+(<tt class="literal">*</tt>, <tt class="literal">\</tt>, and <tt class="literal">"</tt>
+are common) and how to protect whitespace and these special characters
+to run one-liners via the <tt class="userinput"><b>-e</b></tt> switch.  You might
+also have to change a single <tt class="literal">%</tt> to a
+<tt class="literal">%%</tt>, or otherwise escape it, if that's a special
+character for your shell.</p>
+
+<p>On some systems, you may have to change single quotes to double
+quotes.  But don't do that on Unix or Plan9 systems, or anything
+running a Unix-style shell, such as systems from the MKS Toolkit or from
+the Cygwin package produced by the Cygnus folks, now at Redhat.
+Microsoft's new Unix emulator called Interix is also starting to look,
+ahem, interixing.</p>
+
+<p>For example, on Unix and Mac OS X, use:</p>
+
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -e 'print "Hello world\n"'</b></tt>
+</pre>
+</blockquote>
+
+<p>On Macintosh (pre Mac OS X), use:</p>
+
+<blockquote>
+<pre class="programlisting">print "Hello world\n"</pre>
+</blockquote>
+
+<p>then run "Myscript" or Shift-Command-R.</p>
+
+<p>On VMS, use:</p>
+
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">$</tt> <tt class="userinput"><b>perl -e "print ""Hello world\n"""</b></tt>
+</pre>
+</blockquote>
+
+<p>or again with <tt class="literal">qq//</tt>:</p>
+
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">$</tt> <tt class="userinput"><b>perl -e "print qq(Hello world\n)"</b></tt>
+</pre>
+</blockquote>
+
+<p>And on MS-DOS et al., use:</p>
+
+<blockquote>
+<pre class="programlisting">A:&gt; <tt class="userinput"><b>perl -e "print \"Hello world\n\""</b></tt>
+</pre>
+</blockquote>
+
+<p>or use <tt class="literal">qq//</tt> to pick your own quotes:</p>
+
+<blockquote>
+<pre class="programlisting">A:&gt; <tt class="userinput"><b>perl -e "print qq(Hello world\n)"</b></tt>
+</pre>
+</blockquote>
+
+<p>The problem is that neither of those is reliable: it depends on the
+command interpreter you're using there.  If <em class="emphasis">4DOS</em>
+were the command shell, this would probably work better:
+<blockquote>
+<pre class="programlisting">perl -e "print &lt;Ctrl-x&gt;"Hello world\n&lt;Ctrl-x&gt;""</pre>
+</blockquote>
+<a name="INDEX-3357"></a>
+The <em class="emphasis">CMD.EXE</em> program seen on Windows NT seems to
+have slipped a lot of standard Unix shell functionality in when nobody
+was looking, but just try to find documentation for its quoting rules.</p>
+
+<p>
+<a name="INDEX-3358"></a><a name="INDEX-3359"></a>
+On the Macintosh,<a href="#FOOTNOTE-3">[3]</a> all this
+depends on which environment you are using.  The MacPerl shell, or
+MPW, is much like Unix shells in its support for several quoting
+variants, except that it makes free use of the Macintosh's non-ASCII
+characters as control characters.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-3"></a>
+<p>[3]At least, prior to release of Mac OS X,
+which, happily enough, is a BSD-derived system.</p>
+
+</blockquote>
+
+<p>There is no general solution to all of this.  It's just a mess.
+If you aren't on a Unix system but want to do
+command-line things, your best bet is to acquire a better command
+interpreter than the one your vendor supplied you, which shouldn't
+be too hard.</p>
+
+<p>Or just write it all in Perl, and forget the one-liners.</p>
+
+
+
+
+
+
+<h3 class="sect2">19.1.2. Location of Perl</h3>
+
+<p>
+<a name="INDEX-3360"></a><a name="INDEX-3361"></a>
+Although this may seem obvious, Perl is useful only when users
+can easily find it.  When possible, it's good for both <em class="emphasis">/usr/bin/perl</em>
+and <em class="emphasis">/usr/local/bin/perl</em> to be symlinks to the actual binary.  If
+that can't be done, system administrators are strongly encouraged
+to put Perl and its accompanying utilities into a
+directory typically found along a user's standard <tt class="literal">PATH</tt>, or in
+some other obvious and convenient place.</p>
+
+<p>In this book, we use the standard <tt class="literal">#!/usr/bin/perl</tt>
+notation on the first line of the program to mean whatever particular
+mechanism works on your system.  If you care about running a specific
+version of Perl, use a specific path:
+<blockquote>
+<pre class="programlisting">#!/usr/local/bin/perl5.6.0</pre>
+</blockquote>
+<a name="INDEX-3362"></a>
+If you just want to be running <em class="emphasis">at least</em> some
+version number, but don't mind higher ones, place a statement like
+this near the top of your program:
+<blockquote>
+<pre class="programlisting">use v5.6.0;</pre>
+</blockquote>
+
+(Note: earlier versions of Perl use numbers like 5.005 or 5.004_05.
+Nowadays we would think of those as 5.5.0 and 5.4.5, but versions
+of Perl older than 5.6.0 won't understand that notation.)</p>
+
+
+
+
+
+
+<h3 class="sect2">19.1.3. Switches</h3>
+
+<p>
+<a name="INDEX-3363"></a><a name="INDEX-3364"></a><a name="INDEX-3365"></a><a name="INDEX-3366"></a>
+A single-character command-line <em class="emphasis">switch</em> without its own argument may
+always be combined (bundled) with a switch following it.
+<blockquote>
+<pre class="programlisting">#!/usr/bin/perl -spi.bak    # same as -s -p -i.bak</pre>
+</blockquote>
+
+Switches are also known as options or flags.  Whatever you call them,
+here are the ones Perl recognizes:</p>
+
+
+<dl>
+<dt>
+<b><span class="option">--</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3367"></a><a name="INDEX-3368"></a>
+Terminates switch processing, even if the next argument starts with a
+minus.  It has no other effect.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-0</span><em class="replaceable">OCTNUM</em></b>
+</dt>
+<dt>
+<b><span class="option">-0</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3369"></a><a name="INDEX-3370"></a><a name="INDEX-3371"></a><a name="INDEX-3372"></a><a name="INDEX-3373"></a>
+Specifies the record separator (<tt class="literal">$/</tt>) as an octal
+number.  If <em class="replaceable">OCTNUM</em> is not present, the NUL
+character (that's ASCII character 0, Perl's <tt class="literal">"\0"</tt>)
+is the separator.  Other switches may precede or follow the octal
+number.  For example, if you have a version of
+<em class="emphasis">find</em>(1) that can print filenames
+terminated by the null character, you can say this:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>find . -name '*.bak' -print0 | perl -n0e unlink</b></tt>
+</pre>
+</blockquote>
+</p>
+
+<p>
+<a name="INDEX-3374"></a><a name="INDEX-3375"></a>
+The special value <tt class="literal">00</tt> makes Perl read files in
+paragraph mode, equivalent to setting the <tt class="literal">$/</tt>
+variable to <tt class="literal">""</tt>.  The value <tt class="literal">0777</tt>
+makes Perl slurp in whole files at once.  This is equivalent to
+undefining the <tt class="literal">$/</tt> variable.  We use
+<tt class="literal">0777</tt> since there is no ASCII character with that
+value.  (Unfortunately, there <em class="emphasis">is</em> a Unicode
+character with that value, <tt class="literal">\N{LATIN SMALL LETTER O WITH
+STROKE AND ACUTE}</tt>, but something tells us you won't be
+delimiting your records with that.)</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-a</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3376"></a><a name="INDEX-3377"></a><a name="INDEX-3378"></a>
+Turns on autosplit mode, but only when used with <span class="option">-n</span>
+or <span class="option">-p</span>.  An implicit <tt class="literal">split</tt> command
+to the <tt class="literal">@F</tt> array is done as the first thing inside
+the implicit <tt class="literal">while</tt> loop produced by the
+<span class="option">-n</span> and <span class="option">-p</span> switches.  So:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -ane 'print pop(@F), "\n";'</b></tt>
+</pre>
+</blockquote>
+
+is equivalent to:
+<blockquote>
+<pre class="programlisting">LINE: while (&lt;&gt;) {
+    @F = split(' ');
+    print pop(@F), "\n";
+}</pre>
+</blockquote>
+<a name="INDEX-3379"></a><a name="INDEX-3380"></a><a name="INDEX-3381"></a>
+A different field separator may be specified by passing a regular
+expression for <tt class="literal">split</tt> to the <span class="option">-F</span>
+switch.  For example, these two calls are equivalent:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>awk -F: '$7 &amp;&amp; $7 !~ /^\/bin/' /etc/passwd</b></tt>
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -F: -lane 'print if $F[6] &amp;&amp; $F[6] !~ m(^/bin)' /etc/passwd</b></tt>
+</pre>
+</blockquote>
+</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-c</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3382"></a><a name="INDEX-3383"></a><a name="INDEX-3384"></a><a name="INDEX-3385"></a>
+Causes Perl to check the syntax of the script and then exit without
+executing what it's just compiled.  Technically, it does a bit more
+than that: it will execute any <tt class="literal">BEGIN</tt> or
+<tt class="literal">CHECK</tt> blocks and any <tt class="literal">use</tt>
+directives, since these are considered to occur before the execution
+of your program.  It no longer executes any <tt class="literal">INIT</tt> or
+<tt class="literal">END</tt> blocks, however.  The older but rarely useful
+behavior may still be obtained by putting:
+<blockquote>
+<pre class="programlisting">BEGIN { $^C = 0; exit; }</pre>
+</blockquote>
+
+at the end of your main script.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-C</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3386"></a>
+Enables Perl to use
+the native wide-character APIs on the target system, if supported (as
+of version 5.6.0 it works on Microsoft platforms only).  The special
+variable <tt class="literal">${^WIDE_SYSTEM_CALLS}</tt> reflects the state
+of this switch.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-d</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3387"></a><a name="INDEX-3388"></a><a name="INDEX-3389"></a><a name="INDEX-3390"></a><a name="INDEX-3391"></a><a name="INDEX-3392"></a>
+Runs the script under the Perl debugger.  See <a href="ch20_01.htm">Chapter 20, "The Perl Debugger"</a>.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-d:</span><em class="replaceable">MODULE</em></b>
+</dt>
+<dd>
+<p> Runs the script under the control of a debugging or
+tracing module installed in the Perl library as
+<tt class="literal">Devel::</tt><em class="replaceable">MODULE</em>.  For
+example, <tt class="userinput"><b>-d:DProf</b></tt> executes the script using the
+<tt class="literal">Devel::DProf</tt> profiler.  See also the debugging
+section in <a href="ch20_01.htm">Chapter 20, "The Perl Debugger"</a>.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-D</span><em class="replaceable">LETTERS</em></b>
+</dt>
+<dt>
+<b><span class="option">-D</span><em class="replaceable">NUMBER</em></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3393"></a><a name="INDEX-3394"></a><a name="INDEX-3395"></a>
+Sets debugging flags.  (This only works if debugging is compiled into
+your version of Perl as described below.) You may specify either a
+<em class="replaceable">NUMBER</em> that is the sum of the bits you
+want, or a list of <em class="replaceable">LETTERS</em>.  To see how it
+executes your script, for instance, use <span class="option">-D14</span> or
+<span class="option">-Dslt</span>.  Another useful value is
+<span class="option">-D1024</span> or <span class="option">-Dx</span>, which lists your
+compiled syntax tree.  And <span class="option">-D512</span> or
+<span class="option">-Dr</span> displays compiled regular expressions.  The
+numeric value is available internally as the special variable
+<tt class="literal">$^D</tt>.  <a href="ch19_01.htm#perl2-ch-6-tab-1">Table 19-1</a> lists the
+assigned bit values.</p>
+
+<a name="perl2-ch-6-tab-1"></a>
+<h4 class="objtitle">Table 19.1. -D Options</h4>
+<table border="1">
+
+<tr>
+<th>Bit</th>
+<th>Letter</th>
+<th>Meaning</th>
+</tr>
+
+
+
+
+<tr>
+<td><tt class="literal">1</tt></td>
+<td><tt class="literal">p</tt></td>
+<td>Tokenizing and parsing</td>
+</tr>
+
+<tr>
+<td><tt class="literal">2</tt></td>
+<td><tt class="literal">s</tt></td>
+<td>Stack snapshots</td>
+</tr>
+
+<tr>
+<td><tt class="literal">4</tt></td>
+<td><tt class="literal">l</tt></td>
+<td>Label stack processing</td>
+</tr>
+
+<tr>
+<td><tt class="literal">8</tt></td>
+<td><tt class="literal">t</tt></td>
+<td>Trace execution</td>
+</tr>
+
+<tr>
+<td><tt class="literal">16</tt></td>
+<td><tt class="literal">o</tt></td>
+<td>Method and overloading resolution</td>
+</tr>
+
+<tr>
+<td><tt class="literal">32</tt></td>
+<td><tt class="literal">c</tt></td>
+<td>String/numeric conversions</td>
+</tr>
+
+<tr>
+<td><tt class="literal">64</tt></td>
+<td><tt class="literal">P</tt></td>
+<td>Print preprocessor command for <span class="option">-P</span></td>
+</tr>
+
+<tr>
+<td><tt class="literal">128</tt></td>
+<td><tt class="literal">m</tt></td>
+<td>Memory allocation</td>
+</tr>
+
+<tr>
+<td><tt class="literal">256</tt></td>
+<td><tt class="literal">f</tt></td>
+<td>Format processing</td>
+</tr>
+
+<tr>
+<td><tt class="literal">512</tt></td>
+<td><tt class="literal">r</tt></td>
+<td>Regex parsing and execution</td>
+</tr>
+
+<tr>
+<td><tt class="literal">1024</tt></td>
+<td><tt class="literal">x</tt></td>
+<td>Syntax tree dump</td>
+</tr>
+
+<tr>
+<td><tt class="literal">2048</tt></td>
+<td><tt class="literal">u</tt></td>
+<td>Tainting checks</td>
+</tr>
+
+<tr>
+<td><tt class="literal">4096</tt></td>
+<td><tt class="literal">L</tt></td>
+<td>Memory leaks (needs <span class="option">-DLEAKTEST</span> when compiling Perl)</td>
+</tr>
+
+<tr>
+<td><tt class="literal">8192</tt></td>
+<td><tt class="literal">H</tt></td>
+<td>Hash dump--usurps <tt class="literal">values()</tt></td>
+</tr>
+
+<tr>
+<td><tt class="literal">16384</tt></td>
+<td><tt class="literal">X</tt></td>
+<td>Scratchpad allocation</td>
+</tr>
+
+<tr>
+<td><tt class="literal">32768</tt></td>
+<td><tt class="literal">D</tt></td>
+<td>Cleaning up</td>
+</tr>
+
+<tr>
+<td><tt class="literal">65536</tt></td>
+<td><tt class="literal">S</tt></td>
+<td>Thread synchronization</td>
+</tr>
+
+
+</table>
+
+<p>
+<a name="INDEX-3396"></a>
+All these flags require a Perl executable that was specially built for
+debugging.  However, because this is not the default, you won't be
+able to use the <span class="option">-D</span> switch at all unless you or your
+sysadmin built this special debugging version of Perl.  See the
+<em class="emphasis">INSTALL</em> file in the Perl source directory for
+details, but the short story is that you need to pass
+<span class="option">-DDEBUGGING</span> to your C compiler when
+compiling Perl itself.  This flag is automatically set if you include
+the <span class="option">-g</span> option when <em class="emphasis">Configure</em>
+asks you about optimizer and debugger flags.</p>
+
+<p>If you're just trying to get a printout of each line of Perl code
+as it executes (the way that <em class="emphasis">sh -x</em> provides for shell scripts),
+you can't use Perl's <span class="option">-D</span> switch.  Instead do this:
+<blockquote>
+<pre class="programlisting"># Bourne shell syntax
+$ <tt class="userinput"><b>PERLDB_OPTS="NonStop=1 AutoTrace=1 frame=2" perl -dS program</b></tt>
+
+# csh syntax
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>(setenv PERLDB_OPTS "NonStop=1 AutoTrace=1 frame=2"; perl -dS program)</b></tt>
+</pre>
+</blockquote>
+
+See <a href="ch20_01.htm">Chapter 20, "The Perl Debugger"</a> for details and variations.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-e</span> <em class="replaceable">PERLCODE</em></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3397"></a><a name="INDEX-3398"></a><a name="INDEX-3399"></a><a name="INDEX-3400"></a>
+May be used to enter one or more lines of script.  If <span class="option">-e</span> is used,
+Perl will not look for the program's filename in the argument list.
+The <em class="replaceable">PERLCODE</em> argument is treated as if it ended with a newline, so
+multiple <span class="option">-e</span> commands may be given to build up a multiline program.
+(Make sure to use semicolons where you would in a normal program stored
+in a file.)  Just because <span class="option">-e</span> supplies a newline on each argument
+doesn't imply that you must use multiple <span class="option">-e</span> switches; if your shell
+supports multiline quoting like <em class="emphasis">sh</em>, <em class="emphasis">ksh</em>, or <em class="emphasis">bash</em>, you may
+pass a multiline script as one <span class="option">-e</span> argument:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">$</tt> <tt class="userinput"><b>perl -e 'print "Howdy, ";
+           print "@ARGV!\n";' world</b></tt>
+Howdy, world!</pre>
+</blockquote>
+
+With <em class="emphasis">csh</em> it's probably better to use multiple <span class="option">-e</span> switches:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -e 'print "Howdy, ";' \
+       -e 'print "@ARGV!\n";' world</b></tt>
+Howdy, world!</pre>
+</blockquote>
+
+Both implicit and explicit newlines count in the line numbering, so the
+second print is on line 2 of the <span class="option">-e</span> script in either case.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-F</span><em class="replaceable">PATTERN</em></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3401"></a><a name="INDEX-3402"></a><a name="INDEX-3403"></a>
+Specifies the pattern to <tt class="literal">split</tt> on when autosplitting via the
+<span class="option">-a</span> switch (has no effect otherwise).  The pattern may be surrounded
+by slashes (<tt class="literal">//</tt>), double quotes (<tt class="literal">""</tt>), or single quotes (<tt class="literal">''</tt>).
+Otherwise, it will be automatically put in single quotes.  Remember
+that to pass quotes through a shell, you'll have to quote your
+quotes, and how you can do that depends on the shell.
+<a name="INDEX-3404"></a>
+</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-h</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3405"></a><a name="INDEX-3406"></a>
+Prints a summary of Perl's command-line options.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-i</span><em class="replaceable">EXTENSION</em></b>
+</dt>
+<dt>
+<b><span class="option">-i</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3407"></a><a name="INDEX-3408"></a><a name="INDEX-3409"></a><a name="INDEX-3410"></a>
+Specifies that files processed by the <tt class="literal">&lt;&gt;</tt> construct are
+to be edited in place.  It does this by renaming the input file,
+opening the output file by the original name, and selecting that
+output file as the default for calls to <tt class="literal">print</tt>, <tt class="literal">printf</tt>, and
+<tt class="literal">write</tt>.<a href="#FOOTNOTE-4">[4]</a>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-4"></a>
+<p>[4]Technically, this isn't really "in place".  It's
+the same filename, but a different physical file.</p>
+
+</blockquote>
+
+<p>The <em class="replaceable">EXTENSION</em> is used to modify the name of the old file to make
+a backup copy.  If no <em class="replaceable">EXTENSION</em> is supplied, no backup is made
+and the current file is overwritten.  If the <em class="replaceable">EXTENSION</em> doesn't
+contain a <tt class="literal">*</tt>, then that string is appended to the end of the
+current filename.  If the <em class="replaceable">EXTENSION</em> does contain one or more
+<tt class="literal">*</tt> characters, then each <tt class="literal">*</tt> is replaced by the filename currently
+being processed.  In Perl terms, you could think of this as:
+<blockquote>
+<pre class="programlisting">($backup = $extension) =~ s/\*/$file_name/g;</pre>
+</blockquote>
+
+This allows you to use a prefix for the backup file, instead of--or even in
+addition to--a suffix:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -pi'orig_*' -e 's/foo/bar/' xyx</b></tt>     # backup to 'orig_xyx'</pre>
+</blockquote>
+
+You can even put backup copies of the original files into another
+directory (provided that the directory already exists):
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -pi'old/*.orig' -e 's/foo/bar/' xyx</b></tt> # backup to 'old/xyx.orig'</pre>
+</blockquote>
+These pairs of one-liners are equivalent:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -pi -e 's/foo/bar/' xyx</b></tt>             # overwrite current file
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -pi'*' -e 's/foo/bar/' xyx</b></tt>          # overwrite current file
+
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -pi'.orig' -e 's/foo/bar/' xyx</b></tt>      # backup to 'xyx.orig'
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -pi'*.orig' -e 's/foo/bar/' xyx</b></tt>     # backup to 'xyx.orig'</pre>
+</blockquote>
+
+From the shell, saying:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -p -i.orig -e "s/foo/bar/;"</b></tt>
+</pre>
+</blockquote>
+
+is the same as using the program:
+<blockquote>
+<pre class="programlisting">#!/usr/bin/perl -pi.orig
+s/foo/bar/;</pre>
+</blockquote>
+
+which is convenient shorthand for the remarkably longer:
+<blockquote>
+<pre class="programlisting">#!/usr/bin/perl
+$extension = '.orig';
+LINE: while (&lt;&gt;) {
+    if ($ARGV ne $oldargv) {
+        if ($extension !~ /\*/) {
+            $backup = $ARGV . $extension;
+        }
+        else {
+            ($backup = $extension) =~ s/\*/$ARGV/g;
+        }
+        unless (rename($ARGV, $backup)) {
+            warn "cannot rename $ARGV to $backup: $!\n";
+            close ARGV;
+            next;
+        } 
+        open(ARGVOUT, "&gt;$ARGV");
+        select(ARGVOUT);
+        $oldargv = $ARGV;
+    }
+    s/foo/bar/;
+}
+continue {
+    print;  # this prints to original filename
+}
+select(STDOUT);</pre>
+</blockquote>
+<a name="INDEX-3411"></a><a name="INDEX-3412"></a>
+This long code is virtually identical to the simple one-liner with the
+<span class="option">-i</span> switch, except that the <span class="option">-i</span> form
+doesn't need to compare <tt class="literal">$ARGV</tt> to
+<tt class="literal">$oldargv</tt> to know when the filename has changed.  It
+does, however, use <tt class="literal">ARGVOUT</tt> for the selected
+filehandle and restore the old <tt class="literal">STDOUT</tt> as the
+default output filehandle after the loop.  Like the code above, Perl
+creates the backup file irrespective of whether any output has truly
+changed.  See the description of the <tt class="literal">eof</tt> function
+for examples of
+
+how to use use <tt class="literal">eof</tt> without
+parentheses to locate the end of each input file, in case you want to
+append to each file or to reset line numbering.</p>
+
+<p>If, for a given file, Perl is unable to create the backup file as
+specified in the <em class="replaceable">EXTENSION</em>, it will issue a
+warning to that effect and continue processing any other remaining
+files listed.</p>
+
+<p>You cannot use <span class="option">-i</span> to create directories or to strip
+extensions from files.  Nor can you use it with a <tt class="literal">~</tt>
+to indicate a home directory--which is just as well, since some folks
+like to use that character for their backup files:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -pi~ -e 's/foo/bar/' file1 file2 file3...</b></tt>
+</pre>
+</blockquote>
+
+Finally, the <span class="option">-i</span> switch does not stop Perl from
+running if no filenames are given on the command line.  When this
+happens, no backup is made since the original file cannot be
+determined, and processing proceeds from <tt class="literal">STDIN</tt> to
+<tt class="literal">STDOUT</tt> as might be expected.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-I</span><em class="replaceable">DIRECTORY</em></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3413"></a><a name="INDEX-3414"></a><a name="INDEX-3415"></a><a name="INDEX-3416"></a><a name="INDEX-3417"></a>
+Directories specified by <span class="option">-I</span> are prepended to <tt class="literal">@INC</tt>, which holds
+the search path for modules.  <span class="option">-I</span> also tells the C preprocessor
+where to search for include files.  The C preprocessor is invoked
+with <span class="option">-P</span>; by default it searches <em class="emphasis">/usr/include</em> and <em class="emphasis">/usr/lib/perl</em>.
+Unless you're going to be using the C preprocessor (and almost no
+one does any more), you're better off using the <tt class="literal">use lib</tt> directive
+within your script.  Like <tt class="literal">use lib</tt>, however, the <span class="option">-I</span> switch
+implicitly adds platform-specific directories.  See <tt class="literal">use lib</tt> in
+<a href="ch31_01.htm">Chapter 31, "Pragmatic Modules"</a>, for details.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-l</span><em class="replaceable">OCTNUM</em></b>
+</dt>
+<dt>
+<b><span class="option">-l</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3418"></a><a name="INDEX-3419"></a><a name="INDEX-3420"></a><a name="INDEX-3421"></a><a name="INDEX-3422"></a>
+Enables automatic line-end processing.  It has two effects:  first, it
+automatically <tt class="literal">chomp</tt>s the line terminator when used with <span class="option">-n</span> or
+<span class="option">-p</span>, and second, it sets <tt class="literal">$\</tt> to the value of <em class="replaceable">OCTNUM</em> so that any print
+statements will have a line terminator of ASCII value <em class="replaceable">OCTNUM</em> added
+back on.  If <em class="replaceable">OCTNUM</em> is omitted, <span class="option">-l</span>
+sets <tt class="literal">$\</tt> to the current value of
+<tt class="literal">$/</tt>, typically newline.  So, to trim lines to 80 columns, say this:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -lpe 'substr($_, 80) = ""'</b></tt>
+</pre>
+</blockquote>
+
+Note that the assignment <tt class="literal">$\ = $/</tt> is done when the switch is
+processed, so the input record separator can be different from the
+output record separator if the <span class="option">-l</span> switch is followed by a <span class="option">-0</span>
+switch:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>gnufind / -print0 | perl -ln0e 'print "found $_" if -p'</b></tt>
+</pre>
+</blockquote>
+
+This sets <tt class="literal">$\</tt> to newline and later sets <tt class="literal">$/</tt> to the null character.
+(Note that <tt class="literal">0</tt> would have been interpreted as part of the <span class="option">-l</span> switch
+had it followed the <span class="option">-l</span> directly.  That's why we bundled the <span class="option">-n</span>
+switch between them.)</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-m</span> and <span class="option">-M</span></b>
+</dt>
+<dd>
+<p>These switches load a <em class="replaceable">MODULE</em> as if you'd executed a <tt class="literal">use</tt>, unless
+you specify <span class="option">-</span><em class="replaceable">MODULE</em> instead of <em class="replaceable">MODULE</em>, in which case they
+invoke <tt class="literal">no</tt>.  For example, <span class="option">-Mstrict</span> is like <tt class="literal">use strict</tt>, while
+<span class="option">-M-strict</span> is like <tt class="literal">no strict</tt>.</p>
+
+<dl>
+<dt>
+<b><span class="option">-m</span><em class="replaceable">MODULE</em></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3423"></a><a name="INDEX-3424"></a><a name="INDEX-3425"></a><a name="INDEX-3426"></a><a name="INDEX-3427"></a>
+Executes <tt class="literal">use</tt><em class="replaceable">MODULE</em><tt class="literal">()</tt> before executing your script.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-M</span><em class="replaceable">MODULE</em></b>
+</dt>
+<dt>
+<b><span class="option">-M'</span><em class="replaceable">MODULE</em> <span class="option">...'</span></b>
+</dt>
+<dd>
+<p>Executes <tt class="literal">use</tt><em class="replaceable">MODULE</em>
+before executing your script.  The command is formed by mere
+interpolation of the rest of the argument after the
+<span class="option">-M</span>, so you can use quotes to add extra code after the
+module name, for example, <span class="option">-M'MODULE qw(foo bar)'</span>.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-M</span><em class="replaceable">MODULE</em><span class="option">=</span><em class="replaceable">arg1</em><span class="option">,</span><em class="replaceable">arg2</em><span class="option">...</span></b>
+</dt>
+<dd>
+<p>A little built-in syntactic sugar means you can also say
+<tt class="userinput"><b>-Mmodule=foo,bar</b></tt> as a shortcut for
+<tt class="userinput"><b>-M'module qw(foo bar)'</b></tt>.  This avoids the need
+to use quotes when importing symbols.  The actual code generated by
+<tt class="userinput"><b>-Mmodule=foo,bar</b></tt> is:
+<blockquote>
+<pre class="programlisting">use module split(/,/, q{foo,bar})</pre>
+</blockquote>
+
+Note that the <tt class="literal">=</tt> form removes the distinction
+between <span class="option">-m</span> and <span class="option">-M</span>, but it's better
+to use the uppercase form to avoid confusion.</p>
+</dd>
+
+</dl>
+
+<p>You may only use the <span class="option">-M</span> and <span class="option">-m</span>
+switches from a real command-line invocation of Perl, not as options
+picked up on the <tt class="literal">#!</tt> line.  (Hey, if you're gonna
+put it in the file, why not just write the equivalent
+<tt class="literal">use</tt> or <tt class="literal">no</tt> instead?)</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-n</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3428"></a><a name="INDEX-3429"></a>
+Causes Perl to assume the following loop around your script, which makes
+it iterate over filename arguments much as <em class="emphasis">sed -n</em> or <em class="emphasis">awk</em> do:
+<blockquote>
+<pre class="programlisting">LINE:
+while (&lt;&gt;) {
+    ...                # your script goes here
+}</pre>
+</blockquote>
+
+You may use <tt class="literal">LINE</tt> as a loop label from within you
+script, even though you can't see the actual label in your file.</p>
+
+<p>Note that the lines are not printed by default.  See
+<span class="option">-p</span> to have lines printed.  Here is an efficient way
+to delete all files older than a week:
+<blockquote>
+<pre class="programlisting">find . -mtime +7 -print | perl -nle unlink</pre>
+</blockquote>
+
+This is faster than using the <em class="emphasis">-exec</em> switch of
+<em class="emphasis">find</em>(1) because you don't have to start a
+process on every filename found. By an amazing coincidence,
+<tt class="literal">BEGIN</tt> and <tt class="literal">END</tt> blocks may be used
+to capture control before or after the implicit loop, just as in
+<em class="emphasis">awk</em>.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-p</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3430"></a><a name="INDEX-3431"></a>
+Causes Perl to assume the following loop around your script, which makes
+it iterate over filename arguments much as <em class="emphasis">sed</em> does:
+<blockquote>
+<pre class="programlisting">LINE:
+while (&lt;&gt;) {
+    ...         # your script goes here
+}
+continue {
+    print or die "-p destination: $!\n";
+}</pre>
+</blockquote>
+
+You may use <tt class="literal">LINE</tt> as a loop label from within you
+script, even though you can't see the actual label in your file.</p>
+
+<p>If a file named by an argument cannot be opened for some reason, Perl
+warns you about it, and moves on to the next file.  Note that the
+lines are printed automatically.  An error occurring during printing
+is treated as fatal.  By yet another amazing coincidence,
+<tt class="literal">BEGIN</tt> and <tt class="literal">END</tt> blocks may be used
+to capture control before or after the implicit loop, just as in
+<em class="emphasis">awk</em>.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-P</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3432"></a><a name="INDEX-3433"></a><a name="INDEX-3434"></a>
+Causes your script to be run through the C preprocessor before
+compilation by Perl.  (Since both comments and
+<em class="emphasis">cpp</em>(1) directives begin with the
+<tt class="literal">#</tt> character, you should avoid starting comments
+with any words recognized by the C preprocessor such as
+"<tt class="literal">if</tt>", "<tt class="literal">else</tt>" or
+"<tt class="literal">define</tt>".)  Whether you use <span class="option">-P</span>
+switch or not, Perl still pays attention to <tt class="literal">#line</tt>
+directives to control the line number and filename, so any
+preprocessor can apprise Perl of these things. See the section
+<a href="ch24_05.htm#ch24-sect-gen">Section 19.5.2, "Generating Perl in Other Languages"</a> in <a href="ch24_01.htm">Chapter 24, "Common Practices"</a>.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-s</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3435"></a><a name="INDEX-3436"></a>
+Enables rudimentary switch-parsing for switches on the command line
+after the script name but before any filename arguments or a
+"<span class="option">--</span>" switch-processing terminator.  Any
+switch found is removed from <tt class="literal">@ARGV</tt>, and a variable
+by the same name as the switch is set in Perl.  Switch bundling is not
+allowed because multicharacter switches are permitted.</p>
+
+<p>The following script prints "<tt class="literal">true</tt>" only when the
+script is invoked with a <tt class="literal">-foo</tt> switch.
+<blockquote>
+<pre class="programlisting">#!/usr/bin/perl -s
+if ($foo) { print "true\n" }</pre>
+</blockquote>
+
+If the switch is of the form <span class="option">-xxx=yyy</span>, the
+<tt class="literal">$xxx</tt> variable is set to whatever follows the equals
+sign in that argument ("<tt class="literal">yyy</tt>" in this case).  The
+following script prints "<tt class="literal">true</tt>" if and only if the
+script is invoked with a <tt class="literal">-foo=bar</tt> switch.
+<blockquote>
+<pre class="programlisting">#!/usr/bin/perl -s
+if ($foo eq 'bar') { print "true\n" }</pre>
+</blockquote>
+</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-S</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3437"></a><a name="INDEX-3438"></a><a name="INDEX-3439"></a><a name="INDEX-3440"></a><a name="INDEX-3441"></a>
+Makes Perl use the <tt class="literal">PATH</tt> environment variable to
+search for the script (unless the name of the script contains
+directory separators).</p>
+
+<p>Typically, this switch is used to help emulate
+<tt class="literal">#!</tt> startup on platforms that don't support
+<tt class="literal">#!</tt>.  On
+many platforms that have a shell compatible with Bourne or C shell,
+you can use this:
+<blockquote>
+<pre class="programlisting">#!/usr/bin/perl
+eval "exec /usr/bin/perl -S $0 $*"
+        if $running_under_some_shell;</pre>
+</blockquote>
+
+The system ignores the first line and feeds the script to
+<em class="emphasis">/bin/sh</em>, which proceeds to try to execute the
+Perl script as a shell script.  The shell executes the second line as
+a normal shell command, and thus starts up the Perl interpreter.  On
+some systems, <tt class="literal">$0</tt> doesn't always contain the full
+pathname, so <span class="option">-S</span> tells Perl to search for the script
+if necessary. After Perl locates the script, it parses the lines and
+ignores them because the variable
+<tt class="literal">$running_under_some_shell</tt> is never true.  A better
+construct than <tt class="literal">$*</tt> would be
+<tt class="literal">${1+"$@"}</tt>, which handles embedded spaces and such
+in the filenames but doesn't work if the script is being interpreted
+by <em class="emphasis">csh</em>.  In order to start up
+<em class="emphasis">sh</em> instead of <em class="emphasis">csh</em>, some
+systems have to replace the <tt class="literal">#!</tt> line with a line
+containing just a colon, which Perl will politely ignore.  Other
+systems can't control that and need a totally devious construct that
+will work under any of <em class="emphasis">csh</em>,
+<em class="emphasis">sh</em>, or <em class="emphasis">perl</em>, such as the
+following:
+<blockquote>
+<pre class="programlisting">eval '(exit $?0)' &amp;&amp; eval 'exec /usr/bin/perl -S $0 ${1+"$@"}'
+    &amp; eval 'exec /usr/bin/perl -S $0 $argv:q'
+                   if 0;</pre>
+</blockquote>
+
+Yes, it's ugly, but so are the systems that work<a href="#FOOTNOTE-5">[5]</a> this way.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-5"></a>
+<p>[5] We
+use the term advisedly.</p>
+
+</blockquote>
+
+<p>On some platforms, the <span class="option">-S</span> switch also makes Perl
+append suffixes to the filename while searching for it.  For example,
+on Win32 platforms, the <em class="emphasis">.bat</em> and
+<em class="emphasis">.cmd</em> suffixes are appended if a lookup for the
+original name fails and the name does not already end in one of those
+suffixes.  If your Perl was built with debugging enabled, you can use
+Perl's <span class="option">-Dp</span> switch to watch how the search progresses.</p>
+
+<p>If the filename supplied contains directory separators (even as
+just a relative pathname, not an absolute one), and if the file is
+not found, those platforms that implicitly append file extensions
+(not Unix) will do so and look for the file with those
+extensions added, one by one.</p>
+
+<p>On DOS-like platforms, if the script does not contain directory
+separators, it will first be searched for in the current directory
+before being searched for in the <tt class="literal">PATH</tt>.  On Unix
+platforms, the script will be searched for strictly on the
+<tt class="literal">PATH</tt>, due to security concerns about accidentally
+executing something in the current working directory without
+explicitly requesting this.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-T</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3442"></a><a name="INDEX-3443"></a><a name="INDEX-3444"></a>
+Forces "taint" checks to be turned on so you can test them.  Ordinarily
+these checks are done only when running setuid or setgid.  It's a good
+idea to turn them on explicitly for programs run on another's behalf,
+such as CGI programs.  See <a href="ch23_01.htm">Chapter 23, "Security"</a>.</p>
+
+<p>Note that, for security reasons, Perl must see this option
+quite early; usually this means it must appear early on the command
+line or in the <tt class="literal">#!</tt> line.  If it's not early enough, Perl complains.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-u</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3445"></a><a name="INDEX-3446"></a><a name="INDEX-3447"></a><a name="INDEX-3448"></a><a name="INDEX-3449"></a>
+Causes Perl to dump core after compiling your script.  You can then in
+theory take this core dump and turn it into an executable file by
+using the <em class="emphasis">undump</em> program (not supplied).  This
+speeds startup at the expense of some disk space (which you can
+minimize by stripping the executable). If you want to execute a
+portion of your script before dumping, use Perl's
+<tt class="literal">dump</tt> operator instead.  Note: availability of
+<em class="emphasis">undump</em> is platform specific; it may not be
+available for a specific port of Perl.  It has been superseded by the
+new Perl-to-C code generator, which is much more portable (but still
+experimental).</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-U</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3450"></a><a name="INDEX-3451"></a><a name="INDEX-3452"></a>
+Allows Perl to do unsafe operations.  Currently the only "unsafe"
+operations are unlinking directories while running as
+superuser, and running setuid programs with fatal taint checks
+turned into warnings.  Note that warnings must be enabled to actually produce
+the taint-check warnings.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-v</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3453"></a><a name="INDEX-3454"></a>
+Prints the version and patch level of your Perl executable, along
+with a bit of extra information.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-V</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3455"></a><a name="INDEX-3456"></a>
+Prints a summary of the major Perl configuration values and the current
+value of <tt class="literal">@INC</tt>.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-V:</span><em class="replaceable">NAME</em></b>
+</dt>
+<dd>
+<p>Prints to <tt class="literal">STDOUT</tt> the value of the named configuration variable.
+The <em class="replaceable">NAME</em> may contain regex characters, like "<tt class="literal">.</tt>" to match any
+character, or "<tt class="literal">.*</tt>" to match any optional sequence of characters.
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -V:man.dir</b></tt>
+man1dir='/usr/local/man/man1'
+man3dir='/usr/local/man/man3'
+
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -V:'.*threads'</b></tt>
+d_oldpthreads='undef'
+use5005threads='define'
+useithreads='undef'
+usethreads='define'</pre>
+</blockquote>
+If you ask for a configuration variable that doesn't exist, its value
+will be reported as "<tt class="literal">UNKNOWN</tt>".  Configuration
+information is available from within a program using the
+<tt class="literal">Config</tt> module, although patterns are not supported
+for the hash subscripts:
+<blockquote>
+<pre class="programlisting">
+<tt class="computeroutput">%</tt> <tt class="userinput"><b>perl -MConfig -le 'print $Config{man1dir}'</b></tt>
+/usr/local/man/man1</pre>
+</blockquote>
+
+See the <tt class="literal">Config</tt> module in <a href="ch32_01.htm">Chapter 32, "Standard Modules"</a>.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-w</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3457"></a><a name="INDEX-3458"></a><a name="INDEX-3459"></a>
+Prints warnings about variables that are mentioned only once and
+scalar values that are used before being set.  Also warns about
+redefined subroutines, and references to undefined filehandles or
+filehandles opened read-only that you are attempting to write on.
+Also warns you if you use values as numbers that don't look like
+numbers, if you use an array as though it were a scalar, if your subroutines
+recurse more than 100 deep, and innumerable other things.  See every
+entry labelled "(W)" in <a href="ch33_01.htm">Chapter 33, "Diagnostic Messages"</a>.</p>
+
+<p>This switch just sets the global <tt class="literal">$^W</tt> variable.  It has
+no effect on lexical warnings--see the <span class="option">-W</span> and
+<span class="option">-X</span> switches for that.  You can enable or disable specific
+warnings via the <tt class="literal">use warnings</tt>
+pragma, described in <a href="ch31_01.htm">Chapter 31, "Pragmatic Modules"</a>.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-W</span></b>
+</dt>
+<dd>
+<p>Unconditionally and permanently enables all warnings throughout the
+program, even if warnings were disabled locally using <tt class="literal">no
+warnings</tt> or <tt class="literal">$^W = 0</tt>.  This includes all
+files loaded via <tt class="literal">use</tt>, <tt class="literal">require</tt>,
+or <tt class="literal">do</tt>.  Think of it as the Perl equivalent of the
+<em class="emphasis">lint</em>(1) command.</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-x</span><em class="replaceable">DIRECTORY</em></b>
+</dt>
+<dt>
+<b><span class="option">-x</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3460"></a><a name="INDEX-3461"></a><a name="INDEX-3462"></a><a name="INDEX-3463"></a>
+Tells Perl to extract a script that
+is embedded in a message.  Leading garbage will be discarded until the
+first line that starts with <tt class="literal">#!</tt> and contains the
+string "<tt class="literal">perl</tt>".  Any meaningful switches on that
+line after the word "<tt class="literal">perl</tt>" will be applied.  If a
+directory name is specified, Perl will switch to that directory before
+running the script.  The <span class="option">-x</span> switch controls the
+disposal of leading garbage only, not trailing garbage.  The script
+must be terminated with <tt class="literal">__END__</tt> or
+<tt class="literal">__DATA__</tt> if there is trailing garbage to be
+ignored.  (The script can process any or all of the trailing garbage
+via the <tt class="literal">DATA</tt> filehandle if desired.  It could even
+in theory <tt class="literal">seek</tt> to the beginning of the file and
+process the leading garbage.)</p>
+</dd>
+
+
+<dt>
+<b><span class="option">-X</span></b>
+</dt>
+<dd>
+<p>
+<a name="INDEX-3464"></a><a name="INDEX-3465"></a><a name="INDEX-3466"></a>
+Unconditionally and permanently disables all warnings, 
+the exact opposite of what the <span class="option">-W</span> flag does.</p>
+</dd>
+
+</dl>
+
+
+
+
+
+<a name="INDEX-3467"></a><a name="INDEX-3468"></a><a name="INDEX-3469"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- BOTTOM NAV BAR -->
+
+<hr width="515" align="left">
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch18_07.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="index.htm"><img src="../gifs/txthome.gif" alt="Home" border="0"></a></td><td align="right" valign="top" width="172"><a href="ch19_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+<tr>
+<td align="left" valign="top" width="172">18.7. Avant-Garde Compiler, Retro Interpreter</td><td align="center" valign="top" width="171"><a href="index/index.htm"><img src="../gifs/index.gif" alt="Book Index" border="0"></a></td><td align="right" valign="top" width="172">19.2. Environment Variables</td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- LIBRARY NAV BAR -->
+
+<img src="../gifs/smnavbar.gif" usemap="#library-map" border="0" alt="Library Navigation Links"><p>
+<font size="-1"><a href="copyrght.htm">Copyright &copy; 2001</a> O'Reilly &amp; Associates. All rights reserved.</font>
+</p>
+<map name="library-map"> <area shape="rect" coords="2,-1,79,99" href="../index.htm"><area shape="rect" coords="84,1,157,108" href="../perlnut/index.htm"><area shape="rect" coords="162,2,248,125" href="../prog3/index.htm"><area shape="rect" coords="253,2,326,130" href="../advprog/index.htm"><area shape="rect" coords="332,1,407,112" href="../cookbook/index.htm"><area shape="rect" coords="414,2,523,103" href="../sysadmin/index.htm">
+</map>
+
+<!-- END OF BODY -->
+
+</body>
+</html>
+
+
+<br>
+
+
+<table border=0 align=center>
+<tr><td>
+
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 468x60, main footer */
+google_ad_slot = "1100896219";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<script>
+user = "2823";
+page = "2";
+
+</script>
+
+
+
+</td>
+<td>
+
+<!-- Ukrainian Banner Network 468x60 START -->
+<center>
+<script>
+//<!--
+user = "2823";
+page = "2";
+pid = Math.round((Math.random() * (10000000 - 1)));
+document.write("<iframe src='http://banner.kiev.ua/cgi-bin/bi.cgi?h" +
+user + "&amp;"+ pid + "&amp;" + page + "' frameborder=0 vspace=0 hspace=0 " +
+" width=468 height=60 marginwidth=0 marginheight=0 scrolling=no>");
+document.write("<a href='http://banner.kiev.ua/cgi-bin/bg.cgi?" +
+user + "&amp;"+ pid + "&amp;" + page + "' target=_top>");
+document.write("<img border=0 src='http://banner.kiev.ua/" +
+"cgi-bin/bi.cgi?i" + user + "&amp;" + pid + "&amp;" + page +
+"' width=468 height=60 alt='хЋ“Ѕ…ќ”ЋЅ— вЅќќ≈“ќЅ— у≈‘Ў'></a>");
+document.write("</iframe>");
+//-->
+</script>
+</center>
+<!-- Ukrainian Banner Network 468x60 END -->
+
+
+</td></tr>
+<tr><td colspan=2>
+<br>
+<hr size=1>
+
+
+
+<!-- SpyLOG -->
+<script src="http://tools.spylog.ru/counter_cv.js" id="spylog_code" type="text/javascript" counter="1028713" part="docs" track_links="ext" page_level="0">
+</script>
+<noscript>
+<a href="http://u10287.13.spylog.com/cnt?cid=1028713&f=3&p=0" target="_blank">
+<img src="http://u10287.13.spylog.com/cnt?cid=1028713&p=0" alt="SpyLOG" border="0" width="88" height="31"></a>
+</noscript>
+<!--/ SpyLOG -->
+
+<!--bigmir)net TOP 100-->
+<script type="text/javascript" language="javascript"><!--
+function BM_Draw(oBM_STAT){
+document.write('<table cellpadding="0" cellspacing="0" border="0" style="display:inline;margin-right:4px;"><tr><td><div style="margin:0px;padding:0px;font-size:1px;width:88px;"><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_top.gif\') no-repeat bottom;">&nbsp;</div><div style="font:10px Tahoma;background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_center.gif\');"><div style="text-align:center;"><a href="http://www.bigmir.net/" target="_blank" style="color:#0000ab;text-decoration:none;font:10px Tahoma;">bigmir<span style="color:#ff0000;">)</span>net</a></div><div style="margin-top:3px;padding: 0px 6px 0px 6px;color:#003596;"><div style="float:left;font:10px Tahoma;">'+oBM_STAT.hosts+'</div><div style="float:right;font:10px Tahoma;">'+oBM_STAT.hits+'</div></div><br clear="all"/></div><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_bottom.gif\') no-repeat top;">&nbsp;</div></div></td></tr></table>');
+}
+//-->
+</script>
+
+<script type="text/javascript" language="javascript"><!--
+bmN=navigator,bmD=document,bmD.cookie='b=b',i=0,bs=[],bm={o:1,v:126595,s:126595,t:0,c:bmD.cookie?1:0,n:Math.round((Math.random()* 1000000)),w:0};
+for(var f=self;f!=f.parent;f=f.parent)bm.w++;
+try{if(bmN.plugins&&bmN.mimeTypes.length&&(x=bmN.plugins['Shockwave Flash']))bm.m=parseInt(x.description.replace(/([a-zA-Z]|s)+/,''));
+else for(var f=3;f<20;f++)if(eval('new ActiveXObject("ShockwaveFlash.ShockwaveFlash.'+f+'")'))bm.m=f}catch(e){;}
+try{bm.y=bmN.javaEnabled()?1:0}catch(e){;}
+try{bmS=screen;bm.v^=bm.d=bmS.colorDepth||bmS.pixelDepth;bm.v^=bm.r=bmS.width}catch(e){;}
+r=bmD.referrer.slice(7);if(r&&r.split('/')[0]!=window.location.host){bm.f=escape(r);bm.v^=r.length}
+bm.v^=window.location.href.length;for(var x in bm) if(/^[ovstcnwmydrf]$/.test(x)) bs[i++]=x+bm[x];
+bmD.write('<sc'+'ript type="text/javascript" language="javascript" src="http://c.bigmir.net/?'+bs.join('&')+'"></sc'+'ript>');
+//-->
+</script>
+<noscript>
+<a href="http://www.bigmir.net/" target="_blank"><img src="http://c.bigmir.net/?v126595&s126595&t2" width="88" height="31" alt="bigmir)net TOP 100" title="bigmir)net TOP 100" border="0" /></a>
+</noscript>
+<!--bigmir)net TOP 100-->
+
+<!--begin of Rambler's Top100 code -->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://counter.rambler.ru/top100.cnt?692798" alt="" width=1 height=1 border=0></a>
+<!--end of Top100 code-->
+
+<!--begin of Top100 logo-->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://top100-images.rambler.ru/top100/w1.gif" alt="Rambler's Top100" width=88 height=31 
+border=0></a>
+<!--end of Top100 logo -->
+
+
+<!-- hit.ua -->
+<a href='http://hit.ua/?x=3601' target='_blank'>
+<script language="javascript" type="text/javascript"><!--
+Cd=document;Cr="&"+Math.random();Cp="&s=1";
+Cd.cookie="b=b";if(Cd.cookie)Cp+="&c=1";
+Cp+="&t="+(new Date()).getTimezoneOffset();
+if(self!=top)Cp+="&f=1";
+//--></script>
+<script language="javascript1.1" type="text/javascript"><!--
+if(navigator.javaEnabled())Cp+="&j=1";
+//--></script>
+<script language="javascript1.2" type="text/javascript"><!--
+if(typeof(screen)!='undefined')Cp+="&w="+screen.width+"&h="+
+screen.height+"&d="+(screen.colorDepth?screen.colorDepth:screen.pixelDepth);
+//--></script>
+<script language="javascript" type="text/javascript"><!--
+Cd.write("<img src='http://c.hit.ua/hit?i=3601&g=0&x=1"+Cp+Cr+
+"&r="+escape(Cd.referrer)+"&u="+escape(window.location.href)+
+"' border='0' width='88' height='31' "+
+"alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>");
+//--></script>
+<noscript>
+<img src='http://c.hit.ua/hit?i=3601&amp;g=0&amp;x=1' border='0' width='88' height='31' alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>
+</noscript></a>
+<!-- / hit.ua -->
+
+<script language="javascript">//<!--
+mtI="012408140822";mtG="45";mtT="4";mtS='http://012408140822.c.mystat-in.net/?';
+mtD=document;mtN=navigator.appName;mtR=escape(mtD.referrer);
+mtW="";mtC="";mtV="0";mtJ="1";
+//--></script><script language="javascript1.1">//<!--
+mtV="1";mtJ = (navigator.javaEnabled()?"1":"0");
+//--></script><script language="javascript1.2">//<!--
+mtE=screen;mtW=mtE.width;mtN!="Netscape"?mtC=mtE.colorDepth:mtC=mtE.pixelDepth;mtV="2";
+//--></script><script language="javascript1.3">//<!--
+mtV="3";
+//--></script><script language="javascript">//<!--
+mtUrl="";mtUrl+="\""+mtS+"i"+mtI+"&t"+mtT+"&g"+mtG+"&w"+mtW+"&c"+mtC+"&r"+mtR+"&v"+mtV+"&j"+mtJ+"\"";
+mtUrl="<a href=http://mytop-in.net/ target=_blank><img src="+mtUrl+"width=88 height=31 border=0 alt=\"Rated by MyTOP\"></a>";
+mtD.write(mtUrl);
+//--></script>
+<noscript>
+<a href=http://mytop-in.net/ target=_blank><img src=http://012408140822.c.mystat-in.net/?i012408140822&t4&g45&j0 width=88 height=31 border=0 alt="Rated by MyTOP"></a>
+</noscript>
+
+<!--Rating@Mail.ru COUNTEr--><script language="JavaScript" type="text/javascript"><!--
+d=document;var a='';a+=';r='+escape(d.referrer)
+js=10//--></script><script language="JavaScript1.1" type="text/javascript"><!--
+a+=';j='+navigator.javaEnabled()
+js=11//--></script><script language="JavaScript1.2" type="text/javascript"><!--
+s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+js=12//--></script><script language="JavaScript1.3" type="text/javascript"><!--
+js=13//--></script><script language="JavaScript" type="text/javascript"><!--
+d.write('<a href="http://top.mail.ru/jump?from=1374183"'+
+' target=_top><img src="http://d7.cf.b4.a1.top.list.ru/counter'+
+'?id=1374183;t=48;js='+js+a+';rand='+Math.random()+
+'" alt="–ейтинг@Mail.ru"'+' border=0 height=31 width=88/><\/a>')
+if(11<js)d.write('<'+'!-- ')//--></script><noscript><a
+target=_top href="http://top.mail.ru/jump?from=1374183"><img
+src="http://d7.cf.b4.a1.top.list.ru/counter?js=na;id=1374183;t=48"
+border=0 height=31 width=88
+alt="–ейтинг@Mail.ru"/></a></noscript><script language="JavaScript" type="text/javascript"><!--
+if(11<js)d.write('--'+'>')//--></script><!--/COUNTER-->
+
+<!-- I.UA counter --><a href="http://www.i.ua/" target="_blank" onclick="this.href='http://i.ua/r.php?21595';" title="Rated by I.UA">
+<script type="text/javascript" language="javascript"><!--
+iS='<img src="http://r.i.ua/s?u21595&p66&n'+Math.random();
+iD=document;iD.cookie="iua=1";if(iD.cookie)iS+='&c1';
+iS+='&d'+(screen.colorDepth?screen.colorDepth:screen.pixelDepth)
++"&w"+screen.width+'&h'+screen.height
+iT=iD.referrer.slice(7);iH=window.location.href.slice(7);
+((iI=iT.indexOf('/'))!=-1)?(iT=iT.substring(0,iI)):(iI=iT.length);
+if(iT!=iH.substring(0,iI))iS+='&f'+escape(iD.referrer.slice(7))
+iS+='&r'+escape(iH);
+iD.write(iS+'" border="0" width="88" height="31" />');
+//--></script></a><!-- End of I.UA counter -->
+
+<script type="text/javascript">
+<!--
+Nnv=navigator;Nna=Nnv.appName;Nd=document;Nd.cookie="b=b";Nc=0;if(Nd.cookie)Nc=1;
+Nn=(Nna.substring(0,2)=="Mi")?0:1;Ns=screen;Npx=(Nn==0)?Ns.colorDepth:Ns.pixelDepth;
+str='<img src="http://c.uarating.com/199;'+Ns.width+'x'+Ns.height+';'+Npx+';'+Nc+';';
+str=str+escape(Nd.referrer)+';'+Math.random()+'" width="88" height="31" border="0">';
+document.write('<a href="http://www.uarating.com/" alt="uaRating" target="_blank">'+str+'<\/a>');
+// -->
+</script>
+<noscript><a href="http://www.uarating.com/" target="_blank"><img src="http://c.uarating.com/199;0x0;0;0;-;0" alt="uaRating" width="88" height="31" border="0"></a></noscript>
+
+
+</td></tr>
+</table>
+
+
+</body>
+</html>

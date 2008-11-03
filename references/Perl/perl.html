@@ -1,0 +1,437 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perl - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-overview.html">Overview</a> &gt; perl</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perl</div><div class="pdf_link"><a href="perl.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perl.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#SYNOPSIS">SYNOPSIS</a><ul><li><a href="#Overview">Overview</a><li><a href="#Tutorials">Tutorials</a><li><a href="#Reference-Manual">Reference Manual</a><li><a href="#Internals-and-C-Language-Interface">Internals and C Language Interface</a><li><a href="#Miscellaneous">Miscellaneous</a><li><a href="#Language-Specific">Language-Specific</a><li><a href="#Platform-Specific">Platform-Specific</a></ul><li><a href="#DESCRIPTION">DESCRIPTION</a><li><a href="#AVAILABILITY">AVAILABILITY</a><li><a href="#ENVIRONMENT">ENVIRONMENT</a><li><a href="#AUTHOR">AUTHOR</a><li><a href="#FILES">FILES</a><li><a href="#SEE-ALSO">SEE ALSO</a><li><a href="#DIAGNOSTICS">DIAGNOSTICS</a><li><a href="#BUGS">BUGS</a><li><a href="#NOTES">NOTES</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perl - Practical Extraction and Report Language</p>
+<a name="SYNOPSIS"></a><h1>SYNOPSIS</h1>
+<p><b>perl</b>	[&nbsp;<b>-sTtuUWX</b>&nbsp;]
+	[&nbsp;<b>-hv</b>&nbsp;]&nbsp;[&nbsp;<b>-V</b>[:<i>configvar</i>]&nbsp;]
+	[&nbsp;<b>-cw</b>&nbsp;]&nbsp;[&nbsp;<b>-d</b>[<b>t</b>][:<i>debugger</i>]&nbsp;]&nbsp;[&nbsp;<b>-D</b>[<i>number/list</i>]&nbsp;]
+	[&nbsp;<b>-pna</b>&nbsp;]&nbsp;[&nbsp;<b>-F</b><i>pattern</i>&nbsp;]&nbsp;[&nbsp;<b>-l</b>[<i>octal</i>]&nbsp;]&nbsp;[&nbsp;<b>-0</b>[<i>octal/hexadecimal</i>]&nbsp;]
+	[&nbsp;<b>-I</b><i>dir</i>&nbsp;]&nbsp;[&nbsp;<b>-m</b>[<b>-</b>]<i>module</i>&nbsp;]&nbsp;[&nbsp;<b>-M</b>[<b>-</b>]<i>'module...'</i>&nbsp;]&nbsp;[&nbsp;<b>-f</b>&nbsp;]
+	[&nbsp;<b>-C&nbsp;[<i>number/list</i>]&nbsp;</b>]
+	[&nbsp;<b>-P</b>&nbsp;]
+	[&nbsp;<b>-S</b>&nbsp;]
+	[&nbsp;<b>-x</b>[<i>dir</i>]&nbsp;]
+	[&nbsp;<b>-i</b>[<i>extension</i>]&nbsp;]
+	[&nbsp;<b>-e</b>&nbsp;<i>'command'</i>&nbsp;]&nbsp;[&nbsp;<b>--</b>&nbsp;]&nbsp;[&nbsp;<i>programfile</i>&nbsp;]&nbsp;[&nbsp;<i>argument</i>&nbsp;]...</p>
+<p>If you're new to Perl, you should start with <a href="perlintro.html">perlintro</a>, which is a 
+general intro for beginners and provides some background to help you
+navigate the rest of Perl's extensive documentation.</p>
+<p>For ease of access, the Perl manual has been split up into several sections.</p>
+<a name="Overview"></a><h2>Overview</h2>
+<pre class="verbatim">    perl		Perl overview (this section)
+    <a href="perlintro.html">perlintro</a>		Perl introduction for beginners
+    perltoc		Perl documentation table of contents</pre><a name="Tutorials"></a><h2>Tutorials</h2>
+<pre class="verbatim">    <a href="perlreftut.html">perlreftut</a>		Perl references short introduction
+    <a href="perldsc.html">perldsc</a>		Perl data structures intro
+    <a href="perllol.html">perllol</a>		Perl data structures: arrays of arrays</pre><pre class="verbatim">    <a href="perlrequick.html">perlrequick</a> 	Perl regular expressions quick start
+    <a href="perlretut.html">perlretut</a>		Perl regular expressions tutorial</pre>
+<pre class="verbatim">    <a href="perlboot.html">perlboot</a>		Perl OO tutorial for beginners
+    <a href="perltoot.html">perltoot</a>		Perl OO tutorial, part 1
+    <a href="perltooc.html">perltooc</a>		Perl OO tutorial, part 2
+    <a href="perlbot.html">perlbot</a>		Perl OO tricks and examples</pre><pre class="verbatim">    <a href="perlstyle.html">perlstyle</a>		Perl style guide</pre>
+<pre class="verbatim">    <a href="perlcheat.html">perlcheat</a>		Perl cheat sheet
+    <a href="perltrap.html">perltrap</a>		Perl traps for the unwary
+    <a href="perldebtut.html">perldebtut</a>		Perl debugging tutorial</pre>
+<pre class="verbatim">    <a href="perlfaq.html">perlfaq</a>		Perl frequently asked questions
+      <a href="perlfaq1.html">perlfaq1</a>		General Questions About Perl
+      <a href="perlfaq2.html">perlfaq2</a>		Obtaining and Learning about Perl
+      <a href="perlfaq3.html">perlfaq3</a>		Programming Tools
+      <a href="perlfaq4.html">perlfaq4</a>		Data Manipulation
+      <a href="perlfaq5.html">perlfaq5</a>		Files and Formats
+      <a href="perlfaq6.html">perlfaq6</a>		Regexes
+      <a href="perlfaq7.html">perlfaq7</a>		Perl Language Issues
+      <a href="perlfaq8.html">perlfaq8</a>		System Interaction
+      <a href="perlfaq9.html">perlfaq9</a>		Networking</pre>
+<a name="Reference-Manual"></a><h2>Reference Manual</h2>
+<pre class="verbatim">    <a href="perlsyn.html">perlsyn</a>		Perl syntax
+    <a href="perldata.html">perldata</a>		Perl data structures
+    <a href="perlop.html">perlop</a>		Perl operators and precedence
+    <a href="perlsub.html">perlsub</a>		Perl subroutines
+    <a href="perlfunc.html">perlfunc</a>		Perl built-in functions
+      <a href="perlopentut.html">perlopentut</a>	Perl open() tutorial
+      <a href="perlpacktut.html">perlpacktut</a>	Perl pack() and unpack() tutorial
+    <a href="perlpod.html">perlpod</a>		Perl plain old documentation
+    <a href="perlpodspec.html">perlpodspec</a> 	Perl plain old documentation format specification
+    <a href="perlrun.html">perlrun</a>		Perl execution and options
+    <a href="perldiag.html">perldiag</a>		Perl diagnostic messages
+    <a href="perllexwarn.html">perllexwarn</a> 	Perl warnings and their control
+    <a href="perldebug.html">perldebug</a>		Perl debugging
+    <a href="perlvar.html">perlvar</a>		Perl predefined variables
+    <a href="perlre.html">perlre</a>		Perl regular expressions, the rest of the story
+    <a href="perlreref.html">perlreref</a>		Perl regular expressions quick reference
+    <a href="perlref.html">perlref</a>		Perl references, the rest of the story
+    <a href="perlform.html">perlform</a>		Perl formats
+    <a href="perlobj.html">perlobj</a>		Perl objects
+    <a href="perltie.html">perltie</a>		Perl objects hidden behind simple variables
+      <a href="perldbmfilter.html">perldbmfilter</a>	Perl DBM filters</pre><pre class="verbatim">    <a href="perlipc.html">perlipc</a>		Perl interprocess communication
+    <a href="perlfork.html">perlfork</a>		Perl fork() information
+    <a href="perlnumber.html">perlnumber</a>		Perl number semantics</pre><pre class="verbatim">    <a href="perlthrtut.html">perlthrtut</a>		Perl <a class="l_w" href="threads.html">threads</a> tutorial
+      <a href="perlothrtut.html">perlothrtut</a>	Old Perl <a class="l_w" href="threads.html">threads</a> tutorial</pre>
+<pre class="verbatim">    <a href="perlport.html">perlport</a>		Perl portability guide
+    <a href="perllocale.html">perllocale</a>		Perl <a class="l_w" href="locale.html">locale</a> support
+    <a href="perluniintro.html">perluniintro</a>	Perl Unicode introduction
+    <a href="perlunicode.html">perlunicode</a> 	Perl Unicode support
+    <a href="perlebcdic.html">perlebcdic</a>		Considerations for running Perl on EBCDIC platforms</pre>
+<pre class="verbatim">    <a href="perlsec.html">perlsec</a>		Perl security</pre>
+<pre class="verbatim">    <a href="perlmod.html">perlmod</a>		Perl modules: how they work
+    <a href="perlmodlib.html">perlmodlib</a>		Perl modules: how to write and use
+    <a href="perlmodstyle.html">perlmodstyle</a>	Perl modules: how to write modules with style
+    <a href="perlmodinstall.html">perlmodinstall</a>	Perl modules: how to install from CPAN
+    <a href="perlnewmod.html">perlnewmod</a>		Perl modules: preparing a new module for distribution</pre><pre class="verbatim">    <a href="perlutil.html">perlutil</a>		utilities packaged with the Perl distribution</pre>
+<pre class="verbatim">    <a href="perlcompile.html">perlcompile</a> 	Perl compiler suite intro</pre>
+<pre class="verbatim">    <a href="perlfilter.html">perlfilter</a>		Perl source filters</pre>
+<pre class="verbatim">    <a href="perlglossary.html">perlglossary</a>	Perl Glossary</pre>
+<a name="Internals-and-C-Language-Interface"></a><h2>Internals and C Language Interface</h2>
+<pre class="verbatim">    <a href="perlembed.html">perlembed</a>		Perl ways to embed perl in your C or C++ application
+    <a href="perldebguts.html">perldebguts</a> 	Perl debugging guts and tips
+    <a href="perlxstut.html">perlxstut</a>		Perl XS tutorial
+    <a href="perlxs.html">perlxs</a>		Perl XS application programming interface
+    <a href="perlclib.html">perlclib</a>		Internal replacements for standard C library functions
+    <a href="perlguts.html">perlguts</a>		Perl internal functions for those doing extensions
+    <a href="perlcall.html">perlcall</a>		Perl calling conventions from C</pre><pre class="verbatim">    <a href="perlapi.html">perlapi</a>		Perl API listing (autogenerated)
+    <a href="perlintern.html">perlintern</a>		Perl internal functions (autogenerated)
+    <a href="perliol.html">perliol</a>		C API for Perl's implementation of IO in Layers
+    <a href="perlapio.html">perlapio</a>		Perl internal IO abstraction interface</pre><pre class="verbatim">    <a href="perlhack.html">perlhack</a>		Perl hackers guide</pre>
+<a name="Miscellaneous"></a><h2>Miscellaneous</h2>
+<pre class="verbatim">    <a href="perlbook.html">perlbook</a>		Perl book information
+    <a href="perltodo.html">perltodo</a>		Perl things to <a class="l_k" href="functions/do.html">do</a></pre>
+<pre class="verbatim">    <a href="perldoc.html">perldoc</a>		Look up Perl documentation in Pod format</pre><pre class="verbatim">    <a href="perlhist.html">perlhist</a>		Perl history records
+    <a href="perldelta.html">perldelta</a>		Perl changes since previous version
+    <a href="perl587delta.html">perl587delta</a>	Perl changes in version 5.8.7
+    <a href="perl586delta.html">perl586delta</a>	Perl changes in version 5.8.6
+    <a href="perl585delta.html">perl585delta</a>	Perl changes in version 5.8.5
+    <a href="perl584delta.html">perl584delta</a>	Perl changes in version 5.8.4
+    <a href="perl583delta.html">perl583delta</a>	Perl changes in version 5.8.3
+    <a href="perl582delta.html">perl582delta</a>	Perl changes in version 5.8.2
+    <a href="perl581delta.html">perl581delta</a>	Perl changes in version 5.8.1
+    <a href="perl58delta.html">perl58delta</a> 	Perl changes in version 5.8.0
+    <a href="perl573delta.html">perl573delta</a>	Perl changes in version 5.7.3
+    <a href="perl572delta.html">perl572delta</a>	Perl changes in version 5.7.2
+    <a href="perl571delta.html">perl571delta</a>	Perl changes in version 5.7.1
+    <a href="perl570delta.html">perl570delta</a>	Perl changes in version 5.7.0
+    <a href="perl561delta.html">perl561delta</a>	Perl changes in version 5.6.1
+    <a href="perl56delta.html">perl56delta</a> 	Perl changes in version 5.6
+    <a href="perl5005delta.html">perl5005delta</a>	Perl changes in version 5.005
+    <a href="perl5004delta.html">perl5004delta</a>	Perl changes in version 5.004</pre><pre class="verbatim">    <a href="perlartistic.html">perlartistic</a>	Perl Artistic License
+    <a href="perlgpl.html">perlgpl</a>		GNU General Public License</pre>
+<a name="Language-Specific"></a><h2>Language-Specific</h2>
+<pre class="verbatim">    perlcn		Perl for Simplified Chinese (in EUC-CN)
+    perljp		Perl for Japanese (in EUC-JP)
+    perlko		Perl for Korean (in EUC-KR)
+    perltw		Perl for Traditional Chinese (in Big5)</pre><a name="Platform-Specific"></a><h2>Platform-Specific</h2>
+<pre class="verbatim">    <a href="perlaix.html">perlaix</a>		Perl notes for AIX
+    <a href="perlamiga.html">perlamiga</a>		Perl notes for AmigaOS
+    <a href="perlapollo.html">perlapollo</a>		Perl notes for Apollo DomainOS
+    <a href="perlbeos.html">perlbeos</a>		Perl notes for BeOS
+    <a href="perlbs2000.html">perlbs2000</a>		Perl notes for POSIX-BC BS2000
+    <a href="perlce.html">perlce</a>		Perl notes for WinCE
+    <a href="perlcygwin.html">perlcygwin</a>		Perl notes for Cygwin
+    <a href="perldgux.html">perldgux</a>		Perl notes for DG/UX
+    <a href="perldos.html">perldos</a>		Perl notes for DOS
+    <a href="perlepoc.html">perlepoc</a>		Perl notes for EPOC
+    <a href="perlfreebsd.html">perlfreebsd</a> 	Perl notes for FreeBSD
+    <a href="perlhpux.html">perlhpux</a>		Perl notes for HP-UX
+    <a href="perlhurd.html">perlhurd</a>		Perl notes for Hurd
+    <a href="perlirix.html">perlirix</a>		Perl notes for Irix
+    <a href="perllinux.html">perllinux</a>		Perl notes for Linux
+    <a href="perlmachten.html">perlmachten</a> 	Perl notes for Power MachTen
+    <a href="perlmacos.html">perlmacos</a>		Perl notes for Mac OS (Classic)
+    <a href="perlmacosx.html">perlmacosx</a>		Perl notes for Mac OS X
+    <a href="perlmint.html">perlmint</a>		Perl notes for MiNT
+    <a href="perlmpeix.html">perlmpeix</a>		Perl notes for MPE/iX
+    <a href="perlnetware.html">perlnetware</a> 	Perl notes for NetWare
+    <a href="perlopenbsd.html">perlopenbsd</a> 	Perl notes for OpenBSD
+    <a href="perlos2.html">perlos2</a>		Perl notes for OS/2
+    <a href="perlos390.html">perlos390</a>		Perl notes for OS/390
+    <a href="perlos400.html">perlos400</a>		Perl notes for OS/400
+    <a href="perlplan9.html">perlplan9</a>		Perl notes for Plan 9
+    <a href="perlqnx.html">perlqnx</a>		Perl notes for QNX
+    <a href="perlsolaris.html">perlsolaris</a> 	Perl notes for Solaris
+    <a href="perltru64.html">perltru64</a>		Perl notes for Tru64
+    <a href="perluts.html">perluts</a>		Perl notes for UTS
+    <a href="perlvmesa.html">perlvmesa</a>		Perl notes for VM/ESA
+    <a href="perlvms.html">perlvms</a>		Perl notes for VMS
+    <a href="perlvos.html">perlvos</a>		Perl notes for Stratus VOS
+    <a href="perlwin32.html">perlwin32</a>		Perl notes for Windows</pre><p>By default, the manpages listed above are installed in the 
+<i>/usr/local/man/</i> directory.  </p>
+<p>Extensive additional documentation for Perl modules is available.  The
+default configuration for perl will place this additional documentation
+in the <i>/usr/local/lib/perl5/man</i> directory (or else in the <i>man</i>
+subdirectory of the Perl library directory).  Some of this additional
+documentation is distributed standard with Perl, but you'll also find
+documentation for third-party modules there.</p>
+<p>You should be able to view Perl's documentation with your man(1)
+program by including the proper directories in the appropriate start-up
+files, or in the MANPATH environment variable.  To find out where the
+configuration has installed the manpages, type:</p>
+<pre class="verbatim">    perl -V:man.dir</pre><p>If the directories have a common stem, such as <i>/usr/local/man/man1</i>
+and <i>/usr/local/man/man3</i>, you need only to add that stem
+(<i>/usr/local/man</i>) to your man(1) configuration files or your MANPATH
+environment variable.  If they do not share a stem, you'll have to add
+both stems.</p>
+<p>If that doesn't work for some reason, you can still use the
+supplied <i>perldoc</i> script to view module information.  You might
+also look into getting a replacement man program.</p>
+<p>If something strange has gone wrong with your program and you're not
+sure where you should look for help, try the <b>-w</b> switch first.  It
+will often point out exactly where the trouble is.</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>Perl is a language optimized for scanning arbitrary
+text files, extracting information from those text files, and printing
+reports based on that information.  It's also a good language for many
+system management tasks.  The language is intended to be practical
+(easy to use, efficient, complete) rather than beautiful (tiny,
+elegant, minimal).</p>
+<p>Perl combines (in the author's opinion, anyway) some of the best
+features of C, <b>sed</b>, <b>awk</b>, and <b>sh</b>, so people familiar with
+those languages should have little difficulty with it.  (Language
+historians will also note some vestiges of <b>csh</b>, Pascal, and even
+BASIC-PLUS.)  Expression syntax corresponds closely to C
+expression syntax.  Unlike most Unix utilities, Perl does not
+arbitrarily limit the size of your data--if you've got the memory,
+Perl can slurp in your whole file as a single string.  Recursion is of
+unlimited depth.  And the tables used by hashes (sometimes called
+"associative arrays") grow as necessary to prevent degraded
+performance.  Perl can use sophisticated pattern matching techniques to
+scan large amounts of data quickly.  Although optimized for
+scanning text, Perl can also deal with binary data, and can make dbm
+files look like hashes.  Setuid Perl scripts are safer than C programs
+through a dataflow tracing mechanism that prevents many stupid
+security holes.</p>
+<p>If you have a problem that would ordinarily use <b>sed</b> or <b>awk</b> or
+<b>sh</b>, but it exceeds their capabilities or must run a little faster,
+and you don't want to write the silly thing in C, then Perl may be for
+you.  There are also translators to turn your <b>sed</b> and <b>awk</b>
+scripts into Perl scripts.</p>
+<p>But wait, there's more...</p>
+<p>Begun in 1993 (see <a href="perlhist.html">perlhist</a>), Perl version 5 is nearly a complete
+rewrite that provides the following additional benefits:</p>
+<ul>
+<li>
+<p>modularity and reusability using innumerable modules </p>
+<p>Described in <a href="perlmod.html">perlmod</a>, <a href="perlmodlib.html">perlmodlib</a>, and <a href="perlmodinstall.html">perlmodinstall</a>.</p>
+</li>
+<li>
+<p>embeddable and extensible </p>
+<p>Described in <a href="perlembed.html">perlembed</a>, <a href="perlxstut.html">perlxstut</a>, <a href="perlxs.html">perlxs</a>, <a href="perlcall.html">perlcall</a>,
+<a href="perlguts.html">perlguts</a>, and <a href="xsubpp.html">xsubpp</a>.</p>
+</li>
+<li>
+<p>roll-your-own magic variables (including multiple simultaneous DBM
+implementations)</p>
+<p>Described in <a href="perltie.html">perltie</a> and <a href="AnyDBM_File.html">AnyDBM_File</a>.</p>
+</li>
+<li>
+<p>subroutines can now be overridden, autoloaded, and prototyped</p>
+<p>Described in <a href="perlsub.html">perlsub</a>.</p>
+</li>
+<li>
+<p>arbitrarily nested data structures and anonymous functions</p>
+<p>Described in <a href="perlreftut.html">perlreftut</a>, <a href="perlref.html">perlref</a>, <a href="perldsc.html">perldsc</a>, and <a href="perllol.html">perllol</a>.</p>
+</li>
+<li>
+<p>object-oriented programming</p>
+<p>Described in <a href="perlobj.html">perlobj</a>, <a href="perlboot.html">perlboot</a>, <a href="perltoot.html">perltoot</a>, <a href="perltooc.html">perltooc</a>,
+and <a href="perlbot.html">perlbot</a>.</p>
+</li>
+<li>
+<p>support for light-weight processes (threads)</p>
+<p>Described in <a href="perlthrtut.html">perlthrtut</a> and <a href="threads.html">threads</a>.</p>
+</li>
+<li>
+<p>support for Unicode, internationalization, and localization</p>
+<p>Described in <a href="perluniintro.html">perluniintro</a>, <a href="perllocale.html">perllocale</a> and <a href="Locale/Maketext.html">Locale::Maketext</a>.</p>
+</li>
+<li>
+<p>lexical scoping</p>
+<p>Described in <a href="perlsub.html">perlsub</a>.</p>
+</li>
+<li>
+<p>regular expression enhancements</p>
+<p>Described in <a href="perlre.html">perlre</a>, with additional examples in <a href="perlop.html">perlop</a>.</p>
+</li>
+<li>
+<p>enhanced debugger and interactive Perl environment,
+with integrated editor support</p>
+<p>Described in <a href="perldebtut.html">perldebtut</a>, <a href="perldebug.html">perldebug</a> and <a href="perldebguts.html">perldebguts</a>.</p>
+</li>
+<li>
+<p>POSIX 1003.1 compliant library</p>
+<p>Described in <a href="POSIX.html">POSIX</a>.</p>
+</li>
+</ul>
+<p>Okay, that's <i>definitely</i> enough hype.</p>
+<a name="AVAILABILITY"></a><h1>AVAILABILITY</h1>
+<p>Perl is available for most operating systems, including virtually
+all Unix-like platforms.  See <a href="perlport.html#Supported-Platforms">"Supported Platforms" in perlport</a>
+for a listing.</p>
+<a name="ENVIRONMENT"></a><h1>ENVIRONMENT</h1>
+<p>See <a href="perlrun.html">perlrun</a>.</p>
+<a name="AUTHOR"></a><h1>AUTHOR</h1>
+<p>Larry Wall &lt;larry@wall.org&gt;, with the help of oodles of other folks.</p>
+<p>If your Perl success stories and testimonials may be of help to others 
+who wish to advocate the use of Perl in their applications, 
+or if you wish to simply express your gratitude to Larry and the 
+Perl developers, please write to perl-thanks@perl.org .</p>
+<a name="FILES"></a><h1>FILES</h1>
+<pre class="verbatim"> "@INC"			locations of perl libraries</pre><a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<pre class="verbatim"> a2p	awk to perl translator
+ s2p	sed to perl translator</pre>
+<pre class="verbatim"> http://www.perl.org/       the Perl homepage
+ http://www.perl.com/       Perl articles (O'Reilly)
+ http://www.cpan.org/       the Comprehensive Perl Archive
+ http://www.pm.org/         the Perl Mongers</pre><a name="DIAGNOSTICS"></a><h1>DIAGNOSTICS</h1>
+<p>The <code class="inline"><a class="l_k" href="functions/use.html">use</a> <a class="l_w" href="warnings.html">warnings</a></code>
+ pragma (and the <b>-w</b> switch) produces some 
+lovely diagnostics.</p>
+<p>See <a href="perldiag.html">perldiag</a> for explanations of all Perl's diagnostics.  The <code class="inline"><a class="l_k" href="functions/use.html">use</a>
+<a class="l_w" href="diagnostics.html">diagnostics</a></code>
+ pragma automatically turns Perl's normally terse warnings
+and errors into these longer forms.</p>
+<p>Compilation errors will tell you the line number of the error, with an
+indication of the next token or token type that was to be examined.
+(In a script passed to Perl via <b>-e</b> switches, each
+<b>-e</b> is counted as one line.)</p>
+<p>Setuid scripts have additional constraints that can produce error
+messages such as "Insecure dependency".  See <a href="perlsec.html">perlsec</a>.</p>
+<p>Did we mention that you should definitely consider using the <b>-w</b>
+switch?</p>
+<a name="BUGS"></a><h1>BUGS</h1>
+<p>The <b>-w</b> switch is not mandatory.</p>
+<p>Perl is at the mercy of your machine's definitions of various
+operations such as type casting, atof(), and floating-point
+output with sprintf().</p>
+<p>If your stdio requires a seek or eof between reads and writes on a
+particular stream, so does Perl.  (This doesn't apply to sysread()
+and syswrite().)</p>
+<p>While none of the built-in data types have any arbitrary size limits
+(apart from memory size), there are still a few arbitrary limits:  a
+given variable name may not be longer than 251 characters.  Line numbers
+displayed by diagnostics are internally stored as short integers,
+so they are limited to a maximum of 65535 (higher numbers usually being
+affected by wraparound).</p>
+<p>You may mail your bug reports (be sure to include full configuration
+information as output by the myconfig program in the perl source
+tree, or by <code class="inline">perl -V</code>
+) to perlbug@perl.org .  If you've succeeded
+in compiling perl, the <b>perlbug</b> script in the <i>utils/</i> subdirectory
+can be used to help mail in a bug report.</p>
+<p>Perl actually stands for Pathologically Eclectic Rubbish Lister, but
+don't tell anyone I said that.</p>
+<a name="NOTES"></a><h1>NOTES</h1>
+<p>The Perl motto is "There's more than one way to do it."  Divining
+how many more is left as an exercise to the reader.</p>
+<p>The three principal virtues of a programmer are Laziness,
+Impatience, and Hubris.  See the Camel Book for why.</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perl','perl.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

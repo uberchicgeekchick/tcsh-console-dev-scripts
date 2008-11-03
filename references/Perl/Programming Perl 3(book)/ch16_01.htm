@@ -1,0 +1,964 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<title>Interprocess Communication (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Interprocess Communication">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+</div>
+<style type="text/css">
+  #fixunixgb { position: absolute; right: 0px; bottom: 0px; }
+  div > div#fixunixgb { position: fixed; }
+  pre.fixit { overflow:auto;border-left:1px dashed #000;border-right:1px dashed #000;padding-left:2px; }
+</style><!--[if gte IE 5.5]><![if lt IE 7]>
+<style type="text/css">
+  div#fixunixgb {
+  right: auto; bottom: auto;
+  left: expression( ( 0 - fixunixgb.offsetWidth + ( document.documentElement.clientWidth ? document.documentElement.clientWidth : document.body.clientWidth ) + ( ignoreMe2 = document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ) ) + 'px' );
+  top: expression( ( 0 - fixunixgb.offsetHeight + ( document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight ) + ( ignoreMe = document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ) ) + 'px' );
+}
+</style>
+<![endif]><![endif]-->
+<div id="fixunixgb" align=right style="position:fixed; bottom: 5; right: 5; color:black; background-color: white; width: 170px; height: 120px; padding: 5px; z-index:3">
+<script language="javascript">
+<!--
+var state = 'visible';
+
+function gushowhide(layer_ref) {
+
+if (state == 'visible') {
+state = 'hidden';
+}
+else {
+state = 'visible';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.visibility = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].visibility = state;
+}
+if (document.getElementById && !document.all) {
+maxwell_smart = document.getElementById(layer_ref);
+maxwell_smart.style.visibility = state;
+}
+}
+//-->
+</script>
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 160x90, bottomleft fixed */
+google_ad_slot = "2032737097";
+google_ad_width = 160;
+google_ad_height = 90;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<font size=-1><a href="javascript://" onclick="gushowhide('fixunixgb');">close (x)</a></font>
+</div>
+</div>
+<br>
+<center>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+//728x90, создано 30.01.08 (main top)
+google_ad_slot = "2783893649";
+google_ad_width = 728;
+google_ad_height = 90;
+//--></script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+&nbsp; &nbsp; &nbsp; &nbsp;
+
+<a href="http://www.internetmap.info/cgi-bin/go.cgi?site_id=49589" target=_blank><img src="http://www.internetmap.info/images/im_88x85.gif" border=0 alt="Internet Map"></a>
+<br>
+
+<b><a href="http://www.unix.org.ua/forum/">Do not forget register in our new UNIX and CISCO forum</a></b>
+
+</center>
+<p>
+
+
+<html>
+<head>
+<title>Interprocess Communication (Programming Perl)</title>
+
+<!-- STYLESHEET -->
+
+<link rel="stylesheet" type="text/css" href="../style/style1.css">
+
+<!-- METADATA -->
+
+
+
+<!--Dublin Core Metadata-->
+
+<meta name="DC.Creator" content="">
+<meta name="DC.Date" content="">
+<meta name="DC.Format" content="text/xml" scheme="MIME">
+<meta name="DC.Generator" content="XSLT stylesheet, xt by James Clark">
+<meta name="DC.Identifier" content="">
+<meta name="DC.Language" content="en-US">
+<meta name="DC.Publisher" content="O'Reilly &amp; Associates, Inc.">
+<meta name="DC.Source" content="" scheme="ISBN">
+<meta name="DC.Subject.Keyword" content="">
+<meta name="DC.Title" content="Interprocess Communication">
+<meta name="DC.Type" content="Text.Monograph">
+
+</head>
+
+<body>
+
+<!-- START OF BODY -->
+
+
+
+<!-- TOP BANNER -->
+
+<img src="gifs/smbanner.gif" usemap="#banner-map" border="0" alt="Book Home">
+<map name="banner-map"><AREA SHAPE="RECT" COORDS="0,0,466,71" HREF="index.htm" ALT="Programming Perl"><AREA SHAPE="RECT" COORDS="467,0,514,18" HREF="jobjects/fsearch.htm" ALT="Search this book">
+</map>
+
+<!-- TOP NAV BAR -->
+
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch15_03.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="part3.htm">Part 3: Perl as Technology</a></td><td align="right" valign="top" width="172"><a href="ch16_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- SECTION BODY -->
+<h1 class="chapter">Chapter 16.  Interprocess Communication</h1>
+<div class="htmltoc">
+<h4 class="tochead">Contents:</h4>
+<p>
+<a href="ch16_01.htm">Signals</a>
+<br>
+<a href="ch16_02.htm">Files</a>
+<br>
+<a href="ch16_03.htm">Pipes</a>
+<br>
+<a href="ch16_04.htm">System V IPC</a>
+<br>
+<a href="ch16_05.htm">Sockets</a>
+<br>
+</p>
+</div>
+
+<p>
+<a name="INDEX-2872"></a><a name="INDEX-2873"></a><a name="INDEX-2874"></a>
+Computer processes have almost as many ways of communicating as people
+do.  The difficulties of interprocess communication should not be
+underestimated.  It doesn't do you any good to listen for verbal cues
+when your friend is using only body language.  Likewise, two processes
+can communicate only when they agree on the means of communication, and
+on the conventions built on top of that.  As with any kind of
+communication, the conventions to be agreed upon range from lexical to
+pragmatic: everything from which lingo you'll use, up to whose turn it
+is to talk.  These conventions are necessary because it's very difficult
+to communicate bare semantics in the absence of context.</p>
+
+<p>In our lingo, interprocess communication is usually pronounced IPC.
+The IPC facilities of Perl range from the very simple to the very
+complex.  Which facility you should use depends on the complexity of
+the information to be communicated.  The simplest kind of information
+is almost no information at all: just the awareness that a
+particular event has happened at a particular point in time.  In Perl,
+these events are communicated via a signal mechanism modeled on the
+Unix signal system.
+<a name="INDEX-2875"></a>
+</p>
+
+<p>
+<a name="INDEX-2876"></a>
+At the other extreme, the socket facilities of Perl allow you to
+communicate with any other process on the Internet using any mutually
+supported protocol you like.  Naturally, this freedom comes at a price:
+you have to go through a number of steps to set up the connections and
+make sure you're talking the same language as the process on the other
+end.  This may in turn require you to adhere to any number of other
+strange customs, depending on local conventions.  To be
+protocoligorically correct, you might even be required to speak a
+language like XML, or Java, or Perl.  Horrors.
+<a name="INDEX-2877"></a>
+</p>
+
+<p>
+<a name="INDEX-2878"></a>
+Sandwiched in between are some facilities intended primarily for
+communicating with processes on the same machine.  These include good
+old-fashioned files, pipes, FIFOs, and the various System V IPC
+syscalls.  Support for these facilities varies across platforms;
+modern Unix systems (including Apple's Mac OS X) should support all of
+them, and, except for signals and SysV IPC, most of the rest are
+supported on any recent Microsoft operating systems, including pipes,
+forking, file locking, and sockets.<a href="#FOOTNOTE-1">[1]</a><a name="INDEX-2879"></a><a name="INDEX-2880"></a>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-1"></a>
+<p>[1] Well, except for
+<tt class="literal">AF_UNIX</tt> sockets.</p>
+
+</blockquote>
+
+<p>
+<a name="INDEX-2881"></a><a name="INDEX-2882"></a><a name="INDEX-2883"></a><a name="INDEX-2884"></a><a name="INDEX-2885"></a>
+More information about porting in general can be found in the standard
+Perl documentation set (in whatever format your system displays it)
+under <em class="emphasis">perlport</em>.  Microsoft-specific information
+can be found under <em class="emphasis">perlwin32</em> and
+<em class="emphasis">perlfork</em>, which are installed even on
+non-Microsoft systems.  For textbooks, we suggest the
+
+following:
+</p>
+
+<ul>
+<li>
+<p>The <em class="citetitle">Perl Cookbook</em>, by Tom Christiansen and Nathan
+Torkington (O'Reilly and Associates, 1998), chapters 16 through 18.</p>
+</li>
+<li>
+<p>
+<em class="emphasis">Advanced Programming in
+the UNIX Environment</em>, by W. Richard Stevens
+(Addison-Wesley, 1992).</p>
+</li>
+<li>
+<p>
+<em class="emphasis">TCP/IP Illustrated</em>, by W. Richard Stevens, Volumes
+I-III (Addison-Wesley, 1992-1996).</p>
+</li>
+</ul>
+<p>
+</p>
+
+
+<h2 class="sect1">16.1. Signals</h2>
+
+<p>
+<a name="INDEX-2886"></a><a name="INDEX-2887"></a><a name="INDEX-2888"></a><a name="INDEX-2889"></a><a name="INDEX-2890"></a><a name="INDEX-2891"></a>
+Perl uses a simple signal-handling model: the <tt class="literal">%SIG</tt>
+hash contains references (either symbolic or hard) to user-defined
+signal handlers.  Certain events cause the operating system to deliver
+a signal to the affected process.  The handler corresponding to that
+event is called with one argument containing the name of the signal
+that triggered it.  To send a signal to another process, you use the
+<tt class="literal">kill</tt> function.  Think of it as sending a one-bit
+piece of information to the other process.<a href="#FOOTNOTE-2">[2]</a> If that process has installed a signal handler for
+that signal, it can execute code when it receives the signal.  But
+there's no way for the sending process to get any sort of return
+value, other than knowing that the signal was legally sent.  The
+sender receives no feedback saying what, if anything, the receiving
+process did with the signal.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-2"></a>
+<p>[2] Actually,
+it's more like five or six bits, depending on how many signals your OS
+defines and on whether the other process makes use of the fact that
+you <em class="emphasis">didn't</em> send a different signal.</p>
+
+</blockquote>
+
+<p>
+<a name="INDEX-2892"></a><a name="INDEX-2893"></a><a name="INDEX-2894"></a><a name="INDEX-2895"></a>
+We've classified this facility as a form of IPC, but in fact, signals
+can come from various sources, not just other processes.  A signal
+might also come from your own process, or it might be generated
+when the user at the keyboard types a particular sequence like
+Control-C or Control-Z, or it might be manufactured by the kernel when
+a special event transpires, such as when a child process exits,
+or when your process runs out of stack space or hits
+a file size or memory limit.  But your own process can't easily
+distinguish among these cases.  A signal is like a package that
+arrives mysteriously on your doorstep with no return address.  You'd
+best open it carefully.</p>
+
+<p>
+<a name="INDEX-2896"></a><a name="INDEX-2897"></a><a name="INDEX-2898"></a>
+Since entries in the <tt class="literal">%SIG</tt> array can be hard references, it's
+common practice to use anonymous functions for simple signal handlers:
+<blockquote>
+<pre class="programlisting">$SIG{INT}  = sub { die "\nOutta here!\n" };
+$SIG{ALRM} = sub { die "Your alarm clock went off" };</pre>
+</blockquote>
+<a name="INDEX-2899"></a><a name="INDEX-2900"></a><a name="INDEX-2901"></a><a name="INDEX-2902"></a>
+Or you could create a named function and assign its name or reference
+to the appropriate slot in the hash.  For example, to intercept
+interrupt and quit signals (often bound to Control-C and Control-\ on
+your keyboard), set up a handler like this:
+<blockquote>
+<pre class="programlisting">sub catch_zap {
+    my $signame = shift;
+    our $shucks++;
+    die "Somebody sent me a SIG$signame!";
+} 
+$shucks = 0;
+$SIG{INT} = 'catch_zap';   # always means &amp;main::catch_zap
+$SIG{INT} = \&amp;catch_zap;   # best strategy
+$SIG{QUIT} = \&amp;catch_zap;  # catch another, too</pre>
+</blockquote>
+
+Notice how all we do in the signal handler is set a global variable
+and then raise an exception with <tt class="literal">die</tt>.  Whenever
+possible, try to avoid anything more complicated than that, because on
+most systems the C library is not re-entrant.  Signals are delivered
+asynchronously,<a href="#FOOTNOTE-3">[3]</a>
+so calling any <tt class="literal">print</tt> functions (or even anything
+that needs to <em class="emphasis">malloc</em>(3) more memory)
+could in theory trigger a memory fault and subsequent core dump if you
+were already in a related C library routine when the signal was
+delivered.  (Even the <tt class="literal">die</tt> routine is a bit unsafe
+unless the process is executing within an <tt class="literal">eval</tt>,
+which suppresses the I/O from <tt class="literal">die</tt>, which keeps it
+from calling the C library.  Probably.)
+<a name="INDEX-2903"></a><a name="INDEX-2904"></a><a name="INDEX-2905"></a><a name="INDEX-2906"></a>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-3"></a>
+<p>[3]Synchronizing signal delivery with
+Perl-level opcodes is scheduled for a future release of Perl, which
+should solve the matter of signals and core dumps.</p>
+
+</blockquote>
+
+<p>
+<a name="INDEX-2907"></a><a name="INDEX-2908"></a><a name="INDEX-2909"></a>
+An even easier way to trap signals is to use the
+<tt class="literal">sigtrap</tt> pragma to install simple, default signal
+handlers:
+<blockquote>
+<pre class="programlisting">use sigtrap qw(die INT QUIT);
+use sigtrap qw(die untrapped normal-signals 
+   stack-trace any error-signals);</pre>
+</blockquote>
+<a name="INDEX-2910"></a>
+The pragma is useful when you don't want to bother writing your own
+handler, but you still want to catch dangerous signals and perform an
+orderly shutdown.  By default, some of these signals are so fatal to
+your process that your program will just stop in its tracks when it
+receives one.  Unfortunately, that means that any
+<tt class="literal">END</tt> functions for at-exit handling and
+<tt class="literal">DESTROY</tt> methods for object finalization are not
+called.  But they <em class="emphasis">are</em> called on ordinary Perl
+exceptions (such as when you call <tt class="literal">die</tt>), so you can
+use this pragma to painlessly convert the signals into exceptions.
+Even though you aren't dealing with the signals yourself, your program
+still behaves correctly.  See the description of <tt class="literal">use
+sigtrap</tt> in <a href="ch31_01.htm">Chapter 31, "Pragmatic Modules"</a>,
+for many more features of this pragma.</p>
+
+<p>
+<a name="INDEX-2911"></a><a name="INDEX-2912"></a>
+You may also set the <tt class="literal">%SIG</tt> handler to either of the
+strings "<tt class="literal">IGNORE</tt>" or "<tt class="literal">DEFAULT</tt>",
+in which case Perl will try to discard the signal or allow the default
+action for that signal to occur (though some signals can be neither
+trapped nor ignored, such as the <tt class="literal">KILL</tt> and
+<tt class="literal">STOP</tt> signals; see
+<em class="emphasis">signal</em>(3), if you have it, for a list of
+signals available on your system and their default behaviors).
+<a name="INDEX-2913"></a>
+</p>
+
+<p>
+<a name="INDEX-2914"></a><a name="INDEX-2915"></a>
+The operating system thinks of signals as numbers rather than names,
+but Perl, like most people, prefers symbolic names to magic numbers.
+To find the names of the signals, list out the keys of the
+<tt class="literal">%SIG</tt> hash, or use the <em class="emphasis">kill -l</em>
+command if you have one on your system.  You can also use Perl's
+standard <tt class="literal">Config</tt> module to determine your operating
+system's mapping between signal names and signal numbers.  See
+<em class="emphasis">Config</em>(3) for an example of this.
+<a name="INDEX-2916"></a>
+</p>
+
+<p>
+<a name="INDEX-2917"></a><a name="INDEX-2918"></a>
+Because <tt class="literal">%SIG</tt> is a global hash, assignments to it
+affect your entire program.  It's often more considerate to the rest
+of your program to confine your signal catching to a restricted scope.
+Do this with a <tt class="literal">local</tt> signal handler assignment,
+which goes out of effect once the enclosing block is exited.  (But
+remember that <tt class="literal">local</tt> values are visible in functions
+called from within that block.)
+<blockquote>
+<pre class="programlisting">{  
+    local $SIG{INT} = 'IGNORE'; 
+    ...     # Do whatever you want here, ignoring all SIGINTs.
+    fn();   # SIGINTs ignored inside fn() too!
+    ...     # And here.
+}           # Block exit restores previous $SIG{INT} value.
+
+fn();       # SIGINTs not ignored inside fn() (presumably).</pre>
+</blockquote>
+<a name="INDEX-2919"></a>
+</p>
+
+
+<h3 class="sect2">16.1.1. Signaling Process Groups</h3>
+
+<p>
+<a name="INDEX-2920"></a><a name="INDEX-2921"></a><a name="INDEX-2922"></a><a name="INDEX-2923"></a>
+Processes (under Unix, at least) are organized into process groups,
+generally corresponding to an entire job.  For example, when you fire
+off a single shell command that consists of a series of filter
+commands that pipe data from one to the other, those processes (and
+their child processes) all belong to the same process group.  That
+process group has a number corresponding to the process number of the
+process group leader.  If you send a signal to a positive process
+number, it just sends the signal to the process, but if you send a
+signal to a negative number, it sends that signal to every process
+whose process group number is the corresponding positive number, that
+is, the process number of the process group leader.  (Conveniently for
+the process group leader, the process group ID is just
+<tt class="literal">$$</tt>.)</p>
+
+<p>
+<a name="INDEX-2924"></a>
+Suppose your program wants to send a hang-up signal to all child
+processes it started directly, plus any grandchildren started by those
+children, plus any greatgrandchildren started by those grandchildren,
+and so on.  To do this, your program first calls
+<tt class="literal">setpgrp(0,0)</tt> to become the leader of a new process
+group, and any processes it creates will be part of the new group.  It
+doesn't matter whether these processes were started manually via
+<tt class="literal">fork</tt>, automaticaly via piped
+<tt class="literal">open</tt>s, or as backgrounded jobs with
+<tt class="literal">system("cmd &amp;")</tt>.  Even if those
+processes had children of their own, sending a hang-up signal to your
+entire process group will find them all (except for processes that
+have set their own process group or changed their UID to give
+themselves diplomatic immunity to your signals).
+<blockquote>
+<pre class="programlisting">{
+    local $SIG{HUP} = 'IGNORE';   # exempt myself
+    kill(HUP, -$$);               # signal my own process group
+}</pre>
+</blockquote>
+<a name="INDEX-2925"></a><a name="INDEX-2926"></a>
+</p>
+
+<p>Another interesting signal is signal number <tt class="literal">0</tt>.  This
+doesn't actually affect the target process, but instead checks
+that it's alive and hasn't changed its UID.  That is, it checks
+whether it's legal to send a signal, without actually sending one.
+<blockquote>
+<pre class="programlisting">unless (kill 0 =&gt; $kid_pid) {
+    warn "something wicked happened to $kid_pid";
+}</pre>
+</blockquote>
+<a name="INDEX-2927"></a><a name="INDEX-2928"></a>
+Signal number <tt class="literal">0</tt> is the only signal that works the
+same under Microsoft ports of Perl as it does in Unix.  On Microsoft
+systems, <tt class="literal">kill</tt> does not actually deliver a signal.
+Instead, it forces the target process to exit with the status
+indicated by the signal number.  This may be fixed someday.  The magic
+<tt class="literal">0</tt> signal, however, still behaves in the standard,
+nondestructive fashion.</p>
+
+
+
+
+
+
+<h3 class="sect2">16.1.2. Reaping Zombies</h3>
+
+<a name="INDEX-2929"></a><a name="INDEX-2930"></a><a name="INDEX-2931"></a><a name="INDEX-2932"></a>
+<p>
+<a name="INDEX-2933"></a><a name="INDEX-2934"></a>
+When a process exits, its parent is sent a <tt class="literal">CHLD</tt>
+signal by the kernel and the process becomes a zombie<a href="#FOOTNOTE-4">[4]</a> until the
+parent calls <tt class="literal">wait</tt> or <tt class="literal">waitpid</tt>.
+If you start another process in Perl using anything except
+<tt class="literal">fork</tt>, Perl takes care of reaping your zombied
+children, but if you use a raw <tt class="literal">fork</tt>, you're
+expected to clean up after yourself.  On many but not all kernels, a
+simple hack for autoreaping zombies is to set
+<tt class="literal">$SIG{CHLD}</tt> to <tt class="literal">'IGNORE'</tt>.  A more
+flexible (but tedious) approach is to reap them yourself.  Because
+
+more than one child may have died before you get around to dealing
+with them, you must gather your zombies in a loop until there aren't
+any more:
+<blockquote>
+<pre class="programlisting">use POSIX ":sys_wait_h";
+sub REAPER { 1 until waitpid(-1, WNOHANG) == -1) }</pre>
+</blockquote>
+
+To run this code as needed, you can either set a <tt class="literal">CHLD</tt> signal
+handler for it:
+<blockquote>
+<pre class="programlisting">$SIG{CHLD} = \&amp;REAPER;</pre>
+</blockquote>
+
+or, if you're running in a loop, just arrange to call the reaper
+every so often.  This is the best approach because it isn't subject
+to the occasional core dump that signals can sometimes trigger in
+the C library.  However, it's expensive if called in a tight loop, so a
+reasonable compromise is to use a hybrid strategy where you minimize
+the risk within the handler by doing as little as possible and 
+waiting until outside to reap zombies:
+<blockquote>
+<pre class="programlisting">our $zombies = 0;
+$SIG{CHLD} = sub { $zombies++ };  
+sub reaper {
+    my $zombie;
+    our %Kid_Status;  # store each exit status
+    $zombies = 0;  
+    while (($zombie = waitpid(-1, WNOHANG)) != -1) {
+        $Kid_Status{$zombie} = $?;
+    } 
+}
+while (1) {
+    reaper() if $zombies;
+    ...
+}</pre>
+</blockquote>
+<a name="INDEX-2935"></a><a name="INDEX-2936"></a><a name="INDEX-2937"></a>
+This code assumes your kernel supports reliable signals.  Old SysV
+traditionally didn't, which made it impossible to write correct
+signal handlers there.  Ever since way back in the 5.003 release,
+Perl has used the <em class="emphasis">sigaction</em>(2) syscall where available, which is a lot
+more dependable.  This means that unless you're running on an ancient
+operating system or with an ancient Perl, you won't have to reinstall
+your handlers and risk missing signals.  Fortunately, all BSD-flavored
+systems (including Linux, Solaris, and Mac OS X) plus all POSIX-compliant
+systems provide reliable signals, so the old broken SysV behavior
+is more a matter of historical note than of current concern.
+<a name="INDEX-2938"></a>
+</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-4"></a>
+<p>[4]Yes, that really is the technical term.</p>
+
+</blockquote>
+
+<p>
+<a name="INDEX-2939"></a>
+With these newer kernels, many other things will work
+better, too.  For example, "slow" syscalls (those that can block,
+like <tt class="literal">read</tt>, <tt class="literal">wait</tt>, and <tt class="literal">accept</tt>) will restart
+automatically if interrupted by a signal.  In the bad old days,
+user code had to remember to check explicitly whether each slow
+syscall failed with <tt class="literal">$!</tt> (<tt class="literal">$ERRNO</tt>) set to <tt class="literal">EINTR</tt> and, if so, restart.   This wouldn't happen just from <tt class="literal">INT</tt> signals; even innocuous
+signals like <tt class="literal">TSTP</tt> (from a Control-Z) or <tt class="literal">CONT</tt> (from foregrounding the
+job) would abort the syscall.  Perl now restarts the syscall for you
+automatically if the operating system allows it to.  This is
+generally construed to be a feature.</p>
+
+<p>You can check whether you have the more rigorous POSIX-style signal
+behavior by loading the <tt class="literal">Config</tt> module and checking
+whether <tt class="literal">$Config{d_sigaction}</tt> has a true value.  To find out
+whether slow syscalls are restartable, check your system documentation
+on <em class="emphasis">sigaction</em>(2) or <em class="emphasis">sigvec</em>(3), or scrounge around your C
+<em class="emphasis">sys/signal.h</em> file for <tt class="literal">SV_INTERRUPT</tt> or <tt class="literal">SA_RESTART</tt>.  If one
+or both symbols are found, you probably have restartable syscalls.</p>
+
+
+
+
+
+
+<h3 class="sect2">16.1.3. Timing Out Slow Operations</h3>
+
+<a name="INDEX-2940"></a><a name="INDEX-2941"></a><a name="INDEX-2942"></a>
+<p>
+<a name="INDEX-2943"></a>
+A common use for signals is to impose time limits on long-running
+operations.  If you're on a Unix system (or any other POSIX-conforming
+system that supports the <tt class="literal">ALRM</tt> signal), you can ask the kernel
+to send your process an <tt class="literal">ALRM</tt> at some point in the future:
+<blockquote>
+<pre class="programlisting">use Fcntl ':flock';
+eval { 
+    local $SIG{ALRM} = sub { die "alarm clock restart" };
+    alarm 10;               # schedule alarm in 10 seconds 
+    eval { 
+        flock(FH, LOCK_EX)  # a blocking, exclusive lock
+            or die "can't flock: $!";
+    };
+    alarm 0;                # cancel the alarm
+};
+alarm 0;               # race condition protection
+die if $@ &amp;&amp; $@ !~ /alarm clock restart/; # reraise</pre>
+</blockquote>
+<a name="INDEX-2944"></a>
+If the alarm hits while you're waiting for the lock, and you simply
+catch the signal and return, you'll go right back into the <tt class="literal">flock</tt>
+because Perl automatically restarts syscalls where it can.
+The only way out is to raise an exception through <tt class="literal">die</tt> and then
+let <tt class="literal">eval</tt> catch it.  (This works because the exception winds up
+calling the C library's <em class="emphasis">longjmp</em>(3) function, which is what really
+gets you out of the restarting syscall.)</p>
+
+<p>The nested exception trap is included because calling <tt class="literal">flock</tt> would raise
+an exception if <tt class="literal">flock</tt> is not implemented on your platform, and you need
+to make sure to clear the alarm anyway.  The second <tt class="literal">alarm 0</tt> is provided in case the signal comes in after running the <tt class="literal">flock</tt> but before
+getting to the first <tt class="literal">alarm 0</tt>.   Without the second <tt class="literal">alarm</tt>, you would
+risk a tiny race condition--but size doesn't matter in race conditions;
+they either exist or they don't.  And we prefer that they don't.</p>
+
+
+
+
+
+
+<h3 class="sect2">16.1.4. Blocking Signals</h3>
+
+<p>
+<a name="INDEX-2945"></a><a name="INDEX-2946"></a><a name="INDEX-2947"></a><a name="INDEX-2948"></a>
+Now and then, you'd like to delay receipt of a signal during some
+critical section of code.  You don't want to blindly ignore the
+signal, but what you're doing is too important to interrupt.  Perl's
+<tt class="literal">%SIG</tt> hash doesn't implement signal blocking, but the <tt class="literal">POSIX</tt>
+module does, through its interface to the <em class="emphasis">sigprocmask</em>(2) syscall:
+<blockquote>
+<pre class="programlisting">use POSIX qw(:signal_h);
+$sigset   = POSIX::SigSet-&gt;new; 
+$blockset = POSIX::SigSet-&gt;new(SIGINT, SIGQUIT, SIGCHLD);       
+sigprocmask(SIG_BLOCK, $blockset, $sigset) 
+    or die "Could not block INT,QUIT,CHLD signals: $!\n";</pre>
+</blockquote>
+
+Once the three signals are all blocked, you can do whatever you want
+without fear of being bothered.  When you're done with
+your critical section, unblock the signals by restoring the old signal mask:  
+<blockquote>
+<pre class="programlisting">sigprocmask(SIG_SETMASK, $sigset)
+    or die "Could not restore INT,QUIT,CHLD signals: $!\n";</pre>
+</blockquote>
+
+If any of the three signals came in while blocked, they are delivered
+immediately.  If two or more different signals are pending, the
+order of delivery is not defined.  Additionally, no distinction is
+made between having received a particular signal once while blocked
+and having received it many times.<a href="#FOOTNOTE-5">[5]</a> For
+example, if nine child processes exited while you were blocking
+<tt class="literal">CHLD</tt> signals, your handler (if you had one) would still be called
+only once after you unblocked.  That's why, when you reap zombies,
+you should always loop until they're all gone.</p>
+<blockquote class="footnote">
+
+<a name="FOOTNOTE-5"></a>
+<p>[5] Traditionally, that is. Countable signals may be implemented on some real-time systems according
+to the latest specs, but we haven't seen these yet.</p>
+
+</blockquote>
+
+<a name="INDEX-2949"></a><a name="INDEX-2950"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a name="INDEX-3117"></a><a name="INDEX-3118"></a>
+
+
+<!-- BOTTOM NAV BAR -->
+
+<hr width="515" align="left">
+<div class="navbar">
+<table width="515" border="0">
+<tr>
+<td align="left" valign="top" width="172"><a href="ch15_03.htm"><img src="../gifs/txtpreva.gif" alt="Previous" border="0"></a></td><td align="center" valign="top" width="171"><a href="index.htm"><img src="../gifs/txthome.gif" alt="Home" border="0"></a></td><td align="right" valign="top" width="172"><a href="ch16_02.htm"><img src="../gifs/txtnexta.gif" alt="Next" border="0"></a></td>
+</tr>
+<tr>
+<td align="left" valign="top" width="172">15.3. Caution, <img src="figs/ren2_bold.gif"> Working</td><td align="center" valign="top" width="171"><a href="index/index.htm"><img src="../gifs/index.gif" alt="Book Index" border="0"></a></td><td align="right" valign="top" width="172">16.2. Files</td>
+</tr>
+</table>
+</div>
+<hr width="515" align="left">
+
+<!-- LIBRARY NAV BAR -->
+
+<img src="../gifs/smnavbar.gif" usemap="#library-map" border="0" alt="Library Navigation Links"><p>
+<font size="-1"><a href="copyrght.htm">Copyright &copy; 2001</a> O'Reilly &amp; Associates. All rights reserved.</font>
+</p>
+<map name="library-map"> <area shape="rect" coords="2,-1,79,99" href="../index.htm"><area shape="rect" coords="84,1,157,108" href="../perlnut/index.htm"><area shape="rect" coords="162,2,248,125" href="../prog3/index.htm"><area shape="rect" coords="253,2,326,130" href="../advprog/index.htm"><area shape="rect" coords="332,1,407,112" href="../cookbook/index.htm"><area shape="rect" coords="414,2,523,103" href="../sysadmin/index.htm">
+</map>
+
+<!-- END OF BODY -->
+
+</body>
+</html>
+
+
+<br>
+
+
+<table border=0 align=center>
+<tr><td>
+
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-0321943928525350";
+/* 468x60, main footer */
+google_ad_slot = "1100896219";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<script>
+user = "2823";
+page = "2";
+
+</script>
+
+
+
+</td>
+<td>
+
+<!-- Ukrainian Banner Network 468x60 START -->
+<center>
+<script>
+//<!--
+user = "2823";
+page = "2";
+pid = Math.round((Math.random() * (10000000 - 1)));
+document.write("<iframe src='http://banner.kiev.ua/cgi-bin/bi.cgi?h" +
+user + "&amp;"+ pid + "&amp;" + page + "' frameborder=0 vspace=0 hspace=0 " +
+" width=468 height=60 marginwidth=0 marginheight=0 scrolling=no>");
+document.write("<a href='http://banner.kiev.ua/cgi-bin/bg.cgi?" +
+user + "&amp;"+ pid + "&amp;" + page + "' target=_top>");
+document.write("<img border=0 src='http://banner.kiev.ua/" +
+"cgi-bin/bi.cgi?i" + user + "&amp;" + pid + "&amp;" + page +
+"' width=468 height=60 alt='хЋ“Ѕ…ќ”ЋЅ— вЅќќ≈“ќЅ— у≈‘Ў'></a>");
+document.write("</iframe>");
+//-->
+</script>
+</center>
+<!-- Ukrainian Banner Network 468x60 END -->
+
+
+</td></tr>
+<tr><td colspan=2>
+<br>
+<hr size=1>
+
+
+
+<!-- SpyLOG -->
+<script src="http://tools.spylog.ru/counter_cv.js" id="spylog_code" type="text/javascript" counter="1028713" part="docs" track_links="ext" page_level="0">
+</script>
+<noscript>
+<a href="http://u10287.13.spylog.com/cnt?cid=1028713&f=3&p=0" target="_blank">
+<img src="http://u10287.13.spylog.com/cnt?cid=1028713&p=0" alt="SpyLOG" border="0" width="88" height="31"></a>
+</noscript>
+<!--/ SpyLOG -->
+
+<!--bigmir)net TOP 100-->
+<script type="text/javascript" language="javascript"><!--
+function BM_Draw(oBM_STAT){
+document.write('<table cellpadding="0" cellspacing="0" border="0" style="display:inline;margin-right:4px;"><tr><td><div style="margin:0px;padding:0px;font-size:1px;width:88px;"><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_top.gif\') no-repeat bottom;">&nbsp;</div><div style="font:10px Tahoma;background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_center.gif\');"><div style="text-align:center;"><a href="http://www.bigmir.net/" target="_blank" style="color:#0000ab;text-decoration:none;font:10px Tahoma;">bigmir<span style="color:#ff0000;">)</span>net</a></div><div style="margin-top:3px;padding: 0px 6px 0px 6px;color:#003596;"><div style="float:left;font:10px Tahoma;">'+oBM_STAT.hosts+'</div><div style="float:right;font:10px Tahoma;">'+oBM_STAT.hits+'</div></div><br clear="all"/></div><div style="background:url(\'http://i.bigmir.net/cnt/samples/diagonal/b59_bottom.gif\') no-repeat top;">&nbsp;</div></div></td></tr></table>');
+}
+//-->
+</script>
+
+<script type="text/javascript" language="javascript"><!--
+bmN=navigator,bmD=document,bmD.cookie='b=b',i=0,bs=[],bm={o:1,v:126595,s:126595,t:0,c:bmD.cookie?1:0,n:Math.round((Math.random()* 1000000)),w:0};
+for(var f=self;f!=f.parent;f=f.parent)bm.w++;
+try{if(bmN.plugins&&bmN.mimeTypes.length&&(x=bmN.plugins['Shockwave Flash']))bm.m=parseInt(x.description.replace(/([a-zA-Z]|s)+/,''));
+else for(var f=3;f<20;f++)if(eval('new ActiveXObject("ShockwaveFlash.ShockwaveFlash.'+f+'")'))bm.m=f}catch(e){;}
+try{bm.y=bmN.javaEnabled()?1:0}catch(e){;}
+try{bmS=screen;bm.v^=bm.d=bmS.colorDepth||bmS.pixelDepth;bm.v^=bm.r=bmS.width}catch(e){;}
+r=bmD.referrer.slice(7);if(r&&r.split('/')[0]!=window.location.host){bm.f=escape(r);bm.v^=r.length}
+bm.v^=window.location.href.length;for(var x in bm) if(/^[ovstcnwmydrf]$/.test(x)) bs[i++]=x+bm[x];
+bmD.write('<sc'+'ript type="text/javascript" language="javascript" src="http://c.bigmir.net/?'+bs.join('&')+'"></sc'+'ript>');
+//-->
+</script>
+<noscript>
+<a href="http://www.bigmir.net/" target="_blank"><img src="http://c.bigmir.net/?v126595&s126595&t2" width="88" height="31" alt="bigmir)net TOP 100" title="bigmir)net TOP 100" border="0" /></a>
+</noscript>
+<!--bigmir)net TOP 100-->
+
+<!--begin of Rambler's Top100 code -->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://counter.rambler.ru/top100.cnt?692798" alt="" width=1 height=1 border=0></a>
+<!--end of Top100 code-->
+
+<!--begin of Top100 logo-->
+<a href="http://top100.rambler.ru/top100/">
+<img src="http://top100-images.rambler.ru/top100/w1.gif" alt="Rambler's Top100" width=88 height=31 
+border=0></a>
+<!--end of Top100 logo -->
+
+
+<!-- hit.ua -->
+<a href='http://hit.ua/?x=3601' target='_blank'>
+<script language="javascript" type="text/javascript"><!--
+Cd=document;Cr="&"+Math.random();Cp="&s=1";
+Cd.cookie="b=b";if(Cd.cookie)Cp+="&c=1";
+Cp+="&t="+(new Date()).getTimezoneOffset();
+if(self!=top)Cp+="&f=1";
+//--></script>
+<script language="javascript1.1" type="text/javascript"><!--
+if(navigator.javaEnabled())Cp+="&j=1";
+//--></script>
+<script language="javascript1.2" type="text/javascript"><!--
+if(typeof(screen)!='undefined')Cp+="&w="+screen.width+"&h="+
+screen.height+"&d="+(screen.colorDepth?screen.colorDepth:screen.pixelDepth);
+//--></script>
+<script language="javascript" type="text/javascript"><!--
+Cd.write("<img src='http://c.hit.ua/hit?i=3601&g=0&x=1"+Cp+Cr+
+"&r="+escape(Cd.referrer)+"&u="+escape(window.location.href)+
+"' border='0' width='88' height='31' "+
+"alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>");
+//--></script>
+<noscript>
+<img src='http://c.hit.ua/hit?i=3601&amp;g=0&amp;x=1' border='0' width='88' height='31' alt='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€' title='hit.ua: сейчас на сайте, посетителей и просмотров за сегодн€'/>
+</noscript></a>
+<!-- / hit.ua -->
+
+<script language="javascript">//<!--
+mtI="012408140822";mtG="45";mtT="4";mtS='http://012408140822.c.mystat-in.net/?';
+mtD=document;mtN=navigator.appName;mtR=escape(mtD.referrer);
+mtW="";mtC="";mtV="0";mtJ="1";
+//--></script><script language="javascript1.1">//<!--
+mtV="1";mtJ = (navigator.javaEnabled()?"1":"0");
+//--></script><script language="javascript1.2">//<!--
+mtE=screen;mtW=mtE.width;mtN!="Netscape"?mtC=mtE.colorDepth:mtC=mtE.pixelDepth;mtV="2";
+//--></script><script language="javascript1.3">//<!--
+mtV="3";
+//--></script><script language="javascript">//<!--
+mtUrl="";mtUrl+="\""+mtS+"i"+mtI+"&t"+mtT+"&g"+mtG+"&w"+mtW+"&c"+mtC+"&r"+mtR+"&v"+mtV+"&j"+mtJ+"\"";
+mtUrl="<a href=http://mytop-in.net/ target=_blank><img src="+mtUrl+"width=88 height=31 border=0 alt=\"Rated by MyTOP\"></a>";
+mtD.write(mtUrl);
+//--></script>
+<noscript>
+<a href=http://mytop-in.net/ target=_blank><img src=http://012408140822.c.mystat-in.net/?i012408140822&t4&g45&j0 width=88 height=31 border=0 alt="Rated by MyTOP"></a>
+</noscript>
+
+<!--Rating@Mail.ru COUNTEr--><script language="JavaScript" type="text/javascript"><!--
+d=document;var a='';a+=';r='+escape(d.referrer)
+js=10//--></script><script language="JavaScript1.1" type="text/javascript"><!--
+a+=';j='+navigator.javaEnabled()
+js=11//--></script><script language="JavaScript1.2" type="text/javascript"><!--
+s=screen;a+=';s='+s.width+'*'+s.height
+a+=';d='+(s.colorDepth?s.colorDepth:s.pixelDepth)
+js=12//--></script><script language="JavaScript1.3" type="text/javascript"><!--
+js=13//--></script><script language="JavaScript" type="text/javascript"><!--
+d.write('<a href="http://top.mail.ru/jump?from=1374183"'+
+' target=_top><img src="http://d7.cf.b4.a1.top.list.ru/counter'+
+'?id=1374183;t=48;js='+js+a+';rand='+Math.random()+
+'" alt="–ейтинг@Mail.ru"'+' border=0 height=31 width=88/><\/a>')
+if(11<js)d.write('<'+'!-- ')//--></script><noscript><a
+target=_top href="http://top.mail.ru/jump?from=1374183"><img
+src="http://d7.cf.b4.a1.top.list.ru/counter?js=na;id=1374183;t=48"
+border=0 height=31 width=88
+alt="–ейтинг@Mail.ru"/></a></noscript><script language="JavaScript" type="text/javascript"><!--
+if(11<js)d.write('--'+'>')//--></script><!--/COUNTER-->
+
+<!-- I.UA counter --><a href="http://www.i.ua/" target="_blank" onclick="this.href='http://i.ua/r.php?21595';" title="Rated by I.UA">
+<script type="text/javascript" language="javascript"><!--
+iS='<img src="http://r.i.ua/s?u21595&p66&n'+Math.random();
+iD=document;iD.cookie="iua=1";if(iD.cookie)iS+='&c1';
+iS+='&d'+(screen.colorDepth?screen.colorDepth:screen.pixelDepth)
++"&w"+screen.width+'&h'+screen.height
+iT=iD.referrer.slice(7);iH=window.location.href.slice(7);
+((iI=iT.indexOf('/'))!=-1)?(iT=iT.substring(0,iI)):(iI=iT.length);
+if(iT!=iH.substring(0,iI))iS+='&f'+escape(iD.referrer.slice(7))
+iS+='&r'+escape(iH);
+iD.write(iS+'" border="0" width="88" height="31" />');
+//--></script></a><!-- End of I.UA counter -->
+
+<script type="text/javascript">
+<!--
+Nnv=navigator;Nna=Nnv.appName;Nd=document;Nd.cookie="b=b";Nc=0;if(Nd.cookie)Nc=1;
+Nn=(Nna.substring(0,2)=="Mi")?0:1;Ns=screen;Npx=(Nn==0)?Ns.colorDepth:Ns.pixelDepth;
+str='<img src="http://c.uarating.com/199;'+Ns.width+'x'+Ns.height+';'+Npx+';'+Nc+';';
+str=str+escape(Nd.referrer)+';'+Math.random()+'" width="88" height="31" border="0">';
+document.write('<a href="http://www.uarating.com/" alt="uaRating" target="_blank">'+str+'<\/a>');
+// -->
+</script>
+<noscript><a href="http://www.uarating.com/" target="_blank"><img src="http://c.uarating.com/199;0x0;0;0;-;0" alt="uaRating" width="88" height="31" border="0"></a></noscript>
+
+
+</td></tr>
+</table>
+
+
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title>perlclib - perldoc.perl.org</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Language" content="en-gb" />
+  <link href="css.css" rel="stylesheet" rev="stylesheet" type="text/css" media="screen" />
+</head>
+
+<script language="JavaScript" type="text/javascript" src="label.js"></script>
+
+<script language="JavaScript">
+  pageDepth = 0;
+  setPath();
+</script>
+
+<body onLoad="showToolbars();loadLabels()">
+
+<div id="pageHeader">
+  <div id="pageHeaderLogo">
+    <img src="onion.gif">
+  </div>
+  <div id="pageHeaderText">
+    <a href="http://perldoc.perl.org">perldoc.perl.org</a>
+  </div>
+</div>
+
+<div id="pageBody">
+  <div id="left">
+    <div id="leftContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeLeft()" title="Hide navigation" onmouseover="leftCloseIcon.src='close_purple.gif';" onmouseout="leftCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="leftCloseIcon" id="leftCloseIcon" border=0></a>
+      </div>
+      <h1>Manual:</h1>
+      <ul>
+        <li><a href="index-overview.html">Overview</a></li>
+        <li><a href="index-tutorials.html">Tutorials</a></li>
+        <li><a href="index-faq.html">FAQs</a></li>
+        <li><a href="index-history.html">History / Changes</a></li>
+        <li><a href="index-licence.html">Licence</a></li>
+      </ul>
+      <h2>Reference:</h2>
+      <ul>
+        <li><a href="index-language.html">Language</a></li>
+        <li><a href="index-functions.html">Functions</a></li>
+        <li><a href="perlop.html">Operators</a></li>
+        <li><a href="perlvar.html">Special variables</a></li>
+        <li><a href="index-pragmas.html">Pragmas</a></li>
+        <li><a href="index-modules-A.html">Core modules</a></li>
+        <li><a href="index-utilities.html">Utilities</a></li>
+        <li><a href="index-internals.html">Internals</a></li>
+        <li><a href="index-platforms.html">Platform specific</a></li>
+      </ul>
+      <h2>Links:</h2>
+      <ul>
+        <li><a href="http://search.cpan.org">CPAN</a></li>
+        <li><a href="http://www.perl.com">Perl.com</a></li>
+        <li><a href="http://www.perl.org">Perl.org</a></li>
+        <li><a href="http://www.pm.org">Perl Mongers</a></li>
+        <li><a href="http://www.perlmonks.org">Perl Monks</a></li>
+        <li><a href="http://planet.perl.org">Planet Perl</a></li>
+        <li><a href="http://use.perl.org">Use Perl</a></li>
+      </ul>
+      <h2>Contact:</h2>
+      <ul>
+        <li>Site maintained by<br><a href="http://perl.jonallen.info">Jon Allen</a>
+            (<a href="http://perl.jonallen.info">JJ</a>)</li>
+        <li class="spaced">Last updated on<br>23 April 2006</li>
+	<li class="spaced">See the <a href="http://perl.jonallen.info/projects/perldoc">project page</a> for
+	more details</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="center">  
+    <div id="centerContent">
+      <div id="contentHeader">
+        <div id="contentHeaderLeft"><a href="#" onClick="showLeft()">Show navigation</a></div>
+        <div id="contentHeaderCentre">-- Perl 5.8.8 documentation --</div>
+        <div id="contentHeaderRight"><a href="#" onClick="showRight()">Show toolbar</a></div>
+      </div>
+      <div id="breadCrumbs"><a href="index.html">Home</a> &gt; <a href="index-internals.html">Internals and C language interface</a> &gt; perlclib</div>
+      <script language="JavaScript">fromSearch();</script>
+      <div id="contentBody"><div class="title_container"><div class="page_title">perlclib</div><div class="pdf_link"><a href="perlclib.pdf">View as PDF</a></div><div class="pdf_img_link"><a href="perlclib.pdf"><img src="pdficon.gif" border=0></a></div></div><ul><li><a href="#NAME">NAME</a><li><a href="#DESCRIPTION">DESCRIPTION</a><ul><li><a href="#Conventions">Conventions</a><li><a href="#File-Operations">File Operations</a><li><a href="#File-Input-and-Output">File Input and Output</a><li><a href="#File-Positioning">File Positioning</a><li><a href="#Memory-Management-and-String-Handling">Memory Management and String Handling</a><li><a href="#Character-Class-Tests">Character Class Tests</a><li><a href="#_stdlib.h_-functions"><i>stdlib.h</i> functions</a><li><a href="#Miscellaneous-functions">Miscellaneous functions</a></ul><li><a href="#SEE-ALSO">SEE ALSO</a></ul><a name="NAME"></a><h1>NAME</h1>
+<p>perlclib - Internal replacements for standard C library functions</p>
+<a name="DESCRIPTION"></a><h1>DESCRIPTION</h1>
+<p>One thing Perl porters should note is that <i>perl</i> doesn't tend to use that
+much of the C standard library internally; you'll see very little use of, 
+for example, the <i>ctype.h</i> functions in there. This is because Perl
+tends to reimplement or abstract standard library functions, so that we
+know exactly how they're going to operate.</p>
+<p>This is a reference card for people who are familiar with the C library
+and who want to do things the Perl way; to tell them which functions
+they ought to use instead of the more normal C functions. </p>
+<a name="Conventions"></a><h2>Conventions</h2>
+<p>In the following tables:</p>
+<ul>
+<li><a name="'t'"></a><b><code class="inline">t</code>
+</b>
+<p>is a type.</p>
+</li>
+<li><a name="'p'"></a><b><code class="inline">p</code>
+</b>
+<p>is a pointer.</p>
+</li>
+<li><a name="'n'"></a><b><code class="inline">n</code>
+</b>
+<p>is a number.</p>
+</li>
+<li><a name="'s'"></a><b><code class="inline"><a class="l_k" href="functions/s.html">s</a></code></b>
+<p>is a string.</p>
+</li>
+</ul>
+<p><code class="inline">sv</code>
+, <code class="inline">av</code>
+, <code class="inline">hv</code>
+, etc. represent variables of their respective types.</p>
+<a name="File-Operations"></a><h2>File Operations</h2>
+<p>Instead of the <i>stdio.h</i> functions, you should use the Perl abstraction
+layer. Instead of <code class="inline">FILE*</code>
+ types, you need to be handling <code class="inline"><a class="l_w" href="PerlIO.html">PerlIO</a>*</code>
+
+types.  Don't forget that with the new PerlIO layered I/O abstraction 
+<code class="inline">FILE*</code>
+ types may not even be available. See also the <code class="inline">perlapio</code>
+
+documentation for more information about the following functions:</p>
+<pre class="verbatim">    Instead Of:                 Use:</pre><pre class="verbatim">    stdin                       PerlIO_stdin()
+    stdout                      PerlIO_stdout()
+    stderr                      PerlIO_stderr()</pre><pre class="verbatim">    fopen(fn, mode)             PerlIO_open(fn, mode)
+    freopen(fn, mode, stream)   PerlIO_reopen(fn, mode, perlio) (Deprecated)
+    fflush(stream)              PerlIO_flush(perlio)
+    fclose(stream)              PerlIO_close(perlio)</pre><a name="File-Input-and-Output"></a><h2>File Input and Output</h2>
+<pre class="verbatim">    Instead Of:                 Use:</pre><pre class="verbatim">    fprintf(stream, fmt, ...)   PerlIO_printf(perlio, fmt, ...)</pre><pre class="verbatim">    [f]getc(stream)             PerlIO_getc(perlio)
+    [f]putc(stream, n)          PerlIO_putc(perlio, n)
+    ungetc(n, stream)           PerlIO_ungetc(perlio, n)</pre><p>Note that the PerlIO equivalents of <code class="inline">fread</code>
+ and <code class="inline">fwrite</code>
+ are slightly
+different from their C library counterparts:</p>
+<pre class="verbatim">    fread(p, size, n, stream)   PerlIO_read(perlio, buf, numbytes)
+    fwrite(p, size, n, stream)  PerlIO_write(perlio, buf, numbytes)</pre><pre class="verbatim">    fputs(s, stream)            PerlIO_puts(perlio, s)</pre><p>There is no equivalent to <code class="inline">fgets</code>
+; one should use <code class="inline">sv_gets</code>
+ instead:</p>
+<pre class="verbatim">    fgets(s, n, stream)         sv_gets(sv, perlio, append)</pre><a name="File-Positioning"></a><h2>File Positioning</h2>
+<pre class="verbatim">    Instead Of:                 Use:</pre><pre class="verbatim">    feof(stream)                PerlIO_eof(perlio)
+    fseek(stream, n, whence)    PerlIO_seek(perlio, n, whence)
+    rewind(stream)              PerlIO_rewind(perlio)</pre><pre class="verbatim">    fgetpos(stream, p)          PerlIO_getpos(perlio, sv)
+    fsetpos(stream, p)          PerlIO_setpos(perlio, sv)</pre><pre class="verbatim">    ferror(stream)              PerlIO_error(perlio)
+    clearerr(stream)            PerlIO_clearerr(perlio)</pre><a name="Memory-Management-and-String-Handling"></a><h2>Memory Management and String Handling</h2>
+<pre class="verbatim">    Instead Of:                 	Use:</pre><pre class="verbatim">    t* p = malloc(n)            	Newx(id, p, n, t)
+    t* p = calloc(n, s)         	Newxz(id, p, n, t)
+    p = realloc(p, n)           	Renew(p, n, t)
+    memcpy(dst, src, n)         	Copy(src, dst, n, t)
+    memmove(dst, src, n)        	Move(src, dst, n, t)
+    memcpy/*(struct foo *)      	StructCopy(src, dst, t)
+    memset(dst, 0, n * sizeof(t))	Zero(dst, n, t)
+    memzero(dst, 0)			Zero(dst, n, char)
+    free(p)             	        Safefree(p)</pre><pre class="verbatim">    strdup(p)                   savepv(p)
+    strndup(p, n)               savepvn(p, n) (Hey, strndup doesn't exist!)</pre><pre class="verbatim">    strstr(big, little)         instr(big, little)
+    strcmp(s1, s2)              strLE(s1, s2) / strEQ(s1, s2) / strGT(s1,s2)
+    strncmp(s1, s2, n)          strnNE(s1, s2, n) / strnEQ(s1, s2, n)</pre><p>Notice the different order of arguments to <code class="inline">Copy</code>
+ and <code class="inline">Move</code>
+ than used
+in <code class="inline">memcpy</code>
+ and <code class="inline">memmove</code>
+.</p>
+<p>Most of the time, though, you'll want to be dealing with SVs internally
+instead of raw <code class="inline">char *</code>
+ strings:</p>
+<pre class="verbatim">    strlen(s)                   sv_len(sv)
+    strcpy(dt, src)             sv_setpv(sv, s)
+    strncpy(dt, src, n)         sv_setpvn(sv, s, n)
+    strcat(dt, src)             sv_catpv(sv, s)
+    strncat(dt, src)            sv_catpvn(sv, s)
+    sprintf(s, fmt, ...)        sv_setpvf(sv, fmt, ...)</pre><p>Note also the existence of <code class="inline">sv_catpvf</code>
+ and <code class="inline">sv_vcatpvfn</code>
+, combining
+concatenation with formatting.</p>
+<p>Sometimes instead of zeroing the allocated heap by using Newxz() you
+should consider "poisoning" the data.  This means writing a bit
+pattern into it that should be illegal as pointers (and floating point
+numbers), and also hopefully surprising enough as integers, so that
+any code attempting to use the data without forethought will break
+sooner rather than later.  Poisoning can be done using the Poison()
+macro, which has similar arguments as Zero():</p>
+<pre class="verbatim">    <span class="i">Poison</span><span class="s">(</span>dst<span class="cm">,</span> n<span class="cm">,</span> t<span class="s">)</span></pre>
+<a name="Character-Class-Tests"></a><h2>Character Class Tests</h2>
+<p>There are two types of character class tests that Perl implements: one
+type deals in <code class="inline">char</code>
+s and are thus <b>not</b> Unicode aware (and hence
+deprecated unless you <b>know</b> you should use them) and the other type
+deal in <code class="inline">UV</code>
+s and know about Unicode properties. In the following
+table, <code class="inline">c</code>
+ is a <code class="inline">char</code>
+, and <code class="inline">u</code>
+ is a Unicode codepoint.</p>
+<pre class="verbatim">    Instead Of:                 Use:            But better use:</pre><pre class="verbatim">    isalnum(c)                  isALNUM(c)      isALNUM_uni(u)
+    isalpha(c)                  isALPHA(c)      isALPHA_uni(u)
+    iscntrl(c)                  isCNTRL(c)      isCNTRL_uni(u)
+    isdigit(c)                  isDIGIT(c)      isDIGIT_uni(u)
+    isgraph(c)                  isGRAPH(c)      isGRAPH_uni(u)
+    islower(c)                  isLOWER(c)      isLOWER_uni(u)
+    isprint(c)                  isPRINT(c)      isPRINT_uni(u)
+    ispunct(c)                  isPUNCT(c)      isPUNCT_uni(u)
+    isspace(c)                  isSPACE(c)      isSPACE_uni(u)
+    isupper(c)                  isUPPER(c)      isUPPER_uni(u)
+    isxdigit(c)                 isXDIGIT(c)     isXDIGIT_uni(u)</pre><pre class="verbatim">    tolower(c)                  toLOWER(c)      toLOWER_uni(u)
+    toupper(c)                  toUPPER(c)      toUPPER_uni(u)</pre><a name="_stdlib.h_-functions"></a><h2><i>stdlib.h</i> functions</h2>
+<pre class="verbatim">    Instead Of:                 Use: </pre><pre class="verbatim">    atof(s)                     Atof(s)
+    atol(s)                     Atol(s)
+    strtod(s, *p)               Nothing.  Just don't use it.
+    strtol(s, *p, n)            Strtol(s, *p, n)
+    strtoul(s, *p, n)           Strtoul(s, *p, n)</pre><p>Notice also the <code class="inline">grok_bin</code>
+, <code class="inline">grok_hex</code>
+, and <code class="inline">grok_oct</code>
+ functions in
+<i>numeric.c</i> for converting strings representing numbers in the respective
+bases into <code class="inline">NV</code>
+s.</p>
+<p>In theory <code class="inline">Strtol</code>
+ and <code class="inline">Strtoul</code>
+ may not be defined if the machine perl is
+built on doesn't actually have strtol and strtoul. But as those 2
+functions are part of the 1989 ANSI C spec we suspect you'll find them
+everywhere by now.</p>
+<pre class="verbatim">    int rand()                  double Drand01()
+    srand(n)                    { seedDrand01((Rand_seed_t)n); 
+                                  PL_srand_called = TRUE; }</pre><pre class="verbatim">    exit(n)                     my_exit(n)
+    system(s)                   Don't. Look at pp_system or use my_popen</pre><pre class="verbatim">    getenv(s)                   PerlEnv_getenv(s)
+    setenv(s, val)              my_putenv(s, val)</pre><a name="Miscellaneous-functions"></a><h2>Miscellaneous functions</h2>
+<p>You should not even <b>want</b> to use <i>setjmp.h</i> functions, but if you
+think you do, use the <code class="inline">JMPENV</code>
+ stack in <i>scope.h</i> instead.</p>
+<p>For <code class="inline">signal</code>
+/<code class="inline">sigaction</code>
+, use <code class="inline"><span class="i">rsignal</span><span class="s">(</span>signo<span class="cm">,</span> handler<span class="s">)</span></code>
+.</p>
+<a name="SEE-ALSO"></a><h1>SEE ALSO</h1>
+<p><code class="inline">perlapi</code>
+, <code class="inline">perlapio</code>
+, <code class="inline">perlguts</code>
+</p>
+</div>
+      <div id="contentFooter"><a href="http://www.perl.org"><img src="perlpowered.png" border=0></a></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div id="rightContent">
+      <div id="leftClose">
+        <a href="#" onClick="closeRight()" title="Hide toolbar" onmouseover="rightCloseIcon.src='close_purple.gif';" onmouseout="rightCloseIcon.src='close_blue.gif';"><img src="close_blue.gif" name="rightCloseIcon" id="rightCloseIcon" border=0></a>
+      </div>
+      <h1>Search:</h1>
+      <p>
+        <form action="search.html" name="perldoc_search">
+	  <input type="text" name="q" size="10" class="grey"><br>
+	  <!--<select name="r"><option value="1" selected>Go to top result<option value="0">Show results list</select>-->
+	</form>
+      </p>
+      <h2>Labels:</h2>
+      <p>
+        <a href="#" onClick="addLabel('perlclib','perlclib.html')">Add this page</a>
+      </p>
+      <div class="labels" id="labels">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 #This needs to be converted to perl & than this command needs to be parsed to find "the movie":
 #`/Programs/bin/HandBrakeCLI --input /dev/hda --title 0 | sort | uniq`
 
-my $handbrake_exec = "/opt/bin/HandBrakeCLI";
+my $handbrake_exec = "/programs/bin/HandBrakeCLI";
 my $dvd_device = "/dev/hda";
 
 my $movies_title = `mount | grep "${dvd_device}" | cut -d'/' -f5 | cut -d' ' -f1 | sed 's/_/\ /g'`;

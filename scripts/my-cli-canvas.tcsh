@@ -24,10 +24,10 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
+			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
 			--tab-with-profile="projects" --title="multimedia" --working-directory="/media" \
-			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="projects" --title="uberChicGeekChicks-Podcast-Syncronizer" --working-directory="/projects/www/Alacast/bin" --command="/projects/www/Alacast/bin/uberChicGeekChicks-Podcast-Syncronizer.php --update=detailed --logging --player=xine --interactive" \
 		${argv} &
 		breaksw
@@ -66,6 +66,19 @@ foreach which_canvas ( "${argv}" )
 		${argv} &
 		breaksw
 
+	case 'Web-Dev':
+		shift
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${geometry} \
+			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
+			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
+			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
+			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
+		${argv} &
+		breaksw
+	
 	case 'Audio':
 		shift
 		/usr/bin/gnome-terminal \
@@ -93,11 +106,11 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
+			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="uberChick" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="Alacast" --title="Alacast" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="uberChick" --title="media" --working-directory="/media" \
-			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="uberChick" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="uberChick" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
 			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \

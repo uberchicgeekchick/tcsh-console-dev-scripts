@@ -37,7 +37,9 @@ if ( "${?2}" == "1" && "${2}" != "" ) then
 endif
 
 goto check_sync
+exit
 
+run_sync:
 switch( "${sync_method}" )
 case "rsync":
 	rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}"
@@ -54,19 +56,14 @@ case "sshfs":
 		sshfs "${ssh_user}@${ssh_server}:/home/${ssh_user}" "${sshfs_path}"
 	endif
 case "cp":
-	breaksw
-
-case "no-sync":
-	exit 0
+	if ( ! -d "${sshfs_path}/${project_name}" ) then
+		printf "I couldn't find your project: '%s' in your sshfs path: '%s'\nEither your project doesn't exist on your sshfs or ssh isn't mounted\n", ${project_name}, ${sshfs_path}
+		exit
+	endif
+	
+	cp -r --verbose --update ./* "${sshfs_path}/${project_name}"
 	breaksw
 endsw
-
-if ( ! -d "${sshfs_path}/${project_name}" ) then
-	printf "I couldn't find your project: '%s' in your sshfs path: '%s'\nEither your project doesn't exist on your sshfs or ssh isn't mounted\n", ${project_name}, ${sshfs_path}
-	exit -1
-endif
-
-cp -r --verbose --update ./* "${sshfs_path}/${project_name}"
 
 exit
 
@@ -76,6 +73,7 @@ case "rsync":
 case "scp":
 case "sshfs":
 case "cp":
+	goto run_sync
 	breaksw
 case "no-sync":
 	exit

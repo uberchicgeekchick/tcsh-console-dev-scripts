@@ -1,8 +1,15 @@
 #!/bin/tcsh
-if ( "${?1}" == "0" || "${1}" == "" || "${1}" == "rsync" || "${1}" == "no-sync" ) then
-	printf "Usage: %s git_commit_message [rsync scp no-sync cp fuse]\n" `basename "${0}"`
-	exit -1
-endif
+switch ( "${1}" )
+case "":
+case "rsync":
+case "scp":
+case "sshfs":
+case "cp":
+case "no-sync":
+	printf "Usage: %s git_commit_message [rsync scp sshfs cp no-sync]\n" `basename "${0}"`
+	exit
+	breaksw
+endsw
 
 set project_name = `basename "${PWD}"`
 set sshfs_path = "/projects/ssh"
@@ -29,8 +36,11 @@ case "scp":
 	exit 0
 	breaksw
 
+case "sshfs":
+	if ( `mount | grep "${sshfs_path}"` == "" ) then
+		sshfs "${ssh_user}@${ssh_server}:/home/${ssh_user}" "${sshfs_path}"
+	endif
 case "cp":
-case "fuse":
 	breaksw
 
 case "no-sync":

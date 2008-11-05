@@ -1,4 +1,6 @@
 #!/bin/tcsh
+set default_copy_method = "no-sync"
+
 switch ( "${1}" )
 case "":
 case "rsync":
@@ -11,7 +13,10 @@ case "no-sync":
 	breaksw
 endsw
 
+set default_copy_method = "no-sync"
+
 set project_name = `basename "${PWD}"`
+
 set sshfs_path = "/projects/ssh"
 
 set ssh_user = "dreams"
@@ -24,6 +29,8 @@ git commit -a -m "${1}"
 foreach remote_git ( `git remote` )
 	git push "${remote_git}"
 end
+
+if ( ( "${?2}" == "0" || "${2}" == "" ) && "${default_copy_method}" == "no-sync" ) exit
 
 switch( "${2}" )
 case "rsync":

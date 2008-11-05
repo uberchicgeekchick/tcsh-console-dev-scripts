@@ -1,10 +1,4 @@
-#!/bin/tcsh
-if ( -e "./.sync.default" ) then
-	set default_sync_methot = `cat ./.sync.default`
-else
-	set default_sync_method = "no-sync"
-endif
-
+#!/bin/tcsh -f
 switch ( "${1}" )
 case "":
 case "rsync":
@@ -17,7 +11,11 @@ case "no-sync":
 	breaksw
 endsw
 
-set default_copy_method = "no-sync"
+if ( -e "./.sync.default" ) then
+	set sync_method = `cat ./.sync.default`
+else
+	set sync_method = "no-sync"
+endif
 
 set project_name = `basename "${PWD}"`
 
@@ -34,9 +32,13 @@ foreach remote_git ( `git remote` )
 	git push "${remote_git}"
 end
 
-if ( ( "${?2}" == "0" || "${2}" == "" ) && "${default_sync_method}" == "no-sync" ) exit
+if ( "${?2}" == "0" || "${2}" == "" ) then
+	if ( "${sync_method}" == "no-sync" ) exit
+else
+	set sync_method = "${2}"
+endif
 
-switch( "${2}" )
+switch( "${sync_method}" )
 case "rsync":
 	rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}"
 	exit 0

@@ -11,7 +11,7 @@ case "no-sync":
 	breaksw
 endsw
 
-if ( -x "./.sync.default" ) then
+if ( -e "./.sync.default" ) then
 	set sync_method = `cat ./.sync.default`
 else
 	set sync_method = "no-sync"
@@ -32,11 +32,11 @@ foreach remote_git ( `git remote` )
 	git push "${remote_git}"
 end
 
-if ( "${?2}" == "0" || "${2}" == "" ) then
-	if ( "${sync_method}" == "no-sync" ) exit
-else
+if ( "${?2}" == "1" && "${2}" != "" ) then
 	set sync_method = "${2}"
 endif
+
+goto check_sync
 
 switch( "${sync_method}" )
 case "rsync":
@@ -68,3 +68,20 @@ endif
 
 cp -r --verbose --update ./* "${sshfs_path}/${project_name}"
 
+exit
+
+check_sync:
+switch ( "${sync_method}" )
+case "rsync":
+case "scp":
+case "sshfs":
+case "cp":
+	breaksw
+case "no-sync":
+	exit
+	breaksw
+default:
+	printf "%s is not a supported sync method.  Valid options are:\n\trsync, scp, sshfs, cp, no-sync" "${sync_method}"
+	exit
+	breaksw
+endsw

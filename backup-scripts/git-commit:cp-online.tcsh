@@ -1,6 +1,6 @@
 #!/bin/tcsh
-if ( "${?1}" == "0" || "${1}" == "" || "${1}" == "--rsync" || "${1}" == "--no-sync" ) then
-	printf "Usage: %s git_commit_message [--rsync --scp --no-sync --cp --fuse]\n" `basename "${0}"`
+if ( "${?1}" == "0" || "${1}" == "" || "${1}" == "rsync" || "${1}" == "no-sync" ) then
+	printf "Usage: %s git_commit_message [rsync scp no-sync cp fuse]\n" `basename "${0}"`
 	exit -1
 endif
 
@@ -19,21 +19,21 @@ foreach remote_git ( `git remote` )
 end
 
 switch( "${2}" )
-case "--rsync":
+case "rsync":
 	rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}"
 	exit 0
 	breaksw
 
-case "--scp":
+case "scp":
 	scp -rv ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}"
 	exit 0
 	breaksw
 
-case "--cp":
-case "--fuse":
+case "cp":
+case "fuse":
 	breaksw
 
-case "--no-sync":
+case "no-sync":
 	exit 0
 	breaksw
 endsw

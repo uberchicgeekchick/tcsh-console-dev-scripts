@@ -1,5 +1,4 @@
 #!/bin/tcsh
-#set default_sync_method = ""
 if ( -e "./.sync.default" ) then
 	set default_sync_methot = `cat ./.sync.default`
 else

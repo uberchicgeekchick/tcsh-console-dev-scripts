@@ -39,11 +39,12 @@ foreach which_canvas ( "${argv}" )
 			--geometry=${geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
-			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
+			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
+			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
 			--tab-with-profile="projects" --title="media" --working-directory="/projects/media" \
 		${argv} &
@@ -72,6 +73,7 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
 			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
@@ -106,13 +108,12 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="uberChick" --title="/profile.d" --working-directory="/profile.d" \
-			--tab-with-profile="Alacast" --title="Alacast" --working-directory="/projects/gtk/Alacast" \
+			--tab-with-profile="Alacast" --title="programs" --working-directory="/programs" \
 			--tab-with-profile="uberChick" --title="media" --working-directory="/media" \
 			--tab-with-profile="uberChick" --title="projects" --working-directory="/projects" \
-			--tab-with-profile="uberChick" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
 			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
 		${argv} &
 		breaksw

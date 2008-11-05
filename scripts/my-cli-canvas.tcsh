@@ -68,7 +68,7 @@ foreach which_canvas ( "${argv}" )
 		${argv} &
 		breaksw
 	
-	case 'Production:Media':
+	case 'Media:Production':
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
@@ -81,7 +81,7 @@ foreach which_canvas ( "${argv}" )
 		${argv} &
 		breaksw
 
-	case 'Media:Online':
+	case 'Media:Social':
 		shift
 		set geometry = `cat "/profile.d/resolutions/gnome-terminal/alacast.rc"`
 		/usr/bin/gnome-terminal \
@@ -111,8 +111,9 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="uberChick" --title="/profile.d" --working-directory="/profile.d" \
+			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
+			--tab-with-profile="uberChick" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="Alacast" --title="programs" --working-directory="/programs" \
 			--tab-with-profile="uberChick" --title="media" --working-directory="/media" \
 			--tab-with-profile="uberChick" --title="projects" --working-directory="/projects" \

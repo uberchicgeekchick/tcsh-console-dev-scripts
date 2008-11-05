@@ -11,7 +11,7 @@ case "no-sync":
 	breaksw
 endsw
 
-if ( -e "./.sync.default" ) then
+if ( -x "./.sync.default" ) then
 	set sync_method = `cat ./.sync.default`
 else
 	set sync_method = "no-sync"

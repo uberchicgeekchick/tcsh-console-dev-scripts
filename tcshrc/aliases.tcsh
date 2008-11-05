@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 alias grep "/usr/bin/grep --color --perl-regexp --with-filename --line-number"
 
 alias	ls	"ls --human-readable --color --quoting-style=escape"

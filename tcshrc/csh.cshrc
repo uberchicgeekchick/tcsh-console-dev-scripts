@@ -29,9 +29,7 @@ alias pidof "pidof -x"
 complete kill "p/*/c/"
 complete killall "p/*/c/"
 
-set rc_path = "/profile.d/tcsh"
-
-setenv PATH "${PATH}:${rc_path}"
+set rc_path = "/projects/console/tcshrc"
 
 foreach rc_file ( ${rc_path}/*.tcsh )
 	if ( -e "${rc_file}" ) source "${rc_file}"

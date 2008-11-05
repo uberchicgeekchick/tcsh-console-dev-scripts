@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 
 set sound_driver = "esd"
 set video_driver = "opengl"

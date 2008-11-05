@@ -1,6 +1,6 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 if ( "${?1}" == "0" || "${1}" == "" || ! -d "${1}" ) then
-	printf "Usage add:path.tcsh path_to_recurse"
+	printf "Usage: add:path.tcsh path_to_recurse"
 	exit
 endif
 set new_path = ""
@@ -22,12 +22,12 @@ setenv PATH "${PATH}:${new_path}"
 
 exit
 
-#find_dirs:
-#foreach cw_dir ( ${start_dir}/* )
-#	if ( - "${start_dir}/${cw_dir}" ) then
-#		set new_path = "${new_path}:${start_dir}/${cw_dir}"
-#		set dir_before = "${start_dir}/${cw_dir}"
-#		goto find_dirs
-#		set start_dir = "${dir_before}"
-#	endif
-#end
+find_dirs:
+foreach cw_dir ( ${start_dir}/* )
+	if ( - "${start_dir}/${cw_dir}" ) then
+		set new_path = "${new_path}:${start_dir}/${cw_dir}"
+		set dir_before = "${start_dir}/${cw_dir}"
+		goto find_dirs
+		set start_dir = "${dir_before}"
+	endif
+end

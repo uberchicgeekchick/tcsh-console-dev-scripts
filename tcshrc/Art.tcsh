@@ -20,4 +20,4 @@ complete interupt_program.tcsh "p/*/c/"
 
 if ( `mount | grep "/projects/ssh"` == "" ) sshfs dreams@avalon.ocssolutions.com:/home/dreams /projects/ssh
 
-source /projects/console/tcshrc/add:path.tcsh /projects/console
+source /projects/console/helper-scripts/add:path.tcsh /projects/console

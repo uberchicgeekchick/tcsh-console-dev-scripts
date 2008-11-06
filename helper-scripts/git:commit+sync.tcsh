@@ -17,7 +17,7 @@ else
 	set sync_method = "no-sync"
 endif
 
-set project_name = `basename "${PWD}"`
+set project_name = `basename "${cwd}"`
 
 set sshfs_path = "/projects/ssh"
 

@@ -68,6 +68,20 @@ foreach which_canvas ( "${argv}" )
 		${argv} &
 		breaksw
 	
+	case 'Programming:Apps':
+		shift
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${geometry} \
+			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
+			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
+			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
+			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
+			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
+		${argv} &
+		breaksw
+	
 	case 'Media:Production':
 		shift
 		/usr/bin/gnome-terminal \

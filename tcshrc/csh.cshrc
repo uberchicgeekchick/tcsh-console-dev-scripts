@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 setenv SUDO_PROMPT "please verify your password:"
 
 setenv PATH "${PATH}:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/init.d"

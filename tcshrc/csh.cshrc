@@ -20,6 +20,8 @@ set prompt = "\n%B%{^[[105m%}(%p on %Y-%W-%D)\n%{^[[35m%}[ %m %n ]\n%{^[[31m%}@%
 set colorcat
 
 set correct=cmd
+alias jobs "jobs -l"
+
 complete ln "p/*/f/"
 complete tar "p/*/f/"
 

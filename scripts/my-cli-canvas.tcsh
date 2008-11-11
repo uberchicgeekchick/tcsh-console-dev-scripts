@@ -1,7 +1,10 @@
 #!/bin/tcsh
 
 foreach which_canvas ( "${argv}" )
-	set geometry = `cat "/profile.d/resolutions/gnome-terminal/default.rc"`
+	set default_geometry = `cat "/profile.d/resolutions/gnome-terminal/default.rc"`
+	set canvas_geometry = `cat "/profile.d/resolutions/gnome-terminal/canvas.rc"`
+	set alacast_geometry = `cat "/profile.d/resolutions/gnome-terminal/alacast.rc"`
+
 	set screens_options = "aAUR"
 	set screens_sessions = `/usr/bin/screen -list`
 	if ( "$screens_sessions[1]" != "No" ) set screens_options = "${screens_options}x"
@@ -12,7 +15,7 @@ foreach which_canvas ( "${argv}" )
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${default_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 		${argv} &
@@ -22,7 +25,7 @@ foreach which_canvas ( "${argv}" )
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${canvas_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
@@ -42,7 +45,7 @@ foreach which_canvas ( "${argv}" )
 		set geometry = `cat "/profile.d/resolutions/gnome-terminal/game-dev.rc"`
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${canvas_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/media/art" \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
@@ -58,7 +61,7 @@ foreach which_canvas ( "${argv}" )
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${canvas_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
@@ -72,7 +75,7 @@ foreach which_canvas ( "${argv}" )
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${canvas_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
@@ -86,7 +89,7 @@ foreach which_canvas ( "${argv}" )
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${canvas_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="uberChick" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="media library" --working-directory="/media/media-library" \
@@ -97,10 +100,14 @@ foreach which_canvas ( "${argv}" )
 
 	case 'Media:Social':
 		shift
-		set geometry = `cat "/profile.d/resolutions/gnome-terminal/alacast.rc"`
+		set rtorrent_session_dir = "`/usr/bin/grep -r session ~/.rtorrent.rc | sed 's/.*\ =\ \(.*\)/\1'`"
+		if ( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
+			if ( -e "${rtorrent_session_dir}/rtorrent.lock" ) rm -f "${rtorrent_session_dir}/rtorrent.lock"
+			#if ( -e "${rtorrent_session_dir}/rtorrent.dht_cache" ) rm -f "${rtorrent_session_dir}/rtorrent.dht_cache"
+		end
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${alacast_geometry} \
 			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="media" --working-directory="/media" \
@@ -115,7 +122,7 @@ foreach which_canvas ( "${argv}" )
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${default_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
 		${argv} &
@@ -124,7 +131,7 @@ foreach which_canvas ( "${argv}" )
 	default:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${default_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="uberChick" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \

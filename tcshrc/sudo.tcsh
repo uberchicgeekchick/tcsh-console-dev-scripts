@@ -2,7 +2,7 @@
 
 complete sudo "p/1/c/"
 
-set sudo_commands = "visudo\ngdmsetup\nchown\nchgrp\nzypper\nneject\nreboot\npoweroff\nhalt\n/srv/mysql/mysql.init.d"
+set sudo_commands = "visudo gdmsetup chown chgrp zypper neject reboot poweroff halt init yast2 /srv/mysql/mysql.init.d"
 
 
 foreach command ( `echo "${sudo_commands}"` )
@@ -10,11 +10,11 @@ foreach command ( `echo "${sudo_commands}"` )
 end
 unset sudo_commands
 
-set gnomesu_commands = "yast2"
-foreach command ( `echo "${gnomesu_commands}"` )
-	alias	"${command}"	"gnomesu ${command}"
-end
-unset gnomesu_commands
+#set gnomesu_commands = "yast2"
+#foreach command ( `echo "${gnomesu_commands}"` )
+#	alias	"${command}"	"gnomesu ${command}"
+#end
+#unset gnomesu_commands
 
 foreach command ( `find -L /etc/init.d/ -maxdepth 1 -type f -perm -u=x` )
 	alias	"${command}"	"sudo ${command}"

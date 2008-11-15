@@ -10,7 +10,7 @@ foreach which_canvas ( "${argv}" )
 	if ( "$screens_sessions[1]" != "No" ) set screens_options = "${screens_options}x"
 	unset screens_sessions
 
-	switch ( "${1}" )
+	switch ( "${which_canvas}" )
 	case 'Template':
 		shift
 		/usr/bin/gnome-terminal \
@@ -100,7 +100,7 @@ foreach which_canvas ( "${argv}" )
 
 	case 'Media:Social':
 		shift
-		set rtorrent_session_dir = "`/usr/bin/grep -r session ~/.rtorrent.rc | sed 's/.*\ =\ \(.*\)/\1'`"
+		set rtorrent_session_dir = "`/usr/bin/grep -r session ~/.rtorrent.rc | sed 's/session\ =\ \(.*\)/\1'/`"
 		if ( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
 			if ( -e "${rtorrent_session_dir}/rtorrent.lock" ) rm -f "${rtorrent_session_dir}/rtorrent.lock"
 			#if ( -e "${rtorrent_session_dir}/rtorrent.dht_cache" ) rm -f "${rtorrent_session_dir}/rtorrent.dht_cache"
@@ -126,6 +126,7 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
 		${argv} &
+		breaksw
 	case "CLI":
 		shift
 	default:

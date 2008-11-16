@@ -29,9 +29,11 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
+			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
+			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/src" \
 			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
@@ -47,6 +49,7 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/media/art" \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="game-design" --working-directory="/projects/media/game-design" \
@@ -63,7 +66,9 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
+			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/src" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
 			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
@@ -78,8 +83,10 @@ foreach which_canvas ( "${argv}" )
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
+			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
+			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/src" \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
 			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
 		${argv} &

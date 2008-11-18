@@ -3,7 +3,7 @@ alias blender "blender -p 80 80 1300 800"
 alias cmake "cmake -Wno-dev"
 
 alias	mysql	"mysql -u${USER} -p"
-alias	mysqldump	"mysqldump -u${USER} -p"
+alias	mysqldump	"mysqldump --databases --comment --no-autocommit --extended-insert --socket=/srv/mysql/mysql.sock -u${USER} -p"
 
 bindkey	"^Z" run-fg-editor;
 alias	vi	"vim-enhanced -p"

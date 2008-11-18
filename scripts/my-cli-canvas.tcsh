@@ -67,6 +67,7 @@ foreach which_canvas ( "${argv}" )
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
+			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
 			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \

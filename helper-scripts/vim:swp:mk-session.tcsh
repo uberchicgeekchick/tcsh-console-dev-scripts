@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-set session_exec = "vim.session"
+set session_exec = "vim.session.tcsh"
 set search_dir = "./"
 if ( "${?1}" != "0" && "${1}" != "" && -d "${1}" ) set search_dir = "${1}"
 

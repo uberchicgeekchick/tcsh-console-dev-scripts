@@ -1,4 +1,7 @@
 #!/bin/tcsh -f
+setenv PATH "/usr/bin:/bin"
+rehash
+
 set session_exec = "vim.session.tcsh"
 set search_dir = "./"
 if ( "${?1}" != "0" && "${1}" != "" && -d "${1}" ) set search_dir = "${1}"

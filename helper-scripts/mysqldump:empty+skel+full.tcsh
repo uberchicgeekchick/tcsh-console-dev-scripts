@@ -2,9 +2,9 @@
 set database = "${1}"
 set dir_to_dump_to = "./"
 
+set password = ""
 #printf "Please enter your MySQL password:"
-#set password = ""
-#${password} << "\n"
+#set password << "\n"
 
 set mysql_socket = "/srv/mysql/mysql.sock"
 if ( "${?2}" == "1" && -d "${2}" ) set dir_to_dump_to = "${2}"

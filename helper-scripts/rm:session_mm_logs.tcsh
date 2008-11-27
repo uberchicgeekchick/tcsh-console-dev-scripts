@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 set search_dir = "./"
 if ( "${?1}" != "0" && "${1}" != "" && -d "${1}" ) set search_dir = "${1}"
 

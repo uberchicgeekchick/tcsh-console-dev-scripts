@@ -32,7 +32,7 @@ foreach swp ( "`find . -iregex .\*\.swp`" )
 end
 
 
-git commit -a -m "${1}"
+git commit -m "${1}"
 
 foreach remote_git ( `git remote` )
 	git push "${remote_git}"

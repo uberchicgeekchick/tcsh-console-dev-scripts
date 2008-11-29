@@ -29,7 +29,7 @@ git add ./
 # Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
 foreach swp ( "`find . -iregex .\*\.swp`" )
 	set swp = "`echo '${swp}' | sed 's/^\.\///'`"
-	git rm -f "${swp}"
+	git rm -f --cached "${swp}"
 end
 
 

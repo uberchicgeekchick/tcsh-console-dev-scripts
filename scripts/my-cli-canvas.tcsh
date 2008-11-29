@@ -16,7 +16,7 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
-			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 		${argv} &
 		breaksw
@@ -26,9 +26,9 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
-			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
+			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
@@ -48,7 +48,7 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/media/art" \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
@@ -65,10 +65,10 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
-			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
+			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
@@ -82,7 +82,7 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
@@ -98,8 +98,8 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="uberChick" --title="media" --working-directory="/media" \
+			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="media library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="my podcasts" --working-directory="/projects/media/podcasts" \
 			--tab-with-profile="projects" --title="my media" --working-directory="/projects/media" \
@@ -117,7 +117,7 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${alacast_geometry} \
 			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
-			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="projects" --title="podcasts" --working-directory="/media/podcasts" \
@@ -131,8 +131,8 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
-			--tab-with-profile="uberChick" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
+			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="~/" --working-directory="${HOME}" \
 		${argv} &
 		breaksw
 	case "CLI":
@@ -142,13 +142,13 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="uberChick" --title="/profile.d" --working-directory="/profile.d" \
-			--tab-with-profile="uberChick" --title="srv" --working-directory="/srv" \
-			--tab-with-profile="uberChick" --title="ssh" --working-directory="/projects/ssh" \
+			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
+			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
+			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="Alacast" --title="programs" --working-directory="/programs" \
-			--tab-with-profile="uberChick" --title="media" --working-directory="/media" \
-			--tab-with-profile="uberChick" --title="projects" --working-directory="/projects" \
-			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
+			--tab-with-profile="projects" --title="media" --working-directory="/media" \
+			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
+			--tab-with-profile="projects" --title="~/" --working-directory="${HOME}" \
 		${argv} &
 		breaksw
 	endsw

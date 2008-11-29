@@ -7,4 +7,8 @@ else
 	set target_dir = `dirname "${argv[${#argv}]}"`
 endif
 if ( ! -d "${target_dir}" ) mkdir -p "${target_dir}"
-${cp_or_mv} ${argv}
+set args = ""
+foreach arg ( "${argv}" )
+	set args = `printf "%s %s%s%s" "${args}" '"' ${arg} '"'`
+end
+${cp_or_mv} ${args}

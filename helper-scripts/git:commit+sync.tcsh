@@ -26,6 +26,12 @@ set ssh_server = "avalon.ocssolutions.com"
 
 git add .
 
+# Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
+foreach swp ( "`find . -iregex .\*\.swp`" )
+	git rm "${swp}"
+end
+
+
 git commit -a -m "${1}"
 
 foreach remote_git ( `git remote` )

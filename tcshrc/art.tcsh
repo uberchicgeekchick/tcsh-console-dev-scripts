@@ -9,6 +9,8 @@ bindkey	"^Z" run-fg-editor;
 alias	vi	"vim-enhanced -p"
 alias	vim	"vim-enhanced -p"
 
+#alias	ex	"ex -s"
+
 alias screen "/usr/bin/screen -aAURx"
 
 setenv PATH "${PATH}:/projects/www/Alacast/bin:/projects/www/Alacast/bin/support/gpodder"

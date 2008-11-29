@@ -24,7 +24,7 @@ set sshfs_path = "/projects/ssh"
 set ssh_user = "dreams"
 set ssh_server = "avalon.ocssolutions.com"
 
-git add ./
+git add .
 
 # Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
 foreach swp ( "`find . -iregex .\*\.swp`" )

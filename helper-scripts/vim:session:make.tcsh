@@ -18,7 +18,10 @@ foreach swp ( "`find ${search_dir} -iregex .\*\.swp`" )
 	endif
 
 	printf "%s" "${swp}" | sed 's/\(.*\)\/\.\(.*\.opml\).swp/"\1\/\2"\ /g' >> "${session_exec}"
-	if ( "${clean_up}" == "--clean-up" ) rm "${swp}"
+	if ( "${clean_up}" == "yes" ) rm "${swp}"
 end
 
-if ( "${session_started}" == "[done]" ) chmod +x "${session_exec}"
+if ( "${session_started}" == "[done]" ) then
+	printf "\n" >> "${session_exec}"
+	chmod +x "${session_exec}"
+endif

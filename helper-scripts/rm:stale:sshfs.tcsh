@@ -32,10 +32,11 @@ case "cp":
 	breaksw
 endsw
 
-printf "Finding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n"
+printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n"
 set clean_up_regexp = "`echo '${sshfs_path}/${project_name}/' | sed 's/\//\\\//g'`"
 foreach remote_file ( "`find '${sshfs_path}/${project_name}'`" )
-	set local_file = `echo "${remote_file}" | sed "s/'/'\\''/g"`
+	if ( `echo "${remote_file}" | sed 's/.*\(\/\.git\/\).*/\1/'` == "/.git/" ) continue
+	#set local_file = `echo "${remote_file}" | sed "s/'/'\\''/g"`
 	set local_file = "`echo '${remote_file}' | sed 's/^${clean_up_regexp}/\.\//'`"
 	if ( ! -d "${local_file}" && ! -e "${local_file}" ) then
 		printf "Removing stale remote "

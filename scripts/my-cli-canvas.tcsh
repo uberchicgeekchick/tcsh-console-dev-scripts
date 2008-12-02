@@ -9,7 +9,7 @@ foreach which_canvas ( "${argv}" )
 	set screens_sessions = `/usr/bin/screen -list`
 	if ( "$screens_sessions[1]" != "No" ) set screens_options = "${screens_options}x"
 	unset screens_sessions
-
+sssss
 	switch ( "${which_canvas}" )
 	case 'Template':
 		shift
@@ -43,7 +43,7 @@ foreach which_canvas ( "${argv}" )
 		breaksw
 	
 	case 'Programming:Games':
-		shift
+tt		shift
 		set geometry = `cat "/profile.d/resolutions/gnome-terminal/game-dev.rc"`
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
@@ -102,7 +102,6 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="media library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="my podcasts" --working-directory="/projects/media/podcasts" \
-			--tab-with-profile="projects" --title="my media" --working-directory="/projects/media" \
 		${argv} &
 		breaksw
 
@@ -132,7 +131,7 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="projects" --title="~/" --working-directory="${HOME}" \
+			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
 		${argv} &
 		breaksw
 	case "CLI":
@@ -145,10 +144,10 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
-			--tab-with-profile="Alacast" --title="programs" --working-directory="/programs" \
+			--tab-with-profile="projects" --title="programs" --working-directory="/programs" \
 			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
-			--tab-with-profile="projects" --title="~/" --working-directory="${HOME}" \
+			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
 		${argv} &
 		breaksw
 	endsw

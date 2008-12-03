@@ -33,13 +33,14 @@ case "cp":
 endsw
 
 printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n"
-set clean_up_regexp = "`echo '${sshfs_path}/${project_name}/' | sed 's/\//\\\//g'`"
-foreach remote_file ( "`find '${sshfs_path}/${project_name}' -maxdepth 2`" )
+set remove_remote_regexp = "`echo '${sshfs_path}/${project_name}/' | sed 's/\//\\\//g'`"
+foreach remote_file ( "`find '${sshfs_path}/${project_name}/'`" )
+		
 	set git_test = `echo "${remote_file}" | sed 's/.*\(\/\.git\).*/\1/g'`
 	if ( "${git_test}" == "/.git" ) continue
 
-	#set local_file = `echo "${remote_file}" | sed "s/'/'\\''/g"`
-	set local_file = "`echo '${remote_file}' | sed 's/^${clean_up_regexp}/\.\//'`"
+	set local_file = "`echo "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`"
+
 	if ( ! -d "${local_file}" && ! -e "${local_file}" ) then
 		printf "Removing stale remote "
 
@@ -53,4 +54,8 @@ foreach remote_file ( "`find '${sshfs_path}/${project_name}' -maxdepth 2`" )
 		printf ":\n\t%s\n" "${remote_file}"
 	endif
 end
+printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n"
+
+cp -r --verbose --update ./* "${sshfs_path}/${project_name}"
+
 printf "\n\n"

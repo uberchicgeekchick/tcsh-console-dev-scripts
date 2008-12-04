@@ -58,4 +58,10 @@ printf "\n\nI am now copying new and/or modified files.\nTo update this project'
 
 cp -r --verbose --update ./* "${sshfs_path}/${project_name}"
 
+# cleaning up swp files that may have been copied to the remote location
+foreach swp ( "`find . -iregex .\*\.swp`" )
+	set swp = "`echo '${swp}' | sed 's/^\.\//${sshfs_path}\/${project_name}\//'`"
+	rm --verbose "${swp}"
+end
+
 printf "\n\n"

@@ -15,3 +15,4 @@ unalias cp
 unalias mv
 
 alias	hostname	"hostname --fqdn"
+alias	wget	"wget --no-check-certificate"

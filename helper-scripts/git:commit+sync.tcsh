@@ -96,6 +96,13 @@ case "cp":
 	# TODO:
 	# make copying use a find search result that skips swp files.
 	cp -r --verbose --update ./* "${sshfs_path}/${project_name}"
+
+	# cleaning up swp files that may have been copied to the remote location
+	foreach swp ( "`find . -iregex .\*\.swp`" )
+		set swp = "`echo '${swp}' | sed 's/^\.\//${sshfs_path}\/${project_name}\//'`"
+		rm --verbose "${swp}"
+	end
+
 	breaksw
 endsw
 

@@ -90,6 +90,7 @@ tt		shift
 			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
 			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast" \
+			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
 		${argv} &
 		breaksw
 	
@@ -141,13 +142,14 @@ tt		shift
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
+			--tab-with-profile="projects" --title="~/" --working-directory="${HOME}" \
+			--tab-with-profile="projects" --title="programs" --working-directory="/programs" \
 			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
-			--tab-with-profile="projects" --title="programs" --working-directory="/programs" \
-			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
-			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
+			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
 		${argv} &
 		breaksw
 	endsw

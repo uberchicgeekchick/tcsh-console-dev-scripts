@@ -1,5 +1,7 @@
 #!/bin/tcsh -f
 
+alias HandBrakeCLI "HandBrakeCLI --cpu 1"
+
 set sound_driver = "esd"
 set video_driver = "opengl"
 set resolution = `cat "/profile.d/resolutions/video/hd.rc"`

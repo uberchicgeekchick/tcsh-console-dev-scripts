@@ -47,8 +47,8 @@ foreach remote_file ( "`find '${sshfs_path}/${project_name}/'`" )
 		printf "Removing stale remote "
 
 		if ( -d "${remote_file}" ) then
-			printf "directory"
-			rmdir "${remote_file}"
+			printf "directory & contents"
+			rm -r "${remote_file}"
 		else if ( -e "${remote_file}" ) then
 			printf "file"
 			rm "${remote_file}"

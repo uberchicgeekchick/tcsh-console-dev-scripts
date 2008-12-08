@@ -100,9 +100,8 @@ case "cp":
 	cp -r --verbose --update ./* "${sshfs_path}/${project_name}"
 
 	# cleaning up swp files that may have been copied to the remote location
-	foreach swp ( "`find . -iregex .\*\.swp`" )
-		set swp = "`echo '${swp}' | sed 's/^\.\///'`"
-		rm --verbose "${sshfs_path}/${project_name}/${swp}"
+	foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex .\*\.swp`" )
+		rm --verbose "${swp}"
 	end
 
 	breaksw

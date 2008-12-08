@@ -32,7 +32,6 @@ foreach swp ( "`find . -iregex .\*\.swp`" )
 	git rm --cached --quiet "${swp}"
 end
 
-
 git commit -a -m "${1}"
 
 foreach remote_git ( `git remote` )

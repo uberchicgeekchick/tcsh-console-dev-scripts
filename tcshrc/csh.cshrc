@@ -14,6 +14,8 @@ set notify
 #set nobeep
 set noclobber
 
+set highlight
+set histfile = "${HOME}/.history"
 set history = 1000
 set savehist = "${history} merge"
 

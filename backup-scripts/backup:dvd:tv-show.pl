@@ -31,7 +31,7 @@ for (my $n; $n<@ARGV; $n++ ) {
 		$video_filename="$series_path/$series_title - Episode $episode - [xvid][vorbis].ogg";
 	} while ( -e "$video_filename" );
 
-	my $handbrake_cli = "$handbrake_exec --cpu 1 --input $dvd_device --title $ARGV[$n] --encoder xvid --aencoder vorbis --output '$video_filename'";
+	my $handbrake_cli = "$handbrake_exec --input $dvd_device --title $ARGV[$n] --encoder xvid --aencoder vorbis --output '$video_filename'";
 	`$handbrake_cli`;
 }
 

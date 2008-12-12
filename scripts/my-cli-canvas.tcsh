@@ -50,13 +50,13 @@ tt		shift
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
-			--tab-with-profile="projects" --title="art" --working-directory="/projects/media/art" \
+			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
-			--tab-with-profile="projects" --title="game-design" --working-directory="/projects/media/game-design" \
-			--tab-with-profile="projects" --title="tools" --working-directory="/projects/media/game-design/tools" \
-			--tab-with-profile="projects" --title="engines" --working-directory="/projects/media/game-design/engines" \
-			--tab-with-profile="projects" --title="libraries" --working-directory="/projects/media/game-design/libraries" \
-			--tab-with-profile="projects" --title="Raydium" --working-directory="/projects/media/game-design/engines/Raydium" \
+			--tab-with-profile="projects" --title="game-design" --working-directory="/projects/games" \
+			--tab-with-profile="projects" --title="tools" --working-directory="/projects/games/tools" \
+			--tab-with-profile="projects" --title="engines" --working-directory="/projects/games/engines" \
+			--tab-with-profile="projects" --title="libraries" --working-directory="/projects/games/libraries" \
+			--tab-with-profile="projects" --title="Raydium" --working-directory="/projects/games/engines/Raydium" \
 		${argv} &
 		breaksw
 
@@ -72,7 +72,7 @@ tt		shift
 			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
-			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast/version-2" \
+			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/www/Alacast/version2" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
 		${argv} &
 		breaksw

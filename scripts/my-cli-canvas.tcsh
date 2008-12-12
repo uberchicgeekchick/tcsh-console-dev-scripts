@@ -16,7 +16,7 @@ sssss
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
-			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 		${argv} &
 		breaksw
@@ -26,7 +26,7 @@ sssss
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
@@ -48,7 +48,7 @@ tt		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
@@ -65,7 +65,7 @@ tt		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
 			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
@@ -82,7 +82,7 @@ tt		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
@@ -99,7 +99,7 @@ tt		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="media library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="my podcasts" --working-directory="/projects/media/podcasts" \
@@ -117,7 +117,7 @@ tt		shift
 			--hide-menubar \
 			--geometry=${alacast_geometry} \
 			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
-			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="projects" --title="podcasts" --working-directory="/media/podcasts" \
@@ -131,7 +131,7 @@ tt		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
-			--tab-with-profile="projects" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
 		${argv} &
 		breaksw

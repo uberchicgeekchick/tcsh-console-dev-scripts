@@ -52,11 +52,11 @@ tt		shift
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
-			--tab-with-profile="projects" --title="game-design" --working-directory="/projects/games" \
 			--tab-with-profile="projects" --title="tools" --working-directory="/projects/games/tools" \
 			--tab-with-profile="projects" --title="engines" --working-directory="/projects/games/engines" \
 			--tab-with-profile="projects" --title="libraries" --working-directory="/projects/games/libraries" \
 			--tab-with-profile="projects" --title="Raydium" --working-directory="/projects/games/engines/Raydium" \
+			--tab-with-profile="projects" --title="game-design" --working-directory="/projects/games" \
 		${argv} &
 		breaksw
 

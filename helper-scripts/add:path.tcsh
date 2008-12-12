@@ -6,13 +6,12 @@ endif
 set new_path = ""
 foreach dir ( `find "${1}" -type d -regex '[^\.]*'` )
 	switch( `basename "${dir}"` )
-	case ".":
-	case "..":
-	case "tmp":
-	case "reference":
-	case "lost+found":
+	case "tmp": case "reference": case "lost+found":
 		breaksw
 	default:
+		set escaped_dir = "`echo '${dir} | sed 's/\//\\\//g'`"
+		if ( "`echo '${PATH}' | sed 's/:\(${dir}\)/\1/g'`" == "${dir}" ) continue
+		
 		set new_path = "${new_path}:${dir}"
 		breaksw
 	endsw
@@ -24,7 +23,11 @@ exit
 
 find_dirs:
 foreach cw_dir ( ${start_dir}/* )
-	if ( - "${start_dir}/${cw_dir}" ) then
+	if ( ! -d "${start_dir}/${cw_dir}" ) continue
+
+		set escaped_dir = "`echo '${start_dir}/${cw_dir}' | sed 's/\//\\\//g'`"
+		if ( "`echo '${PATH}' | sed 's/:\(${escaped_dir}\)/\1/g'`" == "${start_dir}/${cw_dir}" ) continue
+		
 		set new_path = "${new_path}:${start_dir}/${cw_dir}"
 		set dir_before = "${start_dir}/${cw_dir}"
 		goto find_dirs

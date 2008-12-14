@@ -9,7 +9,7 @@ foreach dir ( "`find '${1}' -regextype posix-extended -regex '[^\.]*' -type d`" 
 	case "tmp": case "reference": case "lost+found":
 		breaksw
 	default:
-		set escaped_dir = "`echo '${dir} | sed 's/\//\\\//g'`"
+		set escaped_dir = "`echo '${dir}' | sed 's/\//\\\//g'`"
 		if ( "`echo '${PATH}' | sed 's/:\(${escaped_dir}\)/\1/g'`" == "${dir}" ) continue
 		
 		set new_path = "${new_path}:${dir}"

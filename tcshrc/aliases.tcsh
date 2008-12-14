@@ -16,4 +16,4 @@ unalias mv
 
 alias	hostname	"hostname --fqdn"
 alias	"wget"		"wget --no-check-certificate"
-alias	"screen-sever"	"gnome-screensaver-command --activate"
+alias	"screen-sever"	"gnome-screensaver-command --activate &"

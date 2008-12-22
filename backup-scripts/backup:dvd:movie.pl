@@ -14,4 +14,4 @@ my $rip_cmd="$handbrake_exec --input $dvd_device --title 1 --encoder xvid --aenc
 
 `$rip_cmd`;
 
-`sudo eject $dvd_device`;
+`eject $dvd_device`;

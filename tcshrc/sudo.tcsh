@@ -2,7 +2,7 @@
 
 complete sudo "p/1/c/"
 
-set sudo_commands = "visudo gdmsetup chown chgrp zypper neject reboot poweroff halt init yast2 /srv/mysql/mysql.init.d esound"
+set sudo_commands = "visudo gdmsetup chown chgrp zypper neject reboot poweroff halt init yast2 /srv/mysql/mysql.init.d esound eject"
 
 
 foreach command ( `echo "${sudo_commands}"` )

@@ -13,8 +13,7 @@ alias	vim	"vim-enhanced -p"
 
 alias screen "/usr/bin/screen -aAURx"
 
-setenv PATH "${PATH}:/projects/www/Alacast/bin:/projects/www/Alacast/bin/support/gpodder"
-setenv PATH "${PATH}:/projects/gtk/GTK-PHP-IDE/bin:/projects/media/game-design/raydium/bin"
+setenv PATH "${PATH}:/programs/GTK-PHP-IDE/bin:/projects/games/engines/Raydium/raydium/bin"
 
 
 complete kill_program.tcsh "p/*/c/"
@@ -22,4 +21,6 @@ complete interupt_program.tcsh "p/*/c/"
 
 if ( `mount | grep "/projects/ssh"` == "" ) sshfs dreams@avalon.ocssolutions.com:/home/dreams /projects/ssh
 
+source /projects/console/helper-scripts/add:path.tcsh /projects/www/Alacast/bin
+source /projects/console/helper-scripts/add:path.tcsh /projects/gtk/Alacast/bin
 source /projects/console/helper-scripts/add:path.tcsh /projects/console

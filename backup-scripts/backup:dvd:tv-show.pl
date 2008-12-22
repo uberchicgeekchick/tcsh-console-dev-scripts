@@ -35,5 +35,5 @@ for (my $n; $n<@ARGV; $n++ ) {
 	`$handbrake_cli`;
 }
 
-`sudo eject $dvd_device`;
+`eject $dvd_device`;
 

@@ -24,19 +24,21 @@ set sshfs_path = "/projects/ssh"
 set ssh_user = "dreams"
 set ssh_server = "avalon.ocssolutions.com"
 
-git add .
-
-# Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
-foreach swp ( "`find . -iregex .\*\.swp`" )
-	set swp = "`echo '${swp}' | sed 's/^\.\///'`"
-	git rm --cached --quiet "${swp}"
-end
-
-git commit -a -m "${1}"
-
-foreach remote_git ( `git remote` )
-	git push "${remote_git}"
-end
+if ( ! -e ".no.git.commit" ) then
+	git add .
+	
+	# Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
+	foreach swp ( "`find . -iregex .\*\.swp`" )
+		set swp = "`echo '${swp}' | sed 's/^\.\///'`"
+		git rm --cached --quiet "${swp}"
+	end
+	
+	git commit -a -m "${1}"
+	
+	foreach remote_git ( `git remote` )
+		git push "${remote_git}"
+	end
+endif
 
 if ( "${?2}" == "1" && "${2}" != "" ) then
 	set sync_method = "${2}"

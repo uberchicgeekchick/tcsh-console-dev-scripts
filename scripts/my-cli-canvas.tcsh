@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 
 foreach which_canvas ( "${argv}" )
 	set default_geometry = `cat "/profile.d/resolutions/gnome-terminal/default.rc"`
@@ -71,6 +71,9 @@ tt		shift
 			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
+			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
+			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
+			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/mirrors/uberChicGeekChick.Com" \
 		${argv} &
 		breaksw
@@ -106,7 +109,7 @@ tt		shift
 	case 'Media:Social':
 		shift
 		if ( -e "${HOME}/.rtorrent.rc" ) then
-			set rtorrent_session_dir = "`/usr/bin/grep session '${HOME}/.rtorrent.rc' | /usr/bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`"
+			set rtorrent_session_dir = `/usr/bin/grep "session" "${HOME}/.rtorrent.rc" | /usr/bin/sed "s/^[^=]\+=\ \(.*\)$/\1/g"`
 			if ( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
 				if ( -e "${rtorrent_session_dir}/rtorrent.lock" ) rm -f "${rtorrent_session_dir}/rtorrent.lock"
 				if ( -e "${rtorrent_session_dir}/rtorrent.dht_cache" ) rm -f "${rtorrent_session_dir}/rtorrent.dht_cache"
@@ -148,6 +151,7 @@ tt		shift
 			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
+			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/mirrors/uberChicGeekChick.Com" \
 			--tab-with-profile="projects" --title="~/" --working-directory="${HOME}" \
 		${argv} &

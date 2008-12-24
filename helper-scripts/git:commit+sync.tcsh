@@ -24,18 +24,18 @@ set sshfs_path = "/projects/ssh"
 set ssh_user = "dreams"
 set ssh_server = "avalon.ocssolutions.com"
 
-if ( ! -e ".no.git.commit" ) then
-	git add .
+git add .
 	
-	# Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
-	foreach swp ( "`find . -iregex .\*\.swp`" )
-		set swp = "`echo '${swp}' | sed 's/^\.\///'`"
-		git rm --cached --quiet "${swp}"
-	end
+# Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
+foreach swp ( "`find . -iregex .\*\.swp`" )
+	set swp = "`echo '${swp}' | sed 's/^\.\///'`"
+	git rm --cached --quiet "${swp}"
+end
 	
-	git commit -a -m "${1}"
-	
-	foreach remote_git ( `git remote` )
+git commit -a -m "${1}"
+
+if ( ! -e ".no.remote.commit" ) then
+	foreach remote_git ( "`git remote`" )
 		git push "${remote_git}"
 	end
 endif

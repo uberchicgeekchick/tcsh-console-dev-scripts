@@ -132,8 +132,6 @@ tt		shift
 			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="projects" --title="podcasts" --working-directory="/media/podcasts" \
-			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
-			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="uberChicGeekChicks-Podcast-Syncronizer" --working-directory="/projects/www/Alacast/bin" --command="/projects/www/Alacast/bin/uberChicGeekChicks-Podcast-Syncronizer.php --update=detailed --logging --player=xine --interactive" \
 		${argv} &
 		breaksw

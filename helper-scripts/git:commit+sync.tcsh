@@ -34,7 +34,7 @@ end
 	
 git commit -a -m "${1}"
 
-if ( ! -e ".no.remote.commit" ) then
+if ( ! -e ".skip:git.push" ) then
 	foreach remote_git ( "`git remote`" )
 		git push "${remote_git}"
 	end

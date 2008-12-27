@@ -17,6 +17,7 @@ sssss
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 		${argv} &
 		breaksw
@@ -29,6 +30,7 @@ sssss
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
@@ -50,6 +52,7 @@ tt		shift
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
@@ -68,6 +71,7 @@ tt		shift
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
 			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
@@ -86,6 +90,7 @@ tt		shift
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
@@ -101,6 +106,8 @@ tt		shift
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
+			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="media library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="my podcasts" --working-directory="/projects/media/podcasts" \
@@ -125,6 +132,7 @@ tt		shift
 			--tab-with-profile="projects" --title="media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="projects" --title="podcasts" --working-directory="/media/podcasts" \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="uberChicGeekChicks-Podcast-Syncronizer" --working-directory="/projects/www/Alacast/bin" --command="/projects/www/Alacast/bin/uberChicGeekChicks-Podcast-Syncronizer.php --update=detailed --logging --player=xine --interactive" \
 		${argv} &
@@ -137,6 +145,7 @@ tt		shift
 			--geometry=${default_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="uberChick" --title="~/" --working-directory="${HOME}" \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 		${argv} &
 		breaksw
 	case "CLI":
@@ -151,6 +160,7 @@ tt		shift
 			--tab-with-profile="projects" --title="programs" --working-directory="/programs" \
 			--tab-with-profile="projects" --title="srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/mirrors/uberChicGeekChick.Com" \

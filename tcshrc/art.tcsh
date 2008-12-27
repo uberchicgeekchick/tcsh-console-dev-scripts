@@ -21,7 +21,7 @@ complete interupt_program.tcsh "p/*/c/"
 
 if ( `mount | grep "/projects/ssh"` == "" ) sshfs dreams@avalon.ocssolutions.com:/home/dreams /projects/ssh
 
-source /projects/console/helper-scripts/add:path.tcsh /projects/gtk/Alacast/bin
+source /projects/console/tcsh-dev/helper-scripts/add:path.tcsh /projects/gtk/Alacast/bin
 
-source /projects/console/helper-scripts/add:path.tcsh /projects/www/Alacast/bin
-source /projects/console/helper-scripts/add:path.tcsh /projects/console
+source /projects/console/tcsh-dev/helper-scripts/add:path.tcsh /projects/www/Alacast/bin
+source /projects/console/tcsh-dev/helper-scripts/add:path.tcsh /projects/console/tcsh-dev

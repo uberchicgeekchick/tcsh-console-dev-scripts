@@ -58,7 +58,7 @@ foreach remote_file ( "`find '${sshfs_path}/${project_name}/'`" )
 end
 printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n"
 
-cp -r --verbose --update ./* "${sshfs_path}/${project_name}"
+cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}"
 
 # cleaning up swp files that may have been copied to the remote location
 foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex .\*\.swp`" )

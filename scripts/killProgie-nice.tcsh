@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 
 set killedProgies = "false";
 set lastKilledProgie = "null";

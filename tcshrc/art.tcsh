@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-alias blender "blender -p 80 80 1300 800"
+alias blender "blender -p 80 80 1400 800"
 alias cmake "cmake -Wno-dev"
 
 alias	mysql	"mysql --socket=/srv/mysql/mysql.sock -u${USER} -p"

@@ -47,12 +47,11 @@ sssss
 	
 	case 'Programming:Games':
 tt		shift
-		set geometry = `cat "/profile.d/resolutions/gnome-terminal/game-dev.rc"`
+		set canvas_geometry = `cat "/profile.d/resolutions/gnome-terminal/game-dev.rc"`
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="screen" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \

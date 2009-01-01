@@ -90,7 +90,7 @@ set listjobs=long
 set notify=1
 set nostat=( /afs )
 set rmstar=1
-set savehist=( $history merge )
+set savehist=1000 merge
 set showdots=1
 set symlinks=ignore
 #
@@ -106,7 +106,7 @@ if ( -x /usr/bin/dircolors ) then
 endif
 setenv LS_OPTIONS '--color=tty'
 if ( ${?LS_COLORS} ) then
-    if ( "${LS_COLORS}" == "" ) setenv LS_OPTIONS '--color=none'
+    if ( "${LS_COLORS}" == "" ) setenv LS_OPTIONS '--color=always'
 endif
 unalias ls
 if ( "$uid" == "0" ) then

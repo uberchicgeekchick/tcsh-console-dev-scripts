@@ -90,7 +90,7 @@ set listjobs=long
 set notify=1
 set nostat=( /afs )
 set rmstar=1
-set savehist=1000 merge
+set savehist=(1000 merge)
 set showdots=1
 set symlinks=ignore
 #
@@ -227,7 +227,7 @@ endif
 # Local configuration
 #
 if ( -r /etc/csh.cshrc.local ) source /etc/csh.cshrc.local
-if ( -r /profile.d/tcshrc/csh.cshrc ) source /profile.d/tcsh/csh.cshrc
+if ( -r /profile.d/tcshrc/csh.cshrc ) source /profile.d/tcshrc/csh.cshrc
 
 #
 # End of /etc/csh.cshrc

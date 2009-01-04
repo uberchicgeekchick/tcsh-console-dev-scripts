@@ -11,13 +11,13 @@ set search_dir = "./"
 if ( "${?1}" != "0" && "${1}" != "" && -d "${1}" ) set search_dir = "${1}"
 
 set session_started = ""
-foreach swp ( "`find ${search_dir} -iregex .\*\.swp`" )
+foreach swp ( "`find . -iregex '\..*\.swp' | sed 's/\/\.\(.*\)\.swp/\/\1/g'`" )
 	if ( "${session_started}" == "" ) then
 		set session_started = "[done]"
-		printf "#\!/bin/tcsh -f\nvim-enhanced '+tabdo %s-2' -p " '$' >! "${session_exec}"
+		printf '#\!/bin/tcsh -f\nvim-enhanced -p '\''+tabdo $-2'\' >! "${session_exec}"
 	endif
 
-	printf "${swp}" | sed 's/\(.*\)\/\.\(.*\.opml\).swp/"\1\/\2"\ /g' >> "${session_exec}"
+	printf " %s${swp}%s" '"' '"' >> "${session_exec}"
 	if ( "${clean_up}" == "yes" ) rm "${swp}"
 end
 

@@ -19,9 +19,6 @@ set histfile = "/profile.d/history"
 set history = 1000
 set savehist = (1000 merge)
 
-set ellipsis
-set prompt = "\n%B%{^[[105m%}(%p on %Y-%W-%D)\n%{^[[35m%}[ %m %n ]\n%{^[[31m%}@%c3/%{^[[35m%}# "
-
 set colorcat
 
 set correct=cmd

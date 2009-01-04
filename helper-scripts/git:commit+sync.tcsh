@@ -39,7 +39,7 @@ git add .
 	
 # Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
 foreach swp ( "`find . -iregex .\*\.swp`" )
-	set swp = "`echo '${swp}' | sed 's/^\.\///'`"
+	set swp = "`printf '${swp}' | sed 's/^\.\///'`"
 	git rm --cached --quiet "${swp}"
 end
 	
@@ -79,15 +79,15 @@ case "cp":
 	# compare "${sshfs_path}/${project_name}/" against ./
 	# and remove remote files that no longer exist locally.
 	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n"
-	set remove_remote_regexp = "`echo '${sshfs_path}/${project_name}/' | sed 's/\//\\\//g'`"
+	set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`"
 	foreach remote_file ( "`find '${sshfs_path}/${project_name}/'`" )
 		# escape special characters to keep them from being expanded by the terminal
-		# set remote_file = "`echo '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`"
+		# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`"
 
-		set git_test = `echo "${remote_file}" | sed 's/.*\(\/\.git\).*/\1/g'`
+		set git_test = "`printf "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`"
 		if ( "${git_test}" == "/.git" ) continue
 
-		set local_file = "`echo "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`"
+		set local_file = "`printf "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`"
 
 		if ( ! -d "${local_file}" && ! -e "${local_file}" ) then
 			printf "Removing stale remote "

@@ -11,11 +11,21 @@ case "no-sync":
 	breaksw
 endsw
 
+set sync_method = ""
 if ( -e "./.sync.default" ) then
 	set sync_method = `cat ./.sync.default`
 else
 	set sync_method = "no-sync"
 endif
+
+set skip_remote = ""
+while ( "${?2}" == "1" && "${2}" != "" )
+	if ( "${2}" == "--skip-remote" ) then
+		set skip_remote = "yes"
+	else
+		set sync_method = "${2}"
+	endif
+end
 
 set project_name = "`basename '${cwd}'`"
 
@@ -34,16 +44,12 @@ end
 	
 git commit -a -m "${1}"
 
-if ( "${?2}" == "1" && "${2}" != "--no-remote" ) then
+if ( "${skip_remote}" == "yes" ) then
 	if ( ! -e ".skip:git.push" ) then
 		foreach remote_git ( "`git remote`" )
 			git push "${remote_git}"
 		end
-	end
-endif
-
-if ( "${?2}" == "1" && "${2}" != "" ) then
-	set sync_method = "${2}"
+	endif
 endif
 
 goto check_sync

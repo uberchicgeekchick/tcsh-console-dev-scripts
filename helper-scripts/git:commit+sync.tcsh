@@ -25,6 +25,7 @@ while ( "${?2}" == "1" && "${2}" != "" )
 	else
 		set sync_method = "${2}"
 	endif
+	shift
 end
 
 set project_name = "`basename '${cwd}'`"
@@ -44,12 +45,10 @@ end
 	
 git commit -a -m "${1}"
 
-if ( "${skip_remote}" == "yes" ) then
-	if ( ! -e ".skip:git.push" ) then
-		foreach remote_git ( "`git remote`" )
-			git push "${remote_git}"
-		end
-	endif
+if ( "${skip_remote}" == "yes" || ! -e ".skip:git.push" ) then
+	foreach remote_git ( "`git remote`" )
+		git push "${remote_git}"
+	end
 endif
 
 goto check_sync

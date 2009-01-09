@@ -9,8 +9,11 @@ alias	l	"ll"
 alias	la	"ls -a"
 alias	lA	"ls -A"
 
+
 alias	df	"df --human-readable"
 alias	du	"du --summarize --human-readable"
+alias	cwddu	"du ./*"
+
 #alias	cp	"cp --interactive"
 unalias cp
 #alias	mv	"mv --interactive"

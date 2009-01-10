@@ -93,7 +93,6 @@ tt		shift
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="/ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
-			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/console/tcsh-dev" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \

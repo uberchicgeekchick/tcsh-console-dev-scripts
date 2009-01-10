@@ -1,4 +1,5 @@
 #!/bin/tcsh -f
+exit
 set ssh_user = "dreams"
 set ssh_server = "avalon.ocssolutions.com"
 set ssh_mount_point = "/projects/ssh"

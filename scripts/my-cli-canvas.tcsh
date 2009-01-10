@@ -18,7 +18,7 @@ foreach which_canvas ( "${argv}" )
 			--geometry=${default_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
-			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
+			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="~/" --working-directory="${HOME}" \
 		${argv} &
 		breaksw
@@ -29,16 +29,17 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="/srv" --working-directory="/srv" \
-			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="ssh" --working-directory="/projects/ssh" \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
+			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/console/tcsh-dev" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
 			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
+			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
 			--tab-with-profile="projects" --title="MyWebDesigns" --working-directory="/projects/www/MyWebDesigns" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/mirrors/uberChicGeekChick.Com" \
 			--tab-with-profile="projects" --title="my media" --working-directory="/projects/media" \
@@ -54,12 +55,12 @@ tt		shift
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
-			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="tools" --working-directory="/projects/games/tools" \
 			--tab-with-profile="projects" --title="engines" --working-directory="/projects/games/engines" \
 			--tab-with-profile="projects" --title="libraries" --working-directory="/projects/games/libraries" \
 			--tab-with-profile="projects" --title="Raydium" --working-directory="/projects/games/engines/Raydium" \
+			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="game-design" --working-directory="/projects/games" \
 		${argv} &
 		breaksw
@@ -70,11 +71,11 @@ tt		shift
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="/srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="/ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
-			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
+			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast-v2" \
 			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/www/AOPHP" \
 			--tab-with-profile="projects" --title="realFriends" --working-directory="/projects/www/realFriends" \
 			--tab-with-profile="projects" --title="uberSocial" --working-directory="/projects/www/uberSocial" \
@@ -89,10 +90,11 @@ tt		shift
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="/ssh" --working-directory="/projects/ssh" \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
+			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/console/tcsh-dev" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
@@ -105,8 +107,8 @@ tt		shift
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="/ssh" --working-directory="/projects/ssh" \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="/media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="/media-library" --working-directory="/media/media-library" \
@@ -156,12 +158,12 @@ tt		shift
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
 			--tab-with-profile="projects" --title="/programs" --working-directory="/programs" \
 			--tab-with-profile="projects" --title="/srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="/media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="/ssh" --working-directory="/projects/ssh" \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="~/" --working-directory="${HOME}" \
 		${argv} &
 		breaksw

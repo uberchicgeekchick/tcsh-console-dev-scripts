@@ -1,12 +1,13 @@
 #!/bin/tcsh -f
-if ( ! ( "${?1}" == "1" && -d "${1}" && -e "${1}/funcref.html" ) ) goto usage_error
+if ( ! ( "${?1}" == "1" && -d "${1}" ) ) goto usage_error
 
 usage_error:
-printf "Usage: %s path manual toc index\
+printf "Usage: %s manual path toc index\
+	\
+	manual		The name \
+	\
 	path		the location of manual to create a devhelp entry for.\
-		-\
-			--\
-				-\
-					--\
-						-\
-							\n" "`basename '${0}'`"
+	\
+	toc		Table of Contents\
+	\
+	index		The manual's index listing functions, properties, and etc.\n" "`basename '${0}'`"

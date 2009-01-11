@@ -1,4 +1,5 @@
 #!/bin/tcsh -f
+cd `basename "${0}"`
 if ( ! -d "./genres" ) mkdir "./genres"
 foreach title ( "`find ./genres -iname '*.mp3'`" )
 	set artist = "`printf '${title}' | sed 's/.*\/\(.*\)\ \-\ \(.*\)\.mp3/\1/g' `"

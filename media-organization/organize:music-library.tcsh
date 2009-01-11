@@ -1,6 +1,5 @@
 #!/bin/tcsh -f
-set music_catalog = `dirname "${0}"`
-set music_catalog = `basename "${music_catalog}"`
+set music_catalog = `basename "${cwd}"`
 set artists_dir = ""
 
 set genres_dir = ""
@@ -26,17 +25,26 @@ endif
 if ( ! -d "./Genres" ) mkdir "./Genres"
 foreach title ( "`find ./Genres -iname '*.mp3'`" )
 	set separator = "`printf '${title}' | sed 's/.*\/\(.*\)\ \(by\|\-\)\ \(.*\)\.mp3/\2/g'`"
-	if ( "${separator}" == "by" ) then
+	switch ( "${separator}" )
+	case "by":
 		set song = "`printf '${title}' | sed 's/.*\/\(.*\)\ \(by\|\-\)\ \(.*\)\.mp3/\1/g'`"
 		set artist = "`printf '${title}' | sed 's/.*\/\(.*\)\ \(by\|\-\)\ \(.*\)\.mp3/\3/g'`"
-	else if ( "${separator}" == "-" ) then
+		breaksw
+	case "-":
 		set song = "`printf '${title}' | sed 's/.*\/\(.*\)\ \(by\|\-\)\ \(.*\)\.mp3/\3/g'`"
 		set artist = "`printf '${title}' | sed 's/.*\/\(.*\)\ \(by\|\-\)\ \(.*\)\.mp3/\1/g'`"
-	else
+		breaksw
+	default:
+		set song = ""
+		set artist = ""
+		breaksw
+	endsw
+
+	if ( "${artist}" == "" || "${song}" == ""  ) then
 		printf "I was unable to find the artist and song title for %s\n" "${title}"
 		continue
 	endif
-
+	
 	printf "Linking %s to %s/%s.mp3\n" "${title}" "${artist}" "${song}"
 	if ( ! -e "./Artists/${artist}/${song}.mp3" ) then
 		if ( ! -d "./Artists/${artist}" ) mkdir -p "./Artists/${artist}"

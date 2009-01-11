@@ -1,27 +1,30 @@
 #!/bin/tcsh -f
-set my_editor = ""
-if ( "${?1}" == "1" ) then
-	set my_editor = "${1}"
-	shift
-else
-	set my_editor = "`printf '${0}' | sed 's/.*\/\([^:]\+\).*/\1/g'`"
-endif
-set my_editor = `where "${my_editor}" | head -1`
+set clean_up = "no"
+set search_dir = "./"
+set my_editor = "`printf '${0}' | sed 's/.*\/\([^:]\+\).*/\1/g'`"
 
+while ( "${?1}" != "0" && "${1}" != "" )
+	case -d:
+		set search_dir = "${1}"
+		breaksw
+	
+	case "--clean-up":
+		set clean_up = "yes"
+		breaksw
+	
+	default:
+		set my_editor = "${1}"
+		breaksw
+	shift
+end
+
+set my_editor = `where "${my_editor}" | head -1`
 if( ! -e "${my_editor}" ) then
 	set my_editor = "${EDITOR}"
 endif
 set my_editor = `basename "${my_editor}"`
+
 set session_exec = "./${my_editor}.session.tcsh"
-
-set clean_up = "no"
-if ( "${?1}" == "1" && "${1}" == "--clean-up" ) then
-	set clean_up = "yes"
-	shift
-endif
-
-set search_dir = "./"
-if ( "${?1}" != "0" && "${1}" != "" && -d "${1}" ) set search_dir = "${1}"
 
 set session_started = ""
 foreach swp ( "`find ${search_dir} -iregex '\..*\.swp' | sed 's/\/\.\(.*\)\.swp/\/\1/g'`" )

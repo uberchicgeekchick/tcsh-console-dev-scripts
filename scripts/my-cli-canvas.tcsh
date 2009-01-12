@@ -121,8 +121,8 @@ tt		shift
 		if ( -e "${HOME}/.rtorrent.rc" ) then
 			set rtorrent_session_dir = `/usr/bin/grep "session" "${HOME}/.rtorrent.rc" | /usr/bin/sed "s/^[^=]\+=\ \(.*\)$/\1/g"`
 			if ( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
-				if ( -e "${rtorrent_session_dir}/rtorrent.lock" ) rm -f "${rtorrent_session_dir}/rtorrent.lock"
-				if ( -e "${rtorrent_session_dir}/rtorrent.dht_cache" ) rm -f "${rtorrent_session_dir}/rtorrent.dht_cache"
+				rm -f "${rtorrent_session_dir}/rtorrent.lock"
+				rm -f "${rtorrent_session_dir}/rtorrent.dht_cache"
 			endif
 		endif
 		
@@ -131,8 +131,8 @@ tt		shift
 			--geometry=${alacast_geometry} \
 			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="/ssh" --working-directory="/projects/ssh" \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="/media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="projects" --title="podcasts" --working-directory="/media/podcasts" \

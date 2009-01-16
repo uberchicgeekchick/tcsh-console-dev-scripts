@@ -40,11 +40,13 @@ default:
 	breaksw
 endsw
 
-set gpodder_dl_dir = "`grep 'download_dir' '${HOME}/.config/gpodder/gpodder.conf' | cut -d= -f2 | cut -d"\"" "\"" -f2`"
+set gpodder_dl_dir = "`grep 'download_dir' '${HOME}/.config/gpodder/gpodder.conf' | cut -d= -f2 | cut -d' ' -f2`"
 
 foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
-	printf "${index}\n"
-	/usr/bin/grep --perl-regex -e "${attrib}=["\""'\''].*${value}.*["\""'\'']" "${index}" | sed "s/.*${search_for}=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/"
+	set search_value = "`/usr/bin/grep --perl-regex -e '<${attrib}>.*${value}.*<\/${attrib}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${search_for}>\([^<]\+\)<\/${search_for}>.*/\1/g'`"
+	if ( "${search_value}" != "" ) then
+		printf "${index}: ${search_value}\n"
+	endif
 end
 
 exit

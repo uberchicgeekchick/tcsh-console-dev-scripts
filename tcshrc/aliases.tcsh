@@ -6,8 +6,8 @@ setenv LS_OPTIONS "--human-readable --color --quoting-style=escape --classify"
 alias	ls	"ls ${LS_OPTIONS}"
 alias	ll	"ls -l"
 alias	l	"ll"
-alias	la	"ls -a"
-alias	lA	"ls -A"
+alias	lt	"ls --width=1"
+alias	la	"ls -A"
 
 
 alias	df	"df --human-readable"

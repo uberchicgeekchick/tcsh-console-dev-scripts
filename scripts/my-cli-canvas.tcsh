@@ -75,7 +75,7 @@ tt		shift
 			--tab-with-profile="projects" --title="/ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
 			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
-			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast-v2" \
+			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/www/AOPHP" \
 			--tab-with-profile="projects" --title="realFriends" --working-directory="/projects/www/realFriends" \
 			--tab-with-profile="projects" --title="uberSocial" --working-directory="/projects/www/uberSocial" \

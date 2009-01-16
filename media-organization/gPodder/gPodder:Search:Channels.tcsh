@@ -21,10 +21,26 @@ default:
 	breaksw
 endsw
 
-/usr/bin/grep --perl-regex -e "${attrib}=["\""'\''].*${value}.*["\""'\'']" "${HOME}/.config/gpodder/channels.opml" | sed 's/.*xmlUrl=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/'
+switch ( "${2}" )
+case "title":
+case "htmlUrl":
+case "text":
+case "description":
+	set search_for = "${2}"
+	breaksw
+case "help":
+	goto usage
+	breaksw
+case "xmlUrl":
+default:
+	set search_for = "xmlUrl"
+	breaksw
+endsw
+											
+/usr/bin/grep --perl-regex -e "${attrib}=["\""'\''].*${value}.*["\""'\'']" "${HOME}/.config/gpodder/channels.opml" | sed "s/.*${search_for}=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/"
 
 exit
 
 usage:
-	printf "Usage| %s --[title|xmlUrl|htmlUrl|text|description]='[search_term]'\n" `basename "${0}"`
+	printf "Usage| %s [--title|description|link|url|guid|pubData=]'search_term' [attribute to display, defaults to title]\n" `basename "${0}"`
 	exit

@@ -16,9 +16,9 @@ foreach genre ( "`find '${podcasts_download_path}' -type d -name '${music_librar
 end
 
 foreach title ( "`find ./genres -iname '*.mp3'`" )
-	set song = "`printf '${title}' | sed 's/.*\/\(.*\)\ by\ \(.*\)\.mp3/\1/g' `"
-	set artist = "`printf '${title}' | sed 's/.*\/\(.*\)\ by\ \(.*\)\.mp3/\2/g' `"
-	printf "Linking %s to %s/%s.mp3\n" "${title}" "${artist}" "${song}"
+	set song = "`printf '${title}' | sed 's/.*\/\(.*\)\ \-\ \(.*\)\.mp3/\2/g' `"
+	set artist = "`printf '${title}' | sed 's/.*\/\(.*\)\ \-\ \(.*\)\.mp3/\1/g' `"
+	printf "Linking %s to artists/%s/%s.mp3\n" "${title}" "${artist}" "${song}"
 	if ( ! -e "./artists/${artist}/${song}.mp3" ) then
 		if ( ! -d "./artists/${artist}" ) mkdir -p "./artists/${artist}"
 		ln "${title}" "./artists/${artist}/${song}.mp3"

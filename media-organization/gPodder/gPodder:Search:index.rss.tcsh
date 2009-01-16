@@ -1,26 +1,55 @@
 #!/bin/tcsh -f
-if ( "${?1}" != "0" && ( "${1}" == "--output" || "${1}" == "-o" ) ) then
-	set output_file = "true"
-	shift
-endif
+if ( "${?1}" == "0" || "${1}" == "" ) goto usage
 
-if ( "${?1}" == "0" || "${1}" == "" ) then
-	printf "Usage:\n\t%s [-o, --output] seach_term" $0
-	exit -1
-endif
+set attrib = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\1/g'`"
+set value = ""
 
-search:
-set gpodder_dl_dir = `grep "download_dir" "${HOME}/.config/gpodder/gpodder.conf" | cut -d= -f2 | cut -d" " -f2`
-foreach index ( `find "${gpodder_dl_dir}" -name index.xml` )
-	set index_file = `/usr/bin/grep --perl-regexp --with-filename "${1}" "${index}" | cut -d':' -f1 | uniq`
-	if ( "${index_file}" != "" && -e "${index_file}" ) then
-		printf "%s\n" ${index_file}
-		if ( "${?output_file}" == "1" ) then
-			set files_size = `cat "${index_file}" | wc -l`
-			cat "${index_file}" | /usr/bin/grep --color --line-number --context="${files_size}" "${1}"
-		endif
-	endif
+switch ( "${attrib}" )
+case "title":
+case "description":
+case "link":
+case "url":
+case "guid":
+case "pubDate":
+	set value = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`"
+	breaksw
+case "help":
+	goto usage
+	breaksw
+default:
+	set attrib = "title"
+	set value = "${1}"
+	breaksw
+endsw
+
+switch ( "${2}" )
+case "title":
+case "description":
+case "link":
+case "url":
+case "guid":
+case "pubDate":
+	set search_for = "${2}"
+	breaksw
+case "help":
+	goto usage
+	breaksw
+case "title":
+default:
+	set search_for = "title"
+	breaksw
+endsw
+
+set gpodder_dl_dir = "`grep 'download_dir' '${HOME}/.config/gpodder/gpodder.conf' | cut -d= -f2 | cut -d"\"" "\"" -f2`"
+
+foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
+	printf "${index}\n"
+	/usr/bin/grep --perl-regex -e "${attrib}=["\""'\''].*${value}.*["\""'\'']" "${index}" | sed "s/.*${search_for}=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/"
 end
 
-shift
-if ( "${?1}" != "0" && "${1}" != "" ) goto search
+exit
+
+usage:
+	printf "Usage| %s [--title|description|link|url|guid|pubData=]'search_term' [attribute to display, defaults to title]\n" `basename "${0}"`
+	exit
+

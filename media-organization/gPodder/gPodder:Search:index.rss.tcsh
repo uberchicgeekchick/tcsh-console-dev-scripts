@@ -1,6 +1,12 @@
 #!/bin/tcsh -f
 if ( "${?1}" == "0" || "${1}" == "" ) goto usage
 
+set be_verbose = ""
+if ( "${1}" == "--verbose" ) then
+	set be_verbose = "TRUE"
+	shift
+endif
+
 set attrib = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\1/g'`"
 set value = ""
 
@@ -43,15 +49,19 @@ endsw
 set gpodder_dl_dir = "`grep 'download_dir' '${HOME}/.config/gpodder/gpodder.conf' | cut -d= -f2 | cut -d' ' -f2`"
 
 foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
-	set search_value = "`/usr/bin/grep --perl-regex -e '<${attrib}>.*${value}.*<\/${attrib}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${search_for}>\([^<]\+\)<\/${search_for}>.*/\1/g'`"
-	if ( "${search_value}" != "" ) then
-		printf "${index}: ${search_value}\n"
+	set found = "`/usr/bin/grep --perl-regex -e '<${attrib}>.*${value}.*<\/${attrib}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${search_for}>\([^<]\+\)<\/${search_for}>.*/\1/g'`"
+	if ( "${found}" != "" ) then
+		printf "%s: \t%s\n" "${index}" "${found}"
+		if ( "${be_verbose}" == "TRUE" ) then
+			cat "${index}"
+			printf "\n\n"
+		endif
 	endif
 end
 
 exit
 
 usage:
-	printf "Usage| %s [--title|description|link|url|guid|pubData=]'search_term' [attribute to display, defaults to title]\n" `basename "${0}"`
+	printf "Usage| %s [--verbose] [--title(default)|description|link|url|guid|pubData=]'search_term' [attribute to display, defaults to title]\n" `basename "${0}"`
 	exit
 

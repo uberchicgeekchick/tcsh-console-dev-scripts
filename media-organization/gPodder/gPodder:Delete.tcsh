@@ -18,7 +18,7 @@ default:
 	breaksw
 endsw
 
-foreach podcast ( "`/usr/bin/grep --perl-regex -e '${attrib}=["\""'\''].*${value}.*["\""'\'']' '${HOME}/.config/gpodder/channels.opml' | sed 's/.*xmlUrl=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/'`" )
+foreach podcast ( "`/usr/bin/grep --perl-regex -e '${attrib}=["\""'\''].*${value}.*["\""'\'']' '${HOME}/.config/gpodder/channels.opml' | sed 's/.*xmlUrl=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/' | sed 's/\(&amp;\)amp;/\1/g'`" )
 	printf "Deleting: %s\n" "${podcast}"
 	gpodder --del="${podcast}"
 end

@@ -9,7 +9,7 @@ bindkey	"^Z" run-fg-editor;
 alias	vi	"vim-enhanced -p"
 alias	vim	"vim-enhanced -p"
 
-#alias	ex	"ex -s"
+alias	exs	"ex -s"
 
 alias screen "/usr/bin/screen -aAURx"
 

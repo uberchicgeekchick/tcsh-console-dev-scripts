@@ -8,7 +8,7 @@ set prompt = "\n%B%{^[[105m%}(%p on %Y-%W-%D)\n%{^[[35m%}[ %m %n ]\n%{^[[31m%}@%
 
 # Used wherever normal csh prompts with a question mark.
 # set prompt2="%B%R?>%b "
-set prompt2="%B%R%b%S?%s%L"
+# set prompt2="%B%R%b%S?%s%L"
 
 
 # Used  when displaying  the  corrected command line when automatic
@@ -16,5 +16,5 @@ set prompt2="%B%R%b%S?%s%L"
 #
 # set prompt3="CORRECT>%R (y|n|e)?"
 # set prompt3="%BCORRECT%b%S>%s%R (%By%b|%Bn%b|%Be%b)%S?%s%L"
-set prompt3="%{^[[41;33;5m%}CORRECT%S\n\t>%s%R (%By%b|%Bn%b|%Be%b)%S?%s%L\n\t(y|n|e)"
+# set prompt3="%{^[[41;33;5m%}CORRECT%S\n\t>%s%R (%By%b|%Bn%b|%Be%b)%S?%s%L\n\t(y|n|e)"
 

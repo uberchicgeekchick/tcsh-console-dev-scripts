@@ -36,7 +36,7 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
 			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/console/tcsh-dev" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
-			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
+			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/connectED" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
 			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/console/AOPHP" \
@@ -97,7 +97,7 @@ tt		shift
 			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/console/tcsh-dev" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
-			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/GTK-PHP-IDE/GTK-PHP-IDE" \
+			--tab-with-profile="projects" --title="GTK-PHP-IDE" --working-directory="/projects/gtk/connectED" \
 		${argv} &
 		breaksw
 	

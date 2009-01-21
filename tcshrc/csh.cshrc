@@ -15,9 +15,11 @@ set notify
 set noclobber
 
 set highlight
+set histdup = erase
 set histfile = "/profile.d/history"
 set history = 1000
-set savehist = (1000 merge)
+set savehist = ( "1000" "merge" )
+set histlit
 
 set colorcat
 

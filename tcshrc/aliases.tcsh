@@ -12,7 +12,9 @@ alias	la	"ls -A"
 
 alias	df	"df --human-readable"
 alias	du	"du --summarize --human-readable"
-alias	cwddu	"du ./*"
+alias	du:dir	"du ./*"
+
+alias	shasum		"shasum --algorithm 512"
 
 #alias	cp	"cp --interactive"
 unalias cp

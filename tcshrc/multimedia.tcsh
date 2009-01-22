@@ -1,4 +1,5 @@
 #!/bin/tcsh -f
+alias	mp3info	"id3v2 --list"
 
 set sound_driver = "esd"
 set video_driver = "opengl"

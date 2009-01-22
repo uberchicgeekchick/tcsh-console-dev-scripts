@@ -2,13 +2,14 @@
 use strict;
 my $total=2;
 if($ARGV[0]>0){$total=$ARGV[0];}
-print("Sending Interupt signal to gPodder's PIDs");
+print("Sending Interupt signal to gPodder's PIDs\n");
 foreach(`pidof -x gpodder`){
-	print("Interupting $_");
+	$_=~s/[\r\n]+//;
+	print("Interupting $_ ");
 	for(my $i=0; $i<$total; $i++){
-		print(".");
 		`kill -INT $_`;
-		sleep(2);
+		sleep(3);
+		print(".");
 	}
 	print("\n");
 }

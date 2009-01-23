@@ -37,7 +37,7 @@ default:
 	breaksw
 endsw
 											
-/usr/bin/grep --perl-regex -e "${attrib}=["\""'\''].*${value}.*["\""'\'']" "${HOME}/.config/gpodder/channels.opml" | sed "s/.*${search_for}=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/"
+/usr/bin/grep -i --perl-regex -e "${attrib}=["\""'\''].*${value}.*["\""'\'']" "${HOME}/.config/gpodder/channels.opml" | sed "s/.*${search_for}=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/"
 
 exit
 

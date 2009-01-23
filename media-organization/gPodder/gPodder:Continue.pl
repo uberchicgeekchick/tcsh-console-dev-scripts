@@ -11,5 +11,5 @@ foreach(`pidof -x gpodder`){
 		sleep(3);
 		print(".");
 	}
-	print("\n");
+	print(" [done]\n");
 }

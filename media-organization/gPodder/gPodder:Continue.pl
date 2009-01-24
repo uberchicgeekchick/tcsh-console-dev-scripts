@@ -8,7 +8,7 @@ foreach(`pidof -x gpodder`){
 	print("Interupting $_ ");
 	for(my $i=0; $i<$total; $i++){
 		`kill -INT $_`;
-		sleep(3);
+		sleep(4);
 		print(".");
 	}
 	print(" [done]\n");

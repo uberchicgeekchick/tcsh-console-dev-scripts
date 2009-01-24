@@ -1,9 +1,9 @@
 #!/bin/tcsh -f
+set resolution_path = "/profile.d/resolutions/gnome-terminal"
 
 foreach which_canvas ( "${argv}" )
-	set default_geometry = `cat "/profile.d/resolutions/gnome-terminal/default.rc"`
-	set canvas_geometry = `cat "/profile.d/resolutions/gnome-terminal/canvas.rc"`
-	set alacast_geometry = `cat "/profile.d/resolutions/gnome-terminal/alacast.rc"`
+	set default_geometry = `cat "${resolution_path}/default.rc"`
+	set canvas_geometry = `cat "${resolution_path}/canvas.rc"`
 
 	set screens_options = "aAUR"
 	set screens_sessions = `/usr/bin/screen -list`
@@ -22,8 +22,29 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="~/" --working-directory="${HOME}" \
 		${argv} &
 		breaksw
-
-	case 'Programming:All':
+	
+	case 'Editor:VIM':
+		set vim_resolution = `cat ${resolution_path}/vim.rc`
+		shift
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${default_geometry} \
+			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="vim-enhanced" --working-directory="/projects" --command="/usr/bin/vim-enhanced -p ${argv}" \
+			&
+		breaksw
+		
+	case 'Editor:Default':
+		set vim_resolution = `cat ${resolution_path}/vim.rc`
+		shift
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${default_geometry} \
+			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="vim-enhanced" --working-directory="/projects" --command="${EDITOR} -p ${argv}" \
+		&
+		breaksw
+															case 'Programming:All':
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
@@ -49,7 +70,7 @@ foreach which_canvas ( "${argv}" )
 	
 	case 'Programming:Games':
 tt		shift
-		set canvas_geometry = `cat "/profile.d/resolutions/gnome-terminal/game-dev.rc"`
+		set canvas_geometry = `cat "${resolution_path}/game-dev.rc"`
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
@@ -99,7 +120,7 @@ tt		shift
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="connectED" --working-directory="/projects/gtk/connectED" \
 		${argv} &
-		breaksw
+		breakswt
 	
 	case 'Media:Production':
 		shift
@@ -125,6 +146,8 @@ tt		shift
 				rm -f "${rtorrent_session_dir}/rtorrent.dht_cache"
 			endif
 		endif
+		
+		set alacast_geometry = `cat "${resolution_path}/alacast.rc"`
 		
 		/usr/bin/gnome-terminal \
 			--hide-menubar \

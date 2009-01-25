@@ -1,6 +1,8 @@
 #!/bin/tcsh -f
 alias blender "blender -p 80 80 1400 800"
-alias cmake "cmake -Wno-dev"
+
+alias	cmake	"cmake -Wno-dev"
+alias	sqlite	"sqlite3"
 
 alias	mysql	"mysql --socket=/srv/mysql/mysql.sock -u${USER} -p"
 alias	mysqldump	"mysqldump --databases --comment --no-autocommit --extended-insert --socket=/srv/mysql/mysql.sock -u${USER} -p"

@@ -29,9 +29,8 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
-			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="vim-enhanced" --working-directory="/projects" --command="/usr/bin/vim-enhanced -p ${argv}" \
-			&
+		&
 		breaksw
 		
 	case 'Editor:Default':
@@ -40,8 +39,7 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
-			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
-			--tab-with-profile="projects" --title="vim-enhanced" --working-directory="/projects" --command="${EDITOR} -p ${argv}" \
+			--tab-with-profile="projects" --title="${EDITOR}" --working-directory="/projects" --command="${EDITOR} -p ${argv}" \
 		&
 		breaksw
 															case 'Programming:All':

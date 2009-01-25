@@ -42,7 +42,8 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="${EDITOR}" --working-directory="/projects" --command="${EDITOR} -p ${argv}" \
 		&
 		breaksw
-															case 'Programming:All':
+	
+	case 'Programming:All':
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
@@ -84,20 +85,19 @@ tt		shift
 		${argv} &
 		breaksw
 
-	case 'Programming:WebApps':
+	case 'Programming:Internet':
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="/srv" --working-directory="/srv" \
 			--tab-with-profile="projects" --title="/ssh" --working-directory="/projects/ssh" \
 			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
 			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
-			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
-			--tab-with-profile="projects" --title="AOPHP" --working-directory="/projects/www/AOPHP" \
+			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
 			--tab-with-profile="projects" --title="realFriends" --working-directory="/projects/www/realFriends" \
-			--tab-with-profile="projects" --title="uberSocial" --working-directory="/projects/www/uberSocial" \
 			--tab-with-profile="projects" --title="MyWebDesigns" --working-directory="/projects/www/MyWebDesigns" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/mirrors/uberChicGeekChick.Com" \
 		${argv} &

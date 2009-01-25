@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
-my $total=2;
-if($ARGV[0]>0){$total=$ARGV[0];}
+my $total=1;
+if($ARGV[0]>1){$total=$ARGV[0];}
 print("Sending Interupt signal to gPodder's PIDs\n");
 foreach(`pidof -x gpodder`){
 	$_=~s/[\r\n]+//;

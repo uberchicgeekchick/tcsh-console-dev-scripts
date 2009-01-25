@@ -7,23 +7,22 @@ endif
 set attrib = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\1/g'`";
 set value = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`";
 
-set limit_episodes = ""
 switch ( "${attrib}" )
 case "newest":
 	shift;
-	set limit_episodes = "| head -1";
-	breaksw;
+	set latest_episodes = "1";
+	breaksw
 
 case "get-first":
 	shift;
-	set limit_episodes = "| head -${value}";
-	breaksw;
+	set latest_episodes = "${value}";
+	breaksw
 
 case "get-last":
 	shift;
-	set limit_episodes = "| tail -${value}";
-	breaksw;
-endsw;
+	set oldest_episodes = "${value}";
+	breaksw
+endsw
 
 printf "Downloading podcast's feed.\n"
 wget --quiet -O './00-feed.xml' `echo "${1}" | sed '+s/\?/\\\?/g'`
@@ -73,7 +72,21 @@ else
 	rm "./00-enclosures-01.lst"
 endif
 
-set episodes = `cat './00-enclosures.lst'${limit_episodes}`
+if ( "${?latest_episodes}" != "0" ) then
+	set episodes = "`head -${latest_episodes} './00-enclosures.lst'`"
+	printf "blank\n" >! './00-tmp-titles.lst'
+	cat './00-titles.lst' >> './00-tmp-titles.lst'
+	mv './00-tmp-titles.lst' './00-titles.lst'
+	ex -s '+${latest_episodes},$d' '+wq' './00-titles.lst'
+else if ( "${?oldest_episodes}" != "0" ) then
+	set episodes = "`tail -${oldest_episodes} './00-enclosures.lst'`"
+	printf "blank\n" >! './00-tmp-titles.lst'
+	cat './00-titles.lst' >> './00-tmp-titles.lst'
+	mv './00-tmp-titles.lst' './00-titles.lst'
+	ex -s '+${oldest_episodes},$d' '+wq' './00-titles.lst'
+else
+	set episodes = "`cat './00-enclosures.lst'`"
+endif
 
 set download_log = "./00-"`basename "${0}"`".log"
 touch "${download_log}"

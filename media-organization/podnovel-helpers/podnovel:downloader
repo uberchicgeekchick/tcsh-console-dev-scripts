@@ -22,6 +22,12 @@ case "get-last":
 	shift;
 	set oldest_episodes = "${value}";
 	breaksw
+
+case "regex-match-titles":
+	shift;
+	if ( "${value}" == "" ) continue;
+	set regex_match_titles = "${value}";
+	breaksw
 endsw
 
 printf "Downloading podcast's feed.\n"
@@ -133,6 +139,10 @@ foreach episode ( $episodes )
 		printf "[skipped commentary track]\n\n" >> "${download_log}"
 		printf "[skipped commentary track]\n\n"
 		continue
+	endif
+
+	if ( "${?regex_match_titles}" == "1" ) then
+		if ( "`echo ${episodes_title} | s/.*\(${regex_match_titles}\).*/\1/g'`" )= "${regex_match_titles}" ) continue;
 	endif
 
 	wget --quiet -O "./${episodes_title}.${extension}" "${episode}"

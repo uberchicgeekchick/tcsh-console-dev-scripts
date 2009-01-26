@@ -21,9 +21,11 @@ set history = 1000
 set savehist = ( "1000" "merge" )
 set histlit
 
+set correct=cmd
+set autolist
+set color
 set colorcat
 
-set correct=cmd
 alias jobs "jobs -l"
 
 complete ln "p/*/f/"

@@ -49,14 +49,17 @@ endsw
 set gpodder_dl_dir = "`grep 'download_dir' '${HOME}/.config/gpodder/gpodder.conf' | cut -d= -f2 | cut -d' ' -f2`"
 
 foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
-	set found = "`/usr/bin/grep --perl-regex -e '<${attrib}>.*${value}.*<\/${attrib}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${attrib}>\([^<]\+\)<\/${attrib}>.*/\1/g'`"
+	set found = `/usr/bin/grep --perl-regex -e "<${attrib}>.*${value}.*<\/${attrib}>" "${index}" | sed "s/[\r\n]\+//g" | sed "s/.*<${attrib}>\([^<]\+\)<\/${attrib}>.*/\1/g"`
 	if ( "${found}" == "" ) continue;
 	
 	if ( "${attrib}" != "${search_for}" ) then
-		set found = "`/usr/bin/grep --perl-regex -e '<${search_for}>[^<]+<\/${search_for}>' '${index}' | sed 's/.*<${search_for}>\([^<]\+\)<\/${search_for}>.*/\1/g'`"
+		set found = `/usr/bin/grep --perl-regex -e "<${search_for}>[^<]+<\/${search_for}>" "${index}" | sed "s/.*<${search_for}>\([^<]\+\)<\/${search_for}>.*/\1/g"`
 	endif
-		
-	printf "%s: \t%s\n" "${index}" "${found}"
+
+	foreach item ( $found )
+		printf "%s:\t%s\n" "${index}" "${item}"
+	end
+	
 	if ( "${be_verbose}" == "TRUE" ) then
 		cat "${index}"
 		printf "\n\n"

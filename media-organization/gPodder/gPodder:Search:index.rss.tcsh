@@ -31,18 +31,18 @@ endsw
 switch ( "${2}" )
 case "title":
 case "description":
-case "link":
+case "title":
 case "url":
 case "guid":
 case "pubDate":
+case "link":
 	set search_for = "${2}"
 	breaksw
 case "help":
 	goto usage
 	breaksw
-case "title":
 default:
-	set search_for = "title"
+	set search_for = "link"
 	breaksw
 endsw
 

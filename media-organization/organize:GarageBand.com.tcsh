@@ -1,6 +1,14 @@
 #!/bin/tcsh -f
-set music_library = "`basename ${cwd}`"
+set music_path = "/media/media-library/Music"
+set music_library = "`basename '${0}' | sed 's/.*organize:\(.*\)\.tcsh/\1/g'`"
 set podcasts_download_path = "/media/podcasts"
+
+if ( ! -d "${music_path}/${music_library}" ) then
+	printf "The music library's path is not a valid directory. so I'm unable to continue.\nI attempted to organize music using the following path:\n\t%s/%s\n" "${music_path}" "${music_library}"
+	exit -1
+endif
+
+cd "${music_path}/${music_library}"
 
 # Archiving all new sons, top tracks, or podcasts:
 foreach genre ( "`find '${podcasts_download_path}' -type d -name '${music_library}*'`" )

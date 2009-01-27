@@ -1,15 +1,43 @@
 #!/usr/bin/perl
 use strict;
-my $total=1;
-if($ARGV[0]>1){$total=$ARGV[0];}
-print("Sending Interupt signal to gPodder's PIDs\n");
-foreach(`pidof -x gpodder`){
-	$_=~s/[\r\n]+//;
-	print("Interupting $_ ");
-	for(my $i=0; $i<$total; $i++){
-		`kill -INT $_`;
-		sleep(5);
-		print(".");
+my $total=40;
+my $wait=40;# How long to wait between sending each interupt signal.
+
+sub parse_arguments{
+	for( my $i=0; $i<@ARGV; $i++ ){
+		my $argument=$ARGV[$i];
+		$argument=~s/\-\-([^=]+)?=(.*)$/$1/;
+		my $value=$ARGV[$i];
+		$value=~s/\-\-([^=]+)?=(.*)$/$2/;
+
+		if( "$argument" eq "" || $value < 1 ){ next; }
+
+		if( "$argument" eq "send-interupt" ){
+			$total=$value;
+		} elsif( "$argument" eq "wait" ){
+			$wait=$value;
+		}
 	}
-	print(" [done]\n");
+}#parse_arguments
+
+parse_arguments();
+
+printf( "Sending gPodder's PIDs the interupt signal.\nI'll be sending %s interupts and waiting %s seconds each time:\n", $total, $wait );
+foreach my $pid(`pidof -x gpodder`){
+	$pid=~s/[\r\n]+//;
+	printf( "Interupting %s ", $pid );
+	my $still_running=1;
+	for(my $i=0; $i<$total && $still_running==1; $i++){
+		if ( $i ) {
+			sleep($wait);
+			printf(".");
+		}
+		`kill -INT $pid`;
+		$still_running=0;
+		foreach my $test_pid(`pidof -x gpodder`){
+			$test_pid=~s/[\r\n]+//;
+			if($test_pid == $pid){ $still_running=1; }
+		}
+	}#for($i++)
+	printf(" [done]\n");
 }

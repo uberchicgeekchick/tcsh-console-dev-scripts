@@ -11,7 +11,7 @@ set cd_path = "${cd_path}:/projects/gtk:/projects/console:/projects/www:/project
 set listjobs
 set notify
 
-#set nobeep
+set nobeep
 set noclobber
 
 set highlight

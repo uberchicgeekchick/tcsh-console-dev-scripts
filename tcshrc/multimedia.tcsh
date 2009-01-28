@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
 alias	mp3info	"id3v2 --list"
 
-set sound_driver = "esd"
+set sound_driver = "alsa"
 set video_driver = "opengl"
 set resolution = `cat "/profile.d/resolutions/video/hd.rc"`
 

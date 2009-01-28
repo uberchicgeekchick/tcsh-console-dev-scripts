@@ -23,5 +23,5 @@ complete interupt_program.tcsh "p/*/c/"
 
 source /projects/console/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/gtk/Alacast/bin
 
-source /projects/console/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/www/Alacast/bin
+source /projects/console/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/console/Alacast/bin
 source /projects/console/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/console/tcsh-dev

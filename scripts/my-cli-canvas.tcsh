@@ -53,7 +53,7 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			"${default_tabs}" \
+			${default_tabs} \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
@@ -69,7 +69,7 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			"${default_tabs}" \
+			${default_tabs} \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="tools" --working-directory="/projects/games/tools" \
 			--tab-with-profile="projects" --title="engines" --working-directory="/projects/games/engines" \
@@ -85,7 +85,7 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			"${default_tabs}" \
+			${default_tabs} \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
@@ -101,7 +101,7 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			"${default_tabs}" \
+			${default_tabs} \
 			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
 			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/console/tcsh-dev" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
@@ -116,7 +116,7 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			"${default_tabs}" \
+			${default_tabs} \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="/media" --working-directory="/media" \
@@ -142,6 +142,7 @@ foreach which_canvas ( "${argv}" )
 			--geometry=${alacast_geometry} \
 			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="/media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \

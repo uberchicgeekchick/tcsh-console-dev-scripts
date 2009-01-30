@@ -20,7 +20,7 @@ endsw
 
 foreach podcast ( "`/usr/bin/grep -i --perl-regex -e '${attrib}=["\""'\''].*${value}.*["\""'\'']' '${HOME}/.config/gpodder/channels.opml' | sed 's/.*xmlUrl=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/' | sed 's/\(&\)amp;/\1/g'`" )
 	printf "Deleting: %s\n" "${podcast}"
-	gpodder --del="${podcast}"
+	( gpodder --del="${podcast}" > /dev/tty ) >& /dev/null
 end
 
 exit

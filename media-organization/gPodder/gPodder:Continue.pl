@@ -1,41 +1,55 @@
 #!/usr/bin/perl
 use strict;
-my $total=2;
-my $wait=10;# How long to wait between sending each interupt signal.
+my $total=25;
+my $timeout=25;# How long to wait between sending each interupt signal.
+
+sub parse_argument{
+	my $argument=$_;
+	$argument=~s/\-\-([^=]+)?=(.*)$/$1/;
+	
+	my $value=$_;
+	$value=~s/\-\-([^=]+)?=(.*)$/$2/;
+
+	if( "$argument" eq "" || $value < 1){return;}
+	
+	if("$argument" eq "send-interupt"){
+		$total=$value;
+	} elsif("$argument" eq "timeout"){
+		$timeout=$value;
+	}
+}#parse_argument
 
 sub parse_arguments{
-	for( my $i=0; $i<@ARGV; $i++ ){
-		my $argument=$ARGV[$i];
-		$argument=~s/\-\-([^=]+)?=(.*)$/$1/;
-		my $value=$ARGV[$i];
-		$value=~s/\-\-([^=]+)?=(.*)$/$2/;
+	foreach(@ARGV){parse_argument($_);}
+}#parse_argument
 
-		if( "$argument" eq "" || $value < 1 ){ next; }
-
-		if( "$argument" eq "send-interupt" ){
-			$total=$value;
-		} elsif( "$argument" eq "wait" ){
-			$wait=$value;
-		}
+sub still_running{
+	my $pid=$_;
+	foreach(`pidof -x gpodder`){
+		if( (chomp($_))==$pid ){return 1;}
 	}
-}#parse_arguments
+	return 0;
+}#still_running
 
-parse_arguments();
-
-printf( "Sending gPodder's PIDs the interupt signal.\nI'll be sending %s interupts and waiting %s seconds each time:\n", $total, $wait );
-foreach my $pid(`pidof -x gpodder`){
-	chomp($pid);
-	printf( "Interupting %s ", $pid );
-	my $still_running=1;
-	for(my $i=0; $i<$total && $still_running==1; $i++){
-		if ( $i ) { sleep($wait); }
+sub interupt_pid{
+	my $pid=$_;
+	printf("Interupting %s ", $pid);
+	for(my $i=0; $i<$total; $i++){
+		if ($i){sleep($timeout);}
 		`kill -INT $pid`;
 		printf(".");
-		$still_running=0;
-		foreach my $test_pid(`pidof -x gpodder`){
-			chomp($test_pid);
-			if($test_pid == $pid){ $still_running=1; }
-		}
-	}#for($i++)
+		if(!(still_running($pid))){$i=$total;}
+	}#for($i<$total)
 	printf(" [done]\n");
-}
+}#interupt_pid
+
+sub interupt_gpodder{
+	printf("Sending gPodder's PIDs the interupt signal.\nI'll be sending %s interuptsd waiting %s seconds each time:\n", $total, $timeout);
+	foreach(`pidof -x gpodder`){
+		interupt_pid((chomp($_)));
+	}
+}#interupt_gpodder
+
+parse_arguments();
+interupt_gpodder();
+

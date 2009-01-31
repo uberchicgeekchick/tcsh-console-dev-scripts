@@ -12,6 +12,6 @@ foreach resolution_source ( /profile.d/resolutions/video/* )
 	alias "xfmedia-${alias_suffix}" "/usr/bin/xfmedia --video-out=${video_driver} --audio-out=${sound_driver} --vwin-geometry='${resolution_source}'"
 end
 
-set totem_playlist = "/media/totem.m3u"
+set totem_playlist = "/media/media-library/Playlists/totem/Playlist.pls"
 alias totem "if ( ! -e '${totem_playlist}' ) touch '${totem_playlist}'; /usr/bin/totem '${totem_playlist}'";
 

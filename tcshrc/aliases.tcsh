@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-alias grep "/usr/bin/grep --binary-files=without-match --color --with-filename --line-number --perl-regexp"
+setenv GREP_OPTIONS "--binary-files=without-match --color --with-filename --line-number"
+alias egrep "grep ${GREP_OPTIONS} --perl-regexp"
 
 setenv LS_OPTIONS "--human-readable --color --quoting-style=escape --classify"
 

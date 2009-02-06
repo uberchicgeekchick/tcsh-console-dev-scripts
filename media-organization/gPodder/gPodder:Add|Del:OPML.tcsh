@@ -24,8 +24,7 @@ endif
 
 foreach podcast ( "`/usr/bin/grep --perl-regexp -e '^[\t\ \s]+<outline.*xmlUrl=["\""'\''][^"\""'\'']+["\""]' '${1}' | sed 's/^[\ \s\t]\+<outline.*xmlUrl=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/g'`" )
 	printf "Adding:\n\t %s" "${podcast}"
-	gpodder --${action}="${podcast}" >& /dev/null &
-	wait
+	( gpodder --${action}="${podcast}" > /dev/tty ) >& /dev/null
 	printf "\t\t[done]\n"
 end
 

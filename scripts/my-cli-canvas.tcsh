@@ -16,7 +16,15 @@ foreach which_canvas ( "${argv}" )
 	unset sceen_command
 	unset screens_sessions
 	
-	set default_tabs = ( "--tab-with-profile=screen --title=:screen: --command=screen" "--tab-with-profile=projects --title=/srv --working-directory=/srv" "--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" "--tab-with-profile=projects --title=/programs --working-directory=/programs" "--tab-with-profile=projects --title=/media --working-directory=/media" "--tab-with-profile=projects --title=~/ --working-directory=${HOME}" "--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" "--tab-with-profile=projects --title=/projects --working-directory=/projects" );
+	set default_tabs = ( "--tab-with-profile=screen --title=:screen: --command=screen" \
+		"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
+		"--tab-with-profile=projects --title=/media --working-directory=/media" \
+		"--tab-with-profile=projects --title=~/ --working-directory=${HOME}" \
+		"--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" \
+		"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
+		"--tab-with-profile=projects --title=/programs --working-directory=/programs" \
+		"--tab-with-profile=projects --title=/projects --working-directory=/projects" \
+	);
 	
 	switch ( "${which_canvas}" )
 	case 'Template':
@@ -92,7 +100,7 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
 			--tab-with-profile="projects" --title="realFriends" --working-directory="/projects/www/realFriends" \
 			--tab-with-profile="projects" --title="MyWebDesigns" --working-directory="/projects/www/MyWebDesigns" \
-			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/mirrors/uberChicGeekChick.Com" \
+			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
 		${argv} &
 		breaksw
 	
@@ -147,7 +155,7 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="/media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="projects" --title="podcasts" --working-directory="/media/podcasts" \
-			--tab-with-profile="projects" --title="uberChicGeekChicks-Podcast-Syncronizer" --working-directory="/projects/console/Alacast" --command="/projects/console/Alacast/bin/uberChicGeekChicks-Podcast-Syncronizer.php --update=detailed --logging --player=xine --interactive" \
+			--tab-with-profile="projects" --title="alacast" --working-directory="/projects/console/Alacast" --command="/projects/console/Alacast/bin/uberChicGeekChicks-Podcast-Syncronizer.php --update=detailed --logging --player=xine --interactive" \
 		${argv} &
 		breaksw
 

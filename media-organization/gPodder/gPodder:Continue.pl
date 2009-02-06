@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 use strict;
-my $total=25;
-my $timeout=25;# How long to wait between sending each interupt signal.
+my $total=9;
+my $timeout=48;# How long to wait between sending each interupt signal.
 
 sub parse_argument{
 	my $argument=$_;
@@ -26,9 +26,9 @@ sub parse_arguments{
 sub still_running{
 	my $pid=$_;
 	foreach(`pidof -x gpodder`){
-		if( (chomp($_))==$pid ){return 1;}
+		if( (chomp($_))==$pid ){return 0;}
 	}
-	return 0;
+	return 1;
 }#still_running
 
 sub interupt_pid{
@@ -44,7 +44,7 @@ sub interupt_pid{
 }#interupt_pid
 
 sub interupt_gpodder{
-	printf("Sending gPodder's PIDs the interupt signal.\nI'll be sending %s interuptsd waiting %s seconds each time:\n", $total, $timeout);
+	printf("Sending gPodder's PIDs the interupt signal.\nI'll be sending %s interupts and waiting %s seconds each time:\n", $total, $timeout);
 	foreach(`pidof -x gpodder`){
 		interupt_pid((chomp($_)));
 	}

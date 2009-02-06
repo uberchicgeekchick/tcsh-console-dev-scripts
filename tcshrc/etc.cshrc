@@ -71,7 +71,7 @@ endif
 # Now read in the key bindings of the tcsh
 #
 #if ($?tcsh && -r /etc/profile.d/bindkey.tcsh) source /etc/profile.d/bindkey.tcsh
-source /etc/profile.d/bindkey.tcsh
+source /profile.d/tcshrc/bindkey.tcsh
 
 #
 # Some useful settings
@@ -79,9 +79,7 @@ source /etc/profile.d/bindkey.tcsh
 set autocorrect=1
 set listmaxrows=23
 # set cdpath = ( /var/spool )
-# set complete=enhance
-# set correct=all
-set correct=cmd
+set complete=cmd
 set fignore=(.o \~)
 # set histdup=erase
 set histdup=prev
@@ -90,7 +88,7 @@ set listjobs=long
 set notify=1
 set nostat=( /afs )
 set rmstar=1
-set savehist = ( "1000" "merge" )
+set savehist = ( $history "merge" )
 set showdots=1
 set symlinks=ignore
 #

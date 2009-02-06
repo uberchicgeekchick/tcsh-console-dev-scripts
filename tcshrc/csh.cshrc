@@ -21,6 +21,8 @@ set history = 1000
 set savehist = ( "1000" "merge" )
 set histlit
 
+set implicitcd
+
 set correct=cmd
 set autolist
 set color

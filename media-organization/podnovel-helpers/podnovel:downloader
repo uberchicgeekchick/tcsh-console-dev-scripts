@@ -33,9 +33,14 @@ endsw
 printf "Downloading podcast's feed.\n"
 wget --quiet -O './00-feed.xml' `echo "${1}" | sed '+s/\?/\\\?/g'`
 set title = "`/usr/bin/grep '<title.*>' './00-feed.xml' | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g'`"
+
 if ( ! -d "${title}" ) mkdir -p "${title}"
-mv './00-feed.xml' "./${title}/00-feed.xml"
+
 cd "${title}"
+
+if ( -e './00-feed.xml' && -e './00-titles.lst' && -e './00-enclosures.lst' ) goto continue_download
+
+mv '../00-feed.xml' "./00-feed.xml"
 
 # Concatinates all data into one single string:
 ex '+1,$s/[\r\n]*//g' '+wq' './00-feed.xml'
@@ -94,6 +99,14 @@ else if ( "${?oldest_episodes}" != "0" ) then
 else
 	set episodes = "`cat './00-enclosures.lst'`"
 endif
+
+goto download_episodes
+
+continue_download;
+rm  "../00-feed.xml"
+set episodes = "`cat './00-enclosures.lst'`"
+
+download_episodes:
 
 set download_log = "./00-"`basename "${0}"`".log"
 touch "${download_log}"

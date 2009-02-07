@@ -2,10 +2,10 @@
 
 complete sudo "p/1/c/"
 
-set sbin_paths = ( "/sbin" "/usr/sbin" )
+set sbin_paths=( "/sbin" "/usr/sbin" )
 foreach sbin_path ( ${sbin_paths} )
 	foreach command ( ${sbin_path}/* )
-		set cmd_alias = `basename ${command}`
+		set cmd_alias=`basename ${command}`
 		alias "${cmd_alias}" "sudo ${command}"
 	end
 end

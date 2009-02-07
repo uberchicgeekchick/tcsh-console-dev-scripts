@@ -62,7 +62,7 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			${default_tabs} \
-			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
+			--tab-with-profile="projects" --title="cli" --working-directory="/projects/console" \
 			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
@@ -77,7 +77,6 @@ foreach which_canvas ( "${argv}" )
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
-			${default_tabs} \
 			--tab-with-profile="projects" --title="media-library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="tools" --working-directory="/projects/games/tools" \
 			--tab-with-profile="projects" --title="engines" --working-directory="/projects/games/engines" \
@@ -94,11 +93,9 @@ foreach which_canvas ( "${argv}" )
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			${default_tabs} \
-			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
 			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
-			--tab-with-profile="projects" --title="realFriends" --working-directory="/projects/www/realFriends" \
 			--tab-with-profile="projects" --title="MyWebDesigns" --working-directory="/projects/www/MyWebDesigns" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
 		${argv} &
@@ -108,13 +105,15 @@ foreach which_canvas ( "${argv}" )
 		shift
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${canvas_geometry} \
-			${default_tabs} \
-			--tab-with-profile="projects" --title="console" --working-directory="/projects/console" \
+			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
+			--tab-with-profile="projects" --title="cli" --working-directory="/projects/console" \
 			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/console/tcsh-dev" \
-			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
+			--tab-with-profile="projects" --title="alacast:cli" --working-directory="/projects/console/alacast" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
-			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
+			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
+			--tab-with-profile="projects" --title="twitux" --working-directory="/projects/gtk/twitux" \
+			--tab-with-profile="projects" --title="alacast:gui" --working-directory="/projects/gtk/alacast" \
 			--tab-with-profile="projects" --title="connectED" --working-directory="/projects/gtk/connectED" \
 		${argv} &
 		breakswt
@@ -126,8 +125,7 @@ foreach which_canvas ( "${argv}" )
 			--geometry=${canvas_geometry} \
 			${default_tabs} \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
-			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
-			--tab-with-profile="projects" --title="/media" --working-directory="/media" \
+			--tab-with-profile="projects" --title="alacast" --working-directory="/projects/gtk/alacast" \
 			--tab-with-profile="projects" --title="/media-library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="my podcasts" --working-directory="/projects/media/podcasts" \
 		${argv} &
@@ -151,11 +149,11 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
-			--tab-with-profile="projects" --title="Alacast-v2" --working-directory="/projects/gtk/Alacast" \
+			--tab-with-profile="projects" --title="alacast[gtk]" --working-directory="/projects/gtk/alacast" \
 			--tab-with-profile="projects" --title="/media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="projects" --title="podcasts" --working-directory="/media/podcasts" \
-			--tab-with-profile="projects" --title="alacast" --working-directory="/projects/console/Alacast" --command="/projects/console/Alacast/bin/uberChicGeekChicks-Podcast-Syncronizer.php --update=detailed --logging --player=xine --interactive" \
+			--tab-with-profile="projects" --title="alacast[php]" --working-directory="/projects/console/alacast" --command="/projects/console/alacast/bin/alacast.php --update=detailed --logging --player=xine --interactive" \
 		${argv} &
 		breaksw
 

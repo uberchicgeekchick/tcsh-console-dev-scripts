@@ -10,86 +10,86 @@
 # 1999/06/28: <werner@suse.de> resort to the order to fit complete.tcsh
 #		found in tcsh-6.08.05, add the mh completes.
 #
-    set autolist=ambiguous
-    set noglob
+	set autolist=ambiguous
+	set noglob
 #
-    set hosts
-    foreach _f ($HOME/.hosts /etc/csh.hosts $HOME/.rhosts /etc/hosts.equiv)
+	set hosts
+	foreach _f ($HOME/.hosts /etc/csh.hosts $HOME/.rhosts /etc/hosts.equiv)
 	if ( -r $_f ) then
 	    set hosts=($hosts `grep -E -shv '^#|\+' $_f |awk '{ print $1 }'`)
 	endif
-    end
-    if ( -r $HOME/.netrc ) then
+	end
+	if ( -r $HOME/.netrc ) then
 	set _f=`awk '/machine/ { print $2 }' < $HOME/.netrc` >& /dev/null
 	set hosts=($hosts $_f)
-    endif
-    set hosts=(`echo $hosts localhost $HOSTNAME|tr ' ' '\n'|sort -u -t '.'`)
-    unset _f
-    set _maildir = /var/spool/mail
-    set _ypdir  =  /var/yp
-    set _domain =  "`domainname`"
-    if ($?MANPATH) then
+	endif
+	set hosts=(`echo $hosts localhost $HOSTNAME|tr ' ' '\n'|sort -u -t '.'`)
+	unset _f
+	set _maildir = /var/spool/mail
+	set _ypdir  =  /var/yp
+	set _domain =  "`domainname`"
+	if ($?MANPATH) then
 	set _manpath="{${MANPATH:as/:/,/}}/{man,cat}"
-    else
+	else
 	set _manpath="/usr{{/X11/man,/openwin/man}/{man,cat},{/man/{man,cat}}}"
-    endif
+	endif
 
-    complete ispell	c/-/"(a A b B C d D e ee f L m M p s S T v vv w W)"/ \
+	complete ispell	c/-/"(a A b B C d D e ee f L m M p s S T v vv w W)"/ \
 			n/-d/"(english deutsch)"/ \
 			n/-T/"(tex plaintex nroff latin1 ascii atari)"/ \
 			n@-p@'`ls -1 $HOME/.ispell_*`'@ \
 			n/-W/"(1 2 3 4 5)"/ \
 			n/-L/x:'ispell -L <number>'/ \
 			n/-f/t/ n/*/f:^*.{dvi,ps,a,o,gz,z,Z}/
-    complete ywho	n/*/\$hosts/	# argument from list in $hosts
-    complete {r,s}sh	p/1/\$hosts/ c/-/"(l n)"/   n/-l/u/ N/-l/c/ n/-/c/ p/2/c/ p/*/f/
-    complete xrsh	p/1/\$hosts/ c/-/"(l 8 e)"/ n/-l/u/ N/-l/c/ n/-/c/ p/2/c/ p/*/f/
-    complete {r,s}login	p/1/\$hosts/ c/-/"(l 8 e)"/ n/-l/u/
-    complete xlogin	n/*/\$hosts/
-    complete telnet	p/1/\$hosts/ p/2/x:'<port>'/ n/*/n/
-    complete xtelnet	n/*/\$hosts/ 
-    complete cd		p/1/d/		# Directories only
-    complete chdir	p/1/d/
-    complete pushd	p/1/d/
-    complete popd	p/1/d/
-    complete pu		p/1/d/
-    complete po		p/1/d/
-    complete complete	p/1/X/		# Completions only
-    complete uncomplete	n/*/X/
-    complete exec	p/1/c/		# Commands only
-    complete trace	p/1/c/
-    complete strace	p/1/c/
-    complete which	n/*/c/
-    complete where	n/*/c/
-    complete skill	p/1/c/
-    complete dde	p/1/c/ 
-    complete adb	c/-I/d/ n/-/c/ N/-/"(core)"/ p/1/c/ p/2/"(core)"/
-    complete sdb	p/1/c/
-    complete dbx	c/-I/d/ n/-/c/ N/-/"(core)"/ p/1/c/ p/2/"(core)"/
-    complete xdb	p/1/c/
-    complete gdb	n/-d/d/ n/*/c/
-    complete ups	p/1/c/
-    complete set	'c/*=/f/' 'p/1/s/=' 'n/=/f/'
-    complete unset	n/*/s/
-    complete alias	p/1/a/		# only aliases are valid
-    complete unalias	n/*/a/
-    complete xdvi	n/*/f:*.dvi/	# Only files that match *.dvi
-    complete laser	n/*/f:*.dvi/
-    complete dvips	n/*/f:*.dvi/
-    complete tex	n/*/f:*.{tex,TEX}/	# Only files that match *.tex
-    complete latex	n/*/f:*.{tex,TEX,texi,latex,ltx}/
-    complete slitex	n/*/f:*.{tex,TEX,latex,ltx}/
-    complete su		c/--/"(login fast preserve-environment command shell \
+	complete ywho	n/*/\$hosts/	# argument from list in $hosts
+	complete {r,s}sh	p/1/\$hosts/ c/-/"(l n)"/   n/-l/u/ N/-l/c/ n/-/c/ p/2/c/ p/*/f/
+	complete xrsh	p/1/\$hosts/ c/-/"(l 8 e)"/ n/-l/u/ N/-l/c/ n/-/c/ p/2/c/ p/*/f/
+	complete {r,s}login	p/1/\$hosts/ c/-/"(l 8 e)"/ n/-l/u/
+	complete xlogin	n/*/\$hosts/
+	complete telnet	p/1/\$hosts/ p/2/x:'<port>'/ n/*/n/
+	complete xtelnet	n/*/\$hosts/ 
+	complete cd		p/1/d/		# Directories only
+	complete chdir	p/1/d/
+	complete pushd	p/1/d/
+	complete popd	p/1/d/
+	complete pu		p/1/d/
+	complete po		p/1/d/
+	complete complete	p/1/X/		# Completions only
+	complete uncomplete	n/*/X/
+	complete exec	p/1/c/		# Commands only
+	complete trace	p/1/c/
+	complete strace	p/1/c/
+	complete which	n/*/c/
+	complete where	n/*/c/
+	complete skill	p/1/c/
+	complete dde	p/1/c/ 
+	complete adb	c/-I/d/ n/-/c/ N/-/"(core)"/ p/1/c/ p/2/"(core)"/
+	complete sdb	p/1/c/
+	complete dbx	c/-I/d/ n/-/c/ N/-/"(core)"/ p/1/c/ p/2/"(core)"/
+	complete xdb	p/1/c/
+	complete gdb	n/-d/d/ n/*/c/
+	complete ups	p/1/c/
+	complete set	'c/*=/f/' 'p/1/s/=' 'n/=/f/'
+	complete unset	n/*/s/
+	complete alias	p/1/a/		# only aliases are valid
+	complete unalias	n/*/a/
+	complete xdvi	n/*/f:*.dvi/	# Only files that match *.dvi
+	complete laser	n/*/f:*.dvi/
+	complete dvips	n/*/f:*.dvi/
+	complete tex	n/*/f:*.{tex,TEX}/	# Only files that match *.tex
+	complete latex	n/*/f:*.{tex,TEX,texi,latex,ltx}/
+	complete slitex	n/*/f:*.{tex,TEX,latex,ltx}/
+	complete su		c/--/"(login fast preserve-environment command shell \
 			help version)"/	c/-/"(f l m p c s -)"/ \
 			n/{-c,--command}/c/ \
 			n@{-s,--shell}@'`cat /etc/shells`'@ n/*/u/
-    complete cc		c/-[IL]/d/ \
+	complete cc		c/-[IL]/d/ \
 			c@-l@'`\ls -1 /usr/lib/lib*.a | sed s%^.\*/lib%%\;s%\\.a\$%%`'@ \
 			c/-/"(o l c g L I D U)"/ n/*/f:*.[coasi]/
-    complete acc	c/-[IL]/d/ \
+	complete acc	c/-[IL]/d/ \
 			c@-l@'`\ls -1 /usr/lang/SC1.0/lib*.a | sed s%^.\*/lib%%\;s%\\.a\$%%`'@ \
 			c/-/"(o l c g L I D U)"/ n/*/f:*.[coasi]/
-    complete gcc	c/-[IL]/d/ \
+	complete gcc	c/-[IL]/d/ \
 			c/-f/"(caller-saves cse-follow-jumps delayed-branch \
 			       elide-constructors expensive-optimizations \
 			       float-store force-addr force-mem inline \
@@ -125,19 +125,19 @@
 			      nodtdlib static nostdinc undef)"/ \
 			c/-l/f:*.a/ \
 			n/*/f:*.{c,C,cc,o,a,s,i}/
-    complete g++	n/*/f:*.{C,cc,cpp,o,s,i}/
-    complete CC		n/*/f:*.{C,cc,cpp,o,s,i}/
-    complete rm		c/--/"(directory force interactive verbose \
+	complete g++	n/*/f:*.{C,cc,cpp,o,s,i}/
+	complete CC		n/*/f:*.{C,cc,cpp,o,s,i}/
+	complete rm		c/--/"(directory force interactive verbose \
 			recursive help version)"/ c/-/"(d f i v r R -)"/ \
 			n/*/f:^*.{c,cc,C,h,in}/	# Protect precious files
-    complete {vi,more}	n/*/f:^*.{o,a,dvi,gz,z,Z}/
-    complete less	n/*/f:^*.{o,a,dvi}/
-    complete bindkey	N/-a/b/ N/-c/c/ n/-[ascr]/'x:<key-sequence>'/ \
+	complete {vi,more}	n/*/f:^*.{o,a,dvi,gz,z,Z}/
+	complete less	n/*/f:^*.{o,a,dvi}/
+	complete bindkey	N/-a/b/ N/-c/c/ n/-[ascr]/'x:<key-sequence>'/ \
 			n/-[svedlr]/n/ c/-[vedl]/n/ c/-/"(a s k c v e d l r)"/ \
 			n/-k/"(left right up down)"/ p/2-/b/ \
 			p/1/'x:<key-sequence or option>'/
 
-    complete find	n/-fstype/"(nfs 4.2)"/ n/-name/f/ \
+	complete find	n/-fstype/"(nfs 4.2)"/ n/-name/f/ \
 			n/-type/"(c b d f p l s)"/ n/-user/u/ n/-group/g/ \
 			n/-exec/c/ n/-ok/c/ n/-cpio/f/ n/-ncpio/f/ n/-newer/f/ \
 			c/-/"(follow fstype name perm prune type user nouser \
@@ -150,33 +150,33 @@
 			     print0 printf not a and o or)"/ \
 			n/*/d/
 
-    complete -%*	c/%/j/			# fill in the jobs builtin
-    complete -./*	p/0/C/			# expand local executables
-    complete {fg,bg,stop}	c/%/j/ p/1/"(%)"//
+	complete -%*	c/%/j/			# fill in the jobs builtin
+	complete -./*	p/0/C/			# expand local executables
+	complete {fg,bg,stop}	c/%/j/ p/1/"(%)"//
 
-    complete limit	c/-/"(h)"/ n/*/l/
-    complete unlimit	c/-/"(h)"/ n/*/l/
+	complete limit	c/-/"(h)"/ n/*/l/
+	complete unlimit	c/-/"(h)"/ n/*/l/
 
-    complete nm		n/*/f:^*.{h,C,c,cc}/
+	complete nm		n/*/f:^*.{h,C,c,cc}/
 
-    complete finger	c/*@/\$hosts/ n/*/u/@ 
-    complete ping	p/1/\$hosts/
-    complete traceroute	p/1/\$hosts/
+	complete finger	c/*@/\$hosts/ n/*/u/@ 
+	complete ping	p/1/\$hosts/
+	complete traceroute	p/1/\$hosts/
 
-    complete {talk,ntalk,phone,otalk,ytalk}	p/1/'`users | tr " " "\012" | uniq`'/ \
+	complete {talk,ntalk,phone,otalk,ytalk}	p/1/'`users | tr " " "\012" | uniq`'/ \
 		n/*/\`who\ \|\ grep\ \$:1\ \|\ awk\ \'\{\ print\ \$2\ \}\'\`/
 
-    complete ftp	c/-/"(d i g n v)"/ n/-/\$hosts/ p/1/\$hosts/ n/*/n/
-    complete ncftp	c/-/"(a I N)"/     n/-/\$hosts/ p/1/\$hosts/ n/*/n/
+	complete ftp	c/-/"(d i g n v)"/ n/-/\$hosts/ p/1/\$hosts/ n/*/n/
+	complete ncftp	c/-/"(a I N)"/     n/-/\$hosts/ p/1/\$hosts/ n/*/n/
 
-    # this one is simple...
-    #complete rcp c/*:/f/ C@[./\$~]*@f@ n/*/\$hosts/:
-    # From Michael Schroeder <mlschroe@immd4.informatik.uni-erlangen.de>
-    # This one will rsh to the file to fetch the list of files!
-    complete rcp 'c%*@*:%`set q=$:-0;set q="$q:s/@/ /";set q="$q:s/:/ /";set q=($q " ");rsh $q[2] -l $q[1] ls -dp $q[3]\*`%' 'c%*:%`set q=$:-0;set q="$q:s/:/ /";set q=($q " ");rsh $q[1] ls -dp $q[2]\*`%' 'c%*@%$hosts%:' 'C@[./$~]*@f@'  'n/*/$hosts/:'
-    complete scp 'c%*@*:%`set q=$:-0;set q="$q:s/@/ /";set q="$q:s/:/ /";set q=($q " ");ssh $q[2] -l $q[1] ls -dp $q[3]\*`%' 'c%*:%`set q=$:-0;set q="$q:s/:/ /";set q=($q " ");ssh $q[1] ls -dp $q[2]\*`%' 'c%*@%$hosts%:' 'C@[./$~]*@f@'  'n/*/$hosts/:'
+	# this one is simple...
+	#complete rcp c/*:/f/ C@[./\$~]*@f@ n/*/\$hosts/:
+	# From Michael Schroeder <mlschroe@immd4.informatik.uni-erlangen.de>
+	# This one will rsh to the file to fetch the list of files!
+	complete rcp 'c%*@*:%`set q=$:-0;set q="$q:s/@/ /";set q="$q:s/:/ /";set q=($q " ");rsh $q[2] -l $q[1] ls -dp $q[3]\*`%' 'c%*:%`set q=$:-0;set q="$q:s/:/ /";set q=($q " ");rsh $q[1] ls -dp $q[2]\*`%' 'c%*@%$hosts%:' 'C@[./$~]*@f@'  'n/*/$hosts/:'
+	complete scp 'c%*@*:%`set q=$:-0;set q="$q:s/@/ /";set q="$q:s/:/ /";set q=($q " ");ssh $q[2] -l $q[1] ls -dp $q[3]\*`%' 'c%*:%`set q=$:-0;set q="$q:s/:/ /";set q=($q " ");ssh $q[1] ls -dp $q[2]\*`%' 'c%*@%$hosts%:' 'C@[./$~]*@f@'  'n/*/$hosts/:'
 
-    complete dd	c/--/"(help version)"/ c/[io]f=/f/ \
+	complete dd	c/--/"(help version)"/ c/[io]f=/f/ \
 		c/conv=*,/"(ascii ebcdic ibm block unblock \
 			    lcase notrunc ucase swab noerror sync)"/,\
 		c/conv=/"(ascii ebcdic ibm block unblock \
@@ -184,36 +184,36 @@
 		c/*=/x:'<number>'/ \
 		n/*/"(if of conv ibs obs bs cbs files skip file seek count)"/=
 
-    complete nslookup	p/1/x:'<host>'/ p/2/\$hosts/
+	complete nslookup	p/1/x:'<host>'/ p/2/\$hosts/
 
-    complete ar	c/[dmpqrtx]/"(c l o u v a b i)"/ p/1/"(d m p q r t x)"// \
+	complete ar	c/[dmpqrtx]/"(c l o u v a b i)"/ p/1/"(d m p q r t x)"// \
 		p/2/f:*.a/ p/*/f:*.o/
 
-    # these should be merged with the MH completion hacks below - jgotts
-    complete {sprev,snext} \
+	# these should be merged with the MH completion hacks below - jgotts
+	complete {sprev,snext} \
 		c@+@F:$HOME/Mail/@
 
-    # these and interrupt handling from Jaap Vermeulen <jaap@sequent.com>
-    complete {rexec,rxexec,rxterm,rmterm} \
+	# these and interrupt handling from Jaap Vermeulen <jaap@sequent.com>
+	complete {rexec,rxexec,rxterm,rmterm} \
 			'p/1/$hosts/' 'c/-/(l L E)/' 'n/-l/u/' 'n/-L/f/' \
 			'n/-E/e/' 'n/*/c/'
-    complete kill	'c/-/S/' 'c/%/j/' 'n/*/`ps xh | cut -d " " -f 1`/'
+	complete kill	'c/-/S/' 'c/%/j/' 'n/*/`ps xh | cut -d " " -f 1`/'
 
-    # these from Marc Horowitz <marc@cam.ov.com>
-    complete attach 'n/-mountpoint/d/' 'n/-m/d/' 'n/-type/(afs nfs rvd ufs)/' \
+	# these from Marc Horowitz <marc@cam.ov.com>
+	complete attach 'n/-mountpoint/d/' 'n/-m/d/' 'n/-type/(afs nfs rvd ufs)/' \
 		    'n/-t/(afs nfs rvd ufs)/' 'n/-user/u/' 'n/-U/u/' \
 		    'c/-/(verbose quiet force printpath lookup debug map \
 			  nomap remap zephyr nozephyr readonly write \
 			  mountpoint noexplicit explicit type mountoptions \
 			  nosetuid setuid override skipfsck lock user host)/' \
 		    'n/-e/f/' 'n/*/()/'
-    complete hesinfo	'p/1/u/' \
+	complete hesinfo	'p/1/u/' \
 			'p/2/(passwd group uid grplist pcap pobox cluster \
 			      filsys sloc service)/'
 
-    # these from E. Jay Berkenbilt <ejb@ERA.COM>
-    # = isn't always followed by a filename or a path anymore - jgotts
-    complete ./configure 'c/--*=/f/' 'c/--{cache-file,prefix,exec-prefix,\
+	# these from E. Jay Berkenbilt <ejb@ERA.COM>
+	# = isn't always followed by a filename or a path anymore - jgotts
+	complete ./configure 'c/--*=/f/' 'c/--{cache-file,prefix,exec-prefix,\
 				bindir,sbindir,libexecdir,datadir,\
 				sysconfdir,sharedstatedir,localstatedir,\
 				libdir,includedir,oldincludedir,infodir,\
@@ -223,28 +223,28 @@
 				sharedstatedir localstatedir libdir \
 				includedir oldincludedir infodir mandir \
 				srcdir)//'
-    complete gs 'c/-sDEVICE=/(x11 cdjmono cdj550 epson eps9high epsonc \
+	complete gs 'c/-sDEVICE=/(x11 cdjmono cdj550 epson eps9high epsonc \
 			      dfaxhigh dfaxlow laserjet ljet4 sparc pbm \
 			      pbmraw pgm pgmraw ppm ppmraw bit)/' \
 		'c/-sOutputFile=/f/' 'c/-s/(DEVICE OutputFile)/=' \
 		'c/-d/(NODISPLAY NOPLATFONTS NOPAUSE)/' 'n/*/f/'
-    complete perl	'n/-S/c/'
-    complete printenv	'n/*/e/'
-    complete sccs	p/1/"(admin cdc check clean comb deledit delget \
+	complete perl	'n/-S/c/'
+	complete printenv	'n/*/e/'
+	complete sccs	p/1/"(admin cdc check clean comb deledit delget \
 			delta diffs edit enter fix get help info \
 			print prs prt rmdel sccsdiff tell unedit \
 			unget val what)"/
 
-    # Complete for MH tools already skipped
-    if ( $?SKIP_MH ) goto skip_mh
+	# Complete for MH tools already skipped
+	if ( $?SKIP_MH ) goto skip_mh
 
-    # Do not be fooled by asking MH tools
-    if ( ! -r $HOME/.mh_profile ) goto skip_mh
+	# Do not be fooled by asking MH tools
+	if ( ! -r $HOME/.mh_profile ) goto skip_mh
 
-    # Do not be fooled by broken MH profile
-    if ( ! `grep -cE '^Path:' $HOME/.mh_profile` ) goto skip_mh
+	# Do not be fooled by broken MH profile
+	if ( ! `grep -cE '^Path:' $HOME/.mh_profile` ) goto skip_mh
 
-    if ( ! $?FOLDERS ) then
+	if ( ! $?FOLDERS ) then
 	which folders >& /dev/null
 	if ( $status != 0 ) goto skip_mh
 
@@ -255,9 +255,9 @@
 	    goto skip_mh
 	endif
 	setenv FOLDERS "$folders"
-    endif
+	endif
 
-    if ( ! $?MHA ) then
+	if ( ! $?MHA ) then
 	which ali >& /dev/null
 	if ( $status != 0 ) goto skip_mh
 
@@ -268,27 +268,27 @@
 	    goto skip_mh
 	endif
 	setenv MHA "$mha"
-    endif
+	endif
 
-    # these and method of setting hosts from Kimmo Suominen <kim@tac.nyc.ny.us>
-    set folders = ( $FOLDERS )
-    set mha = ( $MHA )
+	# these and method of setting hosts from Kimmo Suominen <kim@tac.nyc.ny.us>
+	set folders = ( $FOLDERS )
+	set mha = ( $MHA )
 
-    complete ali \
+	complete ali \
 	'c/-/(alias nolist list nonormalize normalize nouser user help)/' \
 	'n,-alias,f,'
 
-    complete anno \
+	complete anno \
 	'c/-/(component noinplace inplace nodate date text help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete burst \
+	complete burst \
 	'c/-/(noinplace inplace noquiet quiet noverbose verbose help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete comp \
+	complete comp \
 	'c/-/(draftfolder draftmessage nodraftfolder editor noedit file form nouse use whatnowproc nowhatnowproc help)/' \
 	'c,+,$folders,'  \
 	'n,-whatnowproc,c,'  \
@@ -296,24 +296,24 @@
 	'n,-form,f,'\
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete dist \
+	complete dist \
 	'c/-/(noannotate annotate draftfolder draftmessage nodraftfolder editor noedit form noinplace inplace whatnowproc nowhatnowproc help)/' \
 	'c,+,$folders,'  \
 	'n,-whatnowproc,c,'  \
 	'n,-form,f,'\
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete folder \
+	complete folder \
 	'c/-/(all nofast fast noheader header nopack pack noverbose verbose norecurse recurse nototal total noprint print nolist list push pop help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete folders \
+	complete folders \
 	'c/-/(all nofast fast noheader header nopack pack noverbose verbose norecurse recurse nototal total noprint print nolist list push pop help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete forw \
+	complete forw \
 	'c/-/(noannotate annotate draftfolder draftmessage nodraftfolder editor noedit filter form noformat format noinplace inplace digest issue volume whatnowproc nowhatnowproc help)/' \
 	'c,+,$folders,'  \
 	'n,-whatnowproc,c,'  \
@@ -321,89 +321,89 @@
 	'n,-form,f,'\
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete inc \
+	complete inc \
 	'c/-/(audit file noaudit nochangecur changecur file form format nosilent silent notruncate truncate width help)/' \
 	'c,+,$folders,'  \
 	'n,-audit,f,'\
 	'n,-form,f,'
 
-    complete mark \
+	complete mark \
 	'c/-/(add delete list sequence nopublic public nozero zero help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete mhmail \
+	complete mhmail \
 	'c/-/(body cc from subject help)/' \
 	'n,-cc,$mha,'  \
 	'n,-from,$mha,'  \
 	'n/*/$mha/'
 
-    complete mhpath \
+	complete mhpath \
 	'c/-/(help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete msgchk \
+	complete msgchk \
 	'c/-/(nodate date nonotify notify help)/' 
 
-    complete msh \
+	complete msh \
 	'c/-/(prompt noscan scan notopcur topcur help)/' 
 
-    complete next \
+	complete next \
 	'c/-/(draft form moreproc nomoreproc length width showproc noshowproc header noheader help)/' \
 	'c,+,$folders,'  \
 	'n,-moreproc,c,'  \
 	'n,-showproc,c,'  \
 	'n,-form,f,'
 
-    complete packf \
+	complete packf \
 	'c/-/(file help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete pick \
+	complete pick \
 	'c/-/(and or not lbrace rbrace cc date from search subject to othercomponent after before datefield sequence nopublic public nozero zero nolist list help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete prev \
+	complete prev \
 	'c/-/(draft form moreproc nomoreproc length width showproc noshowproc header noheader help)/' \
 	'c,+,$folders,'  \
 	'n,-moreproc,c,'  \
 	'n,-showproc,c,'  \
 	'n,-form,f,'
 
-    complete prompter \
+	complete prompter \
 	'c/-/(erase kill noprepend prepend norapid rapid nodoteof doteof help)/' 
 
-    complete refile \
+	complete refile \
 	'c/-/(draft nolink link nopreserve preserve src file help)/' \
 	'c,+,$folders,'  \
 	'n,-file,f,'\
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete rmf \
+	complete rmf \
 	'c/-/(nointeractive interactive help)/' \
 	'c,+,$folders,'  
 
-    complete rmm \
+	complete rmm \
 	'c/-/(help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete scan \
+	complete scan \
 	'c/-/(noclear clear form format noheader header width noreverse reverse file help)/' \
 	'c,+,$folders,'  \
 	'n,-form,f,'\
 	'n,-file,f,'\
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete send \
+	complete send \
 	'c/-/(alias draft draftfolder draftmessage nodraftfolder filter nofilter noformat format noforward forward nomsgid msgid nopush push noverbose verbose nowatch watch width help)/' \
 	'n,-alias,f,'\
 	'n,-filter,f,'
 
-    complete show \
+	complete show \
 	'c/-/(draft form moreproc nomoreproc length width showproc noshowproc header noheader help)/' \
 	'c,+,$folders,'  \
 	'n,-moreproc,c,'  \
@@ -411,95 +411,95 @@
 	'n,-form,f,'\
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete sortm \
+	complete sortm \
 	'c/-/(datefield textfield notextfield limit nolimit noverbose verbose help)/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete vmh \
+	complete vmh \
 	'c/-/(prompt vmhproc novmhproc help)/' \
 	'n,-vmhproc,c,'  
 
-    complete whatnow \
+	complete whatnow \
 	'c/-/(draftfolder draftmessage nodraftfolder editor noedit prompt help)/' 
 
-    complete whom \
+	complete whom \
 	'c/-/(alias nocheck check draft draftfolder draftmessage nodraftfolder help)/' \
 	'n,-alias,f,'
 
-    complete plum \
+	complete plum \
 	'c/-/()/' \
 	'c,+,$folders,'  \
 	'n,*,`(mark | sed "s/:.*//";echo next cur prev first last)|tr " " "\n" | sort -u`,'
 
-    complete mail \
+	complete mail \
 	'c/-/()/' \
 	'n/*/$mha/'
 
 skip_mh:
 
-    # from George Cox
-    complete acroread	'p/*/f:*.{pdf,PDF}/'
-    complete apachectl  'c/*/(start stop restart fullstatus status graceful \
+	# from George Cox
+	complete acroread	'p/*/f:*.{pdf,PDF}/'
+	complete apachectl  'c/*/(start stop restart fullstatus status graceful \
 			configtest help)/'
-    complete appletviewer	'p/*/f:*.class/'
-    complete bison	'c/--/(debug defines file-prefix= fixed-output-files \
+	complete appletviewer	'p/*/f:*.class/'
+	complete bison	'c/--/(debug defines file-prefix= fixed-output-files \
 			help name-prefix= no-lines no-parser output= \
 			token-table verbose version yacc)/' \
 			'c/-/(b d h k l n o p t v y V)/' 'n/-b/f/' 'n/-o/f/' \
 			'n/-p/f/'
-    complete bunzip2	'p/*/f:*.bz2/' 
-    complete bzip2	'n/-9/f:^*.bz2/' 'n/-d/f:*.bz2/'
-    complete c++	'p/*/f:*.{c++,cxx,c,cc,C,cpp}/'
-    complete co		'p@1@`\ls -1a RCS | sed -e "s/\(.*\),v/\1/"`@'
-    complete crontab	'n/-u/u/'
-    complete camcontrol	'p/1/(cmd debug defects devlist eject inquiry \
+	complete bunzip2	'p/*/f:*.bz2/' 
+	complete bzip2	'n/-9/f:^*.bz2/' 'n/-d/f:*.bz2/'
+	complete c++	'p/*/f:*.{c++,cxx,c,cc,C,cpp}/'
+	complete co		'p@1@`\ls -1a RCS | sed -e "s/\(.*\),v/\1/"`@'
+	complete crontab	'n/-u/u/'
+	complete camcontrol	'p/1/(cmd debug defects devlist eject inquiry \
 			modepage negotiate periphlist rescan reset start \
 			stop tags tur)/'
-    complete ctlinnd	'p/1/(addhist allow begin cancel changegroup \
+	complete ctlinnd	'p/1/(addhist allow begin cancel changegroup \
 			checkfile drop feedinfo flush flushlogs go hangup \
 			logmode mode name newgroup param pause readers refile \
 			reject reload renumber reserve rmgroup send shutdown \
 			kill throttle trace xabort xexec)/'
-    complete cvs	'c/--/(help help-commands help-synonyms)/' \
+	complete cvs	'c/--/(help help-commands help-synonyms)/' \
 			'p/1/(add admin annotate checkout commit diff \
 			edit editors export history import init log login \
 			logout rdiff release remove rtag status tag unedit \
 			update watch watchers)/' 'n/-a/(edit unedit commit \
 			all none)/' 'n/watch/(on off add remove)/'
-    complete cxx	'p/*/f:*.{c++,cxx,c,cc,C,cpp}/'
-    complete detex	'p/*/f:*.tex/'
-    complete edquota    'n/*/u/'
-    complete exec	'p/1/c/'
-    complete ghostview	'p/*/f:*.{eps,EPS,ps,PS,pdf,PDF,ps.gz}/'
-    complete gv		'p/*/f:*.{eps,EPS,ps,PS,pdf,PDF,ps.gz}/'
-    complete ifconfig	'p@1@`ifconfig -l`@' 'n/*/(range phase link netmask \
+	complete cxx	'p/*/f:*.{c++,cxx,c,cc,C,cpp}/'
+	complete detex	'p/*/f:*.tex/'
+	complete edquota    'n/*/u/'
+	complete exec	'p/1/c/'
+	complete ghostview	'p/*/f:*.{eps,EPS,ps,PS,pdf,PDF,ps.gz}/'
+	complete gv		'p/*/f:*.{eps,EPS,ps,PS,pdf,PDF,ps.gz}/'
+	complete ifconfig	'p@1@`ifconfig -l`@' 'n/*/(range phase link netmask \
 			mtu vlandev vlan metric mediaopt down delete \
 			broadcast arp debug)/'
-    complete imake	'c/-I/d/'
-    complete ipfw 	'p/1/(flush add delete list show zero)/' \
+	complete imake	'c/-I/d/'
+	complete ipfw 	'p/1/(flush add delete list show zero)/' \
 			'n/add/(allow permit accept pass deny drop reject \
 			reset count skipto num divert port tee port)/'
-    complete javac	'p/*/f:*.java/'
-    complete ldif2ldbm	'n/-i/f:*.ldif/'
-    complete libtool	'c/--mode=/(compile execute finish install link \
+	complete javac	'p/*/f:*.java/'
+	complete ldif2ldbm	'n/-i/f:*.ldif/'
+	complete libtool	'c/--mode=/(compile execute finish install link \
 			uninstall)/' 'c/--/(config debug dry-run features \
 			finish help quiet silent version mode=)/'
-    complete libtoolize	'c/--/(automake copy debug dry-run force help ltdl \
+	complete libtoolize	'c/--/(automake copy debug dry-run force help ltdl \
 			ltdl-tar version)/'
-    complete links	'c/-/(assume-codepage async-dns download-dir \
+	complete links	'c/-/(assume-codepage async-dns download-dir \
 			format-cache-size ftp-proxy help http-proxy \
 			max-connections max-connections-to-host \
 			memory-cache-size receive-timeout retries \
 			unrestartable-receive-timeout version)/'
-    complete natd	c/-/'(alias_address config deny_incoming dynamic \
+	complete natd	c/-/'(alias_address config deny_incoming dynamic \
 			inport interface log log_denied log_facility \
 			outport outport port pptpalias proxy_only \
 			proxy_rule redirect_address redirect_port \
 			reverse same_ports unregistered_only use_sockets \
 			verbose)'/ 'n@-interface@`ifconfig -l`@'
-    complete netstat	'n@-I@`ifconfig -l`@'
-    complete objdump	'c/--/(adjust-vma= all-headers architecture= \
+	complete netstat	'n@-I@`ifconfig -l`@'
+	complete objdump	'c/--/(adjust-vma= all-headers architecture= \
 			archive-headers debugging demangle disassemble \
 			disassemble-all disassemble-zeroes dynamic-reloc \
 			dynamic-syms endian= file-headers full-contents \
@@ -508,9 +508,9 @@ skip_mh:
 			section=source stabs start-address= stop-address= \
 			syms target= version wide)/' \
 			'c/-/(a h i f C d D p r R t T x s S l w)/'
-    complete xmodmap	'c/-/(display help grammar verbose quiet n e pm pk \
+	complete xmodmap	'c/-/(display help grammar verbose quiet n e pm pk \
 			pke pp)/'
-    complete lynx	'c/-/(accept_all_cookies anonymous assume_charset= \
+	complete lynx	'c/-/(accept_all_cookies anonymous assume_charset= \
 			assume_local_charset= assume_unrec_charset= auth= base \
 			book buried_news cache= case cfg= child cookie_file= \
 			cookies core crawl debug_partial display= dump editor= \
@@ -527,7 +527,7 @@ skip_mh:
 			startfile_ok tagsoup telnet term= tlog trace traversal \
 			underscore useragent= validate verbose version vikeys \
 			width=)/' 'c/(http|ftp)/$URLS/'
-    complete {gmake,make} \
+	complete {gmake,make} \
 			'c/{--directory,--include-dir}=/d/' 'c/{-C,-I}/d/' \
 			'c/{--assume-new,--assume-old,--makefile,--new-file,--what-if,--file}=/f/' \
 			'c/{-W,-o,-f}/f/' \
@@ -542,29 +542,29 @@ skip_mh:
 			'c/-/(- C d e f h i I k n p q r R s S t v w)/' \
 			'n@*@`cat -s {GNUm,M,m}akefile |& sed -n -e "/cat:/d" -e "s/^\([A-Za-z0-9-]*\):.*/\1/p"`@' \
 			'n/=/f/' 'n/-f/f/'
-    complete mixer	p/1/'(vol bass treble synth pcm speaker mic cd mix \
+	complete mixer	p/1/'(vol bass treble synth pcm speaker mic cd mix \
 			pcm2 rec igain ogain line1 line2 line3)'/ \
 			p@2@'`mixer $:-1 | awk \{\ print\ \$7\ \}`'@
 
-    complete mpg123	'c/--/(2to1 4to1 8bit aggressive au audiodevice \
-    			auth buffer cdr check doublespeed equalizer frames \
+	complete mpg123	'c/--/(2to1 4to1 8bit aggressive au audiodevice \
+				auth buffer cdr check doublespeed equalizer frames \
 			gain halfspeed headphones left lineout list mix mono \
 			proxy quiet random rate reopen resync right scale \
 			shuffle single0 single1 skip speaker stdout stereo \
 			test verbose wav)/'
-    complete mysqladmin	'n/*/(create drop extended-status flush-hosts \
+	complete mysqladmin	'n/*/(create drop extended-status flush-hosts \
 			flush-logs flush-status flush-tables flush-privileges \
 			kill password ping processlist reload refresh \
 			shutdown status variables version)/'
-    set _muttalias=/dev/null
-    foreach _f ($HOME/.muttrc-alias $HOME/.muttalias)
+	set _muttalias=/dev/null
+	foreach _f ($HOME/.muttrc-alias $HOME/.muttalias)
 	if ( -r $_f ) then
 	    set _muttalias=$_f
 	    break
 	endif
-    end
-    unset _f
-    complete mutt	c@-f=@F:${HOME}/Mail/@ \
+	end
+	unset _f
+	complete mutt	c@-f=@F:${HOME}/Mail/@ \
 			n/-a/f/ \
 			n/-F/f/ n/-H/f/ \
 			n/-s/x:'<subject line>'/ \
@@ -572,19 +572,19 @@ skip_mh:
 			n@-b@'`awk '"'"'{print $2 }'"'"' $_muttalias`'@ \
 			n@-c@'`awk '"'"'{print $2 }'"'"' $_muttalias`'@ \
 			n@*@'` awk '"'"'{print $2 }'"'"' $_muttalias`'@
-    complete ndc	'n/*/(status dumpdb reload stats trace notrace \
+	complete ndc	'n/*/(status dumpdb reload stats trace notrace \
 			querylog start stop restart )/'
-    complete nm		'c/--/(debug-syms defined-only demangle dynamic \
+	complete nm		'c/--/(debug-syms defined-only demangle dynamic \
 			extern-only format= help line-numbers no-demangle \
 			no-sort numeric-sort portability print-armap \
 			print-file-name reverse-sort size-sort undefined-only \
 			version)/' 'p/*/f:^*.{h,C,c,cc}/'
-    complete nmap	'n@-e@`ifconfig -l`@' 'p/*/$hostnames/'
-    complete perldoc 	'n@*@`\ls -1 /usr/lib/perl*/5.*/pod | sed s%\\.pod.\*\$%%`@'
-    complete postfix    'n/*/(start stop reload abort flush check)/'
-    complete postmap	'n/1/(hash: regexp:)' 'c/hash:/f/' 'c/regexp:/f/'
-    complete rcsdiff	'p@1@`\ls -1a RCS | sed -e "s/\(.*\),v/\1/"`@'
-    complete X		'c/-/(I a ac allowMouseOpenFail allowNonLocalModInDev \
+	complete nmap	'n@-e@`ifconfig -l`@' 'p/*/$hostnames/'
+	complete perldoc 	'n@*@`\ls -1 /usr/lib/perl*/5.*/pod | sed s%\\.pod.\*\$%%`@'
+	complete postfix    'n/*/(start stop reload abort flush check)/'
+	complete postmap	'n/1/(hash: regexp:)' 'c/hash:/f/' 'c/regexp:/f/'
+	complete rcsdiff	'p@1@`\ls -1a RCS | sed -e "s/\(.*\),v/\1/"`@'
+	complete X		'c/-/(I a ac allowMouseOpenFail allowNonLocalModInDev \
 			allowNonLocalXvidtune ar1 ar2 audit auth bestRefresh \
 			bgamma bpp broadcast bs c cc class co core deferglyphs \
 			disableModInDev disableVidMode displayID dpi dpms f fc \
@@ -593,25 +593,25 @@ skip_mh:
 			once p pn port probeonly query quiet r rgamma s \
 			showconfig sp su t terminate to tst v verbose version \
 			weight wm x xkbdb xkbmap)/'
-    complete vidcontrol	'p/1/(132x25 132x30 132x43 132x50 132x60 40x25 80x25 \
+	complete vidcontrol	'p/1/(132x25 132x30 132x43 132x50 132x60 40x25 80x25 \
 			80x30 80x43 80x50 80x60 EGA_80x25 EGA_80x43 \
 			VESA_132x25 VESA_132x30 VESA_132x43 VESA_132x50 \
 			VESA_132x60 VESA_800x600 VGA_320x200 VGA_40x25 \
 			VGA_80x25 VGA_80x30 VGA_80x50 VGA_80x60)/'
-    complete vim	'n/*/f:^*.[oa]/'
-    complete where	'n/*/c/'
-    complete which	'n/*/c/'
-    complete wmsetbg	'c/-/(display D S a b c d e m p s t u w)/' \
+	complete vim	'n/*/f:^*.[oa]/'
+	complete where	'n/*/c/'
+	complete which	'n/*/c/'
+	complete wmsetbg	'c/-/(display D S a b c d e m p s t u w)/' \
 			'c/--/(back-color center colors dither help match \
 			maxscale parse scale smooth tile update-domain \
 			update-wmaker version workspace)/'
-    complete xdb	'p/1/c/'
-    complete xdvi	'c/-/(allowshell debug display expert gamma hushchars \
+	complete xdb	'p/1/c/'
+	complete xdvi	'c/-/(allowshell debug display expert gamma hushchars \
 			hushchecksums hushspecials install interpreter keep \
 			margins nogrey noinstall nomakepk noscan paper safer \
 			shrinkbuttonn thorough topmargin underlink version)/' \
 			'n/-paper/(a4 a4r a5 a5r)/' 'p/*/f:*.dvi/'
-    complete xlock	'c/-/(allowaccess allowroot debug description \
+	complete xlock	'c/-/(allowaccess allowroot debug description \
 			echokeys enablesaver grabmouse grabserver hide inroot \
 			install inwindow mono mousemotion nolock remote \
 			resetsaver sound timeelapsed use3d usefirst verbose \
@@ -638,8 +638,8 @@ skip_mh:
 			superquadrics swarm swirl tetris thornbird triangle \
 			tube turtle vines voters wator wire world worm xjack \
 			blank bomb random)/' 
-    complete xfig	'c/-/(display)/' 'p/*/f:*.fig/'
-    complete wget 	c/--/"(accept= append-output= background cache= \
+	complete xfig	'c/-/(display)/' 'p/*/f:*.fig/'
+	complete wget 	c/--/"(accept= append-output= background cache= \
 			continue convert-links cut-dirs= debug \
 			delete-after directory-prefix= domains= \
 			dont-remove-listing dot-style= exclude-directories= \
@@ -655,54 +655,54 @@ skip_mh:
 			server-response span-hosts spider timeout= \
 			timestamping tries= user-agent= verbose version wait=)"/
 
-    # More completions from waz@quahog.nl.nuwc.navy.mil (Tom Warzeka)
-    # this one works but is slow and doesn't descend into subdirectories
-    # complete	cd	C@[./\$~]*@d@ \
-    #			p@1@'`\ls -1F . $cdpath | grep /\$ | sort -u`'@ n@*@n@
+	# More completions from waz@quahog.nl.nuwc.navy.mil (Tom Warzeka)
+	# this one works but is slow and doesn't descend into subdirectories
+	# complete	cd	C@[./\$~]*@d@ \
+	#			p@1@'`\ls -1F . $cdpath | grep /\$ | sort -u`'@ n@*@n@
 
-    if ( -r /etc/shells ) then
+	if ( -r /etc/shells ) then
 	complete setenv	p@1@e@ n@DISPLAY@\$hosts@: n@SHELL@'`cat /etc/shells`'@ 'c/*:/f/'
-    else
+	else
 	complete setenv	p@1@e@ n@DISPLAY@\$hosts@: 'c/*:/f/'
-    endif
-    complete unsetenv	n/*/e/
+	endif
+	complete unsetenv	n/*/e/
 
-    if (-r $HOME/.mailrc) then
+	if (-r $HOME/.mailrc) then
 	complete mail	c/-/"(e i f n s u v)"/ c/*@/\$hosts/ \
 			c@+@F:$HOME/Mail@ C@[./\$~]@f@ n/-s/x:'<subject>'/ \
 			n@-u@T:$_maildir@ n/-f/f/ \
 			n@*@'`sed -n s/alias//p $HOME/.mailrc | tr -s " " "\t" | cut -f 2`'@
-    else
+	else
 	complete mail	c/-/"(e i f n s u v)"/ c/*@/\$hosts/ \
 			c@+@F:$HOME/Mail@ C@[./\$~]@f@ n/-s/x:'<subject>'/ \
 			n@-u@T:$_maildir@ n/-f/f/ n/*/u/
-    endif
+	endif
 
 
-    complete man	n@[0-9n]@'`\ls -1fUA ${_manpath}$:-1/|&\sed \\%.\*:%d\;s%\\.$:-1.\*\$%%|\sort -u`'@ \
+	complete man	n@[0-9n]@'`\ls -1fUA ${_manpath}$:-1/|&\sed \\%.\*:%d\;s%\\.$:-1.\*\$%%|\sort -u`'@ \
 			c/-/"(- f k s t l)"/ n/-f/c/ n/-k/x:'<keyword>'/ n/-l/f/ C@./*@f@ n/*/c/
 
-    complete ps		c/-t/x:'<tty>'/ c/-/"(a c C e g k l S t u v w x)"/ \
+	complete ps		c/-t/x:'<tty>'/ c/-/"(a c C e g k l S t u v w x)"/ \
 			n/-k/x:'<kernel>'/ N/-k/x:'<core_file>'/ n/*/x:'<PID>'/
-    complete compress	c/-/"(c f v b)"/ n/-b/x:'<max_bits>'/ n/*/f:^*.Z/
-    complete uncompress	c/-/"(c f v)"/                        n/*/f:*.Z/
-    complete psompress	c/-/"(d c f)"/                        n/*/f:^*.Z/
+	complete compress	c/-/"(c f v b)"/ n/-b/x:'<max_bits>'/ n/*/f:^*.Z/
+	complete uncompress	c/-/"(c f v)"/                        n/*/f:*.Z/
+	complete psompress	c/-/"(d c f)"/                        n/*/f:^*.Z/
 
-    complete uuencode	p/1/f/ p/2/x:'<decode_pathname>'/ n/*/n/
-    complete uudecode	c/-/"(f)"/ n/-f/f:*.{uu,UU}/ p/1/f:*.{uu,UU}/ n/*/n/
+	complete uuencode	p/1/f/ p/2/x:'<decode_pathname>'/ n/*/n/
+	complete uudecode	c/-/"(f)"/ n/-f/f:*.{uu,UU}/ p/1/f:*.{uu,UU}/ n/*/n/
 
-    complete xhost	c/[+-]/\$hosts/ n/*/\$hosts/
+	complete xhost	c/[+-]/\$hosts/ n/*/\$hosts/
 
-    complete emacs	c/-/"(batch d f funcall i insert kill l load \
+	complete emacs	c/-/"(batch d f funcall i insert kill l load \
 			no-init-file nw q t u user)"/ c/+/x:'<line_number>'/ \
 			n/-d/x:'<display>'/ n/-f/x:'<lisp_function>'/ n/-i/f/ \
 			n@-l@F:/usr/share/emacs/@ \
 			n/-t/x:'<terminal>'/ \
 			n/-u/u/ n/*/f:^*{[\#~],.dvi,.o,.gz,.Z,.z,.zip}/
 
-    complete zcat	c/--/"(force help license quiet version)"/ \
+	complete zcat	c/--/"(force help license quiet version)"/ \
 			c/-/"(f h L q V -)"/ n/*/f:*.{gz,Z,z,zip}/
-    complete gzip	c/--/"(stdout to-stdout decompress uncompress \
+	complete gzip	c/--/"(stdout to-stdout decompress uncompress \
 			force help list license no-name quiet recurse \
 			suffix test verbose version fast best)"/ \
 			c/-/"(c d f h l L n q r S t v V 1 2 3 4 5 6 7 8 9 -)"/ \
@@ -710,30 +710,30 @@ skip_mh:
 			n/{-d,--{de,un}compress}/f:*.{gz,Z,z,zip,taz,tgz}/ \
 			N/{-d,--{de,un}compress}/f:*.{gz,Z,z,zip,taz,tgz}/ \
 			n/*/f:^*.{gz,Z,z,zip,taz,tgz}/
-    complete {gunzip,ungzip} c/--/"(stdout to-stdout force help list license \
+	complete {gunzip,ungzip} c/--/"(stdout to-stdout force help list license \
 			no-name quiet recurse suffix test verbose version)"/ \
 			c/-/"(c f h l L n q r S t v V -)"/ \
 			n/{-S,--suffix}/x:'<file_name_suffix>'/ \
 			n/*/f:*.{gz,Z,z,zip,taz,tgz,tar.gz}/
-    complete zgrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
+	complete zgrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
 			c/-/"(A b B c C e f h i l n s v V w x)"/ \
 			p/1/x:'<limited_regular_expression>'/ N/-*e/f/ \
 			n/-*e/x:'<limited_regular_expression>'/ n/-*f/f/ n/*/f/
-    complete zegrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
+	complete zegrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
 			c/-/"(A b B c C e f h i l n s v V w x)"/ \
 			p/1/x:'<full_regular_expression>'/ N/-*e/f/ \
 			n/-*e/x:'<full_regular_expression>'/ n/-*f/f/ n/*/f/
-    complete zfgrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
+	complete zfgrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
 			c/-/"(A b B c C e f h i l n s v V w x)"/ \
 			p/1/x:'<fixed_string>'/ N/-*e/f/ \
 			n/-*e/x:'<fixed_string>'/ n/-*f/f/ n/*/f/
-    complete znew	c/-/"(f t v 9 P K)"/ n/*/f:*.Z/
-    complete zmore	n/*/f:*.{gz,Z,z,zip,bz2}/
-    complete zfile	n/*/f:*.{gz,Z,z,zip,taz,tgz}/
-    complete ztouch	n/*/f:*.{gz,Z,z,zip,taz,tgz}/
-    complete zforce	n/*/f:^*.{gz,taz,tgz}/
+	complete znew	c/-/"(f t v 9 P K)"/ n/*/f:*.Z/
+	complete zmore	n/*/f:*.{gz,Z,z,zip,bz2}/
+	complete zfile	n/*/f:*.{gz,Z,z,zip,taz,tgz}/
+	complete ztouch	n/*/f:*.{gz,Z,z,zip,taz,tgz}/
+	complete zforce	n/*/f:^*.{gz,taz,tgz}/
 
-    complete grep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
+	complete grep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
 			c/--/"(extended-regexp fixed-regexp basic-regexp \
 			regexp file ignore-case word-regexp line-regexp \
 			no-messages revert-match version help byte-offset \
@@ -744,7 +744,7 @@ skip_mh:
 			c/-/"(A a B b C c d E e F f G H h i L l n q r s U u V v w x)"/ \
 			p/1/x:'<limited_regular_expression>'/ N/-*e/f/ \
 			n/-*e/x:'<limited_regular_expression>'/ n/-*f/f/ n/*/f/
-    complete egrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
+	complete egrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
 			c/--/"(extended-regexp fixed-regexp basic-regexp \
 			regexp file ignore-case word-regexp line-regexp \
 			no-messages revert-match version help byte-offset \
@@ -755,7 +755,7 @@ skip_mh:
 			c/-/"(A a B b C c d E e F f G H h i L l n q r s U u V v w x)"/ \
 			p/1/x:'<full_regular_expression>'/ N/-*e/f/ \
 			n/-*e/x:'<full_regular_expression>'/ n/-*f/f/ n/*/f/
-    complete fgrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
+	complete fgrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/ \
 			c/--/"(extended-regexp fixed-regexp basic-regexp \
 			regexp file ignore-case word-regexp line-regexp \
 			no-messages revert-match version help byte-offset \
@@ -767,40 +767,40 @@ skip_mh:
 			p/1/x:'<fixed_string>'/ N/-*e/f/ \
 			n/-*e/x:'<fixed_string>'/ n/-*f/f/ n/*/f/
 
-    complete users	c/--/"(help version)"/ p/1/x:'<accounting_file>'/
-    complete who	c/--/"(heading mesg idle count help message version \
+	complete users	c/--/"(help version)"/ p/1/x:'<accounting_file>'/
+	complete who	c/--/"(heading mesg idle count help message version \
 			writable)"/ c/-/"(H T w i u m q s -)"/ \
 			p/1/x:'<accounting_file>'/ n/am/"(i)"/ n/are/"(you)"/
 
-    complete chown	c/--/"(changes dereference no-dereference silent \
+	complete chown	c/--/"(changes dereference no-dereference silent \
 			quiet reference recursive verbose help version)"/ \
 			c/-/"(c f h R v -)"/ C@[./\$~]@f@ c/*[.:]/g/ \
 			n/-/u/: p/1/u/. n/*/f/
-    complete chgrp	c/--/"(changes no-dereference silent quiet reference \
+	complete chgrp	c/--/"(changes no-dereference silent quiet reference \
 			recursive verbose help version)"/ \
 			c/-/"(c f h R v -)"/ n/-/g/ p/1/g/ n/*/f/
-    complete chmod	c/--/"(changes silent quiet verbose reference \
+	complete chmod	c/--/"(changes silent quiet verbose reference \
 			recursive help version)"/ c/-/"(c f R v)"/
-    complete df		c/--/"(all block-size human-readable si inodes \
+	complete df		c/--/"(all block-size human-readable si inodes \
 			kilobytes local megabytes no-sync portability sync \
 			type print-type exclude-type help version)"/ \
 			c/-/"(a H h i k l m P T t v x)"/
-    complete du		c/--/"(all block-size bytes total dereference-args \
+	complete du		c/--/"(all block-size bytes total dereference-args \
 			human-readable si kilobytes count-links dereference \
 			megabytes separate-dirs summarize one-file-system \
 			exclude-from exclude max-depth help version"/ \
 			c/-/"(a b c D H h k L l m S s X x)"/
 
-    complete cat	c/--/"(number-nonblank number squeeze-blank show-all \
+	complete cat	c/--/"(number-nonblank number squeeze-blank show-all \
 			show-nonprinting show-ends show-tabs help version)"/ \
 			c/-/"(b e n s t u v A E T -)"/ n/*/f/
-    complete mv		c/--/"(backup force interactive update verbose suffix \
+	complete mv	c/--/"(backup force interactive update verbose suffix \
 			version-control help version)"/ \
 			c/-/"(b f i u v S V -)"/ \
 			n/{-S,--suffix}/x:'<suffix>'/ \
 			n/{-V,--version-control}/"(t numbered nil existing \
 			never simple)"/ n/-/f/ N/-/d/ p/3-/d/ n/*/f/
-    complete cp		c/--/"(archive backup no-dereference force \
+	complete cp	c/--/"(archive backup no-dereference force \
 			interactive link preserve parents sparse recursive \
 			symbolic-link suffix update verbose version-control \
 			one-file-system help version)"/ \
@@ -808,26 +808,34 @@ skip_mh:
 			n/-*r/d/ n/{-S,--suffix}/x:'<suffix>'/ \
 			n/{-V,--version-control}/"(t numbered nil existing \
 			never simple)"/ n/-/f/ N/-/d/ p/3-/d/ n/*/f/
-    complete ln		c/--/"(backup directory force no-dereference \
+	#complete ln		c/--/"(backup directory force no-dereference \
+	#			interactive symbolic suffix verbose version-control \
+	#			help version)"/ \
+	#			c/-/"(b d F f i n S s V v -)"/ \
+	#			n/{-S,--suffix}/x:'<suffix>'/ \
+	#			n/{-V,--version-control}/"(t numbered nil existing \
+	#			never simple)"/ n/-/f/ N/-/x:'<link_name>'/ \
+	#			p/1/f/ p/2/x:'<link_name>'/
+	complete ln	c/--/"(backup directory force no-dereference \
 			interactive symbolic suffix verbose version-control \
 			help version)"/ \
 			c/-/"(b d F f i n S s V v -)"/ \
 			n/{-S,--suffix}/x:'<suffix>'/ \
 			n/{-V,--version-control}/"(t numbered nil existing \
-			never simple)"/ n/-/f/ N/-/x:'<link_name>'/ \
-			p/1/f/ p/2/x:'<link_name>'/
-    complete touch	c/--/"(date reference time help version)"/ \
+			never simple)"/ n/-/f/ N/-/f/ \
+			p/1/f/ p/2/f/
+	complete touch	c/--/"(date reference time help version)"/ \
 			c/-/"(a c d f m r t -)"/ \
 			n/{-d,--date}/x:'<date_string>'/ \
 			c/--time/"(access atime mtime modify use)"/ \
 			n/{-r,--file}/f/ n/-t/x:'<time_stamp>'/ n/*/f/
-    complete mkdir	c/--/"(mode parents verbose help version)"/ \
+	complete mkdir	c/--/"(mode parents verbose help version)"/ \
 			c/-/"(p m -)"/ \
 			n/{-m,--mode}/x:'<mode>'/ n/*/d/
-    complete rmdir	c/--/"(ignore-fail-on-non-empty parents verbose help \
+	complete rmdir	c/--/"(ignore-fail-on-non-empty parents verbose help \
 			version)"/ c/-/"(p -)"/ n/*/d/
 
-    complete tar	c/-[Acru]*/"(b B C f F g G h i l L M N o P \
+	complete tar	c/-[Acru]*/"(b B C f F g G h i l L M N o P \
 			R S T v V w W X z Z j I)"/ \
 			c/-[dtx]*/"( B C f F g G i k K m M O p P \
 			R s S T v w x X z Z j I)"/ \
@@ -869,30 +877,30 @@ skip_mh:
 			N/{-C,--directory}/'`\ls $:-1`'/ \
 			n/-[0-7]/"(l m h)"/
 
-    complete  mount	c/-/"(a n v t r w)"/ n/-t/"(minix iso9660 msdos vfat ext2 nfs proc)"/ \
+	complete  mount	c/-/"(a n v t r w)"/ n/-t/"(minix iso9660 msdos vfat ext2 nfs proc)"/ \
    			'C@/de@F@' 'C@/*@F@@' 'n@*@`grep -E -v \(^#\|^\$\) /etc/fstab|awk \{\ print\ \$2\ \}`@'
-    complete umount	c/-/"(a n t)"/   n/-t/"(minix iso9660 msdos ext2 nfs proc)"/ \
+	complete umount	c/-/"(a n t)"/   n/-t/"(minix iso9660 msdos ext2 nfs proc)"/ \
    			n/*/'`mount | cut -d " " -f 3`'/
 
-    # these deal with NIS (formerly YP); if it's not running you don't need 'em
-    complete domainname	p@1@D:$_ypdir@" " n@*@n@
-    complete ypcat	c@-@"(d k t x)"@ n@-x@n@ n@-d@D:$_ypdir@" " \
+	# these deal with NIS (formerly YP); if it's not running you don't need 'em
+	complete domainname	p@1@D:$_ypdir@" " n@*@n@
+	complete ypcat	c@-@"(d k t x)"@ n@-x@n@ n@-d@D:$_ypdir@" " \
 			N@-d@\`\\ls\ -1\ $_ypdir/\$:-1\ \|\&\ sed\ -n\ s%\\\\.by\\[a-z\\]\\\*\\\$%%p\`@ \
 			p/1/"(aliases ethers passwd group hosts netid.byname networks protocols \
 			rpc.byname services)"/
-    complete ypmatch	c@-@"(d k t x)"@ n@-x@n@ n@-d@D:$_ypdir@" " \
+	complete ypmatch	c@-@"(d k t x)"@ n@-x@n@ n@-d@D:$_ypdir@" " \
 			N@-d@\`\\ls\ -1\ $_ypdir/\$:-1\ \|\&\ sed\ -n\ s%\\\\.by\\[a-z\\]\\\*\\\$%%p\`@ \
 			n@-@x:'<key ...>'@ p@1@x:'<key ...>'@ \
 			p/1/"(aliases ethers passwd group hosts netid.byname networks protocols \
 			rpc.byname services)"/
-    complete ypwhich	c@-@"(d m t x V1 V2)"@ n@-x@n@ n@-d@D:$_ypdir@" " \
+	complete ypwhich	c@-@"(d m t x V1 V2)"@ n@-x@n@ n@-d@D:$_ypdir@" " \
 			n@-m@\`\\ls\ -1\ $_ypdir/$_domain\ \|\&\sed\ -n\ s%\\\\.by\\[a-z\\]\\\*\\\$%%p\`@ \
 			N@-m@n@ n@*@\$hosts@
 
-    # there's no need to clutter the user's shell with these
-    unset _maildir _ypdir _domain
+	# there's no need to clutter the user's shell with these
+	unset _maildir _ypdir _domain
 
-    if ( -r /etc/printcap ) then
+	if ( -r /etc/printcap ) then
 	set printers=(`sed -n -e '/^[^ 	#][^:]*:/{s/|.*:.*//p;}' /etc/printcap | sort -u`)
 
 	complete lpr	'c/-P/$printers/'
@@ -901,9 +909,9 @@ skip_mh:
 	complete lpquota	'p/1/(-Qprlogger)/' 'c/-P/$printers/'
 	complete dvips	'c/-P/$printers/' 'n/-o/f:*.{ps,PS}/' 'n/*/f:*.dvi/'
 	complete dvilj	'p/*/f:*.dvi/'
-    endif
+	endif
 
-    unset noglob
+	unset noglob
 #
 # complete.tcsh ends here
 #

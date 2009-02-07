@@ -25,13 +25,14 @@ case "get-last":
 
 case "regex-match-titles":
 	shift;
-	if ( "${value}" == "" ) continue;
+	if ( "${value}" == "" ) breaksw
 	set regex_match_titles = "${value}";
 	breaksw
 endsw
 
 printf "Downloading podcast's feed.\n"
-wget --quiet -O './00-feed.xml' `echo "${1}" | sed '+s/\?/\\\?/g'`
+wget --quiet -O './00-feed.xml' "${1}"
+
 set title = "`/usr/bin/grep '<title.*>' './00-feed.xml' | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g'`"
 
 if ( ! -d "${title}" ) mkdir -p "${title}"

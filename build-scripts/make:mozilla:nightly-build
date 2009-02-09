@@ -10,6 +10,8 @@ endif
 cd "${mozilla_dir}";
 
 if ( "${?GREP_OPTIONS}" == "1" ) unsetenv GREP_OPTIONS;
+unalias grep
+unalias egrep
 
 if ( ! -d "src" ) mkdir "src";
 cd src;
@@ -34,18 +36,18 @@ hg up;
 if ( ! -e ".mozconfig" ) then
 	switch ( "${build_mozilla}" )
 	case "firefox":
-		set enable_mozilla="--enable-application=browser";
+		set enable_mozilla="--enable-application=browser --enable-application=xulrunner --enable-libxul";
 		breaksw
 	case "thunderbird":
 	default:
-		set enable_mozilla="--enable-application=mail --enable=calendar";
+		set enable_mozilla="--enable-application=mail --enable=calendar --enable-static";
 		breaksw
 	endsw
 	
-	printf "ac_add_options ${enable_mozilla} --enable-installer --disable-pedantic --enable-static --disable-shared --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-tests --disable-mochitest\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" > ".mozconfig";
+	printf "ac_add_options ${enable_mozilla} --enable-installer --disable-pedantic --disable-shared --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-tests --disable-mochitest\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" > ".mozconfig";
 endif
 
-python client.py checkout
+if ( "${build_mozilla}" == "thunderbird" ) python client.py checkout
 
 make -f client.mk build
 

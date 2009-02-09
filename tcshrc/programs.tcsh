@@ -6,3 +6,4 @@ foreach program ( ${programs} )
 	if ( "`echo '${PATH}' | /usr/bin/sed 's/.*:\(${program_test}\).*/\1/'`" == "${program}" ) continue
 	setenv PATH "${PATH}:${program}"
 end
+setenv JAVA_HOME /usr/lib64/jvm/java-openjdk

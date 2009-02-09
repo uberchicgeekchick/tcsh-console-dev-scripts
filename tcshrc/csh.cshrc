@@ -15,7 +15,7 @@ set nobeep
 set noclobber
 
 set highlight
-set histdup=prev
+set histdup=erase
 set histfile="/profile.d/history"
 set history=1000
 set savehist=( $history "merge" )

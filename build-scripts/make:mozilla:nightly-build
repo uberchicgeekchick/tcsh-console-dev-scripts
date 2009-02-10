@@ -17,14 +17,21 @@ if ( ! -d "src" ) mkdir "src";
 cd src;
 
 switch ( "${1}" )
+case "xulrunner":
+	set build_mozilla="firefox";
+	set mercurial_repo="mozilla-central";
+	set enable_mozilla="--enable-application=xulrunner --enable-libxul";
+	breaksw
 case "firefox":
 	set build_mozilla="firefox";
 	set mercurial_repo="mozilla-central";
+	set enable_mozilla="--enable-application=browser --enable-libxul";
 	breaksw
 case "thunderbird":
 default:
 	set build_mozilla="thunderbird";
 	set mercurial_repo="comm-central";
+	set enable_mozilla="--enable-application=mail --enable=calendar --enable-static";
 	breaksw
 endsw
 
@@ -33,18 +40,7 @@ if ( ! -d "${build_mozilla}-src/.hg" ) hg clone "http://hg.mozilla.org/${mercuri
 cd "${build_mozilla}-src";
 hg up;
 
-if ( ! -e ".mozconfig" ) then
-	switch ( "${build_mozilla}" )
-	case "firefox":
-		set enable_mozilla="--enable-application=browser --enable-application=xulrunner --enable-libxul";
-		breaksw
-	case "thunderbird":
-	default:
-		set enable_mozilla="--enable-application=mail --enable=calendar --enable-static";
-		breaksw
-	endsw
-	
-	printf "ac_add_options ${enable_mozilla} --enable-installer --disable-pedantic --disable-shared --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-tests --disable-mochitest\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" > ".mozconfig";
+if ( ! -e ".mozconfig" ) printf "ac_add_options ${enable_mozilla} --enable-installer --disable-pedantic --disable-shared --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-tests --disable-mochitest\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" > ".mozconfig";
 endif
 
 if ( "${build_mozilla}" == "thunderbird" ) python client.py checkout
@@ -56,9 +52,11 @@ cd "../${build_mozilla}-objdir"
 make package
 
 set today=`date '+%Y-%m-%d'`
-set todays_tarball="`basename mozilla/dist/${build_mozilla}-*.tar.bz2 | sed 's/\(thunderbird.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`"
 
-cp mozilla/dist/${build_mozilla}-*.tar.bz2 "${tarball_backup_dir}/${todays_tarball}"
+if ( "${build_mozilla}" == "thunderbird" ) cd mozilla
 
-cd ..
+foreach tarball ( dist/*.tar.bz2 )
+	set todays_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`"
+	cp ${tarball} "${tarball_backup_dir}/${todays_tarball}"
+end
 

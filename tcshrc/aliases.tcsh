@@ -1,8 +1,8 @@
 #!/bin/tcsh -f
-setenv GREP_OPTIONS "--binary-files=without-match --color --with-filename --line-number"
-alias egrep "grep ${GREP_OPTIONS} --perl-regexp"
+setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number"
+alias	egrep		"grep ${GREP_OPTIONS} --perl-regexp"
 
-setenv LS_OPTIONS "--human-readable --color --quoting-style=escape --classify"
+setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify"
 
 alias	ls	"ls ${LS_OPTIONS}"
 alias	ll	"ls -l"
@@ -20,12 +20,12 @@ alias	shasum		"shasum --algorithm 512"
 #alias	cp	"cp --interactive"
 unalias cp
 #alias	mv	"mv --interactive"
-unalias mv
+unalias	mv
 
-alias mkdir "mkdir -p"
-alias md "mkdir"
+alias	mkdir	"mkdir -p"
+alias	md	"mkdir"
 
-alias	mkexec	"chmod +x"
+alias	mkx	"chmod +x"
 
 alias	hostname	"hostname --fqdn"
 alias	"wget"		"wget --no-check-certificate"

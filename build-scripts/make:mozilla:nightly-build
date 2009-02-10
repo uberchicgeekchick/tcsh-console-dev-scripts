@@ -1,12 +1,16 @@
 #!/bin/tcsh -f
 set mozilla_dir="/programs/Mozilla";
 set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
+set prefix="/programs/Mozilla"
 
 if ( "${?1}" == "0" || "${1}" == "" || "${1}" == "--help" ) then
 	printf "Usage: %s (firefox|thunderbird)\n\tchecks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"`;
 	exit -1;
 endif
 
+
+
+init:
 cd "${mozilla_dir}";
 
 if ( "${?GREP_OPTIONS}" == "1" ) unsetenv GREP_OPTIONS;
@@ -16,47 +20,70 @@ unalias egrep
 if ( ! -d "src" ) mkdir "src";
 cd src;
 
+
+
+configure:
 switch ( "${1}" )
 case "xulrunner":
-	set build_mozilla="firefox";
+	set build_mozilla="xulrunner";
 	set mercurial_repo="mozilla-central";
 	set enable_mozilla="--enable-application=xulrunner --enable-libxul";
+	set prefix="${prefix}/XULRunner-1.9.1"
 	breaksw
 case "firefox":
 	set build_mozilla="firefox";
 	set mercurial_repo="mozilla-central";
 	set enable_mozilla="--enable-application=browser --enable-libxul";
+	set prefix="${prefix}/Firefox3"
 	breaksw
 case "thunderbird":
 default:
 	set build_mozilla="thunderbird";
 	set mercurial_repo="comm-central";
 	set enable_mozilla="--enable-application=mail --enable=calendar --enable-static";
+	set prefix="${prefix}/Thunderbird3"
 	breaksw
 endsw
 
-if ( ! -d "${build_mozilla}-src/.hg" ) hg clone "http://hg.mozilla.org/${mercurial_repo}/" "${build_mozilla}-src";
 
+
+checkout:
+if ( ! -d "${build_mozilla}-src/.hg" ) hg clone "http://hg.mozilla.org/${mercurial_repo}/" "${build_mozilla}-src";
 cd "${build_mozilla}-src";
 hg up;
 
+
+
+mozconfig:
 if ( ! -e ".mozconfig" ) printf "ac_add_options ${enable_mozilla} --enable-installer --disable-pedantic --disable-shared --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-tests --disable-mochitest\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" > ".mozconfig";
 endif
 
-if ( "${build_mozilla}" == "thunderbird" ) python client.py checkout
 
+
+make:
+if ( "${build_mozilla}" == "thunderbird" ) python client.py checkout
 make -f client.mk build
 
-cd "../${build_mozilla}-objdir"
 
+
+package:
+cd "../${build_mozilla}-objdir"
 make package
 
+
+
+backup:
 set today=`date '+%Y-%m-%d'`
-
 if ( "${build_mozilla}" == "thunderbird" ) cd mozilla
-
 foreach tarball ( dist/*.tar.bz2 )
 	set todays_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`"
 	cp ${tarball} "${tarball_backup_dir}/${todays_tarball}"
 end
+
+
+
+install:
+tar -C "${prefix}" -xjf dist/${build_mozilla}-*.tar.bz2
+rm -rf "${prefix}/64bit"
+rm -rf "${prefix}/${build_mozilla}" "${prefix}/64bit"
 

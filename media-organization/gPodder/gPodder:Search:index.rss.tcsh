@@ -16,6 +16,7 @@ case "description":
 case "link":
 case "url":
 case "guid":
+case 'link':
 case "pubDate":
 	set value = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`"
 	breaksw
@@ -54,7 +55,7 @@ foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
 	if ( "${found}" == "" ) continue;
 	
 	if ( "${attrib}" != "${search_for}" ) then
-		set found = "`/usr/bin/grep --ignore-case --perl-regex -e '<${attrib}>.*${value}.*<\/${attrib}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${attrib}>\([^<]\+\)<\/${attrib}>.*/\1\r/g'`"
+		set found = "`/usr/bin/grep --ignore-case --perl-regex -e '<${search_for}>.*${value}.*<\/${search_for}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${search_for}>\([^<]\+\)<\/${search_for}>.*/\1\r/g'`"
 	endif
 
 	foreach item ( "${found}" )

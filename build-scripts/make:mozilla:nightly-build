@@ -47,28 +47,27 @@ endsw
 set topdir="${mozilla_dir}/src/"
 set srcdir="${mozilla_dir}/src/${build_mozilla}-src"
 set objdir="${mozilla_dir}/src/${build_mozilla}-objdir"
+goto uninstall
 
 
 
 checkout:
 if ( ! -d "${srcdir}/.hg" ) hg clone "http://hg.mozilla.org/${mercurial_repo}/" "${srcdir}";
 cd "${srcdir}";
-hg up;
+hg pull;
+hg update;
 
 
 
 mozconfig:
 cd "${srcdir}"
-if ( -e ".mozconfig" ) touch .mozconfig
 if ( ! -e ".mozconfig" ) printf "ac_add_options ${enable_mozilla} --enable-installer --disable-pedantic --disable-shared --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-tests --disable-mochitest\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" > ".mozconfig";
+touch ".mozconfig";
 
 
 
 make:
-cd "${srcdir}"
-foreach configure ( "`find . -name configure`" )
-	touch "${configure}"
-end
+cd "${srcdir}";
 if ( "${build_mozilla}" == "thunderbird" ) python client.py checkout;
 make -f client.mk build;
 
@@ -81,7 +80,7 @@ make package;
 
 
 backup:
-cd "${objdir}"
+cd "${objdir}";
 set today=`date '+%Y-%m-%d'`;
 if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
 foreach tarball ( dist/*.tar.bz2 )
@@ -92,17 +91,17 @@ end
 
 
 uninstall:
-foreach program ( ( "${build_mozilla}" "${build_mozilla}-bin" ) )
+foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
 	foreach pid ( `pidof -x "${program}"` )
-		set still_running;
-		while ( "${?still_running}" == "1" )
-			killall -QUIT "${pid}";
+		set still_running = ( "\n" );
+		while ( "${#still_running}" < 10 )
+			kill -QUIT "${pid}";
 			sleep 2;
-			unset still_running;
 			foreach test ( `pidof -x "${program}"` )
-				if ( "${pid}" == "${test}" ) set still_running;
+				if ( "${pid}" == "${test}" ) set still_running = ( ${still_running} "\n" );
 			end
 		end
+		kill -9 "${pid}"
 	end
 end
 rm -rf "${prefix}/64bit";
@@ -110,6 +109,8 @@ rm -rf "${prefix}/64bit";
 
 
 install:
+cd "${objdir}";
+if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
 tar -C "${prefix}" -xjf dist/${build_mozilla}-*.tar.bz2;
 mv "${prefix}/${build_mozilla}" "${prefix}/64bit";
 

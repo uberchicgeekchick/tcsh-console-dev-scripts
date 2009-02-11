@@ -23,6 +23,11 @@ else
 	bindkey    "^[!"	expand-history
 endif
 #
+# My own special bound keys
+#
+bindkey	" "	magic-space
+
+#
 # Common standard keypad and cursor
 #
 bindkey    "^[[1~"		beginning-of-line

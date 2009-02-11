@@ -1,63 +1,76 @@
 #!/bin/tcsh -f
-set resolution_path = "/profile.d/resolutions/gnome-terminal"
+set resolution_path="/profile.d/resolutions/gnome-terminal";
+set default_geometry=`cat "${resolution_path}/default.rc"`;
+set canvas_geometry=`cat "${resolution_path}/canvas.rc"`;
+
+set screen_command="/usr/bin/screen -aAUR";
+set screens_options="aAUR";
+set screens_sessions=`/usr/bin/screen -list`;
+if ( "$screens_sessions[1]" != "No" ) then
+	set screen_command="${screen_command}x";
+	set screens_options="${screens_options}x";
+endif
+alias screen "${screen_command}";
+unset sceen_command;
+unset screens_sessions;
+
+set default_tabs = ( "--tab-with-profile=screen --title=:screen: --command=screen" \
+	"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
+	"--tab-with-profile=projects --title=/media --working-directory=/media" \
+	"--tab-with-profile=projects --title=~/ --working-directory=${HOME}" \
+	"--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" \
+	"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
+	"--tab-with-profile=projects --title=/programs --working-directory=/programs" \
+	"--tab-with-profile=projects --title=/projects --working-directory=/projects" \
+);
+
+set my_projects = ( "--tab-with-profile=projects --title='projects' --working-directory=/projects" \
+       	"--tab-with-profile=projects --title='tcshrc-dev' --working-directory=/projects/console/tcshrc-dev" \
+	"--tab-with-profile=projects --title='alacast:cli' --working-directory=/projects/gtk/alacast" \
+	"--tab-with-profile=projects --title='AOPHP' --working-directory=/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
+	"--tab-with-profile=projects --title='ManyWorlds' --working-directory=/projects/games/ManyWorlds" \
+	"--tab-with-profile=projects --title='twitux' --working-directory=/projects/gtk/twitux" \
+	"--tab-with-profile=projects --title='alacast:gtk' --working-directory=/projects/gtk/alacast" \
+	"--tab-with-profile=projects --title='connectED' --working-directory=/projects/gtk/connectED" \
+);
+
 
 foreach which_canvas ( "${argv}" )
-	set default_geometry = `cat "${resolution_path}/default.rc"`
-	set canvas_geometry = `cat "${resolution_path}/canvas.rc"`
-
-	set screen_command = "/usr/bin/screen -aAUR"
-	set screens_options = "aAUR"
-	set screens_sessions = `/usr/bin/screen -list`
-	if ( "$screens_sessions[1]" != "No" ) then
-		set screen_command = "${screen_command}x"
-		set screens_options = "${screens_options}x"
-	endif
-	alias screen "${screen_command}"
-	unset sceen_command
-	unset screens_sessions
-	
-	set default_tabs = ( "--tab-with-profile=screen --title=:screen: --command=screen" \
-		"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
-		"--tab-with-profile=projects --title=/media --working-directory=/media" \
-		"--tab-with-profile=projects --title=~/ --working-directory=${HOME}" \
-		"--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" \
-		"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
-		"--tab-with-profile=projects --title=/programs --working-directory=/programs" \
-		"--tab-with-profile=projects --title=/projects --working-directory=/projects" \
-	);
-	
+		
 	switch ( "${which_canvas}" )
 	case 'Template':
-		shift
+		shift;
+		if ( "${?screens_started}" == "0" ) set screens_started;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			${default_tabs} \
-		${argv} &
+		${argv} &;
 		breaksw
 	
 	case 'Editor:VIM':
-		set vim_resolution = `cat ${resolution_path}/vim.rc`
-		shift
+		set vim_resolution = `cat ${resolution_path}/vim.rc`;
+		shift;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			--tab-with-profile="projects" --title="vim-enhanced" --working-directory="/projects" --command="/usr/bin/vim-enhanced -p ${argv}" \
-		&
+		&;
 		breaksw
 		
 	case 'Editor:Default':
-		set vim_resolution = `cat ${resolution_path}/vim.rc`
-		shift
+		set vim_resolution = `cat ${resolution_path}/vim.rc`;
+		shift;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			--tab-with-profile="projects" --title="${EDITOR}" --working-directory="/projects" --command="${EDITOR} -p ${argv}" \
-		&
+		&;
 		breaksw
 	
 	case 'Programming:All':
-		shift
+		shift;
+		if ( "${?screens_started}" == "0" ) set screens_started;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
@@ -68,12 +81,26 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
 			--tab-with-profile="projects" --title="media" --working-directory="/projects/media" \
 			--tab-with-profile="projects" --title="games" --working-directory="/projects/games" \
-		${argv} &
-		breaksw
+			${my_projects} \
+		${argv} &;
+		breaksw;
 	
+	case 'Programming:Apps':
+		shift;
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
+			--tab-with-profile="projects" --title="cli" --working-directory="/projects/console" \
+			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
+			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
+			${my_projects} \
+		${argv} &;
+		breaksw
+		
 	case 'Programming:Games':
-		shift
-		set canvas_geometry = `cat "${resolution_path}/game-dev.rc"`
+		shift;
+		set canvas_geometry = `cat "${resolution_path}/game-dev.rc"`;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
@@ -84,42 +111,28 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="Raydium" --working-directory="/projects/games/engines/Raydium" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="game-design" --working-directory="/projects/games" \
-		${argv} &
+		${argv} &;
 		breaksw
 
 	case 'Programming:Internet':
-		shift
+		shift;
+		if ( "${?screens_started}" == "0" ) set screens_started;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
 			${default_tabs} \
+			${my_projects} \
 			--tab-with-profile="projects" --title="reference" --working-directory="/projects/reference" \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="www" --working-directory="/projects/www" \
 			--tab-with-profile="projects" --title="MyWebDesigns" --working-directory="/projects/www/MyWebDesigns" \
 			--tab-with-profile="projects" --title="uberChicGeekChick.Com" --working-directory="/projects/www/MyWebDesigns/uberChicGeekChick.Com" \
-		${argv} &
+		${argv} &;
 		breaksw
 	
-	case 'Programming:Apps':
-		shift
-		/usr/bin/gnome-terminal \
-			--hide-menubar \
-			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
-			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
-			--tab-with-profile="projects" --title="cli" --working-directory="/projects/console" \
-			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/console/tcsh-dev" \
-			--tab-with-profile="projects" --title="alacast:cli" --working-directory="/projects/console/alacast" \
-			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
-			--tab-with-profile="projects" --title="gtk" --working-directory="/projects/gtk" \
-			--tab-with-profile="projects" --title="twitux" --working-directory="/projects/gtk/twitux" \
-			--tab-with-profile="projects" --title="alacast:gui" --working-directory="/projects/gtk/alacast" \
-			--tab-with-profile="projects" --title="connectED" --working-directory="/projects/gtk/connectED" \
-		${argv} &
-		breakswt
-	
 	case 'Media:Production':
-		shift
+		shift;
+		if ( "${?screens_started}" == "0" ) set screens_started;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${canvas_geometry} \
@@ -128,20 +141,21 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="alacast" --working-directory="/projects/gtk/alacast" \
 			--tab-with-profile="projects" --title="/media-library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="my podcasts" --working-directory="/projects/media/podcasts" \
-		${argv} &
+		${argv} &;
 		breaksw
 
 	case 'Media:Social':
-		shift
+		shift;
+		if ( "${?screens_started}" == "0" ) set screens_started;
 		if ( -e "${HOME}/.rtorrent.rc" ) then
-			set rtorrent_session_dir = `/usr/bin/grep 'session' "${HOME}/.rtorrent.rc" | /usr/bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`
+			set rtorrent_session_dir = `/usr/bin/grep 'session' "${HOME}/.rtorrent.rc" | /usr/bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`;
 			if ( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
-				rm -f "${rtorrent_session_dir}/rtorrent.lock"
-				rm -f "${rtorrent_session_dir}/rtorrent.dht_cache"
+				rm -f "${rtorrent_session_dir}/rtorrent.lock";
+				rm -f "${rtorrent_session_dir}/rtorrent.dht_cache";
 			endif
 		endif
 		
-		set alacast_geometry = `cat "${resolution_path}/alacast.rc"`
+		set alacast_geometry = `cat "${resolution_path}/alacast.rc"`;
 		
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
@@ -154,25 +168,32 @@ foreach which_canvas ( "${argv}" )
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="projects" --title="podcasts" --working-directory="/media/podcasts" \
 			--tab-with-profile="projects" --title="alacast[php]" --working-directory="/projects/console/alacast" --command="/projects/console/alacast/bin/alacast.php --update=detailed --logging --player=xine --interactive" \
-		${argv} &
+		${argv} &;
 		breaksw
 
 	case 'Session:Screen':
-		shift
+		shift;
+		if ( "${?screens_started}" == "0" ) set screens_started;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
-		${argv} &
+		${argv} &;
 		breaksw
 	case 'CLI':
 		shift
 	default:
+		if ( "${?screens_started}" == "0" ) set screens_started
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${default_geometry} \
 			${default_tabs} \
-		${argv} &
+		${argv} &;
 		breaksw
 	endsw
+	
+	if ( "${?screens_started}" == "1" ) then
+		set screen_command="/usr/bin/screen -aAURx";
+		set screens_options="aAURx";
+	endif
 end

@@ -44,35 +44,44 @@ default:
 	set prefix="${prefix}/Firefox3";
 	breaksw
 endsw
+set topdir="${mozilla_dir}/src/"
+set srcdir="${mozilla_dir}/src/${build_mozilla}-src"
+set objdir="${mozilla_dir}/src/${build_mozilla}-objdir"
 
 
 
 checkout:
-if ( ! -d "${build_mozilla}-src/.hg" ) hg clone "http://hg.mozilla.org/${mercurial_repo}/" "${build_mozilla}-src";
-cd "${build_mozilla}-src";
+if ( ! -d "${srcdir}/.hg" ) hg clone "http://hg.mozilla.org/${mercurial_repo}/" "${srcdir}";
+cd "${srcdir}";
 hg up;
 
 
 
 mozconfig:
+cd "${srcdir}"
+if ( -e ".mozconfig" ) touch .mozconfig
 if ( ! -e ".mozconfig" ) printf "ac_add_options ${enable_mozilla} --enable-installer --disable-pedantic --disable-shared --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-tests --disable-mochitest\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" > ".mozconfig";
-endif
 
 
 
 make:
+cd "${srcdir}"
+foreach configure ( "`find . -name configure`" )
+	touch "${configure}"
+end
 if ( "${build_mozilla}" == "thunderbird" ) python client.py checkout;
 make -f client.mk build;
 
 
 
-package:
-cd "../${build_mozilla}-objdir";
+make_tarball:
+cd "${objdir}";
 make package;
 
 
 
 backup:
+cd "${objdir}"
 set today=`date '+%Y-%m-%d'`;
 if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
 foreach tarball ( dist/*.tar.bz2 )
@@ -82,9 +91,26 @@ end
 
 
 
+uninstall:
+foreach program ( ( "${build_mozilla}" "${build_mozilla}-bin" ) )
+	foreach pid ( `pidof -x "${program}"` )
+		set still_running;
+		while ( "${?still_running}" == "1" )
+			killall -QUIT "${pid}";
+			sleep 2;
+			unset still_running;
+			foreach test ( `pidof -x "${program}"` )
+				if ( "${pid}" == "${test}" ) set still_running;
+			end
+		end
+	end
+end
+rm -rf "${prefix}/64bit";
+
+
+
 install:
 tar -C "${prefix}" -xjf dist/${build_mozilla}-*.tar.bz2;
-rm -rf "${prefix}/64bit";
 mv "${prefix}/${build_mozilla}" "${prefix}/64bit";
 
 post_install:
@@ -94,10 +120,10 @@ if ( "${build_mozilla}" == "firefox" ) then
 	rm -r searchplugins plugins;
 	ln -s ../searchplugins .;
 	ln -s ../plugins .;
-	cd ..
+	cd ..;
 endif
 
-killall -HUP "${build_mozilla}"
-killall -HUP "${build_mozilla}-bin"
-./64bit/${build_mozilla} &
+
+exec_nightly_build:
+${prefix}/64bit/${build_mozilla} >& /dev/null &
 

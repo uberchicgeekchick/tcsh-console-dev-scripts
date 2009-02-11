@@ -44,35 +44,35 @@ if ( -e './00-feed.xml' && -e './00-titles.lst' && -e './00-enclosures.lst' ) go
 mv '../00-feed.xml' "./00-feed.xml"
 
 # Concatinates all data into one single string:
-ex '+1,$s/[\r\n]*//g' '+wq' './00-feed.xml'
+ex '+1,$s/[\r\n]*//g' '+wq' './00-feed.xml' >& /dev/null
 
 # Grabs the titles of the podcast and all episodes.
 cp './00-feed.xml' './00-titles.lst'
-ex '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*\(enclosure\).*<\/\(item\|entry\)>$/\2/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' './00-titles.lst'
-ex '+1,$s/&\(#038\|amp\)\;/\&/ig' '+1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' '+1,$s/&[^;]\+\;[\ \t]*//ig' '+1,$s/<\!\[CDATA[\(.*\)\]\]>/\1/g' '+1,$s/#//g' '+1,$s/\//\ \-\ /g' '+wq' './00-titles.lst'
+ex '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*\(enclosure\).*<\/\(item\|entry\)>$/\2/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/&\(#038\|amp\)\;/\&/ig' '+1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' '+1,$s/&[^;]\+\;[\ \t]*//ig' '+1,$s/<\!\[CDATA[\(.*\)\]\]>/\1/g' '+1,$s/#//g' '+1,$s/\//\ \-\ /g' '+wq' './00-titles.lst' >& /dev/null
 
 # This will be my last update to any part of Alacast v1
 # This fixes episode & chapter titles so that they will sort correctly
-ex '+1,$s/\(Zero\)/0/gi' '+1,$s/\(One\)/1/gi' '+1,$s/\(Two\)/2/gi' '+1,$s/\(Three\)/3/gi' '+1,$s/\(Four\)/4/gi' '+1,$s/\(Five\)/5/gi' '+wq' './00-titles.lst'
-ex '+1,$s/\(Six\)/6/gi' '+1,$s/\(Seven\)/7/gi' '+1,$s/\(Eight\)/8/gi' '+1,$s/\(Nine\)/9/gi' '+1,$s/\(Ten\)/10/gi' '+wq' './00-titles.lst'
+ex '+1,$s/\(Zero\)/0/gi' '+1,$s/\(One\)/1/gi' '+1,$s/\(Two\)/2/gi' '+1,$s/\(Three\)/3/gi' '+1,$s/\(Four\)/4/gi' '+1,$s/\(Five\)/5/gi' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/\(Six\)/6/gi' '+1,$s/\(Seven\)/7/gi' '+1,$s/\(Eight\)/8/gi' '+1,$s/\(Nine\)/9/gi' '+1,$s/\(Ten\)/10/gi' '+wq' './00-titles.lst' >& /dev/null
 
-ex '+1,$s/\([0-9]\)ty/\10/gi' '+1,$s/\(Fifty\)/50/gi' '+1,$s/\(Thirty\)/30/gi' '+1,$s/\(Twenty\)/20/gi' '+wq' './00-titles.lst'
-ex '+1,$s/\([0-9]\)teen/1\1/gi' '+1,$s/\(Fifteen\)/15/gi' '+1,$s/\(Thirteen\)/13/gi' '+1,$s/\(Twelve\)/12/gi' '+1,$s/\(Eleven\)/11/gi' '+wq' './00-titles.lst'
+ex '+1,$s/\([0-9]\)ty/\10/gi' '+1,$s/\(Fifty\)/50/gi' '+1,$s/\(Thirty\)/30/gi' '+1,$s/\(Twenty\)/20/gi' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/\([0-9]\)teen/1\1/gi' '+1,$s/\(Fifteen\)/15/gi' '+1,$s/\(Thirteen\)/13/gi' '+1,$s/\(Twelve\)/12/gi' '+1,$s/\(Eleven\)/11/gi' '+wq' './00-titles.lst' >& /dev/null
 
-ex '+1,$s/^\([0-9]\{1\}\)\([^0-9]\{1\}\)/0\1\2/' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)\([^0-9]\{1\}\)/\10\2\3/g' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)$/\10\2/' '+wq' './00-titles.lst'
+ex '+1,$s/^\([0-9]\{1\}\)\([^0-9]\{1\}\)/0\1\2/' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)\([^0-9]\{1\}\)/\10\2\3/g' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)$/\10\2/' '+wq' './00-titles.lst' >& /dev/null
 
-ex '+1,$s/\//\ \-\ /g' '+1,$s/\ \ /\ /g' '+wq' './00-titles.lst'
+ex '+1,$s/\//\ \-\ /g' '+1,$s/\ \ /\ /g' '+wq' './00-titles.lst' >& /dev/null
 
 # Grabs the enclosures from the feed.
 # This 1st method only grabs one enclosure per item/entry.
 cp '00-feed.xml' '00-enclosures-01.lst'
-ex '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\4/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' '00-enclosures-01.lst'
-ex '+1,$s/^[\ \s\r\n]\+//g' '+1,$s/[\ \s\r\n]\+$//g' '+1,$s/?/\\?/g' '+wq' './00-enclosures-01.lst'
+ex '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\4/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' '00-enclosures-01.lst' >& /dev/null
+ex '+1,$s/^[\ \s\r\n]\+//g' '+1,$s/[\ \s\r\n]\+$//g' '+1,$s/?/\\?/g' '+wq' './00-enclosures-01.lst' >& /dev/null
 
 # This second method grabs all enclosures.
 cp '00-feed.xml' '00-enclosures-02.lst'
 /usr/bin/grep --perl-regex '.*<.*enclosure[^>]*>.*' './00-feed.xml' | sed 's/.*url=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/.*<link[^>]\+href=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/^\(http:\/\/\).*\(http:\/\/.*$\)/\2/gi' | sed 's/<.*>[\r\n]\+//ig' >! './00-enclosures-02.lst'
-ex '+1,$s/^[\ \s\r\n]\+//g' '+1,$s/[\ \s\r\n]\+$//g' '+1,$s/?/\\?/g' '+wq' './00-enclosures-02.lst'
+ex '+1,$s/^[\ \s\r\n]\+//g' '+1,$s/[\ \s\r\n]\+$//g' '+1,$s/?/\\?/g' '+wq' './00-enclosures-02.lst' >& /dev/null
 
 set enclosure_count_01 = `cat "./00-enclosures-01.lst"`
 set enclosure_count_02 = `cat "./00-enclosures-02.lst"`

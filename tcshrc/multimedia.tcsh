@@ -2,7 +2,7 @@
 alias	mp3info	"id3v2 --list"
 
 set xfmedia_settings="${HOME}/.config/xfmedia/settings.xml"
-set condition="if ( -e '${xfmedia_settings}' ) rm -f '${xfmedia_settings}'; "
+set condition="if ( -e '${xfmedia_settings}' ) mv '${xfmedia_settings}' '${xfmedia_settings}.bck'; "
 
 set sound_driver="oss"
 set video_driver="opengl"

@@ -1,6 +1,7 @@
 #!/bin/tcsh -f
 # prompt settings
 # limits previous directories to 3 levels. When %c or etc is used.
+set padhour='0'
 set ellipsis
 # set tcsh default command prompt:
 set prompt="\n%B%{^[[105m%}(%p on %Y-%W-%D)\n%{^[[35m%}[ %m %n ]\n%{^[[31m%}@%c3/%{^[[35m%}# "

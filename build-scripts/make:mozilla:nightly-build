@@ -47,15 +47,13 @@ endsw
 set topdir="${mozilla_dir}/src/"
 set srcdir="${mozilla_dir}/src/${build_mozilla}-src"
 set objdir="${mozilla_dir}/src/${build_mozilla}-objdir"
-goto uninstall
 
 
 
 checkout:
 if ( ! -d "${srcdir}/.hg" ) hg clone "http://hg.mozilla.org/${mercurial_repo}/" "${srcdir}";
 cd "${srcdir}";
-hg pull;
-hg update;
+hg pull -u;
 
 
 
@@ -125,6 +123,7 @@ if ( "${build_mozilla}" == "firefox" ) then
 endif
 
 
-exec_nightly_build:
+run:
 ${prefix}/64bit/${build_mozilla} >& /dev/null &
 
+init configure default checkout mozconfig make make_tarball backup uninstall install post_install run 

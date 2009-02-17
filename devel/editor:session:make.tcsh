@@ -32,7 +32,10 @@ set session_started = ""
 foreach swp ( "`find ${search_dir} -iregex '\..*\.swp'`" )
 	if ( "${session_started}" == "" ) then
 		set session_started = "[done]"
-		printf '#\!/bin/tcsh -f\nset my_editor = "`printf "${0}" | sed '\''s/.*\/\([^\.]\+\).*/\\1/g'\''`"\nswitch ( "${my_editor}" )\ncase "gedit":\n\tbreaksw\ncase "vim":\ndefault:\n\tset my_editor = `printf "%%s -p %%s" "vim" '\''+tabdo$-2'\''`\n\tbreaksw\nendsw\n\n${my_editor}' >! "${session_exec}"
+		#this will have vim load with the cursur on the second to last line.
+		#this is really helpful while editing xml files. I'll make this optional later.
+		#printf '#\!/bin/tcsh -f\nset my_editor = "`printf "${0}" | sed '\''s/.*\/\([^\.]\+\).*/\\1/g'\''`"\nswitch ( "${my_editor}" )\ncase "gedit":\n\tbreaksw\ncase "vim":\ndefault:\n\tset my_editor = `printf "%%s -p %%s" "vim-enhanced" '\''+tabdo$-2'\''`\n\tbreaksw\nendsw\n\n${my_editor}' >! "${session_exec}"
+		printf '#\!/bin/tcsh -f\nset my_editor = "`printf "\\""${0}"\\"" | sed '\''s/.*\/\([^\.]\+\).*/\\1/g'\''`"\nswitch ( "${my_editor}" )\ncase "gedit":\n\tbreaksw\ncase "vim":\ndefault:\n\tset my_editor = `printf "%%s -p" "vim-enhanced"`\n\tbreaksw\nendsw\n\n${my_editor}' >! "${session_exec}"
 	endif
 	set file = "`echo ${swp} | sed 's/\/\.\(.*\)\.swp/\/\1/g'`"
 	

@@ -17,6 +17,12 @@ set noglob
 #
 # Call common progams from /bin or /usr/bin only
 #
+
+if ( "${?PATH}" == "1" && "${PATH}" != "" ) then
+	unsetenv PATH
+endif
+setenv PATH "/bin:/usr/bin"
+
 alias path 'if ( -x /bin/\!^ ) /bin/\!*; if ( -x /usr/bin/\!^ ) /usr/bin/\!*'
 if ( -x /bin/id ) then
     set id=/bin/id
@@ -225,7 +231,7 @@ endif
 # Local configuration
 #
 if ( -r /etc/csh.cshrc.local ) source /etc/csh.cshrc.local
-if ( -r /profile.d/tcshrc/csh.cshrc ) source /profile.d/tcshrc/csh.cshrc
+if ( -r /profile.d/tcshrc/cshrc.csh ) source /profile.d/tcshrc/cshrc.csh
 
 #
 # End of /etc/csh.cshrc

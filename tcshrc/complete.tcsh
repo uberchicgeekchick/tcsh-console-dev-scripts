@@ -128,8 +128,9 @@
 	complete g++	n/*/f:*.{C,cc,cpp,o,s,i}/
 	complete CC		n/*/f:*.{C,cc,cpp,o,s,i}/
 	complete rm		c/--/"(directory force interactive verbose \
-			recursive help version)"/ c/-/"(d f i v r R -)"/ \
-			n/*/f:^*.{c,cc,C,h,in}/	# Protect precious files
+			recursive help version)"/ c/-/"(d f i v r R -)"/ #\
+				#kinda useful but mostly buggy. I'd rather tab than type
+				#n/*/f:^*."(c cc cpp C h in am)"/	# Protect precious files
 	complete {vi,more}	n/*/f:^*.{o,a,dvi,gz,z,Z}/
 	complete less	n/*/f:^*.{o,a,dvi}/
 	complete bindkey	N/-a/b/ N/-c/c/ n/-[ascr]/'x:<key-sequence>'/ \

@@ -33,10 +33,10 @@ endsw
 printf "Downloading podcast's feed.\n"
 wget --quiet -O './00-feed.xml' "${1}"
 
+printf "Finding feed's title.\n"
 set title = "`/usr/bin/grep '<title.*>' './00-feed.xml' | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g'`"
-
+printf "Preparing to download: %s\n" "${title}"
 if ( ! -d "${title}" ) mkdir -p "${title}"
-
 cd "${title}"
 
 if ( -e './00-feed.xml' && -e './00-titles.lst' && -e './00-enclosures.lst' ) goto continue_download
@@ -47,12 +47,15 @@ mv '../00-feed.xml' "./00-feed.xml"
 ex '+1,$s/[\r\n]*//g' '+wq' './00-feed.xml' >& /dev/null
 
 # Grabs the titles of the podcast and all episodes.
+printf "Finding titles . . . this may take a few moments\t\t"
 cp './00-feed.xml' './00-titles.lst'
 ex '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*\(enclosure\).*<\/\(item\|entry\)>$/\2/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' './00-titles.lst' >& /dev/null
 ex '+1,$s/&\(#038\|amp\)\;/\&/ig' '+1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' '+1,$s/&[^;]\+\;[\ \t]*//ig' '+1,$s/<\!\[CDATA[\(.*\)\]\]>/\1/g' '+1,$s/#//g' '+1,$s/\//\ \-\ /g' '+wq' './00-titles.lst' >& /dev/null
+printf "[done]\n"
 
 # This will be my last update to any part of Alacast v1
 # This fixes episode & chapter titles so that they will sort correctly
+printf "Formating titles . . . this may take a few moments\t\t"
 ex '+1,$s/\(Zero\)/0/gi' '+1,$s/\(One\)/1/gi' '+1,$s/\(Two\)/2/gi' '+1,$s/\(Three\)/3/gi' '+1,$s/\(Four\)/4/gi' '+1,$s/\(Five\)/5/gi' '+wq' './00-titles.lst' >& /dev/null
 ex '+1,$s/\(Six\)/6/gi' '+1,$s/\(Seven\)/7/gi' '+1,$s/\(Eight\)/8/gi' '+1,$s/\(Nine\)/9/gi' '+1,$s/\(Ten\)/10/gi' '+wq' './00-titles.lst' >& /dev/null
 
@@ -62,9 +65,11 @@ ex '+1,$s/\([0-9]\)teen/1\1/gi' '+1,$s/\(Fifteen\)/15/gi' '+1,$s/\(Thirteen\)/13
 ex '+1,$s/^\([0-9]\{1\}\)\([^0-9]\{1\}\)/0\1\2/' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)\([^0-9]\{1\}\)/\10\2\3/g' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)$/\10\2/' '+wq' './00-titles.lst' >& /dev/null
 
 ex '+1,$s/\//\ \-\ /g' '+1,$s/\ \ /\ /g' '+wq' './00-titles.lst' >& /dev/null
+printf "[done]\n"
 
 # Grabs the enclosures from the feed.
 # This 1st method only grabs one enclosure per item/entry.
+printf "Finding enclosures . . . this may take a few moments\t\t"
 cp '00-feed.xml' '00-enclosures-01.lst'
 ex '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\4/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' '00-enclosures-01.lst' >& /dev/null
 ex '+1,$s/^[\ \s\r\n]\+//g' '+1,$s/[\ \s\r\n]\+$//g' '+1,$s/?/\\?/g' '+wq' './00-enclosures-01.lst' >& /dev/null
@@ -83,7 +88,9 @@ else
 	mv "./00-enclosures-02.lst" "./00-enclosures.lst"
 	rm "./00-enclosures-01.lst"
 endif
+printf "[done]\n"
 
+printf "Beginning to download: %s\n" "${title}"
 set episodes = ();
 if ( "${?latest_episodes}" != "0" ) then
 	set episodes = "`head -${latest_episodes} './00-enclosures.lst'`"

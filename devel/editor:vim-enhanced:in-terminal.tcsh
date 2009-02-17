@@ -1,8 +1,8 @@
 #!/bin/tcsh -f
-set vim_resolution = `cat /profile.d/resolutions/gnome-terminal/vim.rc`
+set resolution = `cat /profile.d/resolutions/gnome-terminal/editor.rc`
 /usr/bin/gnome-terminal \
 	--hide-menubar \
-		--geometry=${default_geometry} \
+		--geometry=${geometry} \
 		--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
-		--tab-with-profile="projects" --title="vim-enhanced" --working-directory="/projects" --exec=/usr/bin/vim-enhanced -p ${argv} \
+		--tab-with-profile="projects" --title="vim-enhanced" --working-directory="/projects" --command="/usr/bin/vim-enhanced -p ${argv}" \
 		&

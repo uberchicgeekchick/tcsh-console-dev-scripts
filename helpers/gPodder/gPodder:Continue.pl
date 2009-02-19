@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 use strict;
-my $total=24;
-my $timeout=24;# How long to wait between sending each interupt signal.
+my $total=18;
+my $timeout=46;# How long to wait between sending each interupt signal.
 
 sub parse_argument{
 	my $argument=$_;

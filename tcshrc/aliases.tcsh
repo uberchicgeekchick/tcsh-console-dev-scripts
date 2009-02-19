@@ -31,8 +31,6 @@ unalias	mv
 alias	mkdir	"mkdir -p"
 alias	md	"mkdir"
 
-alias	mkx	"chmod +x"
-
 alias	hostname	"hostname --fqdn"
 alias	wget		"wget --no-check-certificate"
 alias	screen-saver	"gnome-screensaver-command --activate &"

@@ -11,7 +11,7 @@ set cd_path="${cd_path}:/projects/gtk:/projects/console:/projects/www:/projects/
 #set echo
 set addsuffix
 
-set correct=all
+set correct=complete
 set autoexpand
 set autocorrect
 set autolist

@@ -2,6 +2,7 @@
 set resolutions_path="/profile.d/resolutions/gnome-terminal";
 
 set default_geometry=`cat "${resolutions_path}/default.rc"`;
+set tiny_geometry=`cat "${resolutions_path}/tiny.rc"`;
 set programming_geometry=`cat "${resolutions_path}/programming.rc"`;
 set media_geometry=`cat "${resolutions_path}/media.rc"`;
 set canvas_geometry=`cat "${resolutions_path}/canvas.rc"`;
@@ -165,7 +166,7 @@ programming_canvas:
 	case 'Build':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${tiny_geometry} \
 			--tab-with-profile="screen" --title=":screen:" --command="/usr/bin/screen -${screens_options}"  \
 			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
 			--tab-with-profile="projects" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
@@ -191,7 +192,7 @@ media_canvas:
 	case 'Production':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${geometry} \
+			--geometry=${tiny_geometry} \
 			${default_tabs} \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="alacast:gtk" --working-directory="/projects/gtk/alacast" \
@@ -234,14 +235,14 @@ default_canvas:
 	case 'Screen':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${default_geometry} \
+			--geometry=${tiny_geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
 		${argv} &;
 		breaksw
 	default:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${default_geometry} \
+			--geometry=${geometry} \
 			${default_tabs} \
 		${argv} &;
 		breaksw

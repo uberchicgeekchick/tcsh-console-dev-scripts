@@ -44,9 +44,12 @@ default:
 	set prefix="${prefix}/Firefox3";
 	breaksw
 endsw
-set topdir="${mozilla_dir}/src/"
-set srcdir="${mozilla_dir}/src/${build_mozilla}-src"
-set objdir="${mozilla_dir}/src/${build_mozilla}-objdir"
+set topdir="${mozilla_dir}/src";
+if ( ! -d "${topdir}" ) mkdir -p "${topdir}";
+set srcdir="${topdir}/${build_mozilla}-src";
+if ( ! -d "${srcdir}" ) mkdir "${srcdir}";
+set objdir="${topdir}/${build_mozilla}-objdir";
+if ( ! -d "${objdir}" ) mkdir "${objdir}";
 
 
 
@@ -58,9 +61,10 @@ hg pull -u;
 
 
 mozconfig:
-cd "${srcdir}"
-if ( ! -e ".mozconfig" ) printf "ac_add_options ${enable_mozilla} --enable-installer --disable-pedantic --disable-shared --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-tests --disable-mochitest\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" > ".mozconfig";
-touch ".mozconfig";
+cd "${srcdir}";
+#if ( ! ( -e "../${build_mozilla}.mozconfig" && -s "../${build_mozilla}.mozconfig" ) ) printf "ac_add_options ${enable_mozilla} --enable-installer --enable-system-sqlite --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" >! "../${build_mozilla}.mozconfig"
+#cp -f "../${build_mozilla}.mozconfig" "./.mozconfig"
+printf "ac_add_options ${enable_mozilla} --enable-installer --disable-system-sqlite --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
 
 
 
@@ -102,7 +106,7 @@ foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
 		kill -9 "${pid}"
 	end
 end
-rm -rf "${prefix}/64bit";
+rm -rf "${prefix}/x86_64";
 
 
 
@@ -110,12 +114,12 @@ install:
 cd "${objdir}";
 if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
 tar -C "${prefix}" -xjf dist/${build_mozilla}-*.tar.bz2;
-mv "${prefix}/${build_mozilla}" "${prefix}/64bit";
+mv "${prefix}/${build_mozilla}" "${prefix}/x86_64";
 
 post_install:
 cd "${prefix}";
 if ( "${build_mozilla}" == "firefox" ) then
-	cd "64bit";
+	cd "x86_64";
 	rm -r searchplugins plugins;
 	ln -s ../searchplugins .;
 	ln -s ../plugins .;
@@ -124,6 +128,5 @@ endif
 
 
 run:
-${prefix}/64bit/${build_mozilla} >& /dev/null &
+${prefix}/x86_64/${build_mozilla} >& /dev/null &
 
-init configure default checkout mozconfig make make_tarball backup uninstall install post_install run 

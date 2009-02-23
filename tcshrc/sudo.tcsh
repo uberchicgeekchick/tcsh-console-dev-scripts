@@ -17,7 +17,7 @@ foreach command ( `find -L /etc/init.d/ -maxdepth 1 -type f -perm -u=x` )
 end
 
 
-set sudo_commands=( "visudo" "gdmsetup" "chown" "chgrp" "zypper" "neject" "reboot" "poweroff" "halt" "mount" "umount" "init" "/srv/mysql/mysql.init.d" "esound" "eject" "NetworkManager" );
+set sudo_commands=( "visudo" "chown" "chgrp" "zypper" "neject" "reboot" "poweroff" "halt" "mount" "umount" "init" "/srv/mysql/mysql.init.d" "esound" "eject" "NetworkManager" );
 foreach command ( ${sudo_commands} )
 	alias	"${command}"	"sudo ${command}"
 end

@@ -5,13 +5,13 @@ setenv PATH "${PATH}:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbi
 setenv EDITOR "/usr/bin/vim-enhanced"
 
 if ( ! ${?cd_path} ) set cd_path="/etc:/usr/share"
-set cd_path="${cd_path}:/projects/gtk:/projects/console:/projects/www:/projects/games:/projects/media:/profile.d:/media:/media/media-library:."
+set cd_path="${cd_path}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/profile.d:/media:/media/media-library:."
 
 #print the expanded, completed, & corrected command line after is entered but before its executed.
 #set echo
 set addsuffix
 
-set correct=complete
+set correct=cmd
 set autoexpand
 set autocorrect
 set autolist

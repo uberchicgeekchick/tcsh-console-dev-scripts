@@ -21,7 +21,8 @@ setenv PATH "${PATH}:/programs/GTK-PHP-IDE/bin:/projects/games/engines/Raydium/r
 complete kill_program.tcsh "p/*/c/"
 complete interupt_program.tcsh "p/*/c/"
 
-source /projects/console/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/gtk/alacast/bin
+source /projects/cli/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/gtk/alacast/bin
 
-source /projects/console/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/console/alacast/bin
-source /projects/console/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/console/tcsh-dev
+source /projects/cli/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/cli/alacast/bin
+source /projects/cli/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/cli/tcsh-dev
+

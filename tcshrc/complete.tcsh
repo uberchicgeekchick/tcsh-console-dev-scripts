@@ -862,9 +862,8 @@ skip_mh:
 			c/-/"(b B C f F g G h i k K l L m M N o O p P R s S \
 			T v V w W X z Z 0 1 2 3 4 5 6 7 -)"/ \
 			C@[/dev]@f@ \
-			n/-c*{zf,fz}/x:'<new_gziped_tar_file, device_file, or "-">'/ \
-			n/-c*{jf,fj}/x:'<new_bziped_tar_file, device_file, or "-">'/ \
-			n/-c*f/x:'<new_tar_file, device_file, or "-">'/ \
+			n/-c*{zf,fz}/f:*.tar.gz/ n/-c*{jf,fj}/f:*.tar.bz2/ \
+			n/-c*f/f:*.tar/ \
 			n/-[Adrtuxv]*{zf,fz}/f:*.{tar.gz,tgz}/ n/-[Adrtuxv]*{jf,fj}/f:*.tar.bz2/ \
 			n/{-[Adrtuxv]*f,--file}/f:*.tar/ \
 			N/-x*{zf,fz}/'`tar -tzf $:-1`'/ N/-x*{jf,fj}/'`tar -tjf $:-1`'/ \

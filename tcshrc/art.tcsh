@@ -15,7 +15,7 @@ alias	exs	"ex -s"
 
 alias screen "/usr/bin/screen -aAURx"
 
-setenv PATH "${PATH}:/programs/GTK-PHP-IDE/bin:/projects/games/engines/Raydium/raydium/bin"
+setenv PATH "${PATH}:/programs/connectED/bin:/bin:/projects/games/engines/Raydium/raydium/bin"
 
 
 complete kill_program.tcsh "p/*/c/"

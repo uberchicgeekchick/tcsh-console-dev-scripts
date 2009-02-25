@@ -4,8 +4,8 @@ setenv PATH "${PATH}:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbi
 
 setenv EDITOR "/usr/bin/vim-enhanced"
 
-if ( ! ${?cd_path} ) set cd_path="/etc:/usr/share"
-set cd_path="${cd_path}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/profile.d:/media:/media/media-library:."
+if ( ! ${?cdpath} ) set cd_path="/etc:/usr/share"
+set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/profile.d:/media:/media/media-library:."
 
 #print the expanded, completed, & corrected command line after is entered but before its executed.
 #set echo
@@ -54,7 +54,7 @@ complete ln 'p/*/f/'
 
 set rc_path="/profile.d/tcshrc"
 foreach rc_file ( ${rc_path}/*.tcsh )
-	if ( -e "${rc_file}" ) source "${rc_file}"
+	if ( -e "${rc_file}" && "${rc_file}" != "complete.tcsh" ) source "${rc_file}"
 end
 unset rc_path
 unset rc_file

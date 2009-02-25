@@ -116,8 +116,10 @@ programming_canvas:
 	if ( "${?my_www_projects}" == "0" ) \
 		set my_www_projects = ( \
  					${my_starter_tabs} \
-					"--tab-with-profile=projects --title=/www --working-directory=/projects/www" \
 					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
+					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
+					"--tab-with-profile=projects --title=/www --working-directory=/projects/www" \
+					"--tab-with-profile=projects --title=alacast:gtk --working-directory=/projects/gtk/alacast" \
 					"--tab-with-profile=projects --title=TweetMyBlog --working-directory=/projects/www/TweetMyBlog" \
 					"--tab-with-profile=projects --title=realFriends --working-directory=/projects/www/realFriends" \
 					"--tab-with-profile=projects --title=Women.O.O --working-directory=/projects/www/Women.OpenSuSE.Org" \
@@ -128,6 +130,7 @@ programming_canvas:
 	if ( "${?my_game_development_projects}" == "0" ) \
 		set my_game_development_projects=( \
 					${my_starter_tabs} \
+					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/games --working-directory=/projects/games" \
 					"--tab-with-profile=projects --title=game-dev:engines --working-directory=/projects/games/engines" \
 					"--tab-with-profile=projects --title=game-dev:libraries --working-directory=/projects/games/libraries" \
@@ -140,6 +143,7 @@ programming_canvas:
 	if ( "${?my_gtk_projects}" == "0" ) \
 		set my_gtk_projects=( \
 					${my_starter_tabs} \
+					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/gtk --working-directory=/projects/gtk" \
 					"--tab-with-profile=projects --title=alacast:cli --working-directory=/projects/gtk/alacast" \
 					"--tab-with-profile=projects --title=twitux --working-directory=/projects/gtk/twitux" \
@@ -150,6 +154,7 @@ programming_canvas:
 	if ( "${?my_cli_projects}" == "0" ) \
 		set my_cli_projects=( \
 					${my_starter_tabs} \
+					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/cli --working-directory=/projects/cli" \
 					"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
 					"--tab-with-profile=projects --title=tcshrc-dev --working-directory=/projects/cli/tcshrc-dev" \

@@ -23,7 +23,7 @@ if ( "${?1}" == "0" && "${1}" == "" && -e "${1}" ) then
 endif
 
 foreach podcast ( "`/usr/bin/grep --perl-regexp -e '^[\t\ \s]+<outline.*xmlUrl=["\""'\''][^"\""'\'']+["\""]' '${1}' | sed 's/^[\ \s\t]\+<outline.*xmlUrl=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/g'`" )
-	printf "Adding:\n\t %s" "${podcast}"
+	printf "Adding:\n\t %s\n" "${podcast}"
 	( gpodder --${action}="${podcast}" > /dev/tty ) >& /dev/null
 	printf "\t\t[done]\n"
 end

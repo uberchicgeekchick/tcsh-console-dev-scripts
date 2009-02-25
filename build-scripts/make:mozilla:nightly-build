@@ -51,6 +51,7 @@ if ( ! -d "${srcdir}" ) mkdir "${srcdir}";
 set objdir="${topdir}/${build_mozilla}-objdir";
 if ( ! -d "${objdir}" ) mkdir "${objdir}";
 
+if ( "${?2}" == "1" && "${2}" == "set-default" ) goto make_default
 
 
 checkout:
@@ -62,9 +63,7 @@ hg pull -u;
 
 mozconfig:
 cd "${srcdir}";
-#if ( ! ( -e "../${build_mozilla}.mozconfig" && -s "../${build_mozilla}.mozconfig" ) ) printf "ac_add_options ${enable_mozilla} --enable-installer --enable-system-sqlite --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" >! "../${build_mozilla}.mozconfig"
-#cp -f "../${build_mozilla}.mozconfig" "./.mozconfig"
-printf "ac_add_options ${enable_mozilla} --enable-installer --disable-system-sqlite --enable-optimize --enable-default-toolkit=cairo-gtk2 --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
+printf "ac_add_options ${enable_mozilla} --enable-installer --enable-updater --enable-update-packaging --enable-default-toolkit=cairo-gtk2 --enable-startup-notification --enable-libnotify --enable-native-uconv --enable-optimize=-O3 --enable-debug-modules --enable-debug-info-modules --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
 
 
 
@@ -92,7 +91,48 @@ end
 
 
 
-uninstall:
+install:
+cd "${objdir}";
+if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
+tar -C "${prefix}" -xjf dist/${build_mozilla}-*.tar.bz2;
+
+
+
+install_plugins:
+if ( "${build_mozilla}" == "firefox" ) then
+	cd "${prefix}/${build_mozilla}";
+	rm -r searchplugins plugins;
+	ln -s ../searchplugins .;
+	ln -s ../plugins .;
+	cd ..;
+endif
+
+
+
+prepare_first_run:
+goto stop_build
+run:
+${prefix}/${build_mozilla}/${build_mozilla} >& /dev/null &
+
+
+exit_check:
+if ( "${?2}" == "1" && "${2}" == "as-default" ) goto make_default
+exit
+
+
+
+make_default:
+set second_run
+goto stop_build
+install_default:
+rm -rf "${prefix}/x86_64";
+mv "${prefix}/${build_mozilla}" "${prefix}/x86_64";
+${prefix}/x86_64/${build_mozilla} -no-remote >& /dev/null &
+
+exit
+
+
+stop_build:
 foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
 	foreach pid ( `pidof -x "${program}"` )
 		set still_running = ( "\n" );
@@ -106,27 +146,8 @@ foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
 		kill -9 "${pid}"
 	end
 end
-rm -rf "${prefix}/x86_64";
+if ( "${?second_run}" == "0" ) goto run
 
+goto install_default
 
-
-install:
-cd "${objdir}";
-if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
-tar -C "${prefix}" -xjf dist/${build_mozilla}-*.tar.bz2;
-mv "${prefix}/${build_mozilla}" "${prefix}/x86_64";
-
-post_install:
-cd "${prefix}";
-if ( "${build_mozilla}" == "firefox" ) then
-	cd "x86_64";
-	rm -r searchplugins plugins;
-	ln -s ../searchplugins .;
-	ln -s ../plugins .;
-	cd ..;
-endif
-
-
-run:
-${prefix}/x86_64/${build_mozilla} >& /dev/null &
 

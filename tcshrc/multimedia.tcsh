@@ -31,4 +31,4 @@ endif
 set totem_playlist="/media/media-library/playlists/default.m3u"
 alias totem "if ( ! -e '${totem_playlist}' ) touch '${totem_playlist}' ; /usr/bin/totem '${totem_playlist}' ${output}";
 
-alias gpodder "/projects/cli/tcsh-dev/helpers/gPodder/gPodder:Silent:STDERR.tcsh"
+alias gpodder "/projects/cli/tcsh-dev/media/gPodder-helper-scripts/gPodder:Silent:STDERR.tcsh"

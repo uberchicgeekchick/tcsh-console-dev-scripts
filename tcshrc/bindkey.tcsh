@@ -26,6 +26,8 @@ endif
 # My own special bound keys
 #
 bindkey	" "	magic-space
+bindkey "^[/"	i-search-fwd
+bindkey "^?"	i-search-back
 
 #
 # Common standard keypad and cursor

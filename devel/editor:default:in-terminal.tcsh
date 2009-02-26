@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-set resolution = `cat /profile.d/resolutions/gnome-terminal/editor.rc`
+cd `dirname ${0}`
+set resolution = `cat ../resolutions/gnome-terminal/editor.rc`
 /usr/bin/gnome-terminal \
 	--hide-menubar \
 	--geometry=${geometry} \

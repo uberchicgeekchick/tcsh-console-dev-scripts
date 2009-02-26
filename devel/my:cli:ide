@@ -1,8 +1,8 @@
 #!/bin/tcsh -f
-set resolutions_path="/profile.d/resolutions/gnome-terminal";
+set resolutions_path="`dirname '${0}'`/../resolutions/gnome-terminal";
 
 set default_geometry=`cat "${resolutions_path}/default.rc"`;
-set devel_geometry=`cat "${resolutions_path}/devel.rc"`;
+set tiny_geometry=`cat "${resolutions_path}/tiny.rc"`;
 set programming_geometry=`cat "${resolutions_path}/programming.rc"`;
 set media_geometry=`cat "${resolutions_path}/media.rc"`;
 set canvas_geometry=`cat "${resolutions_path}/canvas.rc"`;
@@ -208,7 +208,7 @@ programming_canvas:
 	case 'Build':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${devel_geometry} \
+			--geometry=${tiny_geometry} \
 			--tab-with-profile="screen" --title=":screen:" --command=screen  \
 			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
 			--tab-with-profile="projects" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
@@ -219,7 +219,7 @@ programming_canvas:
 	case 'Projects':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${devel_geometry} \
+			--geometry=${geometry} \
 			${my_projects} \
 		${argv} &;
 		breaksw

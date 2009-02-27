@@ -15,10 +15,6 @@ alias	la	"ls --all"
 alias	lA	"ls --almost-all"
 alias	dl	"ls --directory"
 alias	dla
-set	listflags=( "xA" "ls ${LS_OPTIONS}" )
-set	listlinks
-
-alias	helpcommand	"man"
 
 alias	df	"df --human-readable"
 alias	du	"du --summarize --human-readable"

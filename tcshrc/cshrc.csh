@@ -7,38 +7,6 @@ setenv EDITOR "/usr/bin/vim-enhanced"
 if ( "${?cdpath}" == "0" ) set cdpath="/etc:/usr/share"
 set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/profile.d:/media:/media/media-library:."
 
-#print the expanded, completed, & corrected command line after is entered but before its executed.
-#set echo
-set addsuffix
-
-set correct=cmd
-set autoexpand
-set autocorrect
-set autolist
-set color
-set colorcat
-
-set dextract
-set dunique
-
-set listjobs=long
-set notify
-
-set nobeep
-set noclobber
-
-set highlight
-set histdup=erase
-set histfile="/profile.d/history"
-set history=1000
-set savehist=( $history "merge" )
-set histlit
-
-set killdup=erase
-
-set implicitcd
-set rmstar
-
 alias jobs "jobs -l"
 
 complete tar 'p/*/f/'
@@ -51,12 +19,16 @@ complete killall 'p/*/c/'
 
 complete ln 'p/*/f/'
 
-
-set rc_path="/profile.d/tcshrc"
-foreach rc_file ( ${rc_path}/*.tcsh )
-	if ( -e "${rc_file}" && "${rc_file}" != "complete.tcsh" ) source "${rc_file}"
+foreach rc_file ( /profile.d/tcshrc/*.tcsh )
+	switch("${rc_file}")
+	case "bindkey.tcsh":
+	case "complete.tcsh":
+		breaksw
+	default:
+		source "${rc_file}"
+		breaksw
+	endsw
 end
-unset rc_path
 unset rc_file
 
 setenv PATH "${PATH}:."

@@ -11,7 +11,7 @@
 # Default values
 #
 if ( ! ${?TERM} ) setenv TERM linux
-if ( ! ${?CSHEDIT} ) setenv CSHEDIT emacs
+if ( ! ${?CSHEDIT} ) setenv CSHEDIT vi
 
 #
 # VI line editing

@@ -111,6 +111,8 @@ endif
 
 prepare_first_run:
 goto stop_build
+goto make_default
+
 run:
 ${prefix}/${build_mozilla}/${build_mozilla} >& /dev/null &
 

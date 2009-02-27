@@ -82,24 +82,8 @@ source /profile.d/tcshrc/bindkey.tcsh
 #
 # Some useful settings
 #
-set autocorrect=1
-set listmaxrows=23
-# set cdpath = ( /var/spool )
-set complete=cmd
-set fignore=(.o \~)
-# set histdup=erase
-set histdup=erase
-set history=1000
-set listjobs=long
-set notify=1
-set nostat=( /afs )
-set rmstar=1
-set savehist = ( $history "merge" )
-set showdots=1
-set symlinks=ignore
+source /profile.d/tcshrc/setenv.tcsh
 #
-unset autologout
-unset ignoreeof
 #
 if ( -x /usr/bin/dircolors ) then
     if ( -r $HOME/.dir_colors ) then

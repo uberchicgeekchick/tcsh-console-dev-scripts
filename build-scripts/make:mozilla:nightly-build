@@ -97,8 +97,7 @@ end
 
 install:
 cd "${objdir}";
-if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
-tar -C "${prefix}" -xjf dist/${build_mozilla}-*.tar.bz2;
+tar -C "${prefix}" -xjf "${tarball_backup_dir}/${todays_tarball}";
 
 
 

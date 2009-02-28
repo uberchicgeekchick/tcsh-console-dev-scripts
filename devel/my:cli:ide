@@ -2,7 +2,7 @@
 set resolutions_path="`dirname '${0}'`/../resolutions/gnome-terminal";
 
 set default_geometry=`cat "${resolutions_path}/default.rc"`;
-set tiny_geometry=`cat "${resolutions_path}/tiny.rc"`;
+set build_geometry=`cat "${resolutions_path}/build.rc"`;
 set programming_geometry=`cat "${resolutions_path}/programming.rc"`;
 set media_geometry=`cat "${resolutions_path}/media.rc"`;
 set canvas_geometry=`cat "${resolutions_path}/canvas.rc"`;
@@ -57,6 +57,11 @@ foreach canvas_info ( "${argv}" )
 		set geometry="${media_geometry}"
 		goto media_canvas
 		breaksw
+	case "Build":
+		shift;
+		set geometry="${build_geometry}"
+		goto media_canvas
+		breaksw
 	default:
 		set geometry="${default_geometry}"
 		goto  default_canvas
@@ -69,7 +74,7 @@ foreach canvas_info ( "${argv}" )
 editor_canvas:
 	switch ( "${canvas}" )
 	case 'Template':
-		if ( "${?screens_started}" == "0" ) set screens_started;
+		if(!${?screens_started}) set screens_started;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
@@ -99,7 +104,7 @@ goto next_canvas
 	
 	
 programming_canvas:
-	if ( "${?screens_started}" == "0" ) set screens_started;
+	if(!${?screens_started}) set screens_started;
 	if ( "${?my_projects}" == "0" ) \
 		set my_projects = ( \
 					${my_starter_tabs} \
@@ -205,17 +210,6 @@ programming_canvas:
 		${argv} &;
 		breaksw
 	
-	case 'Build':
-		/usr/bin/gnome-terminal \
-			--hide-menubar \
-			--geometry=${tiny_geometry} \
-			--tab-with-profile="screen" --title=":screen:" --command=screen  \
-			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
-			--tab-with-profile="projects" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
-			--tab-with-profile="projects" --title="thunderbird-src" --working-directory="/programs/Mozilla/src/thunderbird-src" \
-		${argv} &;
-		breaksw
-	
 	case 'Projects':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
@@ -226,15 +220,58 @@ programming_canvas:
 	endsw
 goto next_canvas
 
+
+
+build_canvas:
+	switch( "${canvas}" )
+	case 'Source':
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${geometry} \
+			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
+		${argv} &;
+		breaksw
+	
+	case 'Firefox':
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${geometry} \
+			--tab-with-profile="projects" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
+		${argv} &;
+		breaksw
+	
+	case 'Thunderbird':
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${geometry} \
+			--tab-with-profile="projects" --title="thunderbird-src" --working-directory="/programs/Mozilla/src/thunderbird-src" \
+		${argv} &;
+		breaksw
+	
+	case 'Nightly':
+		if(!${?screens_started}) set screens_started;
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${geometry} \
+			--tab-with-profile="screen" --title=":screen:" --command=screen  \
+			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
+			--tab-with-profile="projects" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
+			--tab-with-profile="projects" --title="thunderbird-src" --working-directory="/programs/Mozilla/src/thunderbird-src" \
+		${argv} &;
+		breaksw
+	
+	endsw
+goto next_canvas
+
 	
 	
 media_canvas:
-	if ( "${?screens_started}" == "0" ) set screens_started;
+	if(!${?screens_started}) set screens_started;
 	switch ( "${canvas}" )
 	case 'Production':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${tiny_geometry} \
+			--geometry=${geometry} \
 			${my_default_tabs} \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
 			--tab-with-profile="projects" --title="alacast:gtk" --working-directory="/projects/gtk/alacast" \
@@ -272,12 +309,12 @@ goto next_canvas
 	
 	
 default_canvas:
-	if ( "${?screens_started}" == "0" ) set screens_started;
+	if(!${?screens_started}) set screens_started;
 	switch ( "${canvas}" )
 	case 'Screen':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
-			--geometry=${tiny_geometry} \
+			--geometry=${geometry} \
 			--tab-with-profile="screen" --title="[screen]" --command="/usr/bin/screen -${screens_options}"  \
 		${argv} &;
 		breaksw

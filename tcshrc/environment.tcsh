@@ -27,6 +27,8 @@ set history=1000
 set savehist=( $history "merge" )
 set histlit
 
+#set printexitvalue
+
 set nostat=( /afs )
 set showdots=1
 set symlinks=ignore

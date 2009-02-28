@@ -82,7 +82,7 @@ source /profile.d/tcshrc/bindkey.tcsh
 #
 # Some useful settings
 #
-source /profile.d/tcshrc/setenv.tcsh
+source /profile.d/tcshrc/environment.tcsh
 #
 #
 if ( -x /usr/bin/dircolors ) then

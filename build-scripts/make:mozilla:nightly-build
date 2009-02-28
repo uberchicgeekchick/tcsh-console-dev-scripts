@@ -27,7 +27,7 @@ switch ( "${1}" )
 case "thunderbird":
 	set build_mozilla="thunderbird";
 	set mercurial_repo="comm-central";
-	set enable_mozilla="--enable-application=mail --enable=calendar --enable-static";
+	set enable_mozilla="--enable-application=mail --enable-calendar --enable-static";
 	set prefix="${prefix}/Thunderbird3";
 	breaksw
 case "xulrunner":
@@ -63,7 +63,7 @@ hg pull -u;
 
 mozconfig:
 cd "${srcdir}";
-printf "ac_add_options ${enable_mozilla} --enable-installer --enable-updater --enable-update-packaging --enable-default-toolkit=cairo-gtk2 --enable-startup-notification --enable-libnotify --enable-native-uconv --enable-optimize=-O3 --enable-debug-modules --enable-debug-info-modules --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
+printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
 
 
 
@@ -71,6 +71,10 @@ make:
 cd "${srcdir}";
 if ( "${build_mozilla}" == "thunderbird" ) python client.py checkout;
 make -f client.mk build;
+if ( ${status} != "0" ) then
+	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake faild with error %d\n\n" ${#status};
+	exit ${#status};
+endif
 
 
 
@@ -86,7 +90,7 @@ set today=`date '+%Y-%m-%d'`;
 if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
 foreach tarball ( dist/*.tar.bz2 )
 	set todays_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`";
-	cp ${tarball} "${tarball_backup_dir}/${todays_tarball}";
+	mv ${tarball} "${tarball_backup_dir}/${todays_tarball}";
 end
 
 
@@ -110,11 +114,11 @@ endif
 
 
 prepare_first_run:
-goto stop_build
 goto make_default
+goto stop_build
 
 run:
-${prefix}/${build_mozilla}/${build_mozilla} >& /dev/null &
+${prefix}/${build_mozilla}/${build_mozilla} &
 
 
 exit_check:
@@ -129,7 +133,7 @@ goto stop_build
 install_default:
 rm -rf "${prefix}/x86_64";
 mv "${prefix}/${build_mozilla}" "${prefix}/x86_64";
-${prefix}/x86_64/${build_mozilla} -no-remote >& /dev/null &
+${prefix}/x86_64/${build_mozilla} &
 
 exit
 

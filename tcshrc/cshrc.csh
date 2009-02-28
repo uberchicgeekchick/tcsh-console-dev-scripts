@@ -9,20 +9,19 @@ set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:
 
 alias jobs "jobs -l"
 
-complete tar 'p/*/f/'
-
-complete pidof 'p/*/c/'
-alias pidof "pidof -x"
+#complete tar 'p/*/f/'
 
 complete kill 'p/*/c/'
 complete killall 'p/*/c/'
 
 complete ln 'p/*/f/'
 
+source /profile.d/tcshrc/sudo.tcsh
 foreach rc_file ( /profile.d/tcshrc/*.tcsh )
 	switch("${rc_file}")
 	case "bindkey.tcsh":
 	case "complete.tcsh":
+	case "sudo.tcsh":
 		breaksw
 	default:
 		source "${rc_file}"

@@ -6,7 +6,7 @@ case "scp":
 case "sshfs":
 case "cp":
 case "no-sync":
-	printf "Usage: %s git_commit_message [rsync scp sshfs cp no-sync]\n" `basename "${0}"`
+	printf "Usage: %s commit_message [commit_details] [rsync scp sshfs cp no-sync]\n" `basename "${0}"`
 	exit
 	breaksw
 endsw
@@ -18,22 +18,25 @@ else
 	set sync_method = "no-sync"
 endif
 
-set skip_remote = ""
-while ( ${?2} && "${2}" != "" )
-	if ( "${2}" == "--skip-remote" ) then
-		set skip_remote = "yes"
-	else
-		set sync_method = "${2}"
-	endif
+while ( ${?3} && "${3}" != "" )
+	switch( "${3}" )
+	case "rsync":
+	case "scp":
+	case "sshfs":
+	case "cp":
+	case "no-sync":
+		set sync_method = "${3}"
+		breaksw
+	case "no-pushing":
+		set no_pushing
+		breaksw
+	default:
+		endsw
+	endsw
 	shift
 end
 
-set project_name = "`basename '${cwd}'`"
-
-set sshfs_path = "/projects/ssh"
-
-set ssh_user = "dreams"
-set ssh_server = "avalon.ocssolutions.com"
+if ( -e ./.no.pushing ) set no_pushing;
 
 git add .
 	
@@ -43,9 +46,9 @@ foreach swp ( "`find . -iregex .\*\.swp`" )
 	git rm --cached --quiet "${swp}"
 end
 	
-git commit -a -m "${1}"
+git commit -a -m "${1}: ${2}"
 
-if ( "${skip_remote}" == "yes" || ! -e ".skip:git.push" ) then
+if (! ${?no_pushing} ) then
 	foreach remote_git ( "`git remote`" )
 		git push "${remote_git}"
 	end
@@ -53,6 +56,13 @@ endif
 
 goto check_sync
 exit
+
+init_sync:
+set project_name = "`basename '${cwd}'`"
+set sshfs_path = "/projects/ssh"
+set ssh_user = "dreams"
+set ssh_server = "avalon.ocssolutions.com"
+
 
 run_sync:
 switch( "${sync_method}" )
@@ -124,7 +134,7 @@ case "rsync":
 case "scp":
 case "sshfs":
 case "cp":
-	goto run_sync
+	goto init_sync
 	breaksw
 case "no-sync":
 	exit

@@ -1,5 +1,5 @@
 #!/usr/bin/tcsh -f
-if ( "${?1}" == "0" || "${1}" == "" || ! -d "${1}" ) then
+if ( ! ( ${?1} && "${1}" != "" && -d "${1}" ) ) then
 	printf "Usage: add:path.tcsh path_to_recurse"
 	exit
 endif

@@ -4,7 +4,7 @@ setenv PATH "${PATH}:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbi
 
 setenv EDITOR "/usr/bin/vim-enhanced"
 
-if ( "${?cdpath}" == "0" ) set cdpath="/etc:/usr/share"
+if (! ${?cdpath} ) set cdpath="/etc:/usr/share"
 set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/profile.d:/media:/media/media-library:."
 
 alias jobs "jobs -l"

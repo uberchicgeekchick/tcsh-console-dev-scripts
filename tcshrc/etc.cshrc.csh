@@ -18,9 +18,8 @@ set noglob
 # Call common progams from /bin or /usr/bin only
 #
 
-if ( "${?PATH}" == "1" && "${PATH}" != "" ) then
-	unsetenv PATH
-endif
+if ( ${?PATH} ) unsetenv PATH
+
 setenv PATH "/bin:/usr/bin"
 
 alias path 'if ( -x /bin/\!^ ) /bin/\!*; if ( -x /usr/bin/\!^ ) /usr/bin/\!*'

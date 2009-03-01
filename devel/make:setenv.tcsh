@@ -42,28 +42,28 @@ exit;
 
 setup_libraries:
 foreach library ( ${libraries} )
-	if ( "${?linker_libs}" == "1" ) then
+	if ( ${?linker_libs} ) then
 		set linker_libs="${linker_libs} -L${library}";
 	else
 		set linker_libs="-L${library}";
 	endif
-	if ( "${?lib_paths}" == "1" ) then
+	if ( ${?lib_paths} ) then
 		set lib_paths="${lib_paths}:${library}";
 	else
 		set lib_paths="${library}";
 	endif
 end
-if ( - "${?LDFLAGS}" ) then goto next_libraries
+if ( ${?LDFLAGS} ) then goto next_libraries
 goto set_libraries
 
 setup_includes:
 foreach include_dir ( ${include_paths} )
-	if ( "${?linker_includes}" == "1" ) then
+	if ( ${?linker_includes} ) then
 		set linker_libs="${linker_includes} -L${include_dir}";
 	else
 		set linker_libs="-L${include_dir}";
 	endif
-	if ( "${?include_paths}" == "1" ) then
+	if ( ${?include_paths} ) then
 		set include_paths="${include_path}:${include_paths}";
 	else
 		set include_paths="${include_path}";

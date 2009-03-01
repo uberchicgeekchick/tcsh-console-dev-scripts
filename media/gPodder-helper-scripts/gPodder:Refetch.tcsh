@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if ( "${?1}" == "0" ) then
+if ( !${?1} ) then
 	printf "Usage: %s [search term]" $o
 	exit -1
 endif

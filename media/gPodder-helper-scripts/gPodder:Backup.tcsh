@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
-set gPodder_install_path = "/Programs/src"
+set gPodder_install_path = "/programs/src"
 
-set tarball_backup_path = "/home/uberChick/Downloads/Multimedia/Podcatchers/gPodder"
+set tarball_backup_path = "/uberChick/Downloads/Multimedia/Podcatchers/gPodder"
 if ( ! -d "${tarball_backup_path}" ) mkdir -p "${tarball_backup_path}"
 
 cd "${gPodder_install_path}"

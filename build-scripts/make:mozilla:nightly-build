@@ -3,7 +3,7 @@ set mozilla_dir="/programs/Mozilla";
 set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
 set prefix="/programs/Mozilla";
 
-if ( "${?1}" == "0" || "${1}" == "" || "${1}" == "--help" ) then
+if ( !${?1} || "${1}" == "" || "${1}" == "--help" ) then
 	printf "Usage: %s (firefox|thunderbird)\n\tchecks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"`;
 	exit -1;
 endif
@@ -13,7 +13,7 @@ endif
 init:
 cd "${mozilla_dir}";
 
-if ( "${?GREP_OPTIONS}" == "1" ) unsetenv GREP_OPTIONS;
+if ( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
 unalias grep;
 unalias egrep;
 
@@ -51,7 +51,7 @@ if ( ! -d "${srcdir}" ) mkdir "${srcdir}";
 set objdir="${topdir}/${build_mozilla}-objdir";
 if ( ! -d "${objdir}" ) mkdir "${objdir}";
 
-if ( "${?2}" == "1" && "${2}" == "set-default" ) goto make_default
+if ( ${?2} && "${2}" == "set-default" ) goto make_default
 
 
 checkout:
@@ -121,7 +121,7 @@ ${prefix}/${build_mozilla}/${build_mozilla} &
 
 
 exit_check:
-if ( "${?2}" == "1" && "${2}" == "as-default" ) goto make_default
+if ( ${?2} && "${2}" == "as-default" ) goto make_default
 exit
 
 
@@ -151,7 +151,7 @@ foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
 		kill -9 "${pid}"
 	end
 end
-if ( "${?second_run}" == "0" ) goto run
+if ( !${?second_run} ) goto run
 
 goto install_default
 

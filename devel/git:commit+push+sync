@@ -19,7 +19,7 @@ else
 endif
 
 set skip_remote = ""
-while ( "${?2}" == "1" && "${2}" != "" )
+while ( ${?2} && "${2}" != "" )
 	if ( "${2}" == "--skip-remote" ) then
 		set skip_remote = "yes"
 	else

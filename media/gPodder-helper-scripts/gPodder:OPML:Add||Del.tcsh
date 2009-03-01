@@ -17,7 +17,7 @@ if ( "${?1}" != "0" && "${1}" != "" ) then
 	endsw
 endif
 
-if ( "${?1}" == "0" && "${1}" == "" && -e "${1}" ) then
+if ( !${?1} && "${1}" == "" && -e "${1}" ) then
 	printf "Usage: %s OPML_file"
 	exit
 endif

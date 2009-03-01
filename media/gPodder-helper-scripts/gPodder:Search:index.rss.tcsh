@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if ( "${?1}" == "0" || "${1}" == "" ) goto usage
+if ( ! ( ${?1} && "${1}" != "" ) ) goto usage
 
 set be_verbose = ""
 if ( "${1}" == "--verbose" ) then
@@ -30,20 +30,19 @@ default:
 endsw
 
 switch ( "${2}" )
-case "title":
-case "description":
-case "title":
-case "url":
-case "guid":
-case "pubDate":
-case "link":
-	set search_for = "${2}"
+case "--output=title":
+case "--output=description":
+case "--output=url":
+case "--output=guid":
+case "--output=pubDate":
+case "--output=link":
+	set output = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`"
 	breaksw
-case "help":
+case "--help":
 	goto usage
 	breaksw
 default:
-	set search_for = "${attrib}"
+	set output = "${attrib}"
 	breaksw
 endsw
 
@@ -54,9 +53,7 @@ foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
 	
 	if ( "${found}" == "" ) continue;
 	
-	if ( "${attrib}" != "${search_for}" ) then
-		set found = "`/usr/bin/grep --ignore-case --perl-regex -e '<${search_for}>.*${value}.*<\/${search_for}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${search_for}>\([^<]\+\)<\/${search_for}>.*/\1\r/g'`"
-	endif
+	if ( "${attrib}" != "${output}" ) set found = "`/usr/bin/grep --ignore-case --perl-regex -e '<${output}>[^<]*<\/${output}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${output}>\([^<]\+\)<\/${output}>.*/\1\r/g'`"
 
 	foreach item ( "${found}" )
 		printf "%s:\t%s\n" "${index}" "${item}"

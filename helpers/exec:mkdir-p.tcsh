@@ -3,8 +3,7 @@ set exec = "${1}"
 set command = "`where ${1} | head -1`"
 set arguments = ""
 shift
-while ( "${?1}" == "1" )
-	if ( "${1}" == "" ) shift ; continue
+while ( ${?1} && "${1}" != "" )
 	set arguments = "${arguments} ${1}"
 	set option = "`printf '${1}' | sed 's/^\([^=]*\)=\?\(.*\)$/\1/'`"
 	set value = "`printf '${1}' | sed 's/^\([^=]*\)=\?\(.*\)$/\2/'`"

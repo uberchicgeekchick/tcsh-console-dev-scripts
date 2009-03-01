@@ -1,5 +1,8 @@
 #!/bin/tcsh -f
 
+#alias make 'if ( ${?GREP_OPTIONS} ) set grep_options="${GREP_OPTIONS}";\
+#	if( ${?GREP_OPTIONS} ) unsetenv $GREP_OPTIONS; make'
+
 #C compiler flags
 setenv	LDFLAGS		"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib"
 #libraries to pass to the linker, e.g. -l<library>

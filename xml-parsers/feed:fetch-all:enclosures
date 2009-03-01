@@ -1,6 +1,7 @@
 #!/usr/bin/tcsh -f
-if ( "${?1}" == "0" || "${1}" == "" || "${1}" == "--help" ) then
-	printf "Usage: %s [--newest|--get-first=1..10..?|--get-last=1..10..?] RSS_URI\n" `basename ${0}`;
+if (! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
+	#printf "Usage: %s [--newest|--get-first=1..10..?|--get-last=1..10..?] RSS_URI\n" `basename ${0}`;
+	printf "Usage: %s RSS_URI\n" `basename ${0}`;
 	exit -1;
 endif
 
@@ -162,7 +163,7 @@ foreach episode ( $episodes )
 		continue
 	endif
 
-	if ( "${?regex_match_titles}" == "1" ) then
+	if ( ${?regex_match_titles} ) then
 		if ( "`echo ${episodes_title} | s/.*\(${regex_match_titles}\).*/\1/g'`" )= "${regex_match_titles}" ) continue;
 	endif
 
@@ -178,4 +179,4 @@ end
 
 printf "*w00t\!*, I'm done; enjoy online media at its best!"
 
-if ( ! ( "${?2}" == "1" && "${2}" == "--debug" ) ) rm './00-feed.xml' './00-titles.lst' './00-enclosures.lst'
+if ( ! ( ${?2} && "${2}" == "--debug" ) ) rm './00-feed.xml' './00-titles.lst' './00-enclosures.lst'

@@ -14,7 +14,7 @@ if ( "$screens_sessions[1]" != "No" ) set screens_started;
 unset screens_sessions;
 
 foreach canvas_info ( "${argv}" )
-	if ( "${?screens_started}" == "1" && \
+	if ( ${?screens_started} && \
 		"`printf '${screens_command}' | sed 's/\(.\)$$/\1/'`" != "x" \
 	) set screens_command="/usr/bin/screen -aAURx";
 	alias	screen	"${screens_command}"
@@ -105,7 +105,7 @@ goto next_canvas
 	
 programming_canvas:
 	if(!${?screens_started}) set screens_started;
-	if ( "${?my_projects}" == "0" ) \
+	if ( !${?my_projects} ) \
 		set my_projects = ( \
 					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
@@ -118,7 +118,7 @@ programming_canvas:
 					"--tab-with-profile=projects --title=/gtk --working-directory=/projects/gtk" \
 		);
 		
-	if ( "${?my_www_projects}" == "0" ) \
+	if ( !${?my_www_projects} ) \
 		set my_www_projects = ( \
  					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
@@ -132,7 +132,7 @@ programming_canvas:
 					"--tab-with-profile=projects --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
 		);
 
-	if ( "${?my_game_development_projects}" == "0" ) \
+	if ( !${?my_game_development_projects} ) \
 		set my_game_development_projects=( \
 					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
@@ -145,7 +145,7 @@ programming_canvas:
 					"--tab-with-profile=projects --title=hackGirls-terminal --working-directory=/projects/games/hackGirls-terminal" \
 		);
 
-	if ( "${?my_gtk_projects}" == "0" ) \
+	if ( !${?my_gtk_projects} ) \
 		set my_gtk_projects=( \
 					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
@@ -156,7 +156,7 @@ programming_canvas:
 					"--tab-with-profile=projects --title=connectED --working-directory=/projects/gtk/connectED" \
 		);
 
-	if ( "${?my_cli_projects}" == "0" ) \
+	if ( !${?my_cli_projects} ) \
 		set my_cli_projects=( \
 					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \

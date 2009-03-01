@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if ( "${?1}" == "0" || "${1}" == "" ) goto usage
+if ( !${?1} || "${1}" == "" ) goto usage
 
 set attrib = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\1/g'`"
 set value = ""

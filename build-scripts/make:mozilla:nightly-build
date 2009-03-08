@@ -3,7 +3,7 @@ set mozilla_dir="/programs/Mozilla";
 set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
 set prefix="/programs/Mozilla";
 
-if ( !${?1} || "${1}" == "" || "${1}" == "--help" ) then
+if ( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
 	printf "Usage: %s (firefox|thunderbird)\n\tchecks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"`;
 	exit -1;
 endif
@@ -117,7 +117,7 @@ goto make_default
 goto stop_build
 
 run:
-${prefix}/${build_mozilla}/${build_mozilla} &
+if( -e ${prefix}/${build_mozilla}/${build_mozilla} ) ${prefix}/${build_mozilla}/${build_mozilla} &
 
 
 exit_check:
@@ -151,7 +151,7 @@ foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
 		kill -9 "${pid}"
 	end
 end
-if ( !${?second_run} ) goto run
+if (! ${?second_run} ) goto run
 
 goto install_default
 

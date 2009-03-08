@@ -11,17 +11,17 @@ set value = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`";
 switch ( "${attrib}" )
 case "newest":
 	shift;
-	set latest_episodes = "1";
+	set first_episodes = "1";
 	breaksw
 
 case "get-first":
 	shift;
-	set latest_episodes = "${value}";
+	set first_episodes = "${value}";
 	breaksw
 
 case "get-last":
 	shift;
-	set oldest_episodes = "${value}";
+	set last_episodes = "${value}";
 	breaksw
 
 case "regex-match-titles":
@@ -93,18 +93,14 @@ printf "[done]\n"
 
 printf "Beginning to download: %s\n" "${title}"
 set episodes = ();
-if ( "${?latest_episodes}" != "0" ) then
-	set episodes = "`head -${latest_episodes} './00-enclosures.lst'`"
-	printf "blank\n" >! './00-tmp-titles.lst'
-	cat './00-titles.lst' >> './00-tmp-titles.lst'
+if ( ${?first_episodes} && ${#first_episodes} > 0 ) then
+	set episodes = "`head -${#first_episodes} './00-enclosures.lst'`"
+	head -${#first_episodes} './00-titles.lst' >! './00-tmp-titles.lst'
 	mv './00-tmp-titles.lst' './00-titles.lst'
-	ex -s '+${latest_episodes},$d' '+wq' './00-titles.lst'
-else if ( "${?oldest_episodes}" != "0" ) then
-	set episodes = "`tail -${oldest_episodes} './00-enclosures.lst'`"
-	printf "blank\n" >! './00-tmp-titles.lst'
-	cat './00-titles.lst' >> './00-tmp-titles.lst'
+else if ( ${?last_episodes} && ${#last_episodes} > 0 ) then
+	set episodes = "`tail -${#last_episodes} './00-enclosures.lst'`"
+	tail -${#last_episodes} './00-titles.lst' >! './00-tmp-titles.lst'
 	mv './00-tmp-titles.lst' './00-titles.lst'
-	ex -s '+${oldest_episodes},$d' '+wq' './00-titles.lst'
 else
 	set episodes = "`cat './00-enclosures.lst'`"
 endif

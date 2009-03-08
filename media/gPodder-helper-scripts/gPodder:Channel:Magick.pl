@@ -26,7 +26,7 @@ sub parse_arguments{
 parse_arguments();
 
 set action = "display"
-while ( "${?1}" != "0" && "${1}" != "" )
+foreach( $ARGV ){
 	set attrib = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\(.*\)/\1/g'`"
 	if ( "${attrib}" == "" ) continue
 	
@@ -100,7 +100,7 @@ while ( "${?1}" != "0" && "${1}" != "" )
 		endsw
 	end
 end
-
+}#foreach
 exit
 
 usage:

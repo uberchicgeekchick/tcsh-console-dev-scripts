@@ -1,5 +1,5 @@
 #!/bin/tcsh
-if ( !${?1} || "${1}" == "" ) then
+if ( ! ${?1} || "${1}" == "" ) then
 	printf "Usage: %s URI\n"
 	exit -1
 endif

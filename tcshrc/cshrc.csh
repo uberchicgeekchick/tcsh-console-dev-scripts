@@ -16,12 +16,15 @@ complete killall 'p/*/c/'
 
 complete ln 'p/*/f/'
 
+
+source /profile.d/tcshrc/environment.tcsh
 source /profile.d/tcshrc/sudo.tcsh
 foreach rc_file ( /profile.d/tcshrc/*.tcsh )
 	switch("${rc_file}")
 	case "bindkey.tcsh":
 	case "complete.tcsh":
 	case "sudo.tcsh":
+	case "environment.tcsh"
 		breaksw
 	default:
 		source "${rc_file}"

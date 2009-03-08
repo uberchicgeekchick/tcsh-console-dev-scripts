@@ -3,10 +3,17 @@
 #set echo
 set addsuffix
 
+setenv		GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number"
+alias		grep		"grep ${GREP_OPTIONS}"
+alias		egrep		"grep ${GREP_OPTIONS} --perl-regexp -e"
+unsetenv	GREP_OPTIONS
+
+setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify  --group-directories-first --format=across"
+
 set correct=cmd
 set autoexpand
 set autocorrect
-set autolist
+set autolist=ambiguous
 set color
 set colorcat
 
@@ -19,6 +26,7 @@ set notify
 
 set nobeep
 set noclobber
+#set noglob
 
 set highlight
 set histdup=erase

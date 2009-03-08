@@ -1,9 +1,10 @@
 #!/bin/tcsh -f
 if ( ! ( ${?1} && "${1}" != "" ) ) goto usage
 
-set be_verbose = ""
+set gpodder_dl_dir = "`grep 'download_dir' '${HOME}/.config/gpodder/gpodder.conf' | cut -d= -f2 | cut -d' ' -f2`"
+
 if ( "${1}" == "--verbose" ) then
-	set be_verbose = "TRUE"
+	set verbose;
 	shift
 endif
 
@@ -29,25 +30,25 @@ default:
 	breaksw
 endsw
 
-switch ( "${2}" )
-case "--output=title":
-case "--output=description":
-case "--output=url":
-case "--output=guid":
-case "--output=pubDate":
-case "--output=link":
-	set output = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`"
-	breaksw
-case "--help":
-	goto usage
+if(! ${?2} ) goto find_index_rss
+
+set output = "`printf ${2} | sed 's/\-\-\([^=]\+\)=["\""'\'']*\(.*\)["\""'\'']*/\2/g'`"
+switch ( ${output} )
+case "title":
+case "description":
+case "url":
+case "guid":
+case "pubDate":
+case "link":
+	if( ${?3} && "${3}" == "--refetch" ) set refetch;
 	breaksw
 default:
+	if( "${2}" == "--refetch" ) set refetch;
 	set output = "${attrib}"
 	breaksw
 endsw
 
-set gpodder_dl_dir = "`grep 'download_dir' '${HOME}/.config/gpodder/gpodder.conf' | cut -d= -f2 | cut -d' ' -f2`"
-
+find_index_rss:
 foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
 	set found = "`/usr/bin/grep --ignore-case --perl-regex -e '<${attrib}>.*${value}.*<\/${attrib}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${attrib}>\([^<]\+\)<\/${attrib}>.*/\1/g'`"
 	
@@ -59,10 +60,10 @@ foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
 		printf "%s:\t%s\n" "${index}" "${item}"
 	end
 	
-	if ( "${be_verbose}" == "TRUE" ) then
-		cat "${index}"
-		printf "\n\n"
-	endif
+	if(! ${?verbose} ) continue;
+	
+	cat "${index}"
+	printf "\n\n"
 end
 
 exit

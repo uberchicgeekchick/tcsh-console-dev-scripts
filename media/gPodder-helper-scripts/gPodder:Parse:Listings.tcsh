@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if ( !${?1} || "${1}" == "" || "${1}" == "--help" ) goto usage;
+if ( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) goto usage;
 unsetenv GREP_OPTIONS;
 
 set action = "display";

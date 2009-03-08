@@ -1,5 +1,8 @@
 #!/bin/tcsh -f
 
+alias	"./configure"	"./configure --libdir=/usr/lib64"
+alias	"./autogen.sh"	"./autogen.sh --libdir=/usr/lib64"
+
 #alias make 'if ( ${?GREP_OPTIONS} ) set grep_options="${GREP_OPTIONS}";\
 #	if( ${?GREP_OPTIONS} ) unsetenv $GREP_OPTIONS; make'
 

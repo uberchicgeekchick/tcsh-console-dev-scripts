@@ -45,7 +45,13 @@ foreach swp ( "`find . -iregex .\*\.swp`" )
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`"
 	git rm --cached --quiet "${swp}"
 end
-	
+
+# Remove any files that are either just for back-up or more usefully when the files are uber-alphas
+foreach being_created ( "`find . -iregex .\*creating:.\*`" )
+ 	set swp = "`printf '${being_created}' | sed 's/^\.\///'`"
+	git rm --cached --quiet "${being_created}"
+end
+
 git commit -a -m "${1}: ${2}"
 
 if (! ${?no_pushing} ) then

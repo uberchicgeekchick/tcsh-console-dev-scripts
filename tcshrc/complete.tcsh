@@ -10,9 +10,11 @@
 # 1999/06/28: <werner@suse.de> resort to the order to fit complete.tcsh
 #		found in tcsh-6.08.05, add the mh completes.
 #
-	set autolist=ambiguous
-	set noglob
 #
+	if(! ${?noglob} ) then
+		set noglob
+		set globset
+	endif
 	set hosts
 	foreach _f ($HOME/.hosts /etc/csh.hosts $HOME/.rhosts /etc/hosts.equiv)
 	if ( -r $_f ) then
@@ -220,6 +222,16 @@
 				libdir,includedir,oldincludedir,infodir,\
 				mandir,srcdir}/(=)//' \
 			 'c/--/(cache-file verbose prefix exec-prefix bindir \
+				sbindir libexecdir datadir sysconfdir \
+				sharedstatedir localstatedir libdir \
+				includedir oldincludedir infodir mandir \
+				srcdir)//'
+	complete ./autogen.sh 'c/--*=/f/' 'c/--{cache-file,prefix,exec-prefix,\
+				bindir,sbindir,libexecdir,datadir,\
+				sysconfdir,sharedstatedir,localstatedir,\
+				libdir,includedir,oldincludedir,infodir,\
+				mandir,srcdir}/(=)//' \
+				'c/--/(cache-file verbose prefix exec-prefix bindir \
 				sbindir libexecdir datadir sysconfdir \
 				sharedstatedir localstatedir libdir \
 				includedir oldincludedir infodir mandir \
@@ -911,7 +923,10 @@ skip_mh:
 	complete dvilj	'p/*/f:*.dvi/'
 	endif
 
-	unset noglob
+	if( ${?globset} ) then
+		unset noglob
+		unset globset
+	endif
 #
 # complete.tcsh ends here
 #

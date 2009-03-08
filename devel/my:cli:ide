@@ -19,20 +19,22 @@ foreach canvas_info ( "${argv}" )
 	) set screens_command="/usr/bin/screen -aAURx";
 	alias	screen	"${screens_command}"
 	
-	set my_starter_tabs=( \
-		"--tab-with-profile=screen --title=:screen: --command=screen" \
-		"--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" \
-		"--tab-with-profile=projects --title=/projects --working-directory=/projects" \
-	);
+	if(! ${?my_starter_tabs} ) \
+		set my_starter_tabs=( \
+			"--tab-with-profile=screen --title=:screen: --command=screen" \
+			"--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" \
+			"--tab-with-profile=projects --title=/projects --working-directory=/projects" \
+		);
 	
-	set my_default_tabs = ( \
-		${my_starter_tabs} \
-		"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
-		"--tab-with-profile=projects --title=/media --working-directory=/media" \
-		"--tab-with-profile=projects --title=~/ --working-directory=${HOME}" \
-		"--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" \
-		"--tab-with-profile=projects --title=/programs --working-directory=/programs" \
-	);
+	if(! ${?my_default_tabs} ) \
+		set my_default_tabs = ( \
+			${my_starter_tabs} \
+			"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
+			"--tab-with-profile=projects --title=/media --working-directory=/media" \
+			"--tab-with-profile=projects --title=~/ --working-directory=${HOME}" \
+			"--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" \
+			"--tab-with-profile=projects --title=/programs --working-directory=/programs" \
+		);
 	
 	set canvas_type="`printf '${canvas_info}' | sed 's/^\([^:]\+\):\(.*\)/\1/g'`";
 	set canvas="`printf '${canvas_info}' | sed 's/^\([^:]\+\):\(.*\)/\2/g'`";
@@ -60,7 +62,7 @@ foreach canvas_info ( "${argv}" )
 	case "Build":
 		shift;
 		set geometry="${build_geometry}"
-		goto media_canvas
+		goto build_canvas
 		breaksw
 	default:
 		set geometry="${default_geometry}"
@@ -74,7 +76,7 @@ foreach canvas_info ( "${argv}" )
 editor_canvas:
 	switch ( "${canvas}" )
 	case 'Template':
-		if(!${?screens_started}) set screens_started;
+		if (! ${?screens_started} ) set screens_started;
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
@@ -104,8 +106,8 @@ goto next_canvas
 	
 	
 programming_canvas:
-	if(!${?screens_started}) set screens_started;
-	if ( !${?my_projects} ) \
+	if(! ${?screens_started} ) set screens_started;
+	if(! ${?my_projects} ) \
 		set my_projects = ( \
 					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
@@ -118,7 +120,7 @@ programming_canvas:
 					"--tab-with-profile=projects --title=/gtk --working-directory=/projects/gtk" \
 		);
 		
-	if ( !${?my_www_projects} ) \
+	if(! ${?my_www_projects} ) \
 		set my_www_projects = ( \
  					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
@@ -132,7 +134,7 @@ programming_canvas:
 					"--tab-with-profile=projects --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
 		);
 
-	if ( !${?my_game_development_projects} ) \
+	if(! ${?my_game_development_projects} ) \
 		set my_game_development_projects=( \
 					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
@@ -145,7 +147,7 @@ programming_canvas:
 					"--tab-with-profile=projects --title=hackGirls-terminal --working-directory=/projects/games/hackGirls-terminal" \
 		);
 
-	if ( !${?my_gtk_projects} ) \
+	if(! ${?my_gtk_projects} ) \
 		set my_gtk_projects=( \
 					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
@@ -156,7 +158,7 @@ programming_canvas:
 					"--tab-with-profile=projects --title=connectED --working-directory=/projects/gtk/connectED" \
 		);
 
-	if ( !${?my_cli_projects} ) \
+	if(! ${?my_cli_projects} ) \
 		set my_cli_projects=( \
 					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
@@ -224,11 +226,19 @@ goto next_canvas
 
 build_canvas:
 	switch( "${canvas}" )
-	case 'Source':
+	case 'Programs':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
 			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
+		${argv} &;
+		breaksw
+	
+	case 'Projects':
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${geometry} \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 		${argv} &;
 		breaksw
 	
@@ -249,14 +259,12 @@ build_canvas:
 		breaksw
 	
 	case 'Nightly':
-		if(!${?screens_started}) set screens_started;
+	default:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="screen" --title=":screen:" --command=screen  \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
-			--tab-with-profile="projects" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
-			--tab-with-profile="projects" --title="thunderbird-src" --working-directory="/programs/Mozilla/src/thunderbird-src" \
 		${argv} &;
 		breaksw
 	
@@ -266,7 +274,7 @@ goto next_canvas
 	
 	
 media_canvas:
-	if(!${?screens_started}) set screens_started;
+	if (! ${?screens_started} ) set screens_started;
 	switch ( "${canvas}" )
 	case 'Production':
 		/usr/bin/gnome-terminal \
@@ -309,7 +317,7 @@ goto next_canvas
 	
 	
 default_canvas:
-	if(!${?screens_started}) set screens_started;
+	if (! ${?screens_started} ) set screens_started;
 	switch ( "${canvas}" )
 	case 'Screen':
 		/usr/bin/gnome-terminal \

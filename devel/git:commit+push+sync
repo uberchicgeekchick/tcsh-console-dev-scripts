@@ -1,58 +1,62 @@
 #!/bin/tcsh -f
-switch ( "${1}" )
-case "":
-case "rsync":
-case "scp":
-case "sshfs":
-case "cp":
-case "no-sync":
-	printf "Usage: %s commit_message [commit_details] [rsync scp sshfs cp no-sync]\n" `basename "${0}"`
-	exit
-	breaksw
-endsw
-
-set sync_method = ""
-if ( -e "./.sync.default" ) then
-	set sync_method = `cat ./.sync.default`
-else
-	set sync_method = "no-sync"
-endif
-
-while ( ${?3} && "${3}" != "" )
-	switch( "${3}" )
-	case "rsync":
-	case "scp":
-	case "sshfs":
-	case "cp":
-	case "no-sync":
-		set sync_method = "${3}"
-		breaksw
-	case "no-pushing":
-		set no_pushing
-		breaksw
-	default:
-		endsw
-	endsw
-	shift
-end
+set sync_method = "no-sync";
+if ( -e "./.sync.default" ) set sync_method=`cat ./.sync.default`;
 
 if ( -e ./.no.pushing ) set no_pushing;
 
+if ( -f "./.${0}.message.log" ) then
+	printf "'./.${0}.message.log' exists, I cannot continue."
+	exit
+endif
+
+while ( ${?1} && "${1}" != "" )
+	switch ( "${1}" )
+	case "--help":
+		goto usage
+		breaksw
+	case "--sync=rsync":
+	case "--sync=scp":
+	case "--sync=sshfs":
+	case "--sync=cp":
+	case "--sync=no-sync":
+		set sync_method="${value}"
+		breaksw
+	case "--no-pushing":
+		set no_pushing
+		breaksw
+	default:
+		if ( ! ${?commit_message} ) then
+			set commit_message="./.`basename '${0}'`.logs/`date '+%y-%m-%d @ %r'`.message"
+			printf "${1}" > "${commit_message}"
+			breaksw
+		endif
+		if(! -d "./.`basename '${0}'`.logs" ) mkdir -p "./.`basename '${0}'`.logs"
+		printf "\n\n${1}" >> "${commit_message}"
+		breaksw
+	endsw
+	shift
+end
+		
+if(! ${?commit_message} ) goto usage
+
+printf "\n\nCommitted on: `date '+%Y-%m-%d @ %r'`\n" >> "${commit_message}"
+
 git add .
-	
+
 # Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
 foreach swp ( "`find . -iregex .\*\.swp`" )
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`"
 	git rm --cached --quiet "${swp}"
 end
-
 # Remove any files that are either just for back-up or more usefully when the files are uber-alphas
 foreach being_created ( "`find . -iregex .\*creating:.\*`" )
  	set swp = "`printf '${being_created}' | sed 's/^\.\///'`"
 	git rm --cached --quiet "${being_created}"
 end
+git rm --cached --quiet "./.`basename '${0}'`.logs"
 
-git commit -a -m "${1}: ${2}"
+git commit -a -F "${commit_message}"
+
 
 if (! ${?no_pushing} ) then
 	foreach remote_git ( "`git remote`" )
@@ -120,8 +124,6 @@ case "cp":
 	end
 
 	printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n"
-	# TODO:
-	# make copying use a find search result that skips swp files.
 	cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}"
 
 	# cleaning up swp files that may have been copied to the remote location
@@ -150,3 +152,8 @@ default:
 	exit
 	breaksw
 endsw
+
+usage:
+printf "Usage: %s [no-pushing rsync scp sshfs cp no-sync] commit_message [commit_details]\n" `basename "${0}"`
+exit
+

@@ -44,14 +44,15 @@ if ( -e './00-feed.xml' && -e './00-titles.lst' && -e './00-enclosures.lst' ) go
 
 mv '../00-feed.xml' "./00-feed.xml"
 
-# Concatinates all data into one single string:
-ex '+1,$s/[\r\n]*//g' '+wq' './00-feed.xml' >& /dev/null
-
 # Grabs the titles of the podcast and all episodes.
 printf "Finding titles . . . this may take a few moments\t\t"
 cp './00-feed.xml' './00-titles.lst'
-ex '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*\(enclosure\).*<\/\(item\|entry\)>$/\2/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' './00-titles.lst' >& /dev/null
-ex '+1,$s/&\(#038\|amp\)\;/\&/ig' '+1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' '+1,$s/&[^;]\+\;[\ \t]*//ig' '+1,$s/<\!\[CDATA[\(.*\)\]\]>/\1/g' '+1,$s/#//g' '+1,$s/\//\ \-\ /g' '+wq' './00-titles.lst' >& /dev/null
+
+# Concatinates all data into one single string:
+ex '+1,$s/[\r\n]\+//g' '+wq' './00-titles.lst' >& /dev/null
+
+ex '+1,$s/<\/\(item\|entry\)>/<\/\1>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\(.*\)<\/title>.*\(enclosure\).*<\/\(item\|entry\)>$/\2/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/&\(#038\|amp\)\;/\&/ig' '+1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' '+1,$s/&[^;]\+\;[\ \t]*//ig' '+1,$s/<\!\[CDATA\[\(.*\)\]\]>/\1/g' '+1,$s/#//g' '+1,$s/\//\ \-\ /g' '+wq' './00-titles.lst' >& /dev/null
 printf "[done]\n"
 
 # This will be my last update to any part of Alacast v1
@@ -65,19 +66,27 @@ ex '+1,$s/\([0-9]\)teen/1\1/gi' '+1,$s/\(Fifteen\)/15/gi' '+1,$s/\(Thirteen\)/13
 
 ex '+1,$s/^\([0-9]\{1\}\)\([^0-9]\{1\}\)/0\1\2/' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)\([^0-9]\{1\}\)/\10\2\3/g' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)$/\10\2/' '+wq' './00-titles.lst' >& /dev/null
 
-ex '+1,$s/\//\ \-\ /g' '+1,$s/\ \ /\ /g' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/\//\ \-\ /g' '+1,$s/[\ ]\{2,\}/\ /g' '+wq' './00-titles.lst' >& /dev/null
 printf "[done]\n"
 
 # Grabs the enclosures from the feed.
 # This 1st method only grabs one enclosure per item/entry.
 printf "Finding enclosures . . . this may take a few moments\t\t"
 cp '00-feed.xml' '00-enclosures-01.lst'
-ex '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\4/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' '00-enclosures-01.lst' >& /dev/null
+
+# Concatinates all data into one single string:
+ex '+1,$s/[\r\n]\+//g' '+wq' './00-enclosures-01.lst' >& /dev/null
+
+ex '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\(.*\)<\/title>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\4/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' '00-enclosures-01.lst' >& /dev/null
 ex '+1,$s/^[\ \s\r\n]\+//g' '+1,$s/[\ \s\r\n]\+$//g' '+1,$s/?/\\?/g' '+wq' './00-enclosures-01.lst' >& /dev/null
 
 # This second method grabs all enclosures.
 cp '00-feed.xml' '00-enclosures-02.lst'
-/usr/bin/grep --perl-regex '.*<.*enclosure[^>]*>.*' './00-feed.xml' | sed 's/.*url=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/.*<link[^>]\+href=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/^\(http:\/\/\).*\(http:\/\/.*$\)/\2/gi' | sed 's/<.*>[\r\n]\+//ig' >! './00-enclosures-02.lst'
+
+# Concatinates all data into one single string:
+ex '+1,$s/[\r\n]\+//g' '+wq' './00-enclosures-02.lst' >& /dev/null
+
+/usr/bin/grep --perl-regex '.*<.*enclosure[^>]*>.*' './00-enclosures-02.lst' | sed 's/.*url=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/.*<link[^>]\+href=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/^\(http:\/\/\).*\(http:\/\/.*$\)/\2/gi' | sed 's/<.*>[\r\n]\+//ig' >! './00-enclosures-02.lst'
 ex '+1,$s/^[\ \s\r\n]\+//g' '+1,$s/[\ \s\r\n]\+$//g' '+1,$s/?/\\?/g' '+wq' './00-enclosures-02.lst' >& /dev/null
 
 set enclosure_count_01 = `cat "./00-enclosures-01.lst"`
@@ -93,21 +102,25 @@ printf "[done]\n"
 
 printf "Beginning to download: %s\n" "${title}"
 set episodes = ();
-if ( ${?first_episodes} && ${#first_episodes} > 0 ) then
-	set episodes = "`head -${#first_episodes} './00-enclosures.lst'`"
-	head -${#first_episodes} './00-titles.lst' >! './00-tmp-titles.lst'
-	mv './00-tmp-titles.lst' './00-titles.lst'
-else if ( ${?last_episodes} && ${#last_episodes} > 0 ) then
-	set episodes = "`tail -${#last_episodes} './00-enclosures.lst'`"
-	tail -${#last_episodes} './00-titles.lst' >! './00-tmp-titles.lst'
-	mv './00-tmp-titles.lst' './00-titles.lst'
+if ( ${?first_episodes} ) then
+	if( ${#first_episodes} > 0 ) then
+		set episodes = "`head -${#first_episodes} './00-enclosures.lst'`"
+		head -${#first_episodes} './00-titles.lst' >! './00-tmp-titles.lst'
+		mv './00-tmp-titles.lst' './00-titles.lst'
+	endif
+else if ( ${?last_episodes} ) then
+	if( ${#last_episodes} > 0 ) then
+		set episodes = "`tail -${#last_episodes} './00-enclosures.lst'`"
+		tail -${#last_episodes} './00-titles.lst' >! './00-tmp-titles.lst'
+		mv './00-tmp-titles.lst' './00-titles.lst'
+	endif
 else
 	set episodes = "`cat './00-enclosures.lst'`"
 endif
 
 goto download_episodes
 
-continue_download;
+continue_download:
 rm  "../00-feed.xml"
 set episodes = "`cat './00-enclosures.lst'`"
 
@@ -160,7 +173,7 @@ foreach episode ( $episodes )
 	endif
 
 	if ( ${?regex_match_titles} ) then
-		if ( "`echo ${episodes_title} | s/.*\(${regex_match_titles}\).*/\1/g'`" )= "${regex_match_titles}" ) continue;
+		if ( "`echo ${episodes_title} | s/.*\(${regex_match_titles}\).*/\1/g'`" )=="${regex_match_titles}" ) continue;
 	endif
 
 	wget --quiet -O "./${episodes_title}.${extension}" "${episode}"

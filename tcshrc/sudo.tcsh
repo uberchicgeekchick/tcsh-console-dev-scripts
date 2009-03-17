@@ -21,12 +21,11 @@ set sudo_commands=( "visudo" "chown" "chgrp" "zypper" "neject" "reboot" "powerof
 foreach command ( ${sudo_commands} )
 	alias	"${command}"	"sudo ${command}"
 end
-unset sudo_commands
+unset sudo_commands command
 
 set gnomesu_commands=( "yast2" );
 foreach command ( ${gnomesu_commands} )
 	alias	"${command}"	"gnomesu ${command}"
 end
-unset gnomesu_commands
+unset gnomesu_commands command
 
-unset command

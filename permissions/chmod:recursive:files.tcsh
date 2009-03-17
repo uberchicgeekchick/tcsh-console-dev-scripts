@@ -1,6 +1,7 @@
 #!/usr/bin/tcsh -f
 set mode="-x";
-if( ${?1} && "${1}" != "" ) set mode="${1}"
-foreach exec ( "`find ./* -mindepth 1 -type f`" )
-	chmod "${mode}" "${exec}"
+set target="./";
+if( ${?1} && "${1}" != "" && -d "${1}" ) set target="${1}";
+foreach exec ( "`find '${target}/' -type f`" )
+	chmod "${mode}" "${exec}";
 end

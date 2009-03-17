@@ -1,0 +1,10 @@
+#!/usr/bin/perl -w
+use strict;
+
+foreach( $ARGV ){
+	-d $_ ? ( $search_dirs[@sarch_dirs]=$_; continue; ) ;
+@ search_path="./"
+
+grep 'set' -r ../../cli/tcsh-dev/tcshrc/ | cut -d':' -f1 | uniq
+
+unset search_path

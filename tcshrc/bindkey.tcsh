@@ -26,6 +26,7 @@ endif
 # My own special bound keys
 #
 bindkey		"^d"		backward-delete-word
+bindkey	-c	"^e"		"source /etc/csh.cshrc"
 bindkey		" "		magic-space
 bindkey		"^[\/"		i-search-fwd
 bindkey		"^[?"		i-search-back
@@ -75,56 +76,56 @@ bindkey		"^[[A"		up-history
 bindkey		"^[[B"		down-history
 if ( "$TERM" == "xterm" ) then
 	bindkey	 -c	"^[[E"		"source /etc/csh.cshrc"
-	bindkey	 -c	"^[[1;2E"		"source /etc/csh.cshrc"
-	bindkey	 -c	"^[[1;3E"		"source /etc/csh.cshrc"
-	bindkey	 -c	"^[[1;4E"		"source /etc/csh.cshrc"
-	bindkey	 -c	"^[[1;5E"		"source /etc/csh.cshrc"
-	bindkey	 -c	"^[[1;6E"		"source /etc/csh.cshrc"
-	bindkey	 -c	"^[[1;7E"		"source /etc/csh.cshrc"
-	bindkey	 -c	"^[[1;8E"		"source /etc/csh.cshrc"
+	bindkey	 -c	"^[[1;2E"	"source /etc/csh.cshrc"
+	bindkey	 -c	"^[[1;3E"	"source /etc/csh.cshrc"
+	bindkey	 -c	"^[[1;4E"	"source /etc/csh.cshrc"
+	bindkey	 -c	"^[[1;5E"	"source /etc/csh.cshrc"
+	bindkey	 -c	"^[[1;6E"	"source /etc/csh.cshrc"
+	bindkey	 -c	"^[[1;7E"	"source /etc/csh.cshrc"
+	bindkey	 -c	"^[[1;8E"	"source /etc/csh.cshrc"
 	bindkey		"^[[2C"		forward-word
 	bindkey		"^[[2D"		backward-word
 	bindkey		"^[[2A"		history-search-backward
 	bindkey		"^[[2B"		history-search-forward
-	bindkey		"^[[1;2C"		forward-word
-	bindkey		"^[[1;2D"		backward-word
-	bindkey		"^[[1;2A"		history-search-backward
-	bindkey		"^[[1;2B"		history-search-forward
-	bindkey		"^[[1;3C"		forward-word
-	bindkey		"^[[1;3D"		backward-word
-	bindkey		"^[[1;3A"		history-search-backward
-	bindkey		"^[[1;3B"		history-search-forward
-	bindkey		"^[[1;4C"		forward-word
-	bindkey		"^[[1;4D"		backward-word
-	bindkey		"^[[1;4A"		history-search-backward
-	bindkey		"^[[1;4B"		history-search-forward
+	bindkey		"^[[1;2C"	forward-word
+	bindkey		"^[[1;2D"	backward-word
+	bindkey		"^[[1;2A"	history-search-backward
+	bindkey		"^[[1;2B"	history-search-forward
+	bindkey		"^[[1;3C"	forward-word
+	bindkey		"^[[1;3D"	backward-word
+	bindkey		"^[[1;3A"	history-search-backward
+	bindkey		"^[[1;3B"	history-search-forward
+	bindkey		"^[[1;4C"	forward-word
+	bindkey		"^[[1;4D"	backward-word
+	bindkey		"^[[1;4A"	history-search-backward
+	bindkey		"^[[1;4B"	history-search-forward
 	bindkey		"^[[5C"		forward-word
 	bindkey		"^[[5D"		backward-word
 	bindkey		"^[[5A"		history-search-backward
 	bindkey		"^[[5B"		history-search-forward
-	bindkey		"^[[1;5C"		forward-word
-	bindkey		"^[[1;5D"		backward-word
-	bindkey		"^[[1;5A"		history-search-backward
-	bindkey		"^[[1;5B"		history-search-forward
-	bindkey		"^[[1;6C"		forward-word
-	bindkey		"^[[1;6D"		backward-word
-	bindkey		"^[[1;6A"		history-search-backward
-	bindkey		"^[[1;6B"		history-search-forward
-	bindkey		"^[[1;7C"		forward-word
-	bindkey		"^[[1;7D"		backward-word
-	bindkey		"^[[1;7A"		history-search-backward
-	bindkey		"^[[1;7B"		history-search-forward
-	bindkey		"^[[1;8C"		forward-word
-	bindkey		"^[[1;8D"		backward-word
-	bindkey		"^[[1;8A"		history-search-backward
-	bindkey		"^[[1;8B"		history-search-forward
+	bindkey		"^[[1;5C"	forward-word
+	bindkey		"^[[1;5D"	backward-word
+	bindkey		"^[[1;5A"	history-search-backward
+	bindkey		"^[[1;5B"	history-search-forward
+	bindkey		"^[[1;6C"	forward-word
+	bindkey		"^[[1;6D"	backward-word
+	bindkey		"^[[1;6A"	history-search-backward
+	bindkey		"^[[1;6B"	history-search-forward
+	bindkey		"^[[1;7C"	forward-word
+	bindkey		"^[[1;7D"	backward-word
+	bindkey		"^[[1;7A"	history-search-backward
+	bindkey		"^[[1;7B"	history-search-forward
+	bindkey		"^[[1;8C"	forward-word
+	bindkey		"^[[1;8D"	backward-word
+	bindkey		"^[[1;8A"	history-search-backward
+	bindkey		"^[[1;8B"	history-search-forward
 else
 	bindkey	 -c	"^[[G"		"source /etc/csh.cshrc"
 endif
 #
 # Avoid network problems
 #   ... \177 (ASCII-DEL) and \010 (ASCII-BS)
-#	   do `backward-delete-char'
+#	   do `backward-delete-char	'
 # Note: `delete-char' is maped to \033[3~
 #	   Therefore xterm's responce on pressing
 #	   key Delete or KP-Delete should be

@@ -29,7 +29,7 @@ set my_editor = `basename "${my_editor}"`
 set session_exec = "./${my_editor}.session.tcsh"
 
 set session_started = ""
-foreach swp ( "`find ${search_dir} -iregex '\..*\.swp'`" )
+foreach swp ( "`find ${search_dir} -iregex '\..*\.sw.'`" )
 	if ( "${session_started}" == "" ) then
 		set session_started = "[done]"
 		#this has vim load with the cursur on the second to last line.

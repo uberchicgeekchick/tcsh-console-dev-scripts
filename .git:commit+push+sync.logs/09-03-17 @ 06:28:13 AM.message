@@ -1,9 +1,0 @@
-
-
-I have added support for multiple entries into git's commit message now I can use multiple command arguments to create a larger continued commit log.
-
-This is especially useful since now my 1st commit message argument is the main part of git's commit message & so its something I can remember & actually use for checkouts, patch management, & all of git's other wonderful features.
-
-I've also done a ton of other lil things.  I so need to commit my scripts more warning.
-
-Committed on: 2009-03-17 @ 06:28:13 AM

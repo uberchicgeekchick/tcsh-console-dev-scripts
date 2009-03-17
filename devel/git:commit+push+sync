@@ -44,7 +44,7 @@ printf "\n\nCommitted on: `date '+%Y-%m-%d @ %r'`\n" >> "${commit_message}"
 git add .
 
 # Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
-foreach swp ( "`find . -iregex .\*\.swp`" )
+foreach swp ( "`find . -iregex .\*\.sw.`" )
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`"
 	git rm --cached --quiet "${swp}"
 end
@@ -53,7 +53,7 @@ foreach being_created ( "`find . -iregex .\*creating:.\*`" )
  	set swp = "`printf '${being_created}' | sed 's/^\.\///'`"
 	git rm --cached --quiet "${being_created}"
 end
-git rm --cached --quiet "./.`basename '${0}'`.logs"
+git rm -r --cached --quiet "./.`basename '${0}'`.logs"
 
 git commit -a -F "${commit_message}"
 

@@ -27,7 +27,7 @@ while ( ${?1} && "${1}" != "" )
 	default:
 		if(! -d "./.`basename '${0}'`.logs" ) mkdir -p "./.`basename '${0}'`.logs"
 		if ( ! ${?commit_message} ) then
-			set commit_message="./.`basename '${0}'`.logs/`date '+%y-%m-%d @ %r'`.message"
+			set commit_message="./.`basename '${0}'`.logs/`date '+%Y-%m-%d @ %r'`.message"
 			printf "${1}" > "${commit_message}"
 			breaksw
 		endif

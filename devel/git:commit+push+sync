@@ -43,15 +43,16 @@ printf "\n\nCommitted on: `date '+%Y-%m-%d @ %r'`\n" >> "${commit_message}"
 
 git add .
 
-# Remove any vim, GTK-PHP-IDE, gedit, or etc 'swp' files
-foreach swp ( "`find . -iregex .\*\.sw.`" )
+# Remove any vim, connectED, gedit, or etc 'swp' files
+foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
+	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`"
+	git rm --cached --quiet "${tarball}"
+end
+# Remove any vim, connectED, gedit, or etc 'swp' files.
+# This is even more useful to keep from committing early art works & uber-alphas
+foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\)'`" )
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`"
 	git rm --cached --quiet "${swp}"
-end
-# Remove any files that are either just for back-up or more usefully when the files are uber-alphas
-foreach being_created ( "`find . -iregex .\*creating:.\*`" )
- 	set swp = "`printf '${being_created}' | sed 's/^\.\///'`"
-	git rm --cached --quiet "${being_created}"
 end
 git rm -r --cached --quiet "./.`basename '${0}'`.logs"
 

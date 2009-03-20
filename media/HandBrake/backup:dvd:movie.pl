@@ -5,6 +5,8 @@
 
 my $handbrake_exec = "/programs/bin/HandBrakeCLI";
 my $dvd_device = "/dev/sr0";
+my $media_dir = "/media";
+#my $media_dir = "/projects/media";
 
 my $movies_title = `mount | grep "${dvd_device}" | cut -d'/' -f5 | cut -d' ' -f1 | sed 's/_/\ /g'`;
 $movies_title =~ s/[\r\n]//g;
@@ -24,7 +26,7 @@ if ( $audio_quality > 0 ) {
 	$final_extension = "xvid";
 }
 
-my $video_filename = "/projects/media/movies/$movies_title-[Xvid][$audio_codec]";
+my $video_filename = "$media_dir/movies/$movies_title-[Xvid][$audio_codec]";
 
 my $rip_cmd="$handbrake_exec --input $dvd_device --title 1 --encoder xvid --aencoder $audio_codec --output '$video_filename.$extension'";
 

@@ -6,6 +6,8 @@ use strict;
 
 my $handbrake_exec = "/programs/bin/HandBrakeCLI";
 my $dvd_device = "/dev/sr0";
+my $media_dir = "/media";
+#my $media_dir = "/projects/media";
 
 my $series_title = `mount | grep "$dvd_device" | cut -d'/' -f5 | cut -d' ' -f1 | sed 's/_/\ /g'`;
 $series_title =~ s/[\r\n]//g;
@@ -14,13 +16,13 @@ if ( ! $series_title ) {
 	exit(-1);
 }
 lc($series_title);
-my $series_path = "/media/tv-shows/$series_title";
+my $series_path = "$media_dir/tv-shows/$series_title";
 while ( ! -d "$series_path" ) {
 	`mkdir -p "$series_path"`;
 }
 
-#my $audio_quality = -1;
-my $audio_quality = 1;
+#my $audio_quality = -1;#xvid w/mp3
+my $audio_quality = 1;#xvid w/ogg
 my $audio_codec = "";
 my $extension = "";
 my $final_extension = "";

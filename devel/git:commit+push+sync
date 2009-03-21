@@ -1,63 +1,77 @@
 #!/bin/tcsh -f
+set exit_code=0;
+
 set sync_method = "no-sync";
 if ( -e "./.sync.default" ) set sync_method=`cat ./.sync.default`;
 
 if ( -e ./.no.pushing ) set no_pushing;
 
-if ( -f "./.${0}.message.log" ) then
-	printf "'./.${0}.message.log' exists, I cannot continue."
-	exit
-endif
-
 while ( ${?1} && "${1}" != "" )
 	switch ( "${1}" )
 	case "--help":
-		goto usage
+		goto usage;
 		breaksw
 	case "--sync=rsync":
 	case "--sync=scp":
 	case "--sync=sshfs":
 	case "--sync=cp":
 	case "--sync=no-sync":
-		set sync_method="${value}"
+		set sync_method="${value}";
 		breaksw
 	case "--no-pushing":
-		set no_pushing
+		set no_pushing;
+		breaksw
+	case "--disable-logging":
+		set rm_log;
 		breaksw
 	default:
-		if(! -d "./.`basename '${0}'`.logs" ) mkdir -p "./.`basename '${0}'`.logs"
-		if ( ! ${?commit_message} ) then
-			set commit_message="./.`basename '${0}'`.logs/`date '+%Y-%m-%d @ %r'`.message"
-			printf "${1}" > "${commit_message}"
+		# git:commit+push+sync logs are stored & saved
+		# Mustly its until I decide how & if I want to
+		# impliment a way of using git's append commits.
+		if ( ! ${?commit_log} ) then
+			set log_dir="./.`basename '${0}'`.logs";
+			if( ! -d ${log_dir} ) then
+				set log_dir_is_new;
+				mkdir -p "${log_dir}";
+			endif
+			set commit_log="${log_dir}/`date '+%Y-%m-%d @ %r'`.message";
+			printf "${1}" > "${commit_log}";
 			breaksw
 		endif
-		printf "\n\n${1}" >> "${commit_message}"
+		printf "\n\n${1}" >> "${commit_log}";
 		breaksw
 	endsw
 	shift
 end
-		
-if(! ${?commit_message} ) goto usage
 
-printf "\n\nCommitted on: `date '+%Y-%m-%d @ %r'`\n" >> "${commit_message}"
+if(! ${?commit_log} ) then
+	set exit_code = -1;
+	goto usage;
+endif
 
-git add .
+printf "\n\nCommitted on: `date '+%Y-%m-%d @ %r'`\n" >> "${commit_log}";
+
+git add .;
 
 # Remove any vim, connectED, gedit, or etc 'swp' files
 foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
-	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`"
-	git rm --cached --quiet "${tarball}"
+	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
+	git rm --cached --quiet "${tarball}";
 end
 # Remove any vim, connectED, gedit, or etc 'swp' files.
 # This is even more useful to keep from committing early art works & uber-alphas
 foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\)'`" )
-	set swp = "`printf '${swp}' | sed 's/^\.\///'`"
-	git rm --cached --quiet "${swp}"
+	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
+	git rm --cached --quiet "${swp}";
 end
-git rm -r --cached --quiet "./.`basename '${0}'`.logs"
+git rm -r --cached --quiet "${log_dir}";
 
-git commit -a -F "${commit_message}"
+git commit -a -F "${commit_log}";
 
+if ( ${?rm_log} ) then
+	rm "${commit_log}";
+	if ( ${?log_dir_is_new} ) rmdir "${log_dir}";
+endif
 
 if (! ${?no_pushing} ) then
 	foreach remote_git ( "`git remote`" )
@@ -79,12 +93,10 @@ run_sync:
 switch( "${sync_method}" )
 case "rsync":
 	rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}"
-	exit 0
 	breaksw
 
 case "scp":
 	scp -rv ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}"
-	exit 0
 	breaksw
 
 case "sshfs":
@@ -135,7 +147,7 @@ case "cp":
 	breaksw
 endsw
 
-exit
+exit 0;
 
 check_sync:
 switch ( "${sync_method}" )
@@ -146,15 +158,15 @@ case "cp":
 	goto init_sync
 	breaksw
 case "no-sync":
-	exit
+	exit ${exit_code};
 	breaksw
 default:
 	printf "%s is not a supported sync method.  Valid options are:\n\trsync, scp, sshfs, cp, no-sync" "${sync_method}"
-	exit
+	exit -2;
 	breaksw
 endsw
 
 usage:
 printf "Usage: %s [no-pushing rsync scp sshfs cp no-sync] commit_message [commit_details]\n" `basename "${0}"`
-exit
+exit ${exit_code}
 

@@ -25,6 +25,7 @@ foreach rc_file ( /profile.d/tcshrc/*.tcsh )
 	case "complete.tcsh":
 	case "sudo.tcsh":
 	case "environment.tcsh"
+	case "programs.tcsh"
 		breaksw
 	default:
 		source "${rc_file}"
@@ -32,5 +33,7 @@ foreach rc_file ( /profile.d/tcshrc/*.tcsh )
 	endsw
 end
 unset rc_file
+source /profile.d/tcshrc/programs.tcsh
 
 setenv PATH "${PATH}:."
+

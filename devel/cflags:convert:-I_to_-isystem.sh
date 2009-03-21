@@ -28,10 +28,7 @@ unset extra_cflags
 
 
 if `test "$isystem" != ""`; then
-	if `test "$CFLAGS_ISYSTEM" != ""`; then
-		export CFLAGS_ISYSTEM="$isystem";
-	else
-		export CFLAGS_ISYSTEM="$CFLAGS_ISYSTEM$isystem"
+	export CFLAGS_ISYSTEM="$isystem";
 	unset isystem
 	echo "$CFLAGS_ISYSTEM"
 fi

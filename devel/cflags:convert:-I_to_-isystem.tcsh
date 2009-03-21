@@ -26,7 +26,6 @@ endif
 unset extra_cflags
 
 if ( ${?isystem} ) then
-	if( ${?CFLAGS_ISYSTEM} ) set isystem="${CFLAGS_ISYSTEM}${isystem}"
 	setenv CFLAGS_ISYSTEM "${isystem}";
 	unset isystem
 	echo "${CFLAGS_ISYSTEM}"

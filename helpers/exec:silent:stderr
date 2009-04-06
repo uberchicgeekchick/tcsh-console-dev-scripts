@@ -1,0 +1,15 @@
+#!/bin/tcsh -f
+if(!( ${?1} && "${1}" != "" && "${1}" != "--help" )) goto usage
+
+foreach progie ( "${1}\n`where '${1}'`" )
+	if( -x "${progie}" ) goto exec_progie
+end
+
+usage:
+printf "Runs the selected programming while surpressing error messages.\n\tUsage :%s progarm\n" "`basename '${0}'`"
+
+exit;
+
+exec_progie:
+shift;
+( `${progie} ${argv}` > /dev/tty ) >& /dev/null

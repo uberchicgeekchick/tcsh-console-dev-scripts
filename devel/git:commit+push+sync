@@ -66,7 +66,7 @@ foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\)'`" )
 end
 git rm -r --cached --quiet "${log_dir}";
 
-git commit -a -F "${commit_log}";
+git commit -a -F "${commit_log}" --cleanup=verbatim;
 
 if ( ${?rm_log} ) then
 	rm "${commit_log}";

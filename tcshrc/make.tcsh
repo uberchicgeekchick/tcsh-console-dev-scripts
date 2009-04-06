@@ -7,6 +7,11 @@ alias	"./autogen.sh"	"./autogen.sh --libdir=/usr/lib64"
 #	if( ${?GREP_OPTIONS} ) unsetenv $GREP_OPTIONS; make'
 
 #C compiler flags
+unsetenv LDFLAGS
+#libraries to pass to the linker, e.g. -l<library>
+unsetenv LIBS
+
+#C compiler flags
 setenv	LDFLAGS		"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib"
 #libraries to pass to the linker, e.g. -l<library>
 setenv	LIBS			"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib"
@@ -25,7 +30,7 @@ setenv	CPP		"/usr/bin/cpp"
 #you have headers in a nonstandard directory <include dir>
 setenv	CPPFLAGS	"-I${LD_LIBRARY_PATH}"
 
-setenv	MAKEFLAGS	"-Wall -Wextra -Wfatal-errors --combine -Wformat=2 -Wswitch-default -Wswitch-enum -O3"
+setenv	MAKEFLAGS	"-Wall -Wextra -Wno-missing-field-initializers -Wmissing-prototypes -Wfatal-errors --combine -Wformat=2 -Wswitch-enum -O3"
 setenv	CFLAGS		"-std=gnu99 ${MAKEFLAGS} ${LDFLAGS} ${CPPFLAGS}"
 
 setenv	CXXFLAGS	"-std=gnu++0x ${MAKEFLAGS} ${LDFLAGS} ${CPPFLAGS}"

@@ -72,7 +72,7 @@ cd "${srcdir}";
 if ( "${build_mozilla}" == "thunderbird" ) python client.py checkout;
 make -f client.mk build;
 if ( ${status} != "0" ) then
-	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake faild with error %d\n\n" ${#status};
+	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %d\n\n" ${#status};
 	exit ${#status};
 endif
 
@@ -89,26 +89,30 @@ cd "${objdir}";
 set today=`date '+%Y-%m-%d'`;
 if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
 foreach tarball ( dist/*.tar.bz2 )
-	set todays_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`";
-	mv ${tarball} "${tarball_backup_dir}/${todays_tarball}";
+	set backup_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`";
+	cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
+	if( ${#status} == 0 ) then
+		rm "${tarball}";
+		set tarball="${tarball_backup_dir}/${backup_tarball}";
+	endif
 end
 
 
 
 install:
 cd "${objdir}";
-tar -C "${prefix}" -xjf "${tarball_backup_dir}/${todays_tarball}";
+tar -C "${prefix}" -xjf "${tarball}";
 
 
 
 install_plugins:
-if ( "${build_mozilla}" == "firefox" ) then
-	cd "${prefix}/${build_mozilla}";
-	rm -r searchplugins plugins;
-	ln -s ../searchplugins .;
-	ln -s ../plugins .;
-	cd ..;
-endif
+if ( "${build_mozilla}" != "firefox" ) goto prepare_first_run
+
+cd "${prefix}/${build_mozilla}";
+rm -r searchplugins plugins;
+ln -s ../searchplugins .;
+ln -s ../plugins .;
+cd ..;
 
 
 

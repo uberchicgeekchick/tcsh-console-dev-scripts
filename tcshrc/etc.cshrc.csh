@@ -20,8 +20,6 @@ set noglob
 
 if ( ${?PATH} ) unsetenv PATH
 
-setenv PATH "/bin:/usr/bin"
-
 alias path 'if ( -x /bin/\!^ ) /bin/\!*; if ( -x /usr/bin/\!^ ) /usr/bin/\!*'
 if ( -x /bin/id ) then
     set id=/bin/id

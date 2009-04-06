@@ -21,7 +21,7 @@ setenv PATH "${PATH}:/programs/connectED/bin:/bin:/projects/games/engines/Raydiu
 complete kill_program.tcsh "p/*/c/"
 complete interupt_program.tcsh "p/*/c/"
 
-source /projects/cli/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/gtk/alacast/bin
+source /projects/cli/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/gtk/alacast/scripts
 
 source /projects/cli/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/cli/alacast/bin
 source /projects/cli/tcsh-dev/setenv/PATH:recursively:add.tcsh /projects/cli/tcsh-dev

@@ -113,26 +113,20 @@ programming_canvas:
 					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
 					"--tab-with-profile=projects --title=/media --working-directory=/projects/media" \
 					"--tab-with-profile=projects --title=/art --working-directory=/projects/art" \
-					"--tab-with-profile=projects --title=/games --working-directory=/projects/games" \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/cli --working-directory=/projects/cli" \
 					"--tab-with-profile=projects --title=/www --working-directory=/projects/www" \
+					"--tab-with-profile=projects --title=/games --working-directory=/projects/games" \
 					"--tab-with-profile=projects --title=/gtk --working-directory=/projects/gtk" \
 		);
-		
-	if(! ${?my_www_projects} ) \
-		set my_www_projects = ( \
- 					${my_starter_tabs} \
-					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
-					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
-					"--tab-with-profile=projects --title=/www --working-directory=/projects/www" \
-					"--tab-with-profile=projects --title=alacast:gtk --working-directory=/projects/gtk/alacast" \
-					"--tab-with-profile=projects --title=TweetMyBlog --working-directory=/projects/www/TweetMyBlog" \
-					"--tab-with-profile=projects --title=realFriends --working-directory=/projects/www/realFriends" \
-					"--tab-with-profile=projects --title=Women.O.O --working-directory=/projects/www/Women.OpenSuSE.Org" \
-					"--tab-with-profile=projects --title=uberChicks.Net --working-directory=/projects/www/uberChicks.Net" \
-					"--tab-with-profile=projects --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
-		);
+
+	if(! ${?my_active_projects} ) \
+		set my_active_projects=( \
+					"--tab-with-profile=projects --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.com" \
+					"--tab-with-profile=projects --title=Greet-Tweet-Know --working-directory=/projects/gtk/greet-tweet-know" \
+					"--tab-with-profile=projects --title=connectED --working-directory=/projects/gtk/connectED" \
+					"--tab-with-profile=projects --title=Alacast --working-directory=/projects/gtk/alacast" \
+																				);
 
 	if(! ${?my_game_development_projects} ) \
 		set my_game_development_projects=( \
@@ -152,10 +146,23 @@ programming_canvas:
 					${my_starter_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/gtk --working-directory=/projects/gtk" \
-					"--tab-with-profile=projects --title=alacast:cli --working-directory=/projects/gtk/alacast" \
-					"--tab-with-profile=projects --title=Greet+Tweet+Know --working-directory=/projects/gtk/Greet+Tweet+Know" \
+					"--tab-with-profile=projects --title=Greet-Tweet-Know --working-directory=/projects/gtk/greet-tweet-know" \
 					"--tab-with-profile=projects --title=connectED --working-directory=/projects/gtk/connectED" \
-					"--tab-with-profile=projects --title=alacast:gtk --working-directory=/projects/gtk/alacast" \
+					"--tab-with-profile=projects --title=Alacast --working-directory=/projects/gtk/alacast" \
+		);
+
+	if(! ${?my_www_projects} ) \
+		set my_www_projects = ( \
+ 					${my_starter_tabs} \
+					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
+					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
+					"--tab-with-profile=projects --title=/www --working-directory=/projects/www" \
+					"--tab-with-profile=projects --title=Alacast --working-directory=/projects/gtk/alacast" \
+					"--tab-with-profile=projects --title=TweetMyBlog --working-directory=/projects/www/TweetMyBlog" \
+					"--tab-with-profile=projects --title=realFriends --working-directory=/projects/www/realFriends" \
+					"--tab-with-profile=projects --title=Dystonia-DREAMS.org --working-directory=/projects/www/Dystonia-DREAMS.org" \
+					"--tab-with-profile=projects --title=uberChicks.net --working-directory=/projects/www/uberChicks.net" \
+					"--tab-with-profile=projects --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.com" \
 		);
 
 	if(! ${?my_cli_projects} ) \
@@ -217,6 +224,7 @@ programming_canvas:
 			--hide-menubar \
 			--geometry=${geometry} \
 			${my_projects} \
+			${my_active_projects} \
 		${argv} &;
 		breaksw
 	endsw
@@ -258,14 +266,15 @@ build_canvas:
 		${argv} &;
 		breaksw
 	
-	case 'Programs':
+	case 'Canvas':
 	default:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
-			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/cli/tcsh-dev" \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
+			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/cli/tcsh-dev" \
+			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
+			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
 		${argv} &;
 		breaksw
 	
@@ -283,7 +292,7 @@ media_canvas:
 			--geometry=${geometry} \
 			${my_default_tabs} \
 			--tab-with-profile="projects" --title="art" --working-directory="/projects/art" \
-			--tab-with-profile="projects" --title="alacast:gtk" --working-directory="/projects/gtk/alacast" \
+			--tab-with-profile="projects" --title="Alacast" --working-directory="/projects/gtk/alacast" \
 			--tab-with-profile="projects" --title="/media-library" --working-directory="/media/media-library" \
 			--tab-with-profile="projects" --title="my podcasts" --working-directory="/projects/media/podcasts" \
 		${argv} &;
@@ -303,9 +312,7 @@ media_canvas:
 			--geometry=${geometry} \
 			--tab-with-profile="rTorrent" --title="rTorrent" --working-directory="/media/torrents" --command="rtorrent"  \
 			--tab-with-profile="screen" \
-			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
-			--tab-with-profile="projects" --title="alacast:cli" --working-directory="/projects/cli/alacast" \
-			--tab-with-profile="projects" --title="alacast:gtk" --working-directory="/projects/gtk/alacast" \
+			--tab-with-profile="projects" --title="/projects/media" --working-directory="/projects/media" \
 			--tab-with-profile="projects" --title="/media" --working-directory="/media" \
 			--tab-with-profile="projects" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="projects" --title="podcasts" --working-directory="/media/podcasts" \

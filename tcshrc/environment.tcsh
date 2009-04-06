@@ -53,6 +53,7 @@ set listmaxrows=23
 
 # special alias which it ran when 'M-h' or 'M-H' is pressed at the command line
 # this command is ran with the current buffer command as its only agument.
+#alias	helpcommand	"info"
 alias	helpcommand	"man"
 
 unset autologout

@@ -20,6 +20,10 @@ case "guid":
 case 'link':
 case "pubDate":
 	set value = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`"
+	if( "${value}" == "" ) then
+		shift;
+		set value = "${1}";
+	endif
 	breaksw
 case "help":
 	goto usage

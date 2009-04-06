@@ -1,6 +1,8 @@
 #!/bin/tcsh -f
 
-setenv PATH "${PATH}:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/init.d"
+if ( ${?PATH} ) unsetenv PATH
+
+setenv PATH "/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/init.d"
 
 setenv EDITOR "/usr/bin/vim-enhanced"
 

@@ -17,7 +17,7 @@ if ( -x "/usr/bin/xfmedia" ) then
 	#set audio_driver="oss"
 	set video_driver="opengl"
 	#set audio_driver="alsa"
-	set audio_driver="esd"
+	set audio_driver="pulseadio"
 	#set video_driver="sdl"
 	
 	set resolution=`cat "/profile.d/resolutions/video/hd.rc"`
@@ -37,6 +37,7 @@ alias	totem		"if ( ! -e '${totem_playlist}' ) touch '${totem_playlist}' ; /usr/b
 set video_playlist="/media/media-library/playlists/video.m3u"
 alias	totem-video	"if ( ! -e '${video_playlist}' ) touch '${video_playlist}' ; /usr/bin/totem --class='totem-video' '${video_playlist}' ${output}";
 
+#alias gpodder "/projects/cli/tcsh-dev/helpers/exec:silent:stderr gpodder"
 alias gpodder "/projects/cli/tcsh-dev/media/gPodder-helper-scripts/gPodder:Silent:STDERR.tcsh"
 
 unset audio_driver video_driver resolution resolution_source output condition totem_playlist video_playlist

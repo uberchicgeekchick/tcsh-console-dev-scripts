@@ -42,20 +42,14 @@ while ( ${?1} && "${1}" != "" )
 			continue;
 		endif
 	case "xmlUrl":
-		if ( ! -e "${value}" ) then
-			set values = ( "${value}" );
-		else
-			foreach value ( "`cat '${value}'`" )
-				set values = ( ${values}"${value}\n" );
-			end
-		breaksw
+		if ( -e "${value}" ) breaksw
 	default:
-		printf "\t%s is not supported.\n\tSupported options are --[title|xmlUrl|htmlUrl|text|description]="\""[a regex, or file containing regexes, one per line, to search for]"\""\n\tFor more information see %s --help\n" "${attrib}" `basename "${0}"`
+		printf "\t%s is not supported.\n\tSupported options are: --[add|del] --[title|xmlUrl|htmlUrl|text|description]="\""[a regex, or file containing regexes, one per line, to search for]"\""\n\tFor more information see %s --help\n" "${attrib}" `basename "${0}"`
 		continue;
 		breaksw
 	endsw
 	
-	foreach value ( "`printf '${values}\n'`" )
+	foreach value ( "`cat '${value}'`" )
 		printf "\n";
 		printf "\nSearching for %s: %s\n\t\t\t" "${attrib}" "${value}";
 		set found_podcast = "FALSE";
@@ -71,7 +65,7 @@ while ( ${?1} && "${1}" != "" )
 			switch( "${action}" )
 			case "delete":
 				printf "[unsubscribing from this podcast]\n";
-				#gpodder --del="${xmlUrl}";
+				( gpodder --del="${xmlUrl}" > /dev/tty ) >& /dev/null
 				breaksw
 			default:
 				printf "[you're subscribed to this podcast]\n";
@@ -83,7 +77,7 @@ while ( ${?1} && "${1}" != "" )
 		switch( "${action}" )
 		case "add":
 			printf "[subscribing to this podcast]\n";
-			#gpodder --add="${value}";
+			( gpodder --add="${value}" > /dev/tty ) >& /dev/null;
 			breaksw
 		case "display":
 		default:

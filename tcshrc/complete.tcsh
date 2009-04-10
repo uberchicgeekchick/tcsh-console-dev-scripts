@@ -36,6 +36,17 @@
 	set _manpath="/usr{{/X11/man,/openwin/man}/{man,cat},{/man/{man,cat}}}"
 	endif
 
+
+	complete	pkg-config	c/--/"(version modversion atleast-pkgconfig-version= \
+						libs static libs libs libs cflags cflags cflags \
+						variable define exists uninstalled atleast exact \
+						max list debug print silence errors help usage)"/
+
+	complete	git	c/--/"(version exec-path paginate no-pager bare git-dir work-tree help)"/ \
+				p/1-2/"(add bisect branch checkout clone commit diff fetch grep init log \
+					merge mv pull push rebase reset rm show status tag)"/
+
+
 	complete ispell	c/-/"(a A b B C d D e ee f L m M p s S T v vv w W)"/ \
 			n/-d/"(english deutsch)"/ \
 			n/-T/"(tex plaintex nroff latin1 ascii atari)"/ \

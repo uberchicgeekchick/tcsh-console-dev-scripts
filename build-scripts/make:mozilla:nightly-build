@@ -1,4 +1,8 @@
 #!/bin/tcsh -f
+setenv	CFLAGS		"-std=gnu99 -O3 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
+setenv	CXXFLAGS	"-std=gnu++0x -O3 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
+setenv	MAKEFLAGS	"-O3"
+
 set mozilla_dir="/programs/Mozilla";
 set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
 set prefix="/programs/Mozilla";
@@ -158,5 +162,4 @@ end
 if (! ${?second_run} ) goto run
 
 goto install_default
-
 

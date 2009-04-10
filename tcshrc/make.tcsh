@@ -30,10 +30,16 @@ setenv	CPP		"/usr/bin/cpp"
 #you have headers in a nonstandard directory <include dir>
 setenv	CPPFLAGS	"-I${LD_LIBRARY_PATH}"
 
-setenv	MAKEFLAGS	"-Wall -Wextra -Wno-missing-field-initializers -Wmissing-prototypes -Wfatal-errors --combine -Wformat=2 -Wswitch-enum -O3"
-setenv	CFLAGS		"-std=gnu99 ${MAKEFLAGS} ${LDFLAGS} ${CPPFLAGS}"
+setenv	MAKEFLAGS	"-O3 -Wall -Wextra -Wformat=2"
 
-setenv	CXXFLAGS	"-std=gnu++0x ${MAKEFLAGS} ${LDFLAGS} ${CPPFLAGS}"
+setenv	MYFLAGS		"${MAKEFLAGS} --combine -Wfatal-errors -Wswitch-enum -Wno-missing-field-initializers"
+setenv	MYCFLAGS	"${MYFLAGS} -Wmissing-prototypes"
+setenv	MYCXXFLAGS	"${MYFLAGS}"
+
+
+setenv	CFLAGS		"-std=gnu99 ${MYCFLAGS} ${LDFLAGS} ${CPPFLAGS}"
+
+setenv	CXXFLAGS	"-std=gnu++0x ${MYCXXFLAGS} ${LDFLAGS} ${CPPFLAGS}"
 
 #Path to xmkmf, Makefile generator for X Window System
 setenv	XMKMF		"/usr/bin/xmkmf"

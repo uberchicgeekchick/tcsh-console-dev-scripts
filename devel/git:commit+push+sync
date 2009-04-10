@@ -53,14 +53,16 @@ printf "\n\nCommitted on: `date '+%Y-%m-%d @ %r'`\n" >> "${commit_log}";
 
 git add .;
 
-# Remove any vim, connectED, gedit, or etc 'swp' files
+# The next
+# Remove any vim, connectED, gedit, or etc 'swp' files.
+# This is even more useful to keep from committing early art works & uber-alphas
+#
 foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
 	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
 	git rm --cached --quiet "${tarball}";
 end
-# Remove any vim, connectED, gedit, or etc 'swp' files.
-# This is even more useful to keep from committing early art works & uber-alphas
-foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\)'`" )
+
+foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\)'`" )
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
 	git rm --cached --quiet "${swp}";
 end
@@ -140,7 +142,7 @@ case "cp":
 	cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}"
 
 	# cleaning up swp files that may have been copied to the remote location
-	foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex .\*\.swp`" )
+	foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
 		rm --verbose "${swp}"
 	end
 

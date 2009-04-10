@@ -19,21 +19,15 @@ foreach canvas_info ( "${argv}" )
 	) set screens_command="/usr/bin/screen -aAURx";
 	alias	screen	"${screens_command}"
 	
-	if(! ${?my_starter_tabs} ) \
-		set my_starter_tabs=( \
-			"--tab-with-profile=screen" \
-			"--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" \
-			"--tab-with-profile=projects --title=/projects --working-directory=/projects" \
-		);
-	
 	if(! ${?my_default_tabs} ) \
 		set my_default_tabs = ( \
-			${my_starter_tabs} \
-			"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
-			"--tab-with-profile=projects --title=/media --working-directory=/media" \
-			"--tab-with-profile=projects --title=~/ --working-directory=${HOME}" \
+			"--tab-with-profile=screen" \
 			"--tab-with-profile=projects --title=/ssh --working-directory=/projects/ssh" \
 			"--tab-with-profile=projects --title=/programs --working-directory=/programs" \
+			"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
+			"--tab-with-profile=projects --title=/projects --working-directory=/projects" \
+			"--tab-with-profile=projects --title=/media --working-directory=/media" \
+			"--tab-with-profile=projects --title=~/ --working-directory=${HOME}" \
 		);
 	
 	set canvas_type="`printf '${canvas_info}' | sed 's/^\([^:]\+\):\(.*\)/\1/g'`";
@@ -80,7 +74,7 @@ editor_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			${my_starter_tabs} \
+			${my_default_tabs} \
 			${my_projects} \
 		${argv} &;
 		breaksw
@@ -109,12 +103,12 @@ programming_canvas:
 	if(! ${?screens_started} ) set screens_started;
 	if(! ${?my_projects} ) \
 		set my_projects = ( \
-					${my_starter_tabs} \
+					${my_default_tabs} \
 					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
 					"--tab-with-profile=projects --title=/media --working-directory=/projects/media" \
 					"--tab-with-profile=projects --title=/art --working-directory=/projects/art" \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
-					"--tab-with-profile=projects --title=/cli --working-directory=/projects/cli" \
+					"--tab-with-profile=projects --title=/cli/tcsh-dev --working-directory=/projects/cli/tcsh-dev" \
 					"--tab-with-profile=projects --title=/www --working-directory=/projects/www" \
 					"--tab-with-profile=projects --title=/games --working-directory=/projects/games" \
 					"--tab-with-profile=projects --title=/gtk --working-directory=/projects/gtk" \
@@ -125,12 +119,13 @@ programming_canvas:
 					"--tab-with-profile=projects --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.com" \
 					"--tab-with-profile=projects --title=Greet-Tweet-Know --working-directory=/projects/gtk/greet-tweet-know" \
 					"--tab-with-profile=projects --title=connectED --working-directory=/projects/gtk/connectED" \
-					"--tab-with-profile=projects --title=Alacast --working-directory=/projects/gtk/alacast" \
-																				);
+					"--tab-with-profile=projects --title=alacast --working-directory=/projects/gtk/alacast" \
+					"--tab-with-profile=projects --title=terminal-hackGirls --working-directory=/projects/games/terminal-hackGirls" \
+		);
 
 	if(! ${?my_game_development_projects} ) \
 		set my_game_development_projects=( \
-					${my_starter_tabs} \
+					${my_default_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/games --working-directory=/projects/games" \
 					"--tab-with-profile=projects --title=game-dev:engines --working-directory=/projects/games/engines" \
@@ -138,12 +133,12 @@ programming_canvas:
 					"--tab-with-profile=projects --title=game-dev:tools --working-directory=/projects/games/tools" \
 					"--tab-with-profile=projects --title=many-worlds --working-directory=/projects/games/many-worlds" \
 					"--tab-with-profile=projects --title=puzzling-galaxsee --working-directory=/projects/games/puzzling-galaxsee" \
-					"--tab-with-profile=projects --title=hackGirls-terminal --working-directory=/projects/games/hackGirls-terminal" \
+					"--tab-with-profile=projects --title=terminal-hackGirls --working-directory=/projects/games/terminal-hackGirls" \
 		);
 
 	if(! ${?my_gtk_projects} ) \
 		set my_gtk_projects=( \
-					${my_starter_tabs} \
+					${my_default_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/gtk --working-directory=/projects/gtk" \
 					"--tab-with-profile=projects --title=Greet-Tweet-Know --working-directory=/projects/gtk/greet-tweet-know" \
@@ -153,7 +148,7 @@ programming_canvas:
 
 	if(! ${?my_www_projects} ) \
 		set my_www_projects = ( \
- 					${my_starter_tabs} \
+ 					${my_default_tabs} \
 					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/www --working-directory=/projects/www" \
@@ -167,11 +162,11 @@ programming_canvas:
 
 	if(! ${?my_cli_projects} ) \
 		set my_cli_projects=( \
-					${my_starter_tabs} \
+					${my_default_tabs} \
 					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
-					"--tab-with-profile=projects --title=/cli --working-directory=/projects/cli" \
+					"--tab-with-profile=projects --title=/cli/tcsh-dev --working-directory=/projects/cli/tcsh-dev" \
 					"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
-					"--tab-with-profile=projects --title=tcshrc-dev --working-directory=/projects/cli/tcshrc-dev" \
+					"--tab-with-profile=projects --title=tcshrc-dev --working-directory=/projects/cli/tcsh-dev/tcshrc-dev" \
 		);
 
 	switch( "${canvas}" )
@@ -272,7 +267,7 @@ build_canvas:
 			--hide-menubar \
 			--geometry=${geometry} \
 			--tab-with-profile="projects" --title="/profile.d" --working-directory="/profile.d" \
-			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/cli/tcsh-dev" \
+			--tab-with-profile="projects" --title="tcsh-dev" --working-directory="/projects/cli/tcsh-dev/tcsh-dev" \
 			--tab-with-profile="projects" --title="/projects" --working-directory="/projects" \
 			--tab-with-profile="projects" --title="/programs/src" --working-directory="/programs/src" \
 		${argv} &;

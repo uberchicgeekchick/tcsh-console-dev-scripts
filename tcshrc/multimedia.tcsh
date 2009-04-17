@@ -32,13 +32,13 @@ if ( -x "/usr/bin/xfmedia" ) then
 	end
 endif
 
-set totem_playlist="/media/media-library/playlists/default.m3u"
+set totem_playlist="/media/library/playlists/default.m3u"
 alias	totem		"if ( ! -e '${totem_playlist}' ) touch '${totem_playlist}' ; /usr/bin/totem '${totem_playlist}' ${output}";
-set video_playlist="/media/media-library/playlists/video.m3u"
+set video_playlist="/media/library/playlists/video.m3u"
 alias	totem-video	"if ( ! -e '${video_playlist}' ) touch '${video_playlist}' ; /usr/bin/totem --class='totem-video' '${video_playlist}' ${output}";
 
-#alias gpodder "/projects/cli/tcsh-dev/helpers/exec:silent:stderr gpodder"
-alias gpodder "/projects/cli/tcsh-dev/media/gPodder-helper-scripts/gPodder:Silent:STDERR.tcsh"
+#alias gpodder "/projects/cli/helpers/exec:silent:stderr gpodder"
+alias gpodder "/projects/cli/media/gPodder-helper-scripts/gPodder:Silent:STDERR.tcsh"
 
 unset audio_driver video_driver resolution resolution_source output condition totem_playlist video_playlist
 

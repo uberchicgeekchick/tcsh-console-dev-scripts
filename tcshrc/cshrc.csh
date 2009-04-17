@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
 
+if( ${?http_proxy} ) unsetenv http_proxy
 if ( ${?PATH} ) unsetenv PATH
 
 setenv PATH "/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/init.d"
@@ -7,7 +8,7 @@ setenv PATH "/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/i
 setenv EDITOR "/usr/bin/vim-enhanced"
 
 if (! ${?cdpath} ) set cdpath="/etc:/usr/share"
-set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/profile.d:/media:/media/media-library:."
+set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/profile.d:/media:/media/library:."
 
 alias jobs "jobs -l"
 
@@ -19,23 +20,8 @@ complete killall 'p/*/c/'
 complete ln 'p/*/f/'
 
 
-source /profile.d/tcshrc/environment.tcsh
-source /profile.d/tcshrc/sudo.tcsh
-foreach rc_file ( /profile.d/tcshrc/*.tcsh )
-	switch("${rc_file}")
-	case "bindkey.tcsh":
-	case "complete.tcsh":
-	case "sudo.tcsh":
-	case "environment.tcsh"
-	case "programs.tcsh"
-		breaksw
-	default:
-		source "${rc_file}"
-		breaksw
-	endsw
-end
-unset rc_file
-source /profile.d/tcshrc/programs.tcsh
+source /profile.d/tcshrc/source:session
 
 setenv PATH "${PATH}:."
 
+if( ${?http_proxy} ) unsetenv http_proxy

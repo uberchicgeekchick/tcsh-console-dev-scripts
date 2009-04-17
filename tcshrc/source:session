@@ -1,0 +1,20 @@
+#!/bin/tcsh -f
+source /profile.d/tcshrc/environment.tcsh
+source /profile.d/tcshrc/sudo.tcsh
+foreach rc_file ( /profile.d/tcshrc/*.tcsh )
+	switch("${rc_file}")
+	case "bindkey.tcsh":
+	case "complete.tcsh":
+	case "sudo.tcsh":
+	case "environment.tcsh":
+	case "programs.tcsh":
+		breaksw
+	default:
+		source "${rc_file}"
+		if( ${?http_proxy} ) unsetenv http_proxy
+		breaksw
+	endsw
+end
+unset rc_file
+source /profile.d/tcshrc/programs.tcsh
+source /profile.d/tcshrc/environment.tcsh

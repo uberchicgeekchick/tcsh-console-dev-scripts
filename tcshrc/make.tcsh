@@ -30,9 +30,9 @@ setenv	CPP		"/usr/bin/cpp"
 #you have headers in a nonstandard directory <include dir>
 setenv	CPPFLAGS	"-I${LD_LIBRARY_PATH}"
 
-setenv	MAKEFLAGS	"-O3 -Wall -Wextra -Wformat=2"
+setenv	MAKEFLAGS	"-O3 -Wall -Wextra -Wformat=2 -Werror -Wno-unused-parameter"
 
-setenv	MYFLAGS		"${MAKEFLAGS} --combine -Wfatal-errors -Wswitch-enum -Wno-missing-field-initializers"
+setenv	MYFLAGS		"${MAKEFLAGS} -Wfatal-errors -Wswitch-enum -Wno-missing-field-initializers --combine"
 setenv	MYCFLAGS	"${MYFLAGS} -Wmissing-prototypes"
 setenv	MYCXXFLAGS	"${MYFLAGS}"
 

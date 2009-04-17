@@ -3,6 +3,8 @@ setenv	CFLAGS		"-std=gnu99 -O3 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/in
 setenv	CXXFLAGS	"-std=gnu++0x -O3 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
 setenv	MAKEFLAGS	"-O3"
 
+if( ${?http_proxy}  ) unsetenv http_proxy
+
 set mozilla_dir="/programs/Mozilla";
 set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
 set prefix="/programs/Mozilla";
@@ -51,29 +53,41 @@ endsw
 set topdir="${mozilla_dir}/src";
 if ( ! -d "${topdir}" ) mkdir -p "${topdir}";
 set srcdir="${topdir}/${build_mozilla}-src";
-if ( ! -d "${srcdir}" ) mkdir "${srcdir}";
+#if ( ! -d "${srcdir}" ) mkdir "${srcdir}";
 set objdir="${topdir}/${build_mozilla}-objdir";
-if ( ! -d "${objdir}" ) mkdir "${objdir}";
+#if ( ! -d "${objdir}" ) mkdir "${objdir}";
 
 if ( ${?2} && "${2}" == "set-default" ) goto make_default
 
 
 checkout:
-if ( ! -d "${srcdir}/.hg" ) hg clone "http://hg.mozilla.org/${mercurial_repo}/" "${srcdir}";
-cd "${srcdir}";
-hg pull -u;
+if ( !( -d "${srcdir}" && -d "${srcdir}/.hg" ) ) then
+	cd "${topdir}";
+	printf "Checking out: %s\n" ${mercurial_repo}
+	hg clone "http://hg.mozilla.org/${mercurial_repo}" "${srcdir}";
+	cd "${srcdir}";
+else
+	cd "${srcdir}";
+	hg pull -u;
+endif
 
 
 
 mozconfig:
 cd "${srcdir}";
-printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=@TOPSRCDIR@/../${build_mozilla}-objdir\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
+printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-pango --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
 
 
 
 make:
 cd "${srcdir}";
-if ( "${build_mozilla}" == "thunderbird" ) python client.py checkout;
+if ( "${build_mozilla}" == "thunderbird" ) then
+	python client.py --skip-comm checkout;
+	if ( ${status} != "0" ) then
+		printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %d\n\n" ${#status};
+		exit ${#status};
+	endif
+endif
 make -f client.mk build;
 if ( ${status} != "0" ) then
 	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %d\n\n" ${#status};

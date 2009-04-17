@@ -35,6 +35,8 @@ alias	hostname	"hostname --fqdn"
 alias	wget		"wget --no-check-certificate"
 alias	shasum		"shasum --algorithm 512"
 
+alias	screen		"/projects/cli/helpers/screen:attach"
+
 alias	screen-saver	"gnome-screensaver-command --activate &"
 alias	unzip		"unzip -o -q"
 alias	ispell		"aspell -a --sug-mode=normal"

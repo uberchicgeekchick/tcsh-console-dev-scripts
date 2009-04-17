@@ -28,8 +28,11 @@ endif
 bindkey		"^d"		backward-delete-word
 bindkey	-c	"^e"		"source /etc/csh.cshrc"
 bindkey		" "		magic-space
-bindkey		"^[\/"		i-search-fwd
-bindkey		"^[?"		i-search-back
+bindkey		"^\/"		i-search-fwd
+bindkey		"^?"		i-search-back
+bindkey	-c	"^l"		"source /etc/csh.cshrc"
+bindkey	-c	"^s"		"source /projects/cli/tcshrc/source:session"
+
 
 #
 # Common standard keypad and cursor

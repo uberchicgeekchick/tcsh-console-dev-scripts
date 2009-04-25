@@ -91,6 +91,7 @@ programming_canvas:
 	if(! ${?my_projects} ) \
 		set my_projects = ( \
 					"--tab-with-profile=projects --title=/cli --working-directory=/projects/cli" \
+					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/www --working-directory=/projects/www" \
 					"--tab-with-profile=projects --title=/games --working-directory=/projects/games" \
 					"--tab-with-profile=projects --title=/gtk --working-directory=/projects/gtk" \
@@ -107,7 +108,6 @@ programming_canvas:
 
 	if(! ${?my_games} ) \
 		set my_games=( \
-					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/games --working-directory=/projects/games" \
 					"--tab-with-profile=projects --title=game-dev:engines --working-directory=/projects/games/engines" \
 					"--tab-with-profile=projects --title=game-dev:libraries --working-directory=/projects/games/libraries" \
@@ -119,7 +119,6 @@ programming_canvas:
 
 	if(! ${?my_gtk_projects} ) \
 		set my_gtk_projects=( \
-					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/gtk --working-directory=/projects/gtk" \
 					"--tab-with-profile=projects --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
 					"--tab-with-profile=projects --title=connectED --working-directory=/projects/gtk/connectED" \
@@ -129,7 +128,6 @@ programming_canvas:
 	if(! ${?my_www_projects} ) \
 		set my_www_projects = ( \
 					"--tab-with-profile=projects --title=/srv --working-directory=/srv" \
-					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/www --working-directory=/projects/www" \
 					"--tab-with-profile=projects --title=TweetMyBlog --working-directory=/projects/www/TweetMyBlog" \
 					"--tab-with-profile=projects --title=realFriends --working-directory=/projects/www/realFriends" \
@@ -140,7 +138,6 @@ programming_canvas:
 
 	if(! ${?my_cli_projects} ) \
 		set my_cli_projects=( \
-					"--tab-with-profile=projects --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=projects --title=/cli --working-directory=/projects/cli" \
 					"--tab-with-profile=projects --title=/profile.d --working-directory=/profile.d" \
 					"--tab-with-profile=projects --title=tcshrc-dev --working-directory=/projects/cli/tcsh-dev/tcshrc-dev" \

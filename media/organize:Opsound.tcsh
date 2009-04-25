@@ -15,8 +15,8 @@ foreach genre ( "`find '${podcasts_download_path}' -type d -name '${music_librar
 	set genre = "`printf '${genre}' | sed 's/.*\/${music_library}:\?\ genre\ \(.*\).*/\1/g'`"
 	printf "Moving %s's new %s songs\n" "${music_library}" "${genre}"
 	if ( ! -d "Genres/${genre}" ) mkdir -p "Genres/${genre}"
-	mv ${podcasts_download_path}/${music_library}?\ genre\ "${genre}"/* "Genres/${genre}/"
-	rmdir ${podcasts_download_path}/${music_library}?\ genre\ "${genre}"/
+	mv ${podcasts_download_path}/${music_library}*\ genre\ "${genre}"/* "Genres/${genre}/"
+	rmdir ${podcasts_download_path}/${music_library}*\ genre\ "${genre}"/
 end
 
 foreach title ( "`find Genres -iname '*.mp3'`" )

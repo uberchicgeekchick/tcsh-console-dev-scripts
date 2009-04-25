@@ -1,5 +1,10 @@
 #!/bin/tcsh -f
 set gtk_doc_dir="/usr/share/gtk-doc/html";
+set gtk_doc_tgz="/projects/reference/gtk/GNOME/00-tarballs";
+
+cd "${gtk_doc_tgz}"
+
+if( ${?1} && "${1}" != "" && -d "${1}" ) cd "${1}"
 
 foreach manual ( *html*.tar.gz )
 	set extracted_to=`printf "${manual}" | sed 's/\(.*\)\.tar\.gz/\1/g'`;
@@ -17,3 +22,4 @@ foreach manual ( *html*.tar.gz )
 	printf "\t\t\t[done]\n"
 	ln -sf ${cwd}/../${extracted_to} ${gtk_doc_dir}/${book};
 end
+

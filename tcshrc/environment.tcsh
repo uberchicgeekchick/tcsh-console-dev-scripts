@@ -31,7 +31,7 @@ set noclobber
 set highlight
 set histdup=erase
 set histfile="/profile.d/history"
-set history=1000
+set history=3000
 set savehist=( $history "merge" )
 set histlit
 

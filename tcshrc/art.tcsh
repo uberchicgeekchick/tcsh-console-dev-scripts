@@ -13,7 +13,7 @@ alias	vim	"vim-enhanced -p"
 
 alias	exs	"ex -s"
 
-alias screen "/usr/bin/screen -aAURx"
+alias	screen		"/projects/cli/helpers/screen:attach"
 
 setenv PATH "${PATH}:/programs/connectED/bin:/bin:/projects/games/engines/Raydium/raydium/bin"
 

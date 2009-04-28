@@ -7,6 +7,8 @@ setenv PATH "/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/i
 
 setenv EDITOR "/usr/bin/vim-enhanced"
 
+set logout=normal
+
 if (! ${?cdpath} ) set cdpath="/etc:/usr/share"
 set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/profile.d:/media:/media/library:."
 

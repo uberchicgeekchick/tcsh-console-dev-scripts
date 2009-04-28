@@ -17,15 +17,23 @@ foreach command ( `find -L /etc/init.d/ -maxdepth 1 -type f -perm -u=x` )
 end
 
 
-set sudo_commands=( "visudo" "chown" "chgrp" "zypper" "neject" "reboot" "poweroff" "halt" "mount" "umount" "init" "/srv/mysql/mysql.init.d" "esound" "eject" "NetworkManager" );
+set sudo_commands=( "visudo" "chown" "chgrp" "zypper" "neject" "reboot" "poweroff" "halt" "mount" "umount" "init" "/srv/mysql/mysql.init.d" "esound" "eject" "NetworkManager" "yast" );
 foreach command ( ${sudo_commands} )
 	alias	"${command}"	"sudo ${command}"
 end
 unset sudo_commands command
 
-set gnomesu_commands=( "yast2" );
-foreach command ( ${gnomesu_commands} )
-	alias	"${command}"	"gnomesu ${command}"
+set gnomesu="/usr/bin/gnomesu"
+set yast_commands=( "/sbin/yast" "yast" );
+foreach command ( ${yast_commands} )
+	alias	"${command}"	"${gnomesu} ${command}2"
 end
-unset gnomesu_commands command
+unset yast_commands
+
+set gnomesu_commands=( "/sbin/yast2" "yast2" );
+set gnomesu="/usr/bin/gnomesu"
+foreach command ( ${gnomesu_commands} )
+	alias	"${command}"	"${gnomesu} ${command}"
+end
+unset gnomesu gnomesu_commands command
 

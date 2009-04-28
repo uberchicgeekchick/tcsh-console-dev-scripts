@@ -1,3 +1,4 @@
 #/bin/tcsh -f
+history -L
 history -S
 

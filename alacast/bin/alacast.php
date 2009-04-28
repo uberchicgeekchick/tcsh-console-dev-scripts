@@ -476,7 +476,9 @@
 			if( (isset( $podcastsFiles )) )
 				unset( $podcastsFiles );
 			$podcastsFiles=array();
-			exec( (sprintf( "/bin/ls -t --width=1 %s/%s/*.*", GPODDER_DL_DIR, $podcastsGUID )), $podcastsFiles );
+			exec( (sprintf( "/bin/ls -t --width=1 --quoting-style=c %s/%s/*.*", GPODDER_DL_DIR, $podcastsGUID )), $podcastsFiles );
+			//exec( (sprintf( "find %s/%s/*.* -ls", GPODDER_DL_DIR, $podcastsGUID )), $podcastsFiles );
+			
 			if( ( ($podcastsFiles['total']=(count($podcastsFiles)) ) <= 1 ) ) continue;
 			
 			if( (isset( $podcastsInfo )) ) unset( $podcastsInfo );
@@ -569,6 +571,7 @@
 		$movedPodcasts=0;
 		
 		for($i=1, $z=($podcastsInfo['total']-1); $i<$podcastsFiles['total']; $i++, $z--) {
+			$podcastsFiles[$i]=preg_replace('/^"(.*)"$/', '$1', $podcastsFiles[$i]);
 			if(!( ($ext = get_filenames_extension( $podcastsFiles[$i] )) ))
 				continue;
 			
@@ -580,7 +583,6 @@
 				$GLOBALS['alacasts_logger']->output(
 					(sprintf(
 						"\n\t*DEBUG*: I'm moving:\n\t%s\n\t\t-to\n\t%s",
-						$podcastsFiles[$i],
 						$Podcasts_New_Filename
 					))
 				);
@@ -592,22 +594,32 @@
 			)
 				continue;
 
-			if(
-				(file_exists($podcastsFiles[$i]))
-				&&
-				( (link(
-					$podcastsFiles[$i],
+			//$podcastsFiles[$i]=preg_replace('/([\ \r\n])/', '\\\$1', $podcastsFiles[$i]);
+			//$podcastsFiles[$i]=preg_replace('/([\ \r\n])/', "$1", $podcastsFiles[$i]);
+
+			if(!(file_exists($podcastsFiles[$i])))
+				continue;
+			
+			$cmd=sprintf("link %s '%s'",
+					preg_replace('/([\ \r\n])/', '\\\$1', $podcastsFiles[$i]),
 					$Podcasts_New_Filename
-				)) )
-			) {
-				$movedPodcasts++;
-				
-				//Prints the new episodes name:
-				$GLOBALS['alacasts_logger']->output( "\n\t\t" . (wordwrap( $podcastsInfo[$i], 72, "\n\t\t\t" )) );
-				
-				if(!( (in_array( "--keep-original", $_SERVER['argv'] )) ))
-					unlink($podcastsFiles[$i]);
+			);
+			
+			$null_output=array();
+			$link_check=-1;
+			exec($cmd, $null_output, $link_check);
+			if($link_check){
+				printf("**ERROR:** failed to move podcast.\n\t link used:%s\n\terrno:%d\n\terror:\n\t%s\n", $cmd, $link_check, $null_output);
+				continue;
 			}
+			
+			$movedPodcasts++;
+			
+			//Prints the new episodes name:
+			$GLOBALS['alacasts_logger']->output( "\n\t\t" . (wordwrap( $podcastsInfo[$i], 72, "\n\t\t\t" )) );
+			
+			if(!( (in_array( "--keep-original", $_SERVER['argv'] )) ))
+				unlink($podcastsFiles[$i]);
 		}
 		return $movedPodcasts;
 	}//end:function move_podcasts_episodes();

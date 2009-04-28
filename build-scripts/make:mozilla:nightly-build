@@ -33,7 +33,7 @@ switch ( "${1}" )
 case "thunderbird":
 	set build_mozilla="thunderbird";
 	set mercurial_repo="comm-central";
-	set enable_mozilla="--enable-application=mail --enable-calendar --enable-static";
+	set enable_mozilla="--enable-application=mail --enable-calendar";# --enable-static";
 	set prefix="${prefix}/Thunderbird3";
 	breaksw
 case "xulrunner":
@@ -75,7 +75,7 @@ endif
 
 mozconfig:
 cd "${srcdir}";
-printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-pango --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
+printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
 
 
 

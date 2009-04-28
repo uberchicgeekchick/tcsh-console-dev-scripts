@@ -3,7 +3,8 @@
 #set echo
 set addsuffix
 
-setenv		GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number"
+#setenv		GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number"
+setenv		GREP_OPTIONS	"--color --with-filename --line-number"
 alias		grep		"grep ${GREP_OPTIONS}"
 alias		egrep		"grep ${GREP_OPTIONS} --perl-regexp -e"
 unsetenv	GREP_OPTIONS

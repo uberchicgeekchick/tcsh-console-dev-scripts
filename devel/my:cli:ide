@@ -99,9 +99,9 @@ programming_canvas:
 
 	if(! ${?my_active_projects} ) \
 		set my_active_projects=( \
+					"--tab-with-profile=projects --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
 					"--tab-with-profile=projects --title=hackGirls --working-directory=/projects/games/hackGirls" \
 					"--tab-with-profile=projects --title=connectED --working-directory=/projects/gtk/connectED" \
-					"--tab-with-profile=projects --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
 					"--tab-with-profile=projects --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
 					"--tab-with-profile=projects --title=alacast --working-directory=/projects/gtk/alacast" \
 		);

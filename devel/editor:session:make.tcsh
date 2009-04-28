@@ -31,7 +31,7 @@ set my_editor = `basename "${my_editor}"`
 
 set session_exec = "./${my_editor}.session.tcsh"
 
-foreach swp ( "`find ${search_dir} -iregex '\..*\.\(sw.\|~\)'`" )
+foreach swp ( "`find ${search_dir} -iregex '\..*\.\(sw.\|~\)' | sort`" )
 	if ( ! ${?session_started} ) then
 		set session_started
 		#this has vim load with the cursur on the second to last line.

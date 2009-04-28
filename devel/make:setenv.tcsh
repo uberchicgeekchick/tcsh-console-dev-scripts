@@ -12,9 +12,10 @@ unsetenv LDFLAGS
 unsetenv LIBS
 
 #C compiler flags
-setenv	LDFLAGS		"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib"
+setenv	LDFLAGS		"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -L/usr/X11R6/lib64/Xaw3d -L/usr/X11R6/lib64 -L/usr/lib64/Xaw3d -L/usr/X11R6/lib/Xaw3d -L/usr/X11R6/lib -L/usr/lib/Xaw3d -L/usr/x86_64-suse-linux/lib -L/usr/local/lib -L/opt/kde3/lib -L/usr/local/lib64 -L/opt/kde3/lib64"
 #libraries to pass to the linker, e.g. -l<library>
-setenv	LIBS			"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib"
+setenv	LIBS		"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -L/usr/X11R6/lib64/Xaw3d -L/usr/X11R6/lib64 -L/usr/lib64/Xaw3d -L/usr/X11R6/lib/Xaw3d -L/usr/X11R6/lib -L/usr/lib/Xaw3d -L/usr/x86_64-suse-linux/lib -L/usr/local/lib -L/opt/kde3/lib -L/usr/local/lib64 -L/opt/kde3/lib64"
+
 
 setenv	LD_LIBRARY_PATH		"/usr/include"
 setenv	LD_RUN_PATH		"/usr/include"

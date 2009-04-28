@@ -103,6 +103,9 @@
 			."\n"
 			."\nSyncing options:"
 			."\n-------------------"
+			."\n\t--keep-original		keeps gPodders GUID based named files while making copies of all"
+			."\n\t					podcasts with easier to understand directories &filenames."
+			."\n"
 			."\n\t--player[ = vlc|xine]		different players have issues with different charaters"
 			."\n\t				in the path's of podcast's files.  known issues are:"
 			."\n\t				- vlc won't play files with colons(:) in their path."
@@ -591,20 +594,23 @@
 			)
 				continue;
 
+			//$podcastsFiles[$i]=preg_replace('/([\ \r\n])/', '\\\$1', $podcastsFiles[$i]);
+			//$podcastsFiles[$i]=preg_replace('/([\ \r\n])/', "$1", $podcastsFiles[$i]);
+
 			if(!(file_exists($podcastsFiles[$i])))
 				continue;
 			
-			$cmd=sprintf("mv %s '%s'",
+			$cmd=sprintf("%s %s '%s'",
+					(in_array("--keep-original", $_SERVER['argv']) ?"cp" : "mv"),
 					preg_replace('/([\ \r\n])/', '\\\$1', $podcastsFiles[$i]),
 					$Podcasts_New_Filename
 			);
 			
 			$null_output=array();
-			unset($null_output);
 			$link_check=-1;
 			exec($cmd, $null_output, $link_check);
 			if($link_check){
-				printf("**ERROR:** failed to move podcast.\n\t link used:%s\n\terrno:%d\n\terror:\n\t%s\n", $cmd, $link_check, implode($null_output));
+				printf("**ERROR:** failed to move podcast.\n\t link used:%s\n\terrno:%d\n\terror:\n\t%s\n", $cmd, $link_check, $null_output);
 				continue;
 			}
 			
@@ -612,9 +618,6 @@
 			
 			//Prints the new episodes name:
 			$GLOBALS['alacasts_logger']->output( "\n\t\t" . (wordwrap( $podcastsInfo[$i], 72, "\n\t\t\t" )) );
-			
-			if(!( (in_array( "--keep-original", $_SERVER['argv'] )) ))
-				unlink($podcastsFiles[$i]);
 		}
 		return $movedPodcasts;
 	}//end:function move_podcasts_episodes();

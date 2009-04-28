@@ -10,24 +10,24 @@ while ( ${?1} && "${1}" != "" )
 	switch ( "${1}" )
 	case "--help":
 		goto usage;
-		breaksw
+		breaksw;
 	case "--sync=rsync":
 	case "--sync=scp":
 	case "--sync=sshfs":
 	case "--sync=cp":
 	case "--sync=no-sync":
 		set sync_method="${value}";
-		breaksw
+		breaksw;
 	case "--no-pushing":
 		set no_pushing;
-		breaksw
+		breaksw;
 	case "--disable-logging":
 		set rm_log;
-		breaksw
+		breaksw;
 	default:
-		# git:commit+push+sync logs are stored & saved
-		# Mustly its until I decide how & if I want to
-		# impliment a way of using git's append commits.
+		# git:commit+push+sync logs are stored & saved;
+		# Mustly its until I decide how & if I want to;
+		# impliment a way of using git's append commits.;
 		if ( ! ${?commit_log} ) then
 			set log_dir="./.`basename '${0}'`.logs";
 			if( ! -d ${log_dir} ) then
@@ -36,12 +36,12 @@ while ( ${?1} && "${1}" != "" )
 			endif
 			set commit_log="${log_dir}/`date '+%Y-%m-%d @ %r'`.message";
 			printf "${1}" > "${commit_log}";
-			breaksw
+			breaksw;
 		endif
 		printf "\n\n${1}" >> "${commit_log}";
-		breaksw
+		breaksw;
 	endsw
-	shift
+	shift;
 end
 
 if(! ${?commit_log} ) then
@@ -53,10 +53,10 @@ printf "\n\nCommitted on: `date '+%Y-%m-%d @ %r'`\n" >> "${commit_log}";
 
 git add .;
 
-# The next
-# Remove any vim, connectED, gedit, or etc 'swp' files.
-# This is even more useful to keep from committing early art works & uber-alphas
-#
+# The next;
+# Remove any vim, connectED, gedit, or etc 'swp' files.;
+# This is even more useful to keep from committing early art works & uber-alphas;
+#;
 foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
 	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
 	git rm --cached --quiet "${tarball}";
@@ -77,76 +77,77 @@ endif
 
 if (! ${?no_pushing} ) then
 	foreach remote_git ( "`git remote`" )
-		git push "${remote_git}"
+		git push "${remote_git}";
 	end
 endif
 
-goto check_sync
-exit
+goto check_sync;
+exit;
 
 init_sync:
-set project_name = "`basename '${cwd}'`"
-set sshfs_path = "/projects/ssh"
-set ssh_user = "dreams"
-set ssh_server = "avalon.ocssolutions.com"
+set project_name = "`basename '${cwd}'`";
+set sshfs_path = "/projects/ssh";
+set ssh_user = "dreams";
+set ssh_server = "avalon.ocssolutions.com";
 
 
 run_sync:
 switch( "${sync_method}" )
 case "rsync":
-	rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}"
-	breaksw
+	rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
+	breaksw;
 
 case "scp":
-	scp -rv ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}"
-	breaksw
+	scp -rv ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
+	breaksw;
 
 case "sshfs":
 	if ( `mount | grep "${sshfs_path}"` == "" ) then
-		sshfs "${ssh_user}@${ssh_server}:/home/${ssh_user}" "${sshfs_path}"
+		sshfs "${ssh_user}@${ssh_server}:/home/${ssh_user}" "${sshfs_path}";
 	endif
 case "cp":
 	if ( ! -d "${sshfs_path}/${project_name}" ) then
-		printf "I couldn't find your project: '%s' in your sshfs path: '%s'\nEither your project doesn't exist on your sshfs or ssh isn't mounted\n", ${project_name}, ${sshfs_path}
-		exit
+		printf "I couldn't find your project: '%s' in your sshfs path: '%s'\nEither your project doesn't exist on your sshfs or ssh isn't mounted\n", ${project_name}, ${sshfs_path};
+		exit;
 	endif
-
-	# compare "${sshfs_path}/${project_name}/" against ./
-	# and remove remote files that no longer exist locally.
-	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n"
-	set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`"
+	
+	printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n";
+	cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}";
+	
+	# cleaning up swp files that may have been copied to the remote location
+	printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
+	foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
+		rm --verbose "${swp}";
+	end
+	
+	# compare "${sshfs_path}/${project_name}/" against ./;
+	# and remove remote files that no longer exist locally.;
+	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
+	set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
 	foreach remote_file ( "`find '${sshfs_path}/${project_name}/'`" )
-		# escape special characters to keep them from being expanded by the terminal
-		# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`"
+		# escape special characters to keep them from being expanded by the terminal;
+		# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
 
-		set git_test = "`printf "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`"
-		if ( "${git_test}" == "/.git" ) continue
+		set git_test = "`printf "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`";
+		if ( "${git_test}" == "/.git" ) continue;
 
-		set local_file = "`printf "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`"
+		set local_file = "`printf "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`";
 
 		if ( ! -d "${local_file}" && ! -e "${local_file}" ) then
-			printf "Removing stale remote "
+			printf "Removing stale remote ";
 
 			if ( -d "${remote_file}" ) then
-				printf "directory & contents"
-				rm -r "${remote_file}"
+				printf "directory & contents";
+				rm -r "${remote_file}";
 			else if ( -e "${remote_file}" ) then
-				printf "file"
-				rm "${remote_file}"
+				printf "file";
+				rm "${remote_file}";
 			endif
-			printf ":\n\t%s\n" "${remote_file}"
+			printf ":\n\t%s\n" "${remote_file}";
 		endif
 	end
-
-	printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n"
-	cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}"
-
-	# cleaning up swp files that may have been copied to the remote location
-	foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
-		rm --verbose "${swp}"
-	end
-
-	breaksw
+	
+	breaksw;
 endsw
 
 exit 0;
@@ -157,18 +158,18 @@ case "rsync":
 case "scp":
 case "sshfs":
 case "cp":
-	goto init_sync
-	breaksw
+	goto init_sync;
+	breaksw;
 case "no-sync":
 	exit ${exit_code};
-	breaksw
+	breaksw;
 default:
-	printf "%s is not a supported sync method.  Valid options are:\n\trsync, scp, sshfs, cp, no-sync" "${sync_method}"
+	printf "%s is not a supported sync method.  Valid options are:\n\trsync, scp, sshfs, cp, no-sync" "${sync_method}";
 	exit -2;
-	breaksw
+	breaksw;
 endsw
 
 usage:
-printf "Usage: %s [no-pushing rsync scp sshfs cp no-sync] commit_message [commit_details]\n" `basename "${0}"`
-exit ${exit_code}
+printf "Usage: %s [no-pushing rsync scp sshfs cp no-sync] commit_message [commit_details]\n" `basename "${0}"`;
+exit ${exit_code};
 

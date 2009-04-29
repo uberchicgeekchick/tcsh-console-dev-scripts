@@ -600,10 +600,10 @@
 			if(!(file_exists($podcastsFiles[$i])))
 				continue;
 			
-			$cmd=sprintf("%s %s '%s'",
+			$cmd=sprintf("%s %s %s",
 					(in_array("--keep-original", $_SERVER['argv']) ?"cp" : "mv"),
 					preg_replace('/([\ \r\n])/', '\\\$1', $podcastsFiles[$i]),
-					$Podcasts_New_Filename
+					escapeshellarg($Podcasts_New_Filename)
 			);
 			
 			$null_output=array();

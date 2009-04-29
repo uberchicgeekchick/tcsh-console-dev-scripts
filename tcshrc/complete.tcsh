@@ -227,7 +227,7 @@
 
 	# these from E. Jay Berkenbilt <ejb@ERA.COM>
 	# = isn't always followed by a filename or a path anymore - jgotts
-	complete ./configure 'c/--*=/f/' 'c/--{cache-file,prefix,exec-prefix,\
+	complete ./configure 'c/--*=/d/' 'c/--{cache-file,prefix,exec-prefix,\
 				bindir,sbindir,libexecdir,datadir,\
 				sysconfdir,sharedstatedir,localstatedir,\
 				libdir,includedir,oldincludedir,infodir,\
@@ -236,12 +236,12 @@
 				sbindir libexecdir datadir sysconfdir \
 				sharedstatedir localstatedir libdir \
 				includedir oldincludedir infodir mandir \
-				srcdir)//'
-	complete ./autogen.sh 'c/--*=/f/' 'c/--{cache-file,prefix,exec-prefix,\
+				srcdir enable- enable-debug)//'
+	complete ./autogen.sh 'c/--*=/d/' 'c/--{cache-file,prefix,exec-prefix,\
 				bindir,sbindir,libexecdir,datadir,\
 				sysconfdir,sharedstatedir,localstatedir,\
 				libdir,includedir,oldincludedir,infodir,\
-				mandir,srcdir}/(=)//' \
+				mandir,srcdir enable- enable-debug}/(=)//' \
 				'c/--/(cache-file verbose prefix exec-prefix bindir \
 				sbindir libexecdir datadir sysconfdir \
 				sharedstatedir localstatedir libdir \

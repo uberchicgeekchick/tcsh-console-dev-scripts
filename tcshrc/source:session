@@ -1,11 +1,11 @@
 #!/bin/tcsh -f
 source /profile.d/tcshrc/environment.tcsh
-source /profile.d/tcshrc/sudo.tcsh
+source /profile.d/tcshrc/aliases:sudo.tcsh
 foreach rc_file ( /profile.d/tcshrc/*.tcsh )
 	switch("${rc_file}")
 	case "bindkey.tcsh":
 	case "complete.tcsh":
-	case "sudo.tcsh":
+	case "aliases:sudo.tcsh":
 	case "environment.tcsh":
 	case "programs.tcsh":
 		breaksw

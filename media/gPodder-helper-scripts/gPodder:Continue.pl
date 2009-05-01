@@ -3,13 +3,19 @@ use strict;
 my $total=18;
 my $timeout=46;# How long to wait between sending each interupt signal.
 
+sub display_usage{
+	printf("gPodder:Continue.pl - Sends interupt signal to all running instances of gPodder a given amount of times.\n\tOptions:\n\t--send-interupt=#\t# for how many times to send gPodder the interupt signal.\n\t--timeout=#\tHow many seconds to wait between sending each interupt.\n");
+	exit(-1);
+}#display_usage
+
 sub parse_argument{
 	my $argument=$_;
-	$argument=~s/\-\-([^=]+)?=(.*)$/$1/;
+	$argument=~s/\-\-([^=]+)=?(.*)$/$1/;
+	if("$argument" eq "help"){ display_usage(); }
 	
 	my $value=$_;
-	$value=~s/\-\-([^=]+)?=(.*)$/$2/;
-
+	$value=~s/\-\-([^=]+)=?(.*)$/$2/;
+	
 	if( "$argument" eq "" || $value < 1){return;}
 	
 	if("$argument" eq "send-interupt"){

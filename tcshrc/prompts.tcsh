@@ -3,8 +3,12 @@
 # limits previous directories to 3 levels. When %c or etc is used.
 set padhour='0'
 set ellipsis
+
 # set tcsh default command prompt:
-set prompt="\n%B%{^[[105m%}(%p on %Y-%W-%D)\n%{^[[35m%}[ %m %n ]\n%{^[[31m%}@%c3/%{^[[35m%}# "
+#
+# set prompt="\n%B%{^[[105m%}(%p on %Y-%W-%D)\n%{^[[35m%}[ %m %n ]\n%{^[[31m%}@%c3/%{^[[35m%}# "
+#
+set prompt="\n%B%{^[[47m%}(%p on %Y-%W-%D)%b\n%{^[[107m%}%B[ %U%n@%m%u ]%b\n%{^[[0m%}%{^[[101m%}%{^[[37m%}%B@%c9 #%{^[[0m%} "
 
 
 # Used wherever normal csh prompts with a question mark.

@@ -43,8 +43,9 @@
 						max list debug print silence errors help usage)"/
 
 	complete	git	c/--/"(version exec-path paginate no-pager bare git-dir work-tree help)"/ \
-				p/1-2/"(add bisect branch checkout clone commit diff fetch grep init log \
-					merge mv pull push rebase reset rm show status tag)"/
+				p/1/"(add bisect branch checkout clone commit diff fetch grep init log \
+					merge mv pull push rebase reset rm show status tag gui)"/ \
+				p/2-/f/
 
 
 	complete ispell	c/-/"(a A b B C d D e ee f L m M p s S T v vv w W)"/ \

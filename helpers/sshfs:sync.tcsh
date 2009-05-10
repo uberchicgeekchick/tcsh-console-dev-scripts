@@ -32,6 +32,18 @@ case "cp":
 	breaksw
 endsw
 
+
+printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n";
+cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}";
+printf "\t\t[done]";
+
+# cleaning up swp files that may have been copied to the remote location
+printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
+foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
+	rm --verbose "${swp}";
+end
+printf "\t\t[done]";
+
 printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n"
 set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`"
 foreach remote_file ( "`find '${sshfs_path}/${project_name}/'`" )
@@ -56,13 +68,6 @@ foreach remote_file ( "`find '${sshfs_path}/${project_name}/'`" )
 		printf ":\n\t%s\n" "${remote_file}"
 	endif
 end
-printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n"
-
-cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}"
-
-# cleaning up swp files that may have been copied to the remote location
-foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex .\*\.swp`" )
-	rm --verbose "${swp}"
-end
+printf "\nRemoving stale remote files\t\t[done]";
 
 printf "\n\n"

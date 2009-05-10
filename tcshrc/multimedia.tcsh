@@ -10,15 +10,16 @@ if ( -x "/usr/bin/id3v2" ) alias	mp3info	"id3v2 --list"
 
 if ( -x "/usr/bin/xfmedia" ) then
 	set xfmedia_settings="${HOME}/.config/xfmedia/settings.xml"
-	set condition="if ( -e '${xfmedia_settings}' ) mv '${xfmedia_settings}' '${xfmedia_settings}.bck'; "
-	#set condition="";
+	#et condition="if ( -e '${xfmedia_settings}' ) mv '${xfmedia_settings}' '${xfmedia_settings}.bck'; "
+	set condition="";
 	set output=">& /dev/null &"
 
-	#set audio_driver="oss"
-	set video_driver="opengl"
 	#set audio_driver="alsa"
-	set audio_driver="pulseadio"
+	#set audio_driver="oss"
+	set audio_driver="esd"
+	
 	#set video_driver="sdl"
+	set video_driver="opengl"
 	
 	set resolution=`cat "/profile.d/resolutions/video/hd.rc"`
 	

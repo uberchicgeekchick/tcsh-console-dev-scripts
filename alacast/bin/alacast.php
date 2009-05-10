@@ -39,7 +39,7 @@
 	 * 	&& ||
 	 * 	"The Mentor's Last Words: The Hackers Manifesto"
 	 */
-	ini_set( "display_errors", true );
+	ini_set( "display_errors", TRUE );
 	ini_set( "error_reporting", E_ALL | E_STRICT );
 	ini_set( "default_charset", "utf-8" );
 	ini_set( "date.timezone", "America/Denver" );
@@ -169,7 +169,7 @@
 		
 		chdir( dirname( GPODDER_DL_DIR ) );
 		
-		return true;
+		return TRUE;
 	}//end:function load_settings();
 	
 	
@@ -184,7 +184,7 @@
 				: ""
 			)
 			."\n\tWhich basically means I'm done; please fix this by: `Starting gPodder`->`Selecting Podcasts file menu`->`Preferences` and setting it's `Download Directory` & `MP3 Player`.\n",
-			true
+			TRUE
 		);
 		exit( -1 );
 	}//end:function gPodder_Config_Error();
@@ -201,7 +201,7 @@
 	function run_gpodder_and_download_podcasts() {
 		if(!(
 			(
-				(is_executable( ($gPoddersProgie = alacast_helper::preg_match_array( "/^\-\-use\-gpodder=(.*)$/", $_SERVER['argv'], "$1" )) ))
+				(is_executable( ($gPoddersProgie = alacast_helper::preg_match_array($_SERVER['argv'],  "/^\-\-use\-gpodder=(.*)$/", "$1" )) ))
 				&&
 				(chdir( (dirname( $gPoddersProgie )) ))
 				&&
@@ -212,14 +212,14 @@
 			||
 			(is_executable( ($gPoddersProgie = exec( "which gpodder" )) ))
 		))
-			return $GLOBALS['alacasts_logger']->output( "I can't try to download any new podcasts because I can't find gPodder.", true );
+			return $GLOBALS['alacasts_logger']->output( "I can't try to download any new podcasts because I can't find gPodder.", TRUE );
 		
 		if( (in_array("--nice", $_SERVER['argv'])) )
 			$gPoddersProgie = "/usr/bin/nice --adjustment=19 {$gPoddersProgie}";
 		
 		$gPoddersProgie = "unset http_proxy; {$gPoddersProgie}";
 		$GLOBALS['alacasts_logger']->output( ($GLOBALS['podcatcher']->set_status( "downloading new podcasts" )) );
-		if( ($gPoddersExec = alacast_helper::preg_match_array( "/\-\-use\-gpodder=(.*)$/", $_SERVER['argv'], "$1" )) )
+		if( ($gPoddersExec = alacast_helper::preg_match_array($_SERVER['argv'], "/\-\-use\-gpodder=(.*)$/", "$1" )) )
 			$GLOBALS['alacasts_logger']->output( "~*~*~* Using {$gPoddersExec} *~*~*~\n" );
 		
 		$lastLine = "";
@@ -229,7 +229,7 @@
 				$lastLine = exec("{$gPoddersProgie} --run 2> /dev/null", $gPodders_Output);
 				
 				if( (in_array("--update=detailed", $_SERVER['argv'])) )
-					$GLOBALS['alacasts_logger']->output( (alacast_helper->array_to_string( $gPodders_Output, "\n" )), "", true );
+					$GLOBALS['alacasts_logger']->output( (alacast_helper->array_to_string( $gPodders_Output, "\n" )), "", TRUE );
 				
 				if( (preg_match("/^D/", (ltrim($lastLine)) )) )
 					log_gPodders_downloadss( $gPodders_Output );
@@ -244,10 +244,10 @@
 			break;
 		}
 		
-		$GLOBALS['alacasts_logger']->output( ($GLOBALS['podcatcher']->set_status( "downloading new podcasts", false )) );
+		$GLOBALS['alacasts_logger']->output( ($GLOBALS['podcatcher']->set_status( "downloading new podcasts", FALSE )) );
 		
 		if(!( (preg_match("/^D/", (ltrim($lastLine)) )) ))
-			return false;
+			return FALSE;
 		
 		/*
 		 * gPodder 0.10.0 need a lot longer than 5 seconds.
@@ -262,7 +262,7 @@
 		}
 		print( "\n" );
 		
-		return true;
+		return TRUE;
 		
 	}//end:function run_gpodder_and_download_podcasts();
 	
@@ -301,7 +301,7 @@
 			$podcastsInfo[0]
 		)) {
 			$podcastsInfo[0] = "Untitled podcast(s)";
-			$untitle_podcasts +=  $start;
+			$untitled_podcasts +=  $start;
 		}
 		
 		for($i = $start; $i<$totalPodcasts; $i++ )
@@ -327,33 +327,58 @@
 
 	function get_episode_titles( &$podcastsInfo, $podcastsXML_filename ) {
 		if(!( (filesize($podcastsXML_filename)) ))
-			return false;
+			return FALSE;
 			
 		$podcastsTempInfo = array();
 		$podcastsXML_fp = fopen( $podcastsXML_filename, 'r' );
-		$podcastsTempInfo = preg_replace("/[\t\ \r\n]+$/" , "",
-					(fread( $podcastsXML_fp,
-						(filesize($podcastsXML_filename))
+		$podcastsTempInfo = preg_replace("/[\r\n]+/m" , "",
+					(utf8_encode(
+						(fread(
+							$podcastsXML_fp,
+							(filesize($podcastsXML_filename))
+						))
 					))
 				);
 		fclose($podcastsXML_fp);
 		
-		$podcastsTempInfo = preg_split(
-					"/(<title>[^<]*<\/title>)/m", $podcastsTempInfo, -1,
+		$podcastsTitles=preg_split(
+					"/(<title>[^<]+<\/title>)/m", $podcastsTempInfo, -1,
 					PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
 		);
 		
-		if(!( (isset( $podcastsTempInfo[0] )) ))
-			return false;
+		$podcastsPubDates=preg_split(
+					"/(<pubDate>[^<]+<\/pubDate>)/m", $podcastsTempInfo, -1,
+					PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+		);
 		
-		if($podcastsTempInfo[0] == $podcastsTempInfo[1])
-			array_shift($podcastsTempInfo);
+		unset($podcastsTempInfo);
+	
+		if(!( (isset( $podcastsTitles[0] )) ))
+			return FALSE;
 		
-		$podcastsTempInfo['total'] = count($podcastsTempInfo);
+		if($podcastsTitles[0] == $podcastsTitles[1])
+			array_shift($podcastsTitles);
 		
-		for( $i = 0; $i<$podcastsTempInfo['total']; $i++ )
-			if( (preg_match("/^<title>([^<]*)<\/title>$/", $podcastsTempInfo[$i])) )
-				$podcastsInfo[ $podcastsInfo['total']++ ] = html_entity_decode(preg_replace("/<title>([^<]*)<\/title>/", "$1", $podcastsTempInfo[$i]));
+		$podcastsTitles['total'] = count($podcastsTitles);
+		
+		/* formats podcast & episode titles. */
+		for($i=1; $i<$podcastsTitles['total']; $i++ )
+			if( (preg_match("/^<title>[^<]*<\/title>$/", $podcastsTitles[$i])) )
+				if(!isset($podcastsInfo[0]))
+					$podcastsInfo[ $podcastsInfo['total']++ ] = html_entity_decode( preg_replace("/<title>[\ \t]*([^<]+)[\ \t]*<\/title>/", "$1", $podcastsTitles[$i]) );
+				else
+					$podcastsInfo[ $podcastsInfo['total']++ ] = html_entity_decode(sprintf("%s, released on: %s", preg_replace("/<title>[\ \t]*([^<]*)[\ \t]*<\/title>/", "$1", $podcastsTitles[$i]), preg_replace("/<pubDate>[\ \t]*([^<]+)[\ \t]*<\/pubDate>/", "$1", $podcastsPubDates[($i-2)] ) ) );
+		
+		if(getenv("ALACAST_DEBUG")){
+			print("Found podcastTitles:\n");
+			print_r($podcastsTitles);
+			print("\n\nFound podcastPubDates:\n");
+			print_r($podcastsPubDates);
+			print("\n\nFound podcastsInfo:\n");
+			print_r($podcastsInfo);
+		}
+		unset($podcastsTitles);
+		unset($podcastsPubDates);
 		
 		if( (in_array( "--verbose", $_SERVER['argv'] )) )
 			$GLOBALS['alacasts_logger']->output(
@@ -370,25 +395,35 @@
 				))
 			);
 		
-		return true;
+		return TRUE;
 	}//end:function get_episode_titles()
 
 
 	function clean_podcasts_info( &$podcastsInfo ) {
+		static $bad_chars=NULL;
+		if($bad_chars==NULL){
+			switch(alacast_helper::preg_match_array($_SERVER['argv'], "/^\-\-player=?(.*)$/", "$1")){
+				case "vlc":
+					$bad_chars=":";
+					break;
+				default:
+					$bad_chars="#:";
+					break;
+			}
+		}//$bad_chars==NULL
+
 		/* replaces forward slashes with hyphens & strips leading dots('.').
 		 * both for obvious(Linux) reasons. Other characters are stripped as well
 		 * these are due to know issues that GStreamer, 
 		*/
 		for($i=0; $i<$podcastsInfo['total']; $i++)
-			$podcastsInfo[$i]=preg_replace("/@/", "-at-",
-						(preg_replace("/^[~\.]+(.*)[~\.]+$/", "$1",
-							(preg_replace("/\//", "-",
-								(preg_replace("/[#:]+/", "",
-									(trim($podcastsInfo[$i]))
-								))
+			$podcastsInfo[$i]=preg_replace( "/^[~\.]+(.*)[~\.]+$/", "$1",
+						(preg_replace( "/[\/]/", "-",
+							(preg_replace( "/[{$bad_chars}#]/", "",
+								$podcastsInfo[$i]
 							))
 						))
-					); //for( $i<$podcastInfo['total'] )
+			); //for( $i<$podcastInfo['total'] )
 		
 		$podcastsInfo[0]=preg_replace( "/^(the)\s+(.*)$/i", "$2, $1", $podcastsInfo[0] );
 	}//end:function clean_podcasts_info();
@@ -410,14 +445,19 @@
 		if( !(isset( $untitled_podcast_count )) )
 			$untitled_podcast_count=0;
 		
+		if(!( $podcastsName && $podcastsEpisode)) {
+			$podcastsEpisode=sprintf(
+							"%d%s %s",
+								((++$untitled_podcast_count)),
+								(alacasts_titles::get_numbers_suffix( $untitled_podcast_count ) ),
+								($podcastsName ?$podcastsName :"untitled podcast" )
+			);
+			
+			if(!$podcastsName)
+				$podcastsName="Untitled Podcast(s)";
+		}
+
 		$podcastsExtra = "";
-		if(!($podcastsName)) $podcastsName="Untitled Podcast(s)";
-		if(!($podcastsEpisode)) $podcastsEpisode=sprintf(
-						"%d%s untitled podcast",
-						((++$untitled_podcast_count)),
-						(alacasts_titles::get_numbers_suffix( $untitled_podcast_count ) )
-					);
-		
 		do {
 			$Podcasts_New_Filename = sprintf(
 				"%s/%s/%s%s.%s",
@@ -444,7 +484,7 @@
 	function do_I_need_to_run_gPodder() {
 		static $do_I_update;
 		if(!( (isset($do_I_update)) ))
-			$do_I_update = alacast_helper::preg_match_array( "/^\-\-update/", $_SERVER['argv'] );
+			$do_I_update = alacast_helper::preg_match_array($_SERVER['argv'], "/^\-\-update/");
 		
 		
 		if( $do_I_update )
@@ -477,7 +517,6 @@
 				unset( $podcastsFiles );
 			$podcastsFiles=array();
 			exec( (sprintf( "/bin/ls -t --width=1 --quoting-style=c %s/%s/*.*", GPODDER_DL_DIR, $podcastsGUID )), $podcastsFiles );
-			//exec( (sprintf( "find %s/%s/*.* -ls", GPODDER_DL_DIR, $podcastsGUID )), $podcastsFiles );
 			
 			if( ( ($podcastsFiles['total']=(count($podcastsFiles)) ) <= 1 ) ) continue;
 			
@@ -490,7 +529,7 @@
 				||
 				(mkdir(GPODDER_SYNC_DIR."/".$podcastsInfo[0], 0774, TRUE))
 			)) {
-				$GLOBALS['alacasts_logger']->output( "\n\tI've had to skip {$podcastsInfo[0]} because I couldn't create it's directory.\n\t\tPlease edit '{$podcastsXML_filename}' to fix this issue.", true );//*wink*, it just kinda felt like a printf moment :P
+				$GLOBALS['alacasts_logger']->output( "\n\tI've had to skip {$podcastsInfo[0]} because I couldn't create it's directory.\n\t\tPlease edit '{$podcastsXML_filename}' to fix this issue.", TRUE );//*wink*, it just kinda felt like a printf moment :P
 				continue;
 			}
 			
@@ -527,10 +566,10 @@
 		
 		$GLOBALS['alacasts_logger']->output(
 			"  Have fun! ^_^\n\n"
-			. ($GLOBALS['podcatcher']->set_status( "syncronizing podcasts", false ))
+			. ($GLOBALS['podcatcher']->set_status( "syncronizing podcasts", FALSE ))
 		);
 		
-		return true;
+		return TRUE;
 	}// end 'move_gPodders_Podcasts' function.
 
 
@@ -593,9 +632,6 @@
 				( (file_exists( $Podcasts_New_Filename )) )
 			)
 				continue;
-
-			//$podcastsFiles[$i]=preg_replace('/([\ \r\n])/', '\\\$1', $podcastsFiles[$i]);
-			//$podcastsFiles[$i]=preg_replace('/([\ \r\n])/', "$1", $podcastsFiles[$i]);
 
 			if(!(file_exists($podcastsFiles[$i])))
 				continue;

@@ -1,4 +1,5 @@
 #!/bin/tcsh -f
+if( ${?CSHRC_DEBUG} || "${1}" == "--verbose" ) setenv CSHRC_DEBUG;
 
 if( ${?http_proxy} ) unsetenv http_proxy
 if ( ${?PATH} ) unsetenv PATH

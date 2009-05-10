@@ -62,7 +62,7 @@
 		
 		
 		static function prefix_episope_titles_with_podcasts_title( &$podcasts_info ) {
-			if( !(alacast_helper::preg_match_array( "/\-\-prefix\-episodes\-with\-podcast\-title/", $_SERVER['argv'] )) ) return;
+			if( !(alacast_helper::preg_match_array($_SERVER['argv'], "/\-\-prefix\-episodes\-with\-podcast\-title/")) ) return;
 		
 			for( $i=1; $i<$podcasts_info['total']; $i++ )
 				if( !(preg_match( "/^{$podcasts_info[0]}/", $podcastInfo[$i] )) )

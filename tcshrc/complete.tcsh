@@ -707,6 +707,9 @@ skip_mh:
 	complete man	n@[0-9n]@'`\ls -1fUA ${_manpath}$:-1/|&\sed \\%.\*:%d\;s%\\.$:-1.\*\$%%|\sort -u`'@ \
 			c/-/"(- f k s t l)"/ n/-f/c/ n/-k/x:'<keyword>'/ n/-l/f/ C@./*@f@ n/*/c/
 
+	complete info	n@[0-9n]@'`\ls -1fUA ${INFOPATH}$:-1/|&\sed \\%.\*:%d\;s%\\.$:-1.\*\$%%|\sort -u`'@ \
+			p/*/c/
+	
 	complete ps		c/-t/x:'<tty>'/ c/-/"(a c C e g k l S t u v w x)"/ \
 			n/-k/x:'<kernel>'/ N/-k/x:'<core_file>'/ n/*/x:'<PID>'/
 	complete compress	c/-/"(c f v b)"/ n/-b/x:'<max_bits>'/ n/*/f:^*.Z/

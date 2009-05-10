@@ -40,16 +40,16 @@
 	 */
 	class alacast_helper {
 		
-		static public function preg_match_array( $preg_needle, &$haystack_array, $preg_replace=false, $update_array=false, $limit=1 ) {
+		static public function preg_match_array(array $haystack_array, $needle_preg_match, $preg_replace=NULL ) {
 			foreach( $haystack_array as $key=>$haystack )
-				if( (preg_match( $preg_needle, $haystack )) )
+				if( (preg_match( $needle_preg_match, $haystack )) )
 					return ($preg_replace
-							? (preg_replace( $preg_needle, $preg_replace, $haystack ))
-							: true
+							? (preg_replace( $needle_preg_match, $preg_replace, $haystack ))
+							: TRUE
 						);
 			
-			return false;
-		}//method:function preg_match_array( $preg_needle, &$haystack_array, $preg_replace=false );
+			return FALSE;
+		}//method:function preg_match_array( $preg_needle, &$haystack_array, $preg_replace=FALSE );
 		
 		
 		static public function array_to_string( &$array, $padding=" " ) {

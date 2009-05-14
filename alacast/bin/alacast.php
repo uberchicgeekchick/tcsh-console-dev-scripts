@@ -419,7 +419,7 @@
 		for($i=0; $i<$podcastsInfo['total']; $i++)
 			$podcastsInfo[$i]=preg_replace( "/^[~\.]+(.*)[~\.]+$/", "$1",
 						(preg_replace( "/[\/]/", "-",
-							(preg_replace( "/[{$bad_chars}#]/", "",
+							(preg_replace( "/[{$bad_chars}#\?]/", "",
 								$podcastsInfo[$i]
 							))
 						))

@@ -33,7 +33,7 @@ switch ( "${1}" )
 case "thunderbird":
 	set build_mozilla="thunderbird";
 	set mercurial_repo="comm-central";
-	set enable_mozilla="--enable-application=mail --enable-calendar";# --enable-static";
+	set enable_mozilla="--enable-application=mail --enable-calendar --enable-static";
 	set prefix="${prefix}/Thunderbird3";
 	breaksw
 case "xulrunner":
@@ -84,14 +84,14 @@ cd "${srcdir}";
 if ( "${build_mozilla}" == "thunderbird" ) then
 	python client.py --skip-comm checkout;
 	if ( ${status} != "0" ) then
-		printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %d\n\n" ${#status};
-		exit ${#status};
+		printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %s\n\n" ${status};
+		exit ${status};
 	endif
 endif
 make -f client.mk build;
 if ( ${status} != "0" ) then
-	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %d\n\n" ${#status};
-	exit ${#status};
+	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %s\n\n" ${status};
+	exit ${status};
 endif
 
 
@@ -106,13 +106,19 @@ backup:
 cd "${objdir}";
 set today=`date '+%Y-%m-%d'`;
 if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
+pwd
 foreach tarball ( dist/*.tar.bz2 )
 	set backup_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`";
 	cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
-	if( ${#status} == 0 ) then
-		rm "${tarball}";
-		set tarball="${tarball_backup_dir}/${backup_tarball}";
+	if( ${status} != "0" ) then
+		printf "\n\n********************* WARNING: BACKUP ************************\n\t\t\ttarball back-up failed; error: %s\n\n" ${status};
+		continue;
 	endif
+	
+	rm "${tarball_backup_dir}/${build_mozilla}-.*.tar.bz2";
+	cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
+	rm "${tarball}";
+	set tarball="${tarball_backup_dir}/${backup_tarball}";
 end
 
 
@@ -135,31 +141,46 @@ cd ..;
 
 
 prepare_first_run:
-goto make_default
 goto stop_build
-
-run:
-if( -e ${prefix}/${build_mozilla}/${build_mozilla} ) ${prefix}/${build_mozilla}/${build_mozilla} &
-
-
-exit_check:
-if ( ${?2} && "${2}" == "as-default" ) goto make_default
-exit
-
 
 
 make_default:
 set second_run
 goto stop_build
-install_default:
-rm -rf "${prefix}/x86_64";
-mv "${prefix}/${build_mozilla}" "${prefix}/x86_64";
+
+
+exec_install:
 ${prefix}/x86_64/${build_mozilla} &
+
 
 exit
 
 
+test_exec:
+if(!(${second_run})) then
+	set mozilla_exec="${prefix}/${build_mozilla}/${build_mozilla}";
+else
+	set mozilla_exec="${prefix}/x86_64/${build_mozilla}";
+endif
+
+if(! -e ${mozilla_exec} ) then
+	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tInstallation of %s failed\n\t\t\tBinary is not executable: [%s]\n\n" ${build_mozilla} ${mozilla_exec};
+	exit -1;
+endif
+
+if(!(${second_run})) then
+	rm -rf "${prefix}/x86_64";
+	mv "${prefix}/${build_mozilla}" "${prefix}/x86_64";
+	goto exec_install
+endif
+
+goto make_default
+
+
+
 stop_build:
+if(${?exec_stopped}) goto test_exec
+
 foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
 	foreach pid ( `pidof -x "${program}"` )
 		set still_running = ( "\n" );
@@ -173,7 +194,13 @@ foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
 		kill -9 "${pid}"
 	end
 end
-if (! ${?second_run} ) goto run
 
-goto install_default
+set exec_stopped
+
+if(! ${?second_run} ) then
+	set second_run;
+	goto test_exec
+endif
+
+goto exec_install
 

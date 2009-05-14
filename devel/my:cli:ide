@@ -225,6 +225,14 @@ build_canvas:
 		${argv} &;
 		breaksw
 	
+	case 'Mozilla':
+		/usr/bin/gnome-terminal \
+			--hide-menubar \
+			--geometry=${geometry} \
+			--tab-with-profile="uberChick" --title="mozilla-src" --working-directory="/programs/Mozilla/src" \
+		${argv} &;
+		breaksw
+	
 	case 'Firefox':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \

@@ -229,7 +229,7 @@ build_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="mozilla-src" --working-directory="/programs/Mozilla/src" \
+			--tab-with-profile="uberChick" --title="mozilla-src" --working-directory="/programs/src/mozilla" \
 		${argv} &;
 		breaksw
 	
@@ -237,7 +237,7 @@ build_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
+			--tab-with-profile="uberChick" --title="firefox-src" --working-directory="/programs/src/mozilla/firefox-src" \
 		${argv} &;
 		breaksw
 	
@@ -245,7 +245,7 @@ build_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="thunderbird-src" --working-directory="/programs/Mozilla/src/thunderbird-src" \
+			--tab-with-profile="uberChick" --title="thunderbird-src" --working-directory="/programs/src/mozilla/thunderbird-src" \
 		${argv} &;
 		breaksw
 	

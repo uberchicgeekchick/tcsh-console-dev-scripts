@@ -5,7 +5,7 @@ setenv	MAKEFLAGS	"-O3"
 
 if( ${?http_proxy}  ) unsetenv http_proxy
 
-set mozilla_dir="/programs/Mozilla";
+set mozilla_src_dir="/programs/src/mozilla";
 set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
 set prefix="/programs/Mozilla";
 
@@ -17,15 +17,11 @@ endif
 
 
 init:
-cd "${mozilla_dir}";
+cd "${mozilla_src_dir}";
 
 if ( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
 unalias grep;
 unalias egrep;
-
-if ( ! -d "src" ) mkdir "src";
-cd src;
-
 
 
 configure:
@@ -50,12 +46,10 @@ default:
 	set prefix="${prefix}/Firefox3";
 	breaksw
 endsw
-set topdir="${mozilla_dir}/src";
+set topdir="${mozilla_src_dir}/src";
 if ( ! -d "${topdir}" ) mkdir -p "${topdir}";
 set srcdir="${topdir}/${build_mozilla}-src";
-#if ( ! -d "${srcdir}" ) mkdir "${srcdir}";
 set objdir="${topdir}/${build_mozilla}-objdir";
-#if ( ! -d "${objdir}" ) mkdir "${objdir}";
 
 if ( ${?2} && "${2}" == "set-default" ) goto make_default
 

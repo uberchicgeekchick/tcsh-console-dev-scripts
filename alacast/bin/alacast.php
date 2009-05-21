@@ -117,8 +117,11 @@
 			."\n\t				character(s) known to cause issues with that player will be"
 			."\n\t				removed."
 			."\n"
-			."\n\t--prefix-episodes-with-podcast-title"//TODO: Implement
-			."\n\t				"
+			."\n"
+			."\nNaming/Title options:"
+			."\n----------------------"
+			."\n\t--titles-prefix-podcast-name"
+			."\n\t--titles-append-pubdate"
 			."\n"
 			."\n"
 			."\n\t--help			displays this screen."
@@ -331,7 +334,7 @@
 			
 		$podcastsTempInfo = array();
 		$podcastsXML_fp = fopen( $podcastsXML_filename, 'r' );
-		$podcastsTempInfo = preg_replace("/[\r\n]+/m" , "",
+		$podcastsTempInfo = preg_replace("/[\r\n]+/m" , " - ",
 					(utf8_encode(
 						(fread(
 							$podcastsXML_fp,
@@ -346,10 +349,11 @@
 					PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
 		);
 		
-		$podcastsPubDates=preg_split(
-					"/(<pubDate>[^<]+<\/pubDate>)/m", $podcastsTempInfo, -1,
-					PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
-		);
+		if( (in_array( "--titles-append-pubdate", $_SERVER['argv'] )) )
+			$podcastsPubDates=preg_split(
+						"/(<pubDate>[^<]+<\/pubDate>)/m", $podcastsTempInfo, -1,
+						PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE
+			);
 		
 		unset($podcastsTempInfo);
 	
@@ -366,8 +370,12 @@
 			if( (preg_match("/^<title>[^<]*<\/title>$/", $podcastsTitles[$i])) )
 				if(!isset($podcastsInfo[0]))
 					$podcastsInfo[ $podcastsInfo['total']++ ] = html_entity_decode( preg_replace("/<title>[\ \t]*([^<]+)[\ \t]*<\/title>/", "$1", $podcastsTitles[$i]) );
-				else
-					$podcastsInfo[ $podcastsInfo['total']++ ] = html_entity_decode(sprintf("%s, released on: %s", preg_replace("/<title>[\ \t]*([^<]*)[\ \t]*<\/title>/", "$1", $podcastsTitles[$i]), preg_replace("/<pubDate>[\ \t]*([^<]+)[\ \t]*<\/pubDate>/", "$1", $podcastsPubDates[($i-2)] ) ) );
+				else{
+					if( (in_array( "--titles-append-pubdate", $_SERVER['argv'] )) )
+						$podcastsInfo[ $podcastsInfo['total']++ ] = html_entity_decode(sprintf("%s%s, released on: %s", ( (in_array( "--titles-prefix-podcast-name", $_SERVER['argv'] )) ?(sprintf("%s: ", $podcastsInfo[0])) :"" ), preg_replace("/<title>[\ \t]*([^<]*)[\ \t]*<\/title>/", "$1", $podcastsTitles[$i]), preg_replace("/<pubDate>[\ \t]*([^<]+)[\ \t]*<\/pubDate>/", "$1", $podcastsPubDates[($i-2)] ) ) );
+					else
+						$podcastsInfo[ $podcastsInfo['total']++ ] = html_entity_decode(sprintf("%s%s", ( (in_array( "--titles-prefix-podcast-name", $_SERVER['argv'] )) ?(sprintf("%s: ", $podcastsInfo[0])) :"" ), preg_replace("/<title>[\ \t]*([^<]*)[\ \t]*<\/title>/", "$1", $podcastsTitles[$i]) ) );
+				}
 		
 		if(getenv("ALACAST_DEBUG")){
 			print("Found podcastTitles:\n");

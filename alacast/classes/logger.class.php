@@ -56,13 +56,13 @@
 		private $log_file;
 		private $logs_fp;
 		
-		public function __construct( $logs_path = ".", $programs_name = "uberChick's progam", $logging_enable = true, $silence_output = false ) {
+		public function __construct( $logs_path = ".", $programs_name = "uberChick's progam", $logging_enable = TRUE, $silence_output = FALSE ) {
 			$this->program_name = $programs_name;
 			
 			if( $silence_output )
-				$this->silence_output=true;
+				$this->silence_output=TRUE;
 			else
-				$this->silence_output=false;
+				$this->silence_output=FALSE;
 			
 			if( ! $logging_enable )
 				return $this->disable_logging();
@@ -73,12 +73,12 @@
 			else
 				$this->logs_path = preg_replace( "/\/$/", "", $logs_path );
 			
-			$this->logging_enabled = true;
-			$this->ending_hour = -1;
+			$this->logging_enabled = TRUE;
+			$this->setup_logging_data();
 		}//method: public function __construct();
 		
 		private function disable_logging() {
-			$this->logging_enabled = false;
+			$this->logging_enabled = FALSE;
 			
 			$this->year = null;
 			$this->month = null;
@@ -91,62 +91,72 @@
 		}//method: private function disable_logging();
 		
 		private function setup_logging_data() {
-			$this->year = date( "Y" );
-			$this->month = date( "m" );
-			$this->day = date( "d" );
+			$this->year = date("Y");
+			$this->month = date("m");
+			$this->day = date("d");
+			
+			$this->current_hour=date("H");
 			
 			$this->starting_hour = $this->current_hour - ( $this->current_hour % 6 );
 			$this->ending_hour = $this->starting_hour + 5;
+			
+			$this->log_file=sprintf("%s/%s's log for %s-%s-%s from %s%s:00 through %s%s:59.log", $this->logs_path, $this->program_name, $this->year, $this->month, $this->day, (($this->starting_hour<10) ?"0" :""), $this->starting_hour, (($this->ending_hour<10) ?"0" :""), $this->ending_hour);
 		}//method: private function setup_logging_data();
 		
 		private function check_log() {
 			if( ! (
-				( (file_exists( $this->log_file )) )
+				(
+					$this->log_file
+					&&
+					file_exists( $this->log_file )
+				)
 				&&
 				$this->logs_fp
 				&&
-				($this->current_hour = date( "H" )) <= $this->ending_hour
+				($this->current_hour=date( "H" )) <= $this->ending_hour
 				&&
 				$this->current_hour > $this->starting_hour
 			) )
-				return true;
+				return TRUE;
 			
-			return false;
+			return FALSE;
 		}//method:private function check_log();
 		
 		private function rotate_log() {
 			if(!($this->check_log()) )
-				return false;
+				return FALSE;
 			
 			$this->setup_logging_data();
 			if( $this->logs_fp )
 				fclose( $this->logs_fp );
 			
-			if(!( ($this->logs_fp = fopen( ($this->log_file = "{$this->logs_path}/{$this->program_name}'s log for {$this->year}-{$this->month}-{$this->day} from ".(($this->starting_hour<10)?"0":"")."{$this->starting_hour}:00 through ".(($this->ending_hour<10)?"0":"")."{$this->ending_hour}:59.log" ), "a" )) )) {
+			if(!( ($this->logs_fp = fopen( $this->log_file, "a" )) )) {
 				fwrite( STDERR, (utf8_encode("I was unable to load the log file:\n\t\"{$this->log_file}\"\nLogging will be disabled.\n")) );
 				$this->disable_logging();
+				return FALSE;
 			}
+			return TRUE;
 		}//method: private function rotate_log();
 		
 		public function log_output( &$string, &$error ) {
-			if( $this->logging_enabled ) {
-				$this->rotate_log();
-				fwrite( $this->logs_fp, (utf8_encode( (($error==true) ? "*ERROR*:" : "" ) . $string )) );
-			}
-		
+			if(!($this->logging_enabled))
+				return;
+			
+			$this->rotate_log();
+			fwrite( $this->logs_fp, (utf8_encode( (($error==TRUE) ? "*ERROR*:" : "" ) . $string )) );
 		}//method: private function log_output();
 		
-		public function output( $string, $error = false ) {
+		public function output( $string, $error = FALSE ) {
 			$this->log_output( $string, $error );
 		
-			if( $error === true )
+			if( $error === TRUE )
 				return fwrite( STDERR, (utf8_encode($string)) );
 			
 			if( $this->silence_output )
-				return false;
+				return FALSE;
 			
 			return fwrite( STDOUT, (utf8_encode($string)) );
-		}//method:public function output( $error = false );
+		}//method:public function output( $error = FALSE );
 		
 		private function close_log() {
 			if( $this->logs_fp )

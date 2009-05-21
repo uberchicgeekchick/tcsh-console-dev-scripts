@@ -1,0 +1,22 @@
+#!/bin/sh --noprofile
+
+alacasts_path=`dirname "${0}"`
+alacasts_exec="${alacasts_path}/alacast.php"
+alacasts_options="--update=detailed --logging --interactive --titles-append-pubdate"
+
+
+alacasts_resolution="";
+if test -e "${HOME}/.alacast/cli.geometry"; then
+	alacasts_resolution=`cat "${HOME}/.alacast/cli.geometry"`
+elif test -e "${alacasts_path}/../data/alacast.gnome-terminal.geometry"; then
+	alacasts_resolution=`cat "${alacasts_path}/../data/cli.geometry"`
+else
+	alacasts_resolution="114x40"
+fi
+
+/usr/bin/gnome-terminal \
+	--geometry="${alacasts_resolution}" \
+	--hide-menubar \
+	--title="alacast:cli" \
+	--working-directory="${alacasts_path}" \
+	--command="${alacasts_exec} ${alacasts_options} ${argv}" &

@@ -19,14 +19,15 @@ foreach genre ( "`find '${podcasts_download_path}' -type d -name '${music_librar
 	rmdir ${podcasts_download_path}/${music_library}*\ genre\ "${genre}"/
 end
 
-foreach title ( "`find Genres -iname '*.mp3'`" )
-	set song = "`printf "\""${title}"\"" | sed 's/.*\/\(.*\)\ \-\ \(.*\)\.mp3/\2/g'`"
-	set artist = "`printf "\""${title}"\"" | sed 's/.*\/\(.*\)\ \-\ \(.*\)\.mp3/\1/g'`"
+foreach title ( "`find Genres -iregex '.*\.\(mp.\|ogg\|flac\)'`" )
+	set song = "`printf "\""${title}"\"" | sed 's/.*\/\(.*\)\ \-\ \(.*\)\.\(mp.\|ogg\|flac\)/\2/g'`"
+	set artist = "`printf "\""${title}"\"" | sed 's/.*\/\(.*\)\ \-\ \(.*\)\.\(mp.\|ogg\|flac\)/\1/g'`"
+	set extension = "`printf "\""${title}"\"" | sed 's/.*\.\(mp.\|ogg\|flac\)/\1/g'`"
 	
-	if ( -e "Artists/${artist}/${song}.mp3" ) continue
+	if ( -e "Artists/${artist}/${song}.${extension}" ) continue
 	
-	printf "Linking %s to %s/%s/%s.mp3\n" "${title}" "Artists" "${artist}" "${song}"
+	printf "Linking %s to %s/%s/%s.%s\n" "${title}" "Artists" "${artist}" "${song}" "${extension}"
 	if ( ! -d "Artists/${artist}" ) mkdir -p "Artists/${artist}"
-	ln "${title}" "Artists/${artist}/${song}.mp3"
-	if ( ! -e "Artists/${artist}/${song}.mp3" ) printf "\tERROR: I was unable to link %s to Artists/%s/%s.mp3\n" "${title}" "${artist}" "${song}"
+	ln "${title}" "Artists/${artist}/${song}.${extension}"
+	if ( ! -e "Artists/${artist}/${song}.${extension}" ) printf "\tERROR: I was unable to link %s to Artists/%s/%s.${extension}\n" "${title}" "${artist}" "${song}"
 end

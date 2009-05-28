@@ -335,11 +335,9 @@
 		$podcastsTempInfo = array();
 		$podcastsXML_fp = fopen( $podcastsXML_filename, 'r' );
 		$podcastsTempInfo = preg_replace("/[\r\n]+/m" , " - ",
-					(utf8_encode(
-						(fread(
-							$podcastsXML_fp,
-							(filesize($podcastsXML_filename))
-						))
+					(fread(
+						$podcastsXML_fp,
+						(filesize($podcastsXML_filename))
 					))
 				);
 		fclose($podcastsXML_fp);
@@ -428,7 +426,13 @@
 			$podcastsInfo[$i]=preg_replace( "/^[~\.]+(.*)[~\.]+$/", "$1",
 						(preg_replace( "/[\/]/", "-",
 							(preg_replace( "/[{$bad_chars}#\?]/", "",
-								$podcastsInfo[$i]
+								(urldecode(
+									(html_entity_decode(
+										$podcastsInfo[$i],
+										ENT_QUOTES,
+										"ISO-8859-1"/*"UTF-8"*/
+									))
+								))
 							))
 						))
 			); //for( $i<$podcastInfo['total'] )

@@ -230,6 +230,8 @@ build_canvas:
 			--hide-menubar \
 			--geometry=${geometry} \
 			--tab-with-profile="uberChick" --title="mozilla-src" --working-directory="/programs/src/mozilla" \
+			--tab-with-profile="uberChick" --title="thunderbird-src" --working-directory="/programs/src/mozilla/thunderbird-src" \
+			--tab-with-profile="uberChick" --title="firefox-src" --working-directory="/programs/src/mozilla/firefox-src" \
 		${argv} &;
 		breaksw
 	
@@ -298,7 +300,7 @@ media_canvas:
 			--tab-with-profile="uberChick" --title="/media" --working-directory="/media" \
 			--tab-with-profile="uberChick" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="uberChick" --title="podcasts" --working-directory="/media/podcasts" \
-			--tab-with-profile="uberChick" --title="alacast:php" --working-directory="/projects/cli/alacast" --command="/projects/cli/alacast/bin/alacast.php --update=detailed --logging --player=xine --interactive" \
+			--tab-with-profile="uberChick" --title="alacast:php" --working-directory="/projects/cli/alacast" --command="/projects/cli/alacast/bin/alacast.php --update=detailed --logging --player=xine --interactive --titles-append-pubdate" \
 		${argv} &;
 		breaksw
 	endsw

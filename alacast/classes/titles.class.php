@@ -29,7 +29,6 @@
 
 		
 		static function reorder_titles( &$podcasts_info ){
-			return;
 			for($i=0; $i<$podcasts_info['total']; $i++)
 				for( $a=0; $a<$this->renumbering_regular_expressions['total']; $a++ )
 					for( $n=0; $n<$this->renumbering_regular_expressions[$a]['total']; $n++ )

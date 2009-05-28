@@ -50,6 +50,6 @@ set gnomesu_commands=( "yast2" );
 foreach gnomesu_command ( ${gnomesu_commands} )
 	alias	"${gnomesu_command}"	"${gnomesu} ${gnomesu_command}";
 end
-unset gnomesu gnomesu_commands;
+unset gnomesu gnomesu_command gnomesu_commands;
 
 #eof

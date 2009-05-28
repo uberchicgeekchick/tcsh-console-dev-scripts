@@ -1,0 +1,48 @@
+#/bin/tcsh -f
+if(!( ${?1} && "${1}" != "" && -e "${1}" )) then
+	printf "Usage: %s input_file" `basename "${0}"`;
+	exit -1;
+endif
+
+set decoder=`which ffmpeg`;
+if(! -x "${decoder}" ) then
+	printf "Unable to find executable decoder: ffmpeg.  Found: %s.\n" ${decoder};
+	exit -2;
+endif
+
+set encoder=`which oggenc`;
+if(! -x "${encoder}" ) then
+	printf "Unable to find executable encoder: oggenc.  Found: %s.\n" ${decoder};
+	exit -3;
+endif
+
+set filename=`echo ${1} | sed 's/\(.*\)\.\([^\.]\+\)$/\1/g'`;
+set extension=`echo ${1} | sed 's/\(.*\)\.\([^\.]\+\)$/\2/g'`;
+if( -e "${filename}.ogg" ) then
+	printf "%s.ogg already exists... exiting."
+	exit(-4);
+endif
+
+if( "${extension}" != "wav" ) then
+	if( -e "${filename}.wav" ) rm "${filename}.wav";
+	printf "Please wait a moment...\n\t%s\n\tTemporally converting to WAV file:" "${1}"
+	${decoder} -i "${1}" "${filename}.wav" >& /dev/null;
+	if(!("${status}" == "0" && -e "${filename}.wav")) then
+		printf "\t\t[failed]\nUnable to decode file.  Decoder: %s; returned: %d.\n" `basename ${decoder}` ${status};
+		exit ${status};
+	endif
+	printf "\t\t[success]"
+	rm "${1}";
+endif
+
+printf "\nPlease wait a moment...\n\t%s\n\tEncoding to OGG Vorbis:" "${filename}"
+
+if( -e "${filename}.ogg" ) rm "${filename}.ogg";
+${encoder} "${filename}.wav" >& /dev/null;
+if(!("${status}" == "0" && -e "${filename}.ogg")) then
+	printf "\t\t[failed]\nUnable to ecode file.  Encoder: %s; returned: %d.\n" `basename ${decoder}` ${status};
+	exit ${status}
+endif
+
+printf "\t\t[success]\n"
+rm "${filename}.wav"

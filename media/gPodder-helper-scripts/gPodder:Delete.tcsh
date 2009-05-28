@@ -1,10 +1,10 @@
 #!/bin/tcsh -f
-if ( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) goto usage
+if(!(${?1} && "${1}" != "" && "${1}" != "--help")) goto usage
 
 set attrib = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\1/g'`"
 set value = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`"
 
-if ( ! ( "${attrib}" != "" && "${value}" != "" ) ) goto usage
+if(!( "${attrib}" != "" && "${value}" != "" )) goto usage
 
 switch ( "${attrib}" )
 case "title":

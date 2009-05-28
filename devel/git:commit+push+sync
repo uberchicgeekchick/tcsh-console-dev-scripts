@@ -61,11 +61,20 @@ foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
 	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
 	git rm --cached --quiet "${tarball}";
 end
+unset tarball;
 
 foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\)'`" )
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
 	git rm --cached --quiet "${swp}";
 end
+unset swp;
+
+foreach art ( "`find . -iregex '.*\.\(art\|dev\|ref\)\.[^\.]*'`" )
+	set art = "`printf '${art}' | sed 's/^\.\///'`";
+	git rm --cached --quiet "${art}";
+end
+unset art;
+
 git rm -r --cached --quiet "${log_dir}";
 
 git commit -a -F "${commit_log}" --cleanup=verbatim;

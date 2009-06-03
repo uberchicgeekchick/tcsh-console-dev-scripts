@@ -14,7 +14,7 @@
 	 * language governing rights and limitations under the RPL.
 	 */
 	class alacasts_titles extends alacast {
-		static $renumbering_regular_expressions;
+		public $renumbering_regular_expressions;
 		
 		public function __construct(){
 			$this->load_renumbering_regular_expressions();
@@ -28,7 +28,8 @@
 		
 
 		
-		static function reorder_titles( &$podcasts_info ){
+		public function reorder_titles( &$podcasts_info ){
+			return;
 			for($i=0; $i<$podcasts_info['total']; $i++)
 				for( $a=0; $a<$this->renumbering_regular_expressions['total']; $a++ )
 					for( $n=0; $n<$this->renumbering_regular_expressions[$a]['total']; $n++ )
@@ -45,7 +46,7 @@
 		
 		
 		
-		static function get_numbers_suffix( $number ){
+		public function get_numbers_suffix( $number ){
 			switch( $number ){
 				case preg_match("/^[0-9]*1$/", $number):
 					return "st";
@@ -60,7 +61,7 @@
 		
 		
 		
-		static function prefix_episope_titles_with_podcasts_title( &$podcasts_info ) {
+		public function prefix_episope_titles_with_podcasts_title( &$podcasts_info ) {
 			if( !(alacast_helper::preg_match_array($_SERVER['argv'], "/\-\-prefix\-episodes\-with\-podcast\-title/")) ) return;
 		
 			for( $i=1; $i<$podcasts_info['total']; $i++ )

@@ -445,9 +445,9 @@
 	function set_podcasts_info( &$podcastsXML_filename, &$podcasts_info, &$podcastsGUID, &$totalPodcasts ) {
 		get_episode_titles( $podcasts_info, $podcastsXML_filename );
 		clean_podcasts_info( $podcasts_info );
-		alacasts_titles::reorder_titles( $podcasts_info );
+		$GLOBALS['alacasts_titles']->reorder_titles( $podcasts_info );
 		generate_podcasts_info( $podcasts_info, $totalPodcasts, $podcasts_info['total'] );
-		alacasts_titles::prefix_episope_titles_with_podcasts_title( $podcasts_info );
+		$GLOBALS['alacasts_titles']->prefix_episope_titles_with_podcasts_title( $podcasts_info );
 	}//end:function set_podcasts_info();
 
 
@@ -461,7 +461,7 @@
 			$podcastsEpisode=sprintf(
 							"%d%s %s",
 								((++$untitled_podcast_count)),
-								(alacasts_titles::get_numbers_suffix( $untitled_podcast_count ) ),
+								($GLOBALS['alacasts_titles']->get_numbers_suffix( $untitled_podcast_count ) ),
 								($podcastsName ?$podcastsName :"untitled podcast" )
 			);
 			
@@ -676,6 +676,7 @@
 		exit( -1 );
 
 	$podcatcher = new alacasts_podcatcher_program();
+	$alacasts_titles=new alacasts_titles();
 
 	$alacasts_logger = new alacasts_logger(
 		GPODDER_SYNC_DIR,

@@ -1,5 +1,4 @@
 #!/bin/tcsh -f
-set clean_up = "no"
 set search_dir = "./"
 set my_editor = "`printf '${0}' | sed 's/.*\/\([^:]\+\).*/\1/g'`"
 
@@ -10,7 +9,7 @@ while ( ${?1} && "${1}" != "" )
 		breaksw
 	
 	case "--clean-up":
-		set clean_up = "yes"
+		set clean_up
 		breaksw
 	
 	default:
@@ -41,7 +40,7 @@ foreach swp ( "`find ${search_dir} -iregex '\..*\.\(sw.\|~\)' | sort`" )
 	set file = "`echo ${swp} | sed 's/\/\.\(.*\)\.\(sw.\|~\)/\/\1/g'`"
 	
 	printf " %s${file}%s" '"' '"' >> "${session_exec}"
-	if ( "${clean_up}" == "yes" ) rm "${swp}"
+	if ( ${?clean_up} ) rm "${swp}"
 end
 
 if ( ! ${?session_started} ) exit

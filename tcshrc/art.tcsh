@@ -11,17 +11,18 @@ bindkey	"^Z" run-fg-editor;
 alias	vi	"vim-enhanced -p"
 alias	vim	"vim-enhanced -p"
 
-alias	exs	"ex -s"
-
-alias	screen		"/projects/cli/helpers/screen:attach"
-
-setenv PATH "${PATH}:/programs/connectED/bin:/bin:/projects/games/engines/Raydium/raydium/bin"
-
-
 complete kill_program.tcsh "p/*/c/"
 complete interupt_program.tcsh "p/*/c/"
 
 source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/gtk/alacast/scripts
 
 source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/cli
+
+alias editor:session:make.tcsh "/projects/cli/devel/editor:session:make.tcsh --clean-up"
+
+alias	ex	"/projects/cli/helpers/ex:silent"
+
+alias	screen	"/projects/cli/helpers/screen:attach"
+
+setenv PATH "${PATH}:/programs/connectED/bin:/bin:/projects/games/engines/Raydium/raydium/bin"
 

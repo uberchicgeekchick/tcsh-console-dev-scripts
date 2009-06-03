@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if ( ! ( ${?1} && "${1}" != "" ) ) goto usage
+if(!( ${?1} && "${1}" != "" && "${1}" != "--help" )) goto usage
 
 set gpodder_dl_dir = "`grep 'download_dir' '${HOME}/.config/gpodder/gpodder.conf' | cut -d= -f2 | cut -d' ' -f2`"
 

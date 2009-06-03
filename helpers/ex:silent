@@ -1,0 +1,3 @@
+#!/bin/tcsh -f
+if(!( ${?argv} && "${argv}" != "" )) exit
+ex ${argv} >& /dev/null

@@ -21,4 +21,3 @@ source /profile.d/tcshrc/programs.tcsh
 source /profile.d/tcshrc/environment.tcsh
 
 source /profile.d/tcshrc/sshfs:mount:ocs.tcsh
-(cd ${HOME} ; sshfs:mount:${ssh_user} )

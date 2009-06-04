@@ -135,7 +135,7 @@ case "cp":
 	# and remove remote files that no longer exist locally.;
 	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
 	set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
-	foreach remote_file ( "`find '${sshfs_path}/${project_name}/'`" )
+	foreach remote_file ( "`find '${sshfs_path}/${project_name}/*'`" )
 		# escape special characters to keep them from being expanded by the terminal;
 		# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
 		

@@ -22,7 +22,6 @@ if( "${1}" == "--transcode" ) then
 	shift;
 endif
 
-echo "hello world";
 set filename=`echo ${1} | sed 's/\(.*\)\.\([^\.]\+\)$/\1/g'`;
 set extension=`echo ${1} | sed 's/\(.*\)\.\([^\.]\+\)$/\2/g'`;
 if( -e "${filename}.ogg" ) then

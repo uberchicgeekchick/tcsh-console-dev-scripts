@@ -3,14 +3,14 @@ cd "`dirname '${0}'`";
 
 set search_script="./gPodder:Search:index.rss.tcsh";
 
-if(!( ${?1} && "${1}" !="" && "${1}" != "--help" )) then
+if(!( ${?1} && "${1}" != "" && "${1}" != "--help" )) then
 	printf "%s uses %s to find what episodes to redownload.\n\tIt supports all of its options in addition to:\n\t\t--quiet\t-Which cause the wget ouptput to be surpressed.\t\n\t\n\tIn addition %s' options are:\n\t" `basename ${0}` ${search_script} ${search_script};
 	${search_script} --help
 	exit -1;
 endif
 
 set silent="";
-if( "${1}" == "--silent" || "${1}" == "--quiet" ) then
+if( ${?1} && ( "${1}" == "--silent" || "${1}" == "--quiet" ) ) then
 	set silent=">& /dev/null";
 	shift;
 endif

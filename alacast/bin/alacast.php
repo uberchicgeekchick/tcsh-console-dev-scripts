@@ -354,7 +354,7 @@
 			);
 		
 		unset($podcastsTempInfo);
-	
+		
 		if(!( (isset( $podcastsTitles[0] )) ))
 			return FALSE;
 		
@@ -409,6 +409,9 @@
 		static $bad_chars=NULL;
 		if($bad_chars==NULL){
 			switch(alacast_helper::preg_match_array($_SERVER['argv'], "/^\-\-player=?(.*)$/", "$1")){
+				case FALSE:
+					$bad_chars="";
+					break;
 				case "vlc":
 					$bad_chars=":";
 					break;

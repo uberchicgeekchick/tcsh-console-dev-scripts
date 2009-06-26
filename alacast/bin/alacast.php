@@ -403,24 +403,27 @@
 		
 		return TRUE;
 	}//end:function get_episode_titles()
+	
 
+	function get_characters_to_strip_from_titles(){
+		static $bad_chars;
+		
+		if(isset($bad_chars)) return $bad_chars;
 
+		if(!($bad_chars=alacast_helper::preg_match_array($_SERVER['argv'], "/^\-\-strip\-characters=?(.*)$/", "$1"))) $bad_chars="";
+		
+		switch(alacast_helper::preg_match_array($_SERVER['argv'], "/^\-\-player=?(.*)$/", "$1")){
+			case FALSE: return $bad_chars;
+			case "gstreamer":
+				return ($bad_chars=sprintf("%s#", $bad_chars));
+			case "vlc":
+				return ($bad_chars=sprintf("%s:", $bad_chars));
+			default:
+				return ($bad_chars=sprintf("%s#:", $bad_chars));
+		}
+	}
+	
 	function clean_podcasts_info( &$podcastsInfo ) {
-		static $bad_chars=NULL;
-		if($bad_chars==NULL){
-			switch(alacast_helper::preg_match_array($_SERVER['argv'], "/^\-\-player=?(.*)$/", "$1")){
-				case FALSE:
-					$bad_chars="";
-					break;
-				case "vlc":
-					$bad_chars=":";
-					break;
-				default:
-					$bad_chars="#:";
-					break;
-			}
-		}//$bad_chars==NULL
-
 		/* replaces forward slashes with hyphens & strips leading dots('.').
 		 * both for obvious(Linux) reasons. Other characters are stripped as well
 		 * these are due to know issues that GStreamer, 
@@ -428,10 +431,10 @@
 		for($i=0; $i<$podcastsInfo['total']; $i++)
 			$podcastsInfo[$i]=preg_replace( "/^[~\.]+(.*)[~\.]+$/", "$1",
 						(preg_replace( "/[\/]/", "-",
-							(preg_replace( "/[{$bad_chars}#\?]/", "",
-								(urldecode(
-									(html_entity_decode(
-										$podcastsInfo[$i],
+							(preg_replace( (sprintf("/[%s]/", get_characters_to_strip_from_titles())), "",
+									(urldecode(
+										(html_entity_decode(
+											$podcastsInfo[$i],
 										ENT_QUOTES,
 										"ISO-8859-1"/*"UTF-8"*/
 									))

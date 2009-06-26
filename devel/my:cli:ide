@@ -213,7 +213,7 @@ build_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="/programs/src" --working-directory="/programs/src" \
+			--tab-with-profile="build:canvas" --title="/programs/src" --working-directory="/programs/src" \
 		${argv} &;
 		breaksw
 	
@@ -221,7 +221,7 @@ build_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="/projects" --working-directory="/projects" \
+			--tab-with-profile="build:canvas" --title="/projects" --working-directory="/projects" \
 		${argv} &;
 		breaksw
 	
@@ -229,9 +229,9 @@ build_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="mozilla-src" --working-directory="/programs/src/mozilla" \
-			--tab-with-profile="uberChick" --title="thunderbird-src" --working-directory="/programs/src/mozilla/thunderbird-src" \
-			--tab-with-profile="uberChick" --title="firefox-src" --working-directory="/programs/src/mozilla/firefox-src" \
+			--tab-with-profile="build:canvas" --title="mozilla-src" --working-directory="/programs/src/mozilla" \
+			--tab-with-profile="build:canvas" --title="thunderbird-src" --working-directory="/programs/src/mozilla/thunderbird-src" \
+			--tab-with-profile="build:canvas" --title="firefox-src" --working-directory="/programs/src/mozilla/firefox-src" \
 		${argv} &;
 		breaksw
 	
@@ -239,7 +239,7 @@ build_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="firefox-src" --working-directory="/programs/src/mozilla/firefox-src" \
+			--tab-with-profile="build:canvas" --title="firefox-src" --working-directory="/programs/src/mozilla/firefox-src" \
 		${argv} &;
 		breaksw
 	
@@ -247,7 +247,7 @@ build_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="thunderbird-src" --working-directory="/programs/src/mozilla/thunderbird-src" \
+			--tab-with-profile="build:canvas" --title="thunderbird-src" --working-directory="/programs/src/mozilla/thunderbird-src" \
 		${argv} &;
 		breaksw
 	
@@ -256,10 +256,11 @@ build_canvas:
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
 			--geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="/profile.d" --working-directory="/profile.d" \
-			--tab-with-profile="uberChick" --title="tcsh-dev" --working-directory="/projects/cli/tcsh-dev/tcsh-dev" \
-			--tab-with-profile="uberChick" --title="/projects" --working-directory="/projects" \
-			--tab-with-profile="uberChick" --title="/programs/src" --working-directory="/programs/src" \
+			--tab-with-profile="build:canvas" --title="/programs/src" --working-directory="/programs/src" \
+			--tab-with-profile="build:canvas" --title="/programs/src" --working-directory="/programs/src" \
+			--tab-with-profile="build:canvas" --title="firefox-src" --working-directory="/programs/src/mozilla/firefox-src" \
+			--tab-with-profile="build:canvas" --title="thunderbird-src" --working-directory="/programs/src/mozilla/thunderbird-src" \
+			--tab-with-profile="build:canvas" --title="/projects" --working-directory="/projects" \
 		${argv} &;
 		breaksw
 	

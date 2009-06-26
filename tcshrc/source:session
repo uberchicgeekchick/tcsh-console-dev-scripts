@@ -10,6 +10,10 @@ foreach rc_file ( /profile.d/tcshrc/*.tcsh )
 	case "programs.tcsh":
 	case "sshfs:mount:ocs.tcsh":
 		breaksw
+	case "make:setenv:basic.tcsh":
+	case "make:setenv:full.tcsh":
+		breaksw
+	case "make:setenv:load.tcsh":
 	default:
 		source "${rc_file}"
 		if( ${?http_proxy} ) unsetenv http_proxy

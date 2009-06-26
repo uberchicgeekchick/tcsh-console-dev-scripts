@@ -109,10 +109,9 @@ foreach tarball ( dist/*.tar.bz2 )
 		continue;
 	endif
 	
-	rm "${tarball_backup_dir}/${build_mozilla}-.*.tar.bz2";
+	rm ${tarball_backup_dir}/${build_mozilla}-.*.tar.bz2;
 	cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
-	rm "${tarball}";
-	set tarball="${tarball_backup_dir}/${backup_tarball}";
+	#set tarball="${tarball_backup_dir}/${backup_tarball}";
 end
 
 

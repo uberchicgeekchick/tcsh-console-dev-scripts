@@ -50,5 +50,5 @@ if(!("${status}" == "0" && -e "${filename}.ogg")) then
 	exit ${status}
 endif
 
-printf "\t\t[success]\n\tCreated OGG Vorbis:\n\t%s.ogg\n" "${filename}"
+printf "\t\t[success]\n\tCreated OGG Vorbis:\n\t\t%s.ogg\n" "${filename}"
 rm "${filename}.wav"

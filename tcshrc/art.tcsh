@@ -24,5 +24,7 @@ alias	ex	"/projects/cli/helpers/ex:silent"
 
 alias	screen	"/projects/cli/helpers/screen:attach"
 
+setenv	BONOBO_ACTIVATION_PATH	"/usr/lib64/bonobo/servers"
+
 setenv PATH "${PATH}:/programs/connectED/bin:/bin:/projects/games/engines/Raydium/raydium/bin"
 

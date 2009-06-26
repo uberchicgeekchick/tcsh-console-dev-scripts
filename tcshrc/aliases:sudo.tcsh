@@ -29,7 +29,7 @@ if( ${?CSHRC_DEBUG} ) printf "Setting services\t\t\t[done]\n"
 
 set recursive_sudo_commands=( "chown" "chgrp" )
 foreach recursive_sudo_command ( ${recursive_sudo_commands} )
-	alias	"${recursive_sudo_command}"	"sudo ${recursive_sudo_command} -r";
+	alias	"${recursive_sudo_command}"	"sudo ${recursive_sudo_command} -R";
 end
 unset recursive_sudo_command recursive_sudo_commands;
 

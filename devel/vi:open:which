@@ -1,0 +1,57 @@
+#!/bin/tcsh -f
+set search_dir = "./"
+set my_editor = "`printf '${0}' | sed 's/.*\/\([^:]\+\).*/\1/g'`"
+if(${my_editor} == "editor") unset my_editor;
+set scripts=();
+
+while ( ${?1} && "${1}" != "" )
+	set attrib = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)/\1/g'`";
+	set value = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`";
+	switch ( "${attrib}" )
+		case "editor":
+			foreach editor ( "`where '${value}'`" )
+				if( ! -e "${editor}" ) then
+					set my_editor = "${editor}";
+					end
+				endif
+			end
+		breaksw
+		
+		default:
+			foreach script ( "`where '${attrib}'`" )
+				if( -e "${script}" ) set scripts=( ${scripts} "${script}" );
+			end
+		breaksw
+	endsw
+	shift
+end
+
+if( ${#scripts} == 0 ) then
+	printf "I couldn't find any of the scripts you've asked to edit.  Scripts found %s" "${scripts}";
+	exit -1;
+endif
+
+if(!(${?my_editor} && -e ${my_editor})) set my_editor = "${EDITOR}"
+
+set my_editor = `basename "${my_editor}"`
+
+set session_exec = "./.which:session:${my_editor}.tcsh"
+
+foreach script ( "${scripts}" )
+	if ( ! ${?session_started} ) then
+		set session_started
+		printf '#\!/bin/tcsh -f\nset my_editor = "`printf "\\""${0}"\\"" | sed '\''s/.*\/\([^\.]\+\).*/\\1/g'\''`"\nswitch ( "${my_editor}" )\ncase "connectED":\ncase "gedit":\n\tbreaksw\ncase "vi":\ncase "vim":\ncase "vim-enhanced":\ndefault:\n\tset my_editor = `printf "%%s -p" "vim-enhanced"`\n\tbreaksw\nendsw\n\n${my_editor}' >! "${session_exec}"
+	endif
+	printf "Adding %s to %s" "${script}" "${session_exec}"
+	
+	printf " %s${script}%s" '"' '"' >> "${session_exec}"
+end
+
+if ( ! ${?session_started} ) exit
+
+printf "\n" >> "${session_exec}"
+chmod +x "${session_exec}"
+
+${session_exec}
+rm ${session_exec}
+

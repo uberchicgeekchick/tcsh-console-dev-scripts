@@ -14,35 +14,36 @@
 	 * language governing rights and limitations under the RPL.
 	 */
 	class alacasts_titles extends alacast {
-		public $renumbering_regular_expressions;
+		public $renumbering_regexp;
 		
 		public function __construct(){
-			$this->load_renumbering_regular_expressions();
+			$this->load_renumbering_regexp();
 		}//__construct
 		
 		
 		
-		private function load_renumbering_regular_expressions(){
-			$this->renumbering_regular_expressions=require_once(ALACASTS_INCLUDE_PATH."/settings/reordering.inc.php");
+		private function load_renumbering_regexp(){
+			$this->renumbering_regexp=require_once(ALACASTS_INCLUDE_PATH."/settings/reordering.inc.php");
 		}//load_renumbering_regular_expressions
 		
 
 		
 		public function reorder_titles( &$podcasts_info ){
-			return;
+			if(!(isset($this->renumbering_regexp))) $this->load_renumbering_regexp();
 			for($i=0; $i<$podcasts_info['total']; $i++)
-				for( $a=0; $a<$this->renumbering_regular_expressions['total']; $a++ )
-					for( $n=0; $n<$this->renumbering_regular_expressions[$a]['total']; $n++ )
+				for( $a=0; $a<$this->renumbering_regexp['total']; $a++ )
+					for( $n=0; $n<$this->renumbering_regexp[$a]['total']; $n++ )
 						if( (preg_match(
-							$this->renumbering_regular_expressions[$a][$n][0],
+							$this->renumbering_regexp[$a][$n][0],
 							$podcasts_info[$i]
-						)) )
+						)) ){
 							$podcasts_info[$i] = preg_replace(
-								$this->renumbering_regular_expressions[$a][$n][0],
-								$this->renumbering_regular_expressions[$a][$n][1],
+								$this->renumbering_regexp[$a][$n][0],
+								$this->renumbering_regexp[$a][$n][1],
 								$podcasts_info[$i]
 							);
-		}//reorder_titles
+						}
+		}/*reorder_titles*/
 		
 		
 		
@@ -74,10 +75,9 @@
 					));
 		}//prefix_episopes_titles( $podcasts_info );
 		
-		
-		
-		public function __destruct(){
-		}//__destruct
+		function __deconstruct(){
+			if(isset($this->renumbering_regexp)) unset($this->renumbering_regexp);
+		}/*deconstruct*/
 		
 	}//alacast::titles
 ?>

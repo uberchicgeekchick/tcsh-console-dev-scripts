@@ -11,8 +11,8 @@ alias	"./autogen.sh"	"./autogen.sh --libdir=/usr/lib64"
 #		-l<library>, e.g. -lpango-1.0
 #	or shared objects directly:
 #		-L<library.path.so>, e.g. -L/usr/lib64/libpango-1.0.so
-#setenv	LDFLAGS		"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -L/usr/X11R6/lib64/Xaw3d -L/usr/X11R6/lib64 -L/usr/lib64/Xaw3d -L/usr/X11R6/lib/Xaw3d -L/usr/X11R6/lib -L/usr/lib/Xaw3d -L/usr/x86_64-suse-Linux/lib -L/usr/local/lib -L/opt/kde3/lib -L/usr/local/lib64 -L/opt/kde3/lib64"
-#setenv	LIBS		"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -L/usr/X11R6/lib64/Xaw3d -L/usr/X11R6/lib64 -L/usr/lib64/Xaw3d -L/usr/X11R6/lib/Xaw3d -L/usr/X11R6/lib -L/usr/lib/Xaw3d -L/usr/x86_64-suse-Linux/lib -L/usr/local/lib -L/opt/kde3/lib -L/usr/local/lib64 -L/opt/kde3/lib64"
+#setenv	LDFLAGS		"--reduce-memory-overheads"
+#setenv	LIBS		""
 
 
 setenv	LD_LIBRARY_PATH		"/usr/include"
@@ -31,8 +31,8 @@ setenv	CPPFLAGS	"-I${LD_LIBRARY_PATH}"
 
 setenv	MAKEFLAGS	"-O3 -Wall -Wextra -Wstrict-aliasing=3 -Wformat=2 -Werror -Wno-unused-parameter"
 
-setenv	MYFLAGS		"${MAKEFLAGS} -Wfatal-errors -Wswitch-enum -Wno-missing-field-initializers --combine"
-setenv	MYCFLAGS	"${MYFLAGS} -Wmissing-prototypes"
+setenv	MYFLAGS		"${MAKEFLAGS} -Wfatal-errors -Wswitch-enum -Wno-format-nonliteral -Wno-missing-field-initializers --combine"
+setenv	MYCFLAGS	"${MYFLAGS} -Wmissing-prototypes -Wmissing-declarations"
 setenv	MYCXXFLAGS	"${MYFLAGS}"
 
 

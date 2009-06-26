@@ -8,10 +8,13 @@ endif
 
 if ( -x "/usr/bin/id3v2" ) alias	mp3info	"id3v2 --list"
 
-if ( -x "/usr/bin/xfmedia" ) then
+if(!(${?DEBUG_EXEC})) then
+	set output=" >& /dev/null &";
+else
 	set output=" &";
-	if( ${?QUIT_EXEC} ) set output=" >& /dev/null &";
-	
+endif
+
+if ( -x "/usr/bin/xfmedia" ) then
 	#set audio_driver="alsa"
 	#set audio_driver="oss"
 	set audio_driver="esd"
@@ -21,10 +24,11 @@ if ( -x "/usr/bin/xfmedia" ) then
 	
 	set resolution=`cat "/profile.d/resolutions/video/hd.rc"`
 	
+	set xfmedia_condition="";
 	#set xfmedia_settings="${HOME}/.config/xfmedia/settings.xml"
 	#set xfmedia_condition="if ( -e '${xfmedia_settings}' ) mv '${xfmedia_settings}' '${xfmedia_settings}.bck'; "
-	set xfmedia_playlist="/media/library/playlists/xfmedia.m3u"
-	set xfmedia_condition="if(! -e '${xfmedia_playlist}' ) touch '${xfmedia_playlist}'; "
+	#set xfmedia_playlist="/media/library/playlists/xfmedia.m3u"
+	#set xfmedia_condition="if(! -e '${xfmedia_playlist}' ) touch '${xfmedia_playlist}'; "
 	alias xfmedia "${xfmedia_condition}/usr/bin/xfmedia --video-out="\""${video_driver}"\"" --audio-out="\""${audio_driver}"\"" --vwin-geometry="\""${resolution}"\""${output}"
 	
 	foreach resolution_source ( /profile.d/resolutions/video/* )
@@ -44,14 +48,14 @@ if( -x "/usr/bin/xine" ) then
 endif
 
 if( -x "/usr/bin/totem" ) then
-	set totem_audio_playlist="/media/library/playlists/default.m3u"
-	alias	totem		"if ( ! -e '${totem_audio_playlist}' ) touch '${totem_audio_playlist}' ; /usr/bin/totem '${totem_audio_playlist}'${output}";
-	set totem_video_playlist="/media/library/playlists/video.m3u"
-	alias	totem-video	"if ( ! -e '${totem_video_playlist}' ) touch '${totem_video_playlist}' ; /usr/bin/totem --class='totem-video' '${totem_video_playlist}'${output}";
+	set totem_playlist="/media/library/playlists/totem"
+	alias	totem	"if ( ! -e '${totem_playlist}.pls' ) touch '${totem_playlist}.pls' ; /usr/bin/totem '${totem_playlist}.pls'${output}";
+	alias	totem-audio	"if ( ! -e '${totem_playlist}-audio.pls' ) touch '${totem_playlist}-audio.pls' ; /usr/bin/totem --class='totem-audio' '${totem_playlist}-audio.pls'${output}";
+	alias	totem-video	"if ( ! -e '${totem_playlist}-video.pls' ) touch '${totem_playlist}-video.pls' ; /usr/bin/totem --class='totem-video' '${totem_playlist}-video.pls'${output}";
 endif
 
 #alias gpodder "/projects/cli/helpers/exec:silent:stderr gpodder"
-alias gpodder "/projects/cli/media/gPodder-helper-scripts/gPodder:Silent:STDERR.tcsh"
+alias gpodder "/projects/cli/media/gpodder-helper-scripts/gPodder:Silent:STDERR.tcsh"
 
 unset audio_driver video_driver resolution resolution_source output xfmedia_condition xfmedia_playlist totem_audio_playlist totem_video_playlist
 

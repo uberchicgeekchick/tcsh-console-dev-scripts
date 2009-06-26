@@ -1,0 +1,3 @@
+#!/bin/tcsh
+setenv MAKE_BASIC;
+source "/projects/cli/devel/make:setenv:load.tcsh";

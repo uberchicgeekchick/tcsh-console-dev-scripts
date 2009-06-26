@@ -43,8 +43,29 @@
 						max list debug print silence errors help usage)"/
 
 	complete	git	c/--/"(version exec-path paginate no-pager bare git-dir work-tree help)"/ \
-				p/1/"(add bisect branch checkout clone commit diff fetch grep init log \
-					merge mv pull push rebase reset rm show status tag gui)"/ \
+				p/1/"(add am archive bisect branch bundle checkout \
+					cherry-pick citool clean clone commit describe \
+					diff fetch format-patch gc grep gui init log \
+					merge mv pull push rebase reset revert rm \
+					shortlog show stash status submodule tag config \
+					fast-export fast-import filter-branch mergetool \
+					pack-refs prune reflog relink remote repack \
+					annotate blame cherry count-objects fsck \
+					get-tar-commit-id help instaweb merge-tree rerere \
+					rev-parse show-branch verify-tag whatchanged \
+					archimport cvsexportcommit cvsimport cvsserver \
+					imap-send quiltimport request-pull send-email svn \
+					apply checkout-index commit-tree hash-object \
+					index-pack merge-file merge-index mktag mktree \
+					pack-objects prune-packed read-tree symbolic-ref \
+					unpack-objects update-index update-ref write-tree \
+					cat-file diff-files diff-index diff-tree for-each-ref \
+					ls-files ls-remote ls-tree merge-base name-rev \
+					pack-redundant rev-list show-index show-ref \
+					unpack-file var verify-pack daemon fetch-pack send-pack \
+					update-server-info shell upload-archive upload-pack \
+					check-attr check-ref-format fmt-merge-msg mailinfo \
+					mailsplit merge-one-file patch-id sh-setup stripspace)"/ \
 				p/2-/f/
 
 

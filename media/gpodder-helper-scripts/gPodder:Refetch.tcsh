@@ -19,14 +19,14 @@ set mp3_player_folder="`grep 'mp3_player_folder' '${HOME}/.config/gpodder/gpodde
 set refetch_script="${mp3_player_folder}/gPodder:Refetch:`echo '${1}' | sed 's/\([\-\=\/\*\?\.\[\]()]\+\)/\:/g'`.tcsh";
 
 ${search_script} --verbose "${1}" >! "${refetch_script}.tmp"
-ex '+1,$s/[\r\n]\+//g' '+1,$s/\(<\/item>\)/\1\n/g' '+1,$s/.*<title>\([^>]\+\)<\/title>.*<title>\([^<]\+\)<\/title>.*<url>\([^<]\+\)<\/url>.*/if ( ! -d "\1" ) mkdir "\1"\rwget -c -O "\1\/\2" "\3"/g' '+2,$s/^\(wget\ \-c\ \-O\ \)\"\([^\"]\+\)\"\ \"\([^\"]\+\)\.\([^\.\"]\+\)\"$/\1\ \"\2\.\4\"\ \3\.\4/' '+wq' "${refetch_script}.tmp" >& /dev/null;
+ex '+1,$s/[\r\n]\+//g' '+1,$s/\(<\/item>\)/\1\n/g' '+1,$s/.*<title>\([^>]\+\)<\/title>.*<title>\([^<]\+\)<\/title>.*<url>\([^<]\+\)<\/url>.*/if ( -d "\1" ) then\relse\r\tmkdir "\1"\rendif\rwget -c -O "\1\/\2" "\3"/g' '+2,$s/^\(wget\ \-c\ \-O\ \)\"\([^\"]\+\)\"\ \"\([^\"]\+\)\.\([^\.\"]\+\)\"$/\1\ \"\2\.\4\"\ \3\.\4/' '+1,$s/\!//g' '+wq' "${refetch_script}.tmp" >& /dev/null;
 
-while ( `/usr/bin/grep --perl-regexp '("[^\/]+)\/(.*)"' "${refetch_script}.tmp"` != "" )
+while ( `/usr/bin/grep --perl-regexp -e '("[^\/]+)\/(.*)"' "${refetch_script}.tmp"` != "" )
 	ex '+1,$s/\("[^\/]\+\)\/\(.*"\)/\1\-\2/g' '+wq' "${refetch_script}.tmp" >& /dev/null;
 end
 
-set podcast_dir=`head -1 "${refetch_script}.tmp" | sed 's/.*mkdir "\([^"]\+\)"/\1/'`;
-ex '+2,$s/\('"${podcast_dir}"'\)\-/\1\//g' '+wq' "${refetch_script}.tmp";
+set podcast_dir=`head -3 "${refetch_script}.tmp" | tail -1 | sed 's/.*mkdir "\([^"]\+\)"/\1/'`;
+ex '+4,$s/\('"${podcast_dir}"'\)\-/\1\//g' '+wq' "${refetch_script}.tmp";
 
 cd "${mp3_player_folder}";
 if( `wc -l "${refetch_script}.tmp" | sed 's/^\([0-9]\+\)\ .*/\1/g'` > 0 ) then
@@ -34,7 +34,7 @@ if( `wc -l "${refetch_script}.tmp" | sed 's/^\([0-9]\+\)\ .*/\1/g'` > 0 ) then
 	cat "${refetch_script}.tmp" >> "${refetch_script}";
 	chmod +x "${refetch_script}";
 	"${refetch_script}" ${silent};
-	rm "${refetch_script}";
+	if( ${status} == 0 ) rm "${refetch_script}";
 endif
 rm "${refetch_script}.tmp";
 

@@ -4,8 +4,9 @@ if(!( ${?1} && "${1}" != "" && -d "${1}" )) then
 	exit -1;
 endif
 
-foreach file ( "`find ${1} -iregex '.*, released on.*'`" )
-	set filename = "`printf "\""${file}"\"" | sed 's/\(.*\)\(, released on[^\.]\+\)\.\([^\.]\+\)/\1.\3/g'`";
-	mv "${file}" "${filename}";
+foreach title ( "`find '${1}' -iregex '.*, released on.*\.\(mp.\|ogg\|flac\)'`" )
+	set song = "`printf "\""${title}"\"" | sed 's/\(.*\)\(, released on[^\.]*\)\.\(mp.\|ogg\|flac\)/\1/g'`";
+	set extension = "`printf "\""${title}"\"" | sed 's/.*\.\(mp.\|ogg\|flac\)/\1/g'`";
+	mv "${title}" "${song}.${extension}";
 end
 

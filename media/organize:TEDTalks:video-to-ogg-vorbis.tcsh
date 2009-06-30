@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
-set video_path="/projects/media/resources/TEDTalks (video)";
-set ogg_path="/projects/media/resources/TEDTalks (audio)";
+set video_path="/projects/media/resources/tedtalks/video";
+set ogg_path="/projects/media/resources/tedtalks/audio";
 set oggconvert="/projects/cli/media/oggconvert";
 
 cd "${video_path}";

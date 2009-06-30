@@ -51,7 +51,7 @@ if ( ! -d "${topdir}" ) mkdir -p "${topdir}";
 set srcdir="${topdir}/${build_mozilla}-src";
 set objdir="${topdir}/${build_mozilla}-objdir";
 
-if ( ${?2} && "${2}" == "set-default" ) goto make_default
+if ( ${?2} && "${2}" == "--make-package" ) goto make_package
 
 
 checkout:
@@ -90,7 +90,7 @@ endif
 
 
 
-make_tarball:
+make_package:
 cd "${objdir}";
 make package;
 
@@ -109,9 +109,9 @@ foreach tarball ( dist/*.tar.bz2 )
 		continue;
 	endif
 	
-	rm ${tarball_backup_dir}/${build_mozilla}-.*.tar.bz2;
+	rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
 	cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
-	#set tarball="${tarball_backup_dir}/${backup_tarball}";
+	set tarball="${tarball_backup_dir}/${backup_tarball}";
 end
 
 

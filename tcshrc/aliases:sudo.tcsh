@@ -33,20 +33,14 @@ foreach recursive_sudo_command ( ${recursive_sudo_commands} )
 end
 unset recursive_sudo_command recursive_sudo_commands;
 
-set sudo_commands=( "visudo" "zypper" "neject" "reboot" "poweroff" "halt" "mount" "umount" "init" "/srv/mysql/mysql.init.d" "esound" "eject" "NetworkManager" "yast" );
+set sudo_commands=( "visudo" "zypper" "neject" "reboot" "poweroff" "halt" "mount" "umount" "init" "/srv/mysql/mysql.init.d" "esound" "eject" "NetworkManager" "/sbin/yast" );
 foreach sudo_command ( ${sudo_commands} )
 	alias	"${sudo_command}"	"sudo ${sudo_command}";
 end
 unset sudo_command sudo_commands;
 
 set gnomesu="/usr/bin/gnomesu";
-set yast_commands=( "yast" );
-foreach yast_command ( ${yast_commands} )
-	alias	"${yast_command}"	"${gnomesu} ${yast_command}2";
-end
-unset yast_command yast_commands;
-
-set gnomesu_commands=( "yast2" );
+set gnomesu_commands=( "yast" "yast2" "/sbin/yast2" );
 foreach gnomesu_command ( ${gnomesu_commands} )
 	alias	"${gnomesu_command}"	"${gnomesu} ${gnomesu_command}";
 end

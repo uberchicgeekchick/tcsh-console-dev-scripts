@@ -432,12 +432,10 @@
 			$podcastsInfo[$i]=preg_replace( "/^[~\.]+(.*)[~\.]+$/", "$1",
 						(preg_replace( "/[\/]/", "-",
 							(preg_replace( (sprintf("/[%s]/", get_characters_to_strip_from_titles())), "",
-									(urldecode(
-										(html_entity_decode(
-											$podcastsInfo[$i],
-										ENT_QUOTES,
-										"ISO-8859-1"/*"UTF-8"*/
-									))
+									(html_entity_decode(
+										$podcastsInfo[$i],
+									ENT_QUOTES,
+									"UTF-8"
 								))
 							))
 						))

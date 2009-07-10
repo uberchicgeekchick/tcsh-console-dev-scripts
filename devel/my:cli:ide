@@ -15,8 +15,7 @@ foreach canvas_info ( "${argv}" )
 	if(! ${?my_default_tabs} ) \
 		set my_default_tabs = ( \
 			"--tab-with-profile=screen --title=:screen: --working-directory=~/ --command=${screens_command}" \
-			"--tab-with-profile=uberChick --title=/ssh --working-directory=/projects/ssh" \
-			"--tab-with-profile=uberChick --title=~/ --working-directory=${HOME}" \
+			"--tab-with-profile=uberChick --title=/ssh --working-directory=/projects" \
 		);
 	
 	set canvas_type="`printf '${canvas_info}' | sed 's/^\([^:]\+\):\(.*\)/\1/g'`";
@@ -91,49 +90,36 @@ programming_canvas:
 	if(! ${?my_projects} ) \
 		set my_projects = ( \
 					"--tab-with-profile=uberChick --title=/cli --working-directory=/projects/cli" \
-					"--tab-with-profile=uberChick --title=/reference --working-directory=/projects/reference" \
 					"--tab-with-profile=uberChick --title=/www --working-directory=/projects/www" \
-					"--tab-with-profile=uberChick --title=/games --working-directory=/projects/games" \
 					"--tab-with-profile=uberChick --title=/gtk --working-directory=/projects/gtk" \
+					"--tab-with-profile=uberChick --title=/art --working-directory=/projects/art" \
+					"--tab-with-profile=uberChick --title=/games --working-directory=/projects/games" \
 		);
 
 	if(! ${?my_active_projects} ) \
 		set my_active_projects=( \
 					"--tab-with-profile=uberChick --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
-					"--tab-with-profile=uberChick --title=hackGirls --working-directory=/projects/games/hackGirls" \
-					"--tab-with-profile=uberChick --title=connectED --working-directory=/projects/gtk/connectED" \
 					"--tab-with-profile=uberChick --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
 					"--tab-with-profile=uberChick --title=alacast --working-directory=/projects/gtk/alacast" \
+					"--tab-with-profile=uberChick --title=many-worlds --working-directory=/projects/games/many-worlds" \
 		);
 
 	if(! ${?my_games} ) \
 		set my_games=( \
+					"--tab-with-profile=uberChick --title=/art --working-directory=/projects/art" \
 					"--tab-with-profile=uberChick --title=/games --working-directory=/projects/games" \
 					"--tab-with-profile=uberChick --title=game-dev:engines --working-directory=/projects/games/engines" \
 					"--tab-with-profile=uberChick --title=game-dev:libraries --working-directory=/projects/games/libraries" \
 					"--tab-with-profile=uberChick --title=game-dev:tools --working-directory=/projects/games/tools" \
-					"--tab-with-profile=uberChick --title=many-worlds --working-directory=/projects/games/many-worlds" \
-					"--tab-with-profile=uberChick --title=puzzling-galaxsee --working-directory=/projects/games/puzzling-galaxsee" \
 					"--tab-with-profile=uberChick --title=hackGirls --working-directory=/projects/games/hackGirls" \
+					"--tab-with-profile=uberChick --title=many-worlds --working-directory=/projects/games/many-worlds" \
 		);
 
 	if(! ${?my_gtk_projects} ) \
 		set my_gtk_projects=( \
 					"--tab-with-profile=uberChick --title=/gtk --working-directory=/projects/gtk" \
 					"--tab-with-profile=uberChick --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
-					"--tab-with-profile=uberChick --title=connectED --working-directory=/projects/gtk/connectED" \
-					"--tab-with-profile=uberChick --title=Alacast --working-directory=/projects/gtk/alacast" \
-		);
-
-	if(! ${?my_www_projects} ) \
-		set my_www_projects = ( \
-					"--tab-with-profile=uberChick --title=/srv --working-directory=/srv" \
-					"--tab-with-profile=uberChick --title=/www --working-directory=/projects/www" \
-					"--tab-with-profile=uberChick --title=TweetMyBlog --working-directory=/projects/www/TweetMyBlog" \
-					"--tab-with-profile=uberChick --title=realFriends --working-directory=/projects/www/realFriends" \
-					"--tab-with-profile=uberChick --title=Dystonia-DREAMS.org --working-directory=/projects/www/Dystonia-DREAMS.Org" \
-					"--tab-with-profile=uberChick --title=uberChicks.net --working-directory=/projects/www/uberChicks.Net" \
-					"--tab-with-profile=uberChick --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
+					"--tab-with-profile=uberChick --title=alacast --working-directory=/projects/gtk/alacast" \
 		);
 
 	if(! ${?my_cli_projects} ) \
@@ -184,15 +170,6 @@ programming_canvas:
 		${argv} &;
 		breaksw
 	
-	case 'WWW':
-		/usr/bin/gnome-terminal \
-			--hide-menubar \
-			--geometry=${geometry} \
-			${my_default_tabs} \
-			${my_www_projects} \
-		${argv} &;
-		breaksw
-	
 	case 'Projects':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
@@ -209,22 +186,6 @@ goto next_canvas
 
 build_canvas:
 	switch( "${canvas}" )
-	case 'Programs':
-		/usr/bin/gnome-terminal \
-			--hide-menubar \
-			--geometry=${geometry} \
-			--tab-with-profile="build:canvas" --title="/programs/src" --working-directory="/programs/src" \
-		${argv} &;
-		breaksw
-	
-	case 'Projects':
-		/usr/bin/gnome-terminal \
-			--hide-menubar \
-			--geometry=${geometry} \
-			--tab-with-profile="build:canvas" --title="/projects" --working-directory="/projects" \
-		${argv} &;
-		breaksw
-	
 	case 'Mozilla':
 		/usr/bin/gnome-terminal \
 			--hide-menubar \
@@ -257,10 +218,10 @@ build_canvas:
 			--hide-menubar \
 			--geometry=${geometry} \
 			--tab-with-profile="build:canvas" --title="/programs/src" --working-directory="/programs/src" \
-			--tab-with-profile="build:canvas" --title="/programs/src" --working-directory="/programs/src" \
 			--tab-with-profile="build:canvas" --title="firefox-src" --working-directory="/programs/src/mozilla/firefox-src" \
 			--tab-with-profile="build:canvas" --title="thunderbird-src" --working-directory="/programs/src/mozilla/thunderbird-src" \
 			--tab-with-profile="build:canvas" --title="/projects" --working-directory="/projects" \
+			--tab-with-profile="build:canvas" --title="/programs/src" --working-directory="/programs/src" \
 		${argv} &;
 		breaksw
 	
@@ -276,10 +237,8 @@ media_canvas:
 			--hide-menubar \
 			--geometry=${geometry} \
 			${my_default_tabs} \
+			--tab-with-profile="uberChick" --title="/media-library" --working-directory="/media/library" \
 			--tab-with-profile="uberChick" --title="art" --working-directory="/projects/art" \
-			--tab-with-profile="uberChick" --title="Alacast" --working-directory="/projects/gtk/alacast" \
-			--tab-with-profile="uberChick" --title="/media-library" --working-directory="/media/media-library" \
-			--tab-with-profile="uberChick" --title="my podcasts" --working-directory="/projects/media/podcasts" \
 		${argv} &;
 		breaksw
 
@@ -301,7 +260,7 @@ media_canvas:
 			--tab-with-profile="uberChick" --title="/media" --working-directory="/media" \
 			--tab-with-profile="uberChick" --title="podiobooks" --working-directory="/media/podiobooks" \
 			--tab-with-profile="uberChick" --title="podcasts" --working-directory="/media/podcasts" \
-			--tab-with-profile="uberChick" --title="alacast:php" --working-directory="/projects/cli/alacast" --command="/projects/cli/alacast/bin/alacast.php --update=detailed --logging --player=xine --interactive --titles-append-pubdate" \
+			--tab-with-profile="alacast:php" --title="alacast:php" --working-directory="/projects/cli/alacast" --command="/projects/cli/alacast/bin/alacast.php --update=detailed --logging --player=xine --interactive --titles-append-pubdate" \
 		${argv} &;
 		breaksw
 	endsw

@@ -1,0 +1,24 @@
+#!/bin/tcsh -f
+if( ! ${?program} ) set program="xfmedia";
+
+if( ! ${?audio_driver} ) set audio_driver="esd";
+
+if( ! ${?video_driver} ) set video_driver="opengl";
+
+if( ! ${?resolution} ) set resolution=`cat "/profile.d/resolutions/video/hd.rc"`;
+
+if( ! ${?settings} ) set settings="${HOME}/.config/${program}/settings.xml";
+if( ! ${?output} ) set output=">& /dev/null &";
+
+if( "${0}" == "-tcsh" || "`basename '${0}'`" != "${program}" ) then
+	if ( ! ${?alias_suffix} ) then
+		set new_alias="${program}";
+	else
+		set new_alias="${program}-${alias_suffix}";
+	endif
+	alias	"${new_alias}"	"/usr/bin/${program} --video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=repeat --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
+else
+	"/usr/bin/${program} --video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=repeat --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
+endif
+	
+

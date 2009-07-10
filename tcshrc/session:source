@@ -1,6 +1,9 @@
 #!/bin/tcsh -f
 source /profile.d/tcshrc/environment.tcsh
 source /profile.d/tcshrc/aliases:sudo.tcsh
+source /profile.d/tcshrc/programs.tcsh
+source /profile.d/tcshrc/sshfs:mount:ocs.tcsh
+
 foreach rc_file ( /profile.d/tcshrc/*.tcsh )
 	switch("${rc_file}")
 	case "bindkey.tcsh":
@@ -10,10 +13,6 @@ foreach rc_file ( /profile.d/tcshrc/*.tcsh )
 	case "programs.tcsh":
 	case "sshfs:mount:ocs.tcsh":
 		breaksw
-	case "make:setenv:basic.tcsh":
-	case "make:setenv:full.tcsh":
-		breaksw
-	case "make:setenv:load.tcsh":
 	default:
 		source "${rc_file}"
 		if( ${?http_proxy} ) unsetenv http_proxy
@@ -21,7 +20,4 @@ foreach rc_file ( /profile.d/tcshrc/*.tcsh )
 	endsw
 end
 unset rc_file
-source /profile.d/tcshrc/programs.tcsh
-source /profile.d/tcshrc/environment.tcsh
 
-source /profile.d/tcshrc/sshfs:mount:ocs.tcsh

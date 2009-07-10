@@ -54,16 +54,21 @@ foreach remote_file ( "`find "\""${sshfs_path}/${project_name}/*"\""`" )
 	if ( "${git_test}" == "/.git" ) continue
 
 	set local_file = "`printf ${remote_file} | sed 's/^${remove_remote_regexp}/\.\//'`"
-
-	if ( ! -d "${local_file}" && ! -e "${local_file}" ) then
-		printf "Removing stale remote "
-
+	
+	if ( ! -e "${local_file}" && -e "${remote_file}" ) then
+		printf "Removing stale remote file"
+		if ( -e "${remote_file}" ) then
+			printf "file"
+			rm "${remote_file}"
+		endif
+		printf ":\n\t%s\n" "${remote_file}"
+	endif
+	
+	if ( ! -d "${local_file}" && -d "${remote_file}" ) then
+		printf "Removing stale remote directory"
 		if ( -d "${remote_file}" ) then
 			printf "directory & contents"
 			rm -r "${remote_file}"
-		else if ( -e "${remote_file}" ) then
-			printf "file"
-			rm "${remote_file}"
 		endif
 		printf ":\n\t%s\n" "${remote_file}"
 	endif

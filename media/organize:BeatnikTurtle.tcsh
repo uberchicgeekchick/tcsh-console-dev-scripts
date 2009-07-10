@@ -4,7 +4,7 @@ set cc_artist = "Beatnik Turtle";
 set media_dir = "/media/library/music/cc-artists";
 
 if( -d "${podcasts_dir}/${cc_artist}'s Song of the Day" ) then
-	if( `ls "${podcasts_dir}/${cc_artist}'s Song of the Day"` !o "" ) then
+	if( `ls "${podcasts_dir}/${cc_artist}'s Song of the Day"` != "" ) then
 		mv "${podcasts_dir}/${cc_artist}'s Song of the Day"/* "${media_dir}/${cc_artist}";
 		rmdir "${podcasts_dir}/${cc_artist}'s Song of the Day";
 	endif

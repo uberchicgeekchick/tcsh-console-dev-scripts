@@ -3,10 +3,12 @@
 #set echo
 set addsuffix
 
-#setenv		GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number"
-setenv		GREP_OPTIONS	"--color --with-filename --line-number"
+setenv eol '$';
+#if(!(${?loginsh})) alias "logout" "exit"
+
+setenv		GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number"
 alias		grep		"grep ${GREP_OPTIONS}"
-alias		egrep		"grep ${GREP_OPTIONS} --perl-regexp -e"
+alias		egrep		"grep ${GREP_OPTIONS} --perl-regexp"
 
 setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify  --group-directories-first --format=vertical"
 
@@ -24,7 +26,8 @@ set listjobs=long
 set notify
 #set notify=1s
 
-set nobeep
+alias ssshh 'set nobeep'
+#set nobeep
 set noclobber
 #set noglob
 
@@ -59,4 +62,12 @@ alias	helpcommand	"man"
 unset autologout
 unset ignoreeof
 
+
+if(!(${?loginsh})) then
+	unalias logout;
+	unalias exit;
+	alias "logout" "if( -e /etc/csh.logout ) source /etc/csh.logout ; if( -e ~/.logout ) source ~/.logout ; exit";
+	if( ! ${?histfile} && -e "${HOME}/.history" ) set histfile="${HOME}/history";
+	source -h "${histfile}"
+endif
 

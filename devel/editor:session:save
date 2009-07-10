@@ -20,13 +20,15 @@ while ( ${?1} && "${1}" != "" )
 	shift
 end
 
-foreach editor ( "`were '${my_editor}'`" )
-	if( ! -e "${editor}" ) then
-		set my_editor = "${editor}"
-		end
-	endif
-end
-if(!( ${?my_edito} && -e ${my_editor} )) set my_editor = "${EDITOR}"
+if(!( ${?my_editor} )) then
+	set my_editor = "${EDITOR}"
+else
+	foreach editor ( "`where '${my_editor}'`" )
+		if( ! -e "${editor}" ) then
+			set my_editor = "${editor}"
+		endif
+	end
+endif
 
 set my_editor = `basename "${my_editor}"`
 

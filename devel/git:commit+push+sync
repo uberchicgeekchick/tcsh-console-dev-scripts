@@ -6,6 +6,8 @@ if ( -e "./.sync.default" ) set sync_method=`cat ./.sync.default`;
 
 if ( -e ./.no.pushing ) set no_pushing;
 
+set log_dir="./.`basename '${0}'`.logs";
+
 while ( ${?1} && "${1}" != "" )
 	switch ( "${1}" )
 	case "--help":
@@ -24,17 +26,32 @@ while ( ${?1} && "${1}" != "" )
 	case "--disable-logging":
 		set rm_log;
 		breaksw;
+	case "--append":
+		if( ! -d "${log_dir}" ) then
+			printf("No previous commit messages could be found.  I new commit will be created.");
+			breaksw;
+		endif
+		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
+		set commit_log="${log_dir}/${commit_log}";
+
+		if( ! -e "${commit_log}" ) then
+			set commit_action="Committed";
+			printf("No previous commit messages could be found.  I new commit will be created.");
+		else
+			set commit_action="Commit Appended";
+		endif
+		breaksw;
 	default:
 		# git:commit+push+sync logs are stored & saved;
 		# Mustly its until I decide how & if I want to;
 		# impliment a way of using git's append commits.;
 		if ( ! ${?commit_log} ) then
-			set log_dir="./.`basename '${0}'`.logs";
 			if( ! -d ${log_dir} ) then
 				set log_dir_is_new;
 				mkdir -p "${log_dir}";
 			endif
 			set commit_log="${log_dir}/`date '+%Y-%m-%d @ %r'`.message";
+			set commit_action="Committed";
 			printf "${1}" > "${commit_log}";
 			breaksw;
 		endif
@@ -45,11 +62,23 @@ while ( ${?1} && "${1}" != "" )
 end
 
 if(! ${?commit_log} ) then
+	if( -d "${log_dir}" ) then
+		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
+		set commit_log="${log_dir}/${commit_log}";
+	endif
+	set commit_action="Commit Appended";
+else
+	set commit_action="Committed";
+endif
+
+if(!(${?commit_log} && "${commit_log}" != "" && -e "${commit_log}")) then
 	set exit_code = -1;
 	goto usage;
 endif
 
-printf "\n\nCommitted on: `date '+%Y-%m-%d @ %r'`\n" >> "${commit_log}";
+printf "\n\n%s on : %s\n" "${commit_action}" "`date '+%Y-%m-%d @ %r'`" >> "${commit_log}";
+unset commit_action;
+
 
 git add .;
 
@@ -183,6 +212,6 @@ default:
 endsw
 
 usage:
-printf "Usage: %s [no-pushing rsync scp sshfs cp no-sync] commit_message [commit_details]\n" `basename "${0}"`;
+printf "Usage: %s\n\t--help\t Displays this message.\n\n--sync=[rsync, scp, sshfs, cp, no-sync]\tControls how files are copied or backed-up.  Especially useful for online based projects.  The project's default sync method may be set by creating a file named './.sync.default'.\n\n\t--no-pushing\tSkips the default sync method, specified in './.sync.default', for this commit.\n\n--disable-logging\tKeeps %s from preserving this commit message.\n\n--append\tappends, or re-commits, any changes using the previously logged commit message commit_message [commit_details]\n" `basename "${0}"` `basename "${0}"`;
 exit ${exit_code};
 

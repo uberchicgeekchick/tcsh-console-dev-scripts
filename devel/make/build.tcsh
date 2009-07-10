@@ -1,19 +1,16 @@
 #!/bin/tcsh -f
 
-alias	"./configure"	"./configure --libdir=/usr/lib64"
-alias	"./autogen.sh"	"./autogen.sh --libdir=/usr/lib64"
+alias	"configure"	"/projects/cli/devel/make/my:configure"
+alias	"autogen.sh"	"/projects/cli/devel/make/my:autogen.sh"
 
-#alias make 'if ( ${?GREP_OPTIONS} ) set grep_options="${GREP_OPTIONS}";\
-#	if( ${?GREP_OPTIONS} ) unsetenv $GREP_OPTIONS; make'
-
+#
 #C compiler linking flags
 #	libraries to pass to the linker.
 #		-l<library>, e.g. -lpango-1.0
 #	or shared objects directly:
 #		-L<library.path.so>, e.g. -L/usr/lib64/libpango-1.0.so
-#setenv	LDFLAGS		"--reduce-memory-overheads"
+#setenv	LDFLAGS		""
 #setenv	LIBS		""
-
 
 setenv	LD_LIBRARY_PATH		"/usr/include"
 setenv	LD_RUN_PATH		"/usr/include"
@@ -29,10 +26,10 @@ setenv	CPP		"/usr/bin/cpp"
 #you have headers in a nonstandard directory <include dir>
 setenv	CPPFLAGS	"-I${LD_LIBRARY_PATH}"
 
-setenv	MAKEFLAGS	"-O3 -Wall -Wextra -Wstrict-aliasing=3 -Wformat=2 -Werror -Wno-unused-parameter"
+setenv	MAKEFLAGS	"-O3 -Wall -Wextra -Wformat=2 -Wno-unused-parameter"
 
-setenv	MYFLAGS		"${MAKEFLAGS} -Wfatal-errors -Wswitch-enum -Wno-format-nonliteral -Wno-missing-field-initializers --combine"
-setenv	MYCFLAGS	"${MYFLAGS} -Wmissing-prototypes -Wmissing-declarations"
+setenv	MYFLAGS		"${MAKEFLAGS} -Wswitch-enum -Wno-missing-field-initializers --combine"
+setenv	MYCFLAGS	"${MYFLAGS} -Wmissing-prototypes"
 setenv	MYCXXFLAGS	"${MYFLAGS}"
 
 

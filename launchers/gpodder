@@ -1,4 +1,9 @@
 #!/bin/tcsh -f
+if ( ! -x "/usr/bin/gpodder" ) then
+	printf "Unable to find totem.\n";
+	exit -1;
+endif
+
 if( ! ${?QUIT_EXEC} ) then
 	( gpodder "${argv}" > /dev/tty ) >& /dev/null
 else

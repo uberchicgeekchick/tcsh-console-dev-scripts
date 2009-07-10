@@ -1,0 +1,27 @@
+#!/bin/tcsh -f
+if( ! ${?program} ) set program="xfmedia";
+
+if( ! ${?audio_driver} ) set audio_driver="esd";
+
+if( ! ${?video_driver} ) set video_driver="opengl";
+
+if( ! ${?resolution} ) set resolution=`cat "/profile.d/resolutions/video/hd.rc"`;
+
+if( ! ${?settings} ) set settings="${HOME}/.config/${program}/settings.xml";
+#if( ! ${?condition} ) set condition="if ( -e '${settings}' ) mv '${settings}' '${settings}.bck'; ";
+if ( ! ${?condition} ) set condition="";
+if( ! ${?output} ) set output=">& /dev/null &";
+
+if( "${0}" == "-tcsh" || "`basename '${0}'`" != "${program}" ) then
+	if ( ! ${?alias_suffix} ) then
+		set new_alias="${program}";
+	else
+		set new_alias="${program}-${alias_suffix}";
+	endif
+	alias "${new_alias}" "${condition}/usr/bin/${program} --video-out='${video_driver}' --audio-out='${audio_driver}' --vwin-geometry='${resolution}' ${argv} ${output}";
+else
+	${program};
+	#${condition}/usr/bin/${program} --video-out="${video_driver}" --audio-out="${audio_driver}" --vwin-geometry="${resolution}" ${argv} ${output};
+endif
+	
+

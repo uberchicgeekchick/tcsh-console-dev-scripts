@@ -1,0 +1,15 @@
+#!/bin/tcsh -f
+#set program="`echo ${0} | sed 's/\(.*\)\(\.init\)${eol}/\1/g'`"
+set program="totem";
+if ( ! -x "/usr/bin/${program}" ) then
+	printf "Unable to find ${program}.\n";
+	exit -1;
+endif
+
+set playlist="/media/library/playlists/${program}";
+alias	${program}	"if ( ! -e '${playlist}.pls' ) touch '${playlist}.pls' ; /usr/bin/${program} '${playlist}.pls' ${argv} ${output}";
+alias	${program}-audio	"if ( ! -e '${playlist}-audio.pls' ) touch '${playlist}-audio.pls' ; /usr/bin/${program} --class='${program}-audio' '${playlist}-audio.pls' ${argv} ${output}";
+alias	${program}-video	"if ( ! -e '${playlist}-video.pls' ) touch '${playlist}-video.pls' ; /usr/bin/${program} --class='${program}-video' '${playlist}-video.pls' ${argv} ${output}";
+
+unset audio_playlist video_playlist program;
+

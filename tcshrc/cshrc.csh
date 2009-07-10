@@ -23,8 +23,9 @@ complete killall 'p/*/c/'
 complete ln 'p/*/f/'
 
 
-source /profile.d/tcshrc/source:session
+source /profile.d/tcshrc/session:source
 
 setenv PATH "${PATH}:."
 
 if( ${?http_proxy} ) unsetenv http_proxy
+

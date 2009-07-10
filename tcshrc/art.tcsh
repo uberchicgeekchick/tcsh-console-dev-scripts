@@ -15,16 +15,19 @@ complete kill_program.tcsh "p/*/c/"
 complete interupt_program.tcsh "p/*/c/"
 
 source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/gtk/alacast/scripts
-
 source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/cli
 
-alias editor:session:make.tcsh "/projects/cli/devel/editor:session:make.tcsh --clean-up"
-
 alias	ex	"/projects/cli/helpers/ex:silent"
-
 alias	screen	"/projects/cli/helpers/screen:attach"
 
 setenv	BONOBO_ACTIVATION_PATH	"/usr/lib64/bonobo/servers"
 
+setenv OSS_CANVAS
 setenv PATH "${PATH}:/programs/connectED/bin:/bin:/projects/games/engines/Raydium/raydium/bin"
+if ( -e "./.canvas.init.csh" ) then
+	source "./.canvas.init.csh";
+else
+	source /projects/cli/devel/make/init.tcsh
+endif
+source /projects/cli/launchers/init.tcsh
 

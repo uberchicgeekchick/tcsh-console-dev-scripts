@@ -17,6 +17,8 @@ alias	df	"df --human-readable"
 alias	du	"du --summarize --human-readable"
 alias	du-a	"du ./*"
 
+alias	rd	rmdir
+
 alias	rr	"rm -r"
 alias	rf	"rr -f"
 
@@ -30,6 +32,8 @@ unalias	mv
 
 alias	mkdir	"mkdir -p"
 alias	md	"mkdir"
+
+alias	nautilus	"nautilus --no-desktop --browser"
 
 alias	hostname	"hostname --fqdn"
 alias	wget		"wget --no-check-certificate"

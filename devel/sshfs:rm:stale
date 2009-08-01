@@ -12,20 +12,20 @@ while ( ${?1} && "${1}" != "" )
 	switch ( "${1}" )
 	case "--help":
 		goto usage;
-		breaksw;
+		breaksw
 	case "--sync=rsync":
 	case "--sync=scp":
 	case "--sync=sshfs":
 	case "--sync=cp":
 	case "--sync=no-sync":
 		set sync_method="${value}";
-		breaksw;
+		breaksw
 	case "--no-pushing":
 		set no_pushing;
-		breaksw;
+		breaksw
 	case "--disable-logging":
 		set rm_log;
-		breaksw;
+		breaksw
 	case "--skip-remote-clean-up":
 		set skip_remote_clean_up;
 		breaksw
@@ -36,14 +36,14 @@ while ( ${?1} && "${1}" != "" )
 		endif
 		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
 		set commit_log="${log_dir}/${commit_log}";
-
+		
 		if( ! -e "${commit_log}" ) then
 			set commit_action="Committed";
 			printf("No previous commit messages could be found.  I new commit will be created.");
 		else
 			set commit_action="Commit Appended";
 		endif
-		breaksw;
+		breaksw
 	default:
 		# git:commit+push+sync logs are stored & saved;
 		# Mustly its until I decide how & if I want to;
@@ -56,10 +56,10 @@ while ( ${?1} && "${1}" != "" )
 			set commit_log="${log_dir}/`date '+%Y-%m-%d @ %r'`.message";
 			set commit_action="Committed";
 			printf "${1}" > "${commit_log}";
-			breaksw;
+			breaksw
 		endif
 		printf "\n\n${1}" >> "${commit_log}";
-		breaksw;
+		breaksw
 	endsw
 	shift;
 end
@@ -84,17 +84,17 @@ unset commit_action;
 
 
 git add .;
-
-# The next;
-# Remove any vim, connectED, gedit, or etc 'swp' files.;
-# This is even more useful to keep from committing early art works & uber-alphas;
-#;
 foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
 	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
 	git rm --cached --quiet "${tarball}";
 end
 unset tarball;
 
+
+#
+# Removes any vim, connectED, gedit, or etc 'swp' files.
+# This is even more useful to keep from committing early art works & uber-alphas.
+#
 foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\)'`" )
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
 	git rm --cached --quiet "${swp}";
@@ -163,13 +163,13 @@ case "cp":
 	end
 	printf "\t\t[done]";
 	
-	if( ${?skip_remote_clean_up} ) breaksw;
+	if( ${?skip_remote_clean_up} ) breaksw
 	
 	# compare "${sshfs_path}/${project_name}/" against ./;
 	# and remove remote files that no longer exist locally.;
 	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
 	set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
-	foreach remote_file ( "`find "\""${sshfs_path}/${project_name}/"\""*`" )
+	foreach remote_file ( "`find "\""${sshfs_path}/${project_name}/*"\""`" )
 		# escape special characters to keep them from being expanded by the terminal;
 		# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
 		
@@ -217,6 +217,6 @@ default:
 endsw
 
 usage:
-printf "Usage: %s\n\t--help\t Displays this message.\n\n--current-working-directory=/local/path/to/project's/root/directory\tThis causes %s to cd to the specified path before commiting & syncronizing.\n\n--sync=[rsync, scp, sshfs, cp, no-sync]\tControls how files are copied or backed-up.  Especially useful for online based projects.  The project's default sync method may be set by creating a file named './.sync.default'.\n\n\t--no-pushing\tSkips git's 'remote push for this commit.\n\n--skip-remote-clean-up\tThis stops %s from comfirming all remote files still exist locally, under your current working directory.\nThis is specifically useful if your project has files which use special characters.\nThe recommanded usage for this feature is to run the script 1st w/o this flag & than run a second sync using this flag.  But just an idea not a requirement or any thing.\n\n--disable-logging\tKeeps %s from preserving this commit message.\n\n--append\tappends, or re-commits, any changes using the previously logged commit message commit_message [commit_details]\n" `basename "${0}"` `basename "${0}"` `basename "${0}"`;
+printf "Usage: %s\n\t--help\t Displays this message.\n\n--sync=[rsync, scp, sshfs, cp, no-sync]\tControls how files are copied or backed-up.  Especially useful for online based projects.  The project's default sync method may be set by creating a file named './.sync.default'.\n\n\t--no-pushing\tSkips git's 'remote push for this commit.\n\n--skip-remote-clean-up\tThis stops %s from comfirming that all remote files still exist locally.\nThis is specifically useful if you projects has files which use special characters.\nThe recommanded usage for this feature is to run the script 1st w/o this flag & than run a second sync using this flag.  But just an idea not a requirement or any thing.\n\n--disable-logging\tKeeps %s from preserving this commit message.\n\n--append\tappends, or re-commits, any changes using the previously logged commit message commit_message [commit_details]\n" `basename "${0}"` `basename "${0}"` `basename "${0}"`;
 exit ${exit_code};
 

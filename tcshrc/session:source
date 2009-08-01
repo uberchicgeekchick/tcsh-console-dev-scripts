@@ -1,23 +1,28 @@
 #!/bin/tcsh -f
-source /profile.d/tcshrc/environment.tcsh
-source /profile.d/tcshrc/aliases:sudo.tcsh
-source /profile.d/tcshrc/programs.tcsh
-source /profile.d/tcshrc/sshfs:mount:ocs.tcsh
+set session_rc_path="/projects/cli/tcshrc";
 
-foreach rc_file ( /profile.d/tcshrc/*.tcsh )
+source "${session_rc_path}/environment.tcsh";
+
+if( "${uid}" != "0" ) source "${session_rc_path}/aliases:sudo.tcsh";
+
+source "${session_rc_path}/programs.tcsh";
+
+foreach rc_file ( "${session_rc_path}/"*.tcsh )
+	set rc_file="`basename '${rc_file}'`";
+	
 	switch("${rc_file}")
 	case "bindkey.tcsh":
 	case "complete.tcsh":
 	case "aliases:sudo.tcsh":
 	case "environment.tcsh":
 	case "programs.tcsh":
-	case "sshfs:mount:ocs.tcsh":
 		breaksw
 	default:
-		source "${rc_file}"
-		if( ${?http_proxy} ) unsetenv http_proxy
+		if( ${?CSHRC_DEBUG} ) printf "Sourcing: %s\n" "${rc_file}";
+		source "${session_rc_path}/${rc_file}";
+		if( ${?http_proxy} ) unsetenv http_proxy;
 		breaksw
 	endsw
 end
-unset rc_file
+unset rc_file session_rc_path;
 

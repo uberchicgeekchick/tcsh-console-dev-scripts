@@ -2,15 +2,15 @@
 # (c) System csh.cshrc for tcsh, Werner Fink '93
 #                         and  J"org Stadler '94
 #
-# This file sources /etc/profile.d/complete.tcsh and
-# /etc/profile.d/bindkey.tcsh used especially by tcsh.
+# This file sources /projects/cli/tcshrc/complete.tcsh and
+# /projects/cli/tcshrc/bindkey.tcsh used especially by tcsh.
 #
 # PLEASE DO NOT CHANGE /etc/csh.cshrc. There are chances that your changes
 # will be lost during system upgrades. Instead use /etc/csh.cshrc.local for
 # your local settings, favourite global aliases, VISUAL and EDITOR
 # variables, etc ...
 # USERS may write their own $HOME/.csh.expert to skip sourcing of
-# /etc/profile.d/complete.tcsh and most parts oft this file.
+# /projects/cli/tcshrc/complete.tcsh and most parts oft this file.
 #
 onintr -
 set noglob
@@ -73,13 +73,12 @@ endif
 #
 # Now read in the key bindings of the tcsh
 #
-#if ($?tcsh && -r /etc/profile.d/bindkey.tcsh) source /etc/profile.d/bindkey.tcsh
-source /profile.d/tcshrc/bindkey.tcsh
+if ($?tcsh && -r /projects/cli/tcshrc/bindkey.tcsh) source /projects/cli/tcshrc/bindkey.tcsh
 
 #
 # Some useful settings
 #
-source /profile.d/tcshrc/environment.tcsh
+source /projects/cli/tcshrc/environment.tcsh
 #
 #
 if ( -x /usr/bin/dircolors ) then
@@ -160,8 +159,8 @@ if ($?tcsh) then
     set _rev=${tcsh:r}
     set _rel=${_rev:e}
     set _rev=${_rev:r}
-    if (($_rev > 6 || ($_rev == 6 && $_rel > 1)) && -r /etc/profile.d/complete.tcsh) then
-	source /etc/profile.d/complete.tcsh
+    if (($_rev > 6 || ($_rev == 6 && $_rel > 1)) && -r /projects/cli/tcshrc/complete.tcsh) then
+	source /projects/cli/tcshrc/complete.tcsh
     endif
     #
     # Enable editing in multibyte encodings for the locales
@@ -212,8 +211,7 @@ endif
 # Local configuration
 #
 if ( -r /etc/csh.cshrc.local ) source /etc/csh.cshrc.local
-if ( -r /profile.d/tcshrc/cshrc.csh ) source /profile.d/tcshrc/cshrc.csh
+if ( -r /projects/cli/tcshrc/csh.cshrc ) source /projects/cli/tcshrc/csh.cshrc
 
-#
 # End of /etc/csh.cshrc
-#
+

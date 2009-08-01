@@ -27,13 +27,12 @@ set notify
 #set notify=1s
 
 alias ssshh 'set nobeep'
-#set nobeep
+set nobeep
 set noclobber
-#set noglob
 
 set highlight
 set histdup=erase
-set histfile="/profile.d/history"
+set histfile="/projects/cli/tcshrc/history"
 set history=3000
 set savehist=( $history "merge" )
 set histlit
@@ -66,8 +65,8 @@ unset ignoreeof
 if(!(${?loginsh})) then
 	unalias logout;
 	unalias exit;
-	alias "logout" "if( -e /etc/csh.logout ) source /etc/csh.logout ; if( -e ~/.logout ) source ~/.logout ; exit";
 	if( ! ${?histfile} && -e "${HOME}/.history" ) set histfile="${HOME}/history";
 	source -h "${histfile}"
+	alias "logout" "if( -e /etc/csh.logout ) source /etc/csh.logout ; if( -e ~/.logout ) source ~/.logout ; exit";
 endif
 

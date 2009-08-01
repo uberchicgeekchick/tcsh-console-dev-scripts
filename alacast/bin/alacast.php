@@ -431,14 +431,16 @@
 		for($i=0; $i<$podcastsInfo['total']; $i++)
 			$podcastsInfo[$i]=preg_replace( "/^[~\.]+(.*)[~\.]+$/", "$1",
 						(preg_replace( "/[\/]/", "-",
-							(preg_replace( (sprintf("/[%s]/", get_characters_to_strip_from_titles())), "",
+							(preg_replace( "/!/", "",
+								(preg_replace( (sprintf("/[%s]/", get_characters_to_strip_from_titles())), "",
 									(html_entity_decode(
 										$podcastsInfo[$i],
-									ENT_QUOTES,
-									"UTF-8"
+										ENT_QUOTES,
+										"UTF-8"
 								))
 							))
 						))
+					))
 			); //for( $i<$podcastInfo['total'] )
 		
 		$podcastsInfo[0]=preg_replace( "/^(the)\s+(.*)$/i", "$2, $1", $podcastsInfo[0] );
@@ -449,14 +451,16 @@
 	function set_podcasts_info( &$podcastsXML_filename, &$podcasts_info, &$podcastsGUID, &$totalPodcasts ) {
 		get_episode_titles( $podcasts_info, $podcastsXML_filename );
 		clean_podcasts_info( $podcasts_info );
-		$GLOBALS['alacasts_titles']->reorder_titles( $podcasts_info );
+		/* TODO: FIXME
+		 * $GLOBALS['alacasts_titles']->reorder_titles( $podcasts_info );
+		 */
 		generate_podcasts_info( $podcasts_info, $totalPodcasts, $podcasts_info['total'] );
 		$GLOBALS['alacasts_titles']->prefix_episope_titles_with_podcasts_title( $podcasts_info );
 	}//end:function set_podcasts_info();
 
 
 
-	function set_podcasts_new_episodes_filename( $podcastsName, $podcastsEpisode, $podcastsExtension ) {
+	function set_podcasts_new_episodes_filename( $podcastsName, &$podcastsEpisode, $podcastsExtension ) {
 		static $untitled_podcast_count;
 		if( !(isset( $untitled_podcast_count )) )
 			$untitled_podcast_count=0;
@@ -472,10 +476,27 @@
 			if(!$podcastsName)
 				$podcastsName="Untitled Podcast(s)";
 		}
-
-		$podcastsExtra = "";
+		
+		static $GPODDER_SYNC_DIR_STRLEN;
+		if(!isset($GPODDER_SYNC_DIR_STRLEN))
+			$GPODDER_SYNC_DIR_STRLEN=strlen(GPODDER_SYNC_DIR);
+		
+		$podcastsExtra="";
+		$max_strlen=0;
+		$podcasts_short_episode_name="";
+		if(!in_array( "--titles-append-pubdate", $_SERVER['argv'] ))
+			$max_strlen=255;
+		else
+			$max_strlen=175;
+		
 		do {
-			$Podcasts_New_Filename = sprintf(
+			$podcasts_max_strlen=$max_strlen-($GPODDER_SYNC_DIR_STRLEN+strlen($podcastsName)+strlen($podcastsExtra)+strlen($podcastsExtension));
+			if(in_array( "--titles-append-pubdate", $_SERVER['argv'] ) )
+				$podcastsEpisode=preg_replace("/^(.{1,{$podcasts_max_strlen}})(.*)(, released on.*)$/", "$1$3", $podcastsEpisode);
+			else
+				$podcastsEpisode=preg_replace("/(.{1,{$podcasts_max_strlen}}).+/", "$1", $podcastsEpisode);
+			
+			$Podcasts_New_Filename=sprintf(
 				"%s/%s/%s%s.%s",
 				GPODDER_SYNC_DIR,
 				$podcastsName,
@@ -484,7 +505,8 @@
 				$podcastsExtension
 			);
 			
-			$podcastsExtra = sprintf(
+			$max_strlen-=38;
+			$podcastsExtra=sprintf(
 				"(copy from %s)",
 				(date( "c" ))
 			);
@@ -630,9 +652,7 @@
 			if(!( ($ext = get_filenames_extension( $podcastsFiles[$i] )) ))
 				continue;
 			
-			$Podcasts_New_Filename
-			=
-			set_podcasts_new_episodes_filename( $podcastsInfo[0], $podcastsInfo[$z], $ext );
+			$Podcasts_New_Filename=set_podcasts_new_episodes_filename( $podcastsInfo[0], $podcastsInfo[$z], $ext );
 			
 			if( (in_array("--verbose", $_SERVER['argv'])) )
 				$GLOBALS['alacasts_logger']->output(

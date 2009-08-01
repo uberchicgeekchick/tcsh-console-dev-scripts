@@ -5,9 +5,8 @@ setenv	MAKEFLAGS	"-O3"
 
 if( ${?http_proxy}  ) unsetenv http_proxy
 
-set mozilla_src_dir="/programs/src/mozilla";
+set mozilla_top_dir="/programs/Mozilla";
 set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
-set prefix="/programs/Mozilla";
 
 if ( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
 	printf "Usage: %s (firefox|thunderbird)\n\tchecks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"`;
@@ -17,7 +16,7 @@ endif
 
 
 init:
-cd "${mozilla_src_dir}";
+cd "${mozilla_top_dir}";
 
 if ( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
 unalias grep;
@@ -30,59 +29,99 @@ case "thunderbird":
 	set build_mozilla="thunderbird";
 	set mercurial_repo="comm-central";
 	set enable_mozilla="--enable-application=mail --enable-calendar --enable-static";
-	set prefix="${prefix}/Thunderbird3";
-	breaksw
+	set prefix="${mozilla_top_dir}/Thunderbird3";
+	breaksw;
+
 case "xulrunner":
 	set build_mozilla="xulrunner";
 	set mercurial_repo="mozilla-central";
 	set enable_mozilla="--enable-application=xulrunner --enable-libxul";
-	set prefix="${prefix}/XULRunner-1.9.1";
-	breaksw
+	set prefix="${mozilla_top_dir}/XULRunner-1.9.1";
+	breaksw;
+
 case "firefox":
-default:
 	set build_mozilla="firefox";
 	set mercurial_repo="mozilla-central";
 	set enable_mozilla="--enable-application=browser --enable-libxul";
-	set prefix="${prefix}/Firefox3";
-	breaksw
+	set prefix="${mozilla_top_dir}/Firefox3";
+	breaksw;
+
+default:
+	printf "%s is an unsupport mozilla build target.\n\tSupported build targets are: xulrunner, firefox, or thunderbird.\n" ${1};
+	exit -1;
 endsw
-set topdir="${mozilla_src_dir}/src";
+
+set topdir="${mozilla_top_dir}/src";
 if ( ! -d "${topdir}" ) mkdir -p "${topdir}";
 set srcdir="${topdir}/${build_mozilla}-src";
+
+if( -e "${srcdir}/.make.lock" ) then
+	printf "Another instance of %s is using the current source.  Please wait a few seconds than try again." "`basename ${0}`";
+	exit -2;
+endif
+
 set objdir="${topdir}/${build_mozilla}-objdir";
 
 if ( ${?2} && "${2}" == "--make-package" ) goto make_package
 
 
+
 checkout:
+touch "${srcdir}/.make.lock";
 if ( !( -d "${srcdir}" && -d "${srcdir}/.hg" ) ) then
+	set hg_reaction="checkout";
 	cd "${topdir}";
-	printf "Checking out: %s\n" ${mercurial_repo}
-	hg clone "http://hg.mozilla.org/${mercurial_repo}" "${srcdir}";
-	cd "${srcdir}";
+	if( "${build_mozilla}" == "firefox" && -d "${topdir}/xulrunner-src" ) then
+		set second_src="xulrunner";
+	else if( "${build_mozilla}" == "xulrunner" && -d "${topdir}/firefox-src" ) then
+		set second_src="firefox";
+	endif
+	if( ${?second_src} ) then
+		printf "\n\nSyncing %s with %s to avoid un-needed network traffic.\n" ${build_mozilla} ${second_src};
+		cp -R "${topdir}/${second_src}-src" "${srcdir}" &;
+		cd "${srcdir}";
+		hg pull -u
+	else
+		printf "Checking out: %s\n" ${mercurial_repo}
+		hg clone "http://hg.mozilla.org/${mercurial_repo}" "${srcdir}";
+	endif
 else
 	cd "${srcdir}";
-	hg pull -u;
+	set hg_reaction="update";
+	if ( "${build_mozilla}" == "thunderbird" && -e client.py ) then
+		python client.py checkout;
+	else
+		hg pull -u;
+		if( "${build_mozilla}" == "firefox" && -d "${topdir}/xulrunner-src" ) then
+			set second_src="xulrunner";
+		else if( "${build_mozilla}" == "xulrunner" && -d "${topdir}/firefox-src" ) then
+			set second_src="firefox";
+		endif
+		if( ${?second_src} ) then
+			printf "\n\nSyncing %s with %s to avoid un-needed network traffic.  Coping updates will continue in the back ground.\n" ${build_mozilla} ${second_src};
+			cp -R "${srcdir}" "${topdir}/${second_src}-src" &;
+			sleep 3;
+		endif
+	endif
 endif
 
-
-
-mozconfig:
-cd "${srcdir}";
-printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
+if ( ${status} != "0" ) then
+	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmercurial %s failed with error %s\n\n" ${hg_reaction} ${status};
+	exit ${status};
+endif
+unset hg_reaction;
+rm "${srcdir}/.make.lock";
 
 
 
 make:
+touch "${srcdir}/.make.lock";
 cd "${srcdir}";
-if ( "${build_mozilla}" == "thunderbird" ) then
-	python client.py --skip-comm checkout;
-	if ( ${status} != "0" ) then
-		printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %s\n\n" ${status};
-		exit ${status};
-	endif
-endif
-make -f client.mk build;
+printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
+
+gmake -f client.mk build &;
+rm "${srcdir}/.make.lock";
+wait;
 if ( ${status} != "0" ) then
 	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %s\n\n" ${status};
 	exit ${status};
@@ -119,6 +158,7 @@ end
 install:
 cd "${objdir}";
 tar -C "${prefix}" -xjf "${tarball}";
+oif( "${build_mozilla}" == "xulrunner" ) exit 0;
 
 
 

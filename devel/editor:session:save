@@ -47,6 +47,6 @@ end
 
 if ( ! ${?session_started} ) exit
 
-printf "\n" >> "${session_exec}"
+printf "\n\n" >> "${session_exec}"
 chmod +x "${session_exec}"
 

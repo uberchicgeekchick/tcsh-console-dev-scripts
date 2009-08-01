@@ -18,6 +18,8 @@ set starting_path=${cwd};
 
 cd "/projects/cli/launchers";
 foreach launcher ( "`find . -type f -perm '/u=x' -printf '%f\n'`" )
+	if( "${launcher}" == "template" ) continue;
+	
 	if( "`echo ${launcher} | sed 's/.*\(\.init\)${eol}/\1/g'`" == ".init" ) then
 		source ${launcher};
 	else

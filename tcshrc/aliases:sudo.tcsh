@@ -46,4 +46,3 @@ foreach gnomesu_command ( ${gnomesu_commands} )
 end
 unset gnomesu gnomesu_command gnomesu_commands;
 
-#eof

@@ -5,12 +5,18 @@ if( ! ${?audio_driver} ) set audio_driver="esd";
 
 if( ! ${?video_driver} ) set video_driver="opengl";
 
-if( ! ${?resolution} ) set resolution=`cat "/profile.d/resolutions/video/hd.rc"`;
+if( ! ${?resolution} ) set resolution=`cat "/projects/cli/resolutions/video/hd.rc"`;
 
 if( ! ${?settings} ) set settings="${HOME}/.config/${program}/settings.xml";
 if( ! ${?output} ) set output=">& /dev/null &";
 
-if( "${0}" == "-tcsh" || "`basename '${0}'`" != "${program}" ) then
+if( "${0}" == "-tcsh" ) then
+	set set_alias;
+else if( "`basename '${0}'`" != "${program}" ) then
+	set set_alias;
+endif
+
+if( ${?set_alias} ) then
 	if ( ! ${?alias_suffix} ) then
 		set new_alias="${program}";
 	else

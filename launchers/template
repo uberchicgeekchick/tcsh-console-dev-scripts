@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
 set this_program="`basename '${0}'`";
+
 foreach program ( "`which '${this_program}'`" )
 	if( -x "${program}" ) end
 endif

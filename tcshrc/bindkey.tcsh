@@ -1,4 +1,4 @@
-#
+#!/bin/tcsh -f
 # bindkey.tcsh		Bind keys on escape sequences of xterm
 #			and linux console
 #
@@ -704,6 +704,5 @@ if ( "$CSHEDIT" == "emacs" ) then
 	bindkey		"^^[[A"		up-history
 	bindkey		"^^[[B"		down-history
 endif
-#
 # end bindkey.tcsh
-#
+

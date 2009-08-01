@@ -23,3 +23,4 @@ end
 if ( "${sshfs_mount_test}" == "" ) sshfs:mount:${ssh_user}
 cd ${old_cwd}
 unset ssh_user ssh_server ssh_mount_point ssh_path sshfs_mount_count old_cwd sshfs_mount_test
+

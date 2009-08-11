@@ -163,36 +163,38 @@ case "cp":
 	end
 	printf "\t\t[done]";
 	
-	if( ${?skip_remote_clean_up} ) breaksw;
-	
+	# TODO: FIXME:
+	# 	I really need to stop this from nuking good files, but for now `cp -u` handles more reliably w/o nuking files.
+	#if( ${?skip_remote_clean_up} ) breaksw;
+	#
 	# compare "${sshfs_path}/${project_name}/" against ./;
 	# and remove remote files that no longer exist locally.;
-	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
-	set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
-	foreach remote_file ( "`find "\""${sshfs_path}/${project_name}/"\""*`" )
-		# escape special characters to keep them from being expanded by the terminal;
-		# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
-		
-		set git_test = "`printf "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`";
-		if ( "${git_test}" == "/.git" ) continue;
-		
-		set local_file = "`printf "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`";
-		
-		if ( -d "${local_file}" || -e "${local_file}" ) continue;
-		
-		printf "\t[remote] '%s' appears to be a stale " "${remote_file}";
-		
-		if ( -d "${remote_file}" ) then
-			printf "directory";
-			rm -r "${remote_file}";
-		else if ( -e "${remote_file}" ) then
-			printf "file";
-			rm "${remote_file}";
-		endif
-		printf "\t[removed]\n";
-	end
-	
-	printf "\nRemoving stale remote files\t\t[done]";
+	#printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
+	#set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
+	#foreach remote_file ( "`find "\""${sshfs_path}/${project_name}/"\""*`" )
+	#	# escape special characters to keep them from being expanded by the terminal;
+	#	# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
+	#	
+	#	set git_test = "`printf "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`";
+	#	if ( "${git_test}" == "/.git" ) continue;
+	#	
+	#	set local_file = "`printf "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`";
+	#	
+	#	if ( -d "${local_file}" || -e "${local_file}" ) continue;
+	#	
+	#	printf "\t[remote] '%s' appears to be a stale " "${remote_file}";
+	#	
+	#	if ( -d "${remote_file}" ) then
+	#		printf "directory";
+	#		rm -r "${remote_file}";
+	#		else if ( -e "${remote_file}" ) then
+	#			printf "file";
+	#			rm "${remote_file}";
+	#		endif
+	#		printf "\t[removed]\n";
+	#	end
+	#
+	#printf "\nRemoving stale remote files\t\t[done]";
 	
 	breaksw;
 endsw

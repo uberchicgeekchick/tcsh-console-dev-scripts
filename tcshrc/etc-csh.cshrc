@@ -1,16 +1,5 @@
-#
-# (c) System csh.cshrc for tcsh, Werner Fink '93
-#                         and  J"org Stadler '94
-#
 # This file sources /projects/cli/tcshrc/complete.tcsh and
 # /projects/cli/tcshrc/bindkey.tcsh used especially by tcsh.
-#
-# PLEASE DO NOT CHANGE /etc/csh.cshrc. There are chances that your changes
-# will be lost during system upgrades. Instead use /etc/csh.cshrc.local for
-# your local settings, favourite global aliases, VISUAL and EDITOR
-# variables, etc ...
-# USERS may write their own $HOME/.csh.expert to skip sourcing of
-# /projects/cli/tcshrc/complete.tcsh and most parts oft this file.
 #
 onintr -
 set noglob

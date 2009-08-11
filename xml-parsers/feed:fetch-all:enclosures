@@ -4,8 +4,8 @@ if (! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
 	exit -1;
 endif
 
-set attrib = "`printf '${1}' | sed 's/\-\-\([^=]*\)=\?\(.*\)/\1/g'`";
-set value = "`printf '${1}' | sed 's/\-\-\([^=]*\)=\?\(.*\)/\2/g'`";
+set attrib = "`printf '${1}' | sed --regexp-extended 's/\-\-([^=]*)=\?(.*)/\1/g'`";
+set value = "`printf '${1}' | sed --regexp-extended 's/\-\-([^=]*)=\?(.*)/\2/g'`";
 
 switch ( "${attrib}" )
 case "newest":
@@ -41,7 +41,7 @@ if( ! ${?quiet} ) printf "Downloading podcast's feed.\n"
 wget --quiet -O './00-feed.xml' "${1}"
 
 if( ! ${?quiet} ) printf "Finding feed's title.\n"
-set title = "`/usr/bin/grep '<title.*>' './00-feed.xml' | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g'`"
+set title = "`/usr/bin/grep '<title.*>' './00-feed.xml' | sed --regexp-extended 's/.*<title[^>]*>([^<]*)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g'`"
 
 if ( ! -d "${title}" ) mkdir -p "${title}"
 cd "${title}"

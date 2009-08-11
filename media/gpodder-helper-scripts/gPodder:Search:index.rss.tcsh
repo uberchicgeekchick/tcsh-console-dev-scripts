@@ -61,7 +61,7 @@ foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
 	if ( "${attrib}" != "${output}" ) set found = "`/usr/bin/grep --ignore-case --perl-regex -e '<${output}>[^<]*<\/${output}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${output}>\([^<]\+\)<\/${output}>.*/\1\r/g'`"
 
 	foreach item ( "${found}" )
-		printf "%s:\t%s\n" "${index}" "${item}"
+		printf "%s:%s\n" "${index}" "${item}"
 	end
 	
 	if( ${?be_verbose} ) then

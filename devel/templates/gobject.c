@@ -1,1 +1,1 @@
-/projects/gtk/templates/source/gobject.c
+gtk/source/my-gobject.c

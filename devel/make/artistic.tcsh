@@ -14,6 +14,8 @@ alias	"configure"	"configure --libdir=/usr/lib64"
 setenv	LD_LIBRARY_PATH		"/usr/include"
 setenv	LD_RUN_PATH		"/usr/include"
 
+#autoconf, automake, & etc settings
+setenv	AC_CONFIG_MACRO_DIR	"/usr/share/autoconf/autoconf"
 
 #C compiler command
 setenv	CC		"/usr/bin/gcc"

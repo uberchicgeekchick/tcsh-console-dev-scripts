@@ -1,10 +1,10 @@
 #!/bin/tcsh -f
 
-set programs=( "/programs/bin" "/programs/Mozilla/Firefox3/x86_64" "/programs/Mozilla/Thunderbird3/x86_64" "/programs/carrier/bin" "/programs/ion/3-20080825/bin" "/programs/linphone/bin" )
+set programs=( "/programs/bin" "/programs/Mozilla/Firefox3/x86_64" "/programs/Mozilla/Thunderbird3/x86_64" "/programs/carrier/bin" "/programs/ion/3-20080825/bin" "/programs/linphone/bin" "/programs/connectED/bin" )
 foreach program ( ${programs} )
 	if(! -d ${program} ) continue;
 	set program_test="`printf '${program}' | sed 's/\//\\\//g'`"
-	if ( "`echo '${PATH}' | /usr/bin/sed 's/.*:\(${program_test}\).*/\1/'`" == "${program_test}" ) continue
+	if ( "`echo '${PATH}' | sed 's/.*:\(${program_test}\).*/\1/'`" == "${program_test}" ) continue
 	setenv PATH "${PATH}:${program}"
 end
 unset program programs

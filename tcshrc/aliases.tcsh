@@ -1,7 +1,12 @@
 #!/bin/tcsh -f
+#alias	alias	"/projects/cli/tcshrc/alias.launcher"
+
+
 complete	alias	'p/1/c/' 'p/2,/c,f/'
 
 setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify  --group-directories-first --format=vertical"
+
+alias	ps		"ps -a -F"
 
 alias	ls	"ls ${LS_OPTIONS}"
 alias	ll	"ls -l"

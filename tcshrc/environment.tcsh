@@ -4,11 +4,6 @@
 set addsuffix
 
 setenv eol '$';
-#if(!(${?loginsh})) alias "logout" "exit"
-
-setenv		GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number"
-alias		grep		"grep ${GREP_OPTIONS}"
-alias		egrep		"grep ${GREP_OPTIONS} --perl-regexp"
 
 setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify  --group-directories-first --format=vertical"
 
@@ -29,13 +24,6 @@ set notify
 alias ssshh 'set nobeep'
 set nobeep
 set noclobber
-
-set highlight
-set histdup=erase
-set histfile="/projects/cli/tcshrc/history"
-set history=3000
-set savehist=( $history "merge" )
-set histlit
 
 #set printexitvalue
 
@@ -62,11 +50,7 @@ unset autologout
 unset ignoreeof
 
 
-if(!(${?loginsh})) then
-	unalias logout;
-	unalias exit;
-	if( ! ${?histfile} && -e "${HOME}/.history" ) set histfile="${HOME}/history";
-	source -h "${histfile}"
-	alias "logout" "if( -e /etc/csh.logout ) source /etc/csh.logout ; if( -e ~/.logout ) source ~/.logout ; exit";
-endif
+set highlight
+
+source /projects/cli/tcshrc/history.tcsh
 

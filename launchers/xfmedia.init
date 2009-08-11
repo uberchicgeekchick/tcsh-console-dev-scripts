@@ -1,17 +1,13 @@
 #!/bin/tcsh -f
-#set program="`echo ${0} | sed 's/\(.*\)\(\.init\)${eol}/\1/g'`"
-set program="xfmedia";
-if ( ! -x "/usr/bin/${program}" ) then
-	printf "Unable to find ${program}.\n";
-	exit -1;
-endif
+set launcher="xfmedia";
 
-source "/projects/cli/launchers/${program}";
+source "/projects/cli/launchers/${launcher}";
 
 foreach resolution_source ( /projects/cli/resolutions/video/* )
 	set alias_suffix=`basename "${resolution_source}" | cut -d'.' -f1`;
 	set resolution=`cat "${resolution_source}"`;
-	source "/projects/cli/launchers/${program}";
+	if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s\n" $launcher;
+	source "/projects/cli/launchers/${launcher}";
 	unset alias_suffix
 end
 

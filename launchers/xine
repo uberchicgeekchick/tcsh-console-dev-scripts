@@ -1,5 +1,14 @@
 #!/bin/tcsh -f
-if( ! ${?program} ) set program="xfmedia";
+if(!(${?this_program})) set this_program="xine";
+
+foreach program ( "`which '${this_program}'`" )
+	if( -x "${program}" ) end
+endif
+
+if ( !( ${?program} && -x "${program}" ) ) then
+	printf "Unable to find %s.\n", "${this_program}";
+	exit -1;
+endif
 
 if( ! ${?audio_driver} ) set audio_driver="esd";
 
@@ -7,7 +16,6 @@ if( ! ${?video_driver} ) set video_driver="opengl";
 
 if( ! ${?resolution} ) set resolution=`cat "/projects/cli/resolutions/video/hd.rc"`;
 
-if( ! ${?settings} ) set settings="${HOME}/.config/${program}/settings.xml";
 if( ! ${?output} ) set output=">& /dev/null &";
 
 if( "${0}" == "-tcsh" ) then
@@ -18,13 +26,16 @@ endif
 
 if( ${?set_alias} ) then
 	if ( ! ${?alias_suffix} ) then
-		set new_alias="${program}";
+		set new_alias="${this_program}";
 	else
-		set new_alias="${program}-${alias_suffix}";
+		set new_alias="${this_program}-${alias_suffix}";
 	endif
-	alias	"${new_alias}"	"/usr/bin/${program} --video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=repeat --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
+	if( ${?TCSHRC_DEBUG} ) printf "Aliasing [%s] to [%s/%s].\n" $new_alias $program;
+	alias	"${new_alias}"	"${program} --video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=repeat --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
 else
-	"/usr/bin/${program} --video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=repeat --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
+	${this_program}
+	#--video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=repeat --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
 endif
-	
+
+unset this_program;
 

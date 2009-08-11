@@ -1,0 +1,8 @@
+#!/bin/tcsh -f
+gnome-terminal --geometry=80x15 \
+	 --tab --working-directory=/ --title='sudo$>' --command='sudo tcsh' \
+	--tab --working-directory=~ --title='[screen]' --command=/projects/cli/launchers/screen \
+	--tab --working-directory=~ --title='bash$>' --command=/bin/bash \
+	--tab --working-directory=/projects --title=/projects \
+${argv} &;
+

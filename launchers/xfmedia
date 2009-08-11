@@ -1,5 +1,13 @@
 #!/bin/tcsh -f
-if( ! ${?program} ) set program="xfmedia";
+if( ! ${?this_program} ) set this_program="xfmedia";
+foreach program ( "`which '${this_program}'`" )
+	if( -x "${program}" ) end
+endif
+
+if ( !( ${?program} && -x "${program}" ) ) then
+	printf "Unable to find %s.\n", "${this_program}";
+	exit -1;
+endif
 
 if( ! ${?audio_driver} ) set audio_driver="esd";
 
@@ -20,14 +28,16 @@ endif
 
 if( ${?set_alias} ) then
 	if ( ! ${?alias_suffix} ) then
-		set new_alias="${program}";
+		set new_alias="${this_program}";
 	else
-		set new_alias="${program}-${alias_suffix}";
+		set new_alias="${this_program}-${alias_suffix}";
 	endif
-	alias "${new_alias}" "${condition}/usr/bin/${program} --video-out='${video_driver}' --audio-out='${audio_driver}' --vwin-geometry='${resolution}' ${argv} ${output}";
+	if( ${?TCSHRC_DEBUG} ) printf "Aliasing [%s] to [%s/%s].\n" $new_alias $program;
+	alias "${new_alias}" "${condition}${program} --video-out='${video_driver}' --audio-out='${audio_driver}' --vwin-geometry='${resolution}' ${argv} ${output}";
 else
-	${program};
-	#${condition}/usr/bin/${program} --video-out="${video_driver}" --audio-out="${audio_driver}" --vwin-geometry="${resolution}" ${argv} ${output};
+	${this_program};
+	#${condition}${this_program} --video-out="${video_driver}" --audio-out="${audio_driver}" --vwin-geometry="${resolution}" ${argv} ${output};
 endif
-	
+
+unset this_program;
 

@@ -15,3 +15,5 @@ else
 	${program} ${argv} >& /dev/null
 endif
 
+unset this_program;
+

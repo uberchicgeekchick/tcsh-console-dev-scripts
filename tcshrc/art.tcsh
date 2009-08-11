@@ -1,31 +1,35 @@
 #!/bin/tcsh -f
-alias	cmake	"cmake -Wno-dev"
-alias	sqlite	"sqlite3"
+setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --ignore-case";
+alias	grep		"grep ${GREP_OPTIONS}";
+alias	egrep		"grep ${GREP_OPTIONS} --perl-regexp";
 
-alias	mysql	"mysql --socket=/srv/mysql/mysql.sock -u${USER} -p"
-alias	mysqldump	"mysqldump --databases --comment --no-autocommit --extended-insert --socket=/srv/mysql/mysql.sock -u${USER} -p"
+alias	cmake	"cmake -Wno-dev";
+alias	sqlite	"sqlite3";
+
+alias	mysql	"mysql --socket=/srv/mysql/mysql.sock -u${USER} -p";
+alias	mysqldump	"mysqldump --databases --comment --no-autocommit --extended-insert --socket=/srv/mysql/mysql.sock -u${USER} -p";
 
 bindkey	"^Z" run-fg-editor;
-alias	vi	"vim-enhanced -p"
-alias	vim	"vim-enhanced -p"
+alias	vi	"vim-enhanced -p";
+alias	vim	"vim-enhanced -p";
 
-complete kill_program.tcsh "p/*/c/"
-complete interupt_program.tcsh "p/*/c/"
+complete kill_program.tcsh "p/*/c/";
+complete interupt_program.tcsh "p/*/c/";
 
-source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/gtk/alacast/scripts
-source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/cli
+source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/gtk/alacast/scripts;
+source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/cli;
 
-alias	ex	"ex -E"
+alias	ex	"ex -E";
 
-setenv	BONOBO_ACTIVATION_PATH	"/usr/lib64/bonobo/servers"
+setenv	BONOBO_ACTIVATION_PATH	"/usr/lib64/bonobo/servers";
 
-setenv OSS_CANVAS
-setenv PATH "${PATH}:/programs/connectED/bin:/bin:/projects/games/engines/Raydium/raydium/bin"
-if ( -e "./.canvas.init.csh" ) then
-	source "./.canvas.init.csh";
-else
-	source /projects/cli/devel/make/init.tcsh
-endif
+setenv PATH "${PATH}:/bin:/projects/games/engines/Raydium/raydium/bin";
 
-source /projects/cli/launchers/init.tcsh
+setenv OSS_CANVAS;
+source /projects/cli/devel/make/init.tcsh;
+
+source /projects/cli/launchers/init.tcsh;
+
+alias	sed		"sed --regexp-extended";
+
 

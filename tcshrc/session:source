@@ -1,11 +1,9 @@
 #!/bin/tcsh -f
+if( (!(${?TCSHRC_DEBUG})) && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+
 set session_rc_path="/projects/cli/tcshrc";
 
-source "${session_rc_path}/environment.tcsh";
-
 if( "${uid}" != "0" ) source "${session_rc_path}/aliases:sudo.tcsh";
-
-source "${session_rc_path}/programs.tcsh";
 
 foreach rc_file ( "${session_rc_path}/"*.tcsh )
 	set rc_file="`basename '${rc_file}'`";
@@ -14,15 +12,21 @@ foreach rc_file ( "${session_rc_path}/"*.tcsh )
 	case "bindkey.tcsh":
 	case "complete.tcsh":
 	case "aliases:sudo.tcsh":
-	case "environment.tcsh":
-	case "programs.tcsh":
-		breaksw
+	case "history.tcsh":
+	case "art.tcsh":
+		if( ${?TCSHRC_DEBUG} ) printf "Skipping %s.\n" $rc_file;
+		printf "Skipping %s.\n" $rc_file;
+		breaksw;
 	default:
-		if( ${?CSHRC_DEBUG} ) printf "Sourcing: %s\n" "${rc_file}";
+		if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s\n" $rc_file;
+		printf "Sourcing: %s\n" $rc_file;
 		source "${session_rc_path}/${rc_file}";
 		if( ${?http_proxy} ) unsetenv http_proxy;
-		breaksw
+		breaksw;
 	endsw
 end
+
+source "${session_rc_path}/art.tcsh";
+
 unset rc_file session_rc_path;
 

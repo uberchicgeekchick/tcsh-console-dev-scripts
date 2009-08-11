@@ -15,11 +15,9 @@ foreach rc_file ( "${session_rc_path}/"*.tcsh )
 	case "history.tcsh":
 	case "art.tcsh":
 		if( ${?TCSHRC_DEBUG} ) printf "Skipping %s.\n" $rc_file;
-		printf "Skipping %s.\n" $rc_file;
 		breaksw;
 	default:
 		if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s\n" $rc_file;
-		printf "Sourcing: %s\n" $rc_file;
 		source "${session_rc_path}/${rc_file}";
 		if( ${?http_proxy} ) unsetenv http_proxy;
 		breaksw;

@@ -2,6 +2,8 @@
 #setenv TCSHRC_DEBUG;
 if( (!(${?TCSHRC_DEBUG})) && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
 
+unalias sed;
+
 if( ${?echo} ) unset echo;
 
 if( ${?http_proxy} ) unsetenv http_proxy;

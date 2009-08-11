@@ -3,6 +3,7 @@
 #
 onintr -
 set noglob
+unalias sed
 #
 # Call common progams from /bin or /usr/bin only
 #
@@ -134,7 +135,6 @@ alias helpcommand whatis
 #
 # Expert mode: if we find $HOME/.csh.expert we skip our settings
 # used for interactive completion and read in the expert file.
-#
 if (-r $HOME/.csh.expert) then
     unset noglob
     source $HOME/.csh.expert

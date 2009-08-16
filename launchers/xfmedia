@@ -9,7 +9,7 @@ if ( !( ${?program} && -x "${program}" ) ) then
 	exit -1;
 endif
 
-if( ! ${?audio_driver} ) set audio_driver="esd";
+if( ! ${?audio_driver} ) set audio_driver="oss";
 
 if( ! ${?video_driver} ) set video_driver="opengl";
 

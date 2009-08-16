@@ -2,6 +2,7 @@
 if (! ${?1} || "${1}" == "" ) goto usage
 
 while ( ${?1} && "${1}" != "" )
+	set verbose_output="FALSE";
 	set attribute = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\1/g'`";
 	set value = "";
 
@@ -22,9 +23,17 @@ while ( ${?1} && "${1}" != "" )
 		breaksw
 	endsw
 	shift;
-
+	
 	if ( ${?1} ) then
 		switch ( "${1}" )
+		case "--enable=verbose":
+			shift;
+			set verbose_output="TRUE";
+			breaksw
+		case "--disable=verbose":
+			shift;
+			set verbose_output="FALSE";
+			breaksw
 		case "--output=title":
 		case "--output=htmlUrl":
 		case "--output=text":
@@ -42,10 +51,15 @@ while ( ${?1} && "${1}" != "" )
 			breaksw
 		endsw
 	else
-		set output="xmlUrl"
+		set output="xmlUrl";
 	endif
-											
-	/usr/bin/grep -i --perl-regex -e "${attribute}=["\""'\''].*${value}.*["\""'\'']" "${HOME}/.config/gpodder/channels.opml" | sed "s/.*${output}=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/" | sed "s/\&amp;/\&/g"
+	
+	if(!(${?output})) set output="xmlUrl";
+	
+	foreach outline ( "`/usr/bin/grep --line-number -i --perl-regex -e '${attribute}=["\""'\''].*${value}.*["\""'\'']' '${HOME}/.config/gpodder/channels.opml'`" )
+		echo "${outline}" | sed "s/.*${output}=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/" | sed "s/\&amp;/\&/g";
+		if( "${verbose_output}" == "TRUE" ) echo "${outline}";
+	end
 	
 end
 

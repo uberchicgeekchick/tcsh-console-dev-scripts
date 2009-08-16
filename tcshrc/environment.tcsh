@@ -33,7 +33,6 @@ set symlinks=ignore
 
 set killdup=erase
 
-set implicitcd
 set rmstar
 
 #set fignore=(.o \~)
@@ -48,9 +47,6 @@ alias	helpcommand	"man"
 
 unset autologout
 unset ignoreeof
-
-
-set highlight
 
 source /projects/cli/tcshrc/history.tcsh
 

@@ -1,12 +1,12 @@
 #!/bin/tcsh -f
-set firefox_profile_path=/profile.d/~slash./mozilla/firefox/profiles;
 set this_program="`basename '${0}'`";
+set firefox_profile_path=/profile.d/~slash./mozilla/${this_program}/profiles;
 if(!(${?1} && "${1}" == "-P" && ${?2} && "${2}" != "" && -d ${firefox_profile_path}/${2} )) then
 	printf "%s -P [profile]\n\tCurrent profiles are: %s" ${this_program} "`ls ${firefox_profile_path}/`";
 	exit -1;
 endif
 
-set program="/programs/Mozilla/Firefox3/x86_64/firefox";
+set program="/programs/Mozilla/Firefox3/x86_64/${this_program}";
 
 if ( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
@@ -16,7 +16,7 @@ endif
 @ ff3_attempt=1;
 goto ff3_start
 ff3_confirm:
-if( `pidof -x firefox-bin` > 0 ) exit 0;
+if( `pidof -x ${this_program}-bin` > 0 ) exit 0;
 @ ff3_attempt++;
 rm ${firefox_profile_path}/${2}/extensions.* >& /dev/null &
 sleep 2;
@@ -27,13 +27,10 @@ exit;
 
 ff3_start:
 if( ${ff3_attempt} > 5 ) exit 0;
-if( ! ${?OUTPUT_STDERR} ) then
-	( ${program} ${argv} > /dev/tty ) >& /dev/null &
-else
-	${program} ${argv} >& /dev/null &
-endif
 
-sleep 5;
+gnome-terminal --role="launcher:${this_program}" --geometry=80x10 --hide-menubar --tab-with-profile='/bin/tcsh -f' --command="${program} ${argv}" >& /dev/null &
+
+sleep 2;
 
 goto ff3_confirm;
 

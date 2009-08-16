@@ -1,0 +1,259 @@
+#!/bin/tcsh -f
+set resolutions_path="`dirname '${0}'`/../resolutions/gnome-terminal";
+
+set default_geometry=`cat "${resolutions_path}/default.rc"`;
+set build_geometry=`cat "${resolutions_path}/build.rc"`;
+set games_geometry=`cat "${resolutions_path}/artistic.rc"`;
+set artistic_geometry=`cat "${resolutions_path}/artistic.rc"`;
+set media_geometry=`cat "${resolutions_path}/media.rc"`;
+set canvas_geometry=`cat "${resolutions_path}/canvas.rc"`;
+set editor_geometry = `cat "${resolutions_path}/editor.rc"`;
+
+set screens_command="/projects/cli/helpers/screen:attach";
+
+foreach canvas ( "${argv}" )
+	
+	set my_gnome_terminal="/usr/bin/gnome-terminal --hide-menubar --role='${canvas}'";
+	set canvas_role="${canvas}";
+	set canvas_type="`printf '${canvas}' | sed 's/^\([^:]\+\):\(.*\)/\1/g'`";
+	set canvas="`printf '${canvas}' | sed 's/^\([^:]\+\):\(.*\)/\2/g'`";
+	
+	switch( "${canvas_type}" )
+	case "Editor":
+		shift;
+		set geometry="${editor_geometry}";
+		goto editor_canvas
+		breaksw
+	
+	case "Canvas":
+		shift;
+		set geometry="${canvas_geometry}";
+		goto canvas_canvas
+		breaksw
+	
+	case "GameDesign":
+		shift;
+		set geometry="${games_geometry}"
+		goto games_canvas
+		breaksw
+	
+	case "Artistic":
+		shift;
+		set geometry="${artistic_geometry}"
+		goto artistic_canvas
+		breaksw
+	
+	case "Media":
+		shift;
+		set geometry="${media_geometry}"
+		goto media_canvas
+		breaksw
+	
+	case "Build":
+		shift;
+		set geometry="${build_geometry}"
+		goto build_canvas
+		breaksw
+	
+	case "Default":
+	default:
+		set geometry="${default_geometry}"
+		goto default_canvas
+		breaksw
+	endsw
+
+goto next_canvas
+	
+	
+editor_canvas:
+	switch ( "${canvas}" )
+	case 'Template':
+		${my_gnome_terminal} --geometry=${geometry} --tab-with-profile='[screen]$>' --tab-with-profile='~' \
+		${argv} &;
+		breaksw
+	
+	case 'VIM':
+		${my_gnome_terminal} --geometry=${geometry} \
+			--tab-with-profile="uberChick" --title="vim-enhanced" --working-directory="/projects" --command="/usr/bin/vim-enhanced -p ${argv}" \
+		&;
+		breaksw
+		
+	case 'Default':
+		${my_gnome_terminal} --geometry=${geometry} \
+			--tab-with-profile="uberChick" --title="${EDITOR}" --working-directory="/projects" --command="${EDITOR} -p ${argv}" \
+		&;
+		breaksw
+	endsw
+goto next_canvas
+
+games_canvas:
+	switch( "${canvas}" )
+		case "MyGames":
+			set my_canvas=( \
+				"--tab-with-profile=project --title=/projects/games --working-directory=/projects/games" \
+				"--tab-with-profile=project --title=many-worlds --working-directory=/projects/games/many-worlds" \
+				"--tab-with-profile=project --title=hackGirls --working-directory=/projects/games/hackGirls" \
+				"--tab-with-profile=project --title=dystonic-dreams --working-directory=/projects/games/dystonic-dreams" \
+			);
+			breaksw
+		
+		case "Resources":
+			set my_canvas=( \
+				"--tab-with-profile=project --title=/media-library --working-directory=/media/library" \
+				"--tab-with-profile=project --title=/projects/media --working-directory=/projects/media" \
+				"--tab-with-profile=project --title=/art --working-directory=/projects/art" \
+				"--tab-with-profile=project --title=/games --working-directory=/projects/games" \
+			);
+			breaksw
+		
+		case "Tools":
+			set my_canvas= ( \
+				"--tab-with-profile=opensim --working-directory=/projects/games/tools/opensim/bin --command=/projects/games/tools/opensim/OpenSim.tcsh" \
+				"--tab-with-profile=project --title=game:engines --working-directory=/projects/games/engines" \
+				"--tab-with-profile=project --title=game:libraries --working-directory=/projects/games/libraries" \
+				"--tab-with-profile=project --title=game-design:tools --working-directory=/projects/games/tools" \
+			);
+			breaksw
+		endsw
+
+artistic_canvas:
+	switch( "${canvas}" )
+		case 'Projects':
+			set my_canvas=( \
+				"--tab-with-profile=uberChick --title=/cli --working-directory=/projects/cli" \
+				"--tab-with-profile=uberChick --title=/www --working-directory=/projects/www" \
+				"--tab-with-profile=uberChick --title=/gtk --working-directory=/projects/gtk" \
+				"--tab-with-profile=uberChick --title=/art --working-directory=/projects/art" \
+				"--tab-with-profile=uberChick --title=/games --working-directory=/projects/games" \
+			);
+			breaksw
+		
+		case 'GTK':
+			set my_canvas=( \
+				"--tab-with-profile=uberChick --title=/gtk --working-directory=/projects/gtk" \
+				"--tab-with-profile=uberChick --title=connectED --working-directory=/projects/gtk/connectED" \
+				"--tab-with-profile=uberChick --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
+				"--tab-with-profile=uberChick --title=alacast --working-directory=/projects/gtk/alacast" \
+			);
+			breaksw
+		
+		case 'CLI':
+			set my_canvas=( \
+					"--tab-with-profile=uberChick --title=/cli --working-directory=/projects/cli" \
+					"--tab-with-profile=uberChick --title=/profile.d --working-directory=/profile.d" \
+					"--tab-with-profile=uberChick --title=tcshrc --working-directory=/projects/cli/tcshrc" \
+			);
+			breaksw
+	
+		case 'WWW':
+			set my_canvas=( \
+					"--tab-with-profile=uberChick --title=/www --working-directory=/projects/www" \
+				 	"--tab-with-profile=uberChick --title=profiles --working-directory=/projects/www/online-profiles" \
+					"--tab-with-profile=uberChick --title=online-oss --working-directory=/projects/www/online-oss" \
+					"--tab-with-profile=uberChick --title=TweetMyBlog --working-directory=/projects/www/TweetMyBlog" \
+					"--tab-with-profile=uberChick --title=realFriends --working-directory=/projects/www/realFriends" \
+					"--tab-with-profile=uberChick --title=Creative::Code::Canvas --working-directory=/projects/www/Creative::Code::Canvas" \
+					"--tab-with-profile=uberChick --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
+				);
+			breaksw
+		
+		case 'MyWebSites':
+			set my_canvas=( \
+				"--tab-with-profile=uberChick --title=uberChicks.Net --working-directory=/projects/www/uberChicks.Net" \
+				"--tab-with-profile=uberChick --title=Dystonia-DREAMS.Org --working-directory=/projects/www/Dystonia-DREAMS.Org" \
+				"--tab-with-profile=uberChick --title=uberChicGeekChick.Com --working-directory=/projects/www/uberChicGeekChick.Com" \
+			);
+			breaksw
+		
+		case 'All':
+			set my_canvas=( \
+				"--tab-with-profile=uberChick --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
+				"--tab-with-profile=uberChick --title=connectED --working-directory=/projects/gtk/connectED" \
+				"--tab-with-profile=uberChick --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
+				"--tab-with-profile=uberChick --title=alacast --working-directory=/projects/gtk/alacast" \
+				"--tab-with-profile=uberChick --title=many-worlds --working-directory=/projects/games/many-worlds" \
+				"--tab-with-profile=uberChick --title=hackGirls --working-directory=/projects/games/hackGirls" \
+				"--tab-with-profile=uberChick --title=dystonic-dreams --working-directory=/projects/games/dystonic-dreams" \
+			);
+			breaksw
+		endsw
+
+goto next_canvas
+
+
+build_canvas:
+	switch( "${canvas}" )
+	case 'Mozilla':
+		${my_gnome_terminal} --geometry=${geometry} --tab-with-profile=screen --tab-with-profile='~' \
+			--tab-with-profile="build:canvas" --title="mozilla-src" --working-directory="/programs/Mozilla/src" \
+			--tab-with-profile="build:canvas" --title="thunderbird-src" --working-directory="/programs/Mozilla/thunderbird-src" \
+			--tab-with-profile="build:canvas" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
+			--tab-with-profile="build:canvas" --title="xulrunner-src" --working-directory="/programs/Mozilla/src/xulrunner-src" \
+		${argv} &;
+		breaksw
+	
+	case 'XULRunner':
+		${my_gnome_terminal} --geometry=${geometry} --tab-with-profile=screen --tab-with-profile='~' \
+			--tab-with-profile="build:canvas" --title="xulrunner-src" --working-directory="/programs/Mozilla/src/xulrunner-src" \
+		${argv} &;
+		breaksw
+
+	case 'Canvas':
+	default:
+		set my_canvas=( \
+			"--tab-with-profile=build:canvas --title=/projects --working-directory=/projects" \
+			"--tab-with-profile=build:canvas --title=Mozilla/src --working-directory=/programs/Mozilla/src" \
+			"--tab-with-profile=build:canvas --title=/programs/src --working-directory=/programs/src" \
+		);
+		breaksw
+	
+	endsw
+goto next_canvas
+
+
+
+media_canvas:
+	switch ( "${canvas}" )
+	case 'Online':
+		if ( -e "${HOME}/.rtorrent.rc" ) then
+			set rtorrent_session_dir = `/usr/bin/grep 'session' "${HOME}/.rtorrent.rc" | /usr/bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`;
+			if ( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
+				rm -f "${rtorrent_session_dir}/rtorrent.lock";
+				rm -f "${rtorrent_session_dir}/rtorrent.dht_cache";
+			endif
+		endif
+		
+		set my_canvas=" \
+			--tab-with-profile=rTorrent --working-directory=/media/torrents --command=rtorrent  \
+			--tab-with-profile=uberChick --title=/projects/media --working-directory=/projects/media \
+			--tab-with-profile=uberChick --title=/media --working-directory=/media \
+			--tab-with-profile=uberChick --title=podiobooks --working-directory=/media/podiobooks \
+			--tab-with-profile=uberChick --title=podcasts --working-directory=/media/podcasts \
+			--tab-with-profile=alacast:php --title=alacast:php --working-directory=/projects/cli/alacast";
+		breaksw
+	endsw
+goto next_canvas
+	
+	
+	
+default_canvas:
+	switch ( "${canvas}" )
+	case 'Screen':
+		set my_canvas="";
+		breaksw
+	default:
+		set my_canvas="--tab-with-profile="\""uberChick"\"" --title='~' --working-directory="\""${HOME}"\""";
+		breaksw
+	endsw
+goto next_canvas
+
+next_canvas:
+	if( ${?my_canvas} ) then
+		/usr/bin/gnome-terminal --hide-menubar --role=${canvas_role} --geometry=${geometry} \
+			--tab-with-profile=screen \
+			${my_canvas} \
+		${argv} &;
+		unset my_canvas;
+	endif
+end
+

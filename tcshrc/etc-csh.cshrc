@@ -1,3 +1,4 @@
+#!/bin/tcsh -f
 # This file sources /projects/cli/tcshrc/complete.tcsh and
 # /projects/cli/tcshrc/bindkey.tcsh used especially by tcsh.
 #

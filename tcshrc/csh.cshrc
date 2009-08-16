@@ -15,6 +15,9 @@ setenv EDITOR "/usr/bin/vim-enhanced";
 
 set logout=normal;
 
+set highlight
+set implicitcd
+
 if (! ${?cdpath} ) set cdpath="/etc:/usr/share";
 set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/projects/cli/profile.d:/media:/media/library:.";
 

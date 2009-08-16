@@ -25,11 +25,10 @@ setenv	BONOBO_ACTIVATION_PATH	"/usr/lib64/bonobo/servers";
 
 setenv PATH "${PATH}:/bin:/projects/games/engines/Raydium/raydium/bin";
 
-setenv OSS_CANVAS;
-source /projects/cli/devel/make/init.tcsh;
+source /projects/cli/devel/make/init.canvas;
 
 source /projects/cli/launchers/init.tcsh;
 
-alias	sed		"sed --regexp-extended";
+#alias	sed		"sed --regexp-extended";
 
 

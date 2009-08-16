@@ -1,0 +1,20 @@
+#!/bin/tcsh -f
+if( (! ${?TCSHRC_DEBUG} ) && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+
+alias	"make:init:artistic:canvas"		"if ( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS; source /projects/cli/devel/make/init.tcsh"
+
+alias	"make:init:build:canvas"		"if ( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS; source /projects/cli/devel/make/init.tcsh"
+
+
+if ( -e "./canvas.init.tcsh" ) then
+	printf "Setting up custom make environment.\n";
+	source "./canvas.init.tcsh";
+else if ( -e "./.build.canvas.init" || -e "../.build.canvas.init" ) then
+	source "/projects/cli/devel/make/build.canvas";
+else
+	source "/projects/cli/devel/make/artistic.canvas";
+endif
+
+#Path to xmkmf, Makefile generator for X Window System
+setenv XMKMF "/usr/bin/xmkmf";
+

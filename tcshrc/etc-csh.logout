@@ -1,4 +1,4 @@
-#/bin/tcsh -f
+#!/bin/tcsh -f
 history -M
 history -S
 

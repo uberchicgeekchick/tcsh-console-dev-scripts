@@ -1,8 +1,9 @@
 #!/bin/tcsh -f
-set this_program="`basename '${0}'`";
+set program="/programs/Mozilla/Firefox3/x86_64/firefox-bin";
 
-foreach program ( "`which '${this_program}'`" )
-	if( -x "${program}" ) end
+if ( !( ${?program} && -x "${program}" ) ) then
+	printf "Unable to find %s.\n", "${this_program}";
+	exit -1;
 endif
 
 if ( !( ${?program} && -x "${program}" ) ) then
@@ -12,10 +13,11 @@ endif
 
 echo "${program} ${argv}";
 
+
 if( ! ${?OUTPUT_STDERR} ) then
-	( ${program} ${argv} > /dev/tty ) >& /dev/null
+	( ${program} ${argv} > /dev/tty ) >& /dev/null &
 else
-	${program} ${argv} >& /dev/null
+	${program} ${argv} >& /dev/null &
 endif
 
 unset this_program;

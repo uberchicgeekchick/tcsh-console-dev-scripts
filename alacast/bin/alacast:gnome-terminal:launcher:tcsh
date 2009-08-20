@@ -2,7 +2,7 @@
 
 set alacasts_path = `dirname "${0}"`
 set alacasts_exec = "${alacasts_path}/alacast.php"
-set alacasts_options = "--update=detailed --logging --interactive --titles-append-pubdate --strip-characters='#'"
+set alacasts_options = "--update=detailed --logging --interactive --titles-append-pubdate --strip-characters='#!'"
 
 
 set alacasts_resolution = "";

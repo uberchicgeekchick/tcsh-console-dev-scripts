@@ -36,7 +36,7 @@ setenv CPPFLAGS "${MY_INCLUDE_FLAGS}";
 
 setenv MAKEFLAGS "-O3 -Wall -Wextra -Wformat=2";
 
-setenv CFLAGS "${CPPFLAGS} -std=gnu++0x";
+setenv CFLAGS "${CPPFLAGS} ${MY_INCLUDE_FLAGS} -std=gnu99";
 
-setenv CXXFLAGS "${CPPFLAGS} -std=gnu++0x";
+setenv CXXFLAGS "${CPPFLAGS} ${MY_INCLUDE_FLAGS} -std=gnu++0x";
 

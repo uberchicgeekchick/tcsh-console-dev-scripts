@@ -54,13 +54,12 @@ endsw
 set topdir="${mozilla_top_dir}/src";
 if ( ! -d "${topdir}" ) mkdir -p "${topdir}";
 set srcdir="${topdir}/${build_mozilla}-src";
+set objdir="${topdir}/${build_mozilla}-objdir";
 
 if( -e "${srcdir}/.make.lock" ) then
 	printf "Another instance of %s is using the current source.  Please wait a few seconds than try again." "`basename ${0}`";
 	exit -2;
 endif
-
-set objdir="${topdir}/${build_mozilla}-objdir";
 
 if ( ${?2} && "${2}" == "--make-package" ) goto make_package
 
@@ -158,7 +157,7 @@ end
 install:
 cd "${objdir}";
 tar -C "${prefix}" -xjf "${tarball}";
-oif( "${build_mozilla}" == "xulrunner" ) exit 0;
+if( "${build_mozilla}" == "xulrunner" ) exit 0;
 
 
 

@@ -2,7 +2,7 @@
 
 alacasts_path=`dirname "${0}"`
 alacasts_exec="${alacasts_path}/alacast.php"
-alacasts_options="--update=detailed --logging --interactive --titles-append-pubdate --strip-characters='#'"
+alacasts_options="--update=detailed --logging --interactive --titles-append-pubdate --strip-characters='#!'"
 
 
 alacasts_resolution="";

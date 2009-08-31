@@ -4,13 +4,17 @@ if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}
 set session_rc_path="/projects/cli/tcshrc";
 
 if( "${uid}" != "0" ) then
-	if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo services aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-	source "${session_rc_path}/aliases:services.tcsh";
-	if( ${?TCSHRC_DEBUG} ) printf "sudo services aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( -e "${session_rc_path}/aliases:sudo:services.tcsh" ) then
+		if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo services aliases @ %s.\n" `date "+%I:%M:%S%P"`;
+		source "${session_rc_path}/aliases:sudo:services.tcsh";
+		if( ${?TCSHRC_DEBUG} ) printf "sudo services aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+	endif
 	
-	if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo command aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-	source "${session_rc_path}/aliases:sudo.tcsh";
-	if( ${?TCSHRC_DEBUG} ) printf "sudo command aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( -e "${session_rc_path}/aliases:sudo:commands.tcsh" ) then
+		if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo command aliases @ %s.\n" `date "+%I:%M:%S%P"`;
+		source "${session_rc_path}/aliases:sudo:commands.tcsh";
+		if( ${?TCSHRC_DEBUG} ) printf "sudo command aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+	endif
 endif
 
 #foreach rc_file ( "${session_rc_path}/"*.tcsh )
@@ -20,8 +24,8 @@ foreach rc_file ( "`/bin/ls --width=1 '${session_rc_path}/'*.tcsh`" )
 	switch("${rc_file}")
 	case "bindkey.tcsh":
 	case "complete.tcsh":
-	case "aliases:sudo.tcsh":
-	case "aliases:services.tcsh":
+	case "aliases:sudo:services.tcsh":
+	case "aliases:sudo:commands.tcsh":
 	case "history.tcsh":
 	case "art.tcsh":
 	case "environment.tcsh":

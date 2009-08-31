@@ -1,7 +1,10 @@
 #!/bin/tcsh -f
 
 #setenv TCSHRC_DEBUG;
-if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) then
+	printf "[csh.cshrc]: enabling verbose debugging output @ %s.\n" `date "+%I:%M:%S%P"`;
+	setenv TCSHRC_DEBUG;
+endif
 
 if( ${?SSH_CONNECTION} && ${?TCSHRC_DEBUG} ) unsetenv TCSHRC_DEBUG;
 
@@ -35,6 +38,8 @@ complete ln 'p/*/f/';
 
 
 if( ${?TCSHRC_DEBUG} ) printf "Initalizing tcsh session @ %s.\n" `date "+%I:%M:%S%P"`;
+
+if( ! ${?UBERCHICK_TSCHRC_BYPASS_SESSION} && 
 source /projects/cli/tcshrc/session:source;
 
 if( ${?http_proxy} ) unsetenv http_proxy;

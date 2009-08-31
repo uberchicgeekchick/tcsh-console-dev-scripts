@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if ( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) goto usage;
+if( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) goto usage;
 unsetenv GREP_OPTIONS;
 
 set action = "display";
@@ -29,7 +29,7 @@ while ( ${?1} && "${1}" != "" )
 	set attrib = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\(.*\)/\1/g'`";
 	set value = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`";
 	shift;
-	if ( "${attrib}" == "" ) continue;
+	if( "${attrib}" == "" ) continue;
 	
 	set values;
 	switch ( "${attrib}" )
@@ -37,12 +37,12 @@ while ( ${?1} && "${1}" != "" )
 	case "htmlUrl":
 	case "text":
 	case "description":
-		if ( "${action}" == "add" ) then
+		if( "${action}" == "add" ) then
 			printf "Only xmlUrl(s) can be added/subscribed to.";
 			continue;
 		endif
 	case "xmlUrl":
-		if ( -e "${value}" ) breaksw
+		if( -e "${value}" ) breaksw
 	default:
 		printf "\t%s is not supported.\n\tSupported options are: --[add|del] --[title|xmlUrl|htmlUrl|text|description]="\""[a regex, or file containing regexes, one per line, to search for]"\""\n\tFor more information see %s --help\n" "${attrib}" `basename "${0}"`
 		continue;
@@ -57,9 +57,9 @@ while ( ${?1} && "${1}" != "" )
 			set title = "`printf '${podcast}' | sed 's/[\\"\""]\+/"\""/g' | sed 's/.*title=["\""]\([^"\""]\+\)["\""].*/\1/' | sed 's/\(&\)amp;/\1/g'`";
 			set text = "`printf '${podcast}' | sed 's/[\\"\""'\'']\+/"\""/g' | sed 's/.*text=["\""]\([^"\""]\+\)["\""].*/\1/' | sed 's/\(&\)amp;/\1/g'`";
 			set xmlUrl = "`printf '${podcast}' | sed 's/[\\"\""]\+/"\""/g' | sed 's/.*xmlUrl=["\""]\([^"\""]\+\)["\""].*/\1/' | sed 's/\(&\)amp;/\1/g'`";
-			if ( "${title}" != "" && "${text}" != "" && "${xmlUrl}" != "" ) then
+			if( "${title}" != "" && "${text}" != "" && "${xmlUrl}" != "" ) then
 				#printf "\t%s: %s ( %s )\t[found]\n" "${title}" "${xmlUrl}" "${text}";
-				if ( "${found_podcast}" == "FALSE" ) set found_podcast = "TRUE";
+				if( "${found_podcast}" == "FALSE" ) set found_podcast = "TRUE";
 			endif
 			
 			switch( "${action}" )
@@ -72,7 +72,7 @@ while ( ${?1} && "${1}" != "" )
 			endsw
 		end
 		
-		if ( "${found_podcast}" == "TRUE" ) continue;
+		if( "${found_podcast}" == "TRUE" ) continue;
 		
 		switch( "${action}" )
 		case "add":

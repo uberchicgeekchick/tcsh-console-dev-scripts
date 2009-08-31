@@ -9,14 +9,14 @@ if( ${?1} && "${1}" != "" && -d "${1}" ) cd "${1}"
 foreach manual ( *html*.tar.gz )
 	set extracted_to=`printf "${manual}" | sed 's/\(.*\)\.tar\.gz/\1/g'`;
 	set book=`printf "${manual}" | sed 's/\(.*\)\-html\-[0-9\.]\+\.tar\.gz/\1/g'`;
-	if ( -d "${extracted_to}" ) continue;
+	if( -d "${extracted_to}" ) continue;
 	printf "================ Extracting and installing ================\n\t%s" ${book};
 	tar -C .. -xzf ${manual};
-	if ( -l "${gtk_doc_dir}/${book}" ) then
+	if( -l "${gtk_doc_dir}/${book}" ) then
 		rm "${gtk_doc_dir}/${book}";
-	else if ( -d "${gtk_doc_dir}/${book}" ) then
+	else if( -d "${gtk_doc_dir}/${book}" ) then
 		rm -r "${gtk_doc_dir}/${book}";
-	else if ( -e "${gtk_doc_dir}/${book}" ) then
+	else if( -e "${gtk_doc_dir}/${book}" ) then
 		rm "${gtk_doc_dir}/${book}";
 	endif
 	printf "\t\t\t[done]\n"

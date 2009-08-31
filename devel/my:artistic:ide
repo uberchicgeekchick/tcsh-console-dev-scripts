@@ -3,9 +3,10 @@ set resolutions_path="`dirname '${0}'`/../resolutions/gnome-terminal";
 
 set default_geometry=`cat "${resolutions_path}/default.rc"`;
 set build_geometry=`cat "${resolutions_path}/build.rc"`;
-set games_geometry=`cat "${resolutions_path}/artistic.rc"`;
+set games_geometry=`cat "${resolutions_path}/games.rc"`;
 set artistic_geometry=`cat "${resolutions_path}/artistic.rc"`;
 set media_geometry=`cat "${resolutions_path}/media.rc"`;
+set alacast_geometry=`cat "${resolutions_path}/alacast.rc"`;
 set canvas_geometry=`cat "${resolutions_path}/canvas.rc"`;
 set editor_geometry = `cat "${resolutions_path}/editor.rc"`;
 
@@ -187,9 +188,9 @@ build_canvas:
 	case 'Mozilla':
 		${my_gnome_terminal} --geometry=${geometry} --tab-with-profile=screen --tab-with-profile='~' \
 			--tab-with-profile="build:canvas" --title="mozilla-src" --working-directory="/programs/Mozilla/src" \
-			--tab-with-profile="build:canvas" --title="thunderbird-src" --working-directory="/programs/Mozilla/thunderbird-src" \
-			--tab-with-profile="build:canvas" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
 			--tab-with-profile="build:canvas" --title="xulrunner-src" --working-directory="/programs/Mozilla/src/xulrunner-src" \
+			--tab-with-profile="build:canvas" --title="thunderbird-src" --working-directory="/programs/Mozilla/src/thunderbird-src" \
+			--tab-with-profile="build:canvas" --title="firefox-src" --working-directory="/programs/Mozilla/src/firefox-src" \
 		${argv} &;
 		breaksw
 	
@@ -215,22 +216,25 @@ goto next_canvas
 
 media_canvas:
 	switch ( "${canvas}" )
+	case 'Alacast':
+		breaksw
 	case 'Online':
-		if ( -e "${HOME}/.rtorrent.rc" ) then
+		if( -e "${HOME}/.rtorrent.rc" ) then
 			set rtorrent_session_dir = `/usr/bin/grep 'session' "${HOME}/.rtorrent.rc" | /usr/bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`;
-			if ( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
+			if( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
 				rm -f "${rtorrent_session_dir}/rtorrent.lock";
 				rm -f "${rtorrent_session_dir}/rtorrent.dht_cache";
 			endif
 		endif
 		
-		set my_canvas=" \
-			--tab-with-profile=rTorrent --working-directory=/media/torrents --command=rtorrent  \
-			--tab-with-profile=uberChick --title=/projects/media --working-directory=/projects/media \
-			--tab-with-profile=uberChick --title=/media --working-directory=/media \
-			--tab-with-profile=uberChick --title=podiobooks --working-directory=/media/podiobooks \
-			--tab-with-profile=uberChick --title=podcasts --working-directory=/media/podcasts \
-			--tab-with-profile=alacast:php --title=alacast:php --working-directory=/projects/cli/alacast";
+		set my_canvas=( \
+			"--tab-with-profile=rTorrent --working-directory=/media/torrents --command=rtorrent" \
+			"--tab-with-profile=uberChick --title=/projects/media --working-directory=/projects/media" \
+			"--tab-with-profile=uberChick --title=/media --working-directory=/media" \
+			"--tab-with-profile=uberChick --title=podcasts --working-directory=/media/podcasts" \
+			"--tab-with-profile=project --title=alacast --working-directory=/projects/gtk/alacast" \
+			"--tab-with-profile=alacast:php --title=alacast:php --working-directory=/projects/gtk/alacast" \
+		);
 		breaksw
 	endsw
 goto next_canvas

@@ -16,7 +16,6 @@ alias	vim	"vim-enhanced -p";
 complete kill_program.tcsh "p/*/c/";
 complete interupt_program.tcsh "p/*/c/";
 
-source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/gtk/alacast/scripts;
 source /projects/cli/setenv/PATH:recursively:add.tcsh /projects/cli;
 
 alias	ex	"ex -E";
@@ -28,6 +27,8 @@ setenv PATH "${PATH}:/bin:/projects/games/engines/Raydium/raydium/bin";
 source /projects/cli/devel/make/init.canvas;
 
 source /projects/cli/launchers/init.tcsh;
+
+setenv	SCREENRC	"/profile.d/~slash./screenrc";
 
 #alias	sed		"sed --regexp-extended";
 

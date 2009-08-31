@@ -25,7 +25,7 @@ foreach podcast_match( "`${search_script} '${1}' | cut -d':' -f2 | sed 's/\\!//'
 	set refetch_script="${mp3_player_folder}/gPodder:Refetch:`echo '${podcast_match}' | sed 's/\([\-\=\/\*\?\.\[\]()]\+\)/\:/g'`.tcsh";
 	
 	${search_script} --verbose ${search_attribute}="${podcast_match}" >! "${refetch_script}.tmp";
-	ex -E '+1,$s/[\r\n]\+//g' '+s/\(<\/item>\)/\1\n/g' '+s/#//g' '+1,$s/.*<title>\([^>]\+\)<\/title>.*<title>\([^<]\+\)<\/title>.*<url>\([^<]\+\)<\/url>.*/if ( -d "\1" ) then\relse\r\tmkdir "\1"\rendif\rwget -c -O "\1\/\2" "\3"/g' '+2,$s/^\(wget\ \-c\ \-O\ \)\"\([^\"]\+\)\"\ \"\([^\"]\+\)\.\([^\.\"]\+\)\"$/\1\ \"\2\.\4\"\ \3\.\4/' '+1,$s/\!//g' '+wq' "${refetch_script}.tmp" >& /dev/null;
+	ex -E '+1,$s/[\r\n]\+//g' '+s/\(<\/item>\)/\1\n/g' '+s/#//g' '+1,$s/.*<title>\([^>]\+\)<\/title>.*<title>\([^<]\+\)<\/title>.*<url>\([^<]\+\)<\/url>.*/if( -d "\1" ) then\relse\r\tmkdir "\1"\rendif\rwget -c -O "\1\/\2" "\3"/g' '+2,$s/^\(wget\ \-c\ \-O\ \)\"\([^\"]\+\)\"\ \"\([^\"]\+\)\.\([^\.\"]\+\)\"$/\1\ \"\2\.\4\"\ \3\.\4/' '+1,$s/\!//g' '+wq' "${refetch_script}.tmp" >& /dev/null;
 	
 	while ( `/usr/bin/grep --perl-regexp -e '("[^\/]+)\/(.*)"' "${refetch_script}.tmp"` != "" )
 		ex -E '+1,$s/\("[^\/]\+\)\/\(.*"\)/\1\-\2/g' '+wq' "${refetch_script}.tmp" >& /dev/null;

@@ -32,7 +32,7 @@ endif
 if( "${extension}" != "wav" ) then
 	if( -e "${filename}.wav" ) rm "${filename}.wav";
 	printf "Please wait a moment...\n\tTemporally converting\n\t\t%s\n\t to WAV file:" "${1}"
-	${decoder} -i "${1}" "${filename}.wav" >& /dev/null;
+	${decoder} -i "${1}" -ac 1 -ab 64000 "${filename}.wav" >& /dev/null;
 	if(!("${status}" == "0" && -e "${filename}.wav")) then
 		printf "\t\t[failed]\nUnable to decode file.  Decoder: %s; returned: %d.\n" `basename ${decoder}` ${status};
 		exit ${status};

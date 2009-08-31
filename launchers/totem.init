@@ -4,15 +4,15 @@ foreach program ( "`which '${this_program}'`" )
 	if( -x "${program}" ) end
 endif
 
-if ( !( ${?program} && -x "${program}" ) ) then
+if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif
 
 set playlist="/media/library/playlists/${program}";
-alias	${this_program}	"if ( ! -e '${playlist}.pls' ) touch '${playlist}.pls' ; ${program} '${playlist}.pls' ${argv} ${output}";
-alias	${this_program}-audio	"if ( ! -e '${playlist}-audio.pls' ) touch '${playlist}-audio.pls' ; ${program} --class='${program}-audio' '${playlist}-audio.pls' ${argv} ${output}";
-alias	${this_program}-video	"if ( ! -e '${playlist}-video.pls' ) touch '${playlist}-video.pls' ; ${program} --class='${program}-video' '${playlist}-video.pls' ${argv} ${output}";
+alias	${this_program}	"if( ! -e '${playlist}.pls' ) touch '${playlist}.pls' ; ${program} '${playlist}.pls' ${argv} ${output}";
+alias	${this_program}-audio	"if( ! -e '${playlist}-audio.pls' ) touch '${playlist}-audio.pls' ; ${program} --class='${program}-audio' '${playlist}-audio.pls' ${argv} ${output}";
+alias	${this_program}-video	"if( ! -e '${playlist}-video.pls' ) touch '${playlist}-video.pls' ; ${program} --class='${program}-video' '${playlist}-video.pls' ${argv} ${output}";
 
 unset audio_playlist video_playlist program this_program;
 

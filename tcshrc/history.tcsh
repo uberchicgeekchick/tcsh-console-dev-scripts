@@ -12,6 +12,6 @@ if(!(${?loginsh})) then
 	unalias exit;
 	history -M;
 	
-	alias	"logout"	"if ( -e '${histfile}' ) cp '${histfile}' '${histfile}.bckcp'; if ( -e /etc/csh.logout ) source /etc/csh.logout ; if ( -e ~/.logout ) source ~/.logout ; exit";
+	alias	"logout"	"if( ${?histfile} && -e '${histfile}' ) cp '${histfile}' '${histfile}.bckcp'; history -M; history -S; exit;";
 endif
 

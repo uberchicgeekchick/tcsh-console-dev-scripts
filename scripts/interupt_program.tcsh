@@ -1,6 +1,6 @@
 #!/bin/tcsh
 
-if ( ! "${?1}" ) then
+if( ! "${?1}" ) then
 	printf "Usage:\n\t${0} program\n\tprogram, program-bin, & program-run will all be interupted."
 	exit -1;
 endif
@@ -15,7 +15,7 @@ foreach program ( `echo "${1}\n${1}-bin\n${1}-run"` )
 		foreach pause ( `printf ".\n.\n.\n.\n.\n.\n.\n.\n.\n."` )
 			kill -INT "${pid}"
 			set pid_test = `ps -A | grep "${pid}"`
-			if ( "${pid_test}" == "" ) then
+			if( "${pid_test}" == "" ) then
 				printf "\n${program}, PID ${pid}, has exited."
 				exit 0;
 			endif
@@ -25,5 +25,5 @@ foreach program ( `echo "${1}\n${1}-bin\n${1}-run"` )
 		end
 		printf "\n\t${program}, PID: ${pid}, may still be running.\n\tHopefully its responding.  If not you may want to run: `kill_program.tcsh`";
 	end
-	if ( "${found_pids}" == "false" ) printf "${program} is not running.\n";
+	if( "${found_pids}" == "false" ) printf "${program} is not running.\n";
 end

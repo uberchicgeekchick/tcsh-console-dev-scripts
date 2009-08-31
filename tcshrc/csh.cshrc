@@ -1,15 +1,18 @@
 #!/bin/tcsh -f
+
 #setenv TCSHRC_DEBUG;
-if( (!(${?TCSHRC_DEBUG})) && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+
+if( ${?SSH_CONNECTION} && ${?TCSHRC_DEBUG} ) unsetenv TCSHRC_DEBUG;
 
 unalias sed;
 
 if( ${?echo} ) unset echo;
 
 if( ${?http_proxy} ) unsetenv http_proxy;
-if ( ${?PATH} ) unsetenv PATH;
+if( ${?PATH} ) unsetenv PATH;
 
-setenv PATH "/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/init.d";
+setenv PATH ".:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/init.d";
 
 setenv EDITOR "/usr/bin/vim-enhanced";
 
@@ -18,7 +21,7 @@ set logout=normal;
 set highlight
 set implicitcd
 
-if (! ${?cdpath} ) set cdpath="/etc:/usr/share";
+if(! ${?cdpath} ) set cdpath="/etc:/usr/share";
 set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/projects/cli/profile.d:/media:/media/library:.";
 
 alias jobs "jobs -l";
@@ -31,10 +34,8 @@ complete killall 'p/*/c/';
 complete ln 'p/*/f/';
 
 
-if( ${?TCSHRC_DEBUG} ) printf "Initalizing tcsh session.\n";
+if( ${?TCSHRC_DEBUG} ) printf "Initalizing tcsh session @ %s.\n" `date "+%I:%M:%S%P"`;
 source /projects/cli/tcshrc/session:source;
-
-setenv PATH "${PATH}:.";
 
 if( ${?http_proxy} ) unsetenv http_proxy;
 

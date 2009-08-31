@@ -48,5 +48,7 @@ alias	helpcommand	"man"
 unset autologout
 unset ignoreeof
 
+if( ${?TCSHRC_DEBUG} ) printf "Setting up TCSH history environment @ %s.\n" `date "+%I:%M:%S%P"`;
 source /projects/cli/tcshrc/history.tcsh
+if( ${?TCSHRC_DEBUG} ) printf "TCSH environment setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 

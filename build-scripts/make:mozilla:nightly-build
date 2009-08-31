@@ -8,7 +8,7 @@ if( ${?http_proxy}  ) unsetenv http_proxy
 set mozilla_top_dir="/programs/Mozilla";
 set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
 
-if ( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
+if( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
 	printf "Usage: %s (firefox|thunderbird)\n\tchecks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"`;
 	exit -1;
 endif
@@ -18,7 +18,7 @@ endif
 init:
 cd "${mozilla_top_dir}";
 
-if ( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
+if( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
 unalias grep;
 unalias egrep;
 
@@ -52,7 +52,7 @@ default:
 endsw
 
 set topdir="${mozilla_top_dir}/src";
-if ( ! -d "${topdir}" ) mkdir -p "${topdir}";
+if( ! -d "${topdir}" ) mkdir -p "${topdir}";
 set srcdir="${topdir}/${build_mozilla}-src";
 set objdir="${topdir}/${build_mozilla}-objdir";
 
@@ -61,13 +61,13 @@ if( -e "${srcdir}/.make.lock" ) then
 	exit -2;
 endif
 
-if ( ${?2} && "${2}" == "--make-package" ) goto make_package
+if( ${?2} && "${2}" == "--make-package" ) goto make_package
 
 
 
 checkout:
 touch "${srcdir}/.make.lock";
-if ( !( -d "${srcdir}" && -d "${srcdir}/.hg" ) ) then
+if( !( -d "${srcdir}" && -d "${srcdir}/.hg" ) ) then
 	set hg_reaction="checkout";
 	cd "${topdir}";
 	if( "${build_mozilla}" == "firefox" && -d "${topdir}/xulrunner-src" ) then
@@ -87,7 +87,7 @@ if ( !( -d "${srcdir}" && -d "${srcdir}/.hg" ) ) then
 else
 	cd "${srcdir}";
 	set hg_reaction="update";
-	if ( "${build_mozilla}" == "thunderbird" && -e client.py ) then
+	if( "${build_mozilla}" == "thunderbird" && -e client.py ) then
 		python client.py checkout;
 	else
 		hg pull -u;
@@ -104,7 +104,7 @@ else
 	endif
 endif
 
-if ( ${status} != "0" ) then
+if( ${status} != "0" ) then
 	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmercurial %s failed with error %s\n\n" ${hg_reaction} ${status};
 	exit ${status};
 endif
@@ -121,7 +121,7 @@ printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-too
 gmake -f client.mk build &;
 rm "${srcdir}/.make.lock";
 wait;
-if ( ${status} != "0" ) then
+if( ${status} != "0" ) then
 	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %s\n\n" ${status};
 	exit ${status};
 endif
@@ -137,7 +137,7 @@ make package;
 backup:
 cd "${objdir}";
 set today=`date '+%Y-%m-%d'`;
-if ( "${build_mozilla}" == "thunderbird" ) cd mozilla;
+if( "${build_mozilla}" == "thunderbird" ) cd mozilla;
 pwd
 foreach tarball ( dist/*.tar.bz2 )
 	set backup_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`";
@@ -162,7 +162,7 @@ if( "${build_mozilla}" == "xulrunner" ) exit 0;
 
 
 install_plugins:
-if ( "${build_mozilla}" != "firefox" ) goto prepare_first_run
+if( "${build_mozilla}" != "firefox" ) goto prepare_first_run
 
 cd "${prefix}/${build_mozilla}";
 rm -r searchplugins plugins;
@@ -220,7 +220,7 @@ foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
 			kill -QUIT "${pid}";
 			sleep 2;
 			foreach test ( `pidof -x "${program}"` )
-				if ( "${pid}" == "${test}" ) set still_running = ( ${still_running} "\n" );
+				if( "${pid}" == "${test}" ) set still_running = ( ${still_running} "\n" );
 			end
 		end
 		kill -9 "${pid}"

@@ -1,10 +1,10 @@
 #!/bin/tcsh -f
 
-if ( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS;
-printf "Setting up program build environment.\n";
+if( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS;
+if( ! ${?SSH_CONNECTION} ) printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
 
-if ( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
-if ( `alias grep` != "" ) unalias grep;
+if( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
+if( `alias grep` != "" ) unalias grep;
 
 alias	"configure"	"/projects/cli/devel/make/my:configure";
 alias	"autogen.sh"	"/projects/cli/devel/make/my:autogen.sh";

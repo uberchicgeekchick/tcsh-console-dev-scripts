@@ -1,12 +1,12 @@
 #!/bin/tcsh -f
 
-if ( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS;
-printf "Setting up artistic canvas.\n";
+if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS;
+if( ! ${?SSH_CONNECTION} ) printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
 
-if ( -x "./configure" ) then
-	if ( -d "/usr/lib64" ) then
+if( -x "./configure" ) then
+	if( -d "/usr/lib64" ) then
 		alias "configure" "./configure --libdir=/usr/lib64";
-	else if ( -d "/usr/lib" ) then
+	else if( -d "/usr/lib" ) then
 		alias "configure" "./configure --libdir=/usr/lib";
 	endif
 endif

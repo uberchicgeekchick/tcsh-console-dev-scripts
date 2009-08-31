@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if (! ${?1} && "${1}" != "" && -e "${1}" ) then
+if(! ${?1} && "${1}" != "" && -e "${1}" ) then
 	printf "Usage: %s OPML_file"
 	exit
 endif
@@ -20,7 +20,7 @@ endsw
 
 /usr/bin/grep --perl-regexp -e '^[\t\ \s]+<outline.*xmlUrl=["\""'\''][^"\""'\'']+["\""'\'']' "${1}" | sed 's/^[\ \s\t]\+<outline.*xmlUrl=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/g' >! ./.alacast.podcasts.lst
 
-if ( "${action}" == "" ) then
+if( "${action}" == "" ) then
 	cat ./.alacast.podcasts.lst
 	rm ./.alacast.podcasts.lst
 	exit
@@ -31,5 +31,5 @@ foreach podcast ( "`cat ./.alacast.podcasts.lst`" )
 	printf "Adding:\n\t %s" "${podcast}"
 	gpodder --"${action}"="${podcast}"
 end
-if ( -e "./.alacast.podcasts.lst" ) rm "./.alacast.podcasts.lst"
+if( -e "./.alacast.podcasts.lst" ) rm "./.alacast.podcasts.lst"
 

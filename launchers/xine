@@ -5,7 +5,7 @@ foreach program ( "`which '${this_program}'`" )
 	if( -x "${program}" ) end
 endif
 
-if ( !( ${?program} && -x "${program}" ) ) then
+if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif
@@ -25,7 +25,7 @@ else if( "`basename '${0}'`" != "${program}" ) then
 endif
 
 if( ${?set_alias} ) then
-	if ( ! ${?alias_suffix} ) then
+	if( ! ${?alias_suffix} ) then
 		set new_alias="${this_program}";
 	else
 		set new_alias="${this_program}-${alias_suffix}";

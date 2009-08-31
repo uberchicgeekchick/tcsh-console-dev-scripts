@@ -1,30 +1,46 @@
 #!/bin/tcsh -f
-if( (!(${?TCSHRC_DEBUG})) && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
 
 set session_rc_path="/projects/cli/tcshrc";
 
-if( "${uid}" != "0" ) source "${session_rc_path}/aliases:sudo.tcsh";
+if( "${uid}" != "0" ) then
+	if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo services aliases @ %s.\n" `date "+%I:%M:%S%P"`;
+	source "${session_rc_path}/aliases:services.tcsh";
+	if( ${?TCSHRC_DEBUG} ) printf "sudo services aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+	
+	if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo command aliases @ %s.\n" `date "+%I:%M:%S%P"`;
+	source "${session_rc_path}/aliases:sudo.tcsh";
+	if( ${?TCSHRC_DEBUG} ) printf "sudo command aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+endif
 
-foreach rc_file ( "${session_rc_path}/"*.tcsh )
+#foreach rc_file ( "${session_rc_path}/"*.tcsh )
+foreach rc_file ( "`/bin/ls --width=1 '${session_rc_path}/'*.tcsh`" )
 	set rc_file="`basename '${rc_file}'`";
 	
 	switch("${rc_file}")
 	case "bindkey.tcsh":
 	case "complete.tcsh":
 	case "aliases:sudo.tcsh":
+	case "aliases:services.tcsh":
 	case "history.tcsh":
 	case "art.tcsh":
-		if( ${?TCSHRC_DEBUG} ) printf "Skipping %s.\n" $rc_file;
+	case "environment.tcsh":
+		if( ${?TCSHRC_DEBUG} ) printf "Skipping %s @ %s.\n" "${rc_file}" `date "+%I:%M:%S%P"`;
 		breaksw;
 	default:
-		if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s\n" $rc_file;
+		if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s @ %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
 		source "${session_rc_path}/${rc_file}";
+		if( ${?TCSHRC_DEBUG} ) printf "%s finished loading %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
 		if( ${?http_proxy} ) unsetenv http_proxy;
 		breaksw;
 	endsw
 end
 
+if( ${?TCSHRC_DEBUG} ) printf "Setting up make & gcc environment @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${session_rc_path}/art.tcsh";
+
+
+if( ${?TCSHRC_DEBUG} ) printf "\nSession set up completed @ %s\n" `date "+%I:%M:%S%P"`;
 
 unset rc_file session_rc_path;
 

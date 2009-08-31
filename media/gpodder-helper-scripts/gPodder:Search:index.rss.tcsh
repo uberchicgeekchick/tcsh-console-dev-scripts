@@ -3,7 +3,7 @@ if(!( ${?1} && "${1}" != "" && "${1}" != "--help" )) goto usage
 
 set gpodder_dl_dir = "`grep 'download_dir' '${HOME}/.config/gpodder/gpodder.conf' | cut -d= -f2 | cut -d' ' -f2`"
 
-if ( "${1}" == "--verbose" ) then
+if( "${1}" == "--verbose" ) then
 	set be_verbose;
 	shift
 endif
@@ -56,9 +56,9 @@ find_index_rss:
 foreach index ( "`find '${gpodder_dl_dir}' -name index.xml`" )
 	set found = "`/usr/bin/grep --ignore-case --perl-regex -e '<${attrib}>.*${value}.*<\/${attrib}>' '${index}' | sed 's/.*<${attrib}>\([^<]\+\)<\/${attrib}>.*/\1/g'`"
 	
-	if ( "${found}" == "" ) continue
+	if( "${found}" == "" ) continue
 	
-	if ( "${attrib}" != "${output}" ) set found = "`/usr/bin/grep --ignore-case --perl-regex -e '<${output}>[^<]*<\/${output}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${output}>\([^<]\+\)<\/${output}>.*/\1\r/g'`"
+	if( "${attrib}" != "${output}" ) set found = "`/usr/bin/grep --ignore-case --perl-regex -e '<${output}>[^<]*<\/${output}>' '${index}' | sed 's/[\r\n]\+//g' | sed 's/.*<${output}>\([^<]\+\)<\/${output}>.*/\1\r/g'`"
 
 	foreach item ( "${found}" )
 		printf "%s:%s\n" "${index}" "${item}"

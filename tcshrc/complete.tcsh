@@ -5,11 +5,11 @@ if(! ${?noglob} ) then
 endif
 set hosts
 foreach _f ($HOME/.hosts /etc/csh.hosts $HOME/.rhosts /etc/hosts.equiv)
-if ( -r $_f ) then
+if( -r $_f ) then
     set hosts=($hosts `grep -E -shv '^#|\+' $_f |awk '{ print $1 }'`)
 endif
 end
-if ( -r $HOME/.netrc ) then
+if( -r $HOME/.netrc ) then
 set _f=`awk '/machine/ { print $2 }' < $HOME/.netrc` >& /dev/null
 set hosts=($hosts $_f)
 endif
@@ -18,7 +18,7 @@ unset _f
 set _maildir = /var/spool/mail
 set _ypdir  =  /var/yp
 set _domain =  "`domainname`"
-if ($?MANPATH) then
+if($?MANPATH) then
 set _manpath="{${MANPATH:as/:/,/}}/{man,cat}"
 else
 set _manpath="/usr{{/X11/man,/openwin/man}/{man,cat},{/man/{man,cat}}}"
@@ -270,20 +270,20 @@ complete sccs	p/1/"(admin cdc check clean comb deledit delget \
 		unget val what)"/
 
 # Complete for MH tools already skipped
-if ( $?SKIP_MH ) goto skip_mh
+if( $?SKIP_MH ) goto skip_mh
 
 # Do not be fooled by asking MH tools
-if ( ! -r $HOME/.mh_profile ) goto skip_mh
+if( ! -r $HOME/.mh_profile ) goto skip_mh
 
 # Do not be fooled by broken MH profile
-if ( ! `grep -cE '^Path:' $HOME/.mh_profile` ) goto skip_mh
+if( ! `grep -cE '^Path:' $HOME/.mh_profile` ) goto skip_mh
 
-if ( ! $?FOLDERS ) then
+if( ! $?FOLDERS ) then
 which folders >& /dev/null
-if ( $status != 0 ) goto skip_mh
+if( $status != 0 ) goto skip_mh
 
 set folders="`/bin/sh -c 'exec folders -fast -recurse < /dev/null 2> /dev/null'`"
-if ( $status != 0 ) then
+if( $status != 0 ) then
     unset folders
     setenv SKIP_MH
     goto skip_mh
@@ -291,12 +291,12 @@ endif
 setenv FOLDERS "$folders"
 endif
 
-if ( ! $?MHA ) then
+if( ! $?MHA ) then
 which ali >& /dev/null
-if ( $status != 0 ) goto skip_mh
+if( $status != 0 ) goto skip_mh
 
 set mha="`/bin/sh -c 'exec ali < /dev/null 2> /dev/null'`"
-if ( $status != 0 ) then
+if( $status != 0 ) then
     unset mha
     setenv SKIP_MH
     goto skip_mh
@@ -592,7 +592,7 @@ complete mysqladmin	'n/*/(create drop extended-status flush-hosts \
 		shutdown status variables version)/'
 set _muttalias=/dev/null
 foreach _f ($HOME/.muttrc-alias $HOME/.muttalias)
-if ( -r $_f ) then
+if( -r $_f ) then
     set _muttalias=$_f
     break
 endif
@@ -694,14 +694,14 @@ complete wget 	c/--/"(accept= append-output= background cache= \
 # complete	cd	C@[./\$~]*@d@ \
 #			p@1@'`\ls -1F . $cdpath | grep /\$ | sort -u`'@ n@*@n@
 
-if ( -r /etc/shells ) then
+if( -r /etc/shells ) then
 complete setenv	p@1@e@ n@DISPLAY@\$hosts@: n@SHELL@'`cat /etc/shells`'@ 'c/*:/f/'
 else
 complete setenv	p@1@e@ n@DISPLAY@\$hosts@: 'c/*:/f/'
 endif
 complete unsetenv	n/*/e/
 
-if (-r $HOME/.mailrc) then
+if(-r $HOME/.mailrc) then
 complete mail	c/-/"(e i f n s u v)"/ c/*@/\$hosts/ \
 		c@+@F:$HOME/Mail@ C@[./\$~]@f@ n/-s/x:'<subject>'/ \
 		n@-u@T:$_maildir@ n/-f/f/ \
@@ -935,7 +935,7 @@ complete ypwhich	c@-@"(d m t x V1 V2)"@ n@-x@n@ n@-d@D:$_ypdir@" " \
 # there's no need to clutter the user's shell with these
 unset _maildir _ypdir _domain
 
-if ( -r /etc/printcap ) then
+if( -r /etc/printcap ) then
 set printers=(`sed -n -e '/^[^ 	#][^:]*:/{s/|.*:.*//p;}' /etc/printcap | sort -u`)
 
 complete lpr	'c/-P/$printers/'

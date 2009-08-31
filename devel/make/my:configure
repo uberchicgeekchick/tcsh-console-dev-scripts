@@ -6,7 +6,7 @@ if( ! -x "./${build_script}" ) then
 	exit -1;
 endif
 
-if ( ${?GREP_OPTIONS} ) then
+if( ${?GREP_OPTIONS} ) then
 	set prev_grep_options="${GREP_OPTIONS}";
 	unsetenv GREP_OPTIONS;
 endif

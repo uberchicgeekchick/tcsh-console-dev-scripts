@@ -2,9 +2,9 @@
 set exit_code=0;
 
 set sync_method = "no-sync";
-if ( -e "./.sync.default" ) set sync_method=`cat ./.sync.default`;
+if( -e "./.sync.default" ) set sync_method=`cat ./.sync.default`;
 
-if ( -e ./.no.pushing ) set no_pushing;
+if( -e ./.no.pushing ) set no_pushing;
 
 set log_dir="./.`basename '${0}'`.logs";
 
@@ -48,7 +48,7 @@ while ( ${?1} && "${1}" != "" )
 		# git:commit+push+sync logs are stored & saved;
 		# Mustly its until I decide how & if I want to;
 		# impliment a way of using git's append commits.;
-		if ( ! ${?commit_log} ) then
+		if( ! ${?commit_log} ) then
 			if( ! -d ${log_dir} ) then
 				set log_dir_is_new;
 				mkdir -p "${log_dir}";
@@ -111,12 +111,12 @@ git rm -r --cached --quiet "${log_dir}";
 
 git commit -a -F "${commit_log}" --cleanup=verbatim;
 
-if ( ${?rm_log} ) then
+if( ${?rm_log} ) then
 	rm "${commit_log}";
-	if ( ${?log_dir_is_new} ) rmdir "${log_dir}";
+	if( ${?log_dir_is_new} ) rmdir "${log_dir}";
 endif
 
-if (! ${?no_pushing} ) then
+if(! ${?no_pushing} ) then
 	foreach remote_git ( "`git remote`" )
 		git push "${remote_git}";
 	end
@@ -143,11 +143,11 @@ case "scp":
 	breaksw;
 
 case "sshfs":
-	if ( `mount | grep "${sshfs_path}"` == "" ) then
+	if( `mount | grep "${sshfs_path}"` == "" ) then
 		sshfs "${ssh_user}@${ssh_server}:/home/${ssh_user}" "${sshfs_path}";
 	endif
 case "cp":
-	if ( ! -d "${sshfs_path}/${project_name}" ) then
+	if( ! -d "${sshfs_path}/${project_name}" ) then
 		printf "I couldn't find your project: '%s' in your sshfs path: '%s'\nEither your project doesn't exist on your sshfs or ssh isn't mounted\n", ${project_name}, ${sshfs_path};
 		exit;
 	endif
@@ -176,18 +176,18 @@ case "cp":
 	#	# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
 	#	
 	#	set git_test = "`printf "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`";
-	#	if ( "${git_test}" == "/.git" ) continue;
+	#	if( "${git_test}" == "/.git" ) continue;
 	#	
 	#	set local_file = "`printf "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`";
 	#	
-	#	if ( -d "${local_file}" || -e "${local_file}" ) continue;
+	#	if( -d "${local_file}" || -e "${local_file}" ) continue;
 	#	
 	#	printf "\t[remote] '%s' appears to be a stale " "${remote_file}";
 	#	
-	#	if ( -d "${remote_file}" ) then
+	#	if( -d "${remote_file}" ) then
 	#		printf "directory";
 	#		rm -r "${remote_file}";
-	#		else if ( -e "${remote_file}" ) then
+	#		else if( -e "${remote_file}" ) then
 	#			printf "file";
 	#			rm "${remote_file}";
 	#		endif

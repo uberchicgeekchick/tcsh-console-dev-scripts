@@ -1,12 +1,12 @@
 #!/bin/tcsh -f
 set program="/programs/Mozilla/Firefox3/x86_64/firefox-bin";
 
-if ( !( ${?program} && -x "${program}" ) ) then
+if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif
 
-if ( !( ${?program} && -x "${program}" ) ) then
+if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif

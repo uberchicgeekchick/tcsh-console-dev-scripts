@@ -6,8 +6,8 @@ complete	alias	'p/1/c/' 'p/2,/c,f/'
 
 setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify  --group-directories-first --format=vertical"
 
-alias	ps	"/bin/ps -u ${user} -c -F --forest --heading"
-alias	ps-g	"/bin/ps -u ${user} -c -F --forest --heading | egrep"
+alias	ps	"/bin/ps -A -c -F --forest --heading"
+alias	ps-g	"/bin/ps -A -c -F --forest --heading | egrep"
 
 alias	ls	"ls ${LS_OPTIONS}"
 alias	ll	"ls -l"
@@ -31,8 +31,8 @@ alias	rf	"rr -f"
 alias pidof "pidof -x"
 complete pidof 'p/*/c/'
 
-#alias	cp	"cp --interactive"
-unalias cp
+#alias	cp	"cp --interactive --no-dereference"
+alias cp	"cp --no-dereference"
 #alias	mv	"mv --interactive"
 unalias	mv
 

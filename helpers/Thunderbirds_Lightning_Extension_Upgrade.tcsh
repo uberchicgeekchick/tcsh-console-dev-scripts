@@ -14,7 +14,7 @@ cd "${dl_dir}";
 printf "Please wait while I download %s's latest %s\n\t" $projects_name $projects_version;
 wget --quiet "${dl_URI}";
 
-if ( ! ( -e "${projects_xpi}.1" ) ) then
+if( ! ( -e "${projects_xpi}.1" ) ) then
 	printf "\a[ failed ]\n";
 	exit -1;
 endif

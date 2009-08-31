@@ -4,7 +4,7 @@ foreach program ( "`which '${this_program}'`" )
 	if( -x "${program}" ) end
 endif
 
-if ( !( ${?program} && -x "${program}" ) ) then
+if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif

@@ -8,7 +8,7 @@ endif
 
 set program="/programs/Mozilla/Firefox3/x86_64/${this_program}";
 
-if ( !( ${?program} && -x "${program}" ) ) then
+if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif
@@ -16,7 +16,11 @@ endif
 @ ff3_attempt=1;
 goto ff3_start
 ff3_confirm:
-if( `pidof -x ${this_program}-bin` > 0 ) exit 0;
+set firefox_pid=`pidof -x ${this_program}-bin`;
+if( $firefox_pid > 0 ) then
+	renice +10 $firefox_pid;
+	exit 0;
+endif
 @ ff3_attempt++;
 rm ${firefox_profile_path}/${2}/extensions.* >& /dev/null &
 sleep 2;

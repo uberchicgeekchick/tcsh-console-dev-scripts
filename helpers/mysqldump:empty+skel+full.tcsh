@@ -7,7 +7,7 @@ set password = ""
 #set password << "\n"
 
 set mysql_socket = "/srv/mysql/mysql.sock"
-if ( ${?2} && -d "${2}" ) set dir_to_dump_to = "${2}"
+if( ${?2} && -d "${2}" ) set dir_to_dump_to = "${2}"
 set dump_types = ("empty" "skel" "full")
 
 set mysqldump_and_options = "mysqldump --databases --comment --no-autocommit --extended-insert --socket=${mysql_socket} --routines -u${USER} -p${password}"

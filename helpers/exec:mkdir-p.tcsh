@@ -7,8 +7,8 @@ while ( ${?1} && "${1}" != "" )
 	set arguments = "${arguments} ${1}"
 	set option = "`printf '${1}' | sed 's/^\([^=]*\)=\?\(.*\)$/\1/'`"
 	set value = "`printf '${1}' | sed 's/^\([^=]*\)=\?\(.*\)$/\2/'`"
-	if ( "${option}" != "" && "${value}" == "" ) set value = "${option}"
-	if ( `printf "${value}" | sed 's/\(\/\)/\1/g'` != "/" ) shift ; continue
+	if( "${option}" != "" && "${value}" == "" ) set value = "${option}"
+	if( `printf "${value}" | sed 's/\(\/\)/\1/g'` != "/" ) shift ; continue
 
 	set arguments_path = "${value}"
 	switch ( "${exec}" )
@@ -23,7 +23,7 @@ while ( ${?1} && "${1}" != "" )
 		breaksw
 	endsw
 	
-	if ( ! -d "${arguments_path}" ) mkdir -p "${arguments_path}"
+	if( ! -d "${arguments_path}" ) mkdir -p "${arguments_path}"
 	shift
 end
 

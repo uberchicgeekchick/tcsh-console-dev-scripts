@@ -4,12 +4,12 @@ foreach program ( "`which '${this_program}'`" )
 	if( -x "${program}" ) end
 endif
 
-if ( !( ${?program} && -x "${program}" ) ) then
+if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif
 
-if( ! ${?audio_driver} ) set audio_driver="oss";
+if( ! ${?audio_driver} ) set audio_driver="esd";
 
 if( ! ${?video_driver} ) set video_driver="fb";
 
@@ -24,13 +24,14 @@ else if( "`basename '${0}'`" != "${program}" ) then
 endif
 
 if( ${?set_alias} ) then
-	if ( ! ${?alias_suffix} ) then
+	if( ! ${?alias_suffix} ) then
 		set new_alias="${this_program}";
 	else
 		set new_alias="${this_program}-${alias_suffix}";
 	endif
 	if( ${?TCSHRC_DEBUG} ) printf "Aliasing [%s] to [%s/%s].\n" $new_alias $program;
-	alias "${new_alias}" "${program} --video-out='${video_driver}' --audio-out='${audio_driver}' --vwin-geometry='${resolution}' ${argv} ${output}";
+	#alias "${new_alias}" "${program} --video-out='${video_driver}' --audio-out='${audio_driver}' --vwin-geometry='${resolution}' ${argv} ${output}";
+	alias "${new_alias}" "${program} --audio-out='${audio_driver}' --vwin-geometry='${resolution}' ${argv} ${output}";
 else
 	${program} --video-out="${video_driver}" --audio-out="${audio_driver}" --vwin-geometry="${resolution}" ${argv} ${output};
 endif

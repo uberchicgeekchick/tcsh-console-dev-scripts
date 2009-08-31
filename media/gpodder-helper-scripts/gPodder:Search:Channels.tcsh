@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if (! ${?1} || "${1}" == "" ) goto usage
+if(! ${?1} || "${1}" == "" ) goto usage
 
 while ( ${?1} && "${1}" != "" )
 	set verbose_output="FALSE";
@@ -24,7 +24,7 @@ while ( ${?1} && "${1}" != "" )
 	endsw
 	shift;
 	
-	if ( ${?1} ) then
+	if( ${?1} ) then
 		switch ( "${1}" )
 		case "--enable=verbose":
 			shift;

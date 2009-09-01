@@ -37,10 +37,13 @@ complete killall 'p/*/c/';
 complete ln 'p/*/f/';
 
 
-if( ${?TCSHRC_DEBUG} ) printf "Initalizing tcsh session @ %s.\n" `date "+%I:%M:%S%P"`;
 
-if( ! ${?UBERCHICK_TSCHRC_BYPASS_SESSION} && 
-source /projects/cli/tcshrc/session:source;
+if( ! ${?UBERCHICK_TSCHRC_BYPASS_SESSION} ) setenv UBERCHICK_TSCHRC_BYPASS_SESSION "FALSE";
+
+if( "${UBERCHICK_TSCHRC_BYPASS_SESSION}" != "TRUE" && ! ${?TCSHRC_DEVEL_SESSION_SOURCED} ) then
+	if( ${?TCSHRC_DEBUG} ) printf "Initalizing tcsh session @ %s.\n" `date "+%I:%M:%S%P"`;
+	source /projects/cli/tcshrc/session:source;
+endif
 
 if( ${?http_proxy} ) unsetenv http_proxy;
 

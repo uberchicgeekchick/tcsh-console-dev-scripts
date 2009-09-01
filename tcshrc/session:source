@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
-if( ! ${?TCSHRC_DEVEL_SESSION_SOURCED} ) then
-	setenv TCSHRC_DEVEL_SESSION_SOURCED;
+if( ! ${?TCSHRC_SESSION_SOURCED} ) then
+	setenv TCSHRC_SESSION_SOURCED;
 	
 	if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
 	

@@ -16,7 +16,7 @@ printf "Converting %s to %s" ${1} ${playlist};
 
 printf '#toxine playlist\n\n' >! "${playlist}";
 ex -E -n -s "+2r ${1}" '+wq!' "${playlist}";
-ex -E -n -s '+3,$s/^\#.*[\r\n]//' '+3,$s/^\(\/media\)\/\(.\+\)\/\([\/]\+\)$/entry \{\r\tidentifier\ =\ \3;\r\tmrl\ =\ \1\/nfs\/\2\/\3;\r\tav_offset\ =\ 3600;\r};\r/' '+wq!' "${playlist}";
+ex -E -n -s '+3,$s/^\#.*[\r\n]//' '+3,$s/^\(\/media\/[^\/]\+\)\/\(.\+\)\/\([\/]\+\)$/entry \{\r\tidentifier\ =\ \3;\r\tmrl\ =\ \1\/nfs\/\2\/\3;\r\tav_offset\ =\ 3600;\r};\r/' '+wq!' "${playlist}";
 
 printf "\t[finished]";
 

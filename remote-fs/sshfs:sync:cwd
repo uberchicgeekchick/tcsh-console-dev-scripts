@@ -74,3 +74,10 @@ end
 printf "\nRemoving stale remote files\t\t[done]";
 
 printf "\n\n"
+
+script_exit_clean:
+	exit 0;
+
+script_exit_fail:
+	if( ! ${?exit_error} ) set exit_error="-1";
+	exit ${exit_error};

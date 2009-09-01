@@ -5,7 +5,7 @@
 
 
 #setenv TCSHRC_DEBUG;
-if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
 if( ${?TCSHRC_DEBUG} ) printf "Loading /etc/csh.cshrc @ %s.\n" `date "+%I:%M:%S%P"`;
 
 onintr -

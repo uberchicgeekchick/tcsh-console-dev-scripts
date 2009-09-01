@@ -1,8 +1,8 @@
 #!/bin/tcsh -f
-if( ! ${?TCSHRC_SESSION_SOURCED} ) then
-	setenv TCSHRC_SESSION_SOURCED;
+if( ! ${?TCSHRC_SESSION_SOURCE_INCLUDED} ) then
+	setenv TCSHRC_SESSION_SOURCE_INCLUDED;
 	
-	if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+	if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
 	
 	set session_rc_path="/projects/cli/tcshrc";
 	

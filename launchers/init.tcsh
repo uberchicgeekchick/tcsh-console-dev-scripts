@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
 
 if( -x "/usr/bin/ghb" ) then
 	alias	handbrake	"/usr/bin/ghb"

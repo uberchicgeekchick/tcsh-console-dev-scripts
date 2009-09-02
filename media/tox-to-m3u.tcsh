@@ -1,12 +1,17 @@
 #!/bin/tcsh -f
 if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)${eol}/\1/'`" == ".tox" && -e "${1}" ) ) then
-	printf "Usage: %s playlist.tox" "`basename '${0}'`";
+	printf "Usage: %s playlist.tox [toxine/playlist/filename.m3u]" "`basename '${0}'`";
 	if( "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)${eol}/\1/'`" != ".tox" ) printf "\n\t**ERROR:** %s is not a valid toxine playlist." "${1}";
 	exit -1;
 endif
 if( ! ${?eol} ) setenv eol '$';
 
-set playlist="`printf "\""${1}"\"" | sed 's/\(.*\)\/\([^\/]\+\)\(\.tox\)${eol}/\1\/\2\.m3u/'`";
+if( ! ( ${?2} && "${2}" != "" && "`printf "\""${2}"\"" | sed 's/.*\(\.tox\)${eol}/\1/'`" == ".tox" ) ) then
+	set playlist="`printf "\""${1}"\"" | sed 's/\(.*\)\/\([^\/]\+\)\(\.tox\)${eol}/\1\/\2\.m3u/'`";
+else
+	set playlist="${2}";
+endif
+
 if( "${1}" == "${playlist}" ) then
 	printf "Failed to generate m3u filename.";
 	exit -1;

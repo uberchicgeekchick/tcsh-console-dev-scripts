@@ -37,18 +37,14 @@ complete killall 'p/*/c/';
 
 complete ln 'p/*/f/';
 
-
-
-if( ! ${?UBERCHICK_TSCHRC_BYPASS_SESSION} ) setenv UBERCHICK_TSCHRC_BYPASS_SESSION;
-
-#setenv UBERCHICK_TCSHRC_BYPASS_SESSION;
-if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && "${1}" == "--disable=session:source" ) then
-	printf "[csh.cshrc]: by-passing loading of session:source @ %s.\n" `date "+%I:%M:%S%P"`;
+if( ! ${?TCSHRC_SESSION_SOURCE_INCLUDED} && ${?1} && "${1}" != "" && "${1}" == "--disable=session:source" ) then
+	if( ${?TCSRC_DEBUG} ) printf "[csh.cshrc]: by-passing loading of session:source @ %s.\n" `date "+%I:%M:%S%P"`;
 	setenv TCSHRC_SESSION_SOURCE_SKIPPED;
 	shift;
 else if( ! ${?TCSHRC_SESSION_SOURCE_INCLUDED} ) then
 	if( ${?TCSHRC_DEBUG} ) printf "Initalizing tcsh session @ %s.\n" `date "+%I:%M:%S%P"`;
 	source /projects/cli/tcshrc/session:source;
+	if( ${?TCSHRC_SESSION_SOURCE_SKIPPED} ) unsetenv TCSHRC_SESSION_SOURCE_SKIPPED;
 endif
 
 if( ${?http_proxy} ) unsetenv http_proxy;

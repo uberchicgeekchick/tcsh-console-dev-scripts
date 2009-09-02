@@ -6,7 +6,7 @@ if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)${eol
 endif
 if( ! ${?eol} ) setenv eol '$';
 
-if( ! ( ${?2} && "${2}" != "" && "`printf "\""${2}"\"" | sed 's/.*\(\.tox\)${eol}/\1/'`" == ".tox" ) ) then
+if( ! ( ${?2} && "${2}" != "" && "`printf "\""${2}"\"" | sed 's/.*\(\.m3u\)${eol}/\1/g'`" == ".m3u" ) ) then
 	set playlist="`printf "\""${1}"\"" | sed 's/\(.*\)\/\([^\/]\+\)\(\.tox\)${eol}/\1\/\2\.local\.m3u/'`";
 else
 	set playlist="${2}";

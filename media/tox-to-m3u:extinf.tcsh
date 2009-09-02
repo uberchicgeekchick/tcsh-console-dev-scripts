@@ -20,7 +20,7 @@ printf "Converting %s to %s" ${1} ${playlist};
 
 printf '#EXTM3U\n' >! "${playlist}";
 ex -E -n -s "+1r ${1}" '+wq!' "${playlist}";
-ex -E -n -s '+2,$s/^\#.*[\r\n]//' '+2,$s/^entry\ {[\r\n]\+//' '+2,$s/^};$//' '+2,$s/^\tmrl\ =\ \(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\#EXTINF:,\2\r\1\/\2\.\3/' '+2,$s/^\t.*;[\r\n]\+//' '+2,$s/^[\r\n]\+//' '+$d' '+wq!' "${playlist}";
+ex -E -n -s '+1,$s/^\#.*[\r\n]//' '+2,$s/^entry\ {[\r\n]\+//' '+2,$s/^};$//' '+2,$s/^\tmrl\ =\ \(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\#EXTINF:,\2\r\1\/\2\.\3/' '+2,$s/^\t.*;[\r\n]\+//' '+2,$s/^[\r\n]\+//' '+$d' '+wq!' "${playlist}";
 
 printf "\t[finished]";
 

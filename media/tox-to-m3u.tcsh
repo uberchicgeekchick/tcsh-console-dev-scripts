@@ -11,7 +11,6 @@ if( ! ( ${?2} && "${2}" != "" && "`printf "\""${2}"\"" | sed 's/.*\(\.m3u\)${eol
 else
 	set playlist="${2}";
 endif
-
 if( "${1}" == "${playlist}" ) then
 	printf "Failed to generate m3u filename.";
 	exit -1;
@@ -21,7 +20,7 @@ printf "Converting %s to %s" ${1} ${playlist};
 
 printf "" >! "${playlist}";
 ex -E -n -s "+1r ${1}" '+wq!' "${playlist}";
-ex -E -n -s '+2,$s/^\#.*[\r\n]//' '+2,$s/^entry\ {[\r\n]\+//' '+2,$s/^};$//' '+2,$s/^\tmrl\ =\ \(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\/\2\.\3/' '+2,$s/^\t.*;[\r\n]\+//' '+2,$s/^[\r\n]\+//' '+$d' '+wq!' "${playlist}";
+ex -E -n -s '+1,$s/^\#.*[\r\n]//' '+2,$s/^entry\ {[\r\n]\+//' '+2,$s/^};$//' '+2,$s/^\tmrl\ =\ \(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\/\2\.\3/' '+2,$s/^\t.*;[\r\n]\+//' '+2,$s/^[\r\n]\+//' '+$d' '+wq!' "${playlist}";
 
 printf "\t[finished]";
 

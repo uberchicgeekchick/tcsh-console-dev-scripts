@@ -1,4 +1,5 @@
 #!/tcsh/bin -f
+source /projects/cli/tcshrc/debug:check environment.tcsh ${argv};
 #print the expanded, completed, & corrected command line after is entered but before its executed.
 #set echo
 set addsuffix
@@ -48,7 +49,11 @@ alias	helpcommand	"man"
 unset autologout
 unset ignoreeof
 
+if( ! ${?TCSH_SESSION_RC_PATH} ) setenv TCSH_SESSION_RC_PATH "/projects/cli/tcshrc";
+
 if( ${?TCSHRC_DEBUG} ) printf "Setting up TCSH history environment @ %s.\n" `date "+%I:%M:%S%P"`;
 source /projects/cli/tcshrc/history.tcsh
 if( ${?TCSHRC_DEBUG} ) printf "TCSH environment setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+
+source /projects/cli/tcshrc/debug:clean-up environment.tcsh;
 

@@ -5,7 +5,7 @@
 
 
 #setenv TCSHRC_DEBUG;
-if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+source /projects/cli/tcshrc/debug:check /etc/csh.cshrc ${argv};
 if( ${?TCSHRC_DEBUG} ) printf "Loading /etc/csh.cshrc @ %s.\n" `date "+%I:%M:%S%P"`;
 
 onintr -
@@ -231,4 +231,5 @@ if( -r /projects/cli/tcshrc/csh.cshrc ) then
 endif
 
 if( ${?TCSHRC_DEBUG} ) printf "TCSH setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+source /projects/cli/tcshrc/debug:clean-up /etc/csh.cshrc;
 # End of /etc/csh.cshrc

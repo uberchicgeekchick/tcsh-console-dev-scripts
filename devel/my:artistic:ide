@@ -94,7 +94,6 @@ games_canvas:
 				"--tab-with-profile=project --title=/projects/games --working-directory=/projects/games" \
 				"--tab-with-profile=project --title=many-worlds --working-directory=/projects/games/many-worlds" \
 				"--tab-with-profile=project --title=hackGirls --working-directory=/projects/games/hackGirls" \
-				"--tab-with-profile=project --title=dystonic-dreams --working-directory=/projects/games/dystonic-dreams" \
 			);
 			breaksw
 		
@@ -254,7 +253,7 @@ goto next_canvas
 
 next_canvas:
 	if( ${?my_canvas} ) then
-		/usr/bin/gnome-terminal --hide-menubar --role=${canvas_role} --geometry=${geometry} \
+		/usr/bin/gnome-terminal --hide-menubar --geometry=${geometry} --role=${canvas_role} \
 			--tab-with-profile=screen \
 			${my_canvas} \
 		${argv} &;

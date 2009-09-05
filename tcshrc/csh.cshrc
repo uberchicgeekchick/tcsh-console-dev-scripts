@@ -1,24 +1,12 @@
 #!/bin/tcsh -f
 
-#setenv TCSHRC_DEBUG;
-if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) then
-	printf "[csh.cshrc]: enabling verbose debugging output @ %s.\n" `date "+%I:%M:%S%P"`;
-	setenv TCSHRC_DEBUG;
-	shift;
-endif
-
-if( ${?SSH_CONNECTION} && ${?TCSHRC_DEBUG} ) unsetenv TCSHRC_DEBUG;
-
-unalias sed;
+#setenv TCSHRC_DEBUG "csh.cshrc";
+source /projects/cli/tcshrc/debug:check csh.cshrc ${argv};
+if( ${?TCSHRC_DEBUG} && ${?2} && "${2}" != "" ) shift;
 
 if( ${?echo} ) unset echo;
 
 if( ${?http_proxy} ) unsetenv http_proxy;
-if( ${?PATH} ) unsetenv PATH;
-
-setenv PATH ".:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/init.d";
-
-setenv EDITOR "/usr/bin/vim-enhanced";
 
 set logout=normal;
 
@@ -37,11 +25,11 @@ complete killall 'p/*/c/';
 
 complete ln 'p/*/f/';
 
-if( ! ${?TCSHRC_SESSION_SOURCE_INCLUDED} && ${?1} && "${1}" != "" && "${1}" == "--disable=session:source" ) then
+if( ${?1} && "${1}" != "" && "${1}" == "--disable=session:source" ) then
 	if( ${?TCSRC_DEBUG} ) printf "[csh.cshrc]: by-passing loading of session:source @ %s.\n" `date "+%I:%M:%S%P"`;
 	setenv TCSHRC_SESSION_SOURCE_SKIPPED;
-	shift;
-else if( ! ${?TCSHRC_SESSION_SOURCE_INCLUDED} ) then
+	if( ${?2} ) shift;
+else
 	if( ${?TCSHRC_DEBUG} ) printf "Initalizing tcsh session @ %s.\n" `date "+%I:%M:%S%P"`;
 	source /projects/cli/tcshrc/session:source;
 	if( ${?TCSHRC_SESSION_SOURCE_SKIPPED} ) unsetenv TCSHRC_SESSION_SOURCE_SKIPPED;
@@ -49,4 +37,4 @@ endif
 
 if( ${?http_proxy} ) unsetenv http_proxy;
 
-
+source /projects/cli/tcshrc/debug:clean-up csh.cshrc;

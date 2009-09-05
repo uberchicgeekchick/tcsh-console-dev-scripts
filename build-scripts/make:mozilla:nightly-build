@@ -61,8 +61,25 @@ if( -e "${srcdir}/.make.lock" ) then
 	exit -2;
 endif
 
-if( ${?2} && "${2}" == "--make-package" ) goto make_package
-
+while( ${?2} && "${2}" != "" )
+	case "--disable=exec":
+		set no_exec;
+		breaksw
+	case "--make=package-only":
+		goto make_package;
+		breaksw
+	default:
+		printf "Unsupported option: %s\nSupported options are:					\
+			--disable=exec		Only valid for when building firefox or thunderbird.	\
+						It will keep %s from \
+						running firefox/thunderbird when make completes.	\
+													\
+			--make=package-only	%s will only recreate the project's 			\
+						tarball based off of a previous build.  No now files	\
+						will be checked out or built.				\
+			" "${2}" "${0}" "${0}";
+		breaksw
+endsw
 
 
 checkout:

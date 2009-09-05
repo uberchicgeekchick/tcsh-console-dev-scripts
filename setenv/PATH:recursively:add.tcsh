@@ -16,5 +16,6 @@ foreach dir ( "`find '${1}' -regextype posix-extended -regex '[^\.]*' -type d`" 
 		breaksw
 	endsw
 end
-if( "${new_path}" == "" ) exit
-setenv PATH "${PATH}:${new_path}"
+if( "${new_path}" == "" ) exit -1;
+setenv PATH "${PATH}:${new_path}";
+unset dir escaped_dir new_path;

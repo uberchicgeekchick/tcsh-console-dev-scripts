@@ -9,7 +9,11 @@ set ellipsis
 #set prompt="\n%B%{^[[105m%}(%p on %Y-%W-%D)%b\n%{^[[0m%}%{^[[35m%}%U[ %B%n@%m%b ]%u\n%{^[[0m%}%{^[[31m%}@%c9 #%{^[[0m%} "
 #
 #set prompt="\n%B%{^[[47m%}(%p on %Y-%W-%D)%b\n%{^[[107m%}%B[ %U%n@%m%u ]%b\n%{^[[0m%}%{^[[101m%}%{^[[37m%}%B@%c9 #%{^[[0m%} "
-set prompt="\n%B%{^[[13m%}(%p on %Y-%W-%D)%b\n%{^[[15m%}[ %n@%m ]\n%{^[[31m%}@%c03 #>"
+if( "${uid}" != "0" ) then
+	set prompt='\n%B%{^[[13m%}(%p on %Y-%W-%D)%b\n%{^[[15m%}[ %n@%m ]\n%{^[[31m%}@%c03 #>';
+else
+	set prompt='\n%B%{^[[13m%}(%p on %Y-%W-%D)%b\n%{^[[15m%}[ %n@%m ]\n%{^[[31m%}@%c03 $>';
+endif
 
 
 # Used wherever normal csh prompts with a question mark.

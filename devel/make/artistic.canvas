@@ -1,7 +1,8 @@
 #!/bin/tcsh -f
 
 if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS;
-if( ! ${?SSH_CONNECTION} ) printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
+source /projects/cli/tcshrc/debug:check artistic.canvas ${argv};
+if(  ${?TCSHRC_DEBUG} ) printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
 
 if( -x "./configure" ) then
 	if( -d "/usr/lib64" ) then

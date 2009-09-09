@@ -1,0 +1,9 @@
+uber improved tcsh session setup
+
+I've completely refactored my tcsh login session scripts.  Its now much faster & handles what tcsh passes "across sessions" & how it uses setenv.  I have also added some special features for using these scripts on Asus' EEE PC.
+
+Oh yeah & I'm sure there's a bunch of other stuff too.
+
+Wholy fuck my Generalized Dystonia's been really bad latel.  Today has just been to hard.  I hope my new Dr can help - I hope m new med helps... & still I hope (gotta stop).  Okay so I need something to help: I need help.  DYSTONIA SUCKS!
+
+Committed on : 2009-09-04 @ 09:31:28 PM

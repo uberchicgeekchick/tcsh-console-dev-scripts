@@ -1,4 +1,5 @@
 #!/bin/tcsh -f
+exit;
 if( !(${?TCSHRC_DEBUG}) && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
 
 set ssh_user="dreams";

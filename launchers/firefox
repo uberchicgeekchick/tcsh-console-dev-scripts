@@ -23,7 +23,7 @@ if( $firefox_pid > 0 ) then
 endif
 @ ff3_attempt++;
 rm ${firefox_profile_path}/${2}/extensions.* >& /dev/null &
-sleep 2;
+sleep 5;
 
 goto ff3_start
 

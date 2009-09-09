@@ -1,7 +1,8 @@
 #!/bin/tcsh -f
 
 if( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS;
-if( ! ${?SSH_CONNECTION} ) printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
+source /projects/cli/tcshrc/debug:check build.canvas ${argv};
+if(  ${?TCSHRC_DEBUG} ) printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
 
 if( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
 if( `alias grep` != "" ) unalias grep;

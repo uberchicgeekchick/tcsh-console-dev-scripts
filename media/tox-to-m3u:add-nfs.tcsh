@@ -7,20 +7,20 @@ endif
 if( ! ${?eol} ) setenv eol '$';
 
 if( ! ( ${?2} && "${2}" != "" && "`printf '${2}' | sed 's/.*\(\.m3u\)${eol}/\1/g'`" == ".m3u" ) ) then
-	set playlist="`printf "\""${1}"\"" | sed 's/\(.*\)\(\.tox\)${eol}/\1.nfs\.m3u/'`";
+	set playlist="`printf "\""${1}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.tox\)${eol}/\1\2\.nfs\.m3u/'`";
 else
 	set playlist="${2}";
 endif
 if( "${1}" == "${playlist}" ) then
-	printf "Failed to generate m3u filename.";
+	printf "Failed to generate m3u filename.\n";
 	exit -1;
 endif
 
 printf "Converting %s to %s" ${1} ${playlist};
 
 printf "" >! "${playlist}";
-ex -E -n -s "+1r ${1}" '+wq!' "${playlist}";
-ex -E -n -s '+1,$s/^\#.*[\r\n]//' '+2,$s/^entry\ {[\r\n]\+//' '+2,$s/^};$//' '+2,$s/^\tmrl\ =\ \(\/media\/[^\/]\+\)\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\/nfs\/\2\/\3\.\4/' '+2,$s/^\t.*;[\r\n]\+//' '+2,$s/^[\r\n]\+//' '+$d' '+wq!' "${playlist}";
+ex -E -n -s -X "+1r ${1}" '+wq!' "${playlist}";
+ex -E -n -s -X '+1,$s/^\#.*[\r\n]//' '+1,$s/^entry\ {[\r\n]\+//' '+1,$s/^};$//' '+1,$s/^\tmrl\ =\ \(\/media\/podcasts\)\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\/nfs\/\2\/\3\.\4/' '+1,$s/^\t.*;[\r\n]\+//' '+1,$s/^[\r\n]\+//' '+$d' '+wq!' "${playlist}";
 
 printf "\t[finished]";
 

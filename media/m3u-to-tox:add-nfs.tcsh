@@ -7,7 +7,7 @@ endif
 if( ! ${?eol} ) setenv eol '$';
 
 if( ! ( ${?2} && "${2}" != "" && "`printf '${2}' | sed 's/.*\(\.tox\)${eol}/\1/g'`" == ".tox" ) ) then
-	set playlist="`printf "\""${1}"\"" | sed 's/\(.*\)\/\([^\/]\+\)\(\.m3u\)${eol}/\1\/\2\.nfs\.tox/'`"
+	set playlist="`printf "\""${1}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.m3u\)${eol}/\1\2\.nfs\.tox/'`"
 else
 	set playlist="${2}";
 endif
@@ -19,8 +19,8 @@ endif
 printf "Converting %s to %s" ${1} ${playlist};
 
 printf '#toxine playlist\n\n' >! "${playlist}";
-ex -E -n -s "+2r ${1}" '+wq!' "${playlist}";
-ex -E -n -s '+3,$s/^\#.*[\r\n]//' '+3,$s/^\(\/media\/[^\/]\+\)\/\(.\+\)\/\([\/]\+\)$/entry \{\r\tidentifier\ =\ \3;\r\tmrl\ =\ \1\/nfs\/\2\/\3;\r\tav_offset\ =\ 3600;\r};\r/' '+wq!' "${playlist}";
+ex -E -n -s -X "+2r ${1}" '+wq!' "${playlist}";
+ex -E -n -s -X '+3,$s/^\#.*[\r\n]//' '+1,$s/^\(\/media\/podcasts\)\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\)$/entry \{\r\tidentifier\ =\ \3;\r\tmrl\ =\ \1\/nfs\/\2\/\3\.\4;\r\tav_offset\ =\ 3600;\r};\r/' '+wq!' "${playlist}";
 
 printf "\t[finished]";
 

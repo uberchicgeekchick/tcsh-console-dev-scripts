@@ -19,6 +19,8 @@ alias	lD	"ls -l --directory"
 alias	lDa	"lD --all"
 alias	lDA	"lD --almost-all"
 
+alias	ln	"ln --interactive"
+
 alias	df	"df --human-readable"
 alias	du	"du --summarize --human-readable"
 alias	du-a	"du ./*"

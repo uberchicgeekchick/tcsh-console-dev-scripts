@@ -32,7 +32,7 @@ while ( ${?1} && "${1}" != "" )
 	case "--append":
 		if( ! -d "${log_dir}" ) then
 			printf("No previous commit messages could be found.  I new commit will be created.");
-			breaksw;
+			breaksw
 		endif
 		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
 		set commit_log="${log_dir}/${commit_log}";
@@ -43,7 +43,7 @@ while ( ${?1} && "${1}" != "" )
 		else
 			set commit_action="Commit Appended";
 		endif
-		breaksw;
+		breaksw
 	default:
 		# git:commit+push+sync logs are stored & saved;
 		# Mustly its until I decide how & if I want to;
@@ -59,9 +59,9 @@ while ( ${?1} && "${1}" != "" )
 			breaksw;
 		endif
 		printf "\n\n${1}" >> "${commit_log}";
-		breaksw;
+		breaksw
 	endsw
-	shift;
+	shift
 end
 
 if(! ${?commit_log} ) then
@@ -69,9 +69,9 @@ if(! ${?commit_log} ) then
 		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
 		set commit_log="${log_dir}/${commit_log}";
 	endif
-	set commit_action="Commit Appended";
+	if(! ${?commit_action} ) set commit_action="Commit Appended";
 else
-	set commit_action="Committed";
+	if(! ${?commit_action} ) set commit_action="Committed";
 endif
 
 if(!(${?commit_log} && "${commit_log}" != "" && -e "${commit_log}")) then

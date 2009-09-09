@@ -8,7 +8,7 @@ if( ! ${?TCSH_SESSION_PATHS_SET} ) then
 	if( ${?PATH} ) unsetenv PATH;
 	
 	setenv PATH ".:/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/init.d";
-	source /projects/cli/tcshrc/source:argv art:paths.tcsh paths:lib.tcsh paths:lib64.tcsh paths:programs.tcsh;
+	source /projects/cli/tcshrc/source:argv art:alacast.tcsh art:paths.tcsh paths:lib.tcsh paths:lib64.tcsh paths:programs.tcsh;
 endif
 if( ${?TCSHRC_DEBUG} ) printf "PATH setup complete.\n";
 unset paths_sources path_source_file;

@@ -7,13 +7,13 @@ if( ! ${?TCSH_SESSION_RC_PATH} ) setenv TCSH_SESSION_RC_PATH "/projects/cli/tcsh
 if( "${uid}" != "0" ) then
 	if( -e "${TCSH_SESSION_RC_PATH}/aliases:sudo:services.tcsh" ) then
 		if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo services aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-		#source "${TCSH_SESSION_RC_PATH}/aliases:sudo:services.tcsh";
+		source "${TCSH_SESSION_RC_PATH}/aliases:sudo:services.tcsh";
 		if( ${?TCSHRC_DEBUG} ) printf "sudo services aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
 	
 	if( -e "${TCSH_SESSION_RC_PATH}/aliases:sudo:commands.tcsh" ) then
 		if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo command aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-		#source "${TCSH_SESSION_RC_PATH}/aliases:sudo:commands.tcsh";
+		source "${TCSH_SESSION_RC_PATH}/aliases:sudo:commands.tcsh";
 		if( ${?TCSHRC_DEBUG} ) printf "sudo command aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
 endif
@@ -36,6 +36,7 @@ foreach rc_file ( "${TCSH_SESSION_RC_PATH}/"*.tcsh )
 	case "aliases:sudo:services.tcsh":
 	case "aliases:sudo:commands.tcsh":
 	case "art.tcsh":
+	case "art:alacast.tcsh":
 		if( ${?TCSHRC_DEBUG} ) printf "Skipping %s @ %s.\n" "${rc_file}" `date "+%I:%M:%S%P"`;
 		breaksw;
 	default:

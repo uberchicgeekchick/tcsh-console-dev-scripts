@@ -6,7 +6,7 @@ foreach program ( "`which '${this_program}'`" )
 endif
 
 if( !( ${?program} && -x "${program}" ) ) then
-	printf "Unable to find %s.\n", "${this_program}";
+	printf "Unable to find %s.\n" "${this_program}";
 	exit -1;
 endif
 

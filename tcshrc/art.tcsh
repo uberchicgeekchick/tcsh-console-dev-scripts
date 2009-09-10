@@ -9,13 +9,6 @@ alias	sqlite	"sqlite3";
 alias	mysql	"mysql --socket=/srv/mysql/mysql.sock -u${USER} -p";
 alias	mysqldump	"mysqldump --databases --comment --no-autocommit --extended-insert --socket=/srv/mysql/mysql.sock -u${USER} -p";
 
-alias	vim-enhanced	"vim-enhanced --noplugin -X -p";
-alias	vim	"vim-enhanced";
-alias	vi	"vim-enhanced";
-alias	ex	"ex -E -n --noplugin -X";
-setenv	EDITOR	"vim-enhanced";
-bindkey	"^Z" run-fg-editor;
-
 complete kill_program.tcsh "p/*/c/";
 complete interupt_program.tcsh "p/*/c/";
 

@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+source /projects/cli/tcshrc/debug:check aliases:launchers.tcsh ${argv};
 
 if( -x "/usr/bin/ghb" ) then
 	alias	handbrake	"/usr/bin/ghb"
@@ -37,3 +37,4 @@ endif
 
 unsetenv output
 
+source /projects/cli/tcshrc/debug:clean-up aliases:launchers.tcsh;

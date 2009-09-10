@@ -37,6 +37,8 @@ foreach rc_file ( "${TCSH_SESSION_RC_PATH}/"*.tcsh )
 	case "aliases:sudo:commands.tcsh":
 	case "art.tcsh":
 	case "art:alacast.tcsh":
+	case "art:editor.tcsh":
+	case "art:devel:make:init.tcsh":
 		if( ${?TCSHRC_DEBUG} ) printf "Skipping %s @ %s.\n" "${rc_file}" `date "+%I:%M:%S%P"`;
 		breaksw;
 	default:
@@ -50,7 +52,8 @@ end
 
 if( ${?TCSHRC_DEBUG} ) printf "Setting up make & gcc environment @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_SESSION_RC_PATH}/art.tcsh";
-
+source "${TCSH_SESSION_RC_PATH}/art:editor.tcsh";
+source "${TCSH_SESSION_RC_PATH}/art:devel:make:init.tcsh";
 
 if( ${?TCSHRC_DEBUG} ) printf "\nSession set up completed @ %s\n" `date "+%I:%M:%S%P"`;
 

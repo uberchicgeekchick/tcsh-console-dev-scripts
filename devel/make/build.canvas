@@ -33,11 +33,11 @@ setenv CPP "/usr/bin/cpp";
 #you have headers in a nonstandard directory <include dir>
 setenv MY_INCLUDE_FLAGS "-I${LD_LIBRARY_PATH} -I. -I..";
 
-setenv CPPFLAGS "${MY_INCLUDE_FLAGS}";
+setenv CPPFLAGS "-O3 ${MY_INCLUDE_FLAGS}";
 
-setenv MAKEFLAGS "-O3 -Wall -Wextra -Wformat=2";
+setenv MAKEFLAGS "-Wall -Wextra -Wformat=2";
 
-setenv CFLAGS "${CPPFLAGS} ${MY_INCLUDE_FLAGS} -std=gnu99";
+setenv CFLAGS "-std=gnu99 ${CPPFLAGS} ${MY_INCLUDE_FLAGS}";
 
-setenv CXXFLAGS "${CPPFLAGS} ${MY_INCLUDE_FLAGS} -std=gnu++0x";
+setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MY_INCLUDE_FLAGS}";
 

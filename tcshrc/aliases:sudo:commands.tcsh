@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+source /projects/cli/tcshrc/debug:check aliases:sudo:commands.tcsh ${argv};
+
 complete sudo "p/1/c/";
 
 set sbin_paths=( "/sbin" "/usr/sbin" );
@@ -33,3 +34,4 @@ unset gnomesu_command gnomesu_commands;
 #end
 #unset recursive_sudo_command recursive_sudo_commands;
 
+source /projects/cli/tcshrc/debug:clean-up aliases:sudo:commands.tcsh;

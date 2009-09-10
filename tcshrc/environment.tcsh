@@ -56,4 +56,3 @@ source /projects/cli/tcshrc/history.tcsh
 if( ${?TCSHRC_DEBUG} ) printf "TCSH environment setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 
 source /projects/cli/tcshrc/debug:clean-up environment.tcsh;
-

@@ -26,7 +26,7 @@ set sshfs_mount_test="`/bin/mount | grep '${ssh_mount_point}'`";
 if(${?TCSHRC_DEBUG}) printf "Mounting sshfs: [%s:%s]\t\t" ${ssh_server} ${ssh_path};
 @ sshfs_max_attempts=10;
 next_attempt:
-while ( ${sshfs_mount_count} < ${sshfs_max_attempts} && ! ${#sshfs_mount_test} )
+while ( ( ${sshfs_mount_count} < ${sshfs_max_attempts} ) && (! ${#sshfs_mount_test} ) )
 	goto sshfs_connect
 	@ sshfs_mount_count++;
 	if( $sshfs_mount_count >= $sshfs_max_attempts ) then

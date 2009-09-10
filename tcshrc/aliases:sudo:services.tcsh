@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-if( ! ${?SSH_CONNECTION} && ! ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+source /projects/cli/tcshrc/debug:check aliases:sudo:services.tcsh ${argv};
+
 complete sudo "p/1/c/";
 
 set services_paths=( "/etc/init.d" );
@@ -15,3 +16,4 @@ foreach services_path( ${services_paths} )
 end
 unset services_paths services_path service;
 
+source /projects/cli/tcshrc/debug:clean-up aliases:sudo:srevices.tcsh;

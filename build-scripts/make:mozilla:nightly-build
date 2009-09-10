@@ -79,7 +79,8 @@ while( ${?2} && "${2}" != "" )
 						will be checked out or built.				\
 			" "${2}" "${0}" "${0}";
 		breaksw
-endsw
+	endsw
+end
 
 
 checkout:

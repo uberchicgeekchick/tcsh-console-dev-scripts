@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && "${1}" == "--debug" ) setenv TCSHRC_DEBUG;
+source /projects/cli/tcshrc/debug:check art:devel:make:init.tcsh ${argv};
 
 alias	"make:init:artistic:canvas"		"if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS; source /projects/cli/devel/make/init.tcsh"
 
@@ -29,3 +29,5 @@ endif
 
 #Path to xmkmf, Makefile generator for X Window System
 setenv XMKMF "/usr/bin/xmkmf";
+
+source /projects/cli/tcshrc/debug:clean-up art:devel:make:init.tcsh;

@@ -2,7 +2,7 @@
 
 if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS;
 source /projects/cli/tcshrc/debug:check artistic.canvas ${argv};
-if(  ${?TCSHRC_DEBUG} ) printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
+if(! ${?SSH_CONNECTION} ) printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
 
 if( -x "./configure" ) then
 	if( -d "/usr/lib64" ) then
@@ -27,11 +27,14 @@ setenv LD_RUN_PATH "/usr/include";
 #autoconf, automake, & etc settings
 setenv AC_CONFIG_MACRO_DIR "/usr/share/autoconf/autoconf";
 
-#C compiler command
-setenv CC "/usr/bin/gcc";
-
 #C preprocessor
 setenv CPP "/usr/bin/cpp";
+
+#C compiler
+setenv CC "/usr/bin/gcc";
+
+#C++ compiler
+setenv CXX "/usr/bin/g++";
 
 #C/C++/Objective C preprocessor flags, e.g. -I<include dir> if
 #you have headers in a nonstandard directory <include dir>

@@ -1,9 +1,9 @@
 #!/bin/tcsh -f
 source /projects/cli/tcshrc/debug:check art:devel:make:init.tcsh ${argv};
 
-alias	"make:init:artistic:canvas"		"if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS; source /projects/cli/devel/make/init.tcsh"
+alias	"make:init:artistic:canvas"		"if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS; source /projects/cli/devel/make/init.tcsh";
 
-alias	"make:init:build:canvas"		"if( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS; source /projects/cli/devel/make/init.tcsh"
+alias	"make:init:build:canvas"		"if( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS; source /projects/cli/devel/make/init.tcsh";
 
 
 if( -e "./canvas.init.tcsh" ) then
@@ -11,19 +11,19 @@ if( -e "./canvas.init.tcsh" ) then
 		printf "Setting up custom make environment @ %s.\n" `date "+%I:%M:%S%P"`;
 		source "./canvas.init.tcsh";
 	else
-		source "./canvas.init.tcsh" >& /dev/null ;
+		source "./canvas.init.tcsh" >& /dev/null;
 	endif
 else if( -e "./.build.canvas.init" || -e "../.build.canvas.init" ) then
 	if( ! ${?SSH_CONNECTION} ) then
 		source "/projects/cli/devel/make/build.canvas";
 	else
-		source "/projects/cli/devel/make/build.canvas" >& /dev/null ;
+		source "/projects/cli/devel/make/build.canvas" >& /dev/null;
 	endif
 else
 	if( ! ${?SSH_CONNECTION} ) then
 		source "/projects/cli/devel/make/artistic.canvas";
 	else
-		source "/projects/cli/devel/make/artistic.canvas" >& /dev/null ;
+		source "/projects/cli/devel/make/artistic.canvas" >& /dev/null;
 	endif
 endif
 

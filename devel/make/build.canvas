@@ -2,7 +2,7 @@
 
 if( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS;
 source /projects/cli/tcshrc/debug:check build.canvas ${argv};
-if(  ${?TCSHRC_DEBUG} ) printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
+if(! ${?SSH_CONNECTION} ) printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
 
 if( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
 if( `alias grep` != "" ) unalias grep;
@@ -23,21 +23,24 @@ setenv	LD_LIBRARY_PATH		"/usr/include";
 setenv	LD_RUN_PATH		"/usr/include";
 
 
-#C compiler command
+#C/C++ preprocessor
+setenv CPP "/usr/bin/cpp";
+
+#C compiler
 setenv CC "/usr/bin/gcc";
 
-#C preprocessor
-setenv CPP "/usr/bin/cpp";
+#C++ compiler
+setenv CXX "/usr/bin/g++";
 
 #C/C++/Objective C preprocessor flags, e.g. -I<include dir> if
 #you have headers in a nonstandard directory <include dir>
 setenv MY_INCLUDE_FLAGS "-I${LD_LIBRARY_PATH} -I. -I..";
 
-setenv CPPFLAGS "-O3 ${MY_INCLUDE_FLAGS}";
+setenv CPPFLAGS "${MY_INCLUDE_FLAGS}";
 
 setenv MAKEFLAGS "-Wall -Wextra -Wformat=2";
 
-setenv CFLAGS "-std=gnu99 ${CPPFLAGS} ${MY_INCLUDE_FLAGS}";
+setenv CFLAGS "-std=gnu99 -O3 ${MY_INCLUDE_FLAGS}";
 
-setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MY_INCLUDE_FLAGS}";
+setenv CXXFLAGS "-std=gnu++0x -O3 ${MY_INCLUDE_FLAGS}";
 

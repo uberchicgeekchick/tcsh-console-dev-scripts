@@ -39,8 +39,8 @@ while ( ${?1} && "${1}" != "" )
 		case "--output=text":
 		case "--output=description":
 		case "--output=xmlUrl":
-			shift;
 			set output = "`printf '${1}' | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`";
+			shift;
 			breaksw
 		case "--help":
 			shift;
@@ -56,8 +56,8 @@ while ( ${?1} && "${1}" != "" )
 	
 	if(!(${?output})) set output="xmlUrl";
 	
-	foreach outline ( "`/usr/bin/grep --line-number -i --perl-regex -e '${attribute}=["\""'\''].*${value}.*["\""'\'']' '${HOME}/.config/gpodder/channels.opml'`" )
-		echo "${outline}" | sed "s/.*${output}=["\""'\'']\([^"\""'\'']\+\)["\""'\''].*/\1/" | sed "s/\&amp;/\&/g";
+	foreach outline ( "`/usr/bin/grep --line-number -i --perl-regex -e '${attribute}=["\""].*${value}.*["\""]' '${HOME}/.config/gpodder/channels.opml'`" )
+		echo "${outline}" | sed "s/.*${output}=["\""]\([^"\""]\+\)["\""].*/\1/" | sed "s/\&amp;/\&/g";
 		if( "${verbose_output}" == "TRUE" ) echo "${outline}";
 	end
 	

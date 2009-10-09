@@ -4,7 +4,9 @@ source /projects/cli/tcshrc/debug:check session:source ${argv};
 
 if( ! ${?TCSH_SESSION_RC_PATH} ) setenv TCSH_SESSION_RC_PATH "/projects/cli/tcshrc";
 
-if( "${uid}" != "0" ) then
+source "${TCSH_SESSION_RC_PATH}/paths.tcsh";
+
+if( ${uid} != 0 ) then
 	if( -e "${TCSH_SESSION_RC_PATH}/aliases:sudo:services.tcsh" ) then
 		if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo services aliases @ %s.\n" `date "+%I:%M:%S%P"`;
 		source "${TCSH_SESSION_RC_PATH}/aliases:sudo:services.tcsh";
@@ -17,8 +19,6 @@ if( "${uid}" != "0" ) then
 		if( ${?TCSHRC_DEBUG} ) printf "sudo command aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
 endif
-
-source "${TCSH_SESSION_RC_PATH}/paths.tcsh";
 
 foreach rc_file ( "${TCSH_SESSION_RC_PATH}/"*.tcsh )
 	set rc_file="`basename '${rc_file}'`";
@@ -50,10 +50,12 @@ foreach rc_file ( "${TCSH_SESSION_RC_PATH}/"*.tcsh )
 	endsw
 end
 
-if( ${?TCSHRC_DEBUG} ) printf "Setting up make & gcc environment @ %s.\n" `date "+%I:%M:%S%P"`;
+if( ${?TCSHRC_DEBUG} ) printf "Setting up artistic programming canvas @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_SESSION_RC_PATH}/art.tcsh";
-source "${TCSH_SESSION_RC_PATH}/art:editor.tcsh";
+if( ${?TCSHRC_DEBUG} ) printf "Setting up make & gcc environment @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_SESSION_RC_PATH}/art:devel:make:init.tcsh";
+if( ${?TCSHRC_DEBUG} ) printf "Setting up EDITOR as VIM & advanced bindings @ %s.\n" `date "+%I:%M:%S%P"`;
+source "${TCSH_SESSION_RC_PATH}/art:editor.tcsh";
 
 if( ${?TCSHRC_DEBUG} ) printf "\nSession set up completed @ %s\n" `date "+%I:%M:%S%P"`;
 

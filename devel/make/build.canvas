@@ -44,3 +44,4 @@ setenv CFLAGS "-std=gnu99 -O3 ${MY_INCLUDE_FLAGS}";
 
 setenv CXXFLAGS "-std=gnu++0x -O3 ${MY_INCLUDE_FLAGS}";
 
+source $TCSH_SESSION_RC_PATH/paths.tcsh --force

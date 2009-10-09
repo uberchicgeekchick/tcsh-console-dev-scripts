@@ -1,6 +1,8 @@
 #!/bin/tcsh -f
 source /projects/cli/tcshrc/debug:check aliases:launchers.tcsh ${argv};
 
+if(! ${?eol} ) setenv eol '$';
+
 if( -x "/usr/bin/ghb" ) then
 	alias	handbrake	"/usr/bin/ghb"
 	alias	HandBrake	"handbrake"

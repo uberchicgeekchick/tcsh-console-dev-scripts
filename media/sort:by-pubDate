@@ -1,0 +1,12 @@
+#!/bin/tcsh -f
+if(! ${?1} && "${1}" != "" && -d "${1}" ) then
+	printf "Usage:%s podcast_directory\n" "`basename '${0}'`";
+	exit -1;
+endif
+
+if(! ${?eol} ) setenv eol '$';
+
+if( ${?2} && "${2}" != "" && "${2}" == "--print-full-filename" ) set output="\5: \1\2\3\4\5\6";
+if(! ${?output} ) set output="\5: \1\6";
+
+/bin/ls --width=1  "${1}" | /bin/sed --regexp-extended "s/^(.*)(, released on)(:)?( )?(.*)(\.mp3)${eol}/${output}/" | /bin/sort

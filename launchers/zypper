@@ -1,0 +1,51 @@
+#!/bin/tcsh -f
+set this_program="`basename '${0}'`";
+
+foreach program ( "`which '${this_program}'`" )
+	if( -x "${program}" ) end
+endif
+
+if( !( ${?program} && -x "${program}" ) ) then
+	printf "Unable to find %s.\n", "${this_program}";
+	exit -1;
+endif
+
+if( ${?GREP_OPTIONS} ) then
+	set grep_options="${GREP_OPTIONS}";
+	unsetenv GREP_OPTIONS;
+endif
+
+set my_argv="";
+set prefix="";
+set suffix="";
+while( ${?1} && "${1}" != "" )
+	switch( "${1}" )
+	case "install":
+		set suffix=" --no-recommends";
+		breaksw;
+	case "search":
+	case "info":
+		set prefix="--no-refresh ";
+		set suffix=" --search-descriptions --details";
+		breaksw;
+	endsw
+	
+	set my_argv="${my_argv} ${prefix}${1}${suffix}";
+	if( "${prefix}" != "" ) set prefix="";
+	if( "${suffix}" != "" ) set suffix="";
+	shift;
+end
+
+if(${uid} != 0) then
+	sudo ${program} ${my_argv} ${argv};
+else
+	${program} ${my_argv} ${argv};
+endif
+
+
+if( ${?grep_options} ) then
+	setenv GREP_OPTIONS "${grep_options}";
+	unset grep_options;
+endif
+
+unset suffix prefix my_argv;

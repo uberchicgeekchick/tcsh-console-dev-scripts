@@ -1,5 +1,15 @@
 #!/bin/tcsh -f
-setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --ignore-case";
+
+source /projects/cli/tcshrc/debug:check art.tcsh ${argv};
+
+if( ! ${?TCSH_SESSION_RC_PATH} ) setenv TCSH_SESSION_RC_PATH "/projects/cli/tcshrc";
+
+if(! ${?eol} ) setenv eol '$';
+setenv color_start `cat ${TCSH_SESSION_RC_PATH}/art.color`;
+if( ${?TCSHRC_DEBUG} ) printf "${color_start}00;31mSetting ${eol}color_start environmental variable${color_start}00m\n";
+
+
+setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --ignore-case --initial-tab";
 alias	grep		"grep ${GREP_OPTIONS}";
 alias	egrep		"grep ${GREP_OPTIONS} --perl-regexp";
 
@@ -16,6 +26,6 @@ setenv	BONOBO_ACTIVATION_PATH	"/usr/lib64/bonobo/servers";
 
 setenv	SCREENRC	"/profile.d/~slash./screenrc";
 
-#alias	sed		"sed --regexp-extended";
+alias	regex		"sed --regexp-extended";
 
-
+source /projects/cli/tcshrc/debug:clean-up art.tcsh

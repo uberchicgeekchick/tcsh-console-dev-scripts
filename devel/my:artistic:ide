@@ -194,6 +194,9 @@ goto next_canvas
 media_canvas:
 	switch ( "${canvas}" )
 	case 'Alacast':
+		set my_canvas=( \
+			"--tab-with-profile=alacast:php --title=alacast:php --working-directory=/projects/gtk/alacast --command=/projects/gtk/alacast/bin/alacast.php --logging --titles-append-pubdate --player--strip-characters='!#' --update=detailed --interactive" \
+		);
 		breaksw
 	case 'Online':
 		if( -e "${HOME}/.rtorrent.rc" ) then
@@ -210,7 +213,7 @@ media_canvas:
 			"--tab-with-profile=uberChick --title=/media --working-directory=/media" \
 			"--tab-with-profile=uberChick --title=podcasts --working-directory=/media/podcasts" \
 			"--tab-with-profile=project --title=alacast --working-directory=/projects/gtk/alacast" \
-			"--tab-with-profile=alacast:php --title=alacast:php --working-directory=/projects/gtk/alacast" \
+			"--tab-with-profile=alacast:php --title=alacast:php --working-directory=/projects/gtk/alacast --command=/projects/gtk/alacast/bin/alacast.php --logging --titles-append-pubdate --player--strip-characters='!#' --update=detailed --interactive" \
 		);
 		breaksw
 	endsw
@@ -220,20 +223,23 @@ goto next_canvas
 editor_canvas:
 	switch ( "${canvas}" )
 	case 'Template':
-		${my_gnome_terminal} --geometry=${geometry} --tab-with-profile='[screen]$>' --tab-with-profile='~' \
-		${argv} &;
+		set mycanvas = ( \
+			"--tab --title='~' --working-directory='${HOME}'" \
+		);
 		breaksw
 	
 	case 'VIM':
-		${my_gnome_terminal} --geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="vim-enhanced" --working-directory="/projects" --command="/usr/bin/vim-enhanced -p ${argv}" \
-		&;
+		set my_canvas = ( \
+			"--tab-with-profile='uberChick' --title='${EDITOR}' --working-directory='/projects' --command='${EDITOR} -p ${argv}'" \
+		);
+		unset argv;
 		breaksw
 		
 	case 'Default':
-		${my_gnome_terminal} --geometry=${geometry} \
-			--tab-with-profile="uberChick" --title="${EDITOR}" --working-directory="/projects" --command="${EDITOR} -p ${argv}" \
-		&;
+		set my_canvas = ( \
+			"--tab-with-profile='uberChick' --title='${EDITOR}' --working-directory='/projects' --command='${EDITOR} -p ${argv}'" \
+		);
+		unset argv;
 		breaksw
 	endsw
 goto next_canvas
@@ -254,6 +260,7 @@ next_canvas:
 	if( ${?my_canvas} ) then
 		/usr/bin/gnome-terminal --hide-menubar --geometry=${geometry} --role=${canvas_role} \
 			--tab-with-profile=screen \
+			--tab-with-profile=ssh:our-eee \
 			${my_canvas} \
 		${argv} &;
 		unset my_canvas;

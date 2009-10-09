@@ -22,5 +22,5 @@ printf "" >! "${playlist}";
 ex -E -n -s -X "+0r ${1}" '+wq!' "${playlist}";
 ex -E -n -s -X '+1,$s/^\(\/.*\)\/nfs\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\)$/\1\/\2\/\3\.\4/' '+wq!' "${playlist}";
 
-printf "\t[finished]";
+printf "\t[done]\n";
 

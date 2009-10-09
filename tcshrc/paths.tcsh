@@ -1,7 +1,5 @@
 #!/bin/tcsh -f
-if( ( ${?TCSH_SESSION_PATH_SET} ) && !( ( ${?1} && "${1}" != "" && "${1}" == "--force" ) || ( ${?2} && "${2}" != "" && "${2}" == "--force" ) ) ) exit;
 source /projects/cli/tcshrc/debug:check paths.tcsh ${argv};
-setenv TCSH_SESSION_PATH_SET;
 if( ${?TCSHRC_DEBUG} ) printf "Setting up PATH environmental variable.\n";
 if( ! ${?TCSH_SESSION_RC_PATH} ) setenv TCSH_SESSION_RC_PATH "/projects/cli/tcshrc";
 

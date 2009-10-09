@@ -104,6 +104,7 @@ else
 		python client.py checkout;
 	else
 		hg pull -u;
+		python client.py --skip-comm checkout;
 	endif
 endif
 
@@ -116,7 +117,14 @@ unset hg_reaction;
 
 make:
 cd "${srcdir}";
-printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options AUTOCONF=autoconf-2.13\n" >! ".mozconfig"
+
+if( "${build_mozilla}" != "thunderbird" ) then
+	set mozconfig="${srcdir}/.mozcofig"
+else
+	set mozconfig="${srcdir}/.mozcofig.mk";
+endif
+
+printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options AUTOCONF=autoconf-2.13\n" >! "${mozconfig}";
 
 make -f client.mk;
 if( ${status} != 0 ) then

@@ -1,19 +1,46 @@
 #!/bin/tcsh -f
 set this_program="`basename '${0}'`";
-foreach program ( "`which '${this_program}'`" )
-	if( -x "${program}" ) end
-endif
+set program=/usr/bin/${this_program};
 
 if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif
 
+if(! ${?eol} ) setenv eol '$';
+
+set argz="";
+next_argv:
+while( ${?1} && "${1}" != "" )
+	set message="";
+	set action="`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)${eol}/\1/'`";
+	set feed="`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)${eol}/\2/'`";
+	switch( "${action}" )
+	case "add":
+		if( "${message}" == "" ) set message="add";
+	case "del":
+		if( "${message}" == "" ) set message="delete";
+		set argz=--${action}="${feed}";
+		breaksw
+	default:
+		set argz=${1};
+		breaksw
+	endsw
+	shift
+	goto run_progie
+end
+
+unset this_program argz gpodder_ran message;
+
+exit;
+
+run_progie:
+set gpodder_ran
+if( "${message}" != "" && "${feed}" != "" ) printf "Attempting to %s:\n\t<%s>\n" "${message}" "${feed}";
 if( ! ${?OUTPUT_STDERR} ) then
-	( ${program} ${argv} > /dev/tty ) >& /dev/null
+	#echo "Running:\n"\ \( ${program} "${argz}" \> /dev/tty \) \>\& /dev/null
+	( ${program} "${argz}" > /dev/tty ) >& /dev/null
 else
-	${program} ${argv} >& /dev/null
+	${program} "${argz}" >& /dev/null
 endif
-
-unset this_program;
-
+goto next_argv

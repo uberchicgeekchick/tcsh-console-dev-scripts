@@ -13,8 +13,8 @@ while( ${?1} && "${1}" != "" && ! ${?program_path} )
 		breaksw
 	case "--launcher":
 		set use_launcher;
-		set rm_extensions;
 	case "--nightly-build":
+		set rm_extensions;
 		shift;
 	default:
 		set program_path="/programs/Mozilla/Firefox3/x86_64";
@@ -56,7 +56,7 @@ ff3_start:
 if( ${ff3_attempt} > 5 ) exit 0;
 
 if( ${?use_launcher} ) then
-	gnome-terminal --role="launcher:${this_program}" --geometry=80x10 --hide-menubar --tab-with-profile='/bin/tcsh -f' --command="${program} ${argv}" >& /dev/null &;
+	/usr/bin/gnome-terminal --role="launcher:${this_program}" --geometry=80x10 --hide-menubar --tab-with-profile='/bin/tcsh -f' --command="${program} ${argv}" >& /dev/null &;
 else
 	echo "${program} ${argv}";
 endif

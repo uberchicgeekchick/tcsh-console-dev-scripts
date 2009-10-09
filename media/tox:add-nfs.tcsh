@@ -20,7 +20,7 @@ printf "Converting %s to %s" ${1} ${playlist};
 
 printf "" >! "${playlist}";
 ex -E -n -s -X "+1r ${1}" '+wq!' "${playlist}";
-ex -E -n -s -X '+3,$s/^\(\tmrl\ =\ \/media\/podcasts\)\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\/nfs\/\2\/\3\.\4;/' '+wq!' "${playlist}";
+ex -E -n -s -X '+3,$s/^\(\tmrl\ =\ \)\(\/projects\/media\|\/media\/[^\/]\+\)\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\2\/nfs\/\3\/\4\.\5;/' '+wq!' "${playlist}";
 
-printf "\t[finished]";
+printf "\t[done]\n";
 

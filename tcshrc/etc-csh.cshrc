@@ -225,7 +225,7 @@ if( -r /etc/csh.cshrc.local ) then
 	if( ${?TCSHRC_DEBUG} ) printf "Local TCSH setting finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
 endif
 if( -r /projects/cli/tcshrc/csh.cshrc ) then
-	if( ${?TCSHRC_DEBUG} ) printf "Loading custum TCSH settings [/projects/cli/tcshrc/csh.cshrc] @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSHRC_DEBUG} ) printf "Loading custom TCSH settings [/projects/cli/tcshrc/csh.cshrc] @ %s.\n" `date "+%I:%M:%S%P"`;
 	source /projects/cli/tcshrc/csh.cshrc
 	if( ${?TCSHRC_DEBUG} ) printf "Custom TCSH settings finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
 endif

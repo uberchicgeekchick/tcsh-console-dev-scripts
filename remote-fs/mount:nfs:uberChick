@@ -1,0 +1,230 @@
+#!/bin/tcsh -f
+while( ${?1} && "${1}" != "" )
+	switch( ${1} )
+	case "--mount":
+		set action="mount";
+		set to_or_from="to";
+		breaksw
+	case "--umount":
+		set action="umount";
+		set to_or_from="from";
+		breaksw
+	default:
+		if(! $?action ) goto usage
+		
+		set single_mount
+		goto ${1};
+next_mount:
+		unset single_mount
+		breaksw
+	endsw
+	shift;
+end
+
+if(! ${?action} ) then
+	set fatal;
+	goto usage
+endif
+
+games:
+printf "%sing 192.168.4.4:/projects/games %s /projects/games/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /projects/games/nfs;
+	#sudo ${action} -f /projects/games/nfs;
+else
+	if( ! -d "/projects/games/nfs" ) mkdir -p "/projects/games/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/projects/games /projects/games/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/projects/games /projects/games/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+gtk:
+printf "%sing 192.168.4.4:/projects/gtk %s /projects/gtk/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /projects/gtk/nfs;
+	#sudo ${action} -f /projects/gtk/nfs;
+else
+	if( ! -d "/projects/gtk/nfs" ) mkdir -p "/projects/gtk/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/projects/gtk /projects/gtk/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/projects/gtk /projects/gtk/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+art:
+printf "%sing 192.168.4.4:/projects/art %s /projects/art/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /projects/art/nfs;
+	#sudo ${action} -f /projects/art/nfs;
+else
+	if( ! -d "/projects/art/nfs" ) mkdir -p "/projects/art/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/projects/art /projects/art/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/projects/art /projects/art/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+cli:
+printf "%sing 192.168.4.4:/projects/cli %s /projects/cli/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /projects/cli/nfs;
+	#sudo ${action} -f /projects/cli/nfs;
+else
+	if( ! -d "/projects/cli/nfs" ) mkdir -p "/projects/cli/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/projects/cli /projects/cli/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/projects/cli /projects/cli/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+media:
+printf "%sing 192.168.4.4:/projects/media %s /projects/media/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /projects/media/nfs;
+	#sudo ${action} -f /projects/media/nfs;
+else
+	if( ! -d "/projects/media/nfs" ) mkdir -p "/projects/media/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/projects/media /projects/media/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/projects/media /projects/media/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+www:
+printf "%sing 192.168.4.4:/projects/www %s /projects/www/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /projects/www/nfs;
+	#sudo ${action} -f /projects/www/nfs;
+else
+	if( ! -d "/projects/www/nfs" ) mkdir -p "/projects/www/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/projects/www /projects/www/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/projects/www /projects/www/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+reference:
+printf "%sing 192.168.4.4:/projects/reference %s /projects/reference/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /projects/reference/nfs;
+	#sudo ${action} -f /projects/reference/nfs;
+else
+	if( ! -d "/projects/reference/nfs" ) mkdir -p "/projects/reference/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/projects/reference /projects/reference/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/projects/reference /projects/reference/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+podcasts:
+printf "%sing 192.168.4.4:/media/podcasts %s /media/podcasts/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /media/podcasts/nfs;
+	#sudo ${action} -f /media/podcasts/nfs;
+else
+	if( ! -d "/media/podcasts/nfs" ) mkdir -p "/media/podcasts/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/media/podcasts /media/podcasts/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/media/podcasts /media/podcasts/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+podiobooks:
+printf "%sing 192.168.4.4:/media/podiobooks %s /media/podiobooks/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /media/podiobooks/nfs;
+	#sudo ${action} -f /media/podiobooks/nfs;
+else
+	if( ! -d "/media/podiobooks/nfs" ) mkdir -p "/media/podiobooks/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/media/podiobooks /media/podiobooks/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/media/podiobooks /media/podiobooks/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+library:
+printf "%sing 192.168.4.4:/media/library to /media/library/nfs %s /media/library/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /media/library/nfs;
+	#sudo ${action} -f /media/library/nfs;
+else
+	if( ! -d "/media/library/nfs" ) mkdir -p "/media/library/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/media/library /media/library/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/media/library /media/library/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+tv-shows:
+printf "%sing 192.168.4.4:/media/tv-shows %s /media/tv-shows/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /media/tv-shows/nfs;
+	#sudo ${action} -f /media/tv-shows/nfs;
+else
+	if( ! -d "/media/tv-shows/nfs" ) mkdir -p "/media/tv-shows/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/media/tv-shows /media/tv-shows/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/media/tv-shows /media/tv-shows/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+movies:
+printf "%sing 192.168.4.4:/media/movies %s /media/movies/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /media/movies/nfs;
+	#sudo ${action} -f /media/movies/nfs;
+else
+	if( ! -d "/media/movies/nfs" ) mkdir -p "/media/movies/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/media/movies /media/movies/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/media/movies /media/movies/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+uberChick:
+printf "%sing 192.168.4.4:/uberChick %s /uberChick/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /uberChick/nfs;
+	#sudo ${action} -f /uberChick/nfs;
+else
+	if( ! -d "/uberChick/nfs" ) mkdir -p "/uberChick/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/uberChick /uberChick/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/uberChick /uberChick/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+programs:
+printf "%sing 192.168.4.4:/programs %s /programs/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /programs/nfs;
+	#sudo ${action} -f /programs/nfs;
+else
+	if( ! -d "/programs/nfs" ) mkdir -p "/programs/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/programs /programs/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/programs /programs/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+profile.d:
+printf "%sing 192.168.4.4:/profile.d %s /profile.d/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /profile.d/nfs;
+	#sudo ${action} -f /profile.d/nfs;
+else
+	if( ! -d "/profile.d/nfs" ) mkdir -p "/profile.d/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/profile.d /profile.d/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/profile.d /profile.d/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+srv:
+printf "%sing 192.168.4.4:/srv %s /srv/nfs\n" "${action}" "${to_or_from}";
+if( "${action}" == "umount" ) then
+	sudo umount -f /srv/nfs;
+	#sudo ${action} -f /srv/nfs;
+else
+	if( ! -d "/srv/nfs" ) mkdir -p "/srv/nfs";
+	sudo mount -t nfs4 -o defaults,users 192.168.4.4:/srv /srv/nfs;
+	#sudo ${action} -t nfs4 1 -o defaults,users 192.168.4.4:/srv /srv/nfs;
+endif
+if( ${?single_mount} ) goto next_mount;
+
+exit;
+
+usage:
+printf "%s --mount|--umount [nfs4_export]" "`basename '${1}'`";
+if( ${?fatal} ) then
+	unset fatal;
+	exit -1;
+endif
+goto next_mount;
+

@@ -18,9 +18,10 @@ endif
 
 printf "Converting %s to %s" ${1} ${playlist};
 
+set m3u_playlist="`printf '%s' '${1}' | sed 's/\([()\ ]\)/\\\1/g'`";
 printf '#toxine playlist\n\n' >! "${playlist}";
-ex -E -n -s -X "+2r ${1}" '+wq!' "${playlist}";
+ex -E -n -s -X "+2r ${m3u_playlist}" '+wq!' "${playlist}";
 ex -E -n -s -X '+3,$s/^\#.*[\r\n]//' '+3,$s/^\(\/.*\)\/nfs\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\)$/entry \{\r\tidentifier\ =\ \3;\r\tmrl\ =\ \1\/\2\/\3\.\4;\r\tav_offset\ =\ 3600;\r};\r/' '+wq!' "${playlist}";
 
-printf "\t[finished]";
+printf "\t[done]\n";
 

@@ -5,6 +5,7 @@ complete sudo "p/1/c/";
 
 set services_paths=( "/etc/init.d" );
 foreach services_path( ${services_paths} )
+	if(! ${?TCSH_SESSION_PATH_SET} ) setenv PATH "${PATH}:${services_path}";
 	foreach service ( "`/usr/bin/find -H ${services_path} -maxdepth 1 -xtype f -perm -u+x -printf '%f\n'`" )
 		if( ${?TCSHRC_DEBUG} ) printf "Setting sudo service alias for %s @ %s\n" ${service} `date "+%I:%M:%S%P"`;
 		alias		"${service}"			"sudo ${services_path}/${service}";

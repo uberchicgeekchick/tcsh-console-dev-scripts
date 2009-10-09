@@ -5,6 +5,7 @@ complete sudo "p/1/c/";
 
 set sbin_paths=( "/sbin" "/usr/sbin" );
 foreach sbin_path ( ${sbin_paths} )
+	if(! ${?TCSH_SESSION_PATH_SET} ) setenv PATH "${PATH}:${sbin_path}";
 	foreach command ( "`/usr/bin/find -H ${sbin_path} -maxdepth 1 -xtype f -perm -u+x -printf '%f\n'`" )
 		set sudo_alias="`basename '${command}'`";
 		if( ${?TCSHRC_DEBUG} ) printf "Setting sudo command alias for %s @ %s\n" ${sudo_alias} `date "+%I:%M:%S%P"`;

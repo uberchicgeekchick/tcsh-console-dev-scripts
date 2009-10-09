@@ -33,15 +33,16 @@ alias	rf	"rr -f"
 alias pidof "pidof -x"
 complete pidof 'p/*/c/'
 
-#alias	cp	"cp --interactive --no-dereference"
-alias cp	"cp --no-dereference"
+#alias	cp	"cp --interactive --no-dereference --verbose"
+#alias cp	"cp --no-dereference --verbose"
+alias cp	"cp --verbose"
 #alias	mv	"mv --interactive"
-unalias	mv
+alias	mv	"mv --verbose"
 
 alias	mkdir	"mkdir -p"
 alias	md	"mkdir"
 
-alias	nautilus	"nautilus --no-desktop --browser"
+alias	nautilus	"nautilus --geometry=800x700 --no-desktop --browser"
 
 alias	hostname	"hostname --fqdn"
 alias	wget		"wget --no-check-certificate"

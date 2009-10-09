@@ -19,8 +19,9 @@ endif
 printf "Converting %s to %s" ${1} ${playlist};
 
 printf "" >! "${playlist}";
-ex -E -n -s -X "+1r ${1}" '+wq!' "${playlist}";
-ex -E -n -s -X '+1,$s/^\#.*[\r\n]//' '+1,$s/^entry\ {[\r\n]\+//' '+1,$s/^};$//' '+1,$s/^\tmrl\ =\ \(\/media\/podcasts\)\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\/nfs\/\2\/\3\.\4/' '+1,$s/^\t.*;[\r\n]\+//' '+1,$s/^[\r\n]\+//' '+$d' '+wq!' "${playlist}";
+set tox_playlist="`printf '%s' '${1}' | sed 's/\([()\ ]\)/\\\1/g'`";
+ex -E -n -s -X "+1r ${tox_playlist}" '+wq!' "${playlist}";
+ex -E -n -s -X '+1,$s/^\#.*[\r\n]//' '+1,$s/^entry\ {[\r\n]\+//' '+1,$s/^};$//' '+1,$s/^\tmrl\ =\ \(\/projects\/media\|\/media\/[^\/]\+\)\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\/nfs\/\2\/\3\.\4/' '+1,$s/^\t.*;[\r\n]\+//' '+1,$s/^[\r\n]\+//' '+$d' '+wq!' "${playlist}";
 
-printf "\t[finished]";
+printf "\t[done]\n";
 

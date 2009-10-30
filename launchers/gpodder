@@ -1,8 +1,12 @@
 #!/bin/tcsh -f
 set this_program="`basename '${0}'`";
-set program=/usr/bin/${this_program};
+#set program=/usr/bin/${this_program};
+foreach program ( "`where '${this_program}'`" )
+	#printf "Checking [%s] against [%s]\n" "${program}" "${this_program}";
+	if( "${program}" != "${0}" && -x "${program}" ) break
+end
 
-if( !( ${?program} && -x "${program}" ) ) then
+if(!( ${?program} && -x "${program}" )) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif

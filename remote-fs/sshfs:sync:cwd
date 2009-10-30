@@ -4,7 +4,7 @@ set project_name = "`basename '${cwd}'`"
 set sshfs_path = "/projects/ssh"
 
 set ssh_user = "dreams"
-set ssh_server = "avalon.ocssolutions.com"
+set ssh_server = "sky.ocssolutions.com"
 
 if( -e "./.sync.default" ) then
 	set sync_method = `cat ./.sync.default`

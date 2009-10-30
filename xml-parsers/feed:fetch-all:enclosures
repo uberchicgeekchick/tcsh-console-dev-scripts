@@ -4,49 +4,64 @@ if(! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
 	exit -1;
 endif
 
-set attrib = "`printf '${1}' | sed 's/\-\-\([^=]*\)=\?\(.*\)/\1/g'`";
-set value = "`printf '${1}' | sed 's/\-\-\([^=]*\)=\?\(.*\)/\2/g'`";
+while( ${?1} && "${1}" != "" )
+	set attrib = "`printf '${1}' | sed 's/\-\-\([^=]*\)=\?\(.*\)/\1/g'`";
+	set value = "`printf '${1}' | sed 's/\-\-\([^=]*\)=\?\(.*\)/\2/g'`";
+	
+	switch ( "${attrib}" )
+	case "newest":
+	case "first":
+	case "start-with-episode":
+	case "start-with":
+	case "start-at-episode":
+	case "start-at":
+		shift;
+		if( ${?value} && "${value}" != "" && ${value} > 0 ) then
+			set first_episodes="${value}";
+		else
+			set first_episodes = "1";
+		endif
+		breaksw
+	
+	case "oldest":
+	case "last":
+	case "stop-with-episode":
+	case "stop-with":
+	case "stop-at-episode":
+	case "stop-at":
+		shift;
+		if( ${?value} && "${value}" != "" && ${value} > 0 ) then
+			set last_episodes="${value}";
+		else
+			set last_episodes = "1";
+		endif
+		breaksw
+	
+	case "quiet":
+		shift;
+		set quiet;
+		breaksw
+	
+	case "regex-match-titles":
+		shift;
+		if( "${value}" == "" ) breaksw
+		set regex_match_titles = "${value}";
+		breaksw
+	
+	default:
+		set feed="${1}";
+		shift;
+		breaksw
+	endsw
 
-switch ( "${attrib}" )
-case "newest":
-case "first":
-	shift;
-	if( ${?value} && "${value}" != "" && ${value} > 0 ) then
-		set first_episodes="${value}";
-	else
-		set first_episodes = "1";
-	endif
-	breaksw
-
-case "oldest":
-case "last":
-	shift;
-	if( ${?value} && "${value}" != "" && ${value} > 0 ) then
-		set last_episodes="${value}";
-	else
-		set last_episodes = "1";
-	endif
-	breaksw
-
-case "quiet":
-	shift;
-	set quiet;
-	breaksw
-
-case "regex-match-titles":
-	shift;
-	if( "${value}" == "" ) breaksw
-	set regex_match_titles = "${value}";
-	breaksw
-endsw
-
+end	
 set please_wait_phrase="...please be patient, I may need several moments.\t\t";
 
 if( ! ${?quiet} ) printf "Downloading podcast's feed.\n"
-wget --quiet -O './00-feed.xml' "${1}"
+wget --quiet -O './00-feed.xml' "${feed}"
 
 if( ! ${?quiet} ) printf "Finding feed's title.\n"
-set title = "`/usr/bin/grep '<title.*>' './00-feed.xml' | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g'`"
+set title = "`/usr/bin/grep '<title.*>' './00-feed.xml' | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g' | sed  's/[\ \t]*\&[^;]\+\;[\ \t]*/\ /ig'`";
 
 if( ! -d "${title}" ) mkdir -p "${title}"
 cd "${title}"
@@ -56,8 +71,8 @@ touch "${download_log}"
 
 if( ! ${?quiet} ) printf "Preparing to download: %s\n" "${title}"
 printf "Preparing to download: %s\n" "${title}" >> "${download_log}"
-if( ! ${?quiet} ) printf "\tURI:\n\t%s\n" "${1}"
-printf "\tURI:\n\t%s\n" "${1}" >> "${download_log}"
+if( ! ${?quiet} ) printf "\tURI:\t[%s]\n" "${feed}"
+printf "\tURI:\t[%s]\n" "${feed}" >> "${download_log}"
 
 if( -e './00-feed.xml' && -e './00-titles.lst' && -e './00-enclosures.lst' && -e './00-pubdates.lst' ) goto continue_download
 
@@ -72,7 +87,7 @@ cp './00-feed.xml' './00-titles.lst'
 ex '+1,$s/[\r\n]\+[\ \t]*//g' '+wq' './00-titles.lst' >& /dev/null
 
 ex '+1,$s/<\/\(item\|entry\)>/<\/\1>\r/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\(.*\)<\/title>.*\(enclosure\).*<\/\(item\|entry\)>$/\2/ig' '+1,$s/.*<\(item\|entry\)>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+$d' '+wq' './00-titles.lst' >& /dev/null
-ex '+1,$s/&\(#038\|amp\)\;/\&/ig' '+1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' '+1,$s/&[^;]\+\;[\ \t]*//ig' '+1,$s/<\!\[CDATA\[\(.*\)\]\]>/\1/g' '+1,$s/#//g' '+1,$s/\//\ \-\ /g' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/&\(#038\|amp\)\;/\&/ig' '+1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' '+1,$s/&[^;]\+\;[\ \t]*/\ /ig' '+1,$s/<\!\[CDATA\[\(.*\)\]\]>/\1/g' '+1,$s/#//g' '+1,$s/\//\ \-\ /g' '+wq' './00-titles.lst' >& /dev/null
 if( ! ${?quiet} )printf "[done]\n"
 printf "[done]\n" >> "${download_log}"
 
@@ -86,14 +101,14 @@ ex '+1,$s/^\(Six\)/6/gi' '+1,$s/^\(Seven\)/7/gi' '+1,$s/^\(Eight\)/8/gi' '+1,$s/
 ex '+1,$s/^\([0-9]\)ty/\10/gi' '+1,$s/^\(Fifty\)/50/gi' '+1,$s/^\(Thirty\)/30/gi' '+1,$s/^\(Twenty\)/20/gi' '+wq' './00-titles.lst' >& /dev/null
 ex '+1,$s/^\([0-9]\)teen/1\1/gi' '+1,$s/^\(Fifteen\)/15/gi' '+1,$s/^\(Thirteen\)/13/gi' '+1,$s/^\(Twelve\)/12/gi' '+1,$s/^\(Eleven\)/11/gi' '+wq' './00-titles.lst' >& /dev/null
 
-ex '+1,$s/[^a-zA-Z]\(Zero\)/0/gi' '+1,$s/[^a-zA-Z]\(One\)/1/gi' '+1,$s/[^a-zA-Z]\(Two\)/2/gi' '+1,$s/[^a-zA-Z]\(Three\)/3/gi' '+1,$s/[^a-zA-Z]\(Four\)/4/gi' '+1,$s/[^a-zA-Z]\(Five\)/5/gi' '+wq' './00-titles.lst' >& /dev/null
-ex '+1,$s/[^a-zA-Z]\(Six\)/6/gi' '+1,$s/[^a-zA-Z]\(Seven\)/7/gi' '+1,$s/[^a-zA-Z]\(Eight\)/8/gi' '+1,$s/[^a-zA-Z]\(Nine\)/9/gi' '+1,$s/[^a-zA-Z]\(Ten\)/10/gi' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/\([^a-zA-Z]\)\(Zero\)/\10/gi' '+1,$s/\([^a-zA-Z]\)\(One\)/\11/gi' '+1,$s/\([^a-zA-Z]\)\(Two\)/\12/gi' '+1,$s/\([^a-zA-Z]\)\(Three\)/\13/gi' '+1,$s/\([^a-zA-Z]\)\(Four\)/\14/gi' '+1,$s/\([^a-zA-Z]\)\(Five\)/\15/gi' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/\([^a-zA-Z]\)\(Six\)/\16/gi' '+1,$s/\([^a-zA-Z]\)\(Seven\)/\17/gi' '+1,$s/\([^a-zA-Z]\)\(Eight\)/\18/gi' '+1,$s/\([^a-zA-Z]\)\(Nine\)/\19/gi' '+1,$s/\([^a-zA-Z]\)\(Ten\)/\110/gi' '+wq' './00-titles.lst' >& /dev/null
 
-ex '+1,$s/[^a-zA-Z]\([0-9]\)ty[^a-zA-Z]/\10/gi' '+1,$s/[^a-zA-Z]\(Fifty\)[^a-zA-Z]/50/gi' '+1,$s/[^a-zA-Z]\(Thirty\)[^a-zA-Z]/30/gi' '+1,$s/[^a-zA-Z]\(Twenty\)[^a-zA-Z]/20/gi' '+wq' './00-titles.lst' >& /dev/null
-ex '+1,$s/[^a-zA-Z]\([0-9]\)teen[^a-zA-Z]/1\1/gi' '+1,$s/[^a-zA-Z]\(Fifteen\)[^a-zA-Z]/15/gi' '+1,$s/[^a-zA-Z]\(Thirteen\)[^a-zA-Z]/13/gi' '+1,$s/[^a-zA-Z]\(Twelve\)[^a-zA-Z]/12/gi' '+1,$s/[^a-zA-Z]\(Eleven\)[^a-zA-Z]/11/gi' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/\([^a-zA-Z]\)\([0-9]\)ty[^a-zA-Z]/\1\20/gi' '+1,$s/\([^a-zA-Z]\)\(Fifty\)\([^a-zA-Z]\)/\150\3/gi' '+1,$s/\([^a-zA-Z]\)\(Thirty\)\([^a-zA-Z]\)/\130\3/gi' '+1,$s/\([^a-zA-Z]\)\(Twenty\)\([^a-zA-Z]\)/\120\3/gi' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/\([^a-zA-Z]\)\([0-9]\)teen\([^a-zA-Z]\)/\11\2\3/gi' '+1,$s/\([^a-zA-Z]\)\(Fifteen\)\([^a-zA-Z]\)/\115\3/gi' '+1,$s/\([^a-zA-Z]\)\(Thirteen\)\([^a-zA-Z]\)/\113\3/gi' '+1,$s/\([^a-zA-Z]\)\(Twelve\)\([^a-zA-Z]\)/\112\3/gi' '+1,$s/\([^a-zA-Z]\)\(Eleven\)\([^a-zA-Z]\)/\111\3/gi' '+wq' './00-titles.lst' >& /dev/null
 
-ex '+1,$s/[^a-zA-Z]\([0-9]\)ty/\10$/gi' '+1,$s/[^a-zA-Z]\(Fifty\)/50/gi' '+1,$s/[^a-zA-Z]\(Thirty\)/30/gi' '+1,$s/[^a-zA-Z]\(Twenty\)/20/gi' '+wq' './00-titles.lst' >& /dev/null
-ex '+1,$s/[^a-zA-Z]\([0-9]\)teen/1\1$/gi' '+1,$s/[^a-zA-Z]\(Fifteen\)/15/gi' '+1,$s/[^a-zA-Z]\(Thirteen\)/13/gi' '+1,$s/[^a-zA-Z]\(Twelve\)/12/gi' '+1,$s/[^a-zA-Z]\(Eleven\)/11/gi' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/\([^a-zA-Z]\)\([0-9]\)ty/\1\20$/gi' '+1,$s/\([^a-zA-Z]\)\(Fifty\)/\150/gi' '+1,$s/\([^a-zA-Z]\)\(Thirty\)/\130/gi' '+1,$s/\([^a-zA-Z]\)\(Twenty\)/\120/gi' '+wq' './00-titles.lst' >& /dev/null
+ex '+1,$s/\([^a-zA-Z]\)\([0-9]\)teen/\11\2$/gi' '+1,$s/\([^a-zA-Z]\)\(Fifteen\)/\115/gi' '+1,$s/\([^a-zA-Z]\)\(Thirteen\)/\113/gi' '+1,$s/\([^a-zA-Z]\)\(Twelve\)/\112/gi' '+1,$s/\([^a-zA-Z]\)\(Eleven\)/\111/gi' '+wq' './00-titles.lst' >& /dev/null
 
 ex '+1,$s/^\([0-9]\{1\}\)\([^0-9]\{1\}\)/0\1\2/' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)\([^0-9]\{1\}\)/\10\2\3/g' '+1,$s/\([^0-9]\{1\}\)\([0-9]\{1\}\)$/\10\2/' '+wq' './00-titles.lst' >& /dev/null
 
@@ -153,19 +168,21 @@ printf "Beginning to download: %s\n" "${title}" >> "${download_log}"
 set episodes = ();
 if( ${?first_episodes} ) then
 	if( ${#first_episodes} > 0 ) then
-		set episodes = "`head -${first_episodes} './00-enclosures.lst'`"
-		head -${first_episodes} './00-titles.lst' >! './00-tmp-titles.lst'
-		mv './00-tmp-titles.lst' './00-titles.lst'
+		ex -E -n -X --noplugin "+1,${first_episodes}d" '+wq' './00-enclosures.lst'
+		ex -E -n -X --noplugin "+1,${first_episodes}d" '+wq' './00-titles.lst'
 	endif
-else if( ${?last_episodes} ) then
-	if( ${#last_episodes} > 0 ) then
-		set episodes = "`tail -${last_episodes} './00-enclosures.lst'`"
-		tail -${last_episodes} './00-titles.lst' >! './00-tmp-titles.lst'
-		mv './00-tmp-titles.lst' './00-titles.lst'
-	endif
-else
-	set episodes = "`cat './00-enclosures.lst'`"
 endif
+
+if( ${?last_episodes} ) then
+	if( ${#last_episodes} > 0 ) then
+		tail -${last_episodes} './00-enclosures.lst' >! './00-enclosures.lst.tmp';
+		mv './00-enclosures.lst.tmp' './00-enclosures.lst';
+		tail -${last_episodes} './00-titles.lst' >! './00-titles.lst.tmp'
+		mv './00-titles.lst.tmp' './00-titles.lst'
+	endif
+endif
+
+set episodes = "`cat './00-enclosures.lst'`"
 
 goto download_episodes
 
@@ -239,5 +256,5 @@ end
 if( ! ${?quiet} ) printf "*w00t\!*, I'm done; enjoy online media at its best!"
 printf "*w00t\!*, I'm done; enjoy online media at its best!" >> "${download_log}"
 
-if( ! ( ${?2} && "${2}" == "---enable-debug" ) ) rm './00-titles.lst' './00-enclosures.lst' './00-pubdates.lst' './00-feed.xml'
+if(!( ${?2} && "${2}" == "---enable-debug" )) rm './00-titles.lst' './00-enclosures.lst' './00-pubdates.lst' './00-feed.xml'
 

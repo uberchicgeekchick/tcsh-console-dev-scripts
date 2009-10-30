@@ -2,7 +2,7 @@
 set this_program="`basename '${0}'`";
 
 foreach program ( "`which '${this_program}'`" )
-	if( -x "${program}" ) end
+	if( "${program}" != "${0}" && -x "${program}" ) break
 endif
 
 if( !( ${?program} && -x "${program}" ) ) then
@@ -26,7 +26,8 @@ while( ${?1} && "${1}" != "" )
 	case "search":
 	case "info":
 		set prefix="--no-refresh ";
-		set suffix=" --search-descriptions --details";
+		#set suffix=" --search-descriptions --details";
+		set suffix=" --details";
 		breaksw;
 	endsw
 	

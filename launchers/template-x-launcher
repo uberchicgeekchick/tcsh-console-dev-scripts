@@ -2,17 +2,21 @@
 set this_program="`basename '${0}'`";
 
 foreach program ( "`which '${this_program}'`" )
-	if( -x "${program}" ) end
+	if( "${program}" != "${0}" && -x "${program}" ) break;
 endif
 
 if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
+	if( ${?program} ) unset program;
+	unset this_program;
 	exit -1;
 endif
 
+unset this_program;
 if( ! ${?OUTPUT_STDERR} ) then
 	( ${program} ${argv} > /dev/tty ) >& /dev/null &
 else
 	${program} ${argv} >& /dev/null &
 endif
 
+unset program;

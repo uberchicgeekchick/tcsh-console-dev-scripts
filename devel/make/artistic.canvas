@@ -42,7 +42,7 @@ setenv MY_INCLUDE_FLAGS "-I${LD_LIBRARY_PATH} -I. -I..";
 
 setenv CPPFLAGS "-O3 ${MY_INCLUDE_FLAGS}";
 
-setenv MAKEFLAGS "-Wall -Wextra -fstrict-aliasing -Wstrict-aliasing=3 -Wformat=2 -Werror -Wno-unused-parameter";
+setenv MAKEFLAGS "-Wall -Wextra -fstrict-aliasing -Wstrict-aliasing=3 -Wformat=2 -Werror -Wno-unused-parameter -Wno-parentheses";
 
 setenv MYFLAGS "${MAKEFLAGS} -Wfatal-errors -Wswitch-enum -Wno-format-nonliteral -Wno-missing-field-initializers --combine";
 setenv MYCFLAGS	"${MYFLAGS} -Wmissing-prototypes -Wmissing-declarations";

@@ -2,7 +2,8 @@
 set this_program="`basename '${0}'`";
 
 foreach program ( "`which '${this_program}'`" )
-	if( -x "${program}" ) end
+	if( "${program}" != "${0}" && -x "${program}" ) break
+	unset program
 endif
 
 if( !( ${?program} && -x "${program}" ) ) then
@@ -18,5 +19,5 @@ else
 	${program} ${argv} >& /dev/null
 endif
 
-unset this_program;
+unset this_program program;
 

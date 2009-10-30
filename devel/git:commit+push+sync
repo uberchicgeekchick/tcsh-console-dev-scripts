@@ -95,7 +95,7 @@ foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
 end
 unset tarball;
 
-foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\)'`" )
+foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\|o\)'`" )
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
 	git rm --cached --quiet "${swp}";
 end
@@ -129,7 +129,7 @@ init_sync:
 set project_name = "`basename '${cwd}'`";
 set sshfs_path = "/projects/ssh";
 set ssh_user = "dreams";
-set ssh_server = "avalon.ocssolutions.com";
+set ssh_server = "sky.ocssolutions.com";
 
 
 run_sync:

@@ -1,8 +1,8 @@
 #!/bin/tcsh -f
 set this_program="totem";
 foreach program ( "`which '${this_program}'`" )
-	if( -x "${program}" ) end
-endif
+	if( "${program}" != "${0}" && -x "${program}" ) break
+end
 
 if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";

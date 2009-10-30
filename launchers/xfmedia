@@ -1,8 +1,8 @@
 #!/bin/tcsh -f
 if( ! ${?this_program} ) set this_program="xfmedia";
-foreach program ( "`which '${this_program}'`" )
-	if( -x "${program}" ) end
-endif
+foreach program ( "`where '${this_program}'`" )
+	if( "${program}" != "${0}"  && "${program}" != "./${this_program}" && "${program}" != "${launchers_path}/${this_program}" && -x "${program}" ) break
+end
 
 if( !( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n" "${this_program}";
@@ -29,7 +29,7 @@ if( ${?set_alias} ) then
 	else
 		set new_alias="${this_program}-${alias_suffix}";
 	endif
-	if( ${?TCSHRC_DEBUG} ) printf "Aliasing [%s] to [%s/%s].\n" $new_alias $program;
+	if( ${?TCSHRC_DEBUG} ) printf "Aliasing [%s] to [%s].\n" $new_alias $program;
 	#alias "${new_alias}" "${program} --video-out='${video_driver}' --audio-out='${audio_driver}' --vwin-geometry='${resolution}' ${argv} ${output}";
 	alias "${new_alias}" "${program} --audio-out='${audio_driver}' --vwin-geometry='${resolution}' ${argv} ${output}";
 else

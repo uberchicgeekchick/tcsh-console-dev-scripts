@@ -19,6 +19,8 @@ else
 endif
 
 set launchers_path="/projects/cli/launchers";
+set starting_directory="${cwd}";
+cd "${launchers_path}";
 foreach launcher ( "`find ${launchers_path} -type f -perm '/u=x' -printf '%f\n'`" )
 	if( "${launcher}" == "template" ) continue;
 	
@@ -31,6 +33,7 @@ foreach launcher ( "`find ${launchers_path} -type f -perm '/u=x' -printf '%f\n'`
 		alias "${launcher}" "${launchers_path}/${launcher}";
 	endif
 end
+cd "${starting_directory}";
 
 if( ${?sed_regexp_set} ) then
 	unalias sed;

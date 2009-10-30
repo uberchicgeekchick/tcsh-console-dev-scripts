@@ -94,7 +94,7 @@ complete gdb	n/-d/d/ n/*/c/
 complete ups	p/1/c/
 complete set	'c/*=/f/' 'p/1/s/=' 'n/=/f/'
 complete unset	n/*/s/
-complete alias	p/1/a/ p/2,/c/		# only aliases are valid
+complete alias	p/1/a/ p/2-/c/		# only aliases are valid
 complete unalias	n/*/a/
 complete xdvi	n/*/f:*.dvi/	# Only files that match *.dvi
 complete laser	n/*/f:*.dvi/

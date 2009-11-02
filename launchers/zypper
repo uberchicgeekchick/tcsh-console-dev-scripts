@@ -3,9 +3,9 @@ set this_program="`basename '${0}'`";
 
 foreach program ( "`which '${this_program}'`" )
 	if( "${program}" != "${0}" && -x "${program}" ) break
-endif
+end
 
-if( !( ${?program} && -x "${program}" ) ) then
+if(!( ${?program} && -x "${program}" ) ) then
 	printf "Unable to find %s.\n", "${this_program}";
 	exit -1;
 endif
@@ -22,13 +22,13 @@ while( ${?1} && "${1}" != "" )
 	switch( "${1}" )
 	case "install":
 		set suffix=" --no-recommends";
-		breaksw;
+		breaksw
 	case "search":
 	case "info":
 		set prefix="--no-refresh ";
 		#set suffix=" --search-descriptions --details";
 		set suffix=" --details";
-		breaksw;
+		breaksw
 	endsw
 	
 	set my_argv="${my_argv} ${prefix}${1}${suffix}";

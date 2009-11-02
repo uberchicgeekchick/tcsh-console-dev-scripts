@@ -27,16 +27,16 @@ alias	du-a	"du ./*"
 
 alias	rd	rmdir
 
+alias	rm	"rm -v"
 alias	rr	"rm -r"
 alias	rf	"rr -f"
 
 alias pidof "pidof -x"
 complete pidof 'p/*/c/'
 
-#alias	cp	"cp --interactive --no-dereference --verbose"
-#alias cp	"cp --no-dereference --verbose"
-alias cp	"cp --verbose"
-#alias	mv	"mv --interactive"
+#alias	cp	"cp --recursive --interactive --no-dereference --verbose"
+alias cp	"cp --recursive --verbose"
+#alias	mv	"mv --interactive --verbose"
 alias	mv	"mv --verbose"
 
 alias	mkdir	"mkdir -p"

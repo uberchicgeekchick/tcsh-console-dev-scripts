@@ -20,6 +20,12 @@ while( ${?1} && "${1}" != "" )
 	set action="`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)${eol}/\1/'`";
 	set feed="`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)${eol}/\2/'`";
 	switch( "${action}" )
+	case "debug":
+		set tcshrc_debug_set;
+		set TCSHRC_DEBUG;
+		shift
+		continue
+		breaksw
 	case "add":
 		if( "${message}" == "" ) set message="add";
 	case "del":
@@ -34,17 +40,29 @@ while( ${?1} && "${1}" != "" )
 	goto run_progie
 end
 
-unset this_program argz gpodder_ran message;
+if(! ${?gpodder_ran} ) then
+	set gpodder_run_once message feed argz;
+	goto run_progie;
+endif
+
+if( ${?gpodder_run_once} ) unset gpodder_run_once
+if( ${?tcshrc_debug_set} ) then
+	unset tcshrc_debug_set;
+	unsetenv TCSHRC_DEBUG;
+endif
+
+unset this_program program gpodder_ran message feed argz;
 
 exit;
 
 run_progie:
 set gpodder_ran
 if( "${message}" != "" && "${feed}" != "" ) printf "Attempting to %s:\n\t<%s>\n" "${message}" "${feed}";
+if( ${?TCSHRC_DEBUG} ) echo "Running:\n"\ \( ${program} "${argz}" \> /dev/tty \) \>\& /dev/null
 if( ! ${?OUTPUT_STDERR} ) then
-	#echo "Running:\n"\ \( ${program} "${argz}" \> /dev/tty \) \>\& /dev/null
 	( ${program} "${argz}" > /dev/tty ) >& /dev/null
 else
 	${program} "${argz}" >& /dev/null
 endif
-goto next_argv
+if(! ${?gpodder_run_once} ) goto next_argv
+

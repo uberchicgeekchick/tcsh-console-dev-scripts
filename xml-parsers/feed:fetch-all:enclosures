@@ -11,6 +11,14 @@ while( ${?1} && "${1}" != "" )
 	switch ( "${attrib}" )
 	case "newest":
 	case "first":
+		shift;
+		if( ${?value} && "${value}" != "" && ${value} > 0 ) then
+			set download_first="${value}";
+		else
+			set download_first="1";
+		endif
+		breaksw
+	
 	case "start-with-episode":
 	case "start-with":
 	case "start-at-episode":
@@ -19,7 +27,7 @@ while( ${?1} && "${1}" != "" )
 		if( ${?value} && "${value}" != "" && ${value} > 0 ) then
 			set first_episodes="${value}";
 		else
-			set first_episodes = "1";
+			set first_episodes="1";
 		endif
 		breaksw
 	
@@ -79,8 +87,8 @@ if( -e './00-feed.xml' && -e './00-titles.lst' && -e './00-enclosures.lst' && -e
 mv '../00-feed.xml' "./00-feed.xml"
 
 # Grabs the titles of the podcast and all episodes.
-if( ! ${?quiet} ) printf "Finding title${please_wait_phrase}"
-printf "Finding titles${please_wait_phrase}" >> "${download_log}"
+if( ! ${?quiet} ) printf "Finding title${please_wait_phrase}\t"
+printf "Finding titles${please_wait_phrase}\t" >> "${download_log}"
 cp './00-feed.xml' './00-titles.lst'
 
 # Concatinates all data into one single string:
@@ -132,8 +140,8 @@ printf "[done]\n" >> "${download_log}"
 
 # Grabs the enclosures from the feed.
 # This 1st method only grabs one enclosure per item/entry.
-if( ! ${?quiet} ) printf "Finding enclosures . . . this may take a few moments\t\t"
-printf "Finding enclosures . . . this may take a few moments\t\t" >> "${download_log}"
+if( ! ${?quiet} ) printf "Finding enclosures . . . this may take a few moments\t\t\t\t"
+printf "Finding enclosures . . . this may take a few moments\t\t\t\t" >> "${download_log}"
 cp '00-feed.xml' '00-enclosures-01.lst'
 
 # Concatinates all data into one single string:
@@ -166,19 +174,27 @@ printf "[done]\n" >> "${download_log}"
 if( ! ${?quiet} ) printf "Beginning to download: %s\n" "${title}"
 printf "Beginning to download: %s\n" "${title}" >> "${download_log}"
 set episodes = ();
+if( ${?download_first} ) then
+	if( ${#download_first} > 0 ) then
+		printf "Downloading %s's %d episodes\n" "${title}" "${download_first}";
+		set download_first="`printf '%d+1\n' '${download_first}' | bc`";
+		ex -E -n -X --noplugin "+${download_first},${eol}d" "+wq" './00-enclosures.lst' >& /dev/null;
+		ex -E -n -X --noplugin "+${download_first},${eol}d" "+wq" './00-titles.lst' >& /dev/null;
+	endif
+endif
 if( ${?first_episodes} ) then
 	if( ${#first_episodes} > 0 ) then
-		ex -E -n -X --noplugin "+1,${first_episodes}d" '+wq' './00-enclosures.lst'
-		ex -E -n -X --noplugin "+1,${first_episodes}d" '+wq' './00-titles.lst'
+		ex -E -n -X --noplugin "+1,${first_episodes}d" '+wq' './00-enclosures.lst' >& /dev/null;
+		ex -E -n -X --noplugin "+1,${first_episodes}d" '+wq' './00-titles.lst' >& /dev/null;
 	endif
 endif
 
 if( ${?last_episodes} ) then
 	if( ${#last_episodes} > 0 ) then
-		tail -${last_episodes} './00-enclosures.lst' >! './00-enclosures.lst.tmp';
-		mv './00-enclosures.lst.tmp' './00-enclosures.lst';
-		tail -${last_episodes} './00-titles.lst' >! './00-titles.lst.tmp'
-		mv './00-titles.lst.tmp' './00-titles.lst'
+		tail -${last_episodes} './00-enclosures.lst' >! './00-enclosures.lst.tmp'; >& /dev/null;
+		mv './00-enclosures.lst.tmp' './00-enclosures.lst'; >& /dev/null;
+		tail -${last_episodes} './00-titles.lst' >! './00-titles.lst.tmp' >& /dev/null;
+		mv './00-titles.lst.tmp' './00-titles.lst' >& /dev/null;
 	endif
 endif
 

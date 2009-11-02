@@ -18,8 +18,12 @@ while ( ${?1} && "${1}" != "" )
 	case "--sync=sshfs":
 	case "--sync=cp":
 	case "--sync=no-sync":
-		set sync_method="${value}";
+		set sync_method="`printf '%s' '${1}' | sed 's/^\-\-\(.*\)=\?\(.*\)$/\2/'`";
 		breaksw;
+	case "--update-branch":
+		set update_branch;
+		#set update_branch="`printf '%s' '${1}' | sed 's/^\-\-\(.*\)=\?\(.*\)$/\2/'`";
+		break;
 	case "--no-pushing":
 		set no_pushing;
 		breaksw;
@@ -116,11 +120,16 @@ if( ${?rm_log} ) then
 	if( ${?log_dir_is_new} ) rmdir "${log_dir}";
 endif
 
-foreach test_branch("`/bin/ls --width=1 -tr .git/refs/heads/ | tail -2 | sed 's/[\r\n]//'`")
-	if( "${test_branch}" != "" && "${test_branch}" != "master" ) then
-		set branch=${test_branch};
-	endif
-end
+if(! ${?update_branch} ) then
+	set branch="`/bin/ls --width=1 -tr .git/refs/heads/ | tail -1 | sed 's/[\r\n]//'`";
+	if(!( "${branch}" != "" && "${branch}" != "master" )) unset branch;
+else
+	foreach test_branch("`/bin/ls --width=1 -tr .git/refs/heads/ | tail -2 | sed 's/[\r\n]//'`")
+		if( "${test_branch}" != "" && "${test_branch}" != "master" ) then
+			set branch=${test_branch};
+		endif
+	end
+endif
 
 if( ${?branch} ) then
 	printf "Updating most recent branch: %s\n" ${branch};

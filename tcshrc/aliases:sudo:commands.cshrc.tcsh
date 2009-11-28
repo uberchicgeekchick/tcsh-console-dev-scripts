@@ -1,5 +1,16 @@
 #!/bin/tcsh -f
-source /projects/cli/tcshrc/debug:check aliases:sudo:commands.tcsh ${argv};
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
+set source_file="aliases:sudo:commands.cshrc.tcsh";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled source_file;
 
 complete sudo "p/1/c/";
 
@@ -39,4 +50,4 @@ unset gnomesu_command gnomesu_commands;
 
 unset sudo_alias;
 
-source /projects/cli/tcshrc/debug:clean-up aliases:sudo:commands.tcsh;
+source /projects/cli/tcshrc/argv:clean-up aliases:sudo:commands.tcsh;

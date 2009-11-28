@@ -1,4 +1,16 @@
 #!/bin/tcsh -f
-history -M
-history -S
+set status=-1;
+if( "`jobs`" != "" ) then
+	exit ${status};
+endif
 
+set status=0;
+while( -e "${histfile}.lock" )
+	sleep 1;
+end
+touch "${histfile}.lock";
+cp -u -v "${histfile}" "${histfile}.bckcp";
+history -M;
+history -S;
+rm -f "${histfile}.lock";
+exit ${status};

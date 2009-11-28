@@ -1,0 +1,7 @@
+#!/bin/tcsh -f
+if( ! ( ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" ) ) exit 0;
+
+if(! ${?TCSHRC_WORKING_DIR} ) setenv TCSHRC_WORKING_DIR "${HOME}";
+if( "${cwd}" != "${TCSHRC_WORKING_DIR}" ) cd "${TCSHRC_WORKING_DIR}";
+
+if( "${TCSHRC_DEBUG}" == "${1}" ) unsetenv TCSHRC_DEBUG;

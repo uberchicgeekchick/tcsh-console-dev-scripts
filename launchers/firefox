@@ -1,88 +1,115 @@
 #!/bin/tcsh -f
 set this_program="`basename '${0}'`";
+set firefox_profile_path="/profile.d/~slash./mozilla/${this_program}/profiles";
+set argz="";
 
-while( ${?1} && "${1}" != "" && ! ${?program_path} )
+while( ${?1} && "${1}" != "" )
 	switch( "${1}" )
 	case "--launch-in-terminal":
 	case "--use-launcher":
 	case "--launcher":
-		shift;
 		set use_launcher;
 		breaksw
 	case "--3.5":
-		shift;
-		set program_path="/usr/bin";
+		set program_path="/usr/bin/";
 		breaksw
 	case "--nightly-build":
-	default:
 		set rm_extensions;
-		set program_path="/programs/Mozilla/Firefox3/x86_64";
+		set program_path="/programs/Mozilla/Firefox3/x86_64/";
+		breaksw
+	case "-ProfileManager":
+		set argz="${1} ${argz}";
+		set ff_profile;
+		breaksw
+	case "-P":
+		shift;
+		if( ${?1} && "${1}" != "" && -d "${firefox_profile_path}/${1}" ) then
+			set ff_profile="${1}";
+		else
+			set ff_profile="uberChick";
+		endif
+		breaksw;
+	default:
+		set argz="${argz} ${1}";
 		breaksw
 	endsw
+	shift;
 end
 
-if(!(${?program_path})) set program_path="/programs/Mozilla/Firefox3/x86_64";
+if(!(${?program_path})) then
+	set program_path="";
+endif
 
 ff_init:
-set firefox_profile_path="/profile.d/~slash./mozilla/${this_program}/profiles";
-set program="${program_path}/${this_program}";
-if( !( ${?program} && -x "${program}" ) ) then
-	printf "Unable to find %s.\n", "${this_program}";
-	exit -1;
-endif
-if(( (${?1} && "${1}" == "-P") && (${?2} && "${2}" != "" && -d "${firefox_profile_path}/${2}") )) then
-	set argz="${1} ${2}";
-	shift;
-	shift;
-else
-	set argz="-P uberChick";
-endif
+set program="${program_path}${this_program}";
 
-set ff_binaries=("${this_program}-bin", "${this_program}");
+set ff_binaries=("${program}-bin" "${program}");
 
 @ ff_attempt=0;
-ff_check:
+ff_next:
 foreach ff_binary( ${ff_binaries} )
-	foreach firefox_pid("`pidof -x ${ff_binary} | sed 's/\ /\n/g'`")
-		if( $firefox_pid > 0 ) then
-			renice +10 $firefox_pid >& /dev/null;
-			if(! ${?ff_found} ) set ff_found;
-		endif
-	end
+	if(! ${?ff_found} ) then
+		printf "Looking for running instance of: %s.\n" ${ff_binary};
+		foreach ff_pid(`/bin/pidof ${ff_binary}`)
+			printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
+			if( "${ff_pid}" != "" && $ff_pid > 0 ) then
+				renice +5 $ff_pid >& /dev/null;
+				printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
+				if(! ${?ff_found} ) set ff_found;
+			endif
+		end
+	endif
 end
-if(! ${?ff_found} ) then
-	@ ff_attempt++;
-	if( ${ff_attempt} == 1 ) goto ff_start
-else
-	@ ff_attempt=6;
-	goto ff_start;
+if( !( ${?ff_found} ) ) then
+	if(!( ${?program} && -x "${program}" ) ) then
+		printf "Unable to find %s.\n", "${this_program}";
+		exit -1;
+	endif
 endif
-if( ${?rm_extensions} ) rm ${firefox_profile_path}/${2}/extensions.* >& /dev/null &;
-sleep 5;
-
-goto ff_start;
+printf "Attempting load %s; attempt: %d.\n" ${this_program} ${ff_attempt};
+if(! ${?ff_found} ) then
+	if( ${ff_attempt} == 0 ) then
+		if(! ${?ff_profile} ) set ff_profile="uberChick";
+		set argz="-P '${ff_profile}' ${argz}";
+	endif
+	@ ff_attempt++;
+	if( ${ff_attempt} > 1 && ${?rm_extensions} ) then
+		rm ${firefox_profile_path}/${ff_profile}/extensions.* >& /dev/null &;
+		sleep 5;
+	endif
+	goto ff_start
+else if( ${ff_attempt} == 0 ) then
+	if( ${?rm_extensions} ) unset rm_extensions;
+	if( ${?use_launcher} ) unset use_launcher;
+	@ ff_attempt=6;
+	goto ff_start
+endif
 
 exit;
 
 ff_start:
 if( ${?use_launcher} ) then
-	#echo /usr/bin/gnome-terminal --role="launcher:${this_program}" --geometry=80x10 --hide-menubar --tab-with-profile='/bin/tcsh -f' --command="${program} ${argv}" \>\& /dev/null \&;
-	/usr/bin/gnome-terminal --role="launcher:${this_program}" --geometry=80x10 --hide-menubar --tab-with-profile='/bin/tcsh -f' --command="${program} ${argz} ${argv}" >& /dev/null &;
+	echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${this_program}${argz}" \>\& /dev/null \&;
+	/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${this_program} ${argz}" >& /dev/null &;
 else
-	#echo ${program} "${argv}";
-	${program} "${argz}" "${argv}";
+	echo ${this_program} "${argz}" \>\& /dev/null \&;
+	${this_program} "${argz}" >& /dev/null &;
 endif
 if( ${ff_attempt} > 5 ) then
+	printf "Finished attempting load %s after %d attempts.\n" ${program} ${ff_attempt};
 	if(! ${?ff_found} ) then
 		set status=-1;
 	else
+		unset ff_found;
 		set status=0;
 	endif
-	unset this_program ff_binaries ff_binary;
+	if( ${?rm_extensions} ) unset rm_extensions;
+	if( ${?use_launcher} ) unset use_launcher;
+	unset this_program program program_path firefox_profile_path ff_binaries ff_binary argz ff_pid ff_attempt;
 	exit ${status};
 endif
 
 sleep 2;
 
-goto ff_check;
+goto ff_next;
 

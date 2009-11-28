@@ -1,9 +1,19 @@
 #!/bin/tcsh -f
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "csh.cshrc" ${argv};
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled;
 
-#setenv TCSHRC_DEBUG "csh.cshrc";
-source /projects/cli/tcshrc/debug:check csh.cshrc ${argv};
-if( ${?TCSHRC_DEBUG} && ${?2} && "${2}" != "" ) shift;
+if( ${?TCSHRC_DEBUG} ) printf "Loading csh.cshrc @ %s.\n" `date "+%I:%M:%S%P"`;
 
+if(! ${?prompt} ) source "${TCSH_RC_SESSION_PATH}/prompts.cshrc.tcsh";
 if( ${?echo} ) unset echo;
 
 if( ${?http_proxy} ) unsetenv http_proxy;
@@ -13,8 +23,7 @@ set logout=normal;
 set highlight
 set implicitcd
 
-if(! ${?cdpath} ) set cdpath="/etc:/usr/share";
-set cdpath="${cdpath}:/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/projects/cli/profile.d:/media:/media/library:.";
+set cdpath="/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/projects/cli/profile.d:/media:/media/library:.";
 
 alias jobs "jobs -l";
 
@@ -31,10 +40,10 @@ if( ${?1} && "${1}" != "" && "${1}" == "--disable=session:source" ) then
 	if( ${?2} ) shift;
 else
 	if( ${?TCSHRC_DEBUG} ) printf "Initalizing tcsh session @ %s.\n" `date "+%I:%M:%S%P"`;
-	source /projects/cli/tcshrc/session:source;
+	source "${TCSH_RC_SESSION_PATH}/session:source";
 	if( ${?TCSHRC_SESSION_SOURCE_SKIPPED} ) unsetenv TCSHRC_SESSION_SOURCE_SKIPPED;
 endif
 
 if( ${?http_proxy} ) unsetenv http_proxy;
 
-source /projects/cli/tcshrc/debug:clean-up csh.cshrc;
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "csh.cshrc";

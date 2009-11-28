@@ -1,13 +1,22 @@
 #!/bin/tcsh -f
 set launcher="xine";
 
-source "${launchers_path}/${launcher}";
+if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s\n" "${launchers_path}/${launcher}";
+set resolution="`cat /projects/cli/resolutions/video/hd.rc`";
+#source "${launchers_path}/${launcher}";
+
+if( ${?TCSHRC_DEBUG} ) printf "Aliasing: %s to %s\n" "${launcher}" "${launchers_path}/${launcher}";
+alias ${launcher} "${launchers_path}/${launcher} ${resolution}";
 
 foreach resolution_source ( /projects/cli/resolutions/video/* )
 	set alias_suffix=`basename "${resolution_source}" | cut -d'.' -f1`;
 	set resolution=`cat "${resolution_source}"`;
-	if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s\n" $launcher;
-	source "${launchers_path}/${launcher}";
+	
+	if( ${?TCSHRC_DEBUG} ) printf "Aliasing: %s to %s\n" "${launcher}" "${launchers_path}/${launcher}";
+	alias ${launcher}-${alias_suffix} "${launchers_path}/${launcher} ${resolution}";
+	
+	#if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s\n" "${launchers_path}/${launcher}";
+	#source "${launchers_path}/${launcher}";
 end
 
 

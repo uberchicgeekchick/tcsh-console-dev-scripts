@@ -6,7 +6,8 @@ if( ${?TCSHRC_DEBUG} ) then
 endif
 
 @ debug=0;
-if( ! ${?SSH_CONNECTION} && ( ( ${?1} && "${1}" != "" "${1}" =="--debug" ) || ( ${?2} && "${2}" != "" && "${2}" == "--debug" ) || ( ${?3} && "${3}" != "" && "${3}" == "--debug" ) ) ) then
+#setenv TCSHRC_DEBUG;
+if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && ( ( ${?2} && "${2}" != "" && "${2}" == "--debug" ) || ( ${?3} && "${3}" != "" && "${3}" == "--debug" ) ) ) then
 	printf "[%s]: enabling verbose debugging output @ %s.\n" "${1}" `date "+%I:%M:%S%P"`;
 	setenv TCSHRC_DEBUG "${1}";
 	@ debug=1;

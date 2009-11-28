@@ -4,8 +4,6 @@ set programs=( "/programs/bin" "/programs/Mozilla/Firefox3/x86_64" "/programs/Mo
 set programs_path="";
 foreach program ( ${programs} )
 	if(! -d ${program} ) continue;
-	#set program_test="`printf '${program}' | sed 's/\//\\\//g'`"
-	#if( "`echo '${PATH}' | sed 's/.*:\(${program_test}\).*/\1/'`" == "${program_test}" ) continue
 	set programs_path="${programs_path}:${program}"
 end
 setenv PATH "${PATH}:${programs_path}"

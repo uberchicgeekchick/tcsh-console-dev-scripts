@@ -1,15 +1,7 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
-if( ! ${?TCSHRC_DEBUG} || ! ${?TCSHRC_WORKING_DIR} ) then
-	source "${TCSH_RC_SESSION_PATH}/argv:check" "art:devel:make:init.cshrc.tcsh" "${argv}";
-	if( ${?TCSHRC_DEBUG} ) shift;
-	if( ${?TCSHRC_WORKING_DIR} ) then
-		if( ${?2} && "${2}" != "" && "${2}" == "${cwd}" ) then
-			shift;
-			shift;
-		endif
-	endif
-endif
+set source_file="art:devel:make:init.cshrc.tcsh";
+
 
 alias	"make:init:artistic:canvas"		"if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS; source /projects/cli/devel/make/init.tcsh"
 

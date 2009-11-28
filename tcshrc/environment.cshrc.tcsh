@@ -1,12 +1,24 @@
 #!/tcsh/bin -f
-source /projects/cli/tcshrc/debug:check environment.tcsh ${argv};
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
+set source_file="environment.cshrc.tcsh";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled source_file;
+
 #print the expanded, completed, & corrected command line after is entered but before its executed.
 #set echo
 set addsuffix
 
 setenv eol '$';
 
-setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify  --group-directories-first --format=vertical"
+setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify --group-directories-first --format=vertical"
 
 set correct=cmd
 set autoexpand
@@ -37,7 +49,7 @@ set killdup=erase
 set rmstar
 
 #set fignore=(.o \~)
-set listflags=( "xa" "ls ${LS_OPTIONS}" )
+set listflags="xA";
 set listlinks
 set listmaxrows=23
 
@@ -51,10 +63,7 @@ alias	helpcommand	"man"
 unset autologout
 unset ignoreeof
 
-if( ! ${?TCSH_SESSION_RC_PATH} ) setenv TCSH_SESSION_RC_PATH "/projects/cli/tcshrc";
+if( ${?TCSHRC_DEBUG} ) printf "Setting up TCSH's history @ %s.\n" `date "+%I:%M:%S%P"`;
+source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
 
-if( ${?TCSHRC_DEBUG} ) printf "Setting up TCSH history environment @ %s.\n" `date "+%I:%M:%S%P"`;
-source /projects/cli/tcshrc/history.tcsh
-if( ${?TCSHRC_DEBUG} ) printf "TCSH environment setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
-
-source /projects/cli/tcshrc/debug:clean-up environment.tcsh;
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "environment.cshrc.tcsh";

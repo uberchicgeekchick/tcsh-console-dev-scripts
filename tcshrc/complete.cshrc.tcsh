@@ -25,6 +25,9 @@ set _manpath="/usr{{/X11/man,/openwin/man}/{man,cat},{/man/{man,cat}}}"
 endif
 
 
+complete	make:mozilla:nightly-build	\
+		p/*/"(xul-runner firefox thunderbird)"/
+
 complete	pkg-config	c/--/"(version modversion atleast-pkgconfig-version= \
 					libs static libs libs libs cflags cflags cflags \
 					variable define exists uninstalled atleast exact \
@@ -79,29 +82,29 @@ complete pu		p/1/d/
 complete po		p/1/d/
 complete complete	p/1/X/		# Completions only
 complete uncomplete	n/*/X/
-complete exec	p/1/c/		# Commands only
-complete trace	p/1/c/
-complete strace	p/1/c/
-complete which	n/*/c/
-complete where	n/*/c/
-complete skill	p/1/c/
-complete dde	p/1/c/ 
-complete adb	c/-I/d/ n/-/c/ N/-/"(core)"/ p/1/c/ p/2/"(core)"/
-complete sdb	p/1/c/
-complete dbx	c/-I/d/ n/-/c/ N/-/"(core)"/ p/1/c/ p/2/"(core)"/
-complete xdb	p/1/c/
-complete gdb	n/-d/d/ n/*/c/
-complete ups	p/1/c/
-complete set	'c/*=/f/' 'p/1/s/=' 'n/=/f/'
-complete unset	n/*/s/
-complete alias	p/1/a/ p/2-/c/		# only aliases are valid
+complete exec		p/1/c/		# Commands only
+complete trace		p/1/c/
+complete strace		p/1/c/
+complete which		n/*/c/
+complete where		n/*/c/
+complete skill		p/1/c/
+complete dde		p/1/c/ 
+complete adb		c/-I/d/ n/-/c/ N/-/"(core)"/ p/1/c/ p/2/"(core)"/
+complete sdb		p/1/c/
+complete dbx		c/-I/d/ n/-/c/ N/-/"(core)"/ p/1/c/ p/2/"(core)"/
+complete xdb		p/1/c/
+complete gdb		n/-d/d/ n/*/c/
+complete ups		p/1/c/
+complete set		'c/*=/f/' 'p/1/s/=' 'n/=/f/'
+complete unset		n/*/s/
+complete alias		p/*/c/		# only aliases are valid
 complete unalias	n/*/a/
-complete xdvi	n/*/f:*.dvi/	# Only files that match *.dvi
-complete laser	n/*/f:*.dvi/
-complete dvips	n/*/f:*.dvi/
-complete tex	n/*/f:*.{tex,TEX}/	# Only files that match *.tex
-complete latex	n/*/f:*.{tex,TEX,texi,latex,ltx}/
-complete slitex	n/*/f:*.{tex,TEX,latex,ltx}/
+complete xdvi		n/*/f:*.dvi/	# Only files that match *.dvi
+complete laser		n/*/f:*.dvi/
+complete dvips		n/*/f:*.dvi/
+complete tex		n/*/f:*.{tex,TEX}/	# Only files that match *.tex
+complete latex		n/*/f:*.{tex,TEX,texi,latex,ltx}/
+complete slitex		n/*/f:*.{tex,TEX,latex,ltx}/
 complete su		c/--/"(login fast preserve-environment command shell \
 		help version)"/	c/-/"(f l m p c s -)"/ \
 		n/{-c,--command}/c/ \
@@ -951,4 +954,3 @@ if( ${?globset} ) then
 	unset globset
 endif
 # complete.tcsh ends here
-

@@ -27,9 +27,12 @@ endif
 #
 bindkey		"^d"		backward-delete-word
 bindkey	-c	"^e"		"source /etc/csh.cshrc"
-bindkey		" "		magic-space
+bindkey		"^[ "		magic-space
+bindkey		"^[!"		expand-history
 bindkey		"^f"		i-search-fwd
 bindkey		"^b"		i-search-back
+bindkey		"^n"		complete-word-fwd
+bindkey		"^r"		complete-word-back
 bindkey	-c	"^s"		"source /projects/cli/tcshrc/source:session"
 
 

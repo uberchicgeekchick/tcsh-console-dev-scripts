@@ -1,64 +1,56 @@
 #!/bin/tcsh -f
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "session:source" ${argv};
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled;
 
-source /projects/cli/tcshrc/debug:check session:source ${argv};
 
-if( ! ${?TCSH_SESSION_RC_PATH} ) setenv TCSH_SESSION_RC_PATH "/projects/cli/tcshrc";
-
-source "${TCSH_SESSION_RC_PATH}/paths.tcsh";
+source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh";
 
 if( ${uid} != 0 ) then
-	if( -e "${TCSH_SESSION_RC_PATH}/aliases:sudo:services.tcsh" ) then
+	if( -e "${TCSH_RC_SESSION_PATH}/aliases:sudo:services.cshrc.tcsh" ) then
 		if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo services aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-		source "${TCSH_SESSION_RC_PATH}/aliases:sudo:services.tcsh";
+		source "${TCSH_RC_SESSION_PATH}/aliases:sudo:services.cshrc.tcsh";
 		if( ${?TCSHRC_DEBUG} ) printf "sudo services aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
 	
-	if( -e "${TCSH_SESSION_RC_PATH}/aliases:sudo:commands.tcsh" ) then
+	if( -e "${TCSH_RC_SESSION_PATH}/aliases:sudo:commands.cshrc.tcsh" ) then
 		if( ${?TCSHRC_DEBUG} ) printf "Setting up sudo command aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-		source "${TCSH_SESSION_RC_PATH}/aliases:sudo:commands.tcsh";
+		source "${TCSH_RC_SESSION_PATH}/aliases:sudo:commands.cshrc.tcsh";
 		if( ${?TCSHRC_DEBUG} ) printf "sudo command aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
 endif
 
-foreach rc_file ( "${TCSH_SESSION_RC_PATH}/"*.tcsh )
+foreach rc_file ( "${TCSH_RC_SESSION_PATH}/"*.tcsh )
 	set rc_file="`basename '${rc_file}'`";
+	if( \
+		"`printf '%s' '${rc_file}' | sed --regexp-extended 's/.*\.(cshrc).*/\1/g'`" == "cshrc" \
+		|| \
+		"`printf '%s' '${rc_file}' | sed --regexp-extended 's/(etc\-).*/\1/g'`" == "etc-" \
+	) continue;
 	
-	switch("${rc_file}")
-	case "bindkey.tcsh":
-	case "complete.tcsh":
-	case "environment.tcsh":
-	case "history.tcsh":
-	case "paths.tcsh":
-	case "art:paths.tcsh":
-	case "paths:lib.tcsh":
-	case "paths:lib64.tcsh":
-	case "paths:programs.tcsh":
-	case "aliases:sudo:services.tcsh":
-	case "aliases:sudo:commands.tcsh":
-	case "art.tcsh":
-	case "art:alacast.tcsh":
-	case "art:editor.tcsh":
-	case "art:devel:make:init.tcsh":
-		if( ${?TCSHRC_DEBUG} ) printf "Skipping %s @ %s.\n" "${rc_file}" `date "+%I:%M:%S%P"`;
-		breaksw;
-	default:
-		if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s @ %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
-		source "${TCSH_SESSION_RC_PATH}/${rc_file}";
-		if( ${?TCSHRC_DEBUG} ) printf "%s finished loading %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
-		if( ${?http_proxy} ) unsetenv http_proxy;
-		breaksw;
-	endsw
+	if( ${?TCSHRC_DEBUG} ) printf "Sourcing: %s @ %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
+	source "${TCSH_RC_SESSION_PATH}/${rc_file}";
+	if( ${?TCSHRC_DEBUG} ) printf "%s finished loading %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
+	if( ${?http_proxy} ) unsetenv http_proxy;
 end
 
 if( ${?TCSHRC_DEBUG} ) printf "Setting up artistic programming canvas @ %s.\n" `date "+%I:%M:%S%P"`;
-source "${TCSH_SESSION_RC_PATH}/art.tcsh";
+source "${TCSH_RC_SESSION_PATH}/art.cshrc.tcsh";
 if( ${?TCSHRC_DEBUG} ) printf "Setting up make & gcc environment @ %s.\n" `date "+%I:%M:%S%P"`;
-source "${TCSH_SESSION_RC_PATH}/art:devel:make:init.tcsh";
+source "${TCSH_RC_SESSION_PATH}/art:devel:make:init.cshrc.tcsh";
 if( ${?TCSHRC_DEBUG} ) printf "Setting up EDITOR as VIM & advanced bindings @ %s.\n" `date "+%I:%M:%S%P"`;
-source "${TCSH_SESSION_RC_PATH}/art:editor.tcsh";
+source "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh";
 
 if( ${?TCSHRC_DEBUG} ) printf "\nSession set up completed @ %s\n" `date "+%I:%M:%S%P"`;
 
 unset rc_file;
 
-source /projects/cli/tcshrc/debug:clean-up session:source;
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "session:source";

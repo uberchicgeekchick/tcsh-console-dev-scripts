@@ -15,6 +15,22 @@ else
 	set prompt='\n%B%{^[[13m%}(%p on %Y-%W-%D)%b\n%{^[[15m%}[ %n@%m ]\n%{^[[31m%}@%c03 $>';
 endif
 
+# echo's the new current directory when the current working directory's changed.
+# This also detects if we're in X11 & if so than it update's the title bar of xterm, gnome-terminal, et.al..
+if( -o /dev/$tty ) then
+	alias cwdcmd '(printf "Directory: %s\n" "${cwd}" > /dev/$tty)';
+	if( -x /usr/bin/biff ) /usr/bin/biff y;
+	# If we're running under X11
+	if( ${?DISPLAY} ) then
+		if( ${?TERM} && ${?EMACS} == 0 ) then
+			if( ${TERM} == "xterm" ) then
+				alias cwdcmd '(printf "\033]2;<%s> [%s] #> @ %s\007\033]1;%s\007Directory: %s\n" "${HOST}" "${USER}" "${cwd}" "${HOST}" "${cwd}" > /dev/$tty)';
+				cd .;
+			endif
+		endif
+		if( -x /usr/bin/biff ) /usr/bin/biff n;
+	endif
+endif
 
 # Used wherever normal csh prompts with a question mark.
 # set prompt2="%B%R?>%b "

@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
 
 if( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS;
-source /projects/cli/tcshrc/debug:check build.canvas ${argv};
+source /projects/cli/tcshrc/argv:check build.canvas ${argv};
 if(! ${?SSH_CONNECTION} ) printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
 
 if( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
@@ -44,4 +44,7 @@ setenv CFLAGS "-std=gnu99 -O3 ${MY_INCLUDE_FLAGS}";
 
 setenv CXXFLAGS "-std=gnu++0x -O3 ${MY_INCLUDE_FLAGS}";
 
-source $TCSH_SESSION_RC_PATH/paths.tcsh --force
+source $TCSH_RC_SESSION_PATH/paths.tcsh --force
+
+source /projects/cli/tcshrc/argv:clean-up build.canvas;
+

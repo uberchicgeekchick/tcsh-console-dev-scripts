@@ -1,4 +1,5 @@
 #!/bin/tcsh -f
+if(! ${?launchers_path} ) set launchers_path="/projects/cli/launchers";
 if(!(${?this_program})) set this_program="xine";
 
 foreach program ( "`where '${this_program}'`" )
@@ -14,13 +15,16 @@ if( ! ${?audio_driver} ) set audio_driver="oss";
 
 if( ! ${?video_driver} ) set video_driver="opengl";
 
-if( ! ${?resolution} ) set resolution=`cat "/projects/cli/resolutions/video/hd.rc"`;
+if( ! ${?resolution} ) then
+	set resolution="${1}";
+	shift;
+endif
 
 if( ! ${?output} ) set output=">& /dev/null &";
 
 if( "${0}" == "-tcsh" ) then
 	set set_alias;
-else if( "`basename '${0}'`" != "${program}" ) then
+else if( "`basename '${0}'`" != "${this_program}" && "`basename '${0}'`" != "${this_program}-${resolution}" ) then
 	set set_alias;
 endif
 
@@ -31,12 +35,15 @@ if( ${?set_alias} ) then
 		set new_alias="${this_program}-${alias_suffix}";
 	endif
 	if( ${?TCSHRC_DEBUG} ) printf "Aliasing [%s] to [%s].\n" $new_alias $program;
-	alias	"${new_alias}"	"${program} --video-driver ${video_driver} --audio-driver ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
-	#alias	"${new_alias}"	"${program} --geometry=${resolution} --session volumn=200,amp=200,loop=repeat --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
-else
-	${this_program}
-	#--video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=repeat --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
+	alias "${new_alias}" "${launchers_path}/${new_alias}";
+	#alias	"${new_alias}"	"${program} --video-driver ${video_driver} --audio-driver ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
+	unset this_program program video_driver audio_driver resolution set_alias alias_suffix ;
+	exit;
 endif
 
-unset this_program;
+	echo ${program} --video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic ${argv} \&;
+	
+	${program} --video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic ${argv} >& /dev/null;
+
+unset this_program program video_driver audio_driver resolution;
 

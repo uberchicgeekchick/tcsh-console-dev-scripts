@@ -4,20 +4,8 @@
 
 complete	alias	'p/1/c/' 'p/2,/c,f/'
 
-setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify  --group-directories-first --format=vertical"
-
 alias	ps	"/bin/ps -A -c -F --forest --heading"
 alias	ps-g	"/bin/ps -A -c -F --forest --heading | egrep"
-
-alias	ls	"ls ${LS_OPTIONS}"
-alias	ll	"ls -l"
-alias	l	"ll"
-alias	lc	"ls --width=1 "
-alias	la	"ls --all"
-alias	lA	"ls --almost-all"
-alias	lD	"ls -l --directory"
-alias	lDa	"lD --all"
-alias	lDA	"lD --almost-all"
 
 alias	ln	"ln --interactive"
 
@@ -27,9 +15,10 @@ alias	du-a	"du ./*"
 
 alias	rd	rmdir
 
-alias	rm	"rm -v"
-alias	rr	"rm -r"
-alias	rf	"rr -f"
+alias	rq	"/bin/rm"
+alias	rm	"rm --verbose"
+alias	rr	"rm --recursive"
+alias	rf	"rq --recursive --force"
 
 alias pidof "pidof -x"
 complete pidof 'p/*/c/'

@@ -1,0 +1,46 @@
+#!/bin/tcsh -f
+@ args_handled=0;
+@ argc=${#argv};
+@ arg=0;
+while( $arg < $argc )
+	@ arg++;
+	switch( $argv[$arg] )
+		case "--debug":
+			@ args_handled++;
+			if( ${?SSH_CONNECTION} ) breaksw;
+			if( ${?TCSHRC_DEBUG} ) then
+				if( "${TCSHRC_DEBUG}" == "$argv[1]" ) unsetenv TCSHRC_DEBUG;
+				breaksw
+			endif
+			
+			printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date "+%I:%M:%S%P"`;
+			setenv TCSHRC_DEBUG "$argv[1]";
+		breaksw
+	endsw
+end
+
+@ argc=${#argv};
+@ arg=0;
+if( ${?TCHRC_DEBUG} ) printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
+while( $arg < $argc )
+	@ arg++;
+	if( ${?TCSHRC_DEBUG} ) printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]";
+	switch( $argv[$arg] )
+		case "--cd":
+			@ args_handled+=2;
+			@ arg++;
+			if("${cwd}" != "$argv[$arg]" ) then
+				if(! ${?SSH_CONNECTION} ) printf "Using [%s] as TCSH's working directory.\t" $argv[$arg];
+				if( ! -d "$argv[$arg]" ) then
+					if(! ${?SSH_CONNECTION} ) printf "[failed]\n";
+				else
+					setenv TCSHRC_WORKING_DIR "$argv[$arg]";
+					if(! ${?SSH_CONNECTION} ) printf "[success]\n";
+					cd $argv[$arg];
+				endif
+			endif
+		breaksw
+	endsw
+end
+if( ${?TCSHRC_DEBUG} ) printf "Loaded %s @ %s.\n" $argv[1] `date "+%I:%M:%S%P"`;
+exit $args_handled;

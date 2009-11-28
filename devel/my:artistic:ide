@@ -67,6 +67,8 @@ goto next_canvas
 
 
 artistic_canvas:
+	set with_screen;
+	set with_ssh_our_eee;
 	switch( "${canvas}" )
 		case 'Projects':
 			set my_canvas=( \
@@ -126,6 +128,7 @@ artistic_canvas:
 			breaksw
 	
 		case 'WWW':
+			set with_ssh_dreams;
 			set my_canvas=( \
 					"--tab-with-profile=uberChick --title=/www --working-directory=/projects/www" \
 				 	"--tab-with-profile=uberChick --title=profiles --working-directory=/projects/www/online-profiles" \
@@ -138,6 +141,7 @@ artistic_canvas:
 			breaksw
 		
 		case 'MyWebSites':
+			set with_ssh_dreams;
 			set my_canvas=( \
 				"--tab-with-profile=uberChick --title=uberChicks.Net --working-directory=/projects/www/uberChicks.Net" \
 				"--tab-with-profile=uberChick --title=Dystonia-DREAMS.Org --working-directory=/projects/www/Dystonia-DREAMS.Org" \
@@ -146,14 +150,15 @@ artistic_canvas:
 			breaksw
 		
 		case 'All':
+			set with_ssh_dreams;
 			set my_canvas=( \
 				"--tab-with-profile=uberChick --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=uberChick --title=connectED --working-directory=/projects/gtk/connectED" \
-				"--tab-with-profile=uberChick --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
-				"--tab-with-profile=uberChick --title=alacast --working-directory=/projects/gtk/alacast" \
 				"--tab-with-profile=uberChick --title=many-worlds --working-directory=/projects/games/many-worlds" \
 				"--tab-with-profile=uberChick --title=hackGirls --working-directory=/projects/games/hackGirls" \
 				"--tab-with-profile=uberChick --title=dystonic-dreams --working-directory=/projects/games/dystonic-dreams" \
+				"--tab-with-profile=uberChick --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
+				"--tab-with-profile=uberChick --title=alacast --working-directory=/projects/gtk/alacast" \
 			);
 			breaksw
 		endsw
@@ -161,13 +166,14 @@ goto next_canvas
 
 
 build_canvas:
+	set with_screen;
 	switch( "${canvas}" )
 	case 'Mozilla':
 		set my_canvas=( \
 			"--tab-with-profile=uberChick --title=mozilla-src --working-directory=/programs/Mozilla/src" \
 			"--tab-with-profile=uberChick --title=xulrunner-src --working-directory=/programs/Mozilla/src/xulrunner-src" \
-			"--tab-with-profile=uberChick --title=thunderbird-src --working-directory=/programs/Mozilla/src/thunderbird-src" \
 			"--tab-with-profile=uberChick --title=firefox-src --working-directory=/programs/Mozilla/src/firefox-src" \
+			"--tab-with-profile=uberChick --title=thunderbird-src --working-directory=/programs/Mozilla/src/thunderbird-src" \
 		);
 		breaksw
 	
@@ -199,6 +205,9 @@ media_canvas:
 		);
 		breaksw
 	case 'Online':
+		set with_screen;
+		set with_ssh_our_eee;
+		set with_ssh_dreams;
 		if( -e "${HOME}/.rtorrent.rc" ) then
 			set rtorrent_session_dir = `/usr/bin/grep 'session' "${HOME}/.rtorrent.rc" | /usr/bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`;
 			if( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
@@ -213,7 +222,7 @@ media_canvas:
 			"--tab-with-profile=uberChick --title=/media --working-directory=/media" \
 			"--tab-with-profile=uberChick --title=podcasts --working-directory=/media/podcasts" \
 			"--tab-with-profile=project --title=alacast --working-directory=/projects/gtk/alacast" \
-			"--tab-with-profile=alacast:php --title=alacast:php --working-directory=/projects/gtk/alacast --command=/projects/gtk/alacast/bin/alacast.php --logging --titles-append-pubdate --player--strip-characters='!#' --update=detailed --interactive" \
+			"--tab-with-profile=alacast:php --title=alacast:php --working-directory=/projects/gtk/alacast --command=/projects/gtk/alacast/bin/alacast.php --logging --titles-append-pubdate --strip-characters='#;!' --update=detailed --interactive" \
 		);
 		breaksw
 	endsw
@@ -248,9 +257,15 @@ goto next_canvas
 default_canvas:
 	switch ( "${canvas}" )
 	case 'Screen':
+		set with_screen;
+		set with_ssh_our_eee;
+		set with_ssh_dreams;
 		set my_canvas="";
 		breaksw
 	default:
+		set with_screen;
+		set with_ssh_our_eee;
+		set with_ssh_dreams;
 		set my_canvas="--tab-with-profile="\""uberChick"\"" --title='~' --working-directory="\""${HOME}"\""";
 		breaksw
 	endsw
@@ -258,12 +273,31 @@ goto next_canvas
 
 next_canvas:
 	if( ${?my_canvas} ) then
-		/usr/bin/gnome-terminal --hide-menubar --geometry=${geometry} --role=${canvas_role} \
-			--tab-with-profile=screen \
-			--tab-with-profile=ssh:our-eee \
-			${my_canvas} \
+		if(! ${?with_screen} ) then
+			set with_screen="";
+		else
+			set with_screen="--tab-with-profile=screen";
+		endif
+		
+		if(! ${?with_ssh_dreams} ) then
+			set with_ssh_dreams="";
+		else
+			set with_ssh_dreams="--tab-with-profile=ssh:dreams";
+		endif
+		
+		if(! ${?with_ssh_our_eee} ) then
+			set with_ssh_our_eee="";
+		else
+			set with_ssh_our_eee="--tab-with-profile=ssh:our-eee";
+		endif
+		
+		/usr/bin/gnome-terminal --hide-menubar --geometry=${geometry} --role=${canvas_role}	\
+			${with_screen}									\
+			${with_ssh_dreams}								\
+			${with_ssh_our_eee}								\
+			${my_canvas}									\
 		${argv} &;
-		unset my_canvas;
+		unset my_canvas with_screen with_ssh_dreams with_ssh_our_eee;
 	endif
 end
 

@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
 
 if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS;
-source /projects/cli/tcshrc/debug:check artistic.canvas ${argv};
+source /projects/cli/tcshrc/argv:check artistic.canvas ${argv};
 if(! ${?SSH_CONNECTION} ) printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
 
 if( -x "./configure" ) then
@@ -40,15 +40,18 @@ setenv CXX "/usr/bin/g++";
 #you have headers in a nonstandard directory <include dir>
 setenv MY_INCLUDE_FLAGS "-I${LD_LIBRARY_PATH} -I. -I..";
 
-setenv CPPFLAGS "-O3 ${MY_INCLUDE_FLAGS}";
+setenv CPPFLAGS "-O3 -g3 -ggdb -ffast-math ${MY_INCLUDE_FLAGS}";
 
-setenv MAKEFLAGS "-Wall -Wextra -fstrict-aliasing -Wstrict-aliasing=3 -Wformat=2 -Werror -Wno-unused-parameter -Wno-parentheses";
+setenv MYDEREFFLAGS " -fstrict-aliasing -Wstrict-aliasing=3";
+#setenv MYDEREFFLAGS " -fmudflapth -fmudflapir -fno-strict-aliasing -lmudflap";
+setenv MAKEFLAGS "-Wall -Wextra -Werror -Wno-unused-parameter -Wno-parentheses";
 
-setenv MYFLAGS "${MAKEFLAGS} -Wfatal-errors -Wswitch-enum -Wno-format-nonliteral -Wno-missing-field-initializers --combine";
+setenv MYFLAGS "${MAKEFLAGS} -Wfatal-errors -Wswitch-enum -Wno-format-nonliteral -Wno-missing-field-initializers --combine ${MYDEREFFLAGS}";
 setenv MYCFLAGS	"${MYFLAGS} -Wmissing-prototypes -Wmissing-declarations";
 setenv MYCXXFLAGS "${MYFLAGS}";
 
 setenv CFLAGS "-std=gnu99 ${CPPFLAGS} ${MYCFLAGS}";
 
 setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MYCXXFLAGS}";
+source /projects/cli/tcshrc/argv:clean-up artistic.canvas;
 

@@ -1,8 +1,15 @@
 #!/bin/tcsh -f
-# This file sources /projects/cli/tcshrc/complete.cshrc.tcsh and
-# /projects/cli/tcshrc/bindkey.cshrc.tcsh used especially by tcsh.
+# Both
+# 	${TCSH_RC_SESSION_PATH}/complete.cshrc.tcsh
+# and
+# 	${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh
+# are sourced from this file.
 #
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
+if(! ${?eol} ) setenv eol '$';
+#if(! ${?eol} ) setenv eol '"\$"';
+if( ${?TCSH_RC_DEBUG} ) unsetenv TCSH_RC_DEBUG;
+#if(! ${?TCSH_RC_SESSION_PATH} )
+setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "etc-csh.cshrc" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -34,15 +41,15 @@ endif
 #
 # Default echo style
 #
-set echo_style=both
+set echo_style=sysv
 
 #
 # If `login files' are not sourced first
 #
 if( ${?loginsh} && ! ${?CSHRCREAD} ) then
-	if( ${?TCSHRC_DEBUG} ) printf "Loading csh.login @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) printf "Loading csh.login @ %s.\n" `date "+%I:%M:%S%P"`;
 	source /etc/csh.login >& /dev/null
-	if( ${?TCSHRC_DEBUG} ) printf "csh.login finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) printf "csh.login finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
 endif
 
 #
@@ -80,19 +87,19 @@ endif
 # Now read in the key bindings of the tcsh
 #
 if(${?tcsh} && -r "${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh" ) then
-	if( ${?TCSHRC_DEBUG} ) printf "Setting up key bindings @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) printf "Setting up key bindings @ %s.\n" `date "+%I:%M:%S%P"`;
 	source "${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh";
 endif
 
 #
 # Some useful settings
 #
-if( ${?TCSHRC_DEBUG} ) printf "Setting up TCSH environment @ %s.\n" `date "+%I:%M:%S%P"`;
+if( ${?TCSH_RC_DEBUG} ) printf "Setting up TCSH environment @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_RC_SESSION_PATH}/environment.cshrc.tcsh"
 
 #
 #
-if( ${?TCSHRC_DEBUG} ) printf "Setting up TCSH's ls-F, ls, & LS_OPTIONS @ %s.\n" `date "+%I:%M:%S%P"`;
+if( ${?TCSH_RC_DEBUG} ) printf "Setting up TCSH's ls-F, ls, & LS_OPTIONS @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_RC_SESSION_PATH}/ls.cshrc.tcsh";
 
 alias o 'less'
@@ -108,7 +115,7 @@ alias remount '/bin/mount -o remount,\!*'
 #
 # Prompting and Xterm title
 #
-if( ${?TCSHRC_DEBUG} ) printf "Setting up TCSH prompts @ %s.\n" `date "+%I:%M:%S%P"`;
+if( ${?TCSH_RC_DEBUG} ) printf "Setting up TCSH prompts @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_RC_SESSION_PATH}/prompts.cshrc.tcsh";
 
 #
@@ -123,9 +130,9 @@ alias helpcommand whatis
 # used for interactive completion and read in the expert file.
 if(-r $HOME/.csh.expert) then
 	unset noglob
-	if( ${?TCSHRC_DEBUG} ) printf "Loading expert settings [%s/.csh.expert] @ %s.\n" "${HOME}" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) printf "Loading expert settings [%s/.csh.expert] @ %s.\n" "${HOME}" `date "+%I:%M:%S%P"`;
 	source $HOME/.csh.expert
-	if( ${?TCSHRC_DEBUG} ) printf "Expert settings finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) printf "Expert settings finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
 	goto done
 endif
 
@@ -136,10 +143,10 @@ if($?tcsh) then
 	set _rev=${tcsh:r}
 	set _rel=${_rev:e}
 	set _rev=${_rev:r}
-	if(($_rev > 6 || ($_rev == 6 && $_rel > 1)) && -r /projects/cli/tcshrc/complete.tcsh) then
-		if( ${?TCSHRC_DEBUG} ) printf "Loading TCSH auto-completion rules @ %s.\n" `date "+%I:%M:%S%P"`;
-		source "${TCSH_RC_SESSION_PATH}/complete.tcsh";
-		if( ${?TCSHRC_DEBUG} ) printf "Completion setup finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
+	if(($_rev > 6 || ($_rev == 6 && $_rel > 1)) && -r "${TCSH_RC_SESSION_PATH}/complete.cshrc.tcsh") then
+		if( ${?TCSH_RC_DEBUG} ) printf "Loading TCSH auto-completion rules @ %s.\n" `date "+%I:%M:%S%P"`;
+		source "${TCSH_RC_SESSION_PATH}/complete.cshrc.tcsh";
+		if( ${?TCSH_RC_DEBUG} ) printf "Completion setup finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
 	#
 	# Enable editing in multibyte encodings for the locales
@@ -190,16 +197,18 @@ endif
 # Local configuration
 #
 if( -r /etc/csh.cshrc.local ) then
-	if( ${?TCSHRC_DEBUG} ) printf "Loading local TCSH setting [/etc/csh.cshrc.local] @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) printf "Loading local TCSH setting [/etc/csh.cshrc.local] @ %s.\n" `date "+%I:%M:%S%P"`;
 	source /etc/csh.cshrc.local
-	if( ${?TCSHRC_DEBUG} ) printf "Local TCSH setting finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) printf "Local TCSH setting finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
 endif
-if( -r /projects/cli/tcshrc/csh.cshrc ) then
-	if( ${?TCSHRC_DEBUG} ) printf "Loading custom TCSH settings [/projects/cli/tcshrc/csh.cshrc] @ %s.\n" `date "+%I:%M:%S%P"`;
+if( -r "${TCSH_RC_SESSION_PATH}/csh.cshrc" ) then
+	if( ${?TCSH_RC_DEBUG} ) printf "Loading custom TCSH settings [%s/csh.cshrc] @ %s.\n" "${TCSH_RC_SESSION_PATH}" `date "+%I:%M:%S%P"`;
 	source "${TCSH_RC_SESSION_PATH}/csh.cshrc";
-	if( ${?TCSHRC_DEBUG} ) printf "Custom TCSH settings finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) printf "Custom TCSH settings finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
 endif
 
-if( ${?TCSHRC_DEBUG} ) printf "TCSH setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "/etc/csh.cshrc";
+if( ${?TCSH_RC_DEBUG} ) printf "TCSH setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+if(! ${?source_file} ) set source_file="etc-csh.cshrc";
+if( "${source_file}" != "etc-csh.cshrc" ) set source_file="etc-csh.cshrc";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
 # End of /etc/csh.cshrc

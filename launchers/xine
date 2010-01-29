@@ -1,49 +1,99 @@
 #!/bin/tcsh -f
-if(! ${?launchers_path} ) set launchers_path="/projects/cli/launchers";
+if(! ${?TCSH_LAUNCHER_PATH} ) setenv TCSH_LAUNCHER_PATH="${TCSH_RC_SESSION_PATH}/../launchers";
 if(!(${?this_program})) set this_program="xine";
 
 foreach program ( "`where '${this_program}'`" )
-	if( "${program}" != "${0}" && "${program}" != "./${this_program}" && "${program}" != "${launchers_path}/${this_program}" && -x "${program}" ) break
+	if( "${program}" != "${0}" && "${program}" != "./${this_program}" && "${program}" != "${TCSH_LAUNCHER_PATH}/${this_program}" && -x "${program}" ) break
+	unset program;
 end
 
-if( !( ${?program} && -x "${program}" ) ) then
+if(! ${?program} ) goto noexec;
+if(! -x "${program}" ) goto noexec;
+goto launchers_main;
+
+noexec:
 	printf "Unable to find %s.\n" "${this_program}";
+	if( ${?program} ) unset program;
+	unset this_program;
 	exit -1;
+
+launchers_main:
+
+if(! ${?audio_driver} ) set audio_driver="oss";
+
+if(! ${?video_driver} ) set video_driver="opengl";
+
+if(! ${?resolution} ) then
+	if(!( ${?1} && "${1}" != "" )) then
+		set resolution=`cat "/projects/cli/console.pallet/resolutions/video/hd.rc"`;
+	else
+		set resolution="${1}";
+		shift;
+	endif
 endif
 
-if( ! ${?audio_driver} ) set audio_driver="oss";
+if(! ${?output} ) set output=">& /dev/null &";
 
-if( ! ${?video_driver} ) set video_driver="opengl";
-
-if( ! ${?resolution} ) then
-	set resolution="${1}";
-	shift;
-endif
-
-if( ! ${?output} ) set output=">& /dev/null &";
-
-if( "${0}" == "-tcsh" ) then
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
 	set set_alias;
 else if( "`basename '${0}'`" != "${this_program}" && "`basename '${0}'`" != "${this_program}-${resolution}" ) then
 	set set_alias;
 endif
 
 if( ${?set_alias} ) then
-	if( ! ${?alias_suffix} ) then
+	if(! ${?alias_suffix} ) then
 		set new_alias="${this_program}";
 	else
 		set new_alias="${this_program}-${alias_suffix}";
 	endif
-	if( ${?TCSHRC_DEBUG} ) printf "Aliasing [%s] to [%s].\n" $new_alias $program;
-	alias "${new_alias}" "${launchers_path}/${new_alias}";
-	#alias	"${new_alias}"	"${program} --video-driver ${video_driver} --audio-driver ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic ${argv} ${output}";
-	unset this_program program video_driver audio_driver resolution set_alias alias_suffix ;
-	exit;
+	if( ${?TCSH_RC_DEBUG} ) printf "Aliasing [%s] to [%s].\n" $new_alias $program;
+	
+	# alias to target this launcher:
+	#alias "${new_alias}" "${TCSH_LAUNCHER_PATH}/${new_alias}";
+	
+	# alias to target the system binary:
+	goto set_exec_target;
+	launcher_alias:
+	alias "${new_alias}" "${exec_target}";
+	goto launcher_unset;
 endif
 
-	echo ${program} --video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic ${argv} \&;
-	
-	${program} --video-driver ${video_driver} --audio-drive ${audio_driver} --geometry=${resolution} --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic ${argv} >& /dev/null;
+goto set_exec_target;
+launcher_exec:
+echo -n ${exec_target} ${argv};
+if( ${?output} ) echo "${output}";
+printf "\n";
 
-unset this_program program video_driver audio_driver resolution;
+if(!( ${?1} && "${1}" != "" && "${1}" != "--debug" )) \
+	${exec_target} ${argv} ${output};
+
+goto launcher_unset;
+
+launcher_exit:
+exit;
+
+set_exec_target:
+	set exec_target="${program}";
+	if( ${?video_driver} ) then
+		set exec_target="${exec_target} --video-driver ${video_driver}";
+	endif
+	if( ${?audio_driver} ) then
+		set exec_target="${exec_target} --audio-driver ${audio_driver}";
+	endif
+	set exec_target="${exec_target} --geometry='${resolution}' --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic";
+	if( ${?set_alias} ) goto launcher_alias;
+	goto launcher_exec;
+
+launcher_unset:
+	if( ${?video_driver} ) unset video_driver;
+	if( ${?audio_driver} ) unset audio_driver;
+	if( ${?resolution} ) unset resolution;
+	if( ${?set_alias} ) unset set_alias;
+	if( ${?new_alias} ) unset new_alias;
+	if( ${?exec_target} ) unset exec_target;
+	if( ${?alias_suffix} ) unset alias_suffix;
+	if( ${?output} ) unset output;
+	unset resolution this_program program;
+	goto launcher_exit;
+
 

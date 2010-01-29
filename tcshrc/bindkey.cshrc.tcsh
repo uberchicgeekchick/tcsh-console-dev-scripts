@@ -7,6 +7,20 @@
 #
 # Author:  Werner Fink <feedback@suse.de>
 
+set source_file="bindkey.cshrc.tcsh";
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled;
+
+
 #
 # Default values
 #
@@ -33,7 +47,12 @@ bindkey		"^f"		i-search-fwd
 bindkey		"^b"		i-search-back
 bindkey		"^n"		complete-word-fwd
 bindkey		"^r"		complete-word-back
-bindkey	-c	"^s"		"source /projects/cli/tcshrc/source:session"
+bindkey	-c	"^s"		"source '${TCSH_RC_SESSION_PATH}/source:session'"
+bindkey		"^Z"		run-fg-editor;
+bindkey		"^w"		kill-region
+bindkey		"^y"		yank
+bindkey		"^p"		history-search-backward
+bindkey		"^n"		history-search-forward
 
 
 #
@@ -707,4 +726,9 @@ if( "$CSHEDIT" == "emacs" ) then
 	bindkey		"^^[[B"		down-history
 endif
 # end bindkey.tcsh
+
+
+if(! ${?source_file} ) set source_file="bindkey.cshrc.tcsh";
+if( "${source_file}" != "bindkey.cshrc.tcsh" ) set source_file="bindkey.cshrc.tcsh";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
 

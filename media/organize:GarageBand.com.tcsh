@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-set music_path = "/media/library/music";
+set music_path = "/old/media/library/music";
 set music_library = "`basename '${0}' | sed 's/.*organize:\(.*\)\.tcsh/\1/g'`";
 set podcasts_download_path = "/media/podcasts";
 
@@ -39,7 +39,7 @@ foreach title ( "`find Genres -iregex '.*\.\(mp.\|ogg\|flac\)'`" )
 	
 	if( -e "Artists/${artist}/${song}.${extension}" ) continue;
 
-	printf "Linking %s to %s/%s/%s.%s\n" "${title}" "Artists" "${artist}" "${song}" "${extension}";
+	printf "Linking %s/%s/%s.%s to %s\n" "Artists" "${artist}" "${song}" "${extension}" "${title}";
 	if( ! -d "Artists/${artist}" ) mkdir -p "Artists/${artist}";
 	ln "${title}" "Artists/${artist}/${song}.${extension}";
 	if( ! -e "Artists/${artist}/${song}.${extension}" ) printf "\tERROR: I was unable to link %s to Artists/%s/%s.%s\n" "${title}" "${artist}" "${song}" "${extension}";

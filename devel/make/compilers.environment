@@ -1,0 +1,52 @@
+#!/bin/tcsh -f
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+set source_file="compilers.environment";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled;
+
+#C preprocessor
+if(! ${?CPP} ) then
+	foreach cpp ("`where cpp`")
+		if( -x "${cpp}" ) then
+			setenv	CPP	"${cpp}";
+			break;
+		endif
+	end
+	unset cpp;
+	if(! ${?CPP} ) printf "**error:** your C/C++ pre-processor couldn't be found. Looked for cpp binary.";
+endif
+
+#C compiler
+if(! ${?CC} ) then
+	foreach cc ("`where gcc`")
+		if( -x "${cc}" ) then
+			setenv	CC	"${cc}";
+			break;
+		endif
+	end
+	unset cc;
+	if(! ${?CC} ) printf "**error:** your C compiler couldn't be found. Looked for gcc binary.";
+endif
+
+#C++ compiler
+if(! ${?CXX} ) then
+	foreach cxx ("`where g++`")
+		if( -x "${cxx}" ) then
+			setenv	CXX	"${cxx}";
+			break;
+		endif
+	end
+	unset cxx;
+	if(! ${?CC} ) printf "**error:** your C++ compiler couldn't be found. Looked for g++ binary.";
+endif
+
+set source_file="compilers.environment";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";

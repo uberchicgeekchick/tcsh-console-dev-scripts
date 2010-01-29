@@ -1,17 +1,23 @@
 #!/bin/tcsh -f
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
 set this_program="`basename '${0}'`";
 
 foreach program ( "`which '${this_program}'`" )
 	if( "${program}" != "${0}" && -x "${program}" ) break
 	unset program
-endif
+end
 
-if( !( ${?program} && -x "${program}" ) ) then
-	printf "Unable to find %s.\n", "${this_program}";
+if(! ${?program} ) goto noexec;
+if(! -x "${program}" ) goto noexec;
+goto launchers_main;
+
+noexec:
+	printf "Unable to find %s.\n" "${this_program}";
 	exit -1;
-endif
 
-if( `echo ${1} | sed s/^\(.\)/\1/` == "-" ) set program="sudo ${program}";
+launchers_main:
+
+if( $uid != 0 && `echo "${1}" | sed s/^\(.\)/\1/` == "-" ) set program="sudo ${program}";
 
 if( ! ${?OUTPUT_STDERR} ) then
 	( ${program} ${argv} > /dev/tty ) >& /dev/null

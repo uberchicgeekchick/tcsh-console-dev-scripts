@@ -1,33 +1,43 @@
 #!/bin/tcsh -f
-set server="192.168.4.4";
+set server="192.168.4.8";
 set shares=( "projects/games" "projects/gtk" "projects/art" "projects/cli" "projects/media" "projects/www" "projects/reference" "media/podcasts" "media/podiobooks" "media/library" "media/tv-shows" "media/movies" "uberChick" "programs" "profile.d" "srv" );
 
 next_mount:
 if( ${?action} ) unset action;
 while( ${?1} && "${1}" != "" )
 	switch( ${1} )
+	case "--via-lan":
+		set server="192.168.4.8";
+		breaksw
+	case "--via-wifi":
+		set server="192.168.4.4";
+		breaksw
 	case "--mount":
-		shift;
 		set action="mount";
 		set to_or_from="to";
 		breaksw
 	case "--umount":
-		shift;
 		set action="umount";
 		set to_or_from="from";
 		breaksw
 	case "--help":
-		shift;
 		goto usage;
 		breaksw
 	default:
+		set server="`echo '${1}' | sed -r 's/\-\-(server)\=([0-9\.]+)/\1/'`";
+		if( "${server}" != "server" ) then
+			unset server;
+		else
+			set server="`echo '${1}' | sed -r 's/\-\-(server)\=([0-9\.]+)/\2/'`";
+			breaksw
+		endif
 		if(! ${?action} ) then
 			if(! ${?help_displayed} ) goto usage
 		endif
 		set single_mount="${1}";
-		shift;
 		breaksw
 	endsw
+	shift;
 end
 
 if(! ${?action} ) then

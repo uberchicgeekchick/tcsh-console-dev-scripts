@@ -7,17 +7,21 @@
 # will be lost during system upgrades. Instead use /etc/csh.login.local for
 # your local environment settings.
 #
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
-if( ! ${?TCSHRC_DEBUG} || ! ${?TCSHRC_WORKING_DIR} ) then
-	source "${TCSH_RC_SESSION_PATH}/argv:check" "/etc/csh.login" "${argv}";
-	if( ${?TCSHRC_DEBUG} ) shift;
-	if( ${?TCSHRC_WORKING_DIR} ) then
-		if( ${?2} && "${2}" != "" && "${2}" == "${cwd}" ) then
-			shift;
-			shift;
-		endif
-	endif
+if( ${?TCSH_RC_DEBUG} ) unsetenv TCSH_RC_DEBUG;
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+
+set source_file="etc-csh.login";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
 endif
+unset args_handled source_file;
 
 onintr -
 set noglob
@@ -329,7 +333,9 @@ if(${?TERM} && -o /dev/$tty && ${?prompt}) then
     endif
 endif
 
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "/etc/csh.login";
+if(! ${?source_file} ) set source_file="etc-csh.login";
+if( "${source_file}" != "etc-csh.login" ) set source_file="etc-csh.login";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
 #
 # End of /etc/csh.login
 #

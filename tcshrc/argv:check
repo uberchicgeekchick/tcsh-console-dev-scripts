@@ -1,4 +1,13 @@
 #!/bin/tcsh -f
+if(! ${?TCSH_RC_SOURCE_FILE} ) setenv TCSH_RC_SOURCE_FILE "$argv[1]";
+if(! ${?source_file} ) set source_file="$argv[1]";
+
+if(! ${?eol} ) then
+	if( ${?TCSH_RC_DEBUG} ) printf "Setting environments %s{eol}: %s.\n\t%s{eol} can be used in regex arguments, e.g. sed's 's' option.\n" "${eol}" "${eol}" "${eol}";
+	if(! ${?eol} ) setenv eol '$';
+	#if(! ${?eol} ) setenv eol '"\$"';
+endif
+
 @ args_handled=0;
 @ argc=${#argv};
 @ arg=0;
@@ -8,33 +17,40 @@ while( $arg < $argc )
 		case "--debug":
 			@ args_handled++;
 			if( ${?SSH_CONNECTION} ) breaksw;
-			if( ${?TCSHRC_DEBUG} ) then
-				if( "${TCSHRC_DEBUG}" == "$argv[1]" ) unsetenv TCSHRC_DEBUG;
-				breaksw
+			if( ${?TCSH_RC_DEBUG} ) then
+				if( "${TCSH_RC_DEBUG}" != "$argv[1]" ) breaksw;
 			endif
 			
 			printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date "+%I:%M:%S%P"`;
-			setenv TCSHRC_DEBUG "$argv[1]";
+			setenv TCSH_RC_DEBUG "$argv[1]";
 		breaksw
 	endsw
 end
 
 @ argc=${#argv};
 @ arg=0;
-if( ${?TCHRC_DEBUG} ) printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
+if( ${?TCSH_RC_DEBUG} ) then
+	printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
+else if( "`alias cwdcmd`" != "" ) then
+	if( ${?TCSH_RC_DEBUG} ) printf "Saving cwdcmd until TCSH finishes loading.\n";
+	setenv oldcwdcmd "`alias cwdcmd`";
+	unalias cwdcmd;
+endif
+
 while( $arg < $argc )
 	@ arg++;
-	if( ${?TCSHRC_DEBUG} ) printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]";
+	if( ${?TCSH_RC_DEBUG} ) printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]";
 	switch( $argv[$arg] )
 		case "--cd":
 			@ args_handled+=2;
 			@ arg++;
+			if( ${?skip_cwd_test} ) continue;
 			if("${cwd}" != "$argv[$arg]" ) then
 				if(! ${?SSH_CONNECTION} ) printf "Using [%s] as TCSH's working directory.\t" $argv[$arg];
 				if( ! -d "$argv[$arg]" ) then
 					if(! ${?SSH_CONNECTION} ) printf "[failed]\n";
 				else
-					setenv TCSHRC_WORKING_DIR "$argv[$arg]";
+					setenv TCSH_RC_WORKING_DIR "$argv[$arg]";
 					if(! ${?SSH_CONNECTION} ) printf "[success]\n";
 					cd $argv[$arg];
 				endif
@@ -42,5 +58,5 @@ while( $arg < $argc )
 		breaksw
 	endsw
 end
-if( ${?TCSHRC_DEBUG} ) printf "Loaded %s @ %s.\n" $argv[1] `date "+%I:%M:%S%P"`;
+if( ${?TCSH_RC_DEBUG} ) printf "Started loading %s @ %s.\n" $argv[1] `date "+%I:%M:%S%P"`;
 exit $args_handled;

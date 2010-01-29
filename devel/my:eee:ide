@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
-gnome-terminal --geometry=80x20 \
-	--tab-with-profile='uberChick#>' --hide-menubar --title='~' --working-directory='~' \
-	--tab-with-profile='screen#>' --hide-menubar --title='screen#>' --command='/projects/cli/launchers/screen' \
+gnome-terminal --geometry=82x22 --hide-menubar --role=Artistic:EEE \
+	--tab-with-profile='screen' --title='[screen] #>' --command='/projects/cli/console.pallet/launchers/screen' \
+	--tab-with-profile='ssh' --title='uberChick@192.168.4.4' --command='ssh uberChick@192.168.4.4' \
 	${argv} &;
 

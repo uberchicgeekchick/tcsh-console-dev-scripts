@@ -1,0 +1,7 @@
+#!/bin/tcsh -f
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
+
+if test `echo "${0}" | sed -r 's/^[^\.]*(sh)$/\1/'` != "sh"; then exit; fi
+if test `echo "${0}" | sed -r 's/^[^\.]*(sh)$/\1/'` != "sh"; then
+

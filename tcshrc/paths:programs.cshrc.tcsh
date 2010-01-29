@@ -1,12 +1,12 @@
 #!/bin/tcsh -f
 
-set programs=( "/programs/bin" "/programs/Mozilla/Firefox3/x86_64" "/programs/Mozilla/Thunderbird3/x86_64" "/programs/carrier/bin" "/programs/ion/3-20080825/bin" "/programs/linphone/bin" "/programs/connectED/bin" )
+set programs=( "/programs/bin" "/programs/share/bin" "/programs/Mozilla/Firefox3/x86_64" "/programs/Mozilla/Thunderbird3/x86_64" "/programs/carrier/bin" "/programs/ion/3-20080825/bin" "/programs/linphone/bin" "/programs/connectED/bin" )
 set programs_path="";
 foreach program ( ${programs} )
 	if(! -d ${program} ) continue;
 	set programs_path="${programs_path}:${program}"
 end
-setenv PATH "${PATH}:${programs_path}"
+setenv PATH "${PATH}${programs_path}"
 unset program programs programs_path
 
 if( -d /usr/lib64/jvm/java-openjdk ) then

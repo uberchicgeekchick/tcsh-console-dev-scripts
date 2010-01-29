@@ -1,3 +1,3 @@
 #!/bin/tcsh -f
-if( ! ( ${?TCSHRC_DEBUG} && ${?1} && "${1}" != "" ) ) exit 0;
-if( "${TCSHRC_DEBUG}" == "${1}" ) unsetenv TCSHRC_DEBUG;
+if( ! ( ${?TCSH_RC_DEBUG} && ${?1} && "${1}" != "" ) ) exit 0;
+if( "${TCSH_RC_DEBUG}" == "${1}" ) unsetenv TCSH_RC_DEBUG;

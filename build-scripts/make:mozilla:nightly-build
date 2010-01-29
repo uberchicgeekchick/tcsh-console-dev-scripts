@@ -1,11 +1,11 @@
 #!/bin/tcsh -f
-setenv	CFLAGS		"-std=gnu99 -O3 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
-setenv	CXXFLAGS	"-std=gnu++0x -O3 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
-setenv	MAKEFLAGS	"-O3"
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
 
-setenv	CPP	"/usr/bin/cpp"
-setenv	CC	"/usr/bin/gcc"
-setenv	CXX	"/usr/bin/g++"
+setenv	CFLAGS		"-std=gnu99 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
+setenv	CXXFLAGS	"-std=gnu++0x -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
+#setenv	MAKEFLAGS	"-O3"
+if( ${?MAKEFLAGS} ) unsetenv	MAKEFLAGS;
 
 if( ${?http_proxy}  ) unsetenv http_proxy
 
@@ -30,23 +30,26 @@ unalias egrep;
 configure:
 switch ( "${1}" )
 case "thunderbird":
+	set mozilla_project="mail";
 	set build_mozilla="thunderbird";
 	set mercurial_repo="comm-central";
-	set enable_mozilla="--enable-application=mail --enable-calendar --enable-static";
+	set enable_mozilla="--enable-calendar --enable-static";
 	set prefix="${mozilla_top_dir}/Thunderbird3";
 	breaksw;
 
 case "xulrunner":
+	set mozilla_project="xulrunner";
 	set build_mozilla="xulrunner";
 	set mercurial_repo="mozilla-central";
-	set enable_mozilla="--enable-application=xulrunner --enable-libxul";
+	set enable_mozilla="--enable-libxul";
 	set prefix="${mozilla_top_dir}/XULRunner-1.9.1";
 	breaksw;
 
 case "firefox":
+	set mozilla_project="browser";
 	set build_mozilla="firefox";
 	set mercurial_repo="mozilla-central";
-	set enable_mozilla="--enable-application=browser --enable-libxul";
+	set enable_mozilla="--enable-libxul";
 	set prefix="${mozilla_top_dir}/Firefox3";
 	breaksw;
 
@@ -90,6 +93,7 @@ while( ${?2} && "${2}" != "" )
 	endsw
 end
 
+goto make;
 
 checkout:
 cd "${srcdir}";
@@ -108,31 +112,25 @@ else
 	endif
 endif
 
-if( ${status} != 0 ) then
-	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmercurial %s failed with error %s\n\n" ${hg_reaction} ${status};
-	exit ${status};
-endif
+if( ${status} != 0 ) goto status_failed;
 unset hg_reaction;
 
 
 make:
 cd "${srcdir}";
 
-if( "${build_mozilla}" != "thunderbird" ) then
-	set mozconfig="${srcdir}/.mozcofig"
-else
-	set mozconfig="${srcdir}/.mozcofig.mk";
-endif
+#if( "${build_mozilla}" != "thunderbird" ) then
+	set mozconfig="${srcdir}/.mozconfig"
+#else
+#	set mozconfig="${srcdir}/.mozconfig.mk";
+#endif
 
-printf "ac_add_options ${enable_mozilla} --enable-installer --enable-default-toolkit=cairo-gtk2 --enable-optimize=-O3 --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options AUTOCONF=autoconf-2.13\n" >! "${mozconfig}";
+setenv MOZCONFIG "${mozconfig}";
+printf "mk_add_options MOZ_OBJDIR=${objdir}\nac_add_options --enable-application=${mozilla_project} ${enable_mozilla} --disable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options MOZ_CO_PROJECT=${mozilla_project}\n" >! "${mozconfig}";
+#" --enable-default-toolkit=gtk2"
 
 make -f client.mk;
-if( ${status} != 0 ) then
-	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %s\n\n" ${status};
-	exit ${status};
-endif
-
-
+if( ${status} != 0 ) goto status_failed;
 
 make_package:
 cd "${objdir}";
@@ -241,4 +239,10 @@ if(! ${?second_run} ) then
 endif
 
 goto exec_install
+
+exit;
+
+status_failed:
+	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %s\n\n" ${status};
+	exit ${status};
 

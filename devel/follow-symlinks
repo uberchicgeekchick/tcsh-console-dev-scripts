@@ -1,0 +1,71 @@
+#!/bin/tcsh -f
+
+main:
+	goto find_symlinks;
+
+main_quit:
+	exit ${status};
+
+find_symlinks
+	set symlink_log="./.symlink.`date '+%s'`.lst";
+	find . -type l -printf '%p\t=\t%l\n' > "${symlink_log}";
+	set symlink_count="`cat '${symlink_log}'`";
+	if(!( ${#symlink_count} > 0 )) then
+		rm "${symlink_log}";
+		unset symlink_log follow_symlinks;
+		set status=0;
+		goto main_quit;
+	endif
+#find_symlinks
+	
+fix_symlinks:
+	
+	printf "Following symlinks.\n";
+	
+	foreach project_symlink("`cat '${symlink_log}'`")
+		set target="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
+		set symlink="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
+		
+		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+			unset target symlink;
+			continue;
+		endif
+		
+		#echo "${symlink} points to ${target}";
+		cd `dirname "${symlink}"`;
+		rm -rvi ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) cp -rv "${target}" ./`basename "${symlink}"`;
+		
+		cd "${owd}";
+		
+		unset target symlink;
+	end
+#fix_symlinks
+
+revert_symlinks:
+	
+	printf "Restoring symlinks.\n";
+	
+	foreach project_symlink("`cat '${symlink_log}'`")
+		set target="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
+		set symlink="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
+		
+		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+			unset target symlink;
+			continue;
+		endif
+		
+		cd `dirname "${symlink}"`;
+		rm -rvf ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) ln -sv "${target}" ./`basename "${symlink}"`;
+		
+		cd "${owd}";
+		
+		unset target symlink;
+	end
+	unset project_symlink projects_symlink;
+#revert_symlinks
+
+goto main_quit;

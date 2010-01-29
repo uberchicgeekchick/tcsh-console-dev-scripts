@@ -6,11 +6,11 @@ foreach program ( "`which '${this_program}'`" )
 endif
 
 if( !( ${?program} && -x "${program}" ) ) then
-	printf "Unable to find %s.\n" "${this_program}";
+	if(! ${?SSH_CONNECTION} ) printf "Unable to find %s.\n" "${this_program}";
 	exit -1;
 endif
 
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 set source_file="mount:sshfs:dreams.tcsh";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
 if( $args_handled > 0 ) then
@@ -21,35 +21,57 @@ if( $args_handled > 0 ) then
 	end
 	unset args_shifted;
 endif
-unset args_handled source_file;
+unset args_handled;
 
 set ssh_user="dreams";
 set ssh_server="sky.ocssolutions.com";
 set ssh_path="/home/dreams";
 
 set ssh_mount_point="/projects/ssh";
-if(! -d ${ssh_mount_point} ) mkdir -p "${ssh_mount_point}";
 
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
-alias	"mount:sshfs:${ssh_user}"	"${TCSH_RC_SESSION_PATH}/${0}";
+alias	"mount:sshfs:${ssh_user}"	"sshfs '${ssh_user}@${ssh_server}:${ssh_path}' '${ssh_mount_point}'";
+
+if( "`mount | grep '$ssh_mount_point'`" != "" ) then
+	if(${?TCSH_RC_DEBUG}) printf "%s's is already connected to %s\n" "${ssh_user}" "${ssh_server}";
+	set status=-1;
+	exit ${status};
+endif
+
+if(! -d ${ssh_mount_point} ) then
+	if(! -e ${ssh_mount_point} ) then
+		mkdir -p "${ssh_mount_point}";
+	else
+		if(${?TCSH_RC_DEBUG}) printf "%s's connection to %s has been terminated.\nAttempting to unmount.\n" "${ssh_user}" "${ssh_server}";
+		set use_sudo="";
+		if( ${uid} != 0 ) set use_sudo="sudo ";
+		${use_sudo}umount -f "${ssh_mount_point}";
+	endif
+endif
+
+set status=0;
+ping -c 1 "${ssh_server}" > /dev/null;
+if( "${status}" != "0" ) then
+	printf "%s could not be reached.  Please check your network connection.\n" "${ssh_server}";
+	exit;
+endif
 
 set sshfs_mount_test="`/bin/mount | grep '${ssh_mount_point}'`";
 @ sshfs_mount_count=0;
-if(${?TCSHRC_DEBUG}) printf "Mounting sshfs: [%s:%s]\t\t" ${ssh_server} ${ssh_path};
+if(${?TCSH_RC_DEBUG}) printf "Mounting sshfs: [%s:%s]\t\t" ${ssh_server} ${ssh_path};
 @ sshfs_max_attempts=10;
 next_attempt:
 while ( ( $sshfs_mount_count <= $sshfs_max_attempts ) && ${#sshfs_mount_test} == 0 )
 	@ sshfs_mount_count++;
 	if( $sshfs_mount_count >= $sshfs_max_attempts ) then
-		if( ${?TCSHRC_DEBUG} ) printf "Maximum automated SSH attempts reached (%d out of %d connections attemted)." $sshfs_mount_count $sshfs_max_attempts;
+		if( ${?TCSH_RC_DEBUG} ) printf "Maximum automated SSH attempts reached (%d out of %d connections attemted)." $sshfs_mount_count $sshfs_max_attempts;
 		set sshfs_mount_test="`printf 'mounting [%s@%s:%s] to [%s] failed\nexiting\n' '${ssh_user}' '${ssh_server}':'${ssh_path}' '${ssh_mount_point}'`";
-	else if( ${?TCSHRC_DEBUG} ) then
+	else if( ${?TCSH_RC_DEBUG} ) then
 		printf "attempt %s out of %s [failed].\n" ${sshfs_mount_count} ${sshfs_max_attempts};
 		if( ${sshfs_mount_count} < ${sshfs_max_attempts} ) printf "\nre-attempting connection\n";
 	endif
 	goto sshfs_connect
 end
-if( ${?TCSHRC_DEBUG} ) then
+if( ${?TCSH_RC_DEBUG} ) then
 	if(!(${#sshfs_mount_test})) then
 		printf "[failed]\n";
 	else
@@ -58,7 +80,8 @@ if( ${?TCSHRC_DEBUG} ) then
 endif
 unset ssh_user ssh_server ssh_mount_point ssh_path sshfs_mount_count sshfs_mount_test;
 
-source /projects/cli/tcshrc/argv:clean-up mount:sshfs:ocs;
+set source_file="mount:sshfs:dreams.tcsh";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
 
 exit;
 

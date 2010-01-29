@@ -1,18 +1,57 @@
 #!/bin/tcsh -f
-set this_program="`basename '${0}'`";
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
+if(! ${?TCSH_LAUNCHER_PATH} ) setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
 
-foreach program ( "`which '${this_program}'`" )
-	if( "${program}" != "${0}" && -x "${program}" ) end;
-	unset program;
-endif
+set dependencies=( "`basename '${0}'`" );
 
-if( !( ${?program} && -x "${program}" ) ) then
-	printf "Unable to find %s.\n", "${this_program}";
+foreach dependency(${dependencies})
+	foreach dependency( "`where '${dependency}'`" )
+		if(! -x "${dependency}" ) then
+			unset dependency;
+		else
+			switch("${dependency}")
+				case "${0}":
+				case "./${dependency}":
+				case "${TCSH_LAUNCHER_PATH}/${dependency}":
+					unset dependency;
+					breaksw;
+			endsw
+		endif
+	end
+	if(! ${?dependency} ) goto missing_dependency;
+end
+
+set program="${dependency}";
+goto parse_argv;
+
+main:
+	set status=0;
+	( ${program} ${argz} > /dev/tty ) >& /dev/null;
+
+main_quit:
+	unset dependencies;
+	if( ${?dependency} ) unset dependency;
 	if( ${?program} ) unset program;
-	unset this_program;
-	exit -1;
-endif
+	exit ${status};
+#main_quit
 
-( ${program} ${argv} > /dev/tty ) >& /dev/null &;
+missing_dependency:
+	printf "Unable to find %s.\n" "${dependency}";
+	set status=-1;
+	goto main_quit;
 
-unset this_program program;
+parse_argv:
+	set argz="";
+	while ( "${1}" != "" )
+		set option="`printf "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
+		set value="`printf "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
+		switch("${option}")
+			default:
+				set argz="${1}";
+				breaksw
+		endsw
+		shift;
+	end
+	unset option value;
+	goto main;
+

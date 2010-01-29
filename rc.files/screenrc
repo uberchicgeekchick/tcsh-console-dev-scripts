@@ -1,1 +1,35 @@
-/profile.d/~slash./screenrc
+deflogin off
+caption always
+colon
+displays
+defflow off
+
+shelltitle '[screen] #>'
+
+bindkey "\009" windowlist -b
+bindkey "\079" quit
+bindkey "^q" quit
+bindkey "^h" height -w
+bindkey "^l" width -w
+
+bind -c refit f fit
+bind - command -c refit
+
+bind -c lswindows w windowlist -b
+bind - command -c lswindows
+
+bindkey "^C-a f" fit
+
+screen -t '[sudo] $>' 0 sudo tcsh 
+screen -t '[projects] #>' 1 tcsh -f
+screen -t '[get2gnow] #>' 2 tcsh -f
+screen -t '[www] #>' 3 tcsh -f
+screen -t '[alacast:gtk] #>' 4 tcsh -f
+#screen -t '`alacast:php;`' 5 /projects/cli/alacast/bin/alacast.php
+screen -t '`alacast:php;`' 5 alacast.php --with-defaults=update
+screen -t '[podcasts] #>' 6 tcsh -f
+screen -t '`rtorrent;`' 7 rtorrent
+#screen -t 'ssh:[our-eee@uberChicks] #>' 7 ssh uberChick@192.168.4.6
+screen -t '[build:canvas] #>' 8 tcsh -f
+screen -t '[artistic:self:expression] #>' 9
+

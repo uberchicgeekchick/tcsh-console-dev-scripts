@@ -1,16 +1,57 @@
 #!/bin/tcsh -f
+if( ${?TCSH_RC_DEBUG} ) unsetenv TCSH_RC_DEBUG;
+#if(! ${?TCSH_RC_SESSION_PATH} )
+setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+set source_file="etc-csh.cshrc";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" "${argv}";
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled;
+
+
+set history_skip_merge;
+source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
+unset history_skip_merge;
+
 set status=-1;
-if( "`jobs`" != "" ) then
-	exit ${status};
+@ lock_step=0;
+while( -e "${histfile}.lock" )
+	sleep 1;
+	@ lock_step++;
+	if( ${lock_step} > 20 ) then
+		printf "History access is locked and the timeout has exceeded.\n\t%s exisits.\n" "${histfile}.lock";
+		exit ${status};
+	endif
+end
+
+jobs >! "${histfile}.jobs";
+if(! ${?logout_force} ) then
+	set status=-1;
+	jobs >! "${histfile}.jobs";
+	if( "`cat '${histfile}.jobs'`" != "" ) then
+		printf "There background jobs are currently running:\n";
+		cat "${histfile}.jobs";
+		printf "\nset logout_force to skip this test.\n";
+		/bin/rm -fv "${histfile}.jobs";
+		set status=-1;
+		exit ${status};
+	endif
 endif
 
 set status=0;
-while( -e "${histfile}.lock" )
-	sleep 1;
-end
-touch "${histfile}.lock";
-cp -u -v "${histfile}" "${histfile}.bckcp";
-history -M;
-history -S;
-rm -f "${histfile}.lock";
+if( -e "${histfile}.jobs" ) rm -fv "${histfile}.jobs";
+
+source "${TCSH_RC_SESSION_PATH}/logout.cshrc.tcsh";
+
+if(! ${?source_file} ) set source_file="etc-csh.cshrc";
+if( "${source_file}" != "etc-csh.cshrc" ) set source_file="etc-csh.cshrc";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+
 exit ${status};
+

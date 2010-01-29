@@ -1,25 +1,30 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "source:argv" ${argv};
-if( ${?TCSHRC_DEBUG} ) then
-	if( "${TCSHRC_DEBUG}" == "source:argv" ) shift;
-endif
-if( ${?TCSHRC_WORKING_DIR} ) then
-	if( ${?2} && "${2}" != "" && "${2}" == "${cwd}" && "${TCSHRC_WORKING_DIR}" == "${2}" ) then
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+
+set source_file="source:argv";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
 		shift;
-		shift;
-	endif
+	end
+	unset args_shifted;
 endif
+unset args_handled source_file;
 
 
 
 foreach path_source_file( ${argv} )
 	if(! -e "${TCSH_RC_SESSION_PATH}/${path_source_file}" ) then
-		if( ${?TCSHRC_DEBUG} ) printf "**ERROR:** cannot source ${TCSH_RC_SESSION_PATH}/${path_source_file} could not be found.\n";
+		if( ${?TCSH_RC_DEBUG} ) printf "**ERROR:** cannot source ${TCSH_RC_SESSION_PATH}/${path_source_file} could not be found.\n";
 		continue;
 	endif
-	if( ${?TCSHRC_DEBUG} ) printf "Sourcing ${TCSH_RC_SESSION_PATH}/${path_source_file}\n";
+	if( ${?TCSH_RC_DEBUG} ) printf "Sourcing ${TCSH_RC_SESSION_PATH}/${path_source_file}\n";
 	source "${TCSH_RC_SESSION_PATH}/${path_source_file}";
 end
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "source.argv";
+if(! ${?source_file} ) set source_file="source:argv";
+if( "${source_file}" != "source:argv" ) set source_file="source:argv";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
 

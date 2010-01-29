@@ -35,11 +35,11 @@ foreach podiobook ( `/usr/bin/grep --perl-regex 'xmlUrl=["'\''][^"'\'']+["'\'']'
 	if( "${is_finished}" != "" ) then
 		printf "\t[finished]\n";
 		continue;
-	endif;
+	endif
 	
 	printf "\t[unfinished]\nPlease wait while I subscribe to this podiobook.\n";
 	if( ${?podiobooks_auto_subscribe} )
 		${podcatcher}${podiobook} >> & /dev/null & ;
 		wait;
-	endif;
-end;
+	endif
+end

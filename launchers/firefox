@@ -14,8 +14,13 @@ while( ${?1} && "${1}" != "" )
 		set program_path="/usr/bin/";
 		breaksw
 	case "--nightly-build":
+	case "--x86-64":
 		set rm_extensions;
 		set program_path="/programs/Mozilla/Firefox3/x86_64/";
+		breaksw
+	case "--download":
+		set rm_extensions;
+		set program_path="/programs/Mozilla/Firefox3/firefox/";
 		breaksw
 	case "-ProfileManager":
 		set argz="${1} ${argz}";
@@ -28,7 +33,7 @@ while( ${?1} && "${1}" != "" )
 		else
 			set ff_profile="uberChick";
 		endif
-		breaksw;
+		breaksw
 	default:
 		set argz="${argz} ${1}";
 		breaksw
@@ -37,13 +42,14 @@ while( ${?1} && "${1}" != "" )
 end
 
 if(!(${?program_path})) then
-	set program_path="";
+	set program_path="/programs/Mozilla/Firefox3/x86_64/";
 endif
 
 ff_init:
 set program="${program_path}${this_program}";
+printf "Launching:\n\t%s\n\n" "${program}";
 
-set ff_binaries=("${program}-bin" "${program}");
+set ff_binaries=("${program}-bin" "${program}" "${program}.sh");
 
 @ ff_attempt=0;
 ff_next:
@@ -61,10 +67,18 @@ foreach ff_binary( ${ff_binaries} )
 	endif
 end
 if( !( ${?ff_found} ) ) then
-	if(!( ${?program} && -x "${program}" ) ) then
-		printf "Unable to find %s.\n", "${this_program}";
-		exit -1;
-	endif
+	if(! ${?program} ) goto noexec;
+	if(! -x "${program}" ) goto noexec;
+	goto launchers_main;
+
+noexec:
+	printf "Unable to find %s.\n" "${this_program}";
+	if( ${?program} ) unset program;
+	unset this_program;
+	exit -1;
+
+launchers_main:
+
 endif
 printf "Attempting load %s; attempt: %d.\n" ${this_program} ${ff_attempt};
 if(! ${?ff_found} ) then
@@ -88,12 +102,13 @@ endif
 exit;
 
 ff_start:
+echo "Launching:\n\t";
 if( ${?use_launcher} ) then
-	echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${this_program}${argz}" \>\& /dev/null \&;
-	/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${this_program} ${argz}" >& /dev/null &;
+	echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${program}${argz}" \>\& /dev/null \&;
+	/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${program} ${argz}" >& /dev/null &;
 else
-	echo ${this_program} "${argz}" \>\& /dev/null \&;
-	${this_program} "${argz}" >& /dev/null &;
+	echo ${program} "${argz}" \>\& /dev/null \&;
+	${program} "${argz}" >& /dev/null &;
 endif
 if( ${ff_attempt} > 5 ) then
 	printf "Finished attempting load %s after %d attempts.\n" ${program} ${ff_attempt};

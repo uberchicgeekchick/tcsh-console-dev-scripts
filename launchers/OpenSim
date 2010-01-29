@@ -1,0 +1,52 @@
+#!/bin/tcsh -f
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
+if(! ${?TCSH_LAUNCHER_PATH} ) setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
+
+set dependencies=( "mono" "`basename '${0}'`.exe" );
+
+foreach dependency(${dependencies})
+	foreach dependency( "`where '${dependency}'`" )
+		if(! -x "${dependency}" ) then
+			unset dependency;
+		else
+			switch("${dependency}")
+				case "${0}":
+				case "./${dependency}":
+				case "${TCSH_LAUNCHER_PATH}/${dependency}":
+					unset dependency;
+					breaksw;
+			endsw
+		endif
+	end
+	if(! ${?dependency} ) goto missing_dependency;
+end
+
+set program="${dependency}";
+goto main;
+
+main:
+	set status=0;
+	( ${program} ${argv} > /dev/tty ) >& /dev/null;
+
+main_quit:
+	unset dependencies;
+	if( ${?dependency} ) unset dependency;
+	if( ${?program} ) unset program;
+	exit ${status};
+#main_quit
+
+missing_dependency:
+	printf "Unable to find %s.\n" "${dependency}";
+	set status=-1;
+	goto main_quit;
+
+#!/bin/tcsh -f
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
+if(! ${?TCSH_LAUNCHER_PATH} ) setenv TCSH_LAUNCHER_PATH="${TCSH_RC_SESSION_PATH}/../launchers";
+foreach mono("`where mono`")
+	if( -x "${mono}" ) break
+	unset mono;
+end
+if(! ${?mono} ) 
+cd "`dirname '${0}`"/bin;
+mono OpenSim.exe

@@ -25,8 +25,7 @@ set _manpath="/usr{{/X11/man,/openwin/man}/{man,cat},{/man/{man,cat}}}"
 endif
 
 
-complete	make:mozilla:nightly-build	\
-		p/*/"(xul-runner firefox thunderbird)"/
+complete	make:mozilla:nightly-build	p/1/"(xul-runner firefox thunderbird)"/
 
 complete	pkg-config	c/--/"(version modversion atleast-pkgconfig-version= \
 					libs static libs libs libs cflags cflags cflags \
@@ -85,8 +84,8 @@ complete uncomplete	n/*/X/
 complete exec		p/1/c/		# Commands only
 complete trace		p/1/c/
 complete strace		p/1/c/
-complete which		n/*/c/
-complete where		n/*/c/
+complete which		p/*/c/
+complete where		p/*/c/
 complete skill		p/1/c/
 complete dde		p/1/c/ 
 complete adb		c/-I/d/ n/-/c/ N/-/"(core)"/ p/1/c/ p/2/"(core)"/
@@ -847,7 +846,7 @@ complete cp	c/--/"(archive backup no-dereference force \
 		c/-/"(a b d f i l P p R r S s u V v x -)"/ \
 		n/-*r/d/ n/{-S,--suffix}/x:'<suffix>'/ \
 		n/{-V,--version-control}/"(t numbered nil existing \
-		never simple)"/ n/-/f/ N/-/d/ p/3-/d/ n/*/f/
+		never simple)"/ n/-/f/ N/-/d/ n/*/f/
 #complete ln		c/--/"(backup directory force no-dereference \
 #			interactive symbolic suffix verbose version-control \
 #			help version)"/ \
@@ -953,4 +952,4 @@ if( ${?globset} ) then
 	unset noglob
 	unset globset
 endif
-# complete.tcsh ends here
+# complete.cshrc.tcsh ends here

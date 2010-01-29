@@ -1,0 +1,18 @@
+#!/bin/tcsh -f
+set this_program="id3v2";
+foreach program ("`which ${this_program}`")
+	if( "${program}" != "" && -x "${program}" ) break;
+	unset program;
+end
+if( ${?program} ) then
+	if( -x "${program}" ) then
+		if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
+			alias mp3info "${program} --list";
+		else
+			${program} --list "${argv}";
+		endif
+	endif
+	unset program;
+endif
+unset this_program;
+

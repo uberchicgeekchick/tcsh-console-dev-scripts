@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-set music_path = "/media/library/music";
+set music_path = "/old/media/library/music";
 set music_library = "`basename '${0}' | sed 's/.*organize:\(.*\)\.tcsh/\1/g'`";
 set podcasts_download_path = "/media/podcasts";
 

@@ -1,7 +1,21 @@
 #!/bin/tcsh -f
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+set source_file="artistic.canvas";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled;
 
-if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS;
-source /projects/cli/tcshrc/argv:check artistic.canvas ${argv};
+source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
+
+if(! ${?OSS_CANVAS} ) setenv OSS_CANVAS;
+
 if(! ${?SSH_CONNECTION} ) printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
 
 if( -x "./configure" ) then
@@ -27,15 +41,6 @@ setenv LD_RUN_PATH "/usr/include";
 #autoconf, automake, & etc settings
 setenv AC_CONFIG_MACRO_DIR "/usr/share/autoconf/autoconf";
 
-#C preprocessor
-setenv CPP "/usr/bin/cpp";
-
-#C compiler
-setenv CC "/usr/bin/gcc";
-
-#C++ compiler
-setenv CXX "/usr/bin/g++";
-
 #C/C++/Objective C preprocessor flags, e.g. -I<include dir> if
 #you have headers in a nonstandard directory <include dir>
 setenv MY_INCLUDE_FLAGS "-I${LD_LIBRARY_PATH} -I. -I..";
@@ -53,5 +58,8 @@ setenv MYCXXFLAGS "${MYFLAGS}";
 setenv CFLAGS "-std=gnu99 ${CPPFLAGS} ${MYCFLAGS}";
 
 setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MYCXXFLAGS}";
-source /projects/cli/tcshrc/argv:clean-up artistic.canvas;
 
+
+
+set source_file="artistic.canvas";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";

@@ -1,14 +1,16 @@
 #!/bin/tcsh -f
-set this_program="`basename '${0}'`";
-#set program=/usr/bin/${this_program};
-foreach program ( "`where '${this_program}'`" )
-	#printf "Checking [%s] against [%s]\n" "${program}" "${this_program}";
-	if( "${program}" != "${0}" && -x "${program}" ) break
-end
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
 
-if(!( ${?program} && -x "${program}" )) then
-	printf "Unable to find %s.\n", "${this_program}";
+set gPodders_path="`dirname ${0}`";
+set gPodder_script="gpodder-0.11.3-hacked";
+if ( ! -x "${gPodders_path}/${gPodder_script}" ) then
+	printf "Unable to find and run `%s/%s`" "${gPodders_path}" "${gPodder_script}";
 	exit -1;
+endif
+
+if( "`alias cwdcmd`" != "" ) then
+	set oldcwdcmd="`alias cwdcmd`";
+	unalias cwdcmd;
 endif
 
 if(! ${?eol} ) setenv eol '$';
@@ -22,22 +24,22 @@ while( ${?1} && "${1}" != "" )
 	switch( "${action}" )
 	case "debug":
 		set tcshrc_debug_set;
-		set TCSHRC_DEBUG;
-		shift
-		continue
-		breaksw
+		set TCSH_RC_DEBUG;
+		shift;
+		continue;
+		breaksw;
 	case "add":
 		if( "${message}" == "" ) set message="add";
 	case "del":
 		if( "${message}" == "" ) set message="delete";
 		set argz=--${action}="${feed}";
-		breaksw
+		breaksw;
 	default:
 		set argz=${1};
-		breaksw
+		breaksw;
 	endsw
-	shift
-	goto run_progie
+	shift;
+	goto run_progie;
 end
 
 if(! ${?gpodder_ran} ) then
@@ -45,24 +47,32 @@ if(! ${?gpodder_ran} ) then
 	goto run_progie;
 endif
 
-if( ${?gpodder_run_once} ) unset gpodder_run_once
+if( ${?gpodder_run_once} ) unset gpodder_run_once;
 if( ${?tcshrc_debug_set} ) then
 	unset tcshrc_debug_set;
-	unsetenv TCSHRC_DEBUG;
+	unsetenv TCSH_RC_DEBUG;
 endif
 
-unset this_program program gpodder_ran message feed argz;
+cd "${owd}";
+
+if( ${?oldcwdcmd} ) then
+	alias cwdcmd "${oldcwdcmd}";
+	unset oldcwdcmd;
+endif
+unset gPodders_path gPodder_script gpodder_ran message feed argz;
 
 exit;
 
 run_progie:
-set gpodder_ran
+if(! ${?gpodder_ran} ) set gpodder_ran;
 if( "${message}" != "" && "${feed}" != "" ) printf "Attempting to %s:\n\t<%s>\n" "${message}" "${feed}";
-if( ${?TCSHRC_DEBUG} ) echo "Running:\n"\ \( ${program} "${argz}" \> /dev/tty \) \>\& /dev/null
+if( ${?TCSH_RC_DEBUG} ) echo "Running:\n\t./${gPodder_script} --local ${argz}";
+cd "${gPodders_path}";
 if( ! ${?OUTPUT_STDERR} ) then
-	( ${program} "${argz}" > /dev/tty ) >& /dev/null
+	./${gPodder_script} --local "${argz}";
 else
-	${program} "${argz}" >& /dev/null
+	./${gPodder_script} --local "${argz}" >& /dev/null;
 endif
-if(! ${?gpodder_run_once} ) goto next_argv
+cd "${owd}";
+if(! ${?gpodder_run_once} ) goto next_argv;
 

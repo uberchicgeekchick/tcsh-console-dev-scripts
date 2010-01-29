@@ -7,32 +7,49 @@ if( -e "./.sync.default" ) set sync_method=`cat ./.sync.default`;
 if( -e ./.no.pushing ) set no_pushing;
 
 set log_dir="./.`basename '${0}'`.logs";
+set project="`basename '${cwd}'`";
+if(! ${?eol} ) setenv eol='$';
 
-while ( ${?1} && "${1}" != "" )
-	switch ( "${1}" )
-	case "--help":
+set follow_symlinks;
+while ( "${1}" != "" )
+	set option="`echo "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\1/'`";
+	set value="`echo "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\2/'`";
+	#echo "--${option}=${value}";
+	switch ( "${option}" )
+	case "help":
 		goto usage;
 		breaksw;
-	case "--sync=rsync":
-	case "--sync=scp":
-	case "--sync=sshfs":
-	case "--sync=cp":
-	case "--sync=no-sync":
-		set sync_method="`printf '%s' '${1}' | sed 's/^\-\-\(.*\)=\?\(.*\)$/\2/'`";
+	case "sync":
+		set sync_method="${value}";
 		breaksw;
-	case "--no-pushing":
+	case "no-pushing":
 		set no_pushing;
 		breaksw;
-	case "--disable-logging":
+	case "disable-logging":
 		set rm_log;
 		breaksw;
-	case "--skip-remote-clean-up":
+	case "skip-remote-clean-up":
 		set skip_remote_clean_up;
-		breaksw
-	case "--append":
+		breaksw;
+	case "branch":
+		set branch="${value}";
+		breaksw;
+	
+	case "follow-sysmlinks":
+		switch("${value}")
+			case "enable":
+				if(! ${?follow_symlinks} ) set follow_symlinks;
+				breaksw;
+		
+			case "disable":
+				if( ${?follow_symlinks} ) unset follow_symlinks;
+				breaksw;
+		endsw
+		breaksw;
+	case "append":
 		if( ! -d "${log_dir}" ) then
 			printf("No previous commit messages could be found.  I new commit will be created.");
-			breaksw
+			breaksw;
 		endif
 		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
 		set commit_log="${log_dir}/${commit_log}";
@@ -43,7 +60,7 @@ while ( ${?1} && "${1}" != "" )
 		else
 			set commit_action="Commit Appended";
 		endif
-		breaksw
+		breaksw;
 	default:
 		# git:commit+push+sync logs are stored & saved;
 		# Mustly its until I decide how & if I want to;
@@ -59,10 +76,11 @@ while ( ${?1} && "${1}" != "" )
 			breaksw;
 		endif
 		printf "\n\n${1}" >> "${commit_log}";
-		breaksw
+		breaksw;
 	endsw
 	shift
 end
+#exit;
 
 if(! ${?commit_log} ) then
 	if( -d "${log_dir}" ) then
@@ -91,23 +109,72 @@ git add .;
 #;
 foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
 	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
-	git rm --cached --quiet "${tarball}";
+	git rm -r --cached --quiet "${tarball}";
 end
 unset tarball;
 
 foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\|o\)'`" )
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
-	git rm --cached --quiet "${swp}";
+	git rm -r --cached --quiet "${swp}";
 end
 unset swp;
 
 foreach art ( "`find . -iregex '.*\.\(art\|dev\|ref\|new\|old\)\.[^\.]*'`" )
 	set art = "`printf '${art}' | sed 's/^\.\///'`";
-	git rm --cached --quiet "${art}";
+	git rm -r --cached --quiet "${art}";
 end
 unset art;
 
+if( ${?follow_symlinks} ) then
+	set symlink_log="./.symlink.`date '+%s'`.lst";
+	find . -type l -printf '%p\t=\t%l\n' > "${symlink_log}";
+	
+	set symlink_count="`cat '${symlink_log}'`";
+	if(!( ${#symlink_count} > 0 )) then
+		rm "${symlink_log}";
+		unset symlink_log follow_symlinks;
+	else
+		
+		printf "Following symlinks.\n";
+		
+		foreach project_symlink("`cat '${symlink_log}'`")
+			set target="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
+			set symlink="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
+			
+			if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+				printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+				unset target symlink;
+				continue;
+			endif
+			
+			#echo "${symlink} points to ${target}";
+			cd `dirname "${symlink}"`;
+			rm -r ./`basename "${symlink}"`;
+			if(! -e ./`basename "${symlink}"` ) cp -r "${target}" ./`basename "${symlink}"`;
+			
+			cd "${owd}";
+			
+			unset target symlink;
+		end
+		
+		unset project_symlink;
+	endif
+endif
+
 git rm -r --cached --quiet "${log_dir}";
+
+if(! ${?branch} ) then
+	set branch="`head -1 '${commit_log}'`";
+	if(! -e ".git/refs/heads/${branch}" ) unset branch;
+	#if( `/bin/ls ".git/refs/heads/${branch}"` == "" ) unset branch;
+else if( ${?branch} ) then
+	if( "`head -1 '${commit_log}'`" != "${branch}" ) then
+		printf "${branch}\n\n" > "${commit_log}.swp";
+		cat "${commit_log}" >> "${commit_log}.swp";
+		mv "${commit_log}.swp" "${commit_log}";
+	endif
+endif
+echo "Hello\!";
 
 git commit -a -F "${commit_log}" --cleanup=verbatim;
 
@@ -116,15 +183,44 @@ if( ${?rm_log} ) then
 	if( ${?log_dir_is_new} ) rmdir "${log_dir}";
 endif
 
-foreach test_branch("`/bin/ls --width=1 -tr .git/refs/heads/ | tail -2 | sed 's/[\r\n]//'`")
-	if( "${test_branch}" != "" && "${test_branch}" != "master" ) then
-		set branch=${test_branch};
-	endif
-end
+#foreach test_branch("`/bin/ls --width=1 -tr .git/refs/heads/ | tail -2 | sed 's/[\r\n]//'`")
+#	if( "${test_branch}" != "" && "${test_branch}" != "master" ) then
+#		set branch=${test_branch};
+#	endif
+#end
 
 if( ${?branch} ) then
-	printf "Updating most recent branch: %s\n" ${branch};
+	printf "Updating %s's branch: %s\n" "${project}" "${branch}";
 	git branch -f "${branch}";
+endif
+
+if( ${?follow_symlinks} && ${?symlink_log} ) then
+	if( -e "${symlink_log}" ) then
+		
+		printf "Restoring symlinks.\n";
+		
+		foreach project_symlink("`cat '${symlink_log}'`")
+			set target="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
+			set symlink="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
+			
+			if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+				printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+				unset target symlink;
+				continue;
+			endif
+			
+			cd `dirname "${symlink}"`;
+			rm -rf ./`basename "${symlink}"`;
+			if(! -e ./`basename "${symlink}"` ) ln -s "${target}" ./`basename "${symlink}"`;
+			
+			cd "${owd}";
+			
+			unset target symlink;
+		end
+		
+		rm -f "${symlink_log}" > /dev/null;
+		unset project_symlink follow_symlinks symlink_log;
+	endif
 endif
 
 if(! ${?no_pushing} ) then
@@ -135,7 +231,10 @@ if(! ${?no_pushing} ) then
 		git push "${remote_git}" master;
 	end
 endif
+
+
 exit;
+
 
 goto check_sync;
 exit;

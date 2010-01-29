@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 set source_file="art.cshrc.tcsh";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
 if( $args_handled > 0 ) then
@@ -12,10 +12,16 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled source_file;
 
-if(! ${?eol} ) setenv eol '$';
-setenv color_start `cat ${TCSH_RC_SESSION_PATH}/art.color`;
-if( ${?TCSHRC_DEBUG} ) printf "${color_start}00;31mSetting ${eol}color_start environmental variable${color_start}00m\n";
+if(! ${?echo_style} ) then
+	set echo_style=sysv;
+else if( "${echo_style}" != "sysv" ) then
+	set echo_style=sysv;
+endif
 
+if(! ${?eol} ) setenv eol '$';
+#if(! ${?eol} ) setenv eol '"\$"';
+
+source "${TCSH_RC_SESSION_PATH}/art:color.cshrc.tcsh";
 
 #setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --ignore-case --initial-tab";
 setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --initial-tab";
@@ -39,4 +45,6 @@ setenv	TERMCAP		"/profile.d/~slash./screens.termcap"
 
 alias	rsed		"sed --regexp-extended";
 
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "art.cshrc.tcsh";
+if(! ${?source_file} ) set source_file="art.cshrc.tcsh";
+if( "${source_file}" != "art.cshrc.tcsh" ) set source_file="art.cshrc.tcsh";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";

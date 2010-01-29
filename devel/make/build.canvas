@@ -1,7 +1,21 @@
 #!/bin/tcsh -f
+if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+set source_file="build.canvas";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled;
+
+source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
 
 if( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS;
-source /projects/cli/tcshrc/argv:check build.canvas ${argv};
+
 if(! ${?SSH_CONNECTION} ) printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
 
 if( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
@@ -23,15 +37,6 @@ setenv	LD_LIBRARY_PATH		"/usr/include";
 setenv	LD_RUN_PATH		"/usr/include";
 
 
-#C/C++ preprocessor
-setenv CPP "/usr/bin/cpp";
-
-#C compiler
-setenv CC "/usr/bin/gcc";
-
-#C++ compiler
-setenv CXX "/usr/bin/g++";
-
 #C/C++/Objective C preprocessor flags, e.g. -I<include dir> if
 #you have headers in a nonstandard directory <include dir>
 setenv MY_INCLUDE_FLAGS "-I${LD_LIBRARY_PATH} -I. -I..";
@@ -40,11 +45,11 @@ setenv CPPFLAGS "${MY_INCLUDE_FLAGS}";
 
 setenv MAKEFLAGS "-Wall -Wextra -Wformat=2";
 
-setenv CFLAGS "-std=gnu99 -O3 ${MY_INCLUDE_FLAGS}";
+setenv CFLAGS "-std=gnu99 ${MY_INCLUDE_FLAGS}";
 
-setenv CXXFLAGS "-std=gnu++0x -O3 ${MY_INCLUDE_FLAGS}";
+setenv CXXFLAGS "-std=gnu++0x ${MY_INCLUDE_FLAGS}";
 
-source $TCSH_RC_SESSION_PATH/paths.tcsh --force
+#source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh" --force
 
-source /projects/cli/tcshrc/argv:clean-up build.canvas;
-
+set source_file="build.canvas";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";

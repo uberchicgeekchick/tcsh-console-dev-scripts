@@ -1,0 +1,17 @@
+[Desktop Entry]
+Categories=;
+Comment=About the program
+Comment[de]=
+Encoding=UTF-8
+Exec=program's executable
+Hidden=false
+MimeType=mime/x-type;
+Name=Title/Lable
+Type=Application
+Version=1.0
+X-SuSE-translate=false
+Name[en_US]=Title/Lable
+Comment[en_US]=Program's tooltip, it shows up when hovering over the icon.
+Icon[en_US]=/full/or/relative/path/to-icon.svg
+Terminal=false
+Icon=/full/or/relative/path/to-icon.svg

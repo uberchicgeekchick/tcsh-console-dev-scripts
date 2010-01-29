@@ -1,0 +1,8 @@
+#!/bin/tcsh -f
+if(!( ${?1} && "${1}" != "" && ${?2} && "${2}" != "" )) then
+	printf "Usage:\n\t%s [perl regex search term] [search file match or directory]\nExamples:\n\t%s 'find_uniq\([^\(]+char \*phrase[^\(]*\)' src/*.[ch]\n" "`basename '${0}'`" "`basename '${0}'`";
+	set status=-1;
+	exit ${status};
+endif
+/bin/grep --binary-files=without-match --color --with-filename --line-number --initial-tab --perl-regexp \
+	${1} ${2}  | sed -r 's/(.*):[\t\ ]*[0-9].*/\1/' | uniq

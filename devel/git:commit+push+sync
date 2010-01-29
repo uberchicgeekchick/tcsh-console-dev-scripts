@@ -100,31 +100,6 @@ endif
 printf "\n\n%s on : %s\n" "${commit_action}" "`date '+%Y-%m-%d @ %r'`" >> "${commit_log}";
 unset commit_action;
 
-
-git add .;
-
-# The next;
-# Remove any vim, connectED, gedit, or etc 'swp' files.;
-# This is even more useful to keep from committing early art works & uber-alphas;
-#;
-foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
-	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
-	git rm -r --cached --quiet "${tarball}";
-end
-unset tarball;
-
-foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\|o\)'`" )
-	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
-	git rm -r --cached --quiet "${swp}";
-end
-unset swp;
-
-foreach art ( "`find . -iregex '.*\.\(art\|dev\|ref\|new\|old\)\.[^\.]*'`" )
-	set art = "`printf '${art}' | sed 's/^\.\///'`";
-	git rm -r --cached --quiet "${art}";
-end
-unset art;
-
 if( ${?follow_symlinks} ) then
 	set symlink_log="./.symlink.`date '+%s'`.lst";
 	find . -type l -printf '%p\t=\t%l\n' > "${symlink_log}";
@@ -161,6 +136,34 @@ if( ${?follow_symlinks} ) then
 	endif
 endif
 
+git add .;
+
+if( ${?follow_symlinks} && ${?symlink_log} ) then
+	if( -e "${symlink_log}" ) git  rm --cached --quiet "${symlink_log}";
+endif
+
+# The next;
+# Remove any vim, connectED, gedit, or etc 'swp' files.;
+# This is even more useful to keep from committing early art works & uber-alphas;
+#;
+foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
+	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
+	git rm -r --cached --quiet "${tarball}";
+end
+unset tarball;
+
+foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\|o\)'`" )
+	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
+	git rm -r --cached --quiet "${swp}";
+end
+unset swp;
+
+foreach art ( "`find . -iregex '.*\.\(art\|dev\|ref\|new\|old\)\.[^\.]*'`" )
+	set art = "`printf '${art}' | sed 's/^\.\///'`";
+	git rm -r --cached --quiet "${art}";
+end
+unset art;
+
 git rm -r --cached --quiet "${log_dir}";
 
 if(! ${?branch} ) then
@@ -174,7 +177,6 @@ else if( ${?branch} ) then
 		mv "${commit_log}.swp" "${commit_log}";
 	endif
 endif
-echo "Hello\!";
 
 git commit -a -F "${commit_log}" --cleanup=verbatim;
 
@@ -211,7 +213,7 @@ if( ${?follow_symlinks} && ${?symlink_log} ) then
 			
 			cd `dirname "${symlink}"`;
 			rm -rf ./`basename "${symlink}"`;
-			if(! -e ./`basename "${symlink}"` ) ln -s "${target}" ./`basename "${symlink}"`;
+			if(! -e ./`basename "${symlink}"` ) ln -sf "${target}" ./`basename "${symlink}"`;
 			
 			cd "${owd}";
 			

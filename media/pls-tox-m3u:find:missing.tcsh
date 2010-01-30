@@ -1,13 +1,11 @@
 #!/bin/tcsh -f
 
-if( "${1}" != "" && -e "${1}" ) then
-	set playlist="${1}";
-	shift;
-endif
+if(!( "${1}" != "" && -e "${1}" )) goto usage;
 
-if( "${1}" == "" ) then
-	cd .;
-else if( -d "${1}" ) then
+set playlist="${1}";
+shift;
+
+if( "${1}" != "" && "${1}" != "${cwd}" && -d "${1}" ) then
 	set search_dir="${1}";
 	cd "${search_dir}";
 	shift;
@@ -15,20 +13,45 @@ endif
 
 set extension="";
 while( "${1}" != "" )
-	set option="`echo '${1}' | sed -r 's/[\-]{2}([^=]*)=?["\""'\''"\"""\""]?(.*)["\""'\''"\"""\""]?/\1/'`";
-	set value="`echo '${1}' | sed -r 's/[\-]{2}([^=]*)=?["\""'\''"\"""\""]?(.*)["\""'\''"\"""\""]?/\2/'`";
+	set dashes="`printf '%s' '${1}' | sed -r 's/([\-]{1,2})([^=]*)=?["\""'\''"\"""\""]?(.*)["\""'\''"\"""\""]?/\1/'`";
+	set option="`printf '%s' '${1}' | sed -r 's/([\-]{1,2})([^=]*)=?["\""'\''"\"""\""]?(.*)["\""'\''"\"""\""]?/\2/'`";
+	set value="`printf '%s' '${1}' | sed -r 's/([\-]{1,2})([^=]*)=?["\""'\''"\"""\""]?(.*)["\""'\''"\"""\""]?/\3/'`";
 	switch( "${option}" )
-		case 'h':
-		case 'help':
+		case "help":
 			goto usage;
 			breaksw;
-		case 'check-for-duplicates-in-subdir':
-			set duplicates_subdir="${value}";
+		
+		case "check-for-duplicates-in-subdir":
+			if(! -d "${value}" ) then
+				printf "--%s must specify a sub-directory of %s.\n" "${option}" "${cwd}" > /dev/stderr;
+			else
+				set duplicates_subdir="${value}";
+			endif
 			breaksw;
-		case 'enable':
-			if( "${value}" != "logging" ) breaksw;
-		case 'create-script':
-		case 'mk-script':
+		
+		case "skip-files-in-subdir":
+		case "skip-subdir":
+			if(! -d "${value}" ) then
+				printf "--%s must specify a sub-directory of %s.\n" "${option}" "${cwd}" > /dev/stderr;
+			else
+				set skip_subdir="${value}";
+			endif
+			breaksw;
+		
+		case "enable":
+			switch("${value}")
+				case "logging":
+					breaksw;
+				
+				default:
+					printf "%s cannot be enabled.\n" "${value}" > /dev/stderr;
+					shfit;
+					continue;
+					breaksw;
+				
+			endsw
+		case "create-script":
+		case "mk-script":
 			if("${value}" != "" &&  "${value}" != "logging") then
 				set create_script="${value}";
 			else
@@ -39,30 +62,50 @@ while( "${1}" != "" )
 				chmod u+x "${create_script}";
 			endif
 			breaksw;
-		case 'extension':
-		case 'extensions':
+		
+		case "extension":
+		case "extensions":
 			if( "${value}" != "" ) set extension="${value}";
 			breaksw;
+		
 		case "debug":
 			set debug;
 			breaksw;
+		
 		case "remove":
-			set remove="";
-			if( "${value}" == "interactive" ) then
-				set remove="i";
-				printf "**Podcasts not found in [%s] will be prompted for removal.**\n" "${playlist}";
-			else
-				printf "**Podcasts not found in [%s] will be removed.**\n" "${playlist}";
-			endif
+			switch("${value}")
+				case "force":
+					set remove="";
+					printf "**Podcasts not found in [%s] will be removed.**\n" "${playlist}";
+					breaksw;
+				
+				case "interactive":
+				default:
+					set remove="i";
+					printf "**Podcasts not found in [%s] will be prompted for removal.**\n" "${playlist}";
+					breaksw;
+				
+			endsw
 			breaksw;
+		
 		case "recursive":
-			set recursive;
+			set maxdepth=" ";
 			breaksw;
+		
+		case "maxdepth":
+			if( ${value} != "" && `printf '%s' "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
+				set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
+				if( ${value} > 2 ) set maxdepth=" -maxdepth ${value} ";
+			endif
+			if(! ${?maxdepth} ) printf "--maxdepth must be an integer value that is gretter than 2";
+			breaksw;
+		
 		default:
-			printf "%s is an unsupported option.\n" "${option}";
-			goto usage;
+			printf "\n%s%s is an unsupported option.\n\tRun %s%s --help%s for supported options and details.\n" "${dashes}" "${option}" '`' "`basename '${0}'`" '`' > /dev/stderr;
 			breaksw;
+		
 	endsw
+	next_option:
 	shift;
 end;
 
@@ -70,22 +113,23 @@ if(! ${?playlist} ) goto usage;
 
 if(! ${?eol} ) setenv eol '$';
 
-if(! ${?recursive} ) then
+if(! ${?maxdepth} ) then
 	set maxdepth=" -maxdepth 2 ";
-else
-	set maxdepth=" ";
 endif
 
 set this_dir="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+if( ${?debug} ) printf "Searching for missing multimedia files using:\n\tfind ./${maxdepth}-mindepth 2 -type f -iregex '.*${extension}${eol}' | sed -r 's/"\""/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g'";
 foreach podcast("`find ./${maxdepth}-mindepth 2 -type f -iregex '.*${extension}${eol}' | sed -r 's/"\""/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g'`")
-	if( "`echo "\""${podcast}"\"" | sed -r 's/^\.\/(nfs)\/.*/\1/'`" == "nfs" ) continue;
+	if( ${?skip_subdir} ) then
+		if( "`printf '%s' "\""${podcast}"\"" | sed -r 's/^\.\/(${skip_subdir})\/.*/\1/'`" == "${skip_subdir}" ) continue;
+	endif
 	
-	set podcast_file="`echo "\""${podcast}"\"" | sed -r "\""s/^\.\//${this_dir}\//"\""`";
+	set podcast_file="`printf '%s' "\""${podcast}"\"" | sed -r "\""s/^\.\//${this_dir}\//"\""`";
 	if( ${?debug} ) printf "Searching for [%s].\n" "${podcast_file}";
 	if( `/bin/grep "${podcast_file}" "${playlist}"` != "" ) continue;
 	
 	if( ${?duplicates_subdir} ) then
-		set duplicate_podcast="`echo "\""${podcast}"\"" | sed -r "\""s/^\.\//${this_dir}\/${duplicates_subdir}\//"\""`";
+		set duplicate_podcast="`printf '%s' "\""${podcast}"\"" | sed -r "\""s/^\.\//${this_dir}\/${duplicates_subdir}\//"\""`";
 		if(! -e "${duplicate_podcast}" ) unset duplicate_podcast;
 	endif
 	
@@ -155,9 +199,13 @@ exit_script:
 	exit ${status};
 
 usage:
-	printf "Usage:\n\t%s playlist [directory] [--extension=] [--check-for-duplicates-in-subdir=subdir] [--remove[=interactive]]\n\tfinds any files in directory not found in playlist,\n\t[directory] searches [./] by default is [./].\n\t[--extension=] is optional and used to search for files with that extension only. Otherwise all files are searched for.\n--remove is also optional.  When this option is given %s will remove podcasts which aren't in the specified playlist.  When --remove is set to interactive you'll be prompted before each file is actually deleted.  If, after the file(s) are deleted, the parent directory is empty it will also be removed.\n" "`basename '${0}'`" "`basename '${0}'`";
+	printf "\nUsage:\n\t%s playlist [directory] [--(extension|extensions)=] [--maxdepth=] [--skip-subdir=<sub-directory>] [--check-for-duplicates-in-subdir=<sub-directory>] [--remove[=(interactive|force)]]\n\tfinds any files in [directory], or its sub-directories, up to files of --maxdepth.  If the file is not not found in playlist,\n\tThe [directory] that's searched is [./] by default unless another absolute, or relative, [directory] is specified.\n\t[--(extension|extensions)=] is optional and used to search for files with extension(s) matching the string or escaped regular expression, e.g. --extensions='\\(mp3\\|ogg\\)' only. Otherwise all files are searched for.\n--remove is also optional.  When this option is given %s will remove podcasts which aren't in the specified playlist.  Unless --remove is set to force you'll be prompted before each file is actually deleted.  If, after the file(s) are deleted, the parent directory is empty it will also be removed.\n" "`basename '${0}'`" "`basename '${0}'`";
 	set status=-1;
 	if( ${?option} ) then
-		if( "${option}" == "help" ) set status=0;
+		if( "${option}" == "help" ) then
+			set status=0;
+		else
+			goto next_option;
+		endif
 	endif
-	goto exit;
+	goto exit_script;

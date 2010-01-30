@@ -12,9 +12,9 @@ if(! ${?eol} ) setenv eol='$';
 
 set follow_symlinks;
 while ( "${1}" != "" )
-	set option="`echo "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\1/'`";
-	set value="`echo "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\2/'`";
-	#echo "--${option}=${value}";
+	set option="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\1/'`";
+	set value="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\2/'`";
+	#printf '%s' "--${option}=${value}";
 	switch ( "${option}" )
 	case "help":
 		goto usage;
@@ -34,18 +34,6 @@ while ( "${1}" != "" )
 	case "branch":
 		set branch="${value}";
 		breaksw;
-	
-	case "follow-sysmlinks":
-		switch("${value}")
-			case "enable":
-				if(! ${?follow_symlinks} ) set follow_symlinks;
-				breaksw;
-		
-			case "disable":
-				if( ${?follow_symlinks} ) unset follow_symlinks;
-				breaksw;
-		endsw
-		breaksw;
 	case "append":
 		if( ! -d "${log_dir}" ) then
 			printf("No previous commit messages could be found.  I new commit will be created.");
@@ -60,6 +48,31 @@ while ( "${1}" != "" )
 		else
 			set commit_action="Commit Appended";
 		endif
+		breaksw;
+	case "follow-sysmlinks":
+		switch("${value}")
+			case "disable":
+				if( ${?follow_symlinks} ) unset follow_symlinks;
+				breaksw;
+			case "enable":
+			default:
+				if(! ${?follow_symlinks} ) set follow_symlinks;
+				breaksw;
+		endsw
+		breaksw;
+	case "enable":
+		switch("${value}")
+			case "follow-sysmlinks":
+				if(! ${?follow_symlinks} ) set follow_symlinks;
+				breaksw;
+		endsw
+		breaksw;
+	case "disable":
+		switch("${value}")
+			case "follow-sysmlinks":
+				if( ${?follow_symlinks} ) unset follow_symlinks;
+				breaksw;
+		endsw
 		breaksw;
 	default:
 		# git:commit+push+sync logs are stored & saved;
@@ -113,8 +126,8 @@ if( ${?follow_symlinks} ) then
 		printf "Following symlinks.\n";
 		
 		foreach project_symlink("`cat '${symlink_log}'`")
-			set target="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
-			set symlink="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
+			set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
+			set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
 			
 			if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
 				printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
@@ -122,7 +135,7 @@ if( ${?follow_symlinks} ) then
 				continue;
 			endif
 			
-			#echo "${symlink} points to ${target}";
+			#printf '%s points to %s\n' "${symlink}" "${target}";
 			cd `dirname "${symlink}"`;
 			rm -r ./`basename "${symlink}"`;
 			if(! -e ./`basename "${symlink}"` ) cp -r "${target}" ./`basename "${symlink}"`;
@@ -202,8 +215,8 @@ if( ${?follow_symlinks} && ${?symlink_log} ) then
 		printf "Restoring symlinks.\n";
 		
 		foreach project_symlink("`cat '${symlink_log}'`")
-			set target="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
-			set symlink="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
+			set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
+			set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
 			
 			if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
 				printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";

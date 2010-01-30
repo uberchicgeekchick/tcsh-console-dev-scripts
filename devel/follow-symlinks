@@ -23,8 +23,8 @@ fix_symlinks:
 	printf "Following symlinks.\n";
 	
 	foreach project_symlink("`cat '${symlink_log}'`")
-		set target="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
-		set symlink="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
+		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
+		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
 		
 		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
 			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
@@ -32,7 +32,7 @@ fix_symlinks:
 			continue;
 		endif
 		
-		#echo "${symlink} points to ${target}";
+		#printf '%s points to %s\n' "${symlink}" "${target}";
 		cd `dirname "${symlink}"`;
 		rm -rvi ./`basename "${symlink}"`;
 		if(! -e ./`basename "${symlink}"` ) cp -rv "${target}" ./`basename "${symlink}"`;
@@ -48,8 +48,8 @@ revert_symlinks:
 	printf "Restoring symlinks.\n";
 	
 	foreach project_symlink("`cat '${symlink_log}'`")
-		set target="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
-		set symlink="`echo "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
+		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
+		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
 		
 		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
 			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";

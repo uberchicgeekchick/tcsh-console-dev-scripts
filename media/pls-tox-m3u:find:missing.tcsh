@@ -5,13 +5,18 @@ if(!( "${1}" != "" && -e "${1}" )) goto usage;
 set playlist="${1}";
 shift;
 
-if( "${1}" != "" && "${1}" != "${cwd}" && -d "${1}" ) then
-	set search_dir="${1}";
-	cd "${search_dir}";
+if( "${1}" != "" && -d "${1}" ) then
+	if( "${1}" != "${cwd}" ) then
+		set search_dir="${1}";
+		cd "${search_dir}";
+	endif
 	shift;
 endif
 
-set extension="";
+if(! ${?eol} ) setenv eol '$';
+
+set extensions="";
+set message="";
 while( "${1}" != "" )
 	set dashes="`printf '%s' '${1}' | sed -r 's/([\-]{1,2})([^=]*)=?["\""'\''"\"""\""]?(.*)["\""'\''"\"""\""]?/\1/'`";
 	set option="`printf '%s' '${1}' | sed -r 's/([\-]{1,2})([^=]*)=?["\""'\''"\"""\""]?(.*)["\""'\''"\"""\""]?/\2/'`";
@@ -34,7 +39,7 @@ while( "${1}" != "" )
 			if(! -d "${value}" ) then
 				printf "--%s must specify a sub-directory of %s.\n" "${option}" "${cwd}" > /dev/stderr;
 			else
-				set skip_subdir="${value}";
+				set skip_subdir="`printf '%s' "\""${value}"\"" | sed -r 's/\/${eol}//' | sed -r 's/^\///'`";
 			endif
 			breaksw;
 		
@@ -65,7 +70,7 @@ while( "${1}" != "" )
 		
 		case "extension":
 		case "extensions":
-			if( "${value}" != "" ) set extension="${value}";
+			if( "${value}" != "" ) set extensions="${value}";
 			breaksw;
 		
 		case "debug":
@@ -76,13 +81,13 @@ while( "${1}" != "" )
 			switch("${value}")
 				case "force":
 					set remove="";
-					printf "**Podcasts not found in [%s] will be removed.**\n" "${playlist}";
+					set message="**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t[${playlist}]\n\twill be removed.**\n\n";
 					breaksw;
 				
 				case "interactive":
 				default:
 					set remove="i";
-					printf "**Podcasts not found in [%s] will be prompted for removal.**\n" "${playlist}";
+					set message="**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t[${playlist}]\n\twill be prompted for removal.**\n\n";
 					breaksw;
 				
 			endsw
@@ -97,7 +102,7 @@ while( "${1}" != "" )
 				set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
 				if( ${value} > 2 ) set maxdepth=" -maxdepth ${value} ";
 			endif
-			if(! ${?maxdepth} ) printf "--maxdepth must be an integer value that is gretter than 2";
+			if(! ${?maxdepth} ) printf "--maxdepth must be an integer value that is gretter than 2" > /dev/null;
 			breaksw;
 		
 		default:
@@ -111,22 +116,29 @@ end;
 
 if(! ${?playlist} ) goto usage;
 
-if(! ${?eol} ) setenv eol '$';
+if( ${?skip_subdir} ) then
+	if( "`/bin/ls ./`" == "${skip_subdir}" ) exit 0;
+endif
+
+if( ${?message} ) then
+	printf "${message}";
+endif
 
 if(! ${?maxdepth} ) then
 	set maxdepth=" -maxdepth 2 ";
 endif
 
 set this_dir="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-if( ${?debug} ) printf "Searching for missing multimedia files using:\n\tfind ./${maxdepth}-mindepth 2 -type f -iregex '.*${extension}${eol}' | sed -r 's/"\""/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g'";
-foreach podcast("`find ./${maxdepth}-mindepth 2 -type f -iregex '.*${extension}${eol}' | sed -r 's/"\""/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g'`")
+if( ${?debug} ) printf "Searching for missing multimedia files using:\n\tfind ./${maxdepth}-mindepth 2 -type f -iregex '.*${extensions}${eol}' | sed -r 's/"\""/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/\[/\\\[/g'";
+@ removed_podcasts=0;
+foreach podcast("`find ./${maxdepth}-mindepth 2 -type f -iregex '.*${extensions}${eol}' | sed -r 's/"\""/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/\[/\\\[/g'`")
 	if( ${?skip_subdir} ) then
 		if( "`printf '%s' "\""${podcast}"\"" | sed -r 's/^\.\/(${skip_subdir})\/.*/\1/'`" == "${skip_subdir}" ) continue;
 	endif
 	
 	set podcast_file="`printf '%s' "\""${podcast}"\"" | sed -r "\""s/^\.\//${this_dir}\//"\""`";
-	if( ${?debug} ) printf "Searching for [%s].\n" "${podcast_file}";
 	if( `/bin/grep "${podcast_file}" "${playlist}"` != "" ) continue;
+	if( ${?debug} ) printf "**missing file:** [%s].\n" "${podcast_file}";
 	
 	if( ${?duplicates_subdir} ) then
 		set duplicate_podcast="`printf '%s' "\""${podcast}"\"" | sed -r "\""s/^\.\//${this_dir}\/${duplicates_subdir}\//"\""`";
@@ -149,10 +161,12 @@ foreach podcast("`find ./${maxdepth}-mindepth 2 -type f -iregex '.*${extension}$
 	
 	set rm_confirmation=`rm -vf${remove} "${podcast_file}"`;
 	if( ${status} == 0 && "${rm_confirmation}" != "" ) then
+		@ removed_podcasts++;
 		if( ${?create_script} ) then
 			printf "rm -vf${remove} "\""${podcast_file}"\"";\n" >> "${create_script}";
 		endif
 		if( ${?duplicate_podcast} ) then
+			@ removed_podcasts++;
 			set rm_confirmation=`rm -vf${remove} "${duplicate_podcast}"`;
 			if( ${?create_script} && ${status} == 0 && "${rm_confirmation}" != "" ) then
 				printf "rm -vf${remove} "\""${duplicate_podcast}"\"";\n" >> "${create_script}";
@@ -162,7 +176,7 @@ foreach podcast("`find ./${maxdepth}-mindepth 2 -type f -iregex '.*${extension}$
 	
 	set podcast_dir=`dirname "${podcast_file}"`;
 	if( "${podcast_dir}" == "${cwd}" ) continue;
-	while( "${podcast_dir}" != "/" )
+	while( "${podcast_dir}" != "/" && "${podcast_dir}" != "${cwd}" )
 		if( `ls "${podcast_dir}"` != "" ) break;
 		rmdir -v "${podcast_dir}";
 		if( ${?create_script} ) then
@@ -175,7 +189,7 @@ foreach podcast("`find ./${maxdepth}-mindepth 2 -type f -iregex '.*${extension}$
 	
 	set podcast_dir=`dirname "${duplicate_podcast}"`;
 	if( "${podcast_dir}" == "${cwd}" ) continue;
-	while( "${podcast_dir}" != "/" )
+	while( "${podcast_dir}" != "/" && "${podcast_dir}" != "${cwd}" )
 		if( `ls "${podcast_dir}"` != "" ) break;
 		rmdir -v "${podcast_dir}";
 		if( ${?create_script} ) then
@@ -184,6 +198,8 @@ foreach podcast("`find ./${maxdepth}-mindepth 2 -type f -iregex '.*${extension}$
 		set podcast_dir=`dirname "${podcast_dir}"`;
 	end
 end
+
+if( $removed_podcasts == 0 && ${?create_script} ) rm "${create_script}";
 
 if( ${?search_dir} ) then
 	cd "${owd}";

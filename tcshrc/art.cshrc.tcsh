@@ -24,7 +24,7 @@ if(! ${?eol} ) setenv eol '$';
 source "${TCSH_RC_SESSION_PATH}/art:color.cshrc.tcsh";
 
 #setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --ignore-case --initial-tab";
-setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --initial-tab";
+setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --initial-tab --no-messages";
 alias	grep		"grep ${GREP_OPTIONS}";
 alias	egrep		"grep ${GREP_OPTIONS} --perl-regexp";
 unsetenv GREP_OPTIONS

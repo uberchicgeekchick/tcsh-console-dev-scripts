@@ -16,11 +16,11 @@ while( ${?1} && "${1}" != "" )
 	case "--nightly-build":
 	case "--x86-64":
 		set rm_extensions;
-		set program_path="/programs/Mozilla/Firefox3/x86_64/";
+		set program_path="/programs/Mozilla/Thunderbird3/x86_64/";
 		breaksw
 	case "--download":
 		set rm_extensions;
-		set program_path="/programs/Mozilla/Firefox3/firefox/";
+		set program_path="/programs/Mozilla/Thunderbird3/thunderbird/";
 		breaksw
 	case "-ProfileManager":
 		set argz="${1} ${argz}";
@@ -31,7 +31,7 @@ while( ${?1} && "${1}" != "" )
 		if( ${?1} && "${1}" != "" && -d "${firefox_profile_path}/${1}" ) then
 			set ff_profile="${1}";
 		else
-			set ff_profile="uberChick";
+			set ff_profile="uberChicGeekChick";
 		endif
 		breaksw
 	default:
@@ -43,7 +43,7 @@ end
 
 if(!(${?program_path})) then
 	set rm_extensions;
-	set program_path="/programs/Mozilla/Firefox3/x86_64/";
+	set program_path="/programs/Mozilla/Thunderbird3/x86_64/";
 endif
 
 ff_init:
@@ -84,12 +84,13 @@ endif
 printf "Attempting load %s; attempt: %d.\n" ${this_program} ${ff_attempt};
 if(! ${?ff_found} ) then
 	if( ${ff_attempt} == 0 ) then
-		if(! ${?ff_profile} ) set ff_profile="uberChick";
+		if(! ${?ff_profile} ) set ff_profile="uberChicGeekChick";
 		set argz="-P '${ff_profile}' ${argz}";
 	endif
 	@ ff_attempt++;
 	if( ${ff_attempt} > 1 && ${?rm_extensions} ) then
-		rm ${firefox_profile_path}/${ff_profile}/extensions.* >& /dev/null &;
+		printf "Removing extensions cache files @\n\t<${firefox_profile_path}/${ff_profile}/extensions.*>\n";
+		rm -v ${firefox_profile_path}/${ff_profile}/extensions.*;
 		sleep 5;
 	endif
 	goto ff_start

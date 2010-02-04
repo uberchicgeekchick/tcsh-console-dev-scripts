@@ -12,9 +12,18 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
+if( "${1}" == "--reset" ) then
+	if( ${?CPP} ) unsetenv CPP;
+	if( ${?CC} ) unsetenv CC;
+	if( ${?CXX} ) unsetenv CXX;
+	shift;
+endif
+
+set gcc_version="-4.5";
+
 #C preprocessor
 if(! ${?CPP} ) then
-	foreach cpp ("`where cpp`")
+	foreach cpp ("`where cpp${gcc_version}`")
 		if( -x "${cpp}" ) then
 			setenv	CPP	"${cpp}";
 			break;
@@ -26,7 +35,7 @@ endif
 
 #C compiler
 if(! ${?CC} ) then
-	foreach cc ("`where gcc`")
+	foreach cc ("`where gcc${gcc_version}`")
 		if( -x "${cc}" ) then
 			setenv	CC	"${cc}";
 			break;
@@ -38,7 +47,7 @@ endif
 
 #C++ compiler
 if(! ${?CXX} ) then
-	foreach cxx ("`where g++`")
+	foreach cxx ("`where g++${gcc_version}`")
 		if( -x "${cxx}" ) then
 			setenv	CXX	"${cxx}";
 			break;

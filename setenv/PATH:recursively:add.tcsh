@@ -34,7 +34,7 @@ while("${1}" != "" )
 			breaksw;
 	endsw
 	unset option value;
-
+	
 	if(!( "${1}" != "" && -d "${1}" )) then
 		set status=-1;
 		printf "[%s] is not an existing directory.\n\n" "${1}";
@@ -46,12 +46,13 @@ while("${1}" != "" )
 	set search_dir="`echo '${1}' | sed -r 's/(.*)\/?${eol}/\1/'`";
 	shift;
 	if( ${?TCSH_RC_DEBUG} ) echo "\nRecusively looking for possible paths is: <${search_dir}> using:\n\tfind '${search_dir}'${find_name_argv} -type d\n";
-
+	
 	set escaped_recusive_dir="`echo '${search_dir}' | sed -r 's/\//\\\//g'`";
 	foreach dir ( "`find '${search_dir}'${find_name_argv} -type d`" )
+		if( "${dir}" == "" ) continue;
 		if( "`echo '${dir}' | sed -r 's/${escaped_recusive_dir}(\.).*/\1/'`" == "." ) continue;
 		set escaped_dir="`echo '${dir}' | sed -r 's/.*\/([^\/]+)/\1/'`";
-		switch( `basename "${escaped_dir}"` )
+		switch( "${escaped_dir}" )
 			case "tmp":
 			case "reference":
 			case "lost+found":
@@ -73,9 +74,10 @@ while("${1}" != "" )
 		endsw
 	end
 	
-	if( "${new_path}" == "" ) continue;
-	
-	setenv PATH "${PATH}:${new_path}";
+	if( "${new_path}" != "" ) then
+		set new_path="`printf '%s' '${new_path}' | sed -r 's/::/:/g' | sed -r 's/:${eol}//'`";
+		setenv PATH "${PATH}:${new_path}";
+	endif
 	unset dir escaped_dir new_path find_name_argv;
 end
 

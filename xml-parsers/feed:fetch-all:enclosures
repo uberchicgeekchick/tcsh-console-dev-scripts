@@ -280,7 +280,7 @@ foreach episode ( "`cat './00-enclosures.lst'`" )
 	printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURL: %s (episode)\n\t\t\t" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}" >> "${download_log}";
 
 	# Skipping existing files.
-	if( ${?fetch_all} ) then
+	if(! ${?fetch_all} ) then
 		if( -e "./${episodes_filename}" ) then
 			if( ! ${?quiet} ) printf "[skipped existing file]";
 			printf "[skipping existing file]" >> "${download_log}";

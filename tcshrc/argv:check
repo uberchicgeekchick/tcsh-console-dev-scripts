@@ -2,11 +2,8 @@
 if(! ${?TCSH_RC_SOURCE_FILE} ) setenv TCSH_RC_SOURCE_FILE "$argv[1]";
 if(! ${?source_file} ) set source_file="$argv[1]";
 
-if(! ${?eol} ) then
-	if( ${?TCSH_RC_DEBUG} ) printf "Setting environments %s{eol}: %s.\n\t%s{eol} can be used in regex arguments, e.g. sed's 's' option.\n" "${eol}" "${eol}" "${eol}";
-	if(! ${?eol} ) setenv eol '$';
-	#if(! ${?eol} ) setenv eol '"\$"';
-endif
+if(! ${?eol} ) if( ${?TCSH_RC_DEBUG} ) printf "Setting environments %s{eol}: %s.\n\t%s{eol} can be used in regex arguments, e.g. sed's 's' option.\n" "${eol}" "${eol}" "${eol}";
+if(! ${?eol} ) setenv eol '$';
 
 @ args_handled=0;
 @ argc=${#argv};

@@ -2,8 +2,10 @@
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
 
-setenv	CFLAGS		"-std=gnu99 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
-setenv	CXXFLAGS	"-std=gnu++0x -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
+#setenv	CFLAGS		"-std=gnu99 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
+#setenv	CXXFLAGS	"-std=gnu++0x -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
+setenv	CFLAGS		"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
+setenv	CXXFLAGS	"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
 #setenv	MAKEFLAGS	"-O3"
 if( ${?MAKEFLAGS} ) unsetenv	MAKEFLAGS;
 
@@ -93,7 +95,7 @@ while( ${?2} && "${2}" != "" )
 	endsw
 end
 
-goto make;
+#goto make;
 
 checkout:
 cd "${srcdir}";
@@ -151,10 +153,12 @@ foreach tarball ( dist/*.tar.bz2 )
 		continue;
 	endif
 	
+	#if( ${?mozilla_exec} ) rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
 	rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
 	cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
 	set tarball="${tarball_backup_dir}/${backup_tarball}";
 end
+#if( ${?mozilla_exec} ) goto finish_exec;
 
 
 
@@ -203,7 +207,9 @@ if(! -e ${mozilla_exec} ) then
 	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tInstallation of %s failed\n\t\t\tBinary is not executable: [%s]\n\n" ${build_mozilla} ${mozilla_exec};
 	exit -1;
 endif
+#goto backup;
 
+finish_exec:
 if(!(${second_run})) then
 	rm -rf "${prefix}/x86_64";
 	mv "${prefix}/${build_mozilla}" "${prefix}/x86_64";

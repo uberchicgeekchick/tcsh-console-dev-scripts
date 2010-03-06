@@ -22,10 +22,9 @@ else
 	setenv output " &";
 endif
 
-set TCSH_LAUNCHER_PATH="${TCSH_RC_SESSION_PATH}/../launchers";
-set starting_directory="${cwd}";
-cd "${TCSH_LAUNCHER_PATH}";
-foreach launcher ( "`find ${TCSH_LAUNCHER_PATH} -type f -perm '/u=x' -printf '%f\n'`" )
+setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
+source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=1 "${TCSH_LAUNCHER_PATH}";
+foreach launcher ( "`find ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f -perm '/u=x' -printf '%f\n'`" )
 	switch( "${launcher}" )
 		case "init.tcsh":
 		case "firefox-bin":
@@ -72,15 +71,23 @@ foreach launcher ( "`find ${TCSH_LAUNCHER_PATH} -type f -perm '/u=x' -printf '%f
 	
 	# alias to target this launcher:
 	if( ${?TCSH_RC_DEBUG} ) printf "Aliasing: [%s] to [%s/%s]\n" "${launcher}" "${TCSH_LAUNCHER_PATH}" "${launcher}";
-	alias ${launcher} "${TCSH_LAUNCHER_PATH}/${launcher}";
+	alias ${launcher} \$"{TCSH_LAUNCHER_PATH}/${launcher}";
 	
 	# let the launcher handle setting the alias:
 	#if( ${?TCSH_RC_DEBUG} ) printf "Sourcing: %s\n" "${TCSH_LAUNCHER_PATH}/${launcher}";
 	#source "${TCSH_LAUNCHER_PATH}/${launcher}";
-	unset program;
+	unset program launcher;
 end
-unset TCSH_LAUNCHER_PATH launcher;
-cd "${starting_directory}";
+
+setenv TCSH_WEBSITE_LAUNCHERS_PATH "${TCSH_LAUNCHER_PATH}/websites";
+source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=1 "${TCSH_WEBSITE_LAUNCHERS_PATH}";
+foreach launcher ( "`find '${TCSH_WEBSITE_LAUNCHERS_PATH}' -type f -perm '/u=x' -printf '%f\n'`" )
+	set website="`printf '%s' '${launcher}' | sed -r 's/(.*)\.tcsh${eol}/\1/'`";
+	if( ${?TCSH_RC_DEBUG} ) printf "Setting up website alias for [%s] to [%s/%s].\n" "${website}" "${TCSH_WEBSITE_LAUNCHERS_PATH}" "${launcher}";
+	alias	"${website}"	\$"{TCSH_WEBSITE_LAUNCHERS_PATH}/${launcher}";
+	unset website launcher;
+end
+unset launcher;
 
 if( ${?sed_regexp_set} ) then
 	unalias sed;

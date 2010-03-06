@@ -12,7 +12,11 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
+if( "${1}" == "--reset" ) then
+	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment" --reset;
+else
+	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
+endif
 
 if(! ${?OSS_CANVAS} ) setenv OSS_CANVAS;
 
@@ -47,6 +51,7 @@ setenv MY_INCLUDE_FLAGS "-I${LD_LIBRARY_PATH} -I. -I..";
 
 setenv CPPFLAGS "-O3 -g3 -ggdb -ffast-math ${MY_INCLUDE_FLAGS}";
 
+#setenv MYDEREFFLAGS " -fno-strict-aliasing -Wno-strict-aliasing";
 setenv MYDEREFFLAGS " -fstrict-aliasing -Wstrict-aliasing=3";
 #setenv MYDEREFFLAGS " -fmudflapth -fmudflapir -fno-strict-aliasing -lmudflap";
 setenv MAKEFLAGS "-Wall -Wextra -Werror -Wno-unused-parameter -Wno-parentheses";

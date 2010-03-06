@@ -4,29 +4,29 @@ while( ${?1} && "${1}" != "" )
 		case "--firefox":
 		case "--links":
 		case "--lynx":
-			set browser="`echo -n '${1}' | sed -r 's/[\-]{2}(.*)/\1/'`";
+			set browser="`printf '%s' '${1}' | sed -r 's/[\-]{2}(.*)/\1/'`";
 			shift;
-			breaksw
+			breaksw;
 		default:
-			if( ! ${?browser} && "`echo -n '${1}' | sed -r 's/[\-]{2}(browser)=(.*)/\1/'`" == "browser" ) then
-				set exec_test="`echo -n '${1}' | sed -r 's/[\-]{2}browser=(.*)/\1/'`";
+			if( ! ${?browser} && "`printf '%s' '${1}' | sed -r 's/[\-]{2}(browser)=(.*)/\1/'`" == "browser" ) then
+				set exec_test="`printf '%s' '${1}' | sed -r 's/[\-]{2}browser=(.*)/\1/'`";
 				foreach browser("`where '${exec_test}'`")
 					if( ${?exec_test} ) unset exec_test;
 					if( -x "${browser}" ) then
 						shift;
-						breaksw
+						breaksw;
 					endif
 				end
 				if( ${?browser} ) unset browser;
 			endif
 			
-			if( ${?search_phrase} ) then
-				set search_phrase="${search_phrase} ${1}";
-			else
+			if(! ${?search_phrase} ) then
 				set search_phrase="${1}";
+			else
+				set search_phrase="${search_phrase}%20${1}";
 			endif
 			shift;
-			breaksw
+			breaksw;
 	endsw
 end
 
@@ -55,10 +55,25 @@ noexec:
 	printf "Unable to find %s.\n" "${browser}";
 	if( ${?program} ) unset program;
 	unset browser;
-	exit -1;
+	set status=-1;
+	goto exit_script;
+#noexec
 
 launchers_main:
+	if(! ${?search_phrase} ) set search_phrase="";
+	if( "${search_phrase}" == "" ) then
+		set status=-1;
+		goto usage;
+	endif
+#launchers_main
 
+${program} "http://dictionary.reference.com/browse/${search_phrase}";
 
-${program} "http://google.com/search?q=${search_phrase}";
+exit_script:
+	exit ${status};
+#exit_script
 
+usage:
+	printf "%s "\""[search phrase]"\" "`basename '${0}'`";
+	goto exit_script;
+#usage

@@ -1,9 +1,11 @@
 #!/bin/tcsh -f
 if( ${?TCSH_RC_DEBUG} ) unsetenv TCSH_RC_DEBUG;
 #if(! ${?TCSH_RC_SESSION_PATH} )
+if( ${?TCSH_RC_SOURCE_FILE} ) then
+	unsetenv TCSH_RC_SOURCE_FILE;
+endif
 setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="etc-csh.cshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" "${argv}";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "etc-csh.logout" "${argv}";
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -49,9 +51,7 @@ if( -e "${histfile}.jobs" ) rm -fv "${histfile}.jobs";
 
 source "${TCSH_RC_SESSION_PATH}/logout.cshrc.tcsh";
 
-if(! ${?source_file} ) set source_file="etc-csh.cshrc";
-if( "${source_file}" != "etc-csh.cshrc" ) set source_file="etc-csh.cshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "etc-csh.cshrc";
 
 exit ${status};
 

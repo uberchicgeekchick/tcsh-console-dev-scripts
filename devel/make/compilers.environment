@@ -19,42 +19,51 @@ if( "${1}" == "--reset" ) then
 	shift;
 endif
 
-set gcc_version="-4.5";
+set gcc_versions=("-4.5" "");
 
 #C preprocessor
 if(! ${?CPP} ) then
-	foreach cpp ("`where cpp${gcc_version}`")
-		if( -x "${cpp}" ) then
-			setenv	CPP	"${cpp}";
-			break;
-		endif
+	foreach gcc_version($gcc_versions)
+		foreach cpp ("`where cpp${gcc_version}`")
+			if( -x "${cpp}" ) then
+				setenv	CPP	"${cpp}";
+				break;
+			endif
+		end
+		unset cpp gcc_version;
+		if( ${?CPP} && -e ${CPP} ) break;
 	end
-	unset cpp;
-	if(! ${?CPP} ) printf "**error:** your C/C++ pre-processor couldn't be found. Looked for cpp binary.";
+	if(! ${?CPP} ) printf "**error:** your C/C++ pre-processor couldn't be found while looking for your cpp binary.";
 endif
 
 #C compiler
 if(! ${?CC} ) then
-	foreach cc ("`where gcc${gcc_version}`")
-		if( -x "${cc}" ) then
-			setenv	CC	"${cc}";
-			break;
-		endif
+	foreach gcc_version($gcc_versions)
+		foreach cc ("`where gcc${gcc_version}`")
+			if( -x "${cc}" ) then
+				setenv	CC	"${cc}";
+				break;
+			endif
+		end
+		unset cc gcc_version;
+		if( ${?CC} && -e ${CC} ) break;
 	end
-	unset cc;
-	if(! ${?CC} ) printf "**error:** your C compiler couldn't be found. Looked for gcc binary.";
+	if(! ${?CC} ) printf "**error:** your C compiler couldn't be found while looking for your cpp binary.";
 endif
 
 #C++ compiler
 if(! ${?CXX} ) then
-	foreach cxx ("`where g++${gcc_version}`")
-		if( -x "${cxx}" ) then
-			setenv	CXX	"${cxx}";
-			break;
-		endif
+	foreach gcc_version($gcc_versions)
+		foreach cxx ("`where g++${gcc_version}`")
+			if( -x "${cxx}" ) then
+				setenv	CXX	"${cxx}";
+				break;
+			endif
+		end
+		unset cxx gcc_version;
+		if( ${?CXX} && -e ${CXX} ) break;
 	end
-	unset cxx;
-	if(! ${?CC} ) printf "**error:** your C++ compiler couldn't be found. Looked for g++ binary.";
+	if(! ${?CC} ) printf "**error:** your C++ compiler couldn't be found while looking for your cpp binary.";
 endif
 
 set source_file="compilers.environment";

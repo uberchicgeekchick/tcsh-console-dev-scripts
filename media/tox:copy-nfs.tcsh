@@ -6,15 +6,16 @@ endif
 
 if(! ${?TCSH_RC_DEBUG} ) set TCSH_RC_DEBUG="";
 
-if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)${eol}/\1/'`" == ".m3u" && -e "${1}" ) ) then
-	if( "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)${eol}/\1/'`" != ".m3u" ) printf "\n\t**ERROR:** %s is not a valid m3u playlist.\n" "${1}";
-	printf "Usage: %s playlist.m3u (e.g: ~/media/playlist/filename.m3u)\n" "`basename '${0}'`";
-	exit -1;
+if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)${eol}/\1/'`" == ".tox" && -e "${1}" ) ) then
+	if( "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)${eol}/\1/'`" != ".tox" ) printf "\n\t**ERROR:** %s is not a valid m3u playlist.\n" "${1}";
+	printf "Usage: %s playlist.tox (e.g. ~/media/playlist/toxine.tox)\n" "`basename '${0}'`";
+	set status=-1;
+	exit ${status};
 endif
 if(! ${?eol} ) setenv eol '$';
 
 if(!( ${?2} && "${2}" != "" && ( "`printf "\""${2}"\"" | sed 's/.*\(\.tcsh\)${eol}/\1/g'`" == ".tcsh" || "${2}" == "--enable=auto-copy" ) )) then
-	set tcsh_shell_script="`printf "\""${1}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.m3u\)${eol}/\1\2\.tcsh/'`";
+	set tcsh_shell_script="`printf "\""${1}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.tox\)${eol}/\1\2\.tcsh/'`";
 else if( "${2}" == "--enable=auto-copy" ) then
 	set auto_copy;
 	set tcsh_shell_script=".copy-local-@-`date '+%s'`";
@@ -41,6 +42,7 @@ chmod u+x "${tcsh_shell_script}";
 ex "+2r ./.local.playlist.swp" '+wq!' "${tcsh_shell_script}";
 /bin/rm "./.local.playlist.swp";
 
+ex '+3d'"+2,${eol}s/^entry\ {[\r\n]\+//" "+2,${eol}s/^};${eol}//" "+2,${eol}s/^\tmrl\ =\ \(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);${eol}/\1\2\/\3\.\4/" "+2,${eol}s/^\t.*;[\r\n]\+//" "+1,${eol}s/^[\r\n]\+//"  '+wq!' "${tcsh_shell_script}";
 ex '+3,$s/^\#.*[\r\n]*//' '+3,$s/^[^\/].*[\r\n]*//' '+3,$s/\([\!]\)/\\\1/g' '+3,$s/"/"\\""/g' '+wq!' "${tcsh_shell_script}";
 ex '+3,$s/\(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\([^\/]\+\)\/\(.*\)/if(! -e "\1nfs\/\2\3\/\4" ) then\r\t\tprintf "**error coping:** remote file <%s> doesn'\''t exists." "\1nfs\/\2\3\/\4" > \/dev\/stderr;\r\telse\r\tif(! -d "\1\2\3" ) mkdir -p "\1\2\3";\r\tif(! -e "\1\2\3\/\4" ) then\r\t\tif( "${old_podcast}" != "\2\3" ) then\r\t\t\tprintf "\\nCopying: %s'\''s content(s):" "\2\3";\r\t\t\tset old_podcast="\2\3";\r\tendif\r\t\tprintf "\\n\\tCopying: %s" "\4";\r\t\tcp "\1nfs\/\2\3\/\4" "\1\2\3\/\4"\r\t\tprintf "\\n\\t\\t\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
 

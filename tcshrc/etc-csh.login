@@ -9,10 +9,12 @@
 #
 if(! ${?eol} ) setenv eol '$';
 if( ${?TCSH_RC_DEBUG} ) unsetenv TCSH_RC_DEBUG;
+if( ${?TCSH_RC_SOURCE_FILE} ) then
+	unsetenv TCSH_RC_SOURCE_FILE;
+endif
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 
-set source_file="etc-csh.login";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "etc-csh.login" ${argv};
 
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -22,7 +24,7 @@ if( $args_handled > 0 ) then
 	end
 	unset args_shifted;
 endif
-unset args_handled source_file;
+unset args_handled;
 
 onintr -
 set noglob
@@ -334,9 +336,7 @@ if(${?TERM} && -o /dev/$tty && ${?prompt}) then
     endif
 endif
 
-if(! ${?source_file} ) set source_file="etc-csh.login";
-if( "${source_file}" != "etc-csh.login" ) set source_file="etc-csh.login";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "etc-csh.login";
 #
 # End of /etc/csh.login
 #

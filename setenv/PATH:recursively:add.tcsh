@@ -12,8 +12,11 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled source_file;
 
+set maxdepth="";
+set mindepth="";
+set find_name_argv="";
+next_argv:
 while("${1}" != "" )
-	next_argv:
 	set status=0;
 	set option="`printf "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
 	set value="`printf "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
@@ -25,17 +28,30 @@ while("${1}" != "" )
 			shift;
 			breaksw;
 		
+		case "maxdepth":
+			set maxdepth=" -maxdepth ${value}";
+			shift;
+			breaksw;
+		
+		case "mindepth":
+			set mindepth=" -mindepth ${value}";
+			shift;
+			breaksw;
+		
 		case "h":
 		case "help":
 			goto usage;
 			breaksw;
 		default:
-			set find_name_argv="";
 			breaksw;
 	endsw
 	unset option value;
 	
 	if(!( "${1}" != "" && -d "${1}" )) then
+		if( "${2}" != "" ) then
+			shift;
+			goto next_argv;
+		endif
 		set status=-1;
 		printf "[%s] is not an existing directory.\n\n" "${1}";
 		shift;
@@ -45,10 +61,10 @@ while("${1}" != "" )
 	set new_path="";
 	set search_dir="`echo '${1}' | sed -r 's/(.*)\/?${eol}/\1/'`";
 	shift;
-	if( ${?TCSH_RC_DEBUG} ) echo "\nRecusively looking for possible paths is: <${search_dir}> using:\n\tfind '${search_dir}'${find_name_argv} -type d\n";
+	if( ${?TCSH_RC_DEBUG} ) echo "\nRecusively looking for possible paths is: <${search_dir}> using:\n\tfind '${search_dir}'${maxdepth}${mindepth}${find_name_argv} -type d\n";
 	
 	set escaped_recusive_dir="`echo '${search_dir}' | sed -r 's/\//\\\//g'`";
-	foreach dir ( "`find '${search_dir}'${find_name_argv} -type d`" )
+	foreach dir ( "`find '${search_dir}'${maxdepth}${mindepth}${find_name_argv} -type d`" )
 		if( "${dir}" == "" ) continue;
 		if( "`echo '${dir}' | sed -r 's/${escaped_recusive_dir}(\.).*/\1/'`" == "." ) continue;
 		set escaped_dir="`echo '${dir}' | sed -r 's/.*\/([^\/]+)/\1/'`";
@@ -64,7 +80,7 @@ while("${1}" != "" )
 				set dir="`echo '${dir}' | sed -r 's/([\:])/\\\1/g'`";
 				set escaped_dir="`echo '${dir}' | sed -r 's/\//\\\//g'`";
 				if( "`echo '${PATH}' | sed 's/.*:\(${escaped_dir}\).*/\1/g'`" == "${dir}" ) then
-					if( ${?TCSH_RC_DEBUG} ) printf "\n\*notice:\* [%s] is already present in your PATH\n" "${dir}";
+					if( ${?TCSH_RC_DEBUG} ) printf "\n**notice:** [%s] is already present in your PATH\n" "${dir}";
 					continue;
 				endif
 				

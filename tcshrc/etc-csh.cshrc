@@ -7,6 +7,9 @@
 #
 if(! ${?eol} ) setenv eol '$';
 #if(! ${?eol} ) setenv eol '"\$"';
+if( ${?TCSH_RC_SOURCE_FILE} ) then
+	unsetenv TCSH_RC_SOURCE_FILE;
+endif
 if( ${?TCSH_RC_DEBUG} ) unsetenv TCSH_RC_DEBUG;
 #if(! ${?TCSH_RC_SESSION_PATH} )
 setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
@@ -208,7 +211,5 @@ if( -r "${TCSH_RC_SESSION_PATH}/csh.cshrc" ) then
 endif
 
 if( ${?TCSH_RC_DEBUG} ) printf "TCSH setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
-if(! ${?source_file} ) set source_file="etc-csh.cshrc";
-if( "${source_file}" != "etc-csh.cshrc" ) set source_file="etc-csh.cshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "etc-csh.cshrc";
 # End of /etc/csh.cshrc

@@ -1,7 +1,6 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="art.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "art.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -10,7 +9,7 @@ if( $args_handled > 0 ) then
 	end
 	unset args_shifted;
 endif
-unset args_handled source_file;
+unset args_handled;
 
 if(! ${?echo_style} ) then
 	set echo_style=sysv;
@@ -21,13 +20,8 @@ endif
 if(! ${?eol} ) setenv eol '$';
 #if(! ${?eol} ) setenv eol '"\$"';
 
-source "${TCSH_RC_SESSION_PATH}/art:color.cshrc.tcsh";
+source ${TCSH_RC_SESSION_PATH}/source:argv "${TCSH_RC_SESSION_PATH}/art:color.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:devel:make:init.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" "art:grep-and-find.cshrc.tcsh";
 
-#setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --ignore-case --initial-tab";
-setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --initial-tab --no-messages";
-alias	grep		"grep ${GREP_OPTIONS}";
-alias	egrep		"grep ${GREP_OPTIONS} --perl-regexp";
-unsetenv GREP_OPTIONS
 
 alias	cmake	"cmake -Wno-dev";
 alias	sqlite	"sqlite3";
@@ -45,6 +39,4 @@ setenv	TERMCAP		"/profile.d/~slash./screens.termcap"
 
 alias	rsed		"sed --regexp-extended";
 
-if(! ${?source_file} ) set source_file="art.cshrc.tcsh";
-if( "${source_file}" != "art.cshrc.tcsh" ) set source_file="art.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "art.cshrc.tcsh";

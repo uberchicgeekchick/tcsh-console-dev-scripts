@@ -1,20 +1,52 @@
 #!/bin/tcsh -f
-set exit_code=0;
 
-set sync_method = "no-sync";
-if( -e "./.sync.default" ) set sync_method=`cat ./.sync.default`;
+set status=0;
 
-if( -e ./.no.pushing ) set no_pushing;
+set git_commit_setting_files=( "sync.default" "no.pushing" "no.logging" );
+
+if(! -e "./.sync.default" ) then
+	set sync_method = "no-sync";
+else
+	set sync_method=`cat ./.sync.default`;
+endif
+
+if(! -e ./.no.pushing ) set push;
+if(! -e ./.no.logging ) set logging;
+
+set old_owd="${owd}";
+set old_cwd="${cwd}";
+while( "${cwd}" != "/" && ! -d "./.git" )
+	cd ..;
+	if(! -d "./.git" ) continue;
+	set git_dir="${cwd}";
+	break;
+end
+
+if(! ${?git_dir} ) then
+	cd "${old_cwd}";
+	set owd="${old_owd}";
+	unset old_owd;
+	unset old_cwd;
+endif
 
 set log_dir="./.`basename '${0}'`.logs";
 set project="`basename '${cwd}'`";
 if(! ${?eol} ) setenv eol='$';
 
+@ argc=0
+while ( "$argv[$argc]" != "" )
+	if( "$argv[$argc]" == "--debug" )
+		set debug_commit;
+		break;
+	endif
+	@ argc++;
+end
+
 set follow_symlinks;
 while ( "${1}" != "" )
 	set option="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\1/'`";
 	set value="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\2/'`";
-	#printf '%s' "--${option}=${value}";
+	if( ${?debug_commit} ) printf 'Parsing Option:\n\t--%s=%s\n' "${option}" "${value}";
 	switch ( "${option}" )
 	case "help":
 		goto usage;
@@ -22,11 +54,25 @@ while ( "${1}" != "" )
 	case "sync":
 		set sync_method="${value}";
 		breaksw;
+	case "no-push":
 	case "no-pushing":
-		set no_pushing;
+		if( ${?push} ) unset push;
 		breaksw;
-	case "disable-logging":
-		set rm_log;
+	case "push-to":
+		if( "${value}" != "" ) then
+			foreach git_repo("`git remote`")
+				if("${value}" == "${git_repo}") then
+					set push_to="${value}";
+					break;
+				endif
+			end
+		endif
+		if(! ${?push_to} ) then
+			printf "%s is not a valid remote git repo.\n" "${value}" > /dev/stderr;
+		else
+			set push="${push_to}";
+			unset push_to;
+		endif
 		breaksw;
 	case "skip-remote-clean-up":
 		set skip_remote_clean_up;
@@ -36,7 +82,7 @@ while ( "${1}" != "" )
 		breaksw;
 	case "append":
 		if( ! -d "${log_dir}" ) then
-			printf("No previous commit messages could be found.  I new commit will be created.");
+			printf "No previous commit messages could be found.  I new commit will be created.";
 			breaksw;
 		endif
 		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
@@ -44,7 +90,7 @@ while ( "${1}" != "" )
 
 		if( ! -e "${commit_log}" ) then
 			set commit_action="Committed";
-			printf("No previous commit messages could be found.  I new commit will be created.");
+			printf "No previous commit messages could be found.  I new commit will be created.";
 		else
 			set commit_action="Commit Appended";
 		endif
@@ -65,12 +111,24 @@ while ( "${1}" != "" )
 			case "follow-sysmlinks":
 				if(! ${?follow_symlinks} ) set follow_symlinks;
 				breaksw;
+			case "push":
+				if(! ${?push} ) set push;
+				breaksw;
+			case "logging":
+				if(! ${?logging} ) set logging;
+				breaksw;
 		endsw
 		breaksw;
 	case "disable":
 		switch("${value}")
 			case "follow-sysmlinks":
 				if( ${?follow_symlinks} ) unset follow_symlinks;
+				breaksw;
+			case "push":
+				if( ${?push} ) unset push;
+				breaksw;
+			case "logging":
+				if( ${?logging} ) unset logging;
 				breaksw;
 		endsw
 		breaksw;
@@ -85,15 +143,16 @@ while ( "${1}" != "" )
 			endif
 			set commit_log="${log_dir}/`date '+%Y-%m-%d @ %T'`.message";
 			set commit_action="Committed";
-			printf "${1}" > "${commit_log}";
-			breaksw;
+		else
+			printf '\n\n' > "${commit_log}";
 		endif
-		printf "\n\n${1}" >> "${commit_log}";
+		printf '%s' "${1}" >> "${commit_log}";
 		breaksw;
 	endsw
-	shift
+	shift;
 end
-#exit;
+
+if( ${?debug_commit} ) printf "Option parsing complete.\n";
 
 if(! ${?commit_log} ) then
 	if( -d "${log_dir}" ) then
@@ -106,7 +165,7 @@ else
 endif
 
 if(!(${?commit_log} && "${commit_log}" != "" && -e "${commit_log}")) then
-	set exit_code = -1;
+	set status=-1;
 	goto usage;
 endif
 
@@ -155,27 +214,40 @@ if( ${?follow_symlinks} && ${?symlink_log} ) then
 	if( -e "${symlink_log}" ) git  rm --cached --quiet "${symlink_log}";
 endif
 
-# The next;
-# Remove any vim, connectED, gedit, or etc 'swp' files.;
-# This is even more useful to keep from committing early art works & uber-alphas;
-#;
-foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
+# Keep extremely large files from being committed;
+set extensions="bz2\|gz\|tgz\|zip";
+foreach tarball ( "`find . -iregex '.*\.\(${extensions}\)' | sed -r 's/(.*)\.(${extensions})([^\/]*).*/\1\.\2\3/' | uniq`" )
+	if( "`printf '%s' '${tarball}' | sed 's/^\(\.git\).*/\1/'`" == ".git" ) continue;
 	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
 	git rm -r --cached --quiet "${tarball}";
 end
 unset tarball;
 
-foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\|o\)'`" )
+# Remove any vim, connectED, gedit, or etc 'swp' files.;
+set extensions="sw.\|bck\|~\|o";
+foreach swp ( "`find . -iregex '.*\.\(${extensions}\)' | sed -r 's/(.*)\.(${extensions})([^\/]*).*/\1\.\2\3/' | uniq`" )
+	if( "`printf '%s' '${swp}' | sed 's/^\(\.git\).*/\1/'`" == ".git" ) continue;
 	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
 	git rm -r --cached --quiet "${swp}";
 end
 unset swp;
 
-foreach art ( "`find . -iregex '.*\.\(art\|dev\|ref\|new\|old\)\.[^\.]*'`" )
+# Don't commit early art works, uber-alpha code, & ald works;
+set extensions="art\|dev\|ref\|new\|old";
+foreach art ( "`find . -iregex '.*[\.\-]\(${extensions}\).*' | sed 's/\(.*\)\([\.\-]\)\(${extensions}\)\([^\/]*\).*/\1\2\3\4/' | uniq`" )
+	if( "`printf '%s' '${art}' | sed 's/^\(\.git\).*/\1/'`" == ".git" ) continue;
 	set art = "`printf '${art}' | sed 's/^\.\///'`";
 	git rm -r --cached --quiet "${art}";
 end
 unset art;
+
+unset extensions;
+
+# Keep my logs from being added to any commit.
+foreach git_commit_setting_file( ${git_commit_setting_files} )
+	if( -e "./.${git_commit_setting_file}" ) git rm --cached --quiet "./.${git_commit_setting_file}";
+end
+unset git_commit_setting_file git_commit_setting_files;
 
 git rm -r --cached --quiet "${log_dir}";
 
@@ -187,27 +259,28 @@ else if( ${?branch} ) then
 	if( "`head -1 '${commit_log}'`" != "${branch}" ) then
 		printf "${branch}\n\n" > "${commit_log}.swp";
 		cat "${commit_log}" >> "${commit_log}.swp";
+		rm "${commit_log}";
 		mv "${commit_log}.swp" "${commit_log}";
 	endif
 endif
 
 git commit -a -F "${commit_log}" --cleanup=verbatim;
 
-if( ${?rm_log} ) then
+if(! ${?logging} ) then
 	rm "${commit_log}";
 	if( ${?log_dir_is_new} ) rmdir "${log_dir}";
 endif
-
-#foreach test_branch("`/bin/ls --width=1 -tr .git/refs/heads/ | tail -2 | sed 's/[\r\n]//'`")
-#	if( "${test_branch}" != "" && "${test_branch}" != "master" ) then
-#		set branch=${test_branch};
-#	endif
-#end
 
 if( ${?branch} ) then
 	printf "Updating %s's branch: %s\n" "${project}" "${branch}";
 	git branch -f "${branch}";
 endif
+
+#foreach newwest_branch("`/bin/ls --width=1 -tr .git/refs/heads/ | tail -2 | sed 's/[\r\n]//'`")
+#	if( "${newwest_branch}" != "" && "${newwest_branch}" != "${branch}" && "${newwest_branch}" != "master" ) then
+#		set branch -f "${newest_branch}";
+#	endif
+#end
 
 if( ${?follow_symlinks} && ${?symlink_log} ) then
 	if( -e "${symlink_log}" ) then
@@ -238,63 +311,73 @@ if( ${?follow_symlinks} && ${?symlink_log} ) then
 	endif
 endif
 
-if(! ${?no_pushing} ) then
-	foreach remote_git ( "`git remote`" )
+if( ${?push} ) then
+	foreach remote_git_repo ( "`git remote`" )
+		if( "${push}" != "" && "${push}" != "${remote_git_repo}" ) continue;
 		if( ${?branch} ) then
-			git push "${remote_git}" "${branch}"
+			git push "${remote_git_repo}" "${branch}"
 		endif
-		git push "${remote_git}" master;
+		git push "${remote_git_repo}" master;
 	end
 endif
 
 
-exit;
-
-
 goto check_sync;
-exit;
 
-init_sync:
-set project_name = "`basename '${cwd}'`";
-set sshfs_path = "/projects/ssh";
-set ssh_user = "dreams";
-set ssh_server = "sky.ocssolutions.com";
-
-
-run_sync:
-switch( "${sync_method}" )
-case "rsync":
-	rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
-	breaksw;
-
-case "scp":
-	scp -rv ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
-	breaksw;
-
-case "sshfs":
-	if( `mount | grep "${sshfs_path}"` == "" ) then
-		sshfs "${ssh_user}@${ssh_server}:/home/${ssh_user}" "${sshfs_path}";
+exit_script:
+	if( ${?old_cwd} ) then
+		cd "${old_cwd}";
+		set owd="${old_owd}";
+		unset old_owd;
+		unset old_cwd;
 	endif
-case "cp":
-	if( ! -d "${sshfs_path}/${project_name}" ) then
-		printf "I couldn't find your project: '%s' in your sshfs path: '%s'\nEither your project doesn't exist on your sshfs or ssh isn't mounted\n", ${project_name}, ${sshfs_path};
-		exit;
-	endif
+	exit ${status};
+
+sync:
+	set project_name = "`basename '${cwd}'`";
+	set sshfs_path = "/projects/ssh";
+	set ssh_user = "dreams";
+	set ssh_server = "sky.ocssolutions.com";
+
+	switch( "${sync_method}" )
+	case "rsync":
+		if(! ${?skip_remote_clean_up} ) set skip_remote_clean_up;
+		rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
+		breaksw;
 	
-	printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n";
-	cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}";
-	printf "\t\t[done]";
+	case "scp":
+		if(! ${?skip_remote_clean_up} ) set skip_remote_clean_up;
+		scp -rv ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
+		breaksw;
 	
-	# cleaning up swp files that may have been copied to the remote location
-	printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
-	foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
-		rm --verbose "${swp}";
-	end
-	printf "\t\t[done]";
+	case "sshfs":
+		if( `mount | grep "${sshfs_path}"` == "" ) then
+			sshfs "${ssh_user}@${ssh_server}:/home/${ssh_user}" "${sshfs_path}";
+		endif
+	case "cp":
+		if( ! -d "${sshfs_path}/${project_name}" ) then
+			printf "I couldn't find your project: '%s' in your sshfs path: '%s'\nEither your project doesn't exist on your sshfs or ssh isn't mounted\n", ${project_name}, ${sshfs_path};
+			set status=-3;
+			goto exit_script;
+		endif
+		
+		printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n";
+		cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}";
+		printf "\t\t[done]";
 	
-stale_check:
-	goto script_exit_clean;
-	if( ${?skip_remote_clean_up} ) breaksw;
+		# cleaning up swp files that may have been copied to the remote location
+		printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
+		foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
+			rm --verbose "${swp}";
+		end
+		printf "\t\t[done]";
+		breaksw;
+	endsw
+#sync
+
+remote_clean_up:
+	goto exit_script;
+	if( ${?skip_remote_clean_up} ) goto exit_script;
 		
 	# compare "${sshfs_path}/${project_name}/" against ./;
 	# and remove remote files that no longer exist locally.;
@@ -324,35 +407,29 @@ stale_check:
 		end
 	
 	printf "\nRemoving stale remote files\t\t[done]";
-	
-	breaksw;
-endsw
-
-script_exit_clean:
-	exit 0;
-
-script_exit_fail:
-	if( ! ${?exit_error} ) set exit_error="-1";
-	exit ${exit_error};
+#remote_clean_up
 
 check_sync:
-switch ( "${sync_method}" )
-case "rsync":
-case "scp":
-case "sshfs":
-case "cp":
-	goto init_sync;
-	breaksw;
-case "no-sync":
-	exit ${exit_code};
-	breaksw;
-default:
-	printf "%s is not a supported sync method.  Valid options are:\n\trsync, scp, sshfs, cp, no-sync" "${sync_method}";
-	exit -2;
-	breaksw;
-endsw
+	switch ( "${sync_method}" )
+		case "rsync":
+		case "scp":
+		case "sshfs":
+		case "cp":
+			goto sync;
+			breaksw;
+		case "no-sync":
+			goto exit_script;
+			breaksw;
+		default:
+			printf "%s is not a supported sync method.  Valid options are:\n\trsync, scp, sshfs, cp, no-sync" "${sync_method}";
+			set status=-2;
+			goto exit_script;
+			breaksw;
+		endsw
+#check_sync
 
 usage:
-printf "Usage: %s\n\t--help\t Displays this message.\n\n--current-working-directory=/local/path/to/project's/root/directory\tThis causes %s to cd to the specified path before commiting & syncronizing.\n\n--sync=[rsync, scp, sshfs, cp, no-sync]\tControls how files are copied or backed-up.  Especially useful for online based projects.  The project's default sync method may be set by creating a file named './.sync.default'.\n\n\t--no-pushing\tSkips git's 'remote push for this commit.\n\n--skip-remote-clean-up\tThis stops %s from comfirming all remote files still exist locally, under your current working directory.\nThis is specifically useful if your project has files which use special characters.\nThe recommanded usage for this feature is to run the script 1st w/o this flag & than run a second sync using this flag.  But just an idea not a requirement or any thing.\n\n--disable-logging\tKeeps %s from preserving this commit message.\n\n--append\tappends, or re-commits, any changes using the previously logged commit message commit_message [commit_details]\n" `basename "${0}"` `basename "${0}"` `basename "${0}"`;
-exit ${exit_code};
+	printf "Usage: %s\n\t--help\t Displays this message.\n\n--current-working-directory=/local/path/to/project's/root/directory\tThis causes %s to cd to the specified path before commiting & syncronizing.\n\n--sync=[rsync, scp, sshfs, cp, no-sync]\tControls how files are copied or backed-up.  Especially useful for online based projects.  The project's default sync method may be set by creating a file named './.sync.default'.\n\n\t--no-push\tSkips git's 'remote push for this commit.\n\n--skip-remote-clean-up\tThis stops %s from comfirming all remote files still exist locally, under your current working directory.\nThis is specifically useful if your project has files which use special characters.\nThe recommanded usage for this feature is to run the script 1st w/o this flag & than run a second sync using this flag.  But just an idea not a requirement or any thing.\n\n--disable-logging\tKeeps %s from preserving this commit message.\n\n--append\tappends, or re-commits, any changes using the previously logged commit message commit_message [commit_details]\n" `basename "${0}"` `basename "${0}"` `basename "${0}"`;
+	goto exit_script;
+#usage
 

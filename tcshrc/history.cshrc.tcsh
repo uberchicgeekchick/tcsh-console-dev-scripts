@@ -1,7 +1,6 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="history.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "history.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -40,7 +39,5 @@ alias	logout	'source "${TCSH_RC_SESSION_PATH}/etc-csh.logout"; \
 		if( ${status} == 0 ) exit;';
 
 exit_script:
-	if(! ${?source_file} ) set source_file="history.cshrc.tcsh";
-	if( "${source_file}" != "history.cshrc.tcsh" ) set source_file="history.cshrc.tcsh";
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "history.cshrc.tcsh";
 

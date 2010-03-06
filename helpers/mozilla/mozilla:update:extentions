@@ -1,0 +1,13 @@
+#!/bin/tcsh -f
+set mozilla_profiles_directory="/programs/mozilla/settings";
+
+if(!( "${1}" != "" && "${2}" != "" && -d "${mozilla_profiles_directory}/${1}/profiles/${2}/extensions/" )) then
+	printf "Usage: %s [program] [profile]" "`basename '${0}'`" > /dev/stderr;
+	set status=-1;
+	exit $status;
+endif
+
+foreach rdf ( "${mozilla_profiles_directory}/${1}/profiles/${2}/extensions/"*/install.rdf )
+	ex -X -n -E '+1,$s/^\([\ \t]*\)\(<\)\(em:\)\?\(maxVersion>\)[^<]*\(<\/\)\(em:\)\?\(maxVersion>\)/\1\2\3\43\.\*\5\6\7/' '+1,$s/\v([\ \t]*)(em:)?(maxVersion\=")[^"]*(")/\1\2\33\.*\4/' '+wq!' "${rdf}";
+end
+

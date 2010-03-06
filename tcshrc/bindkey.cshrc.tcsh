@@ -7,9 +7,8 @@
 #
 # Author:  Werner Fink <feedback@suse.de>
 
-set source_file="bindkey.cshrc.tcsh";
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "bindkey.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -728,7 +727,5 @@ endif
 # end bindkey.tcsh
 
 
-if(! ${?source_file} ) set source_file="bindkey.cshrc.tcsh";
-if( "${source_file}" != "bindkey.cshrc.tcsh" ) set source_file="bindkey.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "bindkey.cshrc.tcsh";
 

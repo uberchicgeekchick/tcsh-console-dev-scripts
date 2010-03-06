@@ -1,30 +1,124 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-
-set source_file="source:argv";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
-
-if( $args_handled > 0 ) then
-	@ args_shifted=0;
-	while( $args_shifted < $args_handled )
-		@ args_shifted++;
-		shift;
-	end
-	unset args_shifted;
-endif
-unset args_handled source_file;
+init:
+	if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+	set script_name="source:argv";
+	goto parse_argv; # exit's via 'usage:' or 'main:'.
+#init:
 
 
-
-foreach path_source_file( ${argv} )
-	if(! -e "${TCSH_RC_SESSION_PATH}/${path_source_file}" ) then
-		if( ${?TCSH_RC_DEBUG} ) printf "**ERROR:** cannot source ${TCSH_RC_SESSION_PATH}/${path_source_file} could not be found.\n";
-		continue;
+exit_script:
+	if( ${?debug} ) unset debug;
+	if( ${?use_old_owd} ) then
+		cd "${owd}";
+		set owd="${use_old_owd}";
+		unset use_old_owd;
 	endif
-	if( ${?TCSH_RC_DEBUG} ) printf "Sourcing ${TCSH_RC_SESSION_PATH}/${path_source_file}\n";
-	source "${TCSH_RC_SESSION_PATH}/${path_source_file}";
+	if( ${?eol_set} ) unset eol_set eol;
+	exit ${status}
+#exit_script:
+
+
+usage:
+	if( ${?debug} ) unset debug;
+	if(! ${?usage_displayed} ) then
+		printf "Usage:\n\t%s [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n" "${script_name}";
+		set usage_displayed;
+	endif
+	if(! ${?no_exit_on_usage} ) then
+		set status=-1;
+		goto exit_script;
+	endif
+#usage:
+
+
+
+parse_argv:
+	@ my_argc=${#argv};
+	
+	if( ${my_argc} == 0 ) goto main;
+	
+	@ my_arg=0;
+	while( $my_arg < $my_argc )
+		@ my_arg++;
+		if( "$argv[$my_arg]" != "--debug" ) continue;
+		set argv[$my_arg]="";
+		printf "Enabling debug mode (via "\$"argv[%d]\n" $my_arg;
+		set debug;
+		break;
+	end
+	if( ${my_arg} > 1 )	\
+		@ my_arg=0;
+	
+	if( ${?debug} ) printf "Checking %s's argv options.  %d total.\n" "${script_name}" "${my_argc}";
+#parse_argv:
+
+parse_arg:
+while( $my_arg < $my_argc )
+	@ my_arg++;
+	if( ${?TCSH_RC_DEBUG} || ${?debug} ) printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${my_arg}" "${my_argc}" "$argv[$my_arg]";
+	
+	set equals="";
+	set value="`printf "\""$argv[$my_arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\3/'`";
+	if( "${value}" == "$argv[$my_arg]" ) then
+		set value="";
+	else
+		set equals="=";
+	endif
+	
+	set dashes="`printf "\""$argv[$my_arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
+	if( "${dashes}" == "$argv[$my_arg]" ) set dashes="";
+	
+	set option="`printf "\""$argv[$my_arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
+	if( "${option}" == "$argv[$my_arg]" ) set option="";
+	
+	if( ${?debug} )		\
+		printf "Checking argv #%d (%s).\n\tParsed option: %s%s%s%s\n" "${my_arg}" "$argv[$my_arg]" "${dashes}" "${option}" "${equals}" "${value}";
+	
+	switch( "${option}" )
+		case "debug":
+			breaksw;
+		
+		case "usage":
+			if( "${value}" == "" ) then
+				@ my_arg++;
+				if( $my_arg > $my_argc ) continue;
+				set usage_message="$argv[$my_arg]";
+			else
+				set usage_message="${value}";
+			endif
+			breaksw;
+		
+		default:
+			if( -e "$argv[$my_arg]" ) then
+				set source_file="$argv[$my_arg]";
+			else if( -e "${TCSH_RC_SESSION_PATH}/$argv[$my_arg]" ) then
+				set source_file="${TCSH_RC_SESSION_PATH}/$argv[$my_arg]";
+			endif
+			
+			if(! ${?source_file} ) then
+				if( ${?TCSH_RC_DEBUG} || ${?debug} ) printf "**ERROR:** cannot source $argv[$my_arg] could not be found.\n";
+				continue;
+			endif
+			
+			if( ${?TCSH_RC_DEBUG} || ${?debug} ) then
+				if( ${?usage_message} ) then
+					printf "%s @ %s\n" "${usage_message}" `date "+%I:%M:%S%P"`;
+				else
+					printf "Sourcing ${source_file} @ %s.\n" `date "+%I:%M:%S%P"`;
+				endif
+			endif
+			if( ${?usage_message} ) unset usage_massage;
+			source "${source_file}";
+			
+			if( ${?TCSH_RC_DEBUG} || ${?debug} ) then
+				if( ${?usage_message} ) then
+					printf "Finished %s @ %s\n" "${usage_message}" `date "+%I:%M:%S%P"`;
+				else
+					printf "Finished sourcing: <${source_file}> @ %s.\n" `date "+%I:%M:%S%P"`;
+					unset usage_message;
+				endif
+			endif
+		breaksw;
+	endsw
 end
-if(! ${?source_file} ) set source_file="source:argv";
-if( "${source_file}" != "source:argv" ) set source_file="source:argv";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
 

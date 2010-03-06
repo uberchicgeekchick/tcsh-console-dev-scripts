@@ -11,7 +11,7 @@ if( ${?MAKEFLAGS} ) unsetenv	MAKEFLAGS;
 
 if( ${?http_proxy}  ) unsetenv http_proxy
 
-set mozilla_top_dir="/programs/Mozilla";
+set mozilla_top_dir="/programs/mozilla";
 set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
 
 if( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
@@ -191,6 +191,20 @@ goto stop_build
 
 exec_install:
 ${prefix}/x86_64/${build_mozilla} &
+set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}" "${build_mozilla}.sh");
+foreach ff_binary( ${ff_binaries} )
+	if(! ${?ff_found} ) then
+		printf "Looking for running instance of: %s.\n" ${ff_binary};
+		foreach ff_pid(`/bin/pidof ${ff_binary}`)
+			printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
+			if( "${ff_pid}" != "" && $ff_pid > 0 ) then
+				renice +5 $ff_pid >& /dev/null;
+				printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
+				if(! ${?ff_found} ) set ff_found;
+			endif
+		end
+	endif
+end
 
 
 exit

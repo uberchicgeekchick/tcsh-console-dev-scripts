@@ -1,27 +1,64 @@
 #!/bin/tcsh -f
+if( "${1}" != "" && "${1}" == "--edit-playlist" ) then
+	set edit_playlist;
+	shift;
+endif
+
 if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)${eol}/\1/'`" == ".tox" && -e "${1}" ) ) then
-	printf "Usage: %s playlist.tox [toxine/playlist/filename.m3u]" "`basename '${0}'`";
 	if( "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)${eol}/\1/'`" != ".tox" ) printf "\n\t**ERROR:** %s is not a valid toxine playlist." "${1}";
+	printf "Usage: %s playlist.tox [toxine/playlist/filename.m3u]" "`basename '${0}'`";
 	exit -1;
 endif
+
+set tox_playlist="${1}";
+shift;
+
 if( ! ${?eol} ) setenv eol '$';
 
-if( ! ( ${?2} && "${2}" != "" && "`printf "\""${2}"\"" | sed 's/.*\(\.m3u\)${eol}/\1/g'`" == ".m3u" ) ) then
-	set playlist="`printf "\""${1}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.tox\)${eol}/\1\2\.m3u/'`";
+if( ! ( "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)${eol}/\1/g'`" == ".m3u" ) ) then
+	set m3u_playlist="`printf "\""${tox_playlist}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.tox\)${eol}/\1\2\.m3u/'`";
 else
-	set playlist="${2}";
+	set m3u_playlist="${1}";
+	shift;
 endif
-if( "${1}" == "${playlist}" ) then
-	printf "Failed to generate m3u filename.";
+
+set insert_subdir="";
+if( "`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`" == "insert-subdir" ) then
+	set insert_subdir="`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/' | sed -r 's/^\///' | sed -r 's/\/${eol}//' | sed -r 's/\//\\\//'`\/";
+	if( "${insert_subdir}" == "" ) unset insert_subdir;
+	shift;
+endif
+
+if( "`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`" == "strip-subdir" ) then
+	set strip_subdir="`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/' | sed -r 's/^\///' | sed -r 's/\/${eol}//' | sed -r 's/\//\\\//'`\/";
+	if( "${strip_subdir}" == "" ) then
+		unset strip_subdir;
+	else if( "${strip_subdir}" == "${insert_subdir}" ) then
+		set insert_subdir="";
+		unset strip_subdir;
+	endif
+	shift;
+endif
+
+if( "${tox_playlist}" == "${m3u_playlist}" ) then
+	printf "Failed to generate tox filename.";
 	exit -1;
 endif
 
-printf "Converting %s to %s" ${1} ${playlist};
+if( ${?edit_playlist} ) ${EDITOR} "${tox_playlist}";
 
-printf "" >! "${playlist}";
-set tox_playlist="`printf '%s' '${1}' | sed 's/\([()\ ]\)/\\\1/g'`";
-ex -E -n -s -X "+1r ${tox_playlist}" '+wq!' "${playlist}";
-ex -E -n -s -X '+1,$s/^\#.*[\r\n]//' '+2,$s/^entry\ {[\r\n]\+//' '+2,$s/^};$//' '+2,$s/^\tmrl\ =\ \(\/.*\)\/\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\/\2\/\3\.\4/' '+2,$s/^\t.*;[\r\n]\+//' '+1,$s/^[\r\n]\+//' '+$d' '+wq!' "${playlist}";
+printf "Converting %s to %s" "${tox_playlist}" "${m3u_playlist}";
+
+alias	ex	"ex -E -n -s -X --noplugin";
+
+printf "" >! "${m3u_playlist}";
+set tox_playlist="`printf '%s' '${tox_playlist}' | sed 's/\([()\ ]\)/\\\1/g'`";
+ex "+1r ${tox_playlist}" '+wq!' "${m3u_playlist}";
+ex '+1,$s/^\#.*[\r\n]//' '+2,$s/^entry\ {[\r\n]\+//' '+2,$s/^};$//' "+2,${eol}s/^\tmrl\ =\ \(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);${eol}/\1${insert_subdir}\2\/\3\.\4/" '+2,$s/^\t.*;[\r\n]\+//' '+1,$s/^[\r\n]\+//' '+$d' '+wq' "${m3u_playlist}";
+
+if( ${?strip_subdir} ) then
+	ex "+3,${eol}s/\v^(\/[^\/]+\/[^\/]+\/)${strip_subdir}(.*)\/([^\/]+)(, released on[^\.]+)\.([^;]+);${eol}/\1\2\/\3\4\.\5;/" '+wq' "${m3u_playlist}";
+endif
 
 printf "\t[done]\n";
 

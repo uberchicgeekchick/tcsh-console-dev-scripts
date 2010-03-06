@@ -1,7 +1,6 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="art:devel:make:init.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "art:devel:make:init.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -12,7 +11,14 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
+if( ${?TCSH_RC_DEBUG} ) printf "Setting up make & gcc environment @ %s.\n" `date "+%I:%M:%S%P"`;
+
+if( "${1}" == "--reset" ) then
+	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment" --reset;
+else
+	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
+endif
+
 
 alias	"make:init:artistic:canvas"		"if( ! ${?OSS_CANVAS} ) setenv OSS_CANVAS; source ${TCSH_RC_SESSION_PATH}/../devel/make/init.tcsh"
 
@@ -47,6 +53,4 @@ cd "${starting_dir}";
 
 unset starting_dir canvas_to_load;
 
-if(! ${?source_file} ) set source_file="art:devel:make:init.cshrc.tcsh";
-if( "${source_file}" != "art:devel:make:init.cshrc.tcsh" ) set source_file="art:devel:make:init.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "art:devel:make:init.cshrc.tcsh";

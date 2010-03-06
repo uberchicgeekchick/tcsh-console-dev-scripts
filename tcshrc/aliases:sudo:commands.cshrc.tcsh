@@ -1,7 +1,6 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="aliases:sudo:commands.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "aliases:sudo:commands.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -53,6 +52,5 @@ unset sudo_command sudo_commands;
 
 unset sudo_alias;
 
-if(! ${?source_file} ) set source_file="aliases:sudo:commands.cshrc.tcsh";
-if( "${source_file}" != "aliases:sudo:commands.cshrc.tcsh" ) set source_file="aliases:sudo:commands.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "aliases:sudo:commands.cshrc.tcsh";
+

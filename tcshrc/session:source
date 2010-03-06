@@ -1,7 +1,6 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="session:source";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "session:source" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -45,15 +44,9 @@ end
 
 if( ${?TCSH_RC_DEBUG} ) printf "Setting up artistic programming canvas @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_RC_SESSION_PATH}/art.cshrc.tcsh";
-if( ${?TCSH_RC_DEBUG} ) printf "Setting up make & gcc environment @ %s.\n" `date "+%I:%M:%S%P"`;
-source "${TCSH_RC_SESSION_PATH}/art:devel:make:init.cshrc.tcsh";
-if( ${?TCSH_RC_DEBUG} ) printf "Setting up EDITOR as VIM & advanced bindings @ %s.\n" `date "+%I:%M:%S%P"`;
-source "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh";
 
 if( ${?TCSH_RC_DEBUG} ) printf "\nSession set up completed @ %s\n" `date "+%I:%M:%S%P"`;
 
 unset rc_file;
 
-if(! ${?source_file} ) set source_file="session:source";
-if( "${source_file}" != "session:source" ) set source_file="session:source";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "session:source";

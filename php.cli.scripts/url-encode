@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+	ini_set( "display_errors", TRUE );
+	ini_set( "error_reporting", E_ALL | E_STRICT );
+	ini_set( "default_charset", "utf-8" );
+
+	if(!(isset($_SERVER['argv'][1]))){
+		printf("Usage: %s [\"string\"]\n", $_SERVER['argv']);
+		exit -1;
+	}
+	
+	printf( "%s", urlencode($_SERVER['argv'][1]));
+?>

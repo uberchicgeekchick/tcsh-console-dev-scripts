@@ -2,8 +2,7 @@
 if( ${uid} == 0 ) exit 0;
 
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="aliases:sudo:services.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "aliases:sudo:services.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -41,7 +40,5 @@ unset services_paths services_path service_path service;
 
 setenv TCSH_SESSION_SERVICES_PATH_SET;
 
-if(! ${?source_file} ) set source_file="aliases:sudo:services.cshrc.tcsh";
-if( "${source_file}" != "aliases:sudo:services.cshrc.tcsh" ) set source_file="aliases:sudo:services.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "aliases:sudo:services.cshrc.tcsh";
 

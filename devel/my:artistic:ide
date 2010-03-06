@@ -126,7 +126,7 @@ artistic_canvas:
 					"--tab-with-profile=projects:www --title=TweetMyBlog --working-directory=/projects/www/TweetMyBlog" \
 					"--tab-with-profile=projects:www --title=realFriends --working-directory=/projects/www/realFriends" \
 					"--tab-with-profile=projects:www --title=Creative::Code::Canvas --working-directory=/projects/www/Creative::Code::Canvas" \
-					"--tab-with-profile=projects:www --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
+					"--tab-with-profile=projects:www --title=a.o.php --working-directory=/projects/www/uberChicGeekChick.Com" \
 				);
 			breaksw;
 		
@@ -141,30 +141,42 @@ artistic_canvas:
 		
 		case  "Projects":
 			set my_canvas=( \
-				"--tab-with-profile=projects:cli --title=/cli --working-directory=/projects/cli" \
+				"--tab-with-profile=projects:cli --title=console.pallet --working-directory=/projects/cli/console.pallet" \
 				"--tab-with-profile=projects:cli --title=alacast-cli --working-directory=/projects/cli/alacast" \
-				"--tab-with-profile=projects:www --title=/www --working-directory=/projects/www" \
-				"--tab-with-profile=projects:www --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
-				"--tab-with-profile=projects:gtk --title=/gtk --working-directory=/projects/gtk" \
+				"--tab-with-profile=projects:www --title=a.o.php --working-directory=/projects/www/uberChicGeekChick.Com" \
+				"--tab-with-profile=projects:gtk --title=connectED --working-directory=/projects/gtk/connectED" \
 				"--tab-with-profile=projects:gtk --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
 				"--tab-with-profile=projects:gtk --title=alacast-gtk --working-directory=/projects/gtk/alacast" \
-				"--tab-with-profile=projects:media --title=/media --working-directory=/projects/media" \
-				"--tab-with-profile=projects:art --title=/art --working-directory=/projects/art" \
-				"--tab-with-profile=projects:games --title=/games --working-directory=/projects/games" \
-				"--tab-with-profile=projects:games --title=hackGirls --working-directory=/projects/games/my-games/hackGirls" \
+				"--tab-with-profile=projects:games --title=many-worlds --working-directory=/projects/games/my-games/many-worlds" \
 			);
 			breaksw;
+		
+		case "Artistic":
+			set my_canvas=( \
+				"--tab-with-profile=projects:cli --title=/cli --working-directory=/projects/cli" \
+				"--tab-with-profile=projects:www --title=a.o.php --working-directory=/projects/www/uberChicGeekChick.Com" \
+				"--tab-with-profile=projects:gtk --title=connectED --working-directory=/projects/gtk/connectED" \
+				"--tab-with-profile=projects:gtk --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
+				"--tab-with-profile=projects:gtk --title=alacast-gtk --working-directory=/projects/gtk/alacast" \
+				"--tab-with-profile=projects:games --title=many-worlds --working-directory=/projects/games/my-games/many-worlds" \
+			);
+			breaksw;
+		
 		case  "All":
 		default:
 			set my_canvas=( \
 				"--tab-with-profile=projects:cli --title=/cli --working-directory=/projects/cli" \
+				"--tab-with-profile=projects:cli --title=console.pallet --working-directory=/projects/cli/console.pallet" \
+				"--tab-with-profile=projects:cli --title=alacast-cli --working-directory=/projects/cli/alacast" \
 				"--tab-with-profile=projects:art --title=/art --working-directory=/projects/art" \
 				"--tab-with-profile=projects:www --title=/www --working-directory=/projects/www" \
-				"--tab-with-profile=projects:www --title=AOPHP --working-directory=/projects/www/uberChicGeekChick.Com" \
+				"--tab-with-profile=projects:www --title=a.o.php --working-directory=/projects/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=projects:gtk --title=/gtk --working-directory=/projects/gtk" \
+				"--tab-with-profile=projects:gtk --title=connectED --working-directory=/projects/gtk/connectED" \
 				"--tab-with-profile=projects:gtk --title=get2gnow --working-directory=/projects/gtk/get2gnow" \
 				"--tab-with-profile=projects:gtk --title=alacast-gtk --working-directory=/projects/gtk/alacast" \
 				"--tab-with-profile=projects:games --title=/games --working-directory=/projects/games" \
+				"--tab-with-profile=projects:games --title=many-worlds --working-directory=/projects/games/my-games/many-worlds" \
 			);
 			breaksw;
 		endsw
@@ -176,16 +188,16 @@ build_canvas:
 	switch( "${canvas}" )
 	case  "Mozilla":
 		set my_canvas=( \
-			"--tab-with-profile=uberChick --title=mozilla-src --working-directory=/programs/Mozilla/src" \
-			"--tab-with-profile=uberChick --title=xulrunner-src --working-directory=/programs/Mozilla/src/xulrunner-src" \
-			"--tab-with-profile=uberChick --title=firefox-src --working-directory=/programs/Mozilla/src/firefox-src" \
-			"--tab-with-profile=uberChick --title=thunderbird-src --working-directory=/programs/Mozilla/src/thunderbird-src" \
+			"--tab-with-profile=uberChick --title=mozilla-src --working-directory=/programs/mozilla/src" \
+			"--tab-with-profile=uberChick --title=xulrunner-src --working-directory=/programs/mozilla/src/xulrunner-src" \
+			"--tab-with-profile=uberChick --title=firefox-src --working-directory=/programs/mozilla/src/firefox-src" \
+			"--tab-with-profile=uberChick --title=thunderbird-src --working-directory=/programs/mozilla/src/thunderbird-src" \
 		);
 		breaksw;
 	
 	case  "XULRunner":
 		set my_canvas=( \
-			"--tab-with-profile=uberChick --title=xulrunner-src --working-directory=/programs/Mozilla/src/xulrunner-src" \
+			"--tab-with-profile=uberChick --title=xulrunner-src --working-directory=/programs/mozilla/src/xulrunner-src" \
 		);
 		breaksw;
 
@@ -193,7 +205,7 @@ build_canvas:
 	default:
 		set my_canvas=( \
 			"--tab-with-profile=uberChick --title=/projects --working-directory=/projects" \
-			"--tab-with-profile=uberChick --title=Mozilla/src --working-directory=/programs/Mozilla/src" \
+			"--tab-with-profile=uberChick --title=Mozilla/src --working-directory=/programs/mozilla/src" \
 			"--tab-with-profile=uberChick --title=/programs/src --working-directory=/programs/src" \
 		);
 		breaksw;

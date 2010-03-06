@@ -12,7 +12,12 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
+if( "${1}" == "--reset" ) then
+	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment" --reset;
+else
+	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
+endif
+
 
 if( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS;
 

@@ -1,31 +1,40 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SOURCE_FILE} ) setenv TCSH_RC_SOURCE_FILE "$argv[1]";
-if(! ${?source_file} ) set source_file="$argv[1]";
+if(! ${?TCSH_RC_SOURCE_FILE} ) then
+	setenv TCSH_RC_SOURCE_FILE "$argv[1]";
+endif
 
-if(! ${?eol} ) if( ${?TCSH_RC_DEBUG} ) printf "Setting environments %s{eol}: %s.\n\t%s{eol} can be used in regex arguments, e.g. sed's 's' option.\n" "${eol}" "${eol}" "${eol}";
-if(! ${?eol} ) setenv eol '$';
+if(! ${?eol} ) then
+	if( ${?TCSH_RC_DEBUG} ) printf "Setting environments "\$"{eol}: "\$".\n\t"\$"{eol} is intended to be in regex statements.\n\tE.G. commands and command line arguments, e.g. sed's 's' option.\n";
+	if(! ${?eol} ) setenv eol '$';
+endif
 
 @ args_handled=0;
 @ argc=${#argv};
-@ arg=0;
-while( $arg < $argc )
-	@ arg++;
-	switch( $argv[$arg] )
-		case "--debug":
-			@ args_handled++;
-			if( ${?SSH_CONNECTION} ) breaksw;
-			if( ${?TCSH_RC_DEBUG} ) then
-				if( "${TCSH_RC_DEBUG}" != "$argv[1]" ) breaksw;
-			endif
-			
-			printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date "+%I:%M:%S%P"`;
-			setenv TCSH_RC_DEBUG "$argv[1]";
-		breaksw
-	endsw
-end
+if(! ${?TCSH_RC_DEBUG} ) then
+	@ arg=0;
+	while( $arg < $argc )
+		@ arg++;
+		switch( "$argv[$arg]" )
+			case "--debug":
+				@ args_handled++;
+				@ arg=${#argv};
+				if( ${?SSH_CONNECTION} ) breaksw;
+				if( ${?TCSH_RC_DEBUG} ) then
+					if( "${TCSH_RC_DEBUG}" != "$argv[1]" ) breaksw;
+				endif
+				
+				set argv[$arg]="";
+				printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date "+%I:%M:%S%P"`;
+				setenv TCSH_RC_DEBUG "$argv[1]";
+				break;
+			breaksw;
+		endsw
+	end
+endif
 
-@ argc=${#argv};
-@ arg=0;
+	if( ! ${?TCSH_RC_DEBUG} || $arg > 1 )	\
+		@ arg=0;
+
 if( ${?TCSH_RC_DEBUG} ) then
 	printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
 else if( "`alias cwdcmd`" != "" ) then
@@ -34,24 +43,51 @@ else if( "`alias cwdcmd`" != "" ) then
 	unalias cwdcmd;
 endif
 
+
 while( $arg < $argc )
 	@ arg++;
 	if( ${?TCSH_RC_DEBUG} ) printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]";
-	switch( $argv[$arg] )
-		case "--cd":
-			@ args_handled+=2;
-			@ arg++;
-			if( ${?skip_cwd_test} ) continue;
-			if("${cwd}" != "$argv[$arg]" ) then
-				if(! ${?SSH_CONNECTION} ) printf "Using [%s] as TCSH's working directory.\t" $argv[$arg];
-				if( ! -d "$argv[$arg]" ) then
-					if(! ${?SSH_CONNECTION} ) printf "[failed]\n";
-				else
-					setenv TCSH_RC_WORKING_DIR "$argv[$arg]";
-					if(! ${?SSH_CONNECTION} ) printf "[success]\n";
-					cd $argv[$arg];
+	
+	set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
+	if( "${dashes}" == "$argv[$arg]" ) set dashes="";
+	
+	set option="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
+	if( "${option}" == "$argv[$arg]" ) set option="";
+	
+	set value="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\3/'`";
+	if( "${value}" == "$argv[$arg]" ) set value="";
+	
+	switch( "${option}" )
+		case "cd":
+		case "root":
+		case "use-root":
+		case "working-dir":
+		case "working-directory":
+			@ args_handled++;
+			if(!( "${value}" != "" && -d "${value}" )) then
+				@ arg++;
+				if( $arg > $argc ) then
+					if(! ${?SSH_CONNECTION} ) then
+						printf "Using [%s] as TCSH's working directory.\t" "${value}";
+						printf "[failed]\n\tNo valid directory was specified with %s.\n" "${option}";
+					endif
+					continue;
+				endif
+				@ args_handled++;
+				set value="$argv[$arg]";
+				if(!( "${value}" != "" && -d "${value}" )) then
+					if(! ${?SSH_CONNECTION} ) then
+						printf "Using [%s] as TCSH's working directory.\t" "${value}";
+						printf "[failed]\n\tNo valid directory was specified with %s.\n" "${option}";
+					endif
+					continue;
 				endif
 			endif
+			if(! ${?SSH_CONNECTION} ) printf "Using [%s] as TCSH's working directory.\t" "${value}";
+			if( ${?skip_cwd_test} ) continue;
+			setenv TCSH_RC_WORKING_DIR "$value";
+			if(! ${?SSH_CONNECTION} ) printf "[success]\n";
+			if( "${cwd}" != "${value}" ) cd "${value}";
 		breaksw
 	endsw
 end

@@ -1,18 +1,18 @@
 #!/bin/tcsh -f
-if(!(${?this_program})) set this_program="sshfs";
-
+set this_program="sshfs";
 foreach program ( "`which '${this_program}'`" )
-	if( -x "${program}" ) end
-endif
+	if( -x "${program}" ) break
+	unset program;
+end
 
-if( !( ${?program} && -x "${program}" ) ) then
+if(! ${?program} ) then
 	if(! ${?SSH_CONNECTION} ) printf "Unable to find %s.\n" "${this_program}";
-	exit -1;
+	set status=-1;
+	exit ${status};
 endif
 
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="mount:sshfs:dreams.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "mount:sshfs:dreams.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -50,7 +50,7 @@ endif
 
 set status=0;
 ping -c 1 "${ssh_server}" > /dev/null;
-if( "${status}" != "0" ) then
+if( ${status} != 0 ) then
 	printf "%s could not be reached.  Please check your network connection.\n" "${ssh_server}";
 	exit;
 endif
@@ -80,8 +80,7 @@ if( ${?TCSH_RC_DEBUG} ) then
 endif
 unset ssh_user ssh_server ssh_mount_point ssh_path sshfs_mount_count sshfs_mount_test;
 
-set source_file="mount:sshfs:dreams.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "mount:sshfs:dreams.tcsh";
 
 exit;
 

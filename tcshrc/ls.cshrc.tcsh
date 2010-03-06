@@ -17,10 +17,17 @@ else
     setenv LS_OPTIONS "-N $LS_OPTIONS -T 0";
 endif
 setenv	LS_OPTIONS	"${LS_OPTIONS} --human-readable --quoting-style=c --classify  --group-directories-first --format=vertical --time-style='+%Y-%m-%d %H:%m:%S %Z(%:z)'";
+#setenv	LS_OPTIONS	"${LS_OPTIONS} --human-readable --quoting-style=c --classify  --group-directories-first --format=vertical --time=ctime --sort=time --time-style='+%Y-%m-%d %H:%m:%S %Z(%z)' -tr";#;%n%Y-%m-%d %H:%M:%S";
 
-set listflags=("xA" "${LS_OPTIONS}");
-alias	ls	"ls-F";
-alias	ls	"ls $LS_OPTIONS";
+#set fignore=(.o \~)
+set listlinks
+set listmaxrows=23
+if( ${?listflags} ) unset listflags;
+#set listflags="xA";
+
+
+alias	ls	"ls-F ${LS_OPTIONS}";
+#alias	ls	"ls $LS_OPTIONS";
 alias	ll	"ls -l";
 alias	l	"ll";
 alias	lc	"ls --width=1 ";

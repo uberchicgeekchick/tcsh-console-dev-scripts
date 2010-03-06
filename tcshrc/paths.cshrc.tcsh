@@ -35,6 +35,4 @@ if( ${?revert_to_owd} ) then
 	unset revert_to_owd;
 endif
 
-if(! ${?source_file} ) set source_file="paths.cshrc.tcsh";
-if( "${source_file}" != "paths.cshrc.tcsh" ) set source_file="paths.cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "paths.cshrc.tcsh";

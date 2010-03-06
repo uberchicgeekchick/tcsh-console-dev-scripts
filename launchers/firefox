@@ -11,16 +11,14 @@ while( ${?1} && "${1}" != "" )
 		set use_launcher;
 		breaksw
 	case "--3.5":
-		set program_path="/usr/bin/";
+		set program_path="/usr/bin";
 		breaksw
 	case "--nightly-build":
 	case "--x86-64":
-		set rm_extensions;
-		set program_path="/programs/Mozilla/Firefox3/x86_64/";
+		set program_path="/programs/Mozilla/Firefox3/x86_64";
 		breaksw
 	case "--download":
-		set rm_extensions;
-		set program_path="/programs/Mozilla/Firefox3/firefox/";
+		set program_path="/programs/Mozilla/Firefox3/firefox";
 		breaksw
 	case "-ProfileManager":
 		set argz="${1} ${argz}";
@@ -42,16 +40,23 @@ while( ${?1} && "${1}" != "" )
 end
 
 if(!(${?program_path})) then
-	set rm_extensions;
-	set program_path="/programs/Mozilla/Firefox3/x86_64/";
+	if( -d "/programs/Mozilla/Firefox3/x86_64" ) then
+		set program_path="/programs/Mozilla/Firefox3/x86_64";
+	else if( -d "/programs/Mozilla/Firefox3/firefox" )
+		set program_path="/programs/Mozilla/Firefox3/firefox";
+	else
+		set program_path="/usr/bin";
+	endif
 endif
 
 ff_init:
-set program="${program_path}${this_program}";
+set program="${program_path}/${this_program}";
 printf "Launching:\n\t%s\n\n" "${program}";
 
 set ff_binaries=("${program}-bin" "${program}" "${program}.sh");
 
+@ ff_attempt_max=10;
+@ ff_attempt_sleep=10;
 @ ff_attempt=0;
 ff_next:
 foreach ff_binary( ${ff_binaries} )
@@ -73,46 +78,47 @@ if( !( ${?ff_found} ) ) then
 	goto launchers_main;
 
 noexec:
-	printf "Unable to find %s.\n" "${this_program}";
-	if( ${?program} ) unset program;
-	unset this_program;
-	exit -1;
+	printf "Unable to find %s.\n" "${this_program}" > /dev/stderr;
+	set status=-1;
+	goto exit_script;
 
 launchers_main:
-
-endif
-printf "Attempting load %s; attempt: %d.\n" ${this_program} ${ff_attempt};
-if(! ${?ff_found} ) then
-	if( ${ff_attempt} == 0 ) then
-		if(! ${?ff_profile} ) set ff_profile="uberChick";
-		set argz="-P '${ff_profile}' ${argz}";
 	endif
-	@ ff_attempt++;
-	if( ${ff_attempt} > 1 && ${?rm_extensions} ) then
-		rm ${firefox_profile_path}/${ff_profile}/extensions.* >& /dev/null &;
-		sleep 5;
+	set rm_extensions;
+	printf "Attempting load %s; attempt: %d.\n" ${this_program} ${ff_attempt};
+	if(! ${?ff_found} ) then
+		if( ${ff_attempt} == 0 ) then
+			if(! ${?ff_profile} ) set ff_profile="uberChick";
+			set argz="-P '${ff_profile}' ${argz}";
+		endif
+		@ ff_attempt++;
+		if( ${ff_attempt} > 1 ) then
+			if( ${?rm_extensions} ) then
+				if( -e "${firefox_profile_path}/${ff_profile}/extensions.cache" ) then
+					printf "Removing extensions cache files @\n\t<${firefox_profile_path}/${ff_profile}/extensions.cache>\n";
+					rm "${firefox_profile_path}/${ff_profile}/extensions.cache";
+				endif
+				if( -e "${firefox_profile_path}/${ff_profile}/extensions.rdf" ) then
+					printf "Removing extensions cache files @\n\t<${firefox_profile_path}/${ff_profile}/extensions.rdf>\n";
+					rm "${firefox_profile_path}/${ff_profile}/extensions.rdf";
+				endif
+				if( -e "${firefox_profile_path}/${ff_profile}/extensions.ini" ) then
+					printf "Removing extensions cache files @\n\t<${firefox_profile_path}/${ff_profile}/extensions.ini>\n";
+					rm "${firefox_profile_path}/${ff_profile}/extensions.ini";
+				endif
+				unset rm_extensions;
+			endif
+			sleep ${ff_attempt_sleep};
+		endif
+		goto ff_start
+	else if( ${ff_attempt} == 0 ) then
+		if( ${?use_launcher} ) unset use_launcher;
+		set ff_attempt=`printf '%d+1\n' "${ff_attempt_max}" | bc`;
+		goto ff_start
 	endif
-	goto ff_start
-else if( ${ff_attempt} == 0 ) then
-	if( ${?rm_extensions} ) unset rm_extensions;
-	if( ${?use_launcher} ) unset use_launcher;
-	@ ff_attempt=6;
-	goto ff_start
-endif
+#launchers_main
 
-exit;
-
-ff_start:
-echo "Launching:\n\t";
-if( ${?use_launcher} ) then
-	echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${program}${argz}" \>\& /dev/null \&;
-	/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${program} ${argz}" >& /dev/null &;
-else
-	echo ${program} "${argz}" \>\& /dev/null \&;
-	${program} "${argz}" >& /dev/null &;
-endif
-if( ${ff_attempt} > 5 ) then
-	printf "Finished attempting load %s after %d attempts.\n" ${program} ${ff_attempt};
+exit_script:
 	if(! ${?ff_found} ) then
 		set status=-1;
 	else
@@ -121,11 +127,27 @@ if( ${ff_attempt} > 5 ) then
 	endif
 	if( ${?rm_extensions} ) unset rm_extensions;
 	if( ${?use_launcher} ) unset use_launcher;
-	unset this_program program program_path firefox_profile_path ff_binaries ff_binary argz ff_pid ff_attempt;
+	if( ${?ff_found} ) unset ff_found;
+	if( ${?program} ) unset program;
+	unset this_program program_path firefox_profile_path ff_binaries ff_binary argz ff_pid ff_attempt;
 	exit ${status};
-endif
 
-sleep 2;
-
-goto ff_next;
+ff_start:
+	echo "Launching:\n\t";
+	if( ${?use_launcher} ) then
+		echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${program}${argz}" \>\& /dev/null \&;
+		/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${program} ${argz}" >& /dev/null &;
+	else
+		echo ${program} "${argz}" \>\& /dev/null \&;
+		${program} "${argz}" >& /dev/null &;
+	endif
+	if( ${ff_attempt} > ${ff_attempt_max} ) then
+		printf "Finished attempting load %s after %d attempts.\n" ${program} ${ff_attempt};
+		goto exit_script;
+	endif
+	
+	sleep ${ff_attempt_sleep};
+	
+	goto ff_next;
+#ff_start
 

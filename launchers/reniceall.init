@@ -1,5 +1,4 @@
 #!/bin/tcsh -f
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
 if(! ${?TCSH_LAUNCHER_PATH} ) setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
 
 set dependencies=( "renice" );
@@ -21,6 +20,11 @@ foreach dependency(${dependencies})
 	if(! ${?dependency} ) goto missing_dependency;
 end
 
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
+	alias "reniceall"	"${TCSH_LAUNCHER_PATH}/reniceall.init";
+	set status=-1;
+	goto main_quit;
+endif
 
 main:
 	set status=0;

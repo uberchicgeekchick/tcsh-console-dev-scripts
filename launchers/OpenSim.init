@@ -2,7 +2,8 @@
 if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
 if(! ${?TCSH_LAUNCHER_PATH} ) setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
 
-set dependencies=( "mono" "`basename '${0}'`.exe" );
+set scripts_name="`basename '${0}'`.exe";
+set dependencies=( "mono" "${scripts_name}" );
 
 foreach dependency(${dependencies})
 	foreach dependency( "`where '${dependency}'`" )
@@ -15,18 +16,23 @@ foreach dependency(${dependencies})
 				case "${TCSH_LAUNCHER_PATH}/${dependency}":
 					unset dependency;
 					breaksw;
+				case "${scripts_name}":
+					cd "`dirname '${scripts_name}'`";
+					set scripts_working_dir="${cwd}";
+					cd "${owd}";
+					breaksw;
 			endsw
 		endif
 	end
 	if(! ${?dependency} ) goto missing_dependency;
 end
 
-set program="${dependency}";
 goto main;
 
 main:
 	set status=0;
-	( ${program} ${argv} > /dev/tty ) >& /dev/null;
+	cd "${scripts_working_dir}";
+	mono OpenSim.exe
 
 main_quit:
 	unset dependencies;
@@ -40,13 +46,3 @@ missing_dependency:
 	set status=-1;
 	goto main_quit;
 
-#!/bin/tcsh -f
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
-if(! ${?TCSH_LAUNCHER_PATH} ) setenv TCSH_LAUNCHER_PATH="${TCSH_RC_SESSION_PATH}/../launchers";
-foreach mono("`where mono`")
-	if( -x "${mono}" ) break
-	unset mono;
-end
-if(! ${?mono} ) 
-cd "`dirname '${0}`"/bin;
-mono OpenSim.exe

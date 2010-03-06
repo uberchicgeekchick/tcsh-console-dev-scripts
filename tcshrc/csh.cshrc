@@ -46,6 +46,4 @@ endif
 
 if( ${?http_proxy} ) unsetenv http_proxy;
 
-if(! ${?source_file} ) set source_file=".csh.cshrc";
-if( "${source_file}" != ".csh.cshrc" ) set source_file=".csh.cshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "csh.cshrc";

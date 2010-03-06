@@ -1,8 +1,8 @@
 #!/bin/tcsh
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 
-set source_file=".cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+set scripts_name=".cshrc.tcsh";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_name}" ${argv};
 
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -12,10 +12,9 @@ if( $args_handled > 0 ) then
 	end
 	unset args_shifted;
 endif
-unset args_handled source_file;
+unset args_handled;
 
 
 
-if(! ${?source_file} ) set source_file=".cshrc.tcsh";
-if( "${source_file}" != ".cshrc.tcsh" ) set source_file=".cshrc.tcsh";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_name}";
+unset scripts_name;

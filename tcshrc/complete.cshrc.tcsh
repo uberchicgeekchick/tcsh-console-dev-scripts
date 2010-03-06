@@ -838,7 +838,7 @@ complete mv	c/--/"(backup force interactive update verbose suffix \
 		c/-/"(b f i u v S V -)"/ \
 		n/{-S,--suffix}/x:'<suffix>'/ \
 		n/{-V,--version-control}/"(t numbered nil existing \
-		never simple)"/ n/-/f/ N/-/d/ p/3-/d/ n/*/f/
+		never simple)"/ n/-/f/ n/*/f/
 complete cp	c/--/"(archive backup no-dereference force \
 		interactive link preserve parents sparse recursive \
 		symbolic-link suffix update verbose version-control \
@@ -846,7 +846,7 @@ complete cp	c/--/"(archive backup no-dereference force \
 		c/-/"(a b d f i l P p R r S s u V v x -)"/ \
 		n/-*r/d/ n/{-S,--suffix}/x:'<suffix>'/ \
 		n/{-V,--version-control}/"(t numbered nil existing \
-		never simple)"/ n/-/f/ N/-/d/ n/*/f/
+		never simple)"/ n/-/f/ n/*/f/
 #complete ln		c/--/"(backup directory force no-dereference \
 #			interactive symbolic suffix verbose version-control \
 #			help version)"/ \

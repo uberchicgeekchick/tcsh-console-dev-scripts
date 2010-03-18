@@ -22,7 +22,7 @@ if( ${?GREP_OPTIONS} ) then
 	unsetenv GREP_OPTIONS;
 endif
 
-set my_argv="";
+set my_args="";
 set prefix="";
 set suffix="";
 while( ${?1} && "${1}" != "" )
@@ -38,16 +38,16 @@ while( ${?1} && "${1}" != "" )
 		breaksw
 	endsw
 	
-	set my_argv="${my_argv} ${prefix}${1}${suffix}";
+	set my_args="${my_args} ${prefix}${1}${suffix}";
 	if( "${prefix}" != "" ) set prefix="";
 	if( "${suffix}" != "" ) set suffix="";
 	shift;
 end
 
 if(${uid} != 0) then
-	sudo ${program} ${my_argv} ${argv};
+	exec sudo ${program} ${my_args} ${argv};
 else
-	${program} ${my_argv} ${argv};
+	exec ${program} ${my_args} ${argv};
 endif
 
 
@@ -56,4 +56,4 @@ if( ${?grep_options} ) then
 	unset grep_options;
 endif
 
-unset suffix prefix my_argv;
+unset suffix prefix my_args;

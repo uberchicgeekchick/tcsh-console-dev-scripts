@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 launcher_init:
-	set this_program="curl";
+	set this_program="wget";
 	foreach browser ( "`which '${this_program}'`" )
 		if( "${browser}" != "${0}" && -x "${browser}" ) break
 	end
@@ -33,10 +33,10 @@ shorten_uri:
 		if(! ${?uri_shortener_data} ) set status=-1;
 		goto exit_script;
 	endif
-
+	
 	set uri_shortener_data="longurl=${uri_to_shorten}";
-
-	${browser} --silent --data "${uri_shortener_data}" "${uri_shortener_domain}" | grep '<p class=['\''"]success['\''"]>' | sed -r 's/.*<p class=['\''"]success['\''"]>[^<]+<a href="([^"]+)">.*/\1/';
+	
+	${browser} -o /dev/null -O - --post-data="${uri_shortener_data}" "${uri_shortener_domain}" | grep '<p class=['\''"]success['\''"]>' | sed -r 's/.*<p class=['\''"]success['\''"]>[^<]+<a href="([^"]+)">.*/\1/';
 	unset uri_to_shorten;
 	goto next_uri;
 

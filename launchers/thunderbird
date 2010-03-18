@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 set this_program="`basename '${0}'`";
-set firefox_profile_path="/programs/Mozilla/settings/${this_program}/profiles";
+set firefox_profile_path="/programs/mozilla/settings/${this_program}/profiles";
 set argz="";
 
 while( ${?1} && "${1}" != "" )
@@ -15,10 +15,10 @@ while( ${?1} && "${1}" != "" )
 		breaksw
 	case "--nightly-build":
 	case "--x86-64":
-		set program_path="/programs/Mozilla/Thunderbird3/x86_64/";
+		set program_path="/programs/mozilla/thunderbird/x86_64/";
 		breaksw
 	case "--download":
-		set program_path="/programs/Mozilla/Thunderbird3/thunderbird/";
+		set program_path="/programs/mozilla/thunderbird/thunderbird/";
 		breaksw
 	case "-ProfileManager":
 		set argz="${1} ${argz}";
@@ -39,7 +39,15 @@ while( ${?1} && "${1}" != "" )
 	shift;
 end
 
-if(!(${?program_path})) set program_path="/programs/Mozilla/Thunderbird3/x86_64/";
+if(!(${?program_path})) then
+	if( -d "/programs/mozilla/thunderbird/x86_64" ) then
+		set program_path="/programs/mozilla/thunderbird/x86_64";
+	else if( -d "/programs/mozilla/thunderbird/thunderbird" )
+		set program_path="/programs/mozilla/thunderbird/thunderbird";
+	else
+		set program_path="/usr/bin";
+	endif
+endif
 
 ff_init:
 set program="${program_path}${this_program}";

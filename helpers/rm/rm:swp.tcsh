@@ -1,5 +1,9 @@
-#!/usr/bin/tcsh -f
+#!/bin/tcsh -f
 # cleaning up VIM, gedit, connectED, & etc swp files.
-foreach swp ( "`find . -iregex '.*\.\(sw.\|~\)'`" )
-	rm --verbose "${swp}"
+set interactive="";
+if( "${1}" != "" && "${1}" == "--interactive" )	\
+	set interactive=" -i";
+
+foreach swp ( "`/usr/bin/find -L . -iregex '.*\.\(sw.\|~\)'`" )
+	rm"${interactive}" --verbose "${swp}"
 end

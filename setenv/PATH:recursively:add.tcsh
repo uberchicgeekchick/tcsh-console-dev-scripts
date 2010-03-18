@@ -53,7 +53,7 @@ while("${1}" != "" )
 			goto next_argv;
 		endif
 		set status=-1;
-		printf "[%s] is not an existing directory.\n\n" "${1}";
+		printf "[%s] is not an existing directory.\n\n" "${1}" > /dev/stderr;
 		shift;
 		continue;
 	endif
@@ -61,18 +61,18 @@ while("${1}" != "" )
 	set new_path="";
 	set search_dir="`echo '${1}' | sed -r 's/(.*)\/?${eol}/\1/'`";
 	shift;
-	if( ${?TCSH_RC_DEBUG} ) echo "\nRecusively looking for possible paths is: <${search_dir}> using:\n\tfind '${search_dir}'${maxdepth}${mindepth}${find_name_argv} -type d\n";
+	if( ${?TCSH_RC_DEBUG} ) echo "\nRecusively looking for possible paths is: <${search_dir}> using:\n\t/usr/bin/find '${search_dir}'${maxdepth}${mindepth}${find_name_argv} -type d\n";
 	
 	set escaped_recusive_dir="`echo '${search_dir}' | sed -r 's/\//\\\//g'`";
-	foreach dir ( "`find '${search_dir}'${maxdepth}${mindepth}${find_name_argv} -type d`" )
+	foreach dir ( "`/usr/bin/find '${search_dir}'${maxdepth}${mindepth}${find_name_argv} -type d`" )
 		if( "${dir}" == "" ) continue;
 		if( "`echo '${dir}' | sed -r 's/${escaped_recusive_dir}(\.).*/\1/'`" == "." ) continue;
 		set escaped_dir="`echo '${dir}' | sed -r 's/.*\/([^\/]+)/\1/'`";
 		switch( "${escaped_dir}" )
 			case "tmp":
-			case "reference":
 			case "lost+found":
-			case "templates":
+			#case "reference":
+			#case "templates":
 				continue;
 				breaksw;
 			
@@ -97,7 +97,7 @@ while("${1}" != "" )
 	unset dir escaped_dir new_path find_name_argv;
 end
 
-if( ${status} != 0 ) printf "Usage: PATH:recursively:add.tcsh directory_to_recursively search and add sub-directory.\n";
+	if( ${status} != 0 ) goto usage;
 
 main_quit:
 	set source_file="PATH:recursively:add.tcsh";
@@ -106,5 +106,6 @@ main_quit:
 	exit ${status};
 
 usage:
+	printf "Usage: PATH:recursively:add.tcsh directory_to_recursively search and add sub-directory.\n";
 	if( ${?option} ) goto next_argv:
 	goto main_quit;

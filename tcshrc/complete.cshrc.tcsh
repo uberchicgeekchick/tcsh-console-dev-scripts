@@ -27,6 +27,8 @@ endif
 
 complete	make:mozilla:nightly-build	p/1/"(xul-runner firefox thunderbird)"/
 
+complete	make		n/-f/f/
+
 complete	pkg-config	c/--/"(version modversion atleast-pkgconfig-version= \
 					libs static libs libs libs cflags cflags cflags \
 					variable define exists uninstalled atleast exact \

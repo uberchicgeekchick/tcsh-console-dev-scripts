@@ -1,7 +1,6 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="compilers.environment";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "compilers.environment" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -66,5 +65,5 @@ if(! ${?CXX} ) then
 	if(! ${?CC} ) printf "**error:** your C++ compiler couldn't be found while looking for your cpp binary.";
 endif
 
-set source_file="compilers.environment";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "compilers.environment";

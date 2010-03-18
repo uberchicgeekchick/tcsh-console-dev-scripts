@@ -13,25 +13,32 @@ endif
 if(! -e ./.no.pushing ) set push;
 if(! -e ./.no.logging ) set logging;
 
-set old_owd="${owd}";
-set old_cwd="${cwd}";
-while( "${cwd}" != "/" && ! -d "./.git" )
-	cd ..;
-	if(! -d "./.git" ) continue;
+set original_owd="${owd}";
+set original_cwd="${cwd}";
+while( "${cwd}" != "/" )
+	if(! -d "./.git" ) then
+		cd ..;
+		continue;
+	endif
 	set git_dir="${cwd}";
 	break;
 end
 
 if(! ${?git_dir} ) then
-	cd "${old_cwd}";
-	set owd="${old_owd}";
+	cd "${original_cwd}";
+	set owd="${original_owd}";
 	unset old_owd;
 	unset old_cwd;
+	printf "Unable to find projects base git directory" > /dev/stderr;
+	goto exit_script;
 endif
 
 set log_dir="./.`basename '${0}'`.logs";
 set project="`basename '${cwd}'`";
-if(! ${?eol} ) setenv eol='$';
+if(! ${?eol} ) then
+	set eol_set;
+	set eol='$';
+endif
 
 @ argc=0
 while ( "$argv[$argc]" != "" )
@@ -132,6 +139,7 @@ while ( "${1}" != "" )
 				breaksw;
 		endsw
 		breaksw;
+	
 	default:
 		# git:commit+push+sync logs are stored & saved;
 		# Mustly its until I decide how & if I want to;
@@ -181,7 +189,6 @@ if( ${?follow_symlinks} ) then
 		rm "${symlink_log}";
 		unset symlink_log follow_symlinks;
 	else
-		
 		printf "Following symlinks.\n";
 		
 		foreach project_symlink("`cat '${symlink_log}'`")
@@ -208,73 +215,88 @@ if( ${?follow_symlinks} ) then
 	endif
 endif
 
-git add .;
+git_commit:
+	git add .;
 
-if( ${?follow_symlinks} && ${?symlink_log} ) then
-	if( -e "${symlink_log}" ) git  rm --cached --quiet "${symlink_log}";
-endif
-
-# Keep extremely large files from being committed;
-set extensions="bz2\|gz\|tgz\|zip";
-foreach tarball ( "`find . -iregex '.*\.\(${extensions}\)' | sed -r 's/(.*)\.(${extensions})([^\/]*).*/\1\.\2\3/' | uniq`" )
-	if( "`printf '%s' '${tarball}' | sed 's/^\(\.git\).*/\1/'`" == ".git" ) continue;
-	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
-	git rm -r --cached --quiet "${tarball}";
-end
-unset tarball;
-
-# Remove any vim, connectED, gedit, or etc 'swp' files.;
-set extensions="sw.\|bck\|~\|o";
-foreach swp ( "`find . -iregex '.*\.\(${extensions}\)' | sed -r 's/(.*)\.(${extensions})([^\/]*).*/\1\.\2\3/' | uniq`" )
-	if( "`printf '%s' '${swp}' | sed 's/^\(\.git\).*/\1/'`" == ".git" ) continue;
-	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
-	git rm -r --cached --quiet "${swp}";
-end
-unset swp;
-
-# Don't commit early art works, uber-alpha code, & ald works;
-set extensions="art\|dev\|ref\|new\|old";
-foreach art ( "`find . -iregex '.*[\.\-]\(${extensions}\).*' | sed 's/\(.*\)\([\.\-]\)\(${extensions}\)\([^\/]*\).*/\1\2\3\4/' | uniq`" )
-	if( "`printf '%s' '${art}' | sed 's/^\(\.git\).*/\1/'`" == ".git" ) continue;
-	set art = "`printf '${art}' | sed 's/^\.\///'`";
-	git rm -r --cached --quiet "${art}";
-end
-unset art;
-
-unset extensions;
-
-# Keep my logs from being added to any commit.
-foreach git_commit_setting_file( ${git_commit_setting_files} )
-	if( -e "./.${git_commit_setting_file}" ) git rm --cached --quiet "./.${git_commit_setting_file}";
-end
-unset git_commit_setting_file git_commit_setting_files;
-
-git rm -r --cached --quiet "${log_dir}";
-
-if(! ${?branch} ) then
-	set branch="`head -1 '${commit_log}'`";
-	if(! -e ".git/refs/heads/${branch}" ) unset branch;
-	#if( `/bin/ls ".git/refs/heads/${branch}"` == "" ) unset branch;
-else if( ${?branch} ) then
-	if( "`head -1 '${commit_log}'`" != "${branch}" ) then
-		printf "${branch}\n\n" > "${commit_log}.swp";
-		cat "${commit_log}" >> "${commit_log}.swp";
-		rm "${commit_log}";
-		mv "${commit_log}.swp" "${commit_log}";
+	if( ${?symlink_log} ) then
+		if( -e "${symlink_log}" ) git  rm --cached --quiet "${symlink_log}";
 	endif
-endif
-
-git commit -a -F "${commit_log}" --cleanup=verbatim;
-
-if(! ${?logging} ) then
-	rm "${commit_log}";
-	if( ${?log_dir_is_new} ) rmdir "${log_dir}";
-endif
-
-if( ${?branch} ) then
-	printf "Updating %s's branch: %s\n" "${project}" "${branch}";
-	git branch -f "${branch}";
-endif
+	
+	# Keep extremely large files from being committed;
+	set extensions="bz2\|gz\|tgz\|zip";
+	foreach tarball ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)${eol}' | sed -r 's/(.*)\.(${extensions})${eol}/\1\.\2/' | uniq`" )
+		if( "`printf '%s' '${tarball}' | sed 's/^\.\/\(\.git\).*/\1/'`" == ".git" ) continue;
+		set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
+		git rm -r --cached --quiet "${tarball}";
+	end
+	unset tarball;
+	
+	# Remove any vim, connectED, gedit, or etc 'swp' files.;
+	set extensions="sw.\|bck\|~\|o";
+	foreach swp ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)${eol}' | sed -r 's/(.*)\.(${extensions})${eol}/\1\.\2/' | uniq`" )
+		if( "`printf '%s' '${swp}' | sed 's/^\.\/\(\.git\).*/\1/'`" == ".git" ) continue;
+		set swp = "`printf '${swp}' | sed 's/^\.\///'`";
+		git rm -r --cached --quiet "${swp}";
+	end
+	unset swp;
+	
+	# Don't commit early art works, uber-alpha code, & ald works;
+	set extensions="art\|dev\|ref\|new\|old";
+	foreach art ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)${eol}' | sed 's/\(.*\)\.\(${extensions}\)${eol}/\1\.\2/' | uniq`" )
+		if( "`printf '%s' '${art}' | sed 's/^\.\/\(\.git\).*/\1/'`" == ".git" ) continue;
+		set art = "`printf '${art}' | sed 's/^\.\///'`";
+		git rm -r --cached --quiet "${art}";
+	end
+	unset art;
+	
+	unset extensions;
+	
+	# Keep my logs from being added to any commit.
+	foreach git_commit_setting_file( ${git_commit_setting_files} )
+		if( -e "./.${git_commit_setting_file}" ) git rm --cached --quiet "./.${git_commit_setting_file}";
+	end
+	unset git_commit_setting_file git_commit_setting_files;
+	
+	git rm -r --cached --quiet "${log_dir}";
+	
+	if(! ${?branch} ) then
+		set branch="`head -1 '${commit_log}'`";
+		if( "${branch}" == "" ) then
+			unset branch;
+		else
+			if( ${?branch} ) then
+				if(! -e ".git/refs/heads/${branch}" ) then
+					unset branch;
+				endif
+			endif
+		else
+			if( ${?branch} ) then
+				if( `/bin/ls ".git/refs/heads/${branch}"` == "" ) then
+					unset branch;
+				endif
+			endif
+		endif
+	else if( ${?branch} ) then
+		if( "`head -1 '${commit_log}'`" != "${branch}" ) then
+			printf "${branch}\n\n" > "${commit_log}.swp";
+			cat "${commit_log}" >> "${commit_log}.swp";
+			rm "${commit_log}";
+			mv "${commit_log}.swp" "${commit_log}";
+		endif
+	endif
+	
+	git commit -a -F "${commit_log}" --cleanup=verbatim;
+	
+	if(! ${?logging} ) then
+		rm "${commit_log}";
+		if( ${?log_dir_is_new} ) rmdir "${log_dir}";
+	endif
+	
+	if( ${?branch} ) then
+		printf "Updating %s's branch: %s\n" "${project}" "${branch}";
+		git branch -f "${branch}";
+	endif
+#git_commit:
 
 #foreach newwest_branch("`/bin/ls --width=1 -tr .git/refs/heads/ | tail -2 | sed 's/[\r\n]//'`")
 #	if( "${newwest_branch}" != "" && "${newwest_branch}" != "${branch}" && "${newwest_branch}" != "master" ) then
@@ -282,36 +304,38 @@ endif
 #	endif
 #end
 
-if( ${?follow_symlinks} && ${?symlink_log} ) then
-	if( -e "${symlink_log}" ) then
+restore_symlinks:
+	if(! ${?symlink_log} ) goto git_push;
+	if(! -e "${symlink_log}" ) goto git_push;
+	
+	printf "Restoring symlinks.\n";
+	
+	foreach project_symlink("`cat '${symlink_log}'`")
+		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
+		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
 		
-		printf "Restoring symlinks.\n";
-		
-		foreach project_symlink("`cat '${symlink_log}'`")
-			set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
-			set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
-			
-			if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
-				printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
-				unset target symlink;
-				continue;
-			endif
-			
-			cd `dirname "${symlink}"`;
-			rm -rf ./`basename "${symlink}"`;
-			if(! -e ./`basename "${symlink}"` ) ln -sf "${target}" ./`basename "${symlink}"`;
-			
-			cd "${owd}";
-			
+		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
 			unset target symlink;
-		end
+			continue;
+		endif
 		
-		rm -f "${symlink_log}" > /dev/null;
-		unset project_symlink follow_symlinks symlink_log;
-	endif
-endif
+		cd `dirname "${symlink}"`;
+		rm -rf ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) ln -sf "${target}" ./`basename "${symlink}"`;
+		
+		cd "${owd}";
+		
+		unset target symlink;
+	end
+	
+	rm -f "${symlink_log}" > /dev/null;
+	unset project_symlink follow_symlinks symlink_log;
+#restore_symlinks:
 
-if( ${?push} ) then
+
+git_push:
+	if(! ${?push} ) goto check_sync;
 	foreach remote_git_repo ( "`git remote`" )
 		if( "${push}" != "" && "${push}" != "${remote_git_repo}" ) continue;
 		if( ${?branch} ) then
@@ -319,19 +343,24 @@ if( ${?push} ) then
 		endif
 		git push "${remote_git_repo}" master;
 	end
-endif
+#git_push:
 
 
 goto check_sync;
 
 exit_script:
-	if( ${?old_cwd} ) then
-		cd "${old_cwd}";
-		set owd="${old_owd}";
+	if( ${?eol_set} )	\
+		unset eol_set eol;
+	
+	if( ${?git_dir} ) then
+		cd "${original_cwd}";
+		set owd="${original_owd}";
 		unset old_owd;
 		unset old_cwd;
 	endif
+	
 	exit ${status};
+#exit_script:
 
 sync:
 	set project_name = "`basename '${cwd}'`";
@@ -367,7 +396,7 @@ sync:
 	
 		# cleaning up swp files that may have been copied to the remote location
 		printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
-		foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
+		foreach swp ( "`/usr/bin/find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
 			rm --verbose "${swp}";
 		end
 		printf "\t\t[done]";
@@ -383,7 +412,7 @@ remote_clean_up:
 	# and remove remote files that no longer exist locally.;
 	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
 	set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
-	foreach remote_file ( "`find "\""${sshfs_path}/${project_name}/"\""*`" )
+	foreach remote_file ( "`/usr/bin/find "\""${sshfs_path}/${project_name}/"\""*`" )
 		# escape special characters to keep them from being expanded by the terminal;
 		# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
 		

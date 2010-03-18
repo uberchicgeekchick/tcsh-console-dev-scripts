@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="artistic.canvas";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+if(! ${?TCSH_RC_SESSION_PATH} )	\
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "artistic.canvas" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -12,59 +12,41 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if( "${1}" == "--reset" ) then
-	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment" --reset;
-else
-	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
-endif
 
-if(! ${?OSS_CANVAS} ) setenv OSS_CANVAS;
+if(! ${?TCSH_CANVAS_PATH} )	\
+	setenv TCSH_CANVAS_PATH "${TCSH_RC_SESSION_PATH}/../devel/make";
+source "${TCSH_CANVAS_PATH}/canvas.init.tcsh" ${argv};
+
+
+if( ${?OSS_BUILD_CANVAS} )	\
+	unsetenv OSS_BUILD_CANVAS;
+setenv OSS_ARTISTIC_CANVAS;
 
 if(! ${?SSH_CONNECTION} ) printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
-
-if( -x "./configure" ) then
-	if( -d "/usr/lib64" ) then
-		alias "configure" "./configure --libdir=/usr/lib64";
-	else if( -d "/usr/lib" ) then
-		alias "configure" "./configure --libdir=/usr/lib";
-	endif
-endif
-
-#C compiler linking flags
-#	libraries to pass to the linker.
-#		-l<library>, e.g. -lpango-1.0
-#	or shared objects directly:
-#		-L<library.path.so>, e.g. -L/usr/lib64/libpango-1.0.so
-#setenv	LDFLAGS		"--reduce-memory-overheads"
-#setenv	LIBS		""
-
-
-setenv LD_LIBRARY_PATH "/usr/include";
-setenv LD_RUN_PATH "/usr/include";
 
 #autoconf, automake, & etc settings
 setenv AC_CONFIG_MACRO_DIR "/usr/share/autoconf/autoconf";
 
-#C/C++/Objective C preprocessor flags, e.g. -I<include dir> if
-#you have headers in a nonstandard directory <include dir>
-setenv MY_INCLUDE_FLAGS "-I${LD_LIBRARY_PATH} -I. -I..";
+setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3 -g3 -ggdb -ffast-math";
 
-setenv CPPFLAGS "-O3 -g3 -ggdb -ffast-math ${MY_INCLUDE_FLAGS}";
+#setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -Wall -Wextra -Werror -Wno-unused-parameter -Wno-parentheses";
+setenv MAKEFLAGS "-Wall -Wextra -Werror -Wno-unused-parameter -Wno-parentheses";
 
+
+#setenv MYDEREFFLAGS " -fmudflapth -fmudflapir -fno-strict-aliasing -lmudflap";
 #setenv MYDEREFFLAGS " -fno-strict-aliasing -Wno-strict-aliasing";
 setenv MYDEREFFLAGS " -fstrict-aliasing -Wstrict-aliasing=3";
-#setenv MYDEREFFLAGS " -fmudflapth -fmudflapir -fno-strict-aliasing -lmudflap";
-setenv MAKEFLAGS "-Wall -Wextra -Werror -Wno-unused-parameter -Wno-parentheses";
+
 
 setenv MYFLAGS "${MAKEFLAGS} -Wfatal-errors -Wswitch-enum -Wno-format-nonliteral -Wno-missing-field-initializers --combine ${MYDEREFFLAGS}";
 setenv MYCFLAGS	"${MYFLAGS} -Wmissing-prototypes -Wmissing-declarations";
 setenv MYCXXFLAGS "${MYFLAGS}";
 
+#setenv CFLAGS "-std=gnu99 ${CPPFLAGS} ${MYCFLAGS}";
 setenv CFLAGS "-std=gnu99 ${CPPFLAGS} ${MYCFLAGS}";
 
-setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MYCXXFLAGS}";
+#setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MYCXXFLAGS}";
+setenv CXXFLAGS "${CPPFLAGS} ${MYCXXFLAGS}";
 
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "artistic.canvas";
 
-
-set source_file="artistic.canvas";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";

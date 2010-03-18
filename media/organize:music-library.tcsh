@@ -11,7 +11,7 @@ endif
 cd "${music_path}/${music_library}";
 
 # Archiving all new sons, top tracks, or podcasts:
-foreach genre ( "`find '${podcasts_download_path}' -type d -name '${music_library}*'`" )
+foreach genre ( "`/usr/bin/find '${podcasts_download_path}' -type d -name '${music_library}*'`" )
 	set genre = "`printf '${genre}' | sed 's/.*\/${music_library}:\?\ genre\ \(.*\).*/\1/g'`";
 	printf "Moving %s's new %s songs\n" "${music_library}" "${genre}";
 	if( ! -d "Genres/${genre}" ) mkdir -p "Genres/${genre}";
@@ -19,7 +19,7 @@ foreach genre ( "`find '${podcasts_download_path}' -type d -name '${music_librar
 	rmdir ${podcasts_download_path}/${music_library}*\ genre\ "${genre}"/;
 end
 
-foreach title ( "`find Genres -iregex '.*, released on.*\.\(mp.\|ogg\|flac\)'`" )
+foreach title ( "`/usr/bin/find Genres -iregex '.*, released on.*\.\(mp.\|ogg\|flac\)'`" )
 	set genre = "`printf "\""${title}"\"" | sed 's/Genres\/\([^\/]\+\)\/\(.*\)\ \-\ \(.*\)\(, released on[^\.]*\)\.\(mp.\|ogg\|flac\)/\1/g'`";
 	set song = "`printf "\""${title}"\"" | sed 's/Genres\/\([^\/]\+\)\/\(.*\)\ \-\ \(.*\)\(, released on[^\.]*\)\.\(mp.\|ogg\|flac\)/\3/g'`";
 	set artist = "`printf "\""${title}"\"" | sed 's/Genres\/\([^\/]\+\)\/\(.*\)\ \-\ \(.*\)\(, released on[^\.]*\)\.\(mp.\|ogg\|flac\)/\2/g'`";
@@ -27,7 +27,7 @@ foreach title ( "`find Genres -iregex '.*, released on.*\.\(mp.\|ogg\|flac\)'`" 
 	mv "${title}" "Genres/${genre}/${artist} - ${song}.${extension}";
 end
 
-foreach title ( "`find Genres -iregex '.*\.\(mp.\|ogg\|flac\)'`" )
+foreach title ( "`/usr/bin/find Genres -iregex '.*\.\(mp.\|ogg\|flac\)'`" )
 	set song = "`printf "\""${title}"\"" | sed 's/.*\/\(.*\)\ \-\ \(.*\)\.\(mp.\|ogg\|flac\)/\2/g'`";
 	set artist = "`printf "\""${title}"\"" | sed 's/.*\/\(.*\)\ \-\ \(.*\)\.\(mp.\|ogg\|flac\)/\1/g'`";
 	set extension = "`printf "\""${title}"\"" | sed 's/.*\.\(mp.\|ogg\|flac\)/\1/g'`";

@@ -10,8 +10,8 @@ endif
 
 @ args_handled=0;
 @ argc=${#argv};
+@ arg=0;
 if(! ${?TCSH_RC_DEBUG} ) then
-	@ arg=0;
 	while( $arg < $argc )
 		@ arg++;
 		switch( "$argv[$arg]" )
@@ -30,10 +30,9 @@ if(! ${?TCSH_RC_DEBUG} ) then
 			breaksw;
 		endsw
 	end
-endif
-
 	if( ! ${?TCSH_RC_DEBUG} || $arg > 1 )	\
 		@ arg=0;
+endif
 
 if( ${?TCSH_RC_DEBUG} ) then
 	printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
@@ -42,7 +41,6 @@ else if( "`alias cwdcmd`" != "" ) then
 	setenv oldcwdcmd "`alias cwdcmd`";
 	unalias cwdcmd;
 endif
-
 
 while( $arg < $argc )
 	@ arg++;
@@ -91,5 +89,5 @@ while( $arg < $argc )
 		breaksw
 	endsw
 end
-if( ${?TCSH_RC_DEBUG} ) printf "Started loading %s @ %s.\n" $argv[1] `date "+%I:%M:%S%P"`;
+if( ${?TCSH_RC_DEBUG} ) printf "Started loading %s @ %s.\n\n" $argv[1] `date "+%I:%M:%S%P"`;
 exit $args_handled;

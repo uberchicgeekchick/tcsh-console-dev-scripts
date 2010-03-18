@@ -10,7 +10,7 @@ isystem="";
 for package_dir in ${packages_dirs} 
 do
 	isystem="${isystem} -isystem ${package_dir}";
-	for include_dir in `find ${package_dir} -type d`
+	for include_dir in `/usr/bin/find ${package_dir} -type d`
 	do
 		isystem="${isystem} -isystem ${include_dir}";
 	done

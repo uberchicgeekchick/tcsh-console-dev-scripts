@@ -59,12 +59,10 @@ find_missing_media:
 	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
 	if( ${?debug} ) printf "Searching for missing multimedia files using:\n\tfind -L ${cwd}/${maxdepth}${mindepth} -type f -iregex '.*${extensions}${eol}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([\\\[])/\\\1/g'\n";
 	@ removed_podcasts=0;
-	foreach podcast("`/usr/bin/find -L ${cwd}/${maxdepth}${mindepth}-type f -iregex '.*${extensions}${eol}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([\\\[])/\\\1/g' | sed -r 's/^\ //' | sed -r 's/\ ${eol}//' | sed -r 's/(['\''"\""\ \<\>\(\)\&\|\?\*\+\-])/\\\1/g'`")
-		#printf "-->${podcast}\n";
-		#continue;
+	foreach podcast("`/usr/bin/find -L ${cwd}/${maxdepth}${mindepth}-type f -iregex '.*${extensions}${eol}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([\\\[])/\\\1/g'`")
 		if( ${?skip_subdirs} ) then
 			foreach skip_subdir( "`printf "\""${skip_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ ${eol}//'`" )
-				if( "`printf ${podcast} | sed -r 's/^${escaped_cwd}\/(${skip_subdir})\/.*/\1/'`" == "${skip_subdir}" ) then
+				if( "`printf '%s' "\""${podcast}"\"" | sed -r 's/^${escaped_cwd}\/(${skip_subdir})\/.*/\1/'`" == "${skip_subdir}" ) then
 					unset skip_subdir;
 					break;
 				endif
@@ -72,16 +70,23 @@ find_missing_media:
 			if(! ${?skip_subdir} ) continue;
 		endif
 		
-		set status=0;
-		set grep_test="`/bin/grep ${podcast} '${playlist}'`";
-		#if( ${status} != 0 ) then
-			#printf "**error:** searching for: %s\n" "/bin/grep ${podcast} "\""${playlist}"\""";
-		#	continue;
-		#endif
-		if( "${grep_test}" != "" ) then
-			if( ${status} != 0 )	\
-				printf "**error: %s** searching for: %s\n" "${grep_test}" ${podcast};
-			continue;
+		if( `/bin/grep "${podcast}" "${playlist}"` != "" ) continue;
+		
+		if( ${?duplicates_subdirs} ) then
+			foreach duplicates_subdir ( "`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ ${eol}//'`" )
+				set duplicate_podcast="${podcast}";
+				#set duplicate_podcast="`printf '%s' '${podcast}' | sed -r 's/("\"")/\1\\\1\1/g'`";
+				set duplicate_podcast="`printf '%s' "\""${duplicate_podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\""`";
+				set duplicate_podcast="`printf '%s' '${duplicate_podcast}' | sed -r 's/("\"")/\1\\\1\1/g'`";
+				#if( "`printf '%s' '${duplicate_podcast}' | sed -r 's/.*(${duplicates_subdir}).*/\1/'`" != "${duplicates_subdir}" ) continue;
+				if(! -e "${duplicate_podcast}" ) continue;
+				if(! ${?dublicate_podcasts} ) then
+					set duplicate_podcasts=("${duplicate_podcast}");
+				else
+					set duplicate_podcasts=( "${duplicate_podcasts}" "\n" "${duplicate_podcast}");
+				endif
+			end
+			unset duplicate_podcast;
 		endif
 		
 		if(! ${?remove} ) then
@@ -89,63 +94,60 @@ find_missing_media:
 			if( ${?create_script} ) then
 				printf "%s\n" "${podcast}" >> "${create_script}";
 			endif
-			
-			if(! ${?duplicates_subdirs} ) continue;
-			
-			foreach duplicates_subdir ( "`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ ${eol}//'`" )
-				set duplicate_podcast="`printf ${podcast} | sed -r 's/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//' | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\?\*\+\-])/\\\1/g'`";
-				if( -e "`printf ${duplicate_podcast}`" )	\
-					printf '%s\n' "${duplicate_podcast}";
-			end
-			unset duplicate_podcast;
+			if( ${?duplicate_podcasts} ) then
+				foreach duplicate_podcast ( "`printf "\""${duplicate_podcasts}"\"" | sed -r 's/^\ //' | sed -r 's/\ ${eol}//'`" )
+					printf "%s\n" "${duplicate_podcast}";
+					if( ${?create_script} ) then
+						printf "%s\n" "${duplicate_podcast}" >> "${create_script}";
+					endif
+				end
+			endif
 			continue;
 		endif
 		
-		#set podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/\\([\\\[])/\1/g"\""`";
+		set podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/\\([\\\[])/\1/g"\""`";
 		
-		set rm_confirmation="`rm -vf${remove} ${podcast}`";
+		set rm_confirmation=`rm -vf${remove} "${podcast}"`;
 		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) continue;
 		
 		@ removed_podcasts++;
 		if( ${?create_script} ) then
-			printf "rm -vf${remove} ${podcast};\n" >> "${create_script}";
+			printf "rm -vf${remove} "\""${podcast}"\"";\n" >> "${create_script}";
 		endif
 		
-		set podcast_dir="`dirname ${podcast} | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\?\*\+\-])/\\\1/g'`";
+		set podcast_dir=`dirname "${podcast}"`;
+		if( "${podcast_dir}" == "${cwd}" ) continue;
 		while( "${podcast_dir}" != "/" && "${podcast_dir}" != "${cwd}" )
-			if( "`ls ${podcast_dir}`" != "" ) break;
-			rmdir -v "`printf ${podcast_dir}`";
+			if( `ls "${podcast_dir}"` != "" ) break;
+			rmdir -v "${podcast_dir}";
 			if( ${?create_script} ) then
-				printf "rmdir -v ${podcast_dir};\n" >> "${create_script}";
+				printf "rmdir -v "\""${podcast_dir}"\"";\n" >> "${create_script}";
 			endif
-			set podcast_dir="`dirname ${podcast_dir} | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\?\*\+\-])/\\\1/g'`";
+			set podcast_dir=`dirname "${podcast_dir}"`;
 		end
 		
-		if(! ${?duplicates_subdirs} ) continue;
+		if(! ${?duplicate_podcasts} ) continue;
 		
-		foreach duplicates_subdir ( "`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ ${eol}//'`" )
-			set duplicate_podcast="`printf ${podcast} | sed -r 's/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//' | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\?\*\+\-])/\\\1/g'`";
-			if(! -e "`printf ${duplicate_podcast}`" ) continue;
-			
-			set rm_confirmation="`rm -vf${remove} ${duplicate_podcast}`";
-			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) continue;
-			
+		foreach duplicate_podcast ( "`printf "\""${duplicate_podcasts}"\"" | sed -r 's/^\ //' | sed -r 's/\ ${eol}//'`" )
+			set duplicate_podcast="`printf "\""%s"\"" "\""${duplicate_podcast}"\"" | sed -r "\""s/\\([\\\[])/\1/g"\""`";
 			@ removed_podcasts++;
-			if( ${?create_script} ) then
-				printf "rm -vf${remove} ${duplicate_podcast};\n" >> "${create_script}";
+			set rm_confirmation=`rm -vf${remove} "${duplicate_podcast}"`;
+			if( ${?create_script} && ${status} == 0 && "${rm_confirmation}" != "" ) then
+				printf "rm -vf${remove} "\""${duplicate_podcast}"\"";\n" >> "${create_script}";
 			endif
 			
-			set podcast_dir="`dirname ${duplicate_podcast} | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\?\*\+\-])/\\\1/g'`";
+			set podcast_dir=`dirname "${duplicate_podcast}"`;
+			if( "${podcast_dir}" == "${cwd}" ) continue;
 			while( "${podcast_dir}" != "/" && "${podcast_dir}" != "${cwd}" )
-				if( "`ls ${podcast_dir}`" != "" ) break;
-				rmdir -v "`printf ${podcast_dir}`";
+				if( `ls "${podcast_dir}"` != "" ) break;
+				rmdir -v "${podcast_dir}";
 				if( ${?create_script} ) then
-					printf "rmdir -v ${podcast_dir};\n" >> "${create_script}";
+					printf "rmdir -v "\""${podcast_dir}"\"";\n" >> "${create_script}";
 				endif
-				set podcast_dir="`dirname ${podcast_dir} | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\?\*\+\-])/\\\1/g'`";
+				set podcast_dir=`dirname "${podcast_dir}"`;
 			end
 		end
-		unset duplicate_podcast;
+		unset duplicate_podcasts;
 	end
 #find_missing_media:
 
@@ -341,7 +343,6 @@ parse_arg:
 					
 					case "skip-files-in-subdir":
 					case "skip-subdir":
-						#set value="`printf '%s' '${value}' | sed -r 's/\//\\\//g'`";
 						if(! ${?skip_subdirs} ) then
 							set skip_subdirs=("${value}");
 						else

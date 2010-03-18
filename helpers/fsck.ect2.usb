@@ -11,7 +11,6 @@ init:
 	endif
 	
 	set scripts_basename="tcsh-script.tcsh";
-	set scripts_alias="`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)${eol}/\1/'`";
 	
 	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
 	set escaped_home_dir="`printf '%s' '${HOME}' | sed -r 's/\//\\\//g'`";
@@ -32,13 +31,13 @@ init_complete:
 check_dependencies:
 	set current_label="check_dependencies";
 	
-	set dependencies=("${scripts_basename}");# "${scripts_alias}");
+	set dependencies=("${scripts_basename}");# "`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)${eol}/\1/'`");
 	@ dependencies_index=0;
 #check_dependencies:
 
 
-check_dependencies:
-	set current_label="check_dependencies";
+check_dependency:
+	set current_label="check_dependency";
 	
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
@@ -66,28 +65,8 @@ check_dependencies:
 				endif
 			endif
 			
-			if( ${?debug} )	then
-				switch( "`printf '%s' '${dependency}' | sed -r 's/.*([1-3])${eol}'/\1/`" )
-					case "1":
-						set suffix="st";
-						breaksw;
-					
-					case "2":
-						set suffix="nd";
-						breaksw;
-					
-					case "3":
-						set suffix="rd";
-						breaksw;
-					
-					default:
-						set suffix="th";
-						breaksw;
-				endsw
-				
-				printf "\n**%s debug:** found %d%s dependency: %s.\n\n" "${scripts_basename}" $dependencies_index "$suffix" "${dependency}";
-				unset suffix;
-			endif
+			if( ${?debug} )	\
+				printf "\n**%s debug:** found dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
 			
 			switch("${dependency}")
 				case "${scripts_basename}":
@@ -118,7 +97,7 @@ check_dependencies:
 	end
 	
 	unset dependency dependencies;
-#check_dependencies:
+#check_dependency:
 
 
 if_sourced:
@@ -156,7 +135,7 @@ sourcing_main:
 	set current_label="sourcing_main";
 	
 	# START: special handler for when this file is sourced.
-	alias ${scripts_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
+	alias ${scripts_basename} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.
 #sourcing_main:
 
@@ -188,8 +167,15 @@ main:
 exec:
 	set current_label="exec";
 	
-	if( ${?debug} )	\
-		printf "Executing %s's main.\n" "${scripts_basename}";
+	printf "Executing %s's main.\n" "${scripts_basename}";
+	if(! ${?device} )	\
+		set device="/dec/sdc";
+	
+	foreach usb (${device}[12356])
+		printf "\n\n---------**checking <%s>**-----------------\n\n" "${usb}";
+		fsck.ext2 -c -y "${usb}";
+	end
+	unset device usb;
 	goto scripts_main_quit;
 #exec:
 
@@ -214,8 +200,6 @@ scripts_main_quit:
 		unset scripts_basename;
 	if( ${?scripts_dirname} )	\
 		unset scripts_dirname;
-	if( ${?scripts_alias} )	\
-		unset scripts_alias;
 	if( ${?script} )	\
 		unset script;
 	

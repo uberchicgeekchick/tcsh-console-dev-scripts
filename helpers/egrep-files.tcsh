@@ -10,7 +10,7 @@ init:
 		set eol_set;
 	endif
 	
-	set scripts_basename="tcsh-script.tcsh";
+	set scripts_basename="egrep-files.tcsh";
 	set scripts_alias="`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)${eol}/\1/'`";
 	
 	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
@@ -19,7 +19,7 @@ init:
 	@ errno=0;
 	
 	#set supports_being_source;
-	#set argz="";
+	set argz="";
 	
 	goto parse_argv;
 #init:
@@ -32,7 +32,7 @@ init_complete:
 check_dependencies:
 	set current_label="check_dependencies";
 	
-	set dependencies=("${scripts_basename}");# "${scripts_alias}");
+	set dependencies=("${scripts_basename}" "egrep");
 	@ dependencies_index=0;
 #check_dependencies:
 
@@ -67,7 +67,7 @@ check_dependencies:
 			endif
 			
 			if( ${?debug} )	then
-				switch( "`printf '%s' '${dependency}' | sed -r 's/.*([1-3])${eol}'/\1/`" )
+				switch( "`printf '%s' '${dependency}' | sed -r 's/.*([1-3])${eol}/\1/'`" )
 					case "1":
 						set suffix="st";
 						breaksw;
@@ -156,7 +156,7 @@ sourcing_main:
 	set current_label="sourcing_main";
 	
 	# START: special handler for when this file is sourced.
-	alias ${scripts_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
+	alias ${scripts_basename} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.
 #sourcing_main:
 
@@ -189,7 +189,8 @@ exec:
 	set current_label="exec";
 	
 	if( ${?debug} )	\
-		printf "Executing %s's main.\n" "${scripts_basename}";
+		printf "Running:\n\t/bin/grep --binary-files=without-match --color --with-filename --line-number --initial-tab --no-messages --perl-regexp ${argz} | sed -r 's/(.*):[\\ \\t]+.*/\\1/' | sort | uniq\n";
+	/bin/grep --binary-files=without-match --color --with-filename --line-number --initial-tab --no-messages --perl-regexp ${argz} | sed -r 's/(.*):[\ \t]+.*/\1/' | sort | uniq
 	goto scripts_main_quit;
 #exec:
 
@@ -212,10 +213,10 @@ scripts_main_quit:
 	
 	if( ${?scripts_basename} )	\
 		unset scripts_basename;
-	if( ${?scripts_dirname} )	\
-		unset scripts_dirname;
 	if( ${?scripts_alias} )	\
 		unset scripts_alias;
+	if( ${?scripts_dirname} )	\
+		unset scripts_dirname;
 	if( ${?script} )	\
 		unset script;
 	

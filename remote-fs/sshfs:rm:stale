@@ -1,131 +1,16 @@
 #!/bin/tcsh -f
 set exit_code=0;
 
-set sync_method = "no-sync";
-if( -e "./.sync.default" ) set sync_method=`cat ./.sync.default`;
-
-if( -e ./.no.pushing ) set no_pushing;
-
-set log_dir="./.`basename '${0}'`.logs";
-
 while ( ${?1} && "${1}" != "" )
 	switch ( "${1}" )
 	case "--help":
 		goto usage;
 		breaksw
-	case "--sync=rsync":
-	case "--sync=scp":
-	case "--sync=sshfs":
-	case "--sync=cp":
-	case "--sync=no-sync":
-		set sync_method="${value}";
-		breaksw
-	case "--no-pushing":
-		set no_pushing;
-		breaksw
-	case "--disable-logging":
-		set rm_log;
-		breaksw
-	case "--skip-remote-clean-up":
-		set skip_remote_clean_up;
-		breaksw
-	case "--append":
-		if( ! -d "${log_dir}" ) then
-			printf("No previous commit messages could be found.  I new commit will be created.");
-			breaksw;
-		endif
-		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
-		set commit_log="${log_dir}/${commit_log}";
-		
-		if( ! -e "${commit_log}" ) then
-			set commit_action="Committed";
-			printf("No previous commit messages could be found.  I new commit will be created.");
-		else
-			set commit_action="Commit Appended";
-		endif
-		breaksw
-	default:
-		# git:commit+push+sync logs are stored & saved;
-		# Mustly its until I decide how & if I want to;
-		# impliment a way of using git's append commits.;
-		if( ! ${?commit_log} ) then
-			if( ! -d ${log_dir} ) then
-				set log_dir_is_new;
-				mkdir -p "${log_dir}";
-			endif
-			set commit_log="${log_dir}/`date '+%Y-%m-%d @ %r'`.message";
-			set commit_action="Committed";
-			printf "${1}" > "${commit_log}";
-			breaksw
-		endif
-		printf "\n\n${1}" >> "${commit_log}";
-		breaksw
 	endsw
-	shift;
 end
-
-if(! ${?commit_log} ) then
-	if( -d "${log_dir}" ) then
-		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
-		set commit_log="${log_dir}/${commit_log}";
-	endif
-	set commit_action="Commit Appended";
-else
-	set commit_action="Committed";
-endif
-
-if(!(${?commit_log} && "${commit_log}" != "" && -e "${commit_log}")) then
-	set exit_code = -1;
-	goto usage;
-endif
-
-printf "\n\n%s on : %s\n" "${commit_action}" "`date '+%Y-%m-%d @ %r'`" >> "${commit_log}";
-unset commit_action;
-
-
-git add .;
-foreach tarball ( "`find . -iregex '.*\.tar\.\(bz2\|gz\)'`" )
-	set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
-	git rm --cached --quiet "${tarball}";
-end
-unset tarball;
-
-
-#
-# Removes any vim, connectED, gedit, or etc 'swp' files.
-# This is even more useful to keep from committing early art works & uber-alphas.
-#
-foreach swp ( "`find . -iregex '.*\.\(sw.\|dev\|art\|bck\|zip\|~\)'`" )
-	set swp = "`printf '${swp}' | sed 's/^\.\///'`";
-	git rm --cached --quiet "${swp}";
-end
-unset swp;
-
-foreach art ( "`find . -iregex '.*\.\(art\|dev\|ref\)\.[^\.]*'`" )
-	set art = "`printf '${art}' | sed 's/^\.\///'`";
-	git rm --cached --quiet "${art}";
-end
-unset art;
-
-git rm -r --cached --quiet "${log_dir}";
-
-git commit -a -F "${commit_log}" --cleanup=verbatim;
-
-if( ${?rm_log} ) then
-	rm "${commit_log}";
-	if( ${?log_dir_is_new} ) rmdir "${log_dir}";
-endif
-
-if(! ${?no_pushing} ) then
-	foreach remote_git ( "`git remote`" )
-		git push "${remote_git}";
-	end
-endif
-
-goto check_sync;
-exit;
 
 init_sync:
+set sync_method="sshfs";
 set project_name = "`basename '${cwd}'`";
 set sshfs_path = "/projects/ssh";
 set ssh_user = "dreams";
@@ -158,7 +43,7 @@ case "cp":
 	
 	# cleaning up swp files that may have been copied to the remote location
 	printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
-	foreach swp ( "`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
+	foreach swp ( "`/usr/bin/find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
 		rm --verbose "${swp}";
 	end
 	printf "\t\t[done]";
@@ -171,7 +56,7 @@ case "cp":
 	## and remove remote files that no longer exist locally.;
 	#printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
 	#set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
-	#foreach remote_file ( "`find "\""${sshfs_path}/${project_name}/"\""*`" )
+	#foreach remote_file ( "`/usr/bin/find "\""${sshfs_path}/${project_name}/"\""*`" )
 	#	# escape special characters to keep them from being expanded by the terminal;
 	#	set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
 	#	set git_test = "`printf "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`";

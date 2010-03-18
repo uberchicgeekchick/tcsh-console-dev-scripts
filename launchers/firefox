@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 set this_program="`basename '${0}'`";
-set firefox_profile_path="/programs/Mozilla/settings/${this_program}/profiles";
+set firefox_profile_path="/programs/mozilla/settings/${this_program}/profiles";
 set argz="";
 
 while( ${?1} && "${1}" != "" )
@@ -15,10 +15,10 @@ while( ${?1} && "${1}" != "" )
 		breaksw
 	case "--nightly-build":
 	case "--x86-64":
-		set program_path="/programs/Mozilla/Firefox3/x86_64";
+		set program_path="/programs/mozilla/firefox/x86_64";
 		breaksw
 	case "--download":
-		set program_path="/programs/Mozilla/Firefox3/firefox";
+		set program_path="/programs/mozilla/firefox/firefox";
 		breaksw
 	case "-ProfileManager":
 		set argz="${1} ${argz}";
@@ -40,10 +40,10 @@ while( ${?1} && "${1}" != "" )
 end
 
 if(!(${?program_path})) then
-	if( -d "/programs/Mozilla/Firefox3/x86_64" ) then
-		set program_path="/programs/Mozilla/Firefox3/x86_64";
-	else if( -d "/programs/Mozilla/Firefox3/firefox" )
-		set program_path="/programs/Mozilla/Firefox3/firefox";
+	if( -d "/programs/mozilla/firefox/x86_64" ) then
+		set program_path="/programs/mozilla/firefox/x86_64";
+	else if( -d "/programs/mozilla/firefox/firefox" )
+		set program_path="/programs/mozilla/firefox/firefox";
 	else
 		set program_path="/usr/bin";
 	endif

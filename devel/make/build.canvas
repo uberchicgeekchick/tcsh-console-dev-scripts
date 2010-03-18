@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="build.canvas";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+if(! ${?TCSH_RC_SESSION_PATH} )	\
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "build.canvas" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -12,49 +12,37 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if( "${1}" == "--reset" ) then
-	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment" --reset;
-else
-	source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
+
+if(! ${?TCSH_CANVAS_PATH} )	\
+	setenv TCSH_CANVAS_PATH "${TCSH_RC_SESSION_PATH}/../devel/make";
+source "${TCSH_CANVAS_PATH}/canvas.init.tcsh" ${argv};
+
+
+if( ${?OSS_ARTISTIC_CANVAS} )	\
+	unsetenv OSS_ARTISTIC_CANVAS;
+setenv OSS_BUILD_CANVAS;
+
+if(! ${?SSH_CONNECTION} )	\
+	printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
+
+if( ${?GREP_OPTIONS} )	\
+	unsetenv GREP_OPTIONS;
+
+if( `alias grep` != "" ) then
+	alias grep-extended "`alias grep`";
+	unalias grep;
 endif
 
+#setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3";
+setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
 
-if( ${?OSS_CANVAS} ) unsetenv OSS_CANVAS;
+#setenv MAKEFLAGS "-Wall -Wextra -Werror -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
+setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -Wall -Wextra -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
 
-if(! ${?SSH_CONNECTION} ) printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
+#setenv CFLAGS "-std=gnu99 ${INCLdUDE_AND_LIB_FLAGS_AND_PATHS}";
+setenv CFLAGS "${MAKEFLAGS}";
 
-if( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
-if( `alias grep` != "" ) unalias grep;
+#setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MAKEFLAGS}";
+setenv CXXFLAGS "${MAKEFLAGS}";
 
-alias	"configure"	"/projects/cli/devel/make/my:configure";
-alias	"autogen.sh"	"/projects/cli/devel/make/my:autogen.sh";
-
-#
-#C compiler linking flags
-#	libraries to pass to the linker.
-#		-l<library>, e.g. -lpango-1.0
-#	or shared objects directly:
-#		-L<library.path.so>, e.g. -L/usr/lib64/libpango-1.0.so
-#setenv	LDFLAGS		""
-#setenv	LIBS		""
-
-setenv	LD_LIBRARY_PATH		"/usr/include";
-setenv	LD_RUN_PATH		"/usr/include";
-
-
-#C/C++/Objective C preprocessor flags, e.g. -I<include dir> if
-#you have headers in a nonstandard directory <include dir>
-setenv MY_INCLUDE_FLAGS "-I${LD_LIBRARY_PATH} -I. -I..";
-
-setenv CPPFLAGS "${MY_INCLUDE_FLAGS}";
-
-setenv MAKEFLAGS "-Wall -Wextra -Wformat=2";
-
-setenv CFLAGS "-std=gnu99 ${MY_INCLUDE_FLAGS}";
-
-setenv CXXFLAGS "-std=gnu++0x ${MY_INCLUDE_FLAGS}";
-
-#source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh" --force
-
-set source_file="build.canvas";
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "build.canvas";

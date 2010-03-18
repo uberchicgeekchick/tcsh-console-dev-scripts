@@ -9,9 +9,9 @@ endif
 
 if( ${?TCSH_RC_DEBUG} && ! ${?sourcing_finished_message_displayed} ) then
 	if(! ${?usage_message} ) then
-		printf "TCSH's finished sourcing %s @ %s.\n" "$argv[1]" "`date '+%I:%M:%S%P'`";
+		printf "\nTCSH's finished sourcing %s @ %s.\n" "$argv[1]" "`date '+%I:%M:%S%P'`";
 	else
-		printf "TCSH's finished %s @ %s.\n" "${usage_message}" "`date '+%I:%M:%S%P'`";
+		printf "\nTCSH's finished %s @ %s.\n" "${usage_message}" "`date '+%I:%M:%S%P'`";
 	endif
 endif
 

@@ -27,22 +27,23 @@ foreach dependency(${dependencies})
 	if(! ${?dependency} ) goto missing_dependency;
 end
 
-goto main;
+#goto main;
 
 main:
+	unset dependencies;
+	if( ${?dependency} ) unset dependency;
+	if( ${?program} ) unset program;
 	set status=0;
 	cd "${scripts_working_dir}";
 	mono OpenSim.exe
 
-main_quit:
-	unset dependencies;
-	if( ${?dependency} ) unset dependency;
-	if( ${?program} ) unset program;
+exit_script:
 	exit ${status};
-#main_quit
+#exit_script:
 
 missing_dependency:
-	printf "Unable to find %s.\n" "${dependency}";
+	printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_name}" "${dependencies}";
 	set status=-1;
-	goto main_quit;
+	goto exit_script;
+#missing_dependency:
 

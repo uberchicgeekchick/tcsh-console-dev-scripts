@@ -7,7 +7,14 @@ if(!( "${1}" != "" && "${2}" != "" && -d "${mozilla_profiles_directory}/${1}/pro
 	exit $status;
 endif
 
-foreach rdf ( "${mozilla_profiles_directory}/${1}/profiles/${2}/extensions/"*/install.rdf )
-	ex -X -n -E '+1,$s/^\([\ \t]*\)\(<\)\(em:\)\?\(maxVersion>\)[^<]*\(<\/\)\(em:\)\?\(maxVersion>\)/\1\2\3\43\.\*\5\6\7/' '+1,$s/\v([\ \t]*)(em:)?(maxVersion\=")[^"]*(")/\1\2\33\.*\4/' '+wq!' "${rdf}";
+set maxVersion="3";
+
+foreach rdf ( "`egrep 'maxVersion[=\>]["\""]?([0-${maxVersion}]\.[^\*][^"\""<]*)["\""\<]' '${mozilla_profiles_directory}/${1}/profiles/${2}/extensions/'*/install.rdf | sed -r 's/(.*):[\ \t]+.*/\1/'`" )
+	if(! -e "${rdf}" ) then
+		printf "Unable to find %s(%s)\n" "${rdf}";
+		continue;
+	endif
+	printf "Updating %s's maxVersion\n\n" "`/bin/grep --perl-regexp 'name[=\>]["\""'\'']?([^"\""'\''\<]*)["\""'\''\<]' "\""${rdf}"\"" | sed -r 's/.*name[=\>]["\""'\'']?([^"\""'\''\<]*)["\""'\''\<].*/\1/g'`";
+	ex -X -n -E --noplugin "+1,"\$"s/\v(maxVersion[\=\>])(["\""']?)([^"\""'\<]*)(["\""'\<])/\1\2${maxVersion}\.\*\4" '+wq!' "${rdf}" > /dev/null;
 end
 

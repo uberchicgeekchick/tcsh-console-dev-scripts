@@ -5,7 +5,7 @@ init:
 		set eol_set;
 	endif
 	set supports_being_source;
-	set scripts_name="launcher.tcsh";
+	set scripts_name="find";
 #init:
 
 
@@ -84,7 +84,6 @@ if_sourced:
 
 
 main:
-	set argz="";
 	set argc=${#argv};
 	if( ${argc} < 1 ) then
 		set status=-1;
@@ -123,15 +122,16 @@ exec:
 
 
 script_main_quit:
+	if( ${?supports_being_source} ) unset supports_being_source;
 	if( ${?scripts_name} ) unset scripts_name;
 	if( ${?scripts_path} ) unset scripts_path;
 	if( ${?script} ) unset script;
-	if( ${?argz} ) unset argz;
-	if( ${?debug} ) unset debug;
-	if( ${?eol_set} ) unset eol_set eol;
 	if( ${?escaped_cwd} ) unset escaped_cwd;
 	if( ${?dependency} ) unset dependency;
 	if( ${?dependencies} ) unset dependencies;
+	if( ${?argz} ) unset argz;
+	if( ${?debug} ) unset debug;
+	if( ${?eol_set} ) unset eol_set eol;
 	if( ${?usage_displayed} ) unset usage_displayed;
 	if( ${?no_exit_on_usage} ) unset no_exit_on_usage;
 	if( ${?use_old_owd} ) then
@@ -152,12 +152,20 @@ missing_dependency:
 
 usage:
 	if(! ${?usage_displayed} ) then
-		if(! ${?script} ) then
-			printf "Usage:\n\t%s [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n" "${scripts_name}";
-		else if( "${program}" != "${script}" ) then
-			${program} --help;
+		if( ${?script} ) then
+			if( ${?program} ) then
+				if( "${program}" != "${script}" ) then
+					${program} --help;
+					set usage_displayed;
+				endif
+			endif
 		endif
 	endif
+	
+	if(! ${?usage_displayed} ) then
+		printf "Usage:\t%s [-h|--help]...\n\t[-h|--help]\tDisplays this screen.\n" "${scripts_name}";
+	endif
+	
 	if(! ${?usage_displayed} ) set usage_displayed;
 	if(! ${?no_exit_on_usage} ) then
 		goto script_main_quit;
@@ -188,6 +196,7 @@ parse_argv:
 #parse_argv:
 
 parse_arg:
+	set argz="";
 	while( $arg < $argc )
 		@ arg++;
 		

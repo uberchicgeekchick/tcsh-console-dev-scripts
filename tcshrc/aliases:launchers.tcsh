@@ -24,7 +24,7 @@ endif
 
 setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
 source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=1 "${TCSH_LAUNCHER_PATH}";
-foreach launcher ( "`find ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f -perm '/u=x' -printf '%f\n'`" )
+foreach launcher ( "`/usr/bin/find ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f -perm '/u=x' -printf '%f\n'`" )
 	switch( "${launcher}" )
 		case "init.tcsh":
 		case "firefox-bin":
@@ -41,11 +41,10 @@ foreach launcher ( "`find ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f -perm '/u=x'
 			continue;
 			breaksw;
 		case "browser":
-		case "google":
 		case "url-shortener":
 			# alias to target this launcher:
 			if( ${?TCSH_RC_DEBUG} ) printf "Skipping: [%s/%s] as it should just be in your path.\n" "${TCSH_LAUNCHER_PATH}" "${launcher}";
-			#alias ${launcher} "${TCSH_LAUNCHER_PATH}/${launcher}";
+			#alias ${launcher} \$"{TCSH_LAUNCHER_PATH}/${launcher}";
 			continue;
 			breaksw;
 	endsw
@@ -81,11 +80,11 @@ end
 
 setenv TCSH_WEBSITE_LAUNCHERS_PATH "${TCSH_LAUNCHER_PATH}/websites";
 source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=1 "${TCSH_WEBSITE_LAUNCHERS_PATH}";
-foreach launcher ( "`find '${TCSH_WEBSITE_LAUNCHERS_PATH}' -type f -perm '/u=x' -printf '%f\n'`" )
+foreach launcher ( "`/usr/bin/find '${TCSH_WEBSITE_LAUNCHERS_PATH}' -type f -perm '/u=x' -printf '%f\n'`" )
 	set website="`printf '%s' '${launcher}' | sed -r 's/(.*)\.tcsh${eol}/\1/'`";
 	if( ${?TCSH_RC_DEBUG} ) printf "Setting up website alias for [%s] to [%s/%s].\n" "${website}" "${TCSH_WEBSITE_LAUNCHERS_PATH}" "${launcher}";
 	alias	"${website}"	\$"{TCSH_WEBSITE_LAUNCHERS_PATH}/${launcher}";
-	unset website launcher;
+	unset	website	launcher;
 end
 unset launcher;
 

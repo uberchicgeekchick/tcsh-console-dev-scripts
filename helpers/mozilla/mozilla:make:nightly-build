@@ -1,13 +1,32 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-source "${TCSH_RC_SESSION_PATH}/../devel/make/compilers.environment";
 
-#setenv	CFLAGS		"-std=gnu99 -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
-#setenv	CXXFLAGS	"-std=gnu++0x -L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
-setenv	CFLAGS		"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
-setenv	CXXFLAGS	"-L/lib64 -L/usr/lib64 -L/usr/lib -L/lib -I/usr/include"
-#setenv	MAKEFLAGS	"-O3"
-if( ${?MAKEFLAGS} ) unsetenv	MAKEFLAGS;
+if( `alias grep` != "" ) then
+	unalias grep;
+endif
+
+
+if(! ${?TCSH_CANVAS_PATH} )	\
+	setenv TCSH_CANVAS_PATH "${TCSH_RC_SESSION_PATH}/../devel/make";
+source "${TCSH_CANVAS_PATH}/canvas.init.tcsh" ${argv};
+
+
+if( "${1}" == "--reset" )	\
+	shift;
+
+
+#setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3";
+setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
+
+#setenv MAKEFLAGS "-Wall -Wextra -Werror -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
+setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -Wall -Wextra -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
+#if( ${?MAKEFLAGS} ) unsetenv	MAKEFLAGS;
+
+#setenv CFLAGS "-std=gnu99 ${INCLdUDE_AND_LIB_FLAGS_AND_PATHS}";
+setenv CFLAGS "${MAKEFLAGS}";
+
+#setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MAKEFLAGS}";
+setenv CXXFLAGS "${MAKEFLAGS}";
 
 if( ${?http_proxy}  ) unsetenv http_proxy
 
@@ -37,6 +56,7 @@ case "thunderbird":
 	set mercurial_repo="comm-central";
 	set enable_mozilla="--enable-calendar --enable-static";
 	set prefix="${mozilla_top_dir}/Thunderbird3";
+	set prefix="${mozilla_top_dir}/thunderbird";
 	breaksw;
 
 case "xulrunner":
@@ -45,6 +65,7 @@ case "xulrunner":
 	set mercurial_repo="mozilla-central";
 	set enable_mozilla="--enable-libxul";
 	set prefix="${mozilla_top_dir}/XULRunner-1.9.1";
+	set prefix="${mozilla_top_dir}/xul-runner";
 	breaksw;
 
 case "firefox":
@@ -53,6 +74,7 @@ case "firefox":
 	set mercurial_repo="mozilla-central";
 	set enable_mozilla="--enable-libxul";
 	set prefix="${mozilla_top_dir}/Firefox3";
+	set prefix="${mozilla_top_dir}/firefox";
 	breaksw;
 
 default:
@@ -63,7 +85,7 @@ endsw
 set topdir="${mozilla_top_dir}/src";
 if( ! -d "${topdir}" ) mkdir -p "${topdir}";
 
-set srcdir="${topdir}/${build_mozilla}-src";
+set srcdir="${topdir}/${build_mozilla}-srcdir";
 if(! -d "${srcdir}" ) mkdir -p "${srcdir}";
 
 set objdir="${topdir}/${build_mozilla}-objdir";
@@ -74,70 +96,127 @@ if( -e "${srcdir}/.make.lock" ) then
 	exit -2;
 endif
 
-while( ${?2} && "${2}" != "" )
+if( "${2}" != "" ) then
+	switch( "${2}" )
 	case "--disable=exec":
 		set no_exec;
-		breaksw
+		breaksw;
+	
 	case "--make=package-only":
 		goto make_package;
-		breaksw
+		breaksw;
+	
+	case "--make":
+		goto make;
+		breaksw;
+	
 	default:
 		printf "Unsupported option: %s\nSupported options are:					\
 			--disable=exec		Only valid for when building firefox or thunderbird.	\
 						It will keep %s from \
 						running firefox/thunderbird when make completes.	\
 													\
+			--make			Run's %make -f client.mk%s without checking out		\
+						the latest source.					\
+													\
 			--make=package-only	%s will only recreate the project's 			\
 						tarball based off of a previous build.  No now files	\
 						will be checked out or built.				\
-			" "${2}" "${0}" "${0}";
-		breaksw
+			" "${2}" "${0}" '`' '`' "${0}";
+			exit -1;
+		breaksw;
+	
 	endsw
-end
-
-#goto make;
-
-checkout:
-cd "${srcdir}";
-if( !( -d "${srcdir}" && -d "${srcdir}/.hg" ) ) then
-	set hg_reaction="checkout";
-	printf "Cloning: %s.\n" "${mercurial_repo}";
-	hg clone "http://hg.mozilla.org/${mercurial_repo}" "${srcdir}";
-else
-	set hg_reaction="update";
-	printf "Checking out: %s.\n" "${mercurial_repo}";
-	if( "${build_mozilla}" == "thunderbird" && -e client.py ) then
-		python client.py checkout;
-	else
-		hg pull -u;
-		python client.py --skip-comm checkout;
-	endif
 endif
 
-if( ${status} != 0 ) goto status_failed;
-unset hg_reaction;
+checkout:
+	cd "${srcdir}";
+	if( !( -d "${srcdir}" && -d "${srcdir}/.hg" ) ) then
+		set hg_reaction="checkout";
+		printf "Cloning: %s.\n" "${mercurial_repo}";
+		hg clone "http://hg.mozilla.org/${mercurial_repo}" "${srcdir}";
+		hg pull;
+		hg update;
+	else
+		set hg_reaction="update";
+		printf "Checking out: %s.\n" "${mercurial_repo}";
+		if( "${build_mozilla}" == "thunderbird" && -e client.py ) then
+			python client.py checkout;
+		else
+			hg pull -u;
+			#hg status -mard;
+			#python client.py update_nspr NSPR_TAG_NAME;
+			#python client.py update_nss NSS_TAG_NAME;
+		endif
+	endif
+	
+	if( ${status} != 0 ) goto status_failed;
+	unset hg_reaction;
+#checkout:
+goto make;
+
+
+make_nss:
+	cd "${srcdir}";
+	
+	if( "${MACHTYPE}" == "x86_64" ) then
+		setenv	USE_64	1;
+		set arch_path="Linux2.6_x86_64_glibc_PTH_64_DBG.OBJ";
+	else
+		setenv	USE_64	0;
+		set arch_path="Linux2.6_x86_glibc_PTH_DBG.OBJ";
+	endif
+	
+	set nsinstall_path="${srcdir}/security/coreconf/nsinstall/${arch_path}";
+	set nss_path="${srcdir}/dist/${arch_path}";
+	
+	if(! -d  "${objdir}/nss/ssl" )	\
+		mkdir -p  "${objdir}/nss/ssl";;
+	
+	cd "${srcdir}/security/coreconf/nsinstall";
+	make USE_64=${USE_64};
+	make USE_64=${USE_64} install;
+	setenv PATH "${PATH}:${cwd}/${${arch_path}}";
+	
+	cd "${srcdir}/security/nss";
+	make USE_64=${USE_64};
+	make USE_64=${USE_64} install;
+	
+	setenv PATH "${PATH}:${nss_path}/bin"
+	
+	setenv LD_RUN_PATH "${LD_RUN_PATH}:${nss_path}/lib";
+	setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${nss_path}/lib";
+	
+	unset arch_path;
+	
+	#cp "${srcdir}/security/nss/lib/ssl/${arch_path}/"* "${objdir}/nss/ssl";
+	
+	cd "${srcdir}";
+	
+	if( ${?run_distclean} ) then
+		make -f client.mk distclean;
+		unset run_distclean;
+	endif
+#make_nss:
 
 
 make:
-cd "${srcdir}";
+	cd "${srcdir}";
+	
+	setenv	MOZCONFIG	"${srcdir}/.mozconfig";
+	
+	printf "mk_add_options MOZ_OBJDIR=${objdir} MOZ_CO_PROJECT=${mozilla_project} AUTOCONF=autoconf-2.13\nac_add_options --enable-application=${mozilla_project} ${enable_mozilla} --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\n" >! "${MOZCONFIG}";
+	#" --enable-default-toolkit=gtk2"
+	
+	make -f client.mk;
+	if( ${status} != 0 ) goto status_failed;
+#make:
 
-#if( "${build_mozilla}" != "thunderbird" ) then
-	set mozconfig="${srcdir}/.mozconfig"
-#else
-#	set mozconfig="${srcdir}/.mozconfig.mk";
-#endif
-
-setenv MOZCONFIG "${mozconfig}";
-printf "mk_add_options MOZ_OBJDIR=${objdir}\nac_add_options --enable-application=${mozilla_project} ${enable_mozilla} --disable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=${objdir}\nmk_add_options MOZ_CO_PROJECT=${mozilla_project}\n" >! "${mozconfig}";
-#" --enable-default-toolkit=gtk2"
-
-make -f client.mk;
-if( ${status} != 0 ) goto status_failed;
 
 make_package:
-cd "${objdir}";
-make package;
-
+	cd "${objdir}";
+	make package;
+#make_package:
 
 
 backup:

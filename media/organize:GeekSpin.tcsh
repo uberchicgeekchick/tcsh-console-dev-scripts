@@ -10,7 +10,7 @@ if( -d "${podcasts_dir}/${cc_artist}, The" ) then
 	endif
 endif
 
-foreach title ( "`find '${media_dir}/${cc_artist}' -iregex '.*, released on.*\.\(mp.\|ogg\|flac\)'`" )
+foreach title ( "`/usr/bin/find '${media_dir}/${cc_artist}' -iregex '.*, released on.*\.\(mp.\|ogg\|flac\)'`" )
 	set song = "`printf "\""${title}"\"" | sed 's/\(.*\)\(, released on[^\.]*\)\.\(mp.\|ogg\|flac\)/\1/g'`";
 	set extension = "`printf "\""${title}"\"" | sed 's/.*\.\(mp.\|ogg\|flac\)/\1/g'`";
 	mv "${title}" "${song}.${extension}";

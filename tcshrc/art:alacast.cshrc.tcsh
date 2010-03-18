@@ -8,6 +8,21 @@ if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" != "tcsh" ) then
 	exit -1;
 endif
 
+if( -e "${HOME}/.alacast/alacast.ini" ) then
+	set alacast_ini="${HOME}/.alacast/alacast.ini";
+else if( -e "${HOME}/.alacast/profiles/${USER}/alacast.ini" ) then
+	set alacast_ini="${HOME}/.alacast/profiles/${USER}/alacast.ini";
+else if( -e "`dirname '${0}'`../data/profiles/${USER}/alacast.ini" ) then
+	set alacast_ini="`dirname '${0}'`../data/profiles/${USER}/alacast.ini";
+else if( -e "`dirname '${0}'`../data/profiles/default/alacast.ini" ) then
+	set alacast_ini="`dirname '${0}'`../data/profiles/default/alacast.ini";
+endif
+
+if( ${?alacast_ini} ) then
+	if( -e "${alacast_ini}" )	\
+		setenv ALACAST_INI "${alacast_ini}";
+endif
+
 if( ${?TCSH_RC_DEBUG} ) printf "Setting up Alacast v1's and v2's environment @ %s\n" `date "+%I:%M:%S%P"`;
 
 setenv ALACASTS_CLI_PATH "/projects/cli/alacast";
@@ -15,9 +30,6 @@ setenv PATH "${PATH}:${ALACASTS_CLI_PATH}/bin:${ALACASTS_CLI_PATH}/scripts:${ALA
 setenv ALACASTS_GTK_PATH "/projects/cli/alacast";
 setenv PATH "${PATH}:${ALACASTS_GTK_PATH}/bin:${ALACASTS_GTK_PATH}/scripts";
 
-
-# $ALACAST_OPTIONS acts like arguments to alacast.php when no command line arguments are given:
-setenv ALACASTS_OPTIONS '--logging --titles-reformat-numerical --titles-append-pubdate --playlist=m3u --strip-characters=#;!';
 
 # when no option are given alacast:cli uses the environmental variable: $ALACAST_OPTIONS.
 alias "alacast.php:sync" "${ALACASTS_CLI_PATH}/bin/alacast.php --with-defaults=sync";

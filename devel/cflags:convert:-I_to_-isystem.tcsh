@@ -8,7 +8,7 @@ set PACKAGES="${1}"
 foreach package_dir ( `pkg-config --cflags "${PACKAGES}" | sed 's/^\([^\ ]\)/\ \1/g' | sed 's/\ \-[^I][^\ ]\+//g' | sed 's/\ \-I\(\/[^\ ]\+\)/\ \1/g'`)
 	if(! ${?isystem} ) set isystem="";
 	set isystem="${isystem} -isystem ${package_dir}";
-	foreach include_dir ( `find "${package_dir}" -type d` )
+	foreach include_dir ( `/usr/bin/find "${package_dir}" -type d` )
 		set isystem="${isystem} -isystem ${include_dir}";
 	end
 end

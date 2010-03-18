@@ -11,13 +11,13 @@ set ogg_path="/projects/media/resources/archived-podcasts/audio/tedtalks";
 if(! -d "${ogg_path}" ) mkdir -p "${ogg_path}";
 
 cd "${video_path}";
-foreach video("`find . -type f`")
+foreach video("`/usr/bin/find . -type f`")
 	set video="`echo '${video}' | sed 's/\(\!\)/\\\1/g'`";
 	${oggconvert} "${video}";
 	#set tedtalk_video_with_extension="`echo '${video}' | sed 's/\(.*\)\(, released on[^\.]\+\)\?\.\([^\.]\+$\)/\1\.\3/g'`";
 	set new_ogg="`echo '${video}' | sed 's/\(.*\)\(, released on[^\.]\+\)\?\.\([^\.]\+$\)/\1\2\.ogg/g'`";
 	set tedtalk="`echo '${video}' | sed 's/\(.*\)\(, released on[^\.]\+\)\?\.\([^\.]\+$\)/\1/g'`";
-	if( `find "${ogg_path}" -name "${tedtalk}*.ogg"` != "" ) then
+	if( `/usr/bin/find "${ogg_path}" -name "${tedtalk}*.ogg"` != "" ) then
 		printf "Skipping existing OGG Vorbis:\n\t%s\n" "${tedtalk}";
 		continue;
 	endif

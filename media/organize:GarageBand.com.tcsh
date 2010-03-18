@@ -22,7 +22,7 @@ end
 
 rm "${podcasts_download_path}/.New ${music_library} Songs.lst";
 
-foreach title ( "`find Genres -iregex '.*, released on.*\.\(mp.\|ogg\|flac\)'`" )
+foreach title ( "`/usr/bin/find Genres -iregex '.*, released on.*\.\(mp.\|ogg\|flac\)'`" )
 	set pubdate="`printf "\""${title}"\"" | sed 's/Genres\/\([^\/]\+\)\/\(.*\)\ by\ \(.*\)\(, released on[^\.]*\)\.\(mp.\|ogg\|flac\)/\4/g'`";
 	if( "${pubdate}" == "" || "${pubdate}" == "${title}" ) continue;
 	set genre = "`printf "\""${title}"\"" | sed 's/Genres\/\([^\/]\+\)\/\(.*\)\ by\ \(.*\)\(, released on[^\.]*\)\.\(mp.\|ogg\|flac\)/\1/g'`";
@@ -32,7 +32,7 @@ foreach title ( "`find Genres -iregex '.*, released on.*\.\(mp.\|ogg\|flac\)'`" 
 	mv "${title}" "Genres/${genre}/${song} by ${artist}.${extension}";
 end
 
-foreach title ( "`find Genres -iregex '.*\.\(mp.\|ogg\|flac\)'`" )
+foreach title ( "`/usr/bin/find Genres -iregex '.*\.\(mp.\|ogg\|flac\)'`" )
 	set song = "`printf "\""${title}"\"" | sed 's/.*\/\(.*\)\ by\ \(.*\)\.\(mp.\|ogg\|flac\)/\1/g'`";
 	set artist = "`printf "\""${title}"\"" | sed 's/.*\/\(.*\)\ by\ \(.*\)\.\(mp.\|ogg\|flac\)/\2/g'`";
 	set extension = "`printf "\""${title}"\"" | sed 's/.*\.\(mp.\|ogg\|flac\)/\1/g'`";

@@ -5,5 +5,6 @@ if( "${1}" != "" && "${1}" == "--interactive" )	\
 	set interactive=" -i";
 
 foreach swp ( "`/usr/bin/find -L . -iregex '.*\.\(sw.\|~\)'`" )
-	rm"${interactive}" --verbose "${swp}"
+	if(! -e "${swp}" ) continue;
+	rm${interactive} --verbose "${swp}"
 end

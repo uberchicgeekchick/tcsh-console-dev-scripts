@@ -58,6 +58,8 @@ set ff_binaries=("${program}-bin" "${program}" "${program}.sh");
 @ ff_attempt_max=10;
 @ ff_attempt_sleep=10;
 @ ff_attempt=0;
+@ ff_renice_priority=2;
+
 ff_next:
 foreach ff_binary( ${ff_binaries} )
 	if(! ${?ff_found} ) then
@@ -65,7 +67,7 @@ foreach ff_binary( ${ff_binaries} )
 		foreach ff_pid(`/bin/pidof ${ff_binary}`)
 			printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
 			if( "${ff_pid}" != "" && $ff_pid > 0 ) then
-				renice +5 $ff_pid >& /dev/null;
+				renice +$ff_renice_priority $ff_pid >& /dev/null;
 				printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
 				if(! ${?ff_found} ) set ff_found;
 			endif

@@ -19,11 +19,8 @@ launchers_main:
 
 if( $uid != 0 && `echo "${1}" | sed s/^\(.\)/\1/` == "-" ) set program="sudo ${program}";
 
-if( ! ${?OUTPUT_STDERR} ) then
-	( ${program} ${argv} > /dev/tty ) >& /dev/null
-else
-	${program} ${argv} >& /dev/null
-endif
+echo ${program} ${argv};
+${program} ${argv};
 
 unset this_program program;
 

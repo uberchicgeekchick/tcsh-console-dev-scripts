@@ -38,6 +38,11 @@ if( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
 	exit -1;
 endif
 
+if( "${1}" != "" && "${1}" == "--stable" ) then
+	set pull_stable;
+	shift;
+endif
+
 
 
 init:
@@ -135,18 +140,15 @@ checkout:
 		set hg_reaction="checkout";
 		printf "Cloning: %s.\n" "${mercurial_repo}";
 		hg clone "http://hg.mozilla.org/${mercurial_repo}" "${srcdir}";
-		hg pull;
-		hg update;
 	else
 		set hg_reaction="update";
 		printf "Checking out: %s.\n" "${mercurial_repo}";
+		hg pull -u;
+		if( ${?pull_stable} ) then
+			hg update -C `hg branches | /bin/grep 'RELBRANCH' | head -1 | cut -d' ' -f1`;
+		endif
 		if( "${build_mozilla}" == "thunderbird" && -e client.py ) then
 			python client.py checkout;
-		else
-			hg pull -u;
-			#hg status -mard;
-			#python client.py update_nspr NSPR_TAG_NAME;
-			#python client.py update_nss NSS_TAG_NAME;
 		endif
 	endif
 	

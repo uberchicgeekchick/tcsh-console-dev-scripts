@@ -1,6 +1,11 @@
 #!/bin/tcsh -f
 init:
 	set current_label="init";
+	set current_cwd="${cwd}";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	if( `printf '%s' "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` == "csh" )	\
 		set being_sourced;
@@ -13,7 +18,6 @@ init:
 	set scripts_basename="tcsh-script.tcsh";
 	set scripts_alias="`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)${eol}/\1/'`";
 	
-	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
 	set escaped_home_dir="`printf '%s' '${HOME}' | sed -r 's/\//\\\//g'`";
 	
 	@ errno=0;
@@ -26,11 +30,19 @@ init:
 
 init_complete:
 	set current_label="init_complete";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	set init_completed;
 #init_complete:
 
 check_dependencies:
 	set current_label="check_dependencies";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	set dependencies=("${scripts_basename}");# "${scripts_alias}");
 	@ dependencies_index=0;
@@ -39,6 +51,10 @@ check_dependencies:
 
 check_dependencies:
 	set current_label="check_dependencies";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
@@ -123,6 +139,10 @@ check_dependencies:
 
 if_sourced:
 	set current_label="if_sourced";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	if(! ${?being_sourced} )	\
 		goto main;
@@ -136,6 +156,10 @@ if_sourced:
 
 sourcing_disabled:
 	set current_label="sourcing_disabled";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	# BEGIN: disable source scripts_basename.  For exception handeling when this file is 'sourced'.
 	@ errno=-502;
@@ -146,6 +170,10 @@ sourcing_disabled:
 
 sourcing_init:
 	set current_label="sourcing_init";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	# BEGIN: source scripts_basename support.
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
@@ -154,6 +182,10 @@ sourcing_init:
 
 sourcing_main:
 	set current_label="sourcing_main";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	# START: special handler for when this file is sourced.
 	alias ${scripts_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
@@ -163,6 +195,10 @@ sourcing_main:
 
 sourcing_main_quit:
 	set current_label="sourcing_main_quit";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	
@@ -174,6 +210,10 @@ sourcing_main_quit:
 
 main:
 	set current_label="main";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	set argc=${#argv};
 	if( ${argc} < 1 ) then
@@ -187,6 +227,10 @@ main:
 
 exec:
 	set current_label="exec";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	if( ${?debug} )	\
 		printf "Executing %s's main.\n" "${scripts_basename}";
@@ -196,6 +240,10 @@ exec:
 
 scripts_main_quit:
 	set current_label="scripts_main_quit";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	if( ${?argc} )	\
 		unset argc;
@@ -222,6 +270,8 @@ scripts_main_quit:
 	if( ${?missing_dependency} )	\
 		unset missing_dependency;
 	
+	if( ${?parsed_arg} )	\
+		unset parsed_arg;
 	if( ${?parsed_argv} )	\
 		unset parsed_argv;
 	if( ${?parsed_argc} )	\
@@ -257,6 +307,9 @@ scripts_main_quit:
 	if( ${?callback_stack} )	\
 		unset callback_stack;
 	
+	if( ${?arg_shifted} ) 	\
+		unset arg_shifted;
+	
 	if( ${?old_owd} ) then
 		cd "${owd}";
 		set owd="${old_owd}";
@@ -275,6 +328,10 @@ scripts_main_quit:
 
 usage:
 	set current_label="usage";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	if( ${?errno} ) then
 		if( ${errno} != 0 ) then
@@ -308,6 +365,10 @@ usage:
 
 exception_handler:
 	set current_label="exception_handler";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	if(! ${?errno} )	\
 		@ errno=-599;
@@ -355,6 +416,10 @@ exception_handler:
 
 parse_argv:
 	set current_label="parse_argv";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	if( ${?init_completed} ) then
 		if(! ${?being_sourced} ) then
@@ -395,21 +460,24 @@ parse_argv:
 				continue;
 		endsw
 	end
-	if( $arg > 1 )	\
-		@ arg=0;
 	
 	if( ${?debug} || ${?diagnostic_mode} )	\
 		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${scripts_basename}" "${argc}";
 	
-	#set parsed_argv=();
+	@ arg=0;
 	@ parsed_argc=0;
 #parse_argv:
 
 parse_arg:
 	set current_label="parse_arg";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	while( $arg < $argc )
-		@ arg++;
+		if(! ${?arg_shifted} )	\
+			@ arg++;
 		
 		if( ${?debug} || ${?diagnostic_mode} )		\
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
@@ -445,6 +513,7 @@ parse_arg:
 				else
 					set equals="=";
 					set value="$argv[$arg]";
+					set arg_shifted;
 				endif
 				unset test_dashes test_option test_equals test_value;
 			endif
@@ -459,13 +528,14 @@ parse_arg:
 		endif
 		
 		@ parsed_argc++;
+		set parsed_arg="${dashes}${option}${equals}${value}";
 		if(! ${?parsed_argv} ) then
-			set parsed_argv=("${dashes}${option}${equals}${value}");
+			set parsed_argv="${parsed_arg}";
 		else
-			set parsed_argv=($parsed_argv "${dashes}${option}${equals}${value}");
+			set parsed_argv="${parsed_argv} ${parsed_arg}";
 		endif
 		if( ${?debug} || ${?diagnostic_mode} )	\
-			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "$parsed_argv[$parsed_argc]";
+			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "${dashes}${option}${equals}${value}";
 		
 		switch("${option}")
 			case "numbered_option":
@@ -492,50 +562,78 @@ parse_arg:
 			
 			case "diagnosis":
 			case "diagnostic-mode":
-				if(! ${?diagnostic_mode} ) set diagnostic_mode;
+				if( ${?diagnostic_mode} )	\
+					breaksw;
+				
+				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
+				set diagnostic_mode;
 				breaksw;
 			
 			case "enable":
 				switch("${value}")
 					case "verbose":
-						if(! ${?be_verbose} ) set be_verbose;
+						if(! ${?be_verbose} )	\
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[enabled].\n\n" "${scripts_basename}" $arg;
+						set be_verbose;
 						breaksw;
 					
 					case "debug":
-						if(! ${?debug} ) set debug;
+						if( ${?debug} )	\
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${scripts_basename}" $arg;
+						set debug;
 						breaksw;
 					
 					case "diagnosis":
 					case "diagnostic-mode":
-						if(! ${?diagnostic_mode} ) set diagnostic_mode;
+						if( ${?diagnostic_mode} )	\
+							breaksw;
+						
+				
+						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
+						set diagnostic_mode;
 						breaksw;
 					
 					default:
 						printf "enabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
 						breaksw;
-					endsw
-				
+				endsw
 				breaksw;
 			
 			case "disable":
 				switch("${value}")
 					case "verbose":
-						if( ${?be_verbose} ) unset be_verbose;
+						if(! ${?be_verbose} )	\
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[disabled].\n\n" "${scripts_basename}" $arg;
+						unset be_verbose;
 						breaksw;
 					
 					case "debug":
-						if( ${?debug} ) unset debug;
+						if(! ${?debug} )	\
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[disabled].\n\n" "${scripts_basename}" $arg;
+						unset debug;
 						breaksw;
 					
 					case "diagnosis":
 					case "diagnostic-mode":
-						if( ${?diagnostic_mode} ) unset diagnostic_mode;
+						if(! ${?diagnostic_mode} )	\
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[disabled].\n\n" "${scripts_basename}" $arg;
+						unset diagnostic_mode;
 						breaksw;
 					
 					default:
 						printf "disabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
 						breaksw;
-					endsw
+				endsw
 				breaksw;
 			
 			default:
@@ -547,13 +645,19 @@ parse_arg:
 				endif
 				
 				if( "${argz}" == "" ) then
-					set argz="$parsed_argv[$parsed_argc]";
+					set argz="$parsed_arg";
 				else
-					set argz="${argz} $parsed_argv[$parsed_argc]";
+					set argz="${argz} $parsed_arg";
 				endif
 				breaksw;
 		endsw
-		unset dashes option equals value;
+		
+		if( ${?arg_shifted} ) then
+			unset arg_shifted;
+			@ arg--;
+		endif
+		
+		unset dashes option equals value parsed_arg;
 	end
 	if(! ${?callback} ) then
 		unset arg argc;
@@ -581,6 +685,10 @@ parse_arg:
 
 callback_handler:
 	set current_label="callback_handler";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	if(! ${?callback} )	\
 		goto scripts_main_quit;
@@ -607,6 +715,10 @@ callback_handler:
 
 diagnostic_mode:
 	set current_label="diagnostic_mode";
+	if( "${cwd}" != "${current_cwd}" ) then
+		set current_cwd="${cwd}";
+		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	endif
 	
 	if( -e "/tmp/${scripts_basename}-debug.log" ) rm -v "/tmp/${scripts_basename}-debug.log";
 	touch "/tmp/${scripts_basename}-debug.log";

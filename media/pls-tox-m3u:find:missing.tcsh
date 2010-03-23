@@ -84,8 +84,12 @@ find_missing_media:
 			continue;
 		endif
 		
+		if( ${?debug} )	\
+			printf "grep's output:\n\t%s\n" "${grep_test}";
+		
 		if(! ${?remove} ) then
-			printf "%s\n" "${podcast}";
+			printf "%s\n" "${podcast}" | sed -r 's/\\(["\""'\''\ \<\>\(\)\&\|\!\?\*\+\-])/\1/g';
+			#printf ${podcast}`";
 			if( ${?create_script} ) then
 				printf "%s\n" "${podcast}" >> "${create_script}";
 			endif
@@ -95,7 +99,7 @@ find_missing_media:
 			foreach duplicates_subdir ( "`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ ${eol}//'`" )
 				set duplicate_podcast="`printf ${podcast} | sed -r 's/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//' | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\!\?\*\+\-])/\\\1/g'`";
 				if( -e "`printf ${duplicate_podcast}`" )	\
-					printf '%s\n' "${duplicate_podcast}";
+					printf '%s\n' "${duplicate_podcast}" | sed -r 's/\\(["\""'\''\ \<\>\(\)\&\|\!\?\*\+\-])/\1/g';
 			end
 			unset duplicate_podcast;
 			continue;

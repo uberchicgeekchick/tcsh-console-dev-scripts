@@ -59,5 +59,9 @@ noexec:
 
 launchers_main:
 
-${program} "${url}";
+if(! ${?url} ) then
+	${program}
+else
+	${program} "${url}";
+endif
 

@@ -5,7 +5,7 @@ set status=0;
 set git_commit_setting_files=( "sync.default" "no.pushing" "no.logging" );
 
 if(! -e "./.sync.default" ) then
-	set sync_method = "no-sync";
+	set sync_method="no-sync";
 else
 	set sync_method=`cat ./.sync.default`;
 endif
@@ -35,10 +35,6 @@ endif
 
 set log_dir="./.`basename '${0}'`.logs";
 set project="`basename '${cwd}'`";
-if(! ${?eol} ) then
-	set eol_set;
-	set eol='$';
-endif
 
 @ argc=0
 while ( "$argv[$argc]" != "" )
@@ -50,117 +46,140 @@ while ( "$argv[$argc]" != "" )
 end
 
 set follow_symlinks;
+set push_to=();
 while ( "${1}" != "" )
-	set option="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\1/'`";
-	set value="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?${eol}/\2/'`";
+	set option="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?"\$"/\1/'`";
+	set value="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?"\$"/\2/'`";
 	if( ${?debug_commit} ) printf 'Parsing Option:\n\t--%s=%s\n' "${option}" "${value}";
 	switch ( "${option}" )
-	case "help":
-		goto usage;
-		breaksw;
-	case "sync":
-		set sync_method="${value}";
-		breaksw;
-	case "no-push":
-	case "no-pushing":
-		if( ${?push} ) unset push;
-		breaksw;
-	case "push-to":
-		if( "${value}" != "" ) then
-			foreach git_repo("`git remote`")
-				if("${value}" == "${git_repo}") then
-					set push_to="${value}";
-					break;
-				endif
-			end
-		endif
-		if(! ${?push_to} ) then
-			printf "%s is not a valid remote git repo.\n" "${value}" > /dev/stderr;
-		else
-			set push="${push_to}";
-			unset push_to;
-		endif
-		breaksw;
-	case "skip-remote-clean-up":
-		set skip_remote_clean_up;
-		breaksw;
-	case "branch":
-		set branch="${value}";
-		breaksw;
-	case "append":
-		if( ! -d "${log_dir}" ) then
-			printf "No previous commit messages could be found.  I new commit will be created.";
+		case "help":
+			goto usage;
 			breaksw;
-		endif
-		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
-		set commit_log="${log_dir}/${commit_log}";
-
-		if( ! -e "${commit_log}" ) then
-			set commit_action="Committed";
-			printf "No previous commit messages could be found.  I new commit will be created.";
-		else
-			set commit_action="Commit Appended";
-		endif
-		breaksw;
-	case "follow-sysmlinks":
-		switch("${value}")
-			case "disable":
-				if( ${?follow_symlinks} ) unset follow_symlinks;
-				breaksw;
-			case "enable":
-			default:
-				if(! ${?follow_symlinks} ) set follow_symlinks;
-				breaksw;
-		endsw
-		breaksw;
-	case "enable":
-		switch("${value}")
-			case "follow-sysmlinks":
-				if(! ${?follow_symlinks} ) set follow_symlinks;
-				breaksw;
-			case "push":
-				if(! ${?push} ) set push;
-				breaksw;
-			case "logging":
-				if(! ${?logging} ) set logging;
-				breaksw;
-		endsw
-		breaksw;
-	case "disable":
-		switch("${value}")
-			case "follow-sysmlinks":
-				if( ${?follow_symlinks} ) unset follow_symlinks;
-				breaksw;
-			case "push":
-				if( ${?push} ) unset push;
-				breaksw;
-			case "logging":
-				if( ${?logging} ) unset logging;
-				breaksw;
-		endsw
-		breaksw;
-	
-	default:
-		# git:commit+push+sync logs are stored & saved;
-		# Mustly its until I decide how & if I want to;
-		# impliment a way of using git's append commits.;
-		if( ! ${?commit_log} ) then
-			if( ! -d ${log_dir} ) then
-				set log_dir_is_new;
-				mkdir -p "${log_dir}";
+		
+		case "sync":
+			set sync_method="${value}";
+			breaksw;
+		
+		case "no-push":
+		case "no-pushing":
+			if( ${?push} ) unset push;
+			breaksw;
+		
+		case "push-to":
+			if( "${value}" != "" ) then
+				foreach git_repo("`git remote`")
+					if("${value}" == "${git_repo}")	then
+						set push_value;
+						break;
+					endif
+				end
 			endif
-			set commit_log="${log_dir}/`date '+%Y-%m-%d @ %T'`.message";
-			set commit_action="Committed";
-		else
-			printf '\n\n' > "${commit_log}";
-		endif
-		printf '%s' "${1}" >> "${commit_log}";
-		breaksw;
-	endsw
-	shift;
-end
-
-if( ${?debug_commit} ) printf "Option parsing complete.\n";
+			if(! ${?push_value} ) then
+				printf "%s is not a valid remote git repo.\n" "${value}" > /dev/stderr;
+			else
+				set push_to[${#push_to}]="${value}";
+				unset push_value;
+			endif
+			breaksw;
+		
+		case "skip-remote-clean-up":
+			set skip_remote_clean_up;
+			breaksw;
+		case "branch":
+			switch($value)
+				case "latest":
+				case "most-recent":
+				case "current":
+					breaksw;
+				
+				default:
+					set branch="${value}";
+					breaksw;
+			endsw
+			breaksw;
+		
+		case "no-follow":
+			if( ${?follow_symlinks} ) unset follow_symlinks;
+			breaksw;
+		
+		case "append":
+			if( ! -d "${log_dir}" ) then
+				printf "No previous commit messages could be found.  I new commit will be created.";
+				breaksw;
+			endif
+			set commit_log=`ls --width=1 ${log_dir} | tail -1`;
+			set commit_log="${log_dir}/${commit_log}";
+		
+			if( ! -e "${commit_log}" ) then
+				set commit_action="Committed";
+				printf "No previous commit messages could be found.  I new commit will be created.";
+			else
+				set commit_action="Commit Appended";
+			endif
+			breaksw;
+		case "follow-sysmlinks":
+			switch("${value}")
+				case "disable":
+					if( ${?follow_symlinks} ) unset follow_symlinks;
+					breaksw;
+				case "enable":
+				default:
+					if(! ${?follow_symlinks} ) set follow_symlinks;
+					breaksw;
+			endsw
+			breaksw;
+		case "enable":
+			switch("${value}")
+				case "follow-sysmlinks":
+					if(! ${?follow_symlinks} ) set follow_symlinks;
+					breaksw;
+				case "push":
+					if(! ${?push} ) set push;
+					breaksw;
+				case "logging":
+					if(! ${?logging} ) set logging;
+					breaksw;
+			endsw
+			breaksw;
+		case "disable":
+			switch("${value}")
+				case "follow-sysmlinks":
+					if( ${?follow_symlinks} ) unset follow_symlinks;
+					breaksw;
+				case "push":
+					if( ${?push} ) unset push;
+					breaksw;
+				case "logging":
+					if( ${?logging} ) unset logging;
+					breaksw;
+			endsw
+			breaksw;
+		
+		default:
+			# git:commit+push+sync logs are stored & saved;
+			# Mustly its until I decide how & if I want to;
+			# impliment a way of using git's append commits.;
+			if( ! ${?commit_log} ) then
+				if( ! -d ${log_dir} ) then
+					set log_dir_is_new;
+					mkdir -p "${log_dir}";
+				endif
+				set commit_log="${log_dir}/`date '+%Y-%m-%d @ %T'`.message";
+				set commit_action="Committed";
+			else
+				printf '\n\n' > "${commit_log}";
+			endif
+			printf "${1}" >> "${commit_log}";
+			breaksw;
+		endsw
+		shift;
+	end
+	
+	if( ${#push_to} < 1 )	\
+		unset push_to;
+	
+	if( ${?debug_commit} )	\
+		printf "Option parsing complete.\n";
 
 if(! ${?commit_log} ) then
 	if( -d "${log_dir}" ) then
@@ -180,7 +199,10 @@ endif
 printf "\n\n%s on : %s\n" "${commit_action}" "`date '+%Y-%m-%d @ %r'`" >> "${commit_log}";
 unset commit_action;
 
-if( ${?follow_symlinks} ) then
+follow_symlinks:
+	if(! ${?follow_symlinks} )	\
+		goto git_commit;
+	
 	set symlink_log="./.symlink.`date '+%s'`.lst";
 	find . -type l -printf '%p\t=\t%l\n' > "${symlink_log}";
 	
@@ -188,32 +210,32 @@ if( ${?follow_symlinks} ) then
 	if(!( ${#symlink_count} > 0 )) then
 		rm "${symlink_log}";
 		unset symlink_log follow_symlinks;
-	else
-		printf "Following symlinks.\n";
-		
-		foreach project_symlink("`cat '${symlink_log}'`")
-			set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
-			set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
-			
-			if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
-				printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
-				unset target symlink;
-				continue;
-			endif
-			
-			#printf '%s points to %s\n' "${symlink}" "${target}";
-			cd `dirname "${symlink}"`;
-			rm -r ./`basename "${symlink}"`;
-			if(! -e ./`basename "${symlink}"` ) cp -r "${target}" ./`basename "${symlink}"`;
-			
-			cd "${owd}";
-			
-			unset target symlink;
-		end
-		
-		unset project_symlink;
+		goto git_commit;
 	endif
-endif
+	
+	printf "Following symlinks.\n";
+	
+	foreach project_symlink("`cat '${symlink_log}'`")
+		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
+		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
+		
+		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+			unset target symlink;
+			continue;
+		endif
+		
+		#printf '%s points to %s\n' "${symlink}" "${target}";
+		cd `dirname "${symlink}"`;
+		rm -r ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) cp -r "${target}" ./`basename "${symlink}"`;
+		
+		cd "${owd}";
+		
+		unset target symlink project_symlink;
+	end
+#follow_symlinks:
+
 
 git_commit:
 	git add .;
@@ -224,27 +246,27 @@ git_commit:
 	
 	# Keep extremely large files from being committed;
 	set extensions="bz2\|gz\|tgz\|zip";
-	foreach tarball ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)${eol}' | sed -r 's/(.*)\.(${extensions})${eol}/\1\.\2/' | uniq`" )
-		if( "`printf '%s' '${tarball}' | sed 's/^\.\/\(\.git\).*/\1/'`" == ".git" ) continue;
-		set tarball = "`printf '${tarball}' | sed 's/^\.\///'`";
+	foreach tarball ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)"\$"' | uniq`" )
+		if( "`printf '%s' '${tarball}' | sed -r 's/^\.\/(\.git).*/\1/'`" == ".git" ) continue;
+		set tarball="`printf '${tarball}' | sed 's/^\.\///'`";
 		git rm -r --cached --quiet "${tarball}";
 	end
 	unset tarball;
 	
 	# Remove any vim, connectED, gedit, or etc 'swp' files.;
 	set extensions="sw.\|bck\|~\|o";
-	foreach swp ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)${eol}' | sed -r 's/(.*)\.(${extensions})${eol}/\1\.\2/' | uniq`" )
-		if( "`printf '%s' '${swp}' | sed 's/^\.\/\(\.git\).*/\1/'`" == ".git" ) continue;
-		set swp = "`printf '${swp}' | sed 's/^\.\///'`";
+	foreach swp ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)"\$"' | uniq`" )
+		if( "`printf '%s' '${swp}' | sed -r 's/^\.\/(\.git).*/\1/'`" == ".git" ) continue;
+		set swp="`printf '${swp}' | sed 's/^\.\///'`";
 		git rm -r --cached --quiet "${swp}";
 	end
 	unset swp;
 	
 	# Don't commit early art works, uber-alpha code, & ald works;
-	set extensions="art\|dev\|ref\|new\|old";
-	foreach art ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)${eol}' | sed 's/\(.*\)\.\(${extensions}\)${eol}/\1\.\2/' | uniq`" )
-		if( "`printf '%s' '${art}' | sed 's/^\.\/\(\.git\).*/\1/'`" == ".git" ) continue;
-		set art = "`printf '${art}' | sed 's/^\.\///'`";
+	set extensions="art\|dev\|ref\|new\|old\|symlink[s]?";
+	foreach art ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)"\$"' | uniq`" )
+		if( "`printf '%s' '${art}' | sed -r 's/^\.\/(\.git).*/\1/'`" == ".git" ) continue;
+		set art="`printf '${art}' | sed 's/^\.\///'`";
 		git rm -r --cached --quiet "${art}";
 	end
 	unset art;
@@ -261,21 +283,9 @@ git_commit:
 	
 	if(! ${?branch} ) then
 		set branch="`head -1 '${commit_log}'`";
-		if( "${branch}" == "" ) then
+		if(!( "${branch}" != "" && -e ".git/refs/heads/${branch}" && `/bin/ls ".git/refs/heads/${branch}"` != "" ))	\
 			unset branch;
-		else
-			if( ${?branch} ) then
-				if(! -e ".git/refs/heads/${branch}" ) then
-					unset branch;
-				endif
-			endif
-		else
-			if( ${?branch} ) then
-				if( `/bin/ls ".git/refs/heads/${branch}"` == "" ) then
-					unset branch;
-				endif
-			endif
-		endif
+		
 	else if( ${?branch} ) then
 		if( "`head -1 '${commit_log}'`" != "${branch}" ) then
 			printf "${branch}\n\n" > "${commit_log}.swp";
@@ -298,11 +308,6 @@ git_commit:
 	endif
 #git_commit:
 
-#foreach newwest_branch("`/bin/ls --width=1 -tr .git/refs/heads/ | tail -2 | sed 's/[\r\n]//'`")
-#	if( "${newwest_branch}" != "" && "${newwest_branch}" != "${branch}" && "${newwest_branch}" != "master" ) then
-#		set branch -f "${newest_branch}";
-#	endif
-#end
 
 restore_symlinks:
 	if(! ${?symlink_log} ) goto git_push;
@@ -311,8 +316,8 @@ restore_symlinks:
 	printf "Restoring symlinks.\n";
 	
 	foreach project_symlink("`cat '${symlink_log}'`")
-		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\2/'`";
-		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?${eol}/\1/'`";
+		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
+		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
 		
 		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
 			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
@@ -336,12 +341,26 @@ restore_symlinks:
 
 git_push:
 	if(! ${?push} ) goto check_sync;
-	foreach remote_git_repo ( "`git remote`" )
-		if( "${push}" != "" && "${push}" != "${remote_git_repo}" ) continue;
-		if( ${?branch} ) then
-			git push "${remote_git_repo}" "${branch}"
+	foreach git_repo("`git remote`")
+		if( "${push}" != "" && "${push}" != "${git_repo}" ) continue;
+		
+		if(! ${?push_to} ) then
+			if( ${?branch} ) then
+				git push "${git_repo}" "${branch}"
+			endif
+			git push "${git_repo}" master;
+			continue;
 		endif
-		git push "${remote_git_repo}" master;
+		
+		foreach repo(${push_to})
+			if("${repo}" != "${git_repo}" )	\
+				continue;
+			
+			if( ${?branch} ) then
+				git push "${git_repo}" "${branch}"
+			endif
+			git push "${git_repo}" master;
+		end
 	end
 #git_push:
 
@@ -349,9 +368,6 @@ git_push:
 goto check_sync;
 
 exit_script:
-	if( ${?eol_set} )	\
-		unset eol_set eol;
-	
 	if( ${?git_dir} ) then
 		cd "${original_cwd}";
 		set owd="${original_owd}";
@@ -363,10 +379,10 @@ exit_script:
 #exit_script:
 
 sync:
-	set project_name = "`basename '${cwd}'`";
-	set sshfs_path = "/projects/ssh";
-	set ssh_user = "dreams";
-	set ssh_server = "sky.ocssolutions.com";
+	set project_name="`basename '${cwd}'`";
+	set sshfs_path="/projects/ssh";
+	set ssh_user="dreams";
+	set ssh_server="sky.ocssolutions.com";
 
 	switch( "${sync_method}" )
 	case "rsync":
@@ -411,15 +427,15 @@ remote_clean_up:
 	# compare "${sshfs_path}/${project_name}/" against ./;
 	# and remove remote files that no longer exist locally.;
 	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
-	set remove_remote_regexp = "`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
+	set remove_remote_regexp="`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
 	foreach remote_file ( "`/usr/bin/find "\""${sshfs_path}/${project_name}/"\""*`" )
 		# escape special characters to keep them from being expanded by the terminal;
-		# set remote_file = "`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
+		# set remote_file="`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
 		
-		set git_test = "`printf "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`";
+		set git_test="`printf "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`";
 		if( "${git_test}" == "/.git" ) continue;
 		
-		set local_file = "`printf "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`";
+		set local_file="`printf "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`";
 		
 		if( -d "${local_file}" || -e "${local_file}" ) continue;
 		

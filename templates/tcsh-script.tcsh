@@ -1,13 +1,15 @@
 #!/bin/tcsh -f
+set label_current="init";
+goto label_stack_set;
 init:
-	set current_label="init";
-	set current_cwd="${cwd}";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="init";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
+	set original_owd=${owd};
+	set starting_dir=${cwd};
+	set escaped_starting_cwd=${escaped_cwd};
 	
-	if( `printf '%s' "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` == "csh" )	\
+	if(! $?0 )	\
 		set being_sourced;
 	
 	if(! ${?eol} ) then
@@ -20,29 +22,40 @@ init:
 	
 	set escaped_home_dir="`printf '%s' '${HOME}' | sed -r 's/\//\\\//g'`";
 	
+	if( "`alias cwdcmd`" != "" ) then
+		set oldcwdcmd="`alias cwdcmd`";
+		unalias cwdcmd;
+	endif
+	
 	@ errno=0;
 	
 	#set supports_being_source;
 	#set argz="";
 	
+	alias	ex	"ex -E -n -X --noplugin";
+	
+	#set download_command="curl";
+	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
+	#alias	"curl"	"${download_command_with_options}";
+	
+	#set download_command="wget";
+	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
+	#alias	"wget"	"${download_command_with_options}";
+	
 	goto parse_argv;
 #init:
 
 init_complete:
-	set current_label="init_complete";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="init_complete";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	set init_completed;
 #init_complete:
 
 check_dependencies:
-	set current_label="check_dependencies";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="check_dependencies";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	set dependencies=("${scripts_basename}");# "${scripts_alias}");
 	@ dependencies_index=0;
@@ -50,11 +63,9 @@ check_dependencies:
 
 
 check_dependencies:
-	set current_label="check_dependencies";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="check_dependencies";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
@@ -138,11 +149,9 @@ check_dependencies:
 
 
 if_sourced:
-	set current_label="if_sourced";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="if_sourced";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	if(! ${?being_sourced} )	\
 		goto main;
@@ -155,11 +164,9 @@ if_sourced:
 
 
 sourcing_disabled:
-	set current_label="sourcing_disabled";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="sourcing_disabled";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	# BEGIN: disable source scripts_basename.  For exception handeling when this file is 'sourced'.
 	@ errno=-502;
@@ -169,11 +176,9 @@ sourcing_disabled:
 
 
 sourcing_init:
-	set current_label="sourcing_init";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="sourcing_init";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	# BEGIN: source scripts_basename support.
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
@@ -181,11 +186,9 @@ sourcing_init:
 
 
 sourcing_main:
-	set current_label="sourcing_main";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="sourcing_main";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	# START: special handler for when this file is sourced.
 	alias ${scripts_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
@@ -194,11 +197,9 @@ sourcing_main:
 
 
 sourcing_main_quit:
-	set current_label="sourcing_main_quit";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="sourcing_main_quit";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	
@@ -209,28 +210,18 @@ sourcing_main_quit:
 
 
 main:
-	set current_label="main";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
-	
-	set argc=${#argv};
-	if( ${argc} < 1 ) then
-		@ errno=-503;
-		goto exception_handler;
-	endif
+	set label_current="main";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	alias	ex	"ex -E -n -X --noplugin";
 #main:
 
 
 exec:
-	set current_label="exec";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="exec";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	if( ${?debug} )	\
 		printf "Executing %s's main.\n" "${scripts_basename}";
@@ -239,81 +230,108 @@ exec:
 
 
 scripts_main_quit:
-	set current_label="scripts_main_quit";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="scripts_main_quit";
+	if( "${label_current}" != "${label_previous}" )		\
+		goto label_stack_set;
 	
-	if( ${?argc} )	\
+	if( ${?label_current} )					\
+		unset label_current;
+	if( ${?label_previous} )				\
+		unset label_previous;
+	if( ${?labels_previous} )				\
+		unset labels_previous;
+	if( ${?label_next} )					\
+		unset label_next;
+	
+	if( ${?argc} )						\
 		unset argc;
+	if( ${?argz} )						\
+		unset argz;
+	if( ${?parsed_arg} )					\
+		unset parsed_arg;
+	if( ${?parsed_argv} )					\
+		unset parsed_argv;
+	if( ${?parsed_argc} )					\
+		unset parsed_argc;
 	
-	if( ${?init_completed} )	\
+	if( ${?init_completed} )				\
 		unset init_completed;
 	
-	if( ${?eol_set} )	\
+	if( ${?eol_set} )					\
 		unset eol_set eol;
-	if( ${?being_sourced} )	\
+	if( ${?being_sourced} )					\
 		unset being_sourced;
-	if( ${?supports_being_source} )	\
+	if( ${?supports_being_source} )				\
 		unset supports_being_source;
 	
-	if( ${?scripts_basename} )	\
-		unset scripts_basename;
-	if( ${?scripts_dirname} )	\
-		unset scripts_dirname;
-	if( ${?scripts_alias} )	\
-		unset scripts_alias;
-	if( ${?script} )	\
+	if( ${?script} )					\
 		unset script;
+	if( ${?scripts_alias} )					\
+		unset scripts_alias;
+	if( ${?scripts_basename} )				\
+		unset scripts_basename;
+	if( ${?scripts_dirname} )				\
+		unset scripts_dirname;
 	
-	if( ${?missing_dependency} )	\
+	if( ${?debug} )						\
+		unset debug;
+	
+	if( ${?dependency} )					\
+		unset dependency;
+	if( ${?dependencies} )					\
+		unset dependencies;
+	if( ${?missing_dependency} )				\
 		unset missing_dependency;
 	
-	if( ${?parsed_arg} )	\
-		unset parsed_arg;
-	if( ${?parsed_argv} )	\
-		unset parsed_argv;
-	if( ${?parsed_argc} )	\
-		unset parsed_argc;
-	if( ${?argz} )	\
-		unset argz;
-	
-	if( ${?debug} )	\
-		unset debug;
-	if( ${?escaped_cwd} )	\
-		unset escaped_cwd;
-	if( ${?escaped_home_dir} )	\
-		unset escaped_home_dir;
-	if( ${?dependency} )	\
-		unset dependency;
-	if( ${?dependencies} )	\
-		unset dependencies;
-	if( ${?usage_displayed} )	\
+	if( ${?usage_displayed} )				\
 		unset usage_displayed;
-	if( ${?no_exit_on_usage} )	\
+	if( ${?no_exit_on_usage} )				\
 		unset no_exit_on_usage;
-	if( ${?display_usage_on_error} )	\
+	if( ${?display_usage_on_error} )			\
 		unset display_usage_on_error;
-	if( ${?last_exception_handled} )	\
+	if( ${?last_exception_handled} )			\
 		unset last_exception_handled;
 	
-	if( ${?current_label} )	\
-		unset current_label;
-	if( ${?callback} )	\
+	if( ${?label_previous} )				\
+		unset label_previous;
+	if( ${?label_next} )					\
+		unset label_next;
+	
+	if( ${?callback} )					\
 		unset callback;
-	if( ${?last_callback} )	\
+	if( ${?last_callback} )					\
 		unset last_callback;
-	if( ${?callback_stack} )	\
+	if( ${?callback_stack} )				\
 		unset callback_stack;
 	
-	if( ${?arg_shifted} ) 	\
+	if( ${?argc_required} )					\
+		unset argc_required;
+	if( ${?arg_shifted} ) 					\
 		unset arg_shifted;
 	
-	if( ${?old_owd} ) then
-		cd "${owd}";
-		set owd="${old_owd}";
+	if( ${?escaped_cwd} )					\
+		unset escaped_cwd;
+	if( ${?escaped_home_dir} )				\
+		unset escaped_home_dir;
+	if( ${?escaped_starting_cwd} )				\
+		unset escaped_starting_cwd;
+	
+	if( ${?old_owd} )					\
 		unset old_owd;
+	
+	if( ${?starting_cwd} ) then
+		if( "${starting_cwd}" != "${cwd}" )		\
+			cd "${starting_cwd}";
+	endif
+	
+	if( ${?original_owd} ) then
+		set owd="${original_owd}";
+		unset original_owd;
+	endif
+	
+	if( ${?oldcwdcmd} ) then
+		alias cwdcmd "${oldcwdcmd}";
+		unset oldcwdcmd;
 	endif
 	
 	if(! ${?errno} ) then
@@ -327,11 +345,9 @@ scripts_main_quit:
 
 
 usage:
-	set current_label="usage";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="usage";
+	if( "${label_next}" != "${label_current}" )	\
+		goto label_stack_set;
 	
 	if( ${?errno} ) then
 		if( ${errno} != 0 ) then
@@ -357,25 +373,23 @@ usage:
 	if(! ${?no_exit_on_usage} )	\
 		goto scripts_main_quit;
 	
-	if(! ${?callback} )	\
+	if(! ${?callback} )		\
 		set callback="parse_arg";
 	goto callback_handler;
 #usage:
 
 
 exception_handler:
-	set current_label="exception_handler";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="exception_handler";
+	if( "${label_next}" != "${label_current}" )	\
+		goto label_stack_set;
 	
 	if(! ${?errno} )	\
 		@ errno=-599;
 	printf "\n**%s error("\$"errno:%d):**\n\t" "${scripts_basename}"  $errno;
 	switch( $errno )
 		case -500:
-			printf "%s is being debugged.  Please see any output above.\n" "${scripts_basename}" > /dev/stderr;
+			printf "Debug mode has triggered an exception for diagnosis.  Please see any output above.\n" "${scripts_basename}" > /dev/stderr;
 			@ errno=0;
 			breaksw;
 		
@@ -388,10 +402,17 @@ exception_handler:
 			breaksw;
 		
 		case -503:
-			printf "One or more required options have not been provided" "${dashes}" "${option}" '`' "${scripts_basename}" '`' > /dev/stderr;
+			printf "An internal script error has caused an exception.  Please see any output above" > /dev/stderr;
+			if(! ${?debug} )	\
+				printf " or run: %s%s --debug%s to find where %s failed" '`' "${scripts_basename}" '`' "${scripts_basename}" > /dev/stderr;
+			printf ".\n" > /dev/stderr;
 			breaksw;
 		
 		case -504:
+			printf "One or more required options have not been provided." > /dev/stderr;
+			breaksw;
+		
+		case -505:
 			printf "%s%s is an unsupported option.\n\tRun %s%s --help%s for supported options and details" "${dashes}" "${option}" '`' "${scripts_basename}" '`' > /dev/stderr;
 			breaksw;
 		
@@ -401,12 +422,12 @@ exception_handler:
 			breaksw;
 	endsw
 	set last_exception_handled=$errno;
-	printf "\n\n" > /dev/stderr;
+	printf "\nrun: %s%s --help%s for more information\n" '`' "${scripts_basename}" '`' > /dev/stderr;
 	
 	if( ${?display_usage_on_error} )	\
 		goto usage;
 	
-	if( ${?callback} )	\
+	if( ${?callback} )			\
 		goto callback_handler;
 	
 	goto scripts_main_quit;
@@ -415,11 +436,9 @@ exception_handler:
 
 
 parse_argv:
-	set current_label="parse_argv";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="parse_argv";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	if( ${?init_completed} ) then
 		if(! ${?being_sourced} ) then
@@ -431,14 +450,12 @@ parse_argv:
 	endif
 	
 	@ argc=${#argv};
+	@ required_options=0;
 	
-	if( ${argc} == 0 ) then
-		if(! ${?being_sourced} ) then
-			set callback="exec";
-		else
-			set callback="sourcing_main";
-		endif
-		goto callback_handler;
+	if( ${argc} < ${required_options} ) then
+		@ errno=-504;
+		set callback="parse_argv_quit";
+		goto exception_handler;
 	endif
 	
 	@ arg=0;
@@ -469,11 +486,9 @@ parse_argv:
 #parse_argv:
 
 parse_arg:
-	set current_label="parse_arg";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="parse_arg";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	while( $arg < $argc )
 		if(! ${?arg_shifted} )	\
@@ -524,7 +539,7 @@ parse_arg:
 		endif
 		
 		if( "`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_cwd}\2/"\""`";
+			set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_cwd}\2/"\""`";
 		endif
 		
 		@ parsed_argc++;
@@ -534,8 +549,9 @@ parse_arg:
 		else
 			set parsed_argv="${parsed_argv} ${parsed_arg}";
 		endif
+		
 		if( ${?debug} || ${?diagnostic_mode} )	\
-			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "${dashes}${option}${equals}${value}";
+			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "${parsed_arg}";
 		
 		switch("${option}")
 			case "numbered_option":
@@ -638,7 +654,7 @@ parse_arg:
 			
 			default:
 				if(! ${?argz} ) then
-					@ errno=-504;
+					@ errno=-505;
 					set callback="parse_arg";
 					goto exception_handler;
 					breaksw;
@@ -659,6 +675,14 @@ parse_arg:
 		
 		unset dashes option equals value parsed_arg;
 	end
+#parse_arg:
+
+
+parse_argv_quit:
+	set label_current="parse_argv_quit";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
+	
 	if(! ${?callback} ) then
 		unset arg argc;
 	else
@@ -681,15 +705,57 @@ parse_arg:
 	endif
 	
 	goto callback_handler;
-#parse_arg:
+#parse_argv_quit:
 
-callback_handler:
-	set current_label="callback_handler";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+
+label_stack_set:
+	if( ${?current_cwd} ) then
+		if( ${current_cwd} != ${cwd} )	\
+			cd ${current_cwd};
+		unset current_cwd;
 	endif
 	
+	if( ${?old_owd} ) then
+		if( ${old_owd} != ${owd} ) then
+			set owd=${old_owd};
+		endif
+	endif
+	
+	set old_owd="${owd}";
+	set current_cwd="${cwd}";
+	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	#set escaped_cwd="`printf ${cwd} | sed -r 's/(['\''"\""\ \<\>\(\)\&\|\!\?\*\+\-])/\\\1/g'`";
+	
+	set label_next=${label_current};
+	
+	if(! ${?labels_previous} ) then
+		set labels_previous=("${label_current}");
+		set label_previous="$labels_previous[${#labels_previous}]";
+	else
+		if("${label_current}" != "$labels_previous[${#labels_previous}]" ) then
+			set labels_previous=($labels_previous "${label_current}");
+			set label_previous="$labels_previous[${#labels_previous}]";
+		else
+			set label_previous="$labels_previous[${#labels_previous}]";
+			unset labels_previous[${#labels_previous}];
+		endif
+	endif
+	
+	#set label_previous=${label_current};
+	
+	set callback=${label_previous};
+	
+	if( ${?debug} || ${?diagnostic_mode} )	\
+		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/stdout;
+	
+	#unset label_previous;
+	#unset label_current;
+	
+	goto callback_handler;
+#label_stack_set:
+
+
+callback_handler:
 	if(! ${?callback} )	\
 		goto scripts_main_quit;
 	
@@ -714,11 +780,9 @@ callback_handler:
 
 
 diagnostic_mode:
-	set current_label="diagnostic_mode";
-	if( "${cwd}" != "${current_cwd}" ) then
-		set current_cwd="${cwd}";
-		set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	endif
+	set label_current="diagnostic_mode";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
 	
 	if( -e "/tmp/${scripts_basename}-debug.log" ) rm -v "/tmp/${scripts_basename}-debug.log";
 	touch "/tmp/${scripts_basename}-debug.log";
@@ -741,4 +805,5 @@ diagnostic_mode:
 	set callback="sourcing_main_quit";
 	goto exception_handler;
 #diagnostic_mode:
+
 

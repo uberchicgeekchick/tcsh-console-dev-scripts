@@ -19,6 +19,7 @@ alias			set-alias	"source "\$"{TCSH_RC_SESSION_PATH}/../setenv/alias.check-and-s
 complete		alias		'p/1/c/' 'p/2,/c,f/';
 complete		set-alias	'p/1/c/' 'p/2,/c,f/';
 
+set-alias		"feed:fetch-all:enclosures.tcsh" "${TCSH_RC_SESSION_PATH}/../xml-parsers/feed:fetch-all:enclosures.tcsh --disable=logging"
 set-alias		most	"most -w";
 
 set-alias		ps	"/bin/ps -A -c -F --forest --heading";
@@ -42,7 +43,8 @@ complete		pidof	'p/*/c/';
 
 #set-alias		cp	"cp --recursive --verbose -p --no-dereference --interactive";
 #set-alias		cp	"cp --recursive --verbose -p --no-dereference";
-set-alias		cp	"cp -rvpP";
+#set-alias		cp	"cp -rvpP";
+set-alias		cp	"cp -vp";
 
 #set-alias		mv	"mv -iv";
 set-alias		mv	"mv --interactive --verbose";

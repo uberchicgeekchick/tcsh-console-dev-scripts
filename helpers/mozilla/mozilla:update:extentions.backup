@@ -1,0 +1,20 @@
+#!/bin/tcsh -f
+set mozilla_profiles_directory="/programs/mozilla/settings";
+
+if(!( "${1}" != "" && "${2}" != "" && -d "${mozilla_profiles_directory}/${1}/profiles/${2}/extensions/" )) then
+	printf "Usage: %s [program] [profile]" "`basename '${0}'`" > /dev/stderr;
+	set status=-1;
+	exit $status;
+endif
+
+set maxVersion="3";
+
+foreach rdf ( "`egrep 'maxVersion[=\>]["\""]?([0-${maxVersion}]\.[^\*][^"\""<]*)["\""\<]' '${mozilla_profiles_directory}/${1}/profiles/${2}/extensions/'*/install.rdf | sed -r 's/(.*):[\ \t]+.*/\1/'`" )
+	if(! -e "${rdf}" ) then
+		printf "Unable to find %s(%s)\n" "${rdf}";
+		continue;
+	endif
+	printf "Updating %s's maxVersion\n\n" "`/bin/grep --perl-regexp 'name[=\>]["\""'\'']?([^"\""'\''\<]*)["\""'\''\<]' "\""${rdf}"\"" | sed -r 's/.*name[=\>]["\""'\'']?([^"\""'\''\<]*)["\""'\''\<].*/\1/g'`";
+	ex -X -n -E --noplugin "+1,"\$"s/\v(maxVersion[\=\>])(["\""']?)([^"\""'\<]*)(["\""'\<])/\1\2${maxVersion}\.\*\4" '+wq!' "${rdf}" > /dev/null;
+end
+

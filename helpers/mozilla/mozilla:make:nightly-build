@@ -1,165 +1,204 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-
-if( `alias grep` != "" ) then
-	unalias grep;
-endif
-
-
-if(! ${?TCSH_CANVAS_PATH} )	\
-	setenv TCSH_CANVAS_PATH "${TCSH_RC_SESSION_PATH}/../devel/make";
-source "${TCSH_CANVAS_PATH}/canvas.init.tcsh" ${argv};
-
-
-if( "${1}" == "--reset" )	\
-	shift;
-
-
-#setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3";
-setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
-
-#setenv MAKEFLAGS "-Wall -Wextra -Werror -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
-setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -Wall -Wextra -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
-#if( ${?MAKEFLAGS} ) unsetenv	MAKEFLAGS;
-
-#setenv CFLAGS "-std=gnu99 ${INCLdUDE_AND_LIB_FLAGS_AND_PATHS}";
-setenv CFLAGS "${MAKEFLAGS}";
-
-#setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MAKEFLAGS}";
-setenv CXXFLAGS "${MAKEFLAGS}";
-
-if( ${?http_proxy}  ) unsetenv http_proxy
-
-set mozilla_top_dir="/programs/mozilla";
-set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
-
-if( ! ${?1} || "${1}" == "" || "${1}" == "--help" ) then
-	printf "Usage: %s (firefox|thunderbird)\n\tchecks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"`;
-	exit -1;
-endif
-
-if( "${1}" != "" && "${1}" == "--stable" ) then
-	set pull_stable;
-	shift;
-endif
-
-
+	if(! ${?TCSH_RC_SESSION_PATH} )	\
+		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 
 init:
-cd "${mozilla_top_dir}";
+	if( `alias grep` != "" )	\
+		unalias grep;
+	
+	
+	if(! ${?TCSH_CANVAS_PATH} )	\
+		setenv TCSH_CANVAS_PATH "${TCSH_RC_SESSION_PATH}/../devel/make";
+	source "${TCSH_CANVAS_PATH}/canvas.init.tcsh" ${argv};
+	
+	
+	if( "${1}" == "--reset" )	\
+		shift;
+	
+	
+	#setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3";
+	setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
+	
+	#setenv MAKEFLAGS "-Wall -Wextra -Werror -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
+	setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -Wall -Wextra -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
+	#if( ${?MAKEFLAGS} ) unsetenv	MAKEFLAGS;
+	
+	#setenv CFLAGS "-std=gnu99 ${INCLdUDE_AND_LIB_FLAGS_AND_PATHS}";
+	setenv CFLAGS "${MAKEFLAGS}";
+	
+	#setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MAKEFLAGS}";
+	setenv CXXFLAGS "${MAKEFLAGS}";
+	
+	if( ${?http_proxy}  ) unsetenv http_proxy
+	
+	set mozilla_top_dir="/programs/mozilla";
+	set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
+	
+	if( "${cwd}" != "${mozilla_top_dir}" )	\
+		cd "${mozilla_top_dir}";
+	
+	if( ${?GREP_OPTIONS} )	\
+		unsetenv GREP_OPTIONS;
+	
+	unalias grep;
+	unalias egrep;
+#init:
 
-if( ${?GREP_OPTIONS} ) unsetenv GREP_OPTIONS;
-unalias grep;
-unalias egrep;
+parse_argv:
+	while( "${1}" != "" )
+		
+		#if( `printf '%s' "${2}" | sed -r 's/^(\-\-).*$/\1/'` != "--" )	\
+		#	goto configure;
+			
+		switch( "${1}" )
+			case "--disable=exec":
+				set no_exec;
+				breaksw;
+			
+			case "--make=package":
+				set goto="make_package";
+				breaksw;
+			
+			case "--make":
+				set goto="make";
+				breaksw;
+			
+			case "--goto=backup":
+				set goto="backup";
+				breaksw;
+			
+			case "--stable":
+				set pull_stable;
+				breaksw;
+			
+			case "xulrunner":
+			case "firefox":
+			case "thunderbird":
+				set build_mozilla="${1}";
+				breaksw;
+			
+			case "--help":
+			default:
+				printf "Usage: %s [options...] (firefox|thunderbird)\n\t%s checks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"` `basename "${0}"`;
+				
+				if( "${1}" != "" && "${1}" != "--help" )	\
+					printf "Unsupported option: %s\n" "${1}";
+				
+				printf "					\
+	Supported options are:							\
+		--help			Displays this screen.			\
+										\
+		--disable=exec		Only valid for when building		\
+					firefox or thunderbird and stops	\
+					%s from running firefox/thunderbird	\
+					after make completes.			\
+										\
+		--make			Run's %make -f client.mk%s without	\
+					checking out the latest source.		\
+										\
+		--stable							\
+										\
+		--make=package-only	%s will only recreate the project's 	\
+					tarball based off of a previous build.	\
+					No new files will be checked out	\
+			" "`basename '${0}'`" '`' '`' "`basename '${0}'`";
+			exit -1;
+			breaksw;
+		endsw
+		shift;
+	end
+#parse_argv:
 
 
 configure:
-switch ( "${1}" )
-case "thunderbird":
-	set mozilla_project="mail";
-	set build_mozilla="thunderbird";
-	set mercurial_repo="comm-central";
-	set enable_mozilla="--enable-calendar --enable-static";
-	set prefix="${mozilla_top_dir}/Thunderbird3";
-	set prefix="${mozilla_top_dir}/thunderbird";
-	breaksw;
-
-case "xulrunner":
-	set mozilla_project="xulrunner";
-	set build_mozilla="xulrunner";
-	set mercurial_repo="mozilla-central";
-	set enable_mozilla="--enable-libxul";
-	set prefix="${mozilla_top_dir}/XULRunner-1.9.1";
-	set prefix="${mozilla_top_dir}/xul-runner";
-	breaksw;
-
-case "firefox":
-	set mozilla_project="browser";
-	set build_mozilla="firefox";
-	set mercurial_repo="mozilla-central";
-	set enable_mozilla="--enable-libxul";
-	set prefix="${mozilla_top_dir}/Firefox3";
-	set prefix="${mozilla_top_dir}/firefox";
-	breaksw;
-
-default:
-	printf "%s is an unsupport mozilla build target.\n\tSupported build targets are: xulrunner, firefox, or thunderbird.\n" ${1};
-	exit -1;
-endsw
-
-set topdir="${mozilla_top_dir}/src";
-if( ! -d "${topdir}" ) mkdir -p "${topdir}";
-
-set srcdir="${topdir}/${build_mozilla}-srcdir";
-if(! -d "${srcdir}" ) mkdir -p "${srcdir}";
-
-set objdir="${topdir}/${build_mozilla}-objdir";
-if(! -d "${objdir}" ) mkdir -p "${objdir}";
-
-if( -e "${srcdir}/.make.lock" ) then
-	printf "Another instance of %s is using the current source.  Please wait a few seconds than try again." "`basename ${0}`";
-	exit -2;
-endif
-
-if( "${2}" != "" ) then
-	switch( "${2}" )
-	case "--disable=exec":
-		set no_exec;
-		breaksw;
+	switch ( "${build_mozilla}" )
+		case "thunderbird":
+			set mozilla_project="mail";
+			set mercurial_repo="comm-central";
+			set enable_mozilla="--enable-calendar --enable-static";
+			set prefix="${mozilla_top_dir}/Thunderbird3";
+			set prefix="${mozilla_top_dir}/thunderbird";
+			breaksw;
+		
+		case "xulrunner":
+			set mozilla_project="xulrunner";
+			set mercurial_repo="mozilla-central";
+			set enable_mozilla="--enable-libxul";
+			set prefix="${mozilla_top_dir}/XULRunner-1.9.1";
+			set prefix="${mozilla_top_dir}/xul-runner";
+			breaksw;
+		
+		case "firefox":
+			set mozilla_project="browser";
+			set mercurial_repo="mozilla-central";
+			set enable_mozilla="--enable-libxul";
+			set prefix="${mozilla_top_dir}/Firefox3";
+			set prefix="${mozilla_top_dir}/firefox";
+			breaksw;
 	
-	case "--make=package-only":
-		goto make_package;
-		breaksw;
-	
-	case "--make":
-		goto make;
-		breaksw;
-	
-	default:
-		printf "Unsupported option: %s\nSupported options are:					\
-			--disable=exec		Only valid for when building firefox or thunderbird.	\
-						It will keep %s from \
-						running firefox/thunderbird when make completes.	\
-													\
-			--make			Run's %make -f client.mk%s without checking out		\
-						the latest source.					\
-													\
-			--make=package-only	%s will only recreate the project's 			\
-						tarball based off of a previous build.  No now files	\
-						will be checked out or built.				\
-			" "${2}" "${0}" '`' '`' "${0}";
+		default:
+			printf "%s is an unsupport mozilla build target.\n\tSupported build targets are: xulrunner, firefox, or thunderbird.\n" ${1};
 			exit -1;
-		breaksw;
-	
+			breaksw;
 	endsw
-endif
+#configure:
+
+
+init_make:
+	set topdir="${mozilla_top_dir}/src";
+	if( ! -d "${topdir}" )	\
+		mkdir -p "${topdir}";
+	
+	set srcdir="${topdir}/${build_mozilla}-srcdir";
+	if(! -d "${srcdir}" )	\
+		mkdir -p "${srcdir}";
+	
+	set objdir="${topdir}/${build_mozilla}-objdir";
+	if(! -d "${objdir}" )	\
+		mkdir -p "${objdir}";
+	
+	if( -e "${srcdir}/.make.lock" ) then
+		printf "Another instance of %s is using the current source.  Please wait a few seconds than try again." "`basename ${0}`";
+		exit -2;
+	endif
+	
+	if( ${?goto} ) then
+		goto ${goto};
+	endif
+#init_make:
+	
 
 checkout:
-	cd "${srcdir}";
 	if( !( -d "${srcdir}" && -d "${srcdir}/.hg" ) ) then
 		set hg_reaction="checkout";
 		printf "Cloning: %s.\n" "${mercurial_repo}";
 		hg clone "http://hg.mozilla.org/${mercurial_repo}" "${srcdir}";
 	else
+		if( "${cwd}" != "${srcdir}" )	\
+			cd "${srcdir}";
 		set hg_reaction="update";
 		printf "Checking out: %s.\n" "${mercurial_repo}";
 		hg pull -u;
 		if( ${?pull_stable} ) then
 			hg update -C `hg branches | /bin/grep 'RELBRANCH' | head -1 | cut -d' ' -f1`;
 		endif
-		if( "${build_mozilla}" == "thunderbird" && -e client.py ) then
-			python client.py checkout;
-		endif
+	endif
+	if( "${cwd}" != "${srcdir}" )	\
+		cd "${srcdir}";
+	if( "${build_mozilla}" == "thunderbird" && -e client.py ) then
+		python client.py checkout;
 	endif
 	
-	if( ${status} != 0 ) goto status_failed;
+	if( ${status} != 0 )	\
+		goto status_failed;
 	unset hg_reaction;
 #checkout:
-goto make;
 
 
 make_nss:
-	cd "${srcdir}";
+	goto make;
+	if( "${cwd}" != "${srcdir}" )	\
+		cd "${srcdir}";
 	
 	if( "${MACHTYPE}" == "x86_64" ) then
 		setenv	USE_64	1;
@@ -175,12 +214,14 @@ make_nss:
 	if(! -d  "${objdir}/nss/ssl" )	\
 		mkdir -p  "${objdir}/nss/ssl";;
 	
-	cd "${srcdir}/security/coreconf/nsinstall";
+	if( "${cwd}" != "${srcdir}/security/coreconf/nsinstall" )	\
+		cd "${srcdir}/security/coreconf/nsinstall";
 	make USE_64=${USE_64};
 	make USE_64=${USE_64} install;
 	setenv PATH "${PATH}:${cwd}/${${arch_path}}";
 	
-	cd "${srcdir}/security/nss";
+	if( "${cwd}" != "${srcdir}/security/nss" )	\
+		cd "${srcdir}/security/nss";
 	make USE_64=${USE_64};
 	make USE_64=${USE_64} install;
 	
@@ -193,7 +234,8 @@ make_nss:
 	
 	#cp "${srcdir}/security/nss/lib/ssl/${arch_path}/"* "${objdir}/nss/ssl";
 	
-	cd "${srcdir}";
+	if( "${cwd}" != "${srcdir}" )	\
+		cd "${srcdir}";
 	
 	if( ${?run_distclean} ) then
 		make -f client.mk distclean;
@@ -203,147 +245,174 @@ make_nss:
 
 
 make:
-	cd "${srcdir}";
-	
+	if( "${cwd}" != "${srcdir}" )	\
+		cd "${srcdir}";
 	setenv	MOZCONFIG	"${srcdir}/.mozconfig";
 	
-	printf "mk_add_options MOZ_OBJDIR=${objdir} MOZ_CO_PROJECT=${mozilla_project} AUTOCONF=autoconf-2.13\nac_add_options --enable-application=${mozilla_project} ${enable_mozilla} --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\n" >! "${MOZCONFIG}";
+	printf "Creating: [%s]\n" "${MOZCONFIG}";
+	printf "ac_add_options --enable-application=${mozilla_project} ${enable_mozilla} --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=${objdir} MOZ_CO_PROJECT=${mozilla_project} AUTOCONF=autoconf-2.13\n" >! "${MOZCONFIG}";
 	#" --enable-default-toolkit=gtk2"
 	
 	make -f client.mk;
-	if( ${status} != 0 ) goto status_failed;
+	if( ${status} != 0 )	\
+		goto status_failed;
 #make:
 
 
 make_package:
-	cd "${objdir}";
+	if( "${cwd}" != "${objdir}" )	\
+		cd "${objdir}";
 	make package;
 #make_package:
 
 
 backup:
-cd "${objdir}";
-set today=`date '+%Y-%m-%d'`;
-if( "${build_mozilla}" == "thunderbird" ) cd mozilla;
-pwd
-foreach tarball ( dist/*.tar.bz2 )
-	set backup_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`";
-	cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
-	if( ${status} != "0" ) then
-		printf "\n\n********************* WARNING: BACKUP ************************\n\t\t\ttarball back-up failed; error: %s\n\n" ${status};
-		continue;
-	endif
-	
-	#if( ${?mozilla_exec} ) rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
-	rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
-	cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
-	set tarball="${tarball_backup_dir}/${backup_tarball}";
-end
-#if( ${?mozilla_exec} ) goto finish_exec;
+	if( "${cwd}" != "${objdir}" )	\
+		cd "${objdir}";
+	set today=`date '+%Y-%m-%d'`;
+	if( "${build_mozilla}" == "thunderbird" ) cd mozilla;
+	foreach tarball ( dist/*.tar.bz2 )
+		set backup_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`";
+		cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
+		if( ${status} != "0" ) then
+			printf "\n\n********************* WARNING: BACKUP ************************\n\t\t\ttarball back-up failed; error: %s\n\n" ${status};
+			continue;
+		endif
+		
+		#if( ${?mozilla_exec} ) rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
+		rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
+		cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
+		set tarball="${tarball_backup_dir}/${backup_tarball}";
+	end
+	#if( ${?mozilla_exec} ) goto finish_exec;
+#backup:
 
 
 
 install:
-cd "${objdir}";
-tar -C "${prefix}" -xjf "${tarball}";
-if( "${build_mozilla}" == "xulrunner" ) exit 0;
-
+	if( "${cwd}" != "${objdir}" )	\
+		cd "${objdir}";
+	printf "Installing %s to %s\n" "${tarball}" "${prefix}";
+	tar -C "${prefix}" -xjf "${tarball}";
+	if( "${build_mozilla}" == "xulrunner" ) exit 0;
+#install:
 
 
 install_plugins:
-if( "${build_mozilla}" != "firefox" ) goto prepare_first_run
-
-cd "${prefix}/${build_mozilla}";
-rm -r searchplugins plugins;
-ln -s ../searchplugins .;
-ln -s ../plugins .;
-cd ..;
-
+	if( "${build_mozilla}" != "firefox" ) goto prepare_first_run
+	
+	printf "Installing plug-ins\n";
+	if( "${cwd}" != "${prefix}/${build_mozilla}" )	\
+		cd "${prefix}/${build_mozilla}";
+	rm -r searchplugins plugins;
+	ln -s ../searchplugins .;
+	ln -s ../plugins .;
+	cd ..;
+	#goto make_default;
+#install_plugins:
 
 
 prepare_first_run:
-goto stop_build
+	goto stop_build
+#prepare_first_run:
 
 
 make_default:
-set second_run
-goto stop_build
+	set second_run
+	goto stop_build
+#make_default:
 
 
 exec_install:
-${prefix}/x86_64/${build_mozilla} &
-set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}" "${build_mozilla}.sh");
-foreach ff_binary( ${ff_binaries} )
-	if(! ${?ff_found} ) then
-		printf "Looking for running instance of: %s.\n" ${ff_binary};
-		foreach ff_pid(`/bin/pidof ${ff_binary}`)
-			printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
-			if( "${ff_pid}" != "" && $ff_pid > 0 ) then
-				renice +5 $ff_pid >& /dev/null;
+	printf "Running: [%s/x86_64/%s]\n" "${prefix}" "${build_mozilla}";
+	${prefix}/x86_64/${build_mozilla} &
+	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}" "${build_mozilla}.sh");
+	foreach ff_binary( ${ff_binaries} )
+		if(! ${?ff_found} ) then
+			printf "Looking for running instance of: %s.\n" ${ff_binary};
+			foreach ff_pid(`/bin/pidof ${ff_binary}`)
 				printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
-				if(! ${?ff_found} ) set ff_found;
-			endif
-		end
-	endif
-end
+				if( "${ff_pid}" != "" && $ff_pid > 0 ) then
+					renice +2 $ff_pid >& /dev/null;
+					printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
+					if(! ${?ff_found} ) set ff_found;
+				endif
+			end
+		endif
+	end
+#exec_install:
 
 
-exit
+scripts_main_quit:
+	exit ${status};
+#scripts_main_quit:
 
 
 test_exec:
-if(!(${second_run})) then
-	set mozilla_exec="${prefix}/${build_mozilla}/${build_mozilla}";
-else
-	set mozilla_exec="${prefix}/x86_64/${build_mozilla}";
-endif
+	if(! ${?second_run} ) then
+		set mozilla_exec="${prefix}/${build_mozilla}/${build_mozilla}";
+	else
+		set mozilla_exec="${prefix}/x86_64/${build_mozilla}";
+	endif
+	
+	if(! -e ${mozilla_exec} ) then
+		printf "\n\n********************* FATAL ERROR ************************\n\t\t\tInstallation of %s failed\n\t\t\tBinary is not executable: [%s]\n\n" ${build_mozilla} ${mozilla_exec};
+		exit -1;
+	endif
+#test_exec:
 
-if(! -e ${mozilla_exec} ) then
-	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tInstallation of %s failed\n\t\t\tBinary is not executable: [%s]\n\n" ${build_mozilla} ${mozilla_exec};
-	exit -1;
-endif
-#goto backup;
 
 finish_exec:
-if(!(${second_run})) then
+	if(! ${?second_run} )	\
+		goto make_default;
+	
 	rm -rf "${prefix}/x86_64";
 	mv "${prefix}/${build_mozilla}" "${prefix}/x86_64";
-	goto exec_install
-endif
-
-goto make_default
-
+	goto exec_install;
+#finish_exec:
 
 
 stop_build:
-if(${?exec_stopped}) goto test_exec
-
-foreach program ( ( "${build_mozilla}-bin" "${build_mozilla}" ) )
-	foreach pid ( `pidof -x "${program}"` )
-		set still_running = ( "\n" );
-		while ( "${#still_running}" < 10 )
-			kill -QUIT "${pid}";
-			sleep 2;
-			foreach test ( `pidof -x "${program}"` )
-				if( "${pid}" == "${test}" ) set still_running = ( ${still_running} "\n" );
+	if( ${?exec_stopped} )	\
+		goto test_exec;
+	
+	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}" "${build_mozilla}.sh");
+	foreach program( ${ff_binaries} )
+		printf "Looking for running instance of: %s.\n" ${program};
+		foreach pid ( `pidof -x "${program}"` )
+			@ still_running=0;
+			while ( ${still_running} < 10 )
+				printf "Found running instance of: %s; pid: %s; attempt: #%s\n" ${ff_binary} ${pid} ${still_running};
+				kill -QUIT "${pid}";
+				sleep 2;
+				foreach test ( `pidof -x "${program}"` )
+					if( "${pid}" == "${test}" ) then
+						@ still_running++;
+					else
+						@ still_running=10;
+						break;
+					endif
+				end
 			end
+			printf "Failed to quit: %s; pid: %s; sending kill -9\n" ${ff_binary} ${pid};
+			kill -9 "${pid}"
 		end
-		kill -9 "${pid}"
 	end
-end
-
-set exec_stopped
-
-if(! ${?second_run} ) then
-	set second_run;
-	goto test_exec
-endif
-
-goto exec_install
+	
+	set exec_stopped
+	
+	if(! ${?second_run} ) then
+		set second_run;
+		goto test_exec
+	endif
+	
+	goto exec_install
+#stop_build:
 
 exit;
 
 status_failed:
 	printf "\n\n********************* FATAL ERROR ************************\n\t\t\tmake failed with error %s\n\n" ${status};
 	exit ${status};
+#status_failed:
 

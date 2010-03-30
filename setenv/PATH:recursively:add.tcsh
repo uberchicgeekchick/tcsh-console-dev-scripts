@@ -77,14 +77,18 @@ while("${1}" != "" )
 				breaksw;
 			
 			default:
+				if( ${?TCSH_RC_DEBUG} )	\
+					printf "Attempting to add: [file://%s] to your PATH:\t\t" "${dir}";
 				set dir="`echo '${dir}' | sed -r 's/([\:])/\\\1/g'`";
 				set escaped_dir="`echo '${dir}' | sed -r 's/\//\\\//g'`";
 				if( "`echo '${PATH}' | sed 's/.*:\(${escaped_dir}\).*/\1/g'`" == "${dir}" ) then
-					if( ${?TCSH_RC_DEBUG} ) printf "\n**notice:** [%s] is already present in your PATH\n" "${dir}";
+					if( ${?TCSH_RC_DEBUG} )	\
+						printf "[skipped]\n\t\t\t<file://%s> is already in your PATH\n" "${dir}";
 					continue;
 				endif
 				
-				if( ${?TCSH_RC_DEBUG} ) printf "Adding [%s] to your PATH:\t\t[added]\n" "${dir}";
+				if( ${?TCSH_RC_DEBUG} )	\
+					printf "[added]\n" "${dir}";
 				set new_path="${new_path}:${dir}";
 				breaksw;
 		endsw

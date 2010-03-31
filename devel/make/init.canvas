@@ -36,22 +36,27 @@ if( "${1}" != "" && "${1}" != "--reset" ) then
 	endif
 endif
 
-set starting_dir="${cwd}";
-while( ! ${?canvas_to_load} && "${cwd}" != "/" )
-	if( -e "./.custom.canvas" ) then
-		if(! ${?SSH_CONNECTION} ) printf "Setting up custom make environment @ %s.\n" `date "+%I:%M:%S%P"`;
-		setenv OSS_CUSTOM_CANVAS;
-		set canvas_to_load="./.custom.canvas";
-	else if( -e "./.artistic.canvas" ) then
-		setenv OSS_ARTISTIC_CANVAS;
-		set canvas_to_load="${TCSH_CANVAS_PATH}/artistic.canvas";
-	else if( -e "./.build.canvas" ) then
-		setenv OSS_BUILD_CANVAS;
-		set canvas_to_load="${TCSH_CANVAS_PATH}/build.canvas";
-	else
-		cd ..;
-	endif
-end
+find_canvas:
+	setenv starting_dir="${cwd}";
+	while( ! ${?canvas_to_load} && "${cwd}" != "/" )
+		if( -e "./.custom.canvas" ) then
+			if(! ${?SSH_CONNECTION} ) printf "Setting up custom make environment @ %s.\n" `date "+%I:%M:%S%P"`;
+			setenv OSS_CUSTOM_CANVAS;
+			set canvas_to_load="./.custom.canvas";
+		else if( -e "./.artistic.canvas" ) then
+			setenv OSS_ARTISTIC_CANVAS;
+			set canvas_to_load="${TCSH_CANVAS_PATH}/artistic.canvas";
+		else if( -e "./.build.canvas" ) then
+			setenv OSS_BUILD_CANVAS;
+			set canvas_to_load="${TCSH_CANVAS_PATH}/build.canvas";
+		else
+			cd ..;
+		endif
+	end
+	cd "${starting_dir}";
+	
+	unsetenv starting_dir;
+#find_canvas:
 
 if(! ${?canvas_to_load} ) then
 	set canvas_to_load="${TCSH_CANVAS_PATH}/artistic.canvas";
@@ -64,8 +69,6 @@ else
 	source "${canvas_to_load}" ${argv} >& /dev/null;
 endif
 
-cd "${starting_dir}";
-
-unset starting_dir canvas_to_load;
+unset canvas_to_load;
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "art:devel:make:init.cshrc.tcsh";

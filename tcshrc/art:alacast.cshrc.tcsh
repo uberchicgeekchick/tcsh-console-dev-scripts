@@ -31,6 +31,31 @@ clean_alacasts_path:
 #clean_alacasts_path:
 
 
+set_gtk_path:
+	setenv ALACAST_GTK_PATH "/projects/gtk/alacast";
+	set alacast_gtk_paths=("bin" "scripts");
+	foreach alacast_gtk_path(${alacast_gtk_paths})
+		if( ${?TCSH_RC_DEBUG} )	\
+			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_gtk_path}";
+		set alacast_gtk_path="${ALACAST_GTK_PATH}/${alacast_gtk_path}";
+		set escaped_alacast_gtk_path="`printf '${alacast_gtk_path}' | sed -r 's/\//\\\//g'`";
+		if( "`printf '${PATH}' | sed -r 's/.*\:(${escaped_alacast_gtk_path}).*/\1/g'`" == "${alacast_gtk_path}" ) then
+			continue;
+		endif
+		
+		if( ${?TCSH_RC_DEBUG} )	\
+			printf "[added]\n";
+		
+		if(! ${?alacasts_path} ) then
+			set alacasts_path="${alacast_gtk_path}";
+		else
+			set alacasts_path="${alacasts_path}:${alacast_gtk_path}";
+		endif
+	end
+	unset alacast_gtk_path alacast_gtk_paths;
+#set_gtk_path:
+
+
 set_cli_path:
 	setenv ALACAST_CLI_PATH "/projects/cli/alacast";
 	set alacast_cli_paths=("bin" "scripts" "helpers/gpodder-0.11.3-hacked/bin" "helpers/gpodder-0.11.3-hacked/scripts");
@@ -56,31 +81,6 @@ set_cli_path:
 	end
 	unset alacast_cli_path alacast_cli_paths;
 #set_cli_path:
-
-
-set_gtk_path:
-	setenv ALACAST_GTK_PATH "/projects/gtk/alacast";
-	set alacast_gtk_paths=("bin" "scripts");
-	foreach alacast_gtk_path(${alacast_gtk_paths})
-		if( ${?TCSH_RC_DEBUG} )	\
-			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_gtk_path}";
-		set alacast_gtk_path="${ALACAST_GTK_PATH}/${alacast_gtk_path}";
-		set escaped_alacast_gtk_path="`printf '${alacast_gtk_path}' | sed -r 's/\//\\\//g'`";
-		if( "`printf '${PATH}' | sed -r 's/.*\:(${escaped_alacast_gtk_path}).*/\1/g'`" == "${alacast_gtk_path}" ) then
-			continue;
-		endif
-		
-		if( ${?TCSH_RC_DEBUG} )	\
-			printf "[added]\n";
-		
-		if(! ${?alacasts_path} ) then
-			set alacasts_path="${alacast_gtk_path}";
-		else
-			set alacasts_path="${alacasts_path}:${alacast_gtk_path}";
-		endif
-	end
-	unset alacast_gtk_path alacast_gtk_paths;
-#set_gtk_path:
 
 
 set_alacast_environment:

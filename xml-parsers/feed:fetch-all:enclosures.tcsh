@@ -283,7 +283,8 @@ fetch_episodes:
 		set episodes_pubdate="`cat './00-pubDates.lst' | head -${episodes_number} | tail -1 | sed 's/[\r\n]//g' | sed 's/\?//g'`";
 		
 		#set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/[\r\n]//g' | sed 's/\?//g' | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\!\?\*\+\-])/\\\1/g'`";
-		set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/[\r\n]//g' | sed 's/\?//g'`";
+		set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/[\r\n]//g' | sed 's/\?//g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
+		set episodes_title_escaped="`cat './00-titles.lst' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 		
 		if( "${episodes_title}" == "" ) set episodes_title=`printf '%s' "${episodes_file}" | sed 's/\(.*\)\.[^.]*$/\1/'`;
 		
@@ -319,7 +320,7 @@ fetch_episodes:
 		endsw
 		
 		if(! ${?download_extras} ) then
-			if( "`printf "\""${episodes_title}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_title}" ) then
+			if( "`printf "\""${episodes_title_escaped}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_title}" ) then
 				if(! ${?silent} ) printf "\t\t\t[skipping commentary track]";
 				if( ${?logging} ) printf "\t\t\t[skipping commentary track]" >> "${download_log}";
 				continue;
@@ -327,7 +328,7 @@ fetch_episodes:
 		endif
 		
 		if( ${?regex_match_titles} ) then
-			if( "`printf '%s' "\""${episodes_title}"\"" | sed -r s/.*\(${regex_match_titles}\).*/\1/ig'`" )!="${episodes_title}" ) then
+			if( "`printf '%s' "\""${episodes_title_escaped}"\"" | sed -r s/.*\(${regex_match_titles}\).*/\1/ig'`" )!="${episodes_title}" ) then
 				printf "\t\t\t[skipping regexp matched episode]";
 				continue;
 			endif
@@ -379,9 +380,9 @@ fetch_episodes:
 exit_script:
 	if( -e "${alacasts_download_log}" ) then
 		if(! ${?silent} ) then
-			rm -v "./.${alacasts_download_log_prefix}"*;
+			rm -v "${alacasts_download_log}";
 		else
-			rm "./.${alacasts_download_log_prefix}"*;
+			rm "${alacasts_download_log}";
 		endif
 	endif
 	

@@ -37,7 +37,6 @@ if( "${1}" != "" && "${1}" != "--reset" ) then
 endif
 
 find_canvas:
-	setenv starting_dir="${cwd}";
 	while( ! ${?canvas_to_load} && "${cwd}" != "/" )
 		if( -e "./.custom.canvas" ) then
 			if(! ${?SSH_CONNECTION} ) printf "Setting up custom make environment @ %s.\n" `date "+%I:%M:%S%P"`;
@@ -50,12 +49,17 @@ find_canvas:
 			setenv OSS_BUILD_CANVAS;
 			set canvas_to_load="${TCSH_CANVAS_PATH}/build.canvas";
 		else
+			if(! ${?starting_dir} )	\
+				set starting_dir="${cwd}";
 			cd ..;
 		endif
 	end
-	cd "${starting_dir}";
 	
-	unsetenv starting_dir;
+	if( ${?starting_dir} ) then
+		if( "${starting_dir}" != "${cwd}" )	\
+			cd "${starting_dir}";
+		unset starting_dir;
+	endif
 #find_canvas:
 
 if(! ${?canvas_to_load} ) then

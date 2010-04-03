@@ -240,7 +240,17 @@ exec:
 	endif
 	
 	set maxVersion="3";
-	foreach rdf ( "`egrep 'maxVersion[=\>]["\""]?([0-${maxVersion}]\.[^\*][^"\""\<]*)["\""\<]' '${mozilla_profiles_directory}/${mozilla_app}/profiles/${mozilla_profile}/extensions/'*/install.rdf | sed -r 's/(.*):[\ \t]+.*/\1/'`" )
+	if(! ${?matchVersion} ) then
+		if(! ${?update_all} ) then
+			set matchVersion="[0-${maxVersion}]\.[^\*]";
+		else
+			set matchVersion="[0-9.]*";
+		endif
+	endif
+	
+	touch "${mozilla_profiles_directory}/${mozilla_app}/profiles/${mozilla_profile}/extensions/"*/install.rdf;
+	
+	foreach rdf ( "`egrep 'maxVersion[=\>]["\""]?(${matchVersion}[^"\""\<]*)["\""\<]' '${mozilla_profiles_directory}/${mozilla_app}/profiles/${mozilla_profile}/extensions/'*/install.rdf | sed -r 's/(.*):[\ \t]+.*/\1/' | sort | uniq`" )
 		if(! -e "${rdf}" ) then
 			printf "Unable to find %s(%s)\n" "${rdf}";
 			continue;
@@ -584,7 +594,7 @@ parse_arg:
 					printf "%s%s must be followed by a valid number greater than zero." "${dashes}" "${option}";
 					breaksw;
 				endif
-			
+				
 				set numbered_option="${value}";
 				breaksw;
 			
@@ -647,6 +657,32 @@ parse_arg:
 				set diagnostic_mode;
 				breaksw;
 			
+			case "f":
+			case "force":
+			case "update-all":
+			cass "all-extensions":
+				if(! ${?update_all} )	\
+					set update_all;
+				breaksw;
+			
+			case "update":
+				switch("${value}")
+					case "all":
+					case "all-extensions":
+						if(! ${?update_all} )	\
+							set update_all;
+					breaksw;
+					
+					default:
+						if(! ( "${value}" != "" && ${value} > 0 )) then
+							printf "%s%s must be a valid number greater than zero." "${dashes}" "${option}";
+							breaksw;
+						endif
+						set matchVersion="${value}";
+						breaksw;
+				endsw
+				breaksw;
+			
 			case "enable":
 				switch("${value}")
 					case "verbose":
@@ -670,9 +706,14 @@ parse_arg:
 						if( ${?diagnostic_mode} )	\
 							breaksw;
 						
-				
+						
 						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
 						set diagnostic_mode;
+						breaksw;
+					
+					case "update-all":
+						if(! ${?update_all} )	\
+							set update_all;
 						breaksw;
 					
 					default:
@@ -706,6 +747,11 @@ parse_arg:
 						
 						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[disabled].\n\n" "${scripts_basename}" $arg;
 						unset diagnostic_mode;
+						breaksw;
+					
+					case "update-all":
+						if( ${?update_all} )	\
+							unset update_all;
 						breaksw;
 					
 					default:

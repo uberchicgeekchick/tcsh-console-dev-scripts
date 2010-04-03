@@ -18,7 +18,7 @@ if( "${1}" == "--reset" ) then
 	shift;
 endif
 
-set gcc_versions=("-4.5" "");
+set gcc_versions=("-4.5" "-4.5" "-4.3");
 
 #C preprocessor
 if(! ${?CPP} ) then
@@ -30,9 +30,10 @@ if(! ${?CPP} ) then
 			endif
 		end
 		unset cpp gcc_version;
-		if( ${?CPP} && -e ${CPP} ) break;
+		if(! ${?CPP} ) continue;
+		if( -e ${CPP} ) break;
 	end
-	if(! ${?CPP} ) printf "**error:** your C/C++ pre-processor couldn't be found while looking for your cpp binary.";
+	if(! ${?CPP} ) printf "**error:** your C/C++ pre-processor couldn't be found while looking for your cpp binary.\n" > /dev/stderr;
 endif
 
 #C compiler
@@ -45,9 +46,10 @@ if(! ${?CC} ) then
 			endif
 		end
 		unset cc gcc_version;
-		if( ${?CC} && -e ${CC} ) break;
+		if(! ${?CC} ) continue;
+		if( -e ${CC} ) break;
 	end
-	if(! ${?CC} ) printf "**error:** your C compiler couldn't be found while looking for your cpp binary.";
+	if(! ${?CC} ) printf "**error:** your C compiler couldn't be found while looking for your cpp binary.\n" > /dev/stderr;
 endif
 
 #C++ compiler
@@ -60,9 +62,10 @@ if(! ${?CXX} ) then
 			endif
 		end
 		unset cxx gcc_version;
-		if( ${?CXX} && -e ${CXX} ) break;
+		if(! ${?CXX} ) continue;
+		if( -e ${CXX} ) break;
 	end
-	if(! ${?CC} ) printf "**error:** your C++ compiler couldn't be found while looking for your cpp binary.";
+	if(! ${?CC} ) printf "**error:** your C++ compiler couldn't be found while looking for your cpp binary.\n" > /dev/stderr;
 endif
 
 

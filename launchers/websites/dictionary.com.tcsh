@@ -59,15 +59,16 @@ noexec:
 	goto exit_script;
 #noexec
 
-launchers_main:
-	if(! ${?search_phrase} ) set search_phrase="";
-	if( "${search_phrase}" == "" ) then
-		set status=-1;
-		goto usage;
-	endif
-#launchers_main
 
-${program} "http://dictionary.reference.com/browse/${search_phrase}";
+launchers_main:
+	set website="http://dictionary.reference.com/";
+	if(! ${?search_phrase} ) then
+		${program} "${website}";
+	else
+		${program} "${website}browse/${search_phrase}";
+	endif
+#launchers_main:
+
 
 exit_script:
 	exit ${status};

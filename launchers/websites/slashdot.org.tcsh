@@ -21,7 +21,7 @@ while( ${?1} && "${1}" != "" )
 			endif
 			
 			if( ${?search_phrase} ) then
-				set search_phrase="${search_phrase}%20${1}";
+				set search_phrase="${search_phrase}+${1}";
 			else
 				set search_phrase="${1}";
 			endif
@@ -59,16 +59,15 @@ noexec:
 	goto exit_script;
 #noexec
 
-
 launchers_main:
-	set website="http://google.com/";
 	if(! ${?search_phrase} ) then
-		${program} "${website}";
+		set index="";
 	else
-		${program} "${website}search?q=${search_phrase}";
+		set index="index2.pl?fhfilter=${search_phrase}";
 	endif
-#launchers_main:
+#launchers_main
 
+${program} "http://slashdot.org/${index}";
 
 exit_script:
 	exit ${status};

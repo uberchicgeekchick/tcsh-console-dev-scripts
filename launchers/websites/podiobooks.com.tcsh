@@ -59,15 +59,16 @@ noexec:
 	goto exit_script;
 #noexec
 
-launchers_main:
-	if(! ${?books_title} ) set books_title="";
-	if( "${books_title}" == "" ) then
-		set status=-1;
-		goto usage;
-	endif
-#launchers_main
 
-${program} "http://www.podiobooks.com/title/${books_title}/feed/";
+launchers_main:
+	set website="http://www.podiobooks.com/";
+	if(! ${?books_title} ) then
+		${program} "${website}";
+	else
+		${program} "${website}title/${books_title}/feed/";
+	endif
+#launchers_main:
+
 
 exit_script:
 	exit ${status};

@@ -59,9 +59,8 @@ noexec:
 
 launchers_main:
 
-if(! ${?url} ) then
-	${program}
-else
+	if(! ${?url} )	\
+		set url="http://slashdot.org/"
+	
 	${program} "${url}";
-endif
 

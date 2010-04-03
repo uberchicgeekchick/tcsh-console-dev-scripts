@@ -78,7 +78,7 @@ if( ${?convert} ) then
 			breaksw;
 		
 		case "tox":
-			tox-to-m3u.tcsh${edit_playlist} "${playlist}" "${convert}";
+			tox-to-m3u.tcsh${edit_playlist} "${convert}" "${playlist}";
 			breaksw;
 	endsw
 endif

@@ -377,15 +377,15 @@ stop_build:
 		goto test_exec;
 	
 	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}" "${build_mozilla}.sh");
-	foreach program( ${ff_binaries} )
-		printf "Looking for running instance of: %s.\n" ${program};
-		foreach pid ( `pidof -x "${program}"` )
+	foreach ff_binary( ${ff_binaries} )
+		printf "Looking for running instance of: %s.\n" ${ff_binary};
+		foreach pid ( `pidof -x "${ff_binary}"` )
 			@ still_running=0;
 			while ( ${still_running} < 10 )
 				printf "Found running instance of: %s; pid: %s; attempt: #%s\n" ${ff_binary} ${pid} ${still_running};
 				kill -QUIT "${pid}";
 				sleep 2;
-				foreach test ( `pidof -x "${program}"` )
+				foreach test ( `pidof -x "${ff_binary}"` )
 					if( "${pid}" == "${test}" ) then
 						@ still_running++;
 					else

@@ -8,7 +8,7 @@ init:
 	
 	set scripts_basename="alacast:feed:fetch-all:enclosures.tcsh";
 	
-	if(! $?0 ) then
+	if(! ${?0} ) then
 		set status=-1;
 		printf "%s does not support being sourced and can only be executed.\n" "${scripts_basename}";
 		goto usage;

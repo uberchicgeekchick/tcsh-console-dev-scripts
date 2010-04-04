@@ -5,12 +5,18 @@ set edit_playlist="";
 while( "${1}" != "" )
 	set option = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)/\1/g'`";
 	set value = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)/\2/g'`";
-	#echo "Checking ${option}\n";
+	if( "${value}" == "" )	\
+		set value="${2}";
+	#echo "Checking\n\toption: ${option}\n\tvalue ${value}\n";
 	
 	switch ( "${option}" )
-		case "convert":
+		case "import":
 			if( -e "${value}" )	\
-				set convert="${value}";
+				set import="${value}";
+			breaksw;
+		
+		case "export":
+			set export="${value}";
 			breaksw;
 		
 		case "edit-playlist":
@@ -33,13 +39,8 @@ while( "${1}" != "" )
 			breaksw;
 		
 		case "playlist":
-			if(! ${?playlist} )	\
+			if( -e "${value}" && ! ${?playlist} )	\
 				set playlist="${value}";
-			breaksw;
-		
-		default:
-			if(! ${?playlist} )	\
-				set playlist="${1}";
 			breaksw;
 	endsw
 	shift;
@@ -71,20 +72,42 @@ switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
 		breaksw;
 endsw
 
-if( ${?convert} ) then
-	switch( "`printf "\""${convert}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
+if( ${?import} ) then
+	if(! -e "${import}" ) then
+		printf "Cannot export a non-existing playlist.\n" > /dev/null;
+		exit -3;
+	endif
+	
+	switch( "`printf "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
 		case "m3u":
-			m3u-to-tox.tcsh${edit_playlist} "${convert}" "${playlist}";
+			m3u-to-tox.tcsh${edit_playlist} "${import}" "${playlist}";
 			breaksw;
 		
 		case "tox":
-			tox-to-m3u.tcsh${edit_playlist} "${convert}" "${playlist}";
+			tox-to-m3u.tcsh${edit_playlist} "${import}" "${playlist}";
+			breaksw;
+	endsw
+endif
+
+if( ${?export} ) then
+	if(! -e "${playlist}" ) then
+		printf "Cannot export a non-existing playlist.\n" > /dev/null;
+		exit -3;
+	endif
+	
+	switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
+		case "m3u":
+			m3u-to-tox.tcsh${edit_playlist} "${playlist}" "${export}";
+			breaksw;
+		
+		case "tox":
+			tox-to-m3u.tcsh${edit_playlist} "${playlist}" "${export}";
 			breaksw;
 	endsw
 endif
 
 clean_up:
-	pls-tox-m3u:find:missing.tcsh "${playlist}" "${target_directory}" --remove=interactive --search-subdirs-only --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\)' --remove=interactive;
+	pls-tox-m3u:find:missing.tcsh "${playlist}" "${target_directory}" --search-subdirs-only --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\)' --remove=interactive;
 	
 	#if( "${target_directory}" != "/media/podiobooks" && "`/bin/ls /media/podiobooks/`" != 'nfs' )	\
 	#	pls-tox-m3u:find:missing.tcsh "${playlist}" /media/podiobooks --search-subdirs-only --maxdepth=5 --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\)' --remove=interactive;

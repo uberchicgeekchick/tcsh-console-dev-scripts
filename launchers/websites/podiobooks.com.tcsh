@@ -1,29 +1,30 @@
 #!/bin/tcsh -f
 while( ${?1} && "${1}" != "" )
-	switch("${1}")
-		case "--firefox":
-		case "--links":
-		case "--lynx":
-			set browser="`printf '%s' '${1}' | sed -r 's/[\-]{2}(.*)/\1/'`";
-			shift;
+	set option="`printf '%s' '${1}' | sed -r 's/[\-]{2}(.*)/\1/'`";
+	set value="`printf "\""${1}"\"" | sed -r 's/^([\-]{2})([^\=]+)(\=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
+	if( "${value}" == "" && "${2}" != "" )	\
+		set value="${2}";
+	
+	switch("${option}")
+		case "firefox":
+		case "links":
+		case "lynx":
+			set browser="${option}";
 			breaksw;
+		
+		case "browser":
+			foreach browser("`where '${value}'`")
+				if( -x "${browser}" )	\
+					break;
+				unset browser;
+			end
+			breaksw;
+		
 		default:
-			if( ! ${?browser} && "`printf '%s' '${1}' | sed -r 's/[\-]{2}(browser)=(.*)/\1/'`" == "browser" ) then
-				set exec_test="`printf '%s' '${1}' | sed -r 's/[\-]{2}browser=(.*)/\1/'`";
-				foreach browser("`where '${exec_test}'`")
-					if( ${?exec_test} ) unset exec_test;
-					if( -x "${browser}" ) then
-						shift;
-						breaksw;
-					endif
-				end
-				if( ${?browser} ) unset browser;
-			endif
-			
-			if( ${?books_title} ) then
-				set books_title="${books_title}%20${1}";
+			if( ${?search_phrase} ) then
+				set search_phrase="${search_phrase}+${1}";
 			else
-				set books_title="${1}";
+				set search_phrase="${1}";
 			endif
 			shift;
 			breaksw;
@@ -62,10 +63,14 @@ noexec:
 
 launchers_main:
 	set website="http://www.podiobooks.com/";
-	if(! ${?books_title} ) then
-		${program} "${website}";
+	curl --location --fail --show-error --silent --output "./.index.html" "${website}/podiobooks/search.php?keyword=${search_phrase}";
+	if( -e "./.feed.xml" ) then
+		rm ./.feed.xml;
+		${program} "${website}title/${search_phrase}/";
+	else if( ${?search_phrase} ) then
+		${program} "${website}/podiobooks/search.php?keyword=${search_phrase}";
 	else
-		${program} "${website}title/${books_title}/feed/";
+		${program} "${website}";
 	endif
 #launchers_main:
 

@@ -1,15 +1,39 @@
 #!/bin/tcsh -f
-#if(! ${?1} || "${1}" == "" ) goto usage
+if(! ${?0} ) then
+	printf "This script does not support being sourced and can only be exectuted.\n" > /dev/stderr;
+	@ errno=-501;
+	goto exit_script;
+endif
+
+if( "${1}" == "" ) then
+	printf "One or more required options are missing.\n" > /dev/stderr;
+	@ errno=-502;
+	goto exit_script;
+endif
 
 set edit_playlist="";
 while( "${1}" != "" )
-	set option = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)/\1/g'`";
-	set value = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)/\2/g'`";
-	if( "${value}" == "" )	\
+	set option = "`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\1/g'`";
+	set value = "`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\2/g'`";
+	if( "${value}" == "" && "${2}" != "" )	\
 		set value="${2}";
-	#echo "Checking\n\toption: ${option}\n\tvalue ${value}\n";
+	#printf "Checking\n\toption: %s\n\tvalue %s\n" "${option}" "${value}";
 	
 	switch ( "${option}" )
+		case "help"
+			goto usage;
+			breaksw;
+		
+		case "debug":
+			if(! ${?debug} )	\
+				set debug;
+			breaksw;
+		
+		case "verbose":
+			if(! ${?be_verbose} )	\
+				set be_verbose;
+			breaksw;
+		
 		case "import":
 			if( -e "${value}" )	\
 				set import="${value}";
@@ -23,39 +47,61 @@ while( "${1}" != "" )
 			set edit_playlist=" --edit-playlist";
 			breaksw;
 		
-		case "save-to":
-		case "target-dir":
 		case "target-directory":
 			if( -d "${value}" ) \
 				set target_directory="${value}"
 			breaksw;
 		
-		case "copy-missing-from-nfs":
-		case "auto-copy-missing":
-		case "copy-missing":
 		case "auto-copy":
 			if(! ${?auto_copy} )	\
 				set auto_copy;
 			breaksw;
 		
+		case "maxdepth":
+			if( ${value} != "" && `printf '%s' "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
+				set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
+				if( ${value} > 2 )	\
+					set maxdepth=" --maxdepth=${value} ";
+			endif
+			if(! ${?maxdepth} )	\
+				printf "--maxdepth must be an integer value that is gretter than 2" > /dev/null;
+			breaksw;
+		
 		case "playlist":
-			if( -e "${value}" && ! ${?playlist} )	\
-				set playlist="${value}";
+			set playlist="${value}";
 			breaksw;
 	endsw
 	shift;
 end
+	
+	if( ${?debug} && ${?be_verbose} ) then
+		if(! ${?echo} ) then
+			set echo;
+			set echo_set;
+		endif
+	endif
 
 if(! ${?playlist} ) then
 	printf "**error:** a valid target playlist must be specified.\n" > /dev/stderr;
-	exit -1;
+	@ errno=-1;
+	goto exit_script;
+endif
+
+if( ${?export} || ! ${?import} ) then
+	if( -e "${?playlist}" )	then
+		printf "**error:** an existing playlist must be specified.\n" > /dev/stderr;
+		@ errno=-2;
+		goto exit_script;
+	endif	
 endif
 
 if(! ${?target_directory} )	\
 	set target_directory="${cwd}";
 
-if(! ${?eol} )	\
+if(! ${?eol} ) then
+	set eol_set;
 	set eol='$';
+endif
 
 switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
 	case "m3u":
@@ -107,13 +153,17 @@ if( ${?export} ) then
 endif
 
 clean_up:
-	pls-tox-m3u:find:missing.tcsh "${playlist}" "${target_directory}" --search-subdirs-only --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\)' --remove=interactive;
+	if(! ${?maxdepth} ) then
+		set maxdepth=" --maxdepth=2";
+	endif
+	
+	pls-tox-m3u:find:missing.tcsh "${playlist}" "${target_directory}" --search-subdirs-only${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\|m4a\)' --remove=interactive;
 	
 	#if( "${target_directory}" != "/media/podiobooks" && "`/bin/ls /media/podiobooks/`" != 'nfs' )	\
 	#	pls-tox-m3u:find:missing.tcsh "${playlist}" /media/podiobooks --search-subdirs-only --maxdepth=5 --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\)' --remove=interactive;
 #clean_up:
 
-if( ${?auto_copy} ) then
+if( ${?import} || ${?auto_copy} ) then
 	switch( "${playlist_type}" )
 		case "m3u":
 			m3u:copy-nfs.tcsh "${playlist}" --enable=auto-copy;
@@ -124,4 +174,107 @@ if( ${?auto_copy} ) then
 			breaksw;
 	endsw
 endif
+
+exit_script:
+	if( ${?eol_set} ) then
+		unset eol_set;
+		unset eol;
+	endif
+	
+	if( ${?echo_set} ) then
+		unset echo;
+		unset echo_set;
+	endif
+	
+	if( ${?debug} )			\
+		unset debug;
+	
+	if( ${?be_verbose} )		\
+		unset be_verbose;
+	
+	if( ${?import} )		\
+		unset import;
+	
+	if( ${?export} )		\
+		unset export;
+	
+	if( ${?edit_playlist} )		\
+		unset edit_playlist;
+	
+	if( ${?target_directory} )	\
+		unset target_directory;
+	
+	if( ${?auto_copy} )		\
+		unset auto_copy;
+	
+	if( ${?maxdepth} )		\
+		unset maxdepth;
+	
+	if( ${?playlist} )		\
+		unset playlist;
+	
+	if( ${?scripts_basename} )	\
+		unset scripts_basename;
+	
+	if(! ${?errno} ) then
+		set status=0;
+	else
+		printf "See --help for more information.\n" > /dev/stderr;
+		set status=$errno;
+		unset errno;
+	endif
+	
+	exit ${status};
+#exit_script:
+
+
+usage:
+	set scripts_basename="`basename '${0}'`";
+	printf "Usage:\n\t%s [options] --playlist=[playlist]\n" "${scripts_basename}";
+	printf "Supported options are:							\
+		--help				Displays this screen.			\
+											\
+		--debug				Enables %s internal debug mode.		\
+											\
+		--verbose			Enables %s verbose output.		\
+											\
+		--import			This specifies a playlist to import.	\
+						If supplied than [playlist] will be	\
+						over-written with the converted copy of	\
+						the imported playlist.			\
+											\
+		--export			This specifies a playlist to export.	\
+						If supplied it will be over-written	\
+						with the converted playlist.		\
+											\
+		--edit-playlist			When importing or exporting a playlist	\
+						This will cause the playlist to be	\
+						opened in your default editor before	\
+						its converted and imported or exported	\
+											\
+		--auto-copy			This will copy any missing files after	\
+						The playlist is exported or imported.	\
+						NOTE: --import auto-matically enables	\
+						--auto-copy.				\
+											\
+		--target-directory		This is the directory to copy podcasts	\
+						to and to check for missing podcasts	\
+						in.  If not specified than it defaults	\
+						to your working current directory.	\
+											\
+		--maxdepth			By default only one level below		\
+						--target-directory is checked for	\
+						missing podcasts.  This will have the	\
+						clean-up script search up to this many	\
+						levels below --target-directory		\
+						NOTE: this corisponds directly with	\
+						find's -maxdepth option			\
+											\
+		--playlist			The playlist to manage.			\
+											\
+		" "${scripts_basename}" "${scripts_basename}":
+	
+	goto exit_script;
+#usage:
+
 

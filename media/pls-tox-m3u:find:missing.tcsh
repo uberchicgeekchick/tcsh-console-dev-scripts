@@ -49,7 +49,7 @@ main:
 	if(! ${?maxdepth} ) then
 		set maxdepth=" -maxdepth 2";
 	endif
-
+	
 	if(! ${?mindepth} ) then
 		set mindepth=" ";
 	endif
@@ -59,10 +59,10 @@ find_missing_media:
 	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
 	if( ${?debug} ) then
 		printf "Searching for missing multimedia files using:\n\t";
-		printf "/usr/bin/find -L ${cwd}/${maxdepth}${mindepth}-type f -iregex '.*${extensions}${eol}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\\1/g' | sed -r 's/(['\!'])/\\\\1/g'\n";
+		printf "/usr/bin/find -L ${cwd}/${maxdepth}${mindepth}-type f -iregex '.*${extensions}${eol}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\\1/g' | sed -r 's/(['\!'])/\\\\1/g' | sed -r 's/\\([\[\]])/\\\\\1/g'\n";
 	endif
 	@ removed_podcasts=0;
-	foreach podcast("`/usr/bin/find -L ${cwd}/${maxdepth}${mindepth}-type f -iregex '.*${extensions}${eol}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`")
+	foreach podcast("`/usr/bin/find -L ${cwd}/${maxdepth}${mindepth}-type f -iregex '.*${extensions}${eol}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`")
 		#printf '-->%s\n' "${podcast}";
 		#continue;
 		if( ${?skip_subdirs} ) then
@@ -76,6 +76,7 @@ find_missing_media:
 		endif
 		
 		set status=0;
+		#echo "/bin/grep "\""${podcast}"\"" "\""${playlist}"\""";
 		set grep_test="`/bin/grep "\""${podcast}"\"" "\""${playlist}"\""`";
 		#if( ${status} != 0 ) then
 			#printf "**error:** searching for: %s\n" "/bin/grep ${podcast} "\""${playlist}"\""";
@@ -93,7 +94,7 @@ find_missing_media:
 		endif
 		
 		if(! ${?remove} ) then
-			set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/\\([*])/\1/g'`";
+			set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/\\([*])/\1/g' | sed -r 's/\\\[/\[/g'`";
 			if(! -e "${this_podcast}" )	\
 				continue;
 			
@@ -106,7 +107,7 @@ find_missing_media:
 				continue;
 			
 			foreach duplicates_subdir ( "`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ ${eol}//'`" )
-				set duplicate_podcast="`printf "\""${podcast}"\"" | sed -r 's/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//' | sed -r 's/\\([*])/\1/g'`";
+				set duplicate_podcast="`printf "\""${podcast}"\"" | sed -r 's/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//' | sed -r 's/\\([*])/\1/g' | sed -r 's/\\\[/\[/g'`";
 				
 				if(! -e "${duplicate_podcast}" )	\
 					continue;
@@ -120,8 +121,8 @@ find_missing_media:
 			continue;
 		endif
 		
-		set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/\\([*])/\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
-		if(! -e "`printf "\""${podcast}"\"" | sed -r 's/\\([*])/\1/g'`" )	\
+		set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/\\([*])/\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/\\\[/\[/g'`";
+		if(! -e "`printf "\""${podcast}"\"" | sed -r 's/\\([*])/\1/g' | sed -r 's/\\\[/\[/g'`" )	\
 			continue;
 		
 		set status=0;
@@ -159,11 +160,11 @@ find_missing_media:
 		endif
 		
 		foreach duplicates_subdir ( "`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ ${eol}//'`" )
-			set duplicate_podcast="`printf "\""${podcast}"\"" | sed -r 's/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//' | sed -r 's/\\([*])/\1/g'`";
+			set duplicate_podcast="`printf "\""${podcast}"\"" | sed -r 's/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//' | sed -r 's/\\([*])/\1/g' | sed -r 's/\\\[/\[/g'`";
 			if(! -e "${duplicate_podcast}" )	\
 				continue;
 			
-			set duplicate_podcast="`printf "\""${podcast}"\"" | sed -r 's/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//'  | sed -r 's/(["\""])/"\""\\"\"""\""/g'| sed -r 's/\\([*])/\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
+			set duplicate_podcast="`printf "\""${podcast}"\"" | sed -r 's/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//'  | sed -r 's/(["\""])/"\""\\"\"""\""/g'| sed -r 's/\\([*])/\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/\\\[/\[/g'`";
 			
 			set status=0;
 			set rm_confirmation="`rm -vf${remove} "\""${duplicate_podcast}"\""`";
@@ -466,10 +467,6 @@ parse_arg:
 				set maxdepth=" ";
 				breaksw;
 			
-			case "search-subdirs-only":
-				set mindepth=" -mindepth 2 ";
-				breaksw;
-			
 			case "maxdepth":
 				if( ${value} != "" && `printf '%s' "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
 					set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
@@ -478,6 +475,10 @@ parse_arg:
 				endif
 				if(! ${?maxdepth} )	\
 					printf "--maxdepth must be an integer value that is gretter than 2" > /dev/null;
+				breaksw;
+			
+			case "search-subdirs-only":
+				set mindepth=" -mindepth 2 ";
 				breaksw;
 			
 			case "":

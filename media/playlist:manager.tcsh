@@ -40,7 +40,8 @@ while( "${1}" != "" )
 			breaksw;
 		
 		case "export":
-			set export="${value}";
+		case "export-to":
+			set export_to="${value}";
 			breaksw;
 		
 		case "edit-playlist":
@@ -87,7 +88,7 @@ if(! ${?playlist} ) then
 	goto exit_script;
 endif
 
-if( ${?export} || ! ${?import} ) then
+if( ${?export_to} || ! ${?import} ) then
 	if( -e "${?playlist}" )	then
 		printf "**error:** an existing playlist must be specified.\n" > /dev/stderr;
 		@ errno=-2;
@@ -120,7 +121,7 @@ endsw
 
 if( ${?import} ) then
 	if(! -e "${import}" ) then
-		printf "Cannot export a non-existing playlist.\n" > /dev/null;
+		printf "Cannot import a non-existing playlist.\n" > /dev/null;
 		exit -3;
 	endif
 	
@@ -135,7 +136,7 @@ if( ${?import} ) then
 	endsw
 endif
 
-if( ${?export} ) then
+if( ${?export_to} ) then
 	if(! -e "${playlist}" ) then
 		printf "Cannot export a non-existing playlist.\n" > /dev/null;
 		exit -3;
@@ -143,11 +144,11 @@ if( ${?export} ) then
 	
 	switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
 		case "m3u":
-			m3u-to-tox.tcsh${edit_playlist} "${playlist}" "${export}";
+			m3u-to-tox.tcsh${edit_playlist} "${playlist}" "${export_to}";
 			breaksw;
 		
 		case "tox":
-			tox-to-m3u.tcsh${edit_playlist} "${playlist}" "${export}";
+			tox-to-m3u.tcsh${edit_playlist} "${playlist}" "${export_to}";
 			breaksw;
 	endsw
 endif
@@ -195,8 +196,8 @@ exit_script:
 	if( ${?import} )		\
 		unset import;
 	
-	if( ${?export} )		\
-		unset export;
+	if( ${?export_to} )		\
+		unset export_to;
 	
 	if( ${?edit_playlist} )		\
 		unset edit_playlist;
@@ -238,14 +239,7 @@ usage:
 											\
 		--verbose			Enables %s verbose output.		\
 											\
-		--import			This specifies a playlist to import.	\
-						If supplied than [playlist] will be	\
-						over-written with the converted copy of	\
-						the imported playlist.			\
-											\
-		--export			This specifies a playlist to export.	\
-						If supplied it will be over-written	\
-						with the converted playlist.		\
+		--playlist			The playlist to manage.			\
 											\
 		--edit-playlist			When importing or exporting a playlist	\
 						This will cause the playlist to be	\
@@ -256,6 +250,15 @@ usage:
 						The playlist is exported or imported.	\
 						NOTE: --import auto-matically enables	\
 						--auto-copy.				\
+											\
+		--import			This specifies a playlist to import.	\
+						If supplied than [playlist] will be	\
+						over-written with the converted copy of	\
+						the imported playlist.			\
+											\
+		--export|--export-to		This specifies a file to export the	\
+						the specified playlist to.  It will be	\
+						over-written by the converted playlist.	\
 											\
 		--target-directory		This is the directory to copy podcasts	\
 						to and to check for missing podcasts	\
@@ -269,8 +272,6 @@ usage:
 						levels below --target-directory		\
 						NOTE: this corisponds directly with	\
 						find's -maxdepth option			\
-											\
-		--playlist			The playlist to manage.			\
 											\
 		" "${scripts_basename}" "${scripts_basename}":
 	

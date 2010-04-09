@@ -2,7 +2,7 @@
 # cleaning up VIM, gedit, connectED, & etc swp files.
 set interactive="";
 if( "${1}" != "" && "${1}" == "--interactive" )	\
-	set interactive=" -i";
+	set interactive=" --interactive";
 
 foreach swp ( "`/usr/bin/find -L . -iregex '.*\.\(sw.\|~\)'`" )
 	if(! -e "${swp}" ) continue;

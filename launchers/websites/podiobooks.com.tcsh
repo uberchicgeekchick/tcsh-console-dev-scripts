@@ -68,7 +68,7 @@ launchers_main:
 		rm ./.feed.xml;
 		${program} "${website}title/${search_phrase}/";
 	else if( ${?search_phrase} ) then
-		${program} "${website}/podiobooks/search.php?keyword=${search_phrase}";
+		${program} "${website}podiobooks/search.php?keyword=${search_phrase}";
 	else
 		${program} "${website}";
 	endif

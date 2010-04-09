@@ -512,14 +512,15 @@ parse_arg:
 			set option="";
 		
 		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
-		if( "${equals}" == "$argv[$arg]" || "${equals}" == "" )	\
+		if( "${equals}" == "$argv[$arg]" )	\
 			set equals="";
 		
-		set equals="";
+		#set equals="";
 		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
-		if( "${value}" != "" && "${value}" != "$argv[$arg]" ) then
-			set equals="=";
-		else if( "${option}" != "" ) then
+		#if( "${value}" != "" && "${value}" != "$argv[$arg]" ) then
+		#	set equals="=";
+		#else if( "${option}" != "" ) then
+		if( "${option}" != "" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "$argv[$arg]" ) ) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;

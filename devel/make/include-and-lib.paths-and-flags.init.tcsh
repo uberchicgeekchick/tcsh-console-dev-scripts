@@ -36,8 +36,11 @@ setenv INCLUDE_AND_LIB_FLAGS_AND_PATHS "-I/usr/local/include -I/usr/include -I. 
 set library_paths="";
 set lib_dirs=( "/usr/local/lib64"  "/usr/lib64" "/lib64"  );
 foreach lib_dir(${lib_dirs})
-	if( -d "${lib_dir}" && "`/bin/ls '${lib_dir}'`" != "" )	\
-		set library_paths="${library_paths}:${lib_dir}";
+	if( -d "${lib_dir}" ) then
+		if( "`/bin/ls '${lib_dir}'`" != "" ) then
+			set library_paths="${library_paths}:${lib_dir}";
+		endif
+	endif
 end
 
 foreach lib_dir(${lib_dirs})

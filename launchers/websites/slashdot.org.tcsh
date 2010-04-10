@@ -21,7 +21,7 @@ while( ${?1} && "${1}" != "" )
 			endif
 			
 			if( ${?search_phrase} ) then
-				set search_phrase="${search_phrase}+${1}";
+				set search_phrase="${search_phrase} ${1}";
 			else
 				set search_phrase="${1}";
 			endif
@@ -63,7 +63,7 @@ launchers_main:
 	if(! ${?search_phrase} ) then
 		set index="";
 	else
-		set index="index2.pl?fhfilter=${search_phrase}";
+		set index="index2.pl?fhfilter=`printf "\""%s"\"" "\""${search_phrase}"\"" | sed -r 's/\ /%20/g'`";
 	endif
 #launchers_main
 

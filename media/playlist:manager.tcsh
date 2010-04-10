@@ -53,11 +53,6 @@ while( "${1}" != "" )
 				set target_directory="${value}"
 			breaksw;
 		
-		case "auto-copy":
-			if(! ${?auto_copy} )	\
-				set auto_copy;
-			breaksw;
-		
 		case "maxdepth":
 			if( ${value} != "" && `printf '%s' "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
 				set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
@@ -161,10 +156,10 @@ clean_up:
 	pls-tox-m3u:find:missing.tcsh "${playlist}" "${target_directory}" --search-subdirs-only${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\|m4a\)' --remove=interactive;
 	
 	#if( "${target_directory}" != "/media/podiobooks" && "`/bin/ls /media/podiobooks/`" != 'nfs' )	\
-	#	pls-tox-m3u:find:missing.tcsh "${playlist}" /media/podiobooks --search-subdirs-only --maxdepth=5 --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\)' --remove=interactive;
+	#	pls-tox-m3u:find:missing.tcsh "${playlist}" /media/podiobooks --search-subdirs-only --maxdepth=5 --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\|m4a\)' --remove=interactive;
 #clean_up:
 
-if( ${?import} || ${?auto_copy} ) then
+get_missing:
 	switch( "${playlist_type}" )
 		case "m3u":
 			m3u:copy-nfs.tcsh "${playlist}" --enable=auto-copy;
@@ -174,7 +169,8 @@ if( ${?import} || ${?auto_copy} ) then
 			tox:copy-nfs.tcsh "${playlist}" --enable=auto-copy;
 			breaksw;
 	endsw
-endif
+#get_missing:
+
 
 exit_script:
 	if( ${?eol_set} ) then
@@ -204,9 +200,6 @@ exit_script:
 	
 	if( ${?target_directory} )	\
 		unset target_directory;
-	
-	if( ${?auto_copy} )		\
-		unset auto_copy;
 	
 	if( ${?maxdepth} )		\
 		unset maxdepth;
@@ -245,11 +238,6 @@ usage:
 						This will cause the playlist to be	\
 						opened in your default editor before	\
 						its converted and imported or exported	\
-											\
-		--auto-copy			This will copy any missing files after	\
-						The playlist is exported or imported.	\
-						NOTE: --import auto-matically enables	\
-						--auto-copy.				\
 											\
 		--import			This specifies a playlist to import.	\
 						If supplied than [playlist] will be	\

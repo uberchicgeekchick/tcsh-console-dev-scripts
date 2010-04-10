@@ -2,29 +2,14 @@
 if( $?0 ) then
 	cd "`dirname '${0}'`";
 	set scripts_name="`basename '${0}'`";
-	printf "%s sets up alacast's environmental settings\n%s should be sourced and not run directly.\nUsage:\n\tsource %s" "${source}" "${scripts_name}" "${cwd}/${scripts_name}";
+	printf "%s sets up alacast's environmental settings\n%s should be sourced and not run directly.\nUsage:\n\t%ssource %s%s" "${source}" "${scripts_name}" '`' "${cwd}/${scripts_name}" '`';
 	cd "${owd}"
 	exit -1;
 endif
 
-if( -e "${HOME}/.alacast/alacast.ini" ) then
-	set alacast_ini="${HOME}/.alacast/alacast.ini";
-else if( -e "${HOME}/.alacast/profiles/${USER}/alacast.ini" ) then
-	set alacast_ini="${HOME}/.alacast/profiles/${USER}/alacast.ini";
-else if( -e "`dirname '${0}'`../data/profiles/${USER}/alacast.ini" ) then
-	set alacast_ini="`dirname '${0}'`../data/profiles/${USER}/alacast.ini";
-else if( -e "`dirname '${0}'`../data/profiles/default/alacast.ini" ) then
-	set alacast_ini="`dirname '${0}'`../data/profiles/default/alacast.ini";
-endif
+if( ${?TCSH_RC_DEBUG} )	\
+	printf "Setting up Alacast v1's and v2's environment @ %s\n" `date "+%I:%M:%S%P"`;
 
-if( ${?alacast_ini} ) then
-	if( -e "${alacast_ini}" )	\
-		setenv ALACAST_INI "${alacast_ini}";
-endif
-
-if( ${?TCSH_RC_DEBUG} ) printf "Setting up Alacast v1's and v2's environment @ %s\n" `date "+%I:%M:%S%P"`;
-if( ${?alacasts_path} )	\
-	unset alacasts_path;
 
 clean_alacasts_path:
 	setenv PATH "`printf '${PATH}' | sed -r 's/\/projects\/(cli|gtk)\/alacast(\/[^\:]*\:)?//g'`";
@@ -54,6 +39,25 @@ set_gtk_path:
 	end
 	unset alacast_gtk_path alacast_gtk_paths;
 #set_gtk_path:
+
+
+setup_ini:
+	if( -e "${HOME}/.alacast/alacast.ini" ) then
+		set alacast_ini="${HOME}/.alacast/alacast.ini";
+	else if( -e "${HOME}/.alacast/profiles/${USER}/alacast.ini" ) then
+		set alacast_ini="${HOME}/.alacast/profiles/${USER}/alacast.ini";
+	else if( -e "${ALACAST_GTK_PATH}/data/profiles/${USER}/alacast.ini" ) then
+		set alacast_ini="${ALACAST_GTK_PATH}/data/profiles/${USER}/alacast.ini";
+	else if( -e "${ALACAST_GTK_PATH}/data/profiles/default/alacast.ini" ) then
+		set alacast_ini="${ALACAST_GTK_PATH}/data/profiles/default/alacast.ini";
+	endif
+	
+	if( ${?alacast_ini} ) then
+		if( -e "${alacast_ini}" )	\
+			setenv ALACAST_INI "${alacast_ini}";
+		unset alacast_ini;
+	endif
+#setup_ini:
 
 
 set_cli_path:

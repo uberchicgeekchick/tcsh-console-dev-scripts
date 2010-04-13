@@ -10,7 +10,8 @@ set artistic_geometry=`cat "${resolutions_path}/artistic.rc"`;
 set media_geometry=`cat "${resolutions_path}/media.rc"`;
 set alacast_geometry=`cat "${resolutions_path}/alacast.rc"`;
 set canvas_geometry=`cat "${resolutions_path}/canvas.rc"`;
-set editor_geometry = `cat "${resolutions_path}/editor.rc"`;
+set editor_geometry=`cat "${resolutions_path}/editor.rc"`;
+set ssh_geometry=`cat "${resolutions_path}/ssh/default.rc"`;
 
 set screens_command="`dirname '${0}'`/../launchers/screen";
 
@@ -25,37 +26,42 @@ foreach canvas ( "${argv}" )
 	case "Editor":
 		shift;
 		set geometry="${editor_geometry}";
-		goto editor_canvas
+		goto editor_canvas;
 		breaksw;
 	
 	case "Canvas":
 		shift;
 		set geometry="${canvas_geometry}";
-		goto canvas_canvas
+		goto canvas_canvas;
 		breaksw;
 	
 	case "GameDesign":
 		shift;
-		set geometry="${games_geometry}"
-		goto artistic_canvas
+		set geometry="${games_geometry}";
+		goto artistic_canvas;
 		breaksw;
 	
 	case "Artistic":
 		shift;
-		set geometry="${artistic_geometry}"
-		goto artistic_canvas
+		set geometry="${artistic_geometry}";
+		goto artistic_canvas;
 		breaksw;
 	
 	case "Media":
 		shift;
-		set geometry="${media_geometry}"
-		goto media_canvas
+		set geometry="${media_geometry}";
+		goto media_canvas;
 		breaksw;
 	
 	case "Build":
 		shift;
-		set geometry="${build_geometry}"
-		goto build_canvas
+		set geometry="${build_geometry}";
+		goto build_canvas;
+		breaksw;
+	
+	case "SSH":
+		set geometry="${ssh_geometry}";
+		goto ssh_canvas;
 		breaksw;
 	
 	case "Default":
@@ -228,7 +234,7 @@ media_canvas:
 		set with_ssh_our_eee;
 		set with_ssh_dreams;
 		if( -e "${HOME}/.rtorrent.rc" ) then
-			set rtorrent_session_dir = `/bin/grep 'session' "${HOME}/.rtorrent.rc" | /bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`;
+			set rtorrent_session_dir=`/bin/grep 'session' "${HOME}/.rtorrent.rc" | /bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`;
 			if( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
 				rm -f "${rtorrent_session_dir}/rtorrent.lock";
 				rm -f "${rtorrent_session_dir}/rtorrent.dht_cache";
@@ -251,13 +257,13 @@ goto next_canvas
 editor_canvas:
 	switch ( "${canvas}" )
 	case  "Template":
-		set mycanvas = ( \
+		set mycanvas=( \
 			"--tab --title=~ --working-directory='${HOME}'" \
 		);
 		breaksw;
 	
 	case  "VIM":
-		set my_canvas = ( \
+		set my_canvas=( \
 			"--tab-with-profile=uberChick --title=vim --working-directory=/projects --command='vim-enhanced -p ${argv}'" \
 		);
 		unset argv;
@@ -265,13 +271,51 @@ editor_canvas:
 		
 	case  "Default":
 	default:
-		set my_canvas = ( \
+		set my_canvas=( \
 			"--tab-with-profile=uberChick --title=${EDITOR} --working-directory=/projects --command='${EDITOR} -p ${argv}'" \
 		);
 		unset argv;
 		breaksw;
 	endsw
-goto next_canvas
+	
+	goto next_canvas;
+#editor_canvas:
+
+
+ssh_canvas:
+	switch("${canvas}")
+		case "EEE":
+		case "eee":
+			if(! ${?eee_geometry} )	\
+				set eee_geometry=`cat "${resolutions_path}/ssh/eee.rc"`;
+			set geometry="${eee_geometry}";
+			#set with_ssh_our_eee;
+			
+			set my_canvas=( \
+				--tab-with-profile="uberChick"\ --title="ssh:uberChick@192.168.0.6"\ --command="ssh uberChick@192.168.0.6" \
+			);
+			breaksw;
+		
+		case "dreams":
+		case "ocs":
+			set with_ssh_dreams;
+			breaksw;
+		
+		dofault:
+			if( "`printf "\""%s"\"" "\""${canvas}"\"" | sed -r 's/[^@]+(@).*/\1/'`" != "@" ) then
+				set server="${USER}@${canvas}";
+			else
+				set server="${canvas}";
+			endif
+			
+			set my_canvas=( \
+				"--tab-with-profile=ssh --title='<ssh:[${server}] #>' --command='ssh ${server}'" \
+			);
+		breaksw;
+	endsw
+	
+	goto next_canvas;
+#ssh_canvas:
 
 
 default_canvas:
@@ -290,7 +334,9 @@ default_canvas:
 		set my_canvas="";
 		breaksw;
 	endsw
-goto next_canvas
+	
+	goto next_canvas;
+#default_canvas:
 
 next_canvas:
 	if( ${?my_canvas} ) then
@@ -299,7 +345,7 @@ next_canvas:
 		else
 			set with_screen="--tab-with-profile=screen";
 			if( -e "${HOME}/.rtorrent.rc" ) then
-				set rtorrent_session_dir = `/bin/grep 'session' "${HOME}/.rtorrent.rc" | /bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`;
+				set rtorrent_session_dir=`/bin/grep 'session' "${HOME}/.rtorrent.rc" | /bin/sed 's/^[^=]\+=\ \(.*\)$/\1/g'`;
 				if( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" ) then
 					rm -f "${rtorrent_session_dir}/rtorrent.lock";
 					rm -f "${rtorrent_session_dir}/rtorrent.dht_cache";
@@ -311,12 +357,14 @@ next_canvas:
 			set with_ssh_dreams="";
 		else
 			set with_ssh_dreams="--tab-with-profile=ssh:dreams";
+			#set wist_ssh_our_dreams="--tab-with-profile=ssh:dreams --title='<ssh:[dreams@sky.ocssolutions.com] #>' --command='ssh dreams@sky.ocssolutions.com'";
 		endif
 		
 		if(! ${?with_ssh_our_eee} ) then
 			set with_ssh_our_eee="";
 		else
 			set with_ssh_our_eee="--tab-with-profile=ssh:our-eee";
+			#set wist_ssh_our_eee="--tab-with-profile=ssh:our-eee --title='<ssh:[uberChick@192.168.0.6] #>' --command='ssh uberChick@192.168.0.6'";
 		endif
 		
 		if(! ${?with_home} ) then
@@ -341,7 +389,7 @@ next_canvas:
 			${with_ssh_our_eee}								\
 			${with_home}									\
 			${my_canvas}									\
-		${argv} &;
+		&;
 		unset my_canvas with_screen with_ssh_dreams with_ssh_our_eee with_home;
 	endif
 end

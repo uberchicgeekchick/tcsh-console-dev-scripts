@@ -5,6 +5,7 @@ init:
 	set label_current="init";
 	if( "${label_current}" != "${label_previous}" )	\
 		goto label_stack_set;
+	set strict;
 	set original_owd=${owd};
 	set starting_dir=${cwd};
 	set escaped_starting_cwd=${escaped_cwd};
@@ -279,9 +280,6 @@ scripts_main_quit:
 	if( ${?scripts_dirname} )				\
 		unset scripts_dirname;
 	
-	if( ${?debug} )						\
-		unset debug;
-	
 	if( ${?dependency} )					\
 		unset dependency;
 	if( ${?dependencies} )					\
@@ -339,6 +337,12 @@ scripts_main_quit:
 		alias cwdcmd "${oldcwdcmd}";
 		unset oldcwdcmd;
 	endif
+	
+	if( ${?debug} )						\
+		unset debug;
+	
+	if( ${?strict} )					\
+		unset strict;
 	
 	if(! ${?errno} ) then
 		set status=0;
@@ -520,7 +524,7 @@ parse_arg:
 		#if( "${value}" != "" && "${value}" != "$argv[$arg]" ) then
 		#	set equals="=";
 		#else if( "${option}" != "" ) then
-		if( "${option}" != "" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "$argv[$arg]" ) ) then
+		if( "${option}" != "$argv[$arg]" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "$argv[$arg]" ) ) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;
@@ -528,7 +532,7 @@ parse_arg:
 				set test_dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
 				set test_option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
 				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
-				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
+				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 				
 				if( ${?debug} || ${?diagnostic_mode} )	\
 					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_value}";
@@ -537,7 +541,7 @@ parse_arg:
 					@ arg--;
 				else
 					set equals="=";
-					set value="$argv[$arg]";
+					set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'";
 					set arg_shifted;
 				endif
 				unset test_dashes test_option test_equals test_value;
@@ -545,11 +549,16 @@ parse_arg:
 		endif
 		
 		if( "`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\""`";
+			set value="`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 		endif
 		
 		if( "`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_cwd}\2/"\""`";
+			set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_cwd}\2/"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+		endif
+		
+		if( "`printf "\""${value}"\"" | sed -r "\""s/^.*(\*)/\1/"\""`" == "*" ) then
+			set dir="`printf "\""${value}"\"" | sed -r "\""s/^(.*)\*${eol}/\1/"\""`";
+			set value="`/bin/ls --width=1 "\""${dir}"\""*`";
 		endif
 		
 		@ parsed_argc++;
@@ -665,6 +674,9 @@ parse_arg:
 				breaksw;
 			
 			default:
+				if(! ${?strict} )	\
+					continue;
+				
 				if(! ${?argz} ) then
 					@ errno=-505;
 					set callback="parse_arg";

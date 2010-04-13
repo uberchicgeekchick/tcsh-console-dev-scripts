@@ -12,7 +12,9 @@ if( ${?TCSH_RC_DEBUG} )	\
 
 
 clean_alacasts_path:
-	setenv PATH "`printf '${PATH}' | sed -r 's/\/projects\/(cli|gtk)\/alacast(\/[^\:]*\:)?//g'`";
+	setenv PATH "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/\/projects\/(cli|gtk)\/alacast(\/[^\:]*\:)?//g'`";
+	if( ${?alacasts_path} )	\
+		unset alacasts_path;
 #clean_alacasts_path:
 
 
@@ -23,8 +25,8 @@ set_gtk_path:
 		if( ${?TCSH_RC_DEBUG} )	\
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_gtk_path}";
 		set alacast_gtk_path="${ALACAST_GTK_PATH}/${alacast_gtk_path}";
-		set escaped_alacast_gtk_path="`printf '${alacast_gtk_path}' | sed -r 's/\//\\\//g'`";
-		if( "`printf '${PATH}' | sed -r 's/.*\:(${escaped_alacast_gtk_path}).*/\1/g'`" == "${alacast_gtk_path}" ) then
+		set escaped_alacast_gtk_path="`printf "\""%s"\"" "\""${alacast_gtk_path}"\"" | sed -r 's/\//\\\//g'`";
+		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/.*\:(${escaped_alacast_gtk_path}).*/\1/g'`" == "${alacast_gtk_path}" ) then
 			continue;
 		endif
 		
@@ -41,25 +43,6 @@ set_gtk_path:
 #set_gtk_path:
 
 
-setup_ini:
-	if( -e "${HOME}/.alacast/alacast.ini" ) then
-		set alacast_ini="${HOME}/.alacast/alacast.ini";
-	else if( -e "${HOME}/.alacast/profiles/${USER}/alacast.ini" ) then
-		set alacast_ini="${HOME}/.alacast/profiles/${USER}/alacast.ini";
-	else if( -e "${ALACAST_GTK_PATH}/data/profiles/${USER}/alacast.ini" ) then
-		set alacast_ini="${ALACAST_GTK_PATH}/data/profiles/${USER}/alacast.ini";
-	else if( -e "${ALACAST_GTK_PATH}/data/profiles/default/alacast.ini" ) then
-		set alacast_ini="${ALACAST_GTK_PATH}/data/profiles/default/alacast.ini";
-	endif
-	
-	if( ${?alacast_ini} ) then
-		if( -e "${alacast_ini}" )	\
-			setenv ALACAST_INI "${alacast_ini}";
-		unset alacast_ini;
-	endif
-#setup_ini:
-
-
 set_cli_path:
 	setenv ALACAST_CLI_PATH "/projects/cli/alacast";
 	set alacast_cli_paths=("bin" "scripts" "helpers/gpodder-0.11.3-hacked/bin" "helpers/gpodder-0.11.3-hacked/scripts");
@@ -67,8 +50,8 @@ set_cli_path:
 		if( ${?TCSH_RC_DEBUG} )	\
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_cli_path}";
 		set alacast_cli_path="${ALACAST_CLI_PATH}/${alacast_cli_path}";
-		set escaped_alacast_cli_path="`printf '${alacast_cli_path}' | sed -r 's/\//\\\//g'`";
-		if( "`printf '${PATH}' | sed -r 's/.*\:(${escaped_alacast_cli_path}).*/\1/g'`" == "${alacast_cli_path}" ) then
+		set escaped_alacast_cli_path="`printf "\""%s"\"" "\""${alacast_cli_path}"\"" | sed -r 's/\//\\\//g'`";
+		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/.*\:(${escaped_alacast_cli_path}).*/\1/g'`" == "${alacast_cli_path}" ) then
 			if( ${?TCSH_RC_DEBUG} )	\
 				printf "[skipped]\n\t\t\t<file://%s> is already in your PATH\n" "${alacast_cli_path}";
 			continue;
@@ -102,4 +85,27 @@ set_alacast_environment:
 	# --with-defaults prepends $ALACAST_OPTIONS
 	alias "alacast.php:update" "${ALACAST_CLI_PATH}/bin/alacast.php --with-defaults=update";
 #set_alacast_environment:
+
+
+setup_ini:
+	if( -e "${HOME}/.alacast/alacast.ini" ) then
+		set alacast_ini="${HOME}/.alacast/alacast.ini";
+	else if( -e "${HOME}/.alacast/profiles/${USER}/alacast.ini" ) then
+		set alacast_ini="${HOME}/.alacast/profiles/${USER}/alacast.ini";
+	else if( -e "${ALACAST_GTK_PATH}/data/profiles/${USER}/alacast.ini" ) then
+		set alacast_ini="${ALACAST_GTK_PATH}/data/profiles/${USER}/alacast.ini";
+	else if( -e "${ALACAST_GTK_PATH}/data/profiles/default/alacast.ini" ) then
+		set alacast_ini="${ALACAST_GTK_PATH}/data/profiles/default/alacast.ini";
+	else if( -e "${ALACAST_CLI_PATH}/data/profiles/${USER}/alacast.ini" ) then
+		set alacast_ini="${ALACAST_CLI_PATH}/data/profiles/${USER}/alacast.ini";
+	else if( -e "${ALACAST_CLI_PATH}/data/profiles/default/alacast.ini" ) then
+		set alacast_ini="${ALACAST_CLI_PATH}/data/profiles/default/alacast.ini";
+	endif
+	
+	if( ${?alacast_ini} ) then
+		if( -e "${alacast_ini}" )	\
+			setenv ALACAST_INI "${alacast_ini}";
+		unset alacast_ini;
+	endif
+#setup_ini:
 

@@ -29,6 +29,16 @@ while( "${1}" != "" )
 				set debug;
 			breaksw;
 		
+		case "clean-up":
+			if(! ${?clean_up} )	\
+				set clean_up;
+			breaksw;
+		
+		case "auto-copy":
+			if(! ${?auto_copy} )	\
+				set auto_copy;
+			breaksw;
+		
 		case "verbose":
 			if(! ${?be_verbose} )	\
 				set be_verbose;
@@ -149,6 +159,9 @@ if( ${?export_to} ) then
 endif
 
 clean_up:
+	if(! ${?clean_up} )	\
+		goto get_missing;
+	
 	if(! ${?maxdepth} ) then
 		set maxdepth=" --maxdepth=2";
 	endif
@@ -160,6 +173,9 @@ clean_up:
 #clean_up:
 
 get_missing:
+	if(!( ${?auto_copy} || ${?import} ))	\
+		goto exit_script;
+	
 	switch( "${playlist_type}" )
 		case "m3u":
 			m3u:copy-nfs.tcsh "${playlist}" --enable=auto-copy;
@@ -189,6 +205,9 @@ exit_script:
 	if( ${?be_verbose} )		\
 		unset be_verbose;
 	
+	if( ${?auto_copy} )		\
+		unset auto_copy;
+	
 	if( ${?import} )		\
 		unset import;
 	
@@ -200,6 +219,9 @@ exit_script:
 	
 	if( ${?target_directory} )	\
 		unset target_directory;
+	
+	if( ${?clean_up} )		\
+		unset clean_up;
 	
 	if( ${?maxdepth} )		\
 		unset maxdepth;
@@ -244,9 +266,15 @@ usage:
 						over-written with the converted copy of	\
 						the imported playlist.			\
 											\
+		--auto-copy			Copies any missing files in the playlist\
+						from its nfs share to the local disk.	\
+											\
 		--export|--export-to		This specifies a file to export the	\
 						the specified playlist to.  It will be	\
 						over-written by the converted playlist.	\
+											\
+		--clean-up			Removes any files on the local disk	\
+						which are not found inthe playlist	\
 											\
 		--target-directory		This is the directory to copy podcasts	\
 						to and to check for missing podcasts	\

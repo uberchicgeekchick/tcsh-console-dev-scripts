@@ -4,20 +4,24 @@ init:
 		set eol='$';
 		set eol_set;
 	endif
+	
 	set supports_being_source;
-	set scripts_name="find";
+	set scripts_basename="find";
+	
+	set escaped_starting_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
+	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 #init:
 
 
 check_dependencies:
-	set dependencies=("${scripts_name}");
+	set dependencies=("${scripts_basename}");
 	
 	foreach dependency(${dependencies})
 		foreach dependency("`where '${dependency}'`")
 			if(! -x "${dependency}" ) continue;
 			
 			switch("${dependency}")
-				case "${scripts_name}":
+				case "${scripts_basename}":
 				case "./${dependency}":
 				case "${TCSH_LAUNCHER_PATH}/${dependency}":
 					continue;
@@ -40,27 +44,27 @@ check_dependencies:
 
 
 if_sourced:
-	if( `printf '%s' "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` != "csh" )	\
+	if( ${?0} )	\
 		goto main;
 	
 	# for exception handeling when this file is 'sourced'.
 	
-	# BEGIN: disable source scripts_name.
+	# BEGIN: disable source scripts_basename.
 	if(! ${?supports_being_source} ) then
 		set status=-1;
-		printf "%s does not support being sourced.\n" "${scripts_name}";
+		printf "%s does not support being sourced.\n" "${scripts_basename}";
 		goto usage;
 	endif
-	# END: disable source scripts_name.
+	# END: disable source scripts_basename.
 	
-	# BEGIN: source scripts_name support.
+	# BEGIN: source scripts_basename support.
 	if(! ${?TCSH_RC_SESSION_PATH} )	\
 		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 	
 	if(! ${?TCSH_LAUNCHER_PATH} )	\
 		setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
 	
-	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_name}" ${argv};
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 	if( $args_handled > 0 ) then
 		@ args_shifted=0;
 		while( $args_shifted < $args_handled )
@@ -72,12 +76,12 @@ if_sourced:
 	unset args_handled;
 	
 	# START: special handler for when this file is sourced.
-	alias ${scripts_name} \$"{TCSH_LAUNCHER_PATH}/${scripts_name}";
+	alias ${scripts_basename} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.
 	
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_name}";
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	
-	# END: source scripts_name support.
+	# END: source scripts_basename support.
 	
 	goto script_main_quit;
 #if_sourced:
@@ -98,7 +102,10 @@ main:
 	set owd="${old_owd}";
 	unset old_owd;
 	
-	set script="${scripts_path}/${scripts_name}";
+	set script="${scripts_path}/${scripts_basename}";
+	
+	set follow_symlinks="L";
+	set regextype="posix-extended"
 	
 	alias	ex	"ex -E -n -X --noplugin";
 	
@@ -110,12 +117,12 @@ exec:
 	set status=0;
 	if(! ${?OUTPUT_STDERR} ) then
 		if( ${?debug} )	\
-			printf "( %s %s > /dev/tty ) >& /dev/null;" "${program}" "${argz}";
-		( ${program} $argz > /dev/tty ) >& /dev/null;
+			printf "( %s -%s %s -regextype %s %s > /dev/tty ) >& /dev/null;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}" "${argz}";
+		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} $argz > /dev/tty ) >& /dev/null;
 	else
 		if( ${?debug} )	\
-			printf "( %s %s > /dev/tty ) >& /dev/stderr;" "${program}" "${argz}";
-		( ${program} $argz > /dev/tty ) >& /dev/stderr;
+			printf "( %s -%s %s -regextype %s %s > /dev/tty ) >& /dev/stderr;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}" "${argz}";
+		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} ${argz} > /dev/tty ) >& /dev/stderr;
 	endif
 	goto script_main_quit;
 #exec:
@@ -123,7 +130,7 @@ exec:
 
 script_main_quit:
 	if( ${?supports_being_source} ) unset supports_being_source;
-	if( ${?scripts_name} ) unset scripts_name;
+	if( ${?scripts_basename} ) unset scripts_basename;
 	if( ${?scripts_path} ) unset scripts_path;
 	if( ${?script} ) unset script;
 	if( ${?escaped_cwd} ) unset escaped_cwd;
@@ -144,7 +151,7 @@ script_main_quit:
 
 
 missing_dependency:
-	printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_name}" "${dependencies}";
+	printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_basename}" "${dependencies}";
 	set status=-1;
 	goto script_main_quit;
 #missing_dependency:
@@ -163,7 +170,7 @@ usage:
 	endif
 	
 	if(! ${?usage_displayed} ) then
-		printf "Usage:\t%s [-h|--help]...\n\t[-h|--help]\tDisplays this screen.\n" "${scripts_name}";
+		printf "Usage:\t%s [-h|--help]...\n\t[-h|--help]\tDisplays this screen.\n" "${scripts_basename}";
 	endif
 	
 	if(! ${?usage_displayed} ) set usage_displayed;
@@ -176,62 +183,155 @@ usage:
 
 parse_argv:
 	@ argc=${#argv};
-	
-	if( ${argc} == 0 )	\
-		goto exec;
-	
 	@ arg=0;
 	while( $arg < $argc )
 		@ arg++;
-		if( "$argv[$arg]" != "--debug" ) continue;
-		printf "Enabling debug mode; via "\$"argv[%d].\n" $arg;
-		set argv[$my_arg]="";
-		set debug;
-		break;
+		switch("$argv[$arg]")
+			case "--diagnosis":
+			case "--diagnostic-mode":
+				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
+				set diagnostic_mode;
+				break;
+			
+			case "--debug":
+				printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${scripts_basename}" $arg;
+				set debug;
+				break;
+			
+			default:
+				continue;
+		endsw
 	end
-	if( ! ${?debug} || $arg > 1 )	\
-		@ arg=0;
 	
-	if( ${?debug} ) printf "Checking %s's argv options.  %d total.\n" "${scripts_name}" "${argc}";
+	if( ${?debug} || ${?diagnostic_mode} )	\
+		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${scripts_basename}" "${argc}";
+	
+	@ arg=0;
+	@ parsed_argc=0;
 #parse_argv:
 
 parse_arg:
 	set argz="";
 	while( $arg < $argc )
-		@ arg++;
+		if(! ${?arg_shifted} )	\
+			@ arg++;
 		
-		set equals="";
-		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
-		if( "${value}" == "$argv[$arg]" ) then
-			set value="";
-		else
-			set equals="=";
+		if( ${?debug} || ${?diagnostic_mode} )		\
+			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
+		
+		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/'`";
+		if( "${dashes}" == "$argv[$arg]" )	\
+			set dashes="";
+		
+		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/'`";
+		if( "${option}" == "$argv[$arg]" )	\
+			set option="";
+		
+		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/'`";
+		if( "${equals}" == "$argv[$arg]" )	\
+			set equals="";
+		
+		set quotes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\4/'`";
+		if( "${quotes}" == "$argv[$arg]" )	\
+			set quotes="";
+		
+		#set equals="";
+		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/'`";
+		#if( "${value}" != "" && "${value}" != "$argv[$arg]" ) then
+		#	set equals="=";
+		#else if( "${option}" != "" ) then
+		if( "${option}" != "$argv[$arg]" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "$argv[$arg]" ) ) then
+			@ arg++;
+			if( ${arg} > ${argc} ) then
+				@ arg--;
+			else
+				set test_dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/'`";
+				set test_option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/'`";
+				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/'`";
+				set test_quotes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\4/'`";
+				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/'`";# | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+				
+				if( ${?debug} || ${?diagnostic_mode} )	\
+					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_quotes: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_quotes}" \$ "${test_value}";
+				
+				if(!("${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]")) then
+					@ arg--;
+				else
+					set equals="=";
+					set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+					set arg_shifted;
+				endif
+				unset test_dashes test_option test_equals test_value;
+			endif
 		endif
 		
-		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
-		if( "${dashes}" == "$argv[$arg]" ) set dashes="";
+		#if( "`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
+		#	set value="`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+		#endif
 		
-		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
-		if( "${option}" == "$argv[$arg]" ) set option="";
+		#if( "`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
+		#	set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_dir}\2/"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+		#endif
 		
-		if( ${?debug} )		\
-			printf "Checking argv #%d (%s).\n\tParsed option: %s%s%s%s\n" "${arg}" "$argv[$arg]" "${dashes}" "${option}" "${equals}" "${value}";
+		#if( "`printf "\""${value}"\"" | sed -r "\""s/^(.*)(\*)${eol}/\2/"\""`" == "*" ) then
+		#	set dir="`printf "\""${value}"\"" | sed -r "\""s/^(.*)\*${eol}/\2/"\""`";
+		#	set value="`/bin/ls --width=1 "\""${dir}"\""*`";
+		#endif
+		
+		@ parsed_argc++;
+		set parsed_arg="${dashes}${option}${equals}${quotes}${value}${quotes}";
+		if(! ${?parsed_argv} ) then
+			set parsed_argv="${parsed_arg}";
+		else
+			set parsed_argv="${parsed_argv} ${parsed_arg}";
+		endif
+		
+		if( ${?debug} || ${?diagnostic_mode} )	\
+			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "${parsed_arg}";
 		
 		switch("${option}")
+			case "L":
+			case "H":
+			case "P":
+				set follow_symlinks="${option}";
+				breaksw;
+			
+			case "regextype":
+				switch("${value}")
+					case "emacs":
+					case "posix-awk":
+					case "posix-basic":
+					case "posix-egrep":
+					case "posix-extended":
+						set regextype="${value}"
+				endsw
+				breaksw;
+			
 			default:
+				if( -d "$argv[$arg]" || -e "$argv[$arg]" ) then
+					set find_target="$argv[$arg]";
+					breaksw;
+				endif
+				
 				if(! ${?argz} ) then
-					printf "%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${scripts_name}" >& /dev/stderr;
+					printf "%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${scripts_basename}" >& /dev/stderr;
 					breaksw;
 				endif
 				
 				if( "${argz}" == "" ) then
-					set argz="$argv[$arg]";
+					set argz="${parsed_arg}";
 				else
-					set argz="${argz} $argv[$arg]";
+					set argz="${argz} ${parsed_arg}";
 				endif
 				breaksw;
 		endsw
-		unset dashes option equals value;
+		
+		if( ${?arg_shifted} ) then
+			unset arg_shifted;
+			@ arg--;
+		endif
+		
+		unset dashes option equals value parsed_arg;
 	end
 	goto exec;
 #parse_arg:

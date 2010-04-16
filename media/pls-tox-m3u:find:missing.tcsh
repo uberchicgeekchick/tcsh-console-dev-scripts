@@ -142,9 +142,9 @@ find_missing_media:
 			if( "`ls "\""${podcast_dir_for_ls}"\""`" != "" )	\
 				break;
 			
-			rmdir -v "${podcast_dir}";
+			rm -rv "${podcast_dir}";
 			if( ${?create_script} ) then
-				printf "rmdir -v "\""${podcast_dir}"\"";\n" >> "${create_script}";
+				printf "rm -rv "\""${podcast_dir}"\"";\n" >> "${create_script}";
 			endif
 			
 			set podcast_cwd="`printf "\""${podcast_dir_for_ls}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g'`";
@@ -183,9 +183,9 @@ find_missing_media:
 				if( "`/bin/ls "\""${podcast_dir_for_ls}"\""`" != "" )	\
 					break;
 				
-				rmdir -v "${podcast_dir}";
+				rm -rv "${podcast_dir}";
 				if( ${?create_script} ) then
-					printf "rmdir -v "\""${podcast_dir}"\"";\n" >> "${create_script}";
+					printf "rm -rv "\""${podcast_dir}"\"";\n" >> "${create_script}";
 				endif
 				
 				set podcast_cwd="`printf "\""${podcast_dir_for_ls}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g'`";

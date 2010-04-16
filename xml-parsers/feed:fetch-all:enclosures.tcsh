@@ -29,7 +29,8 @@ init:
 	cd "`dirname '${0}'`";
 	set scripts_path="${cwd}";
 	cd "${owd}";
-	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	set escaped_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
+	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 	set owd="${old_owd}";
 	unset old_owd;
 	

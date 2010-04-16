@@ -113,8 +113,10 @@ while ( "${1}" != "" )
 			if( ! -e "${commit_log}" ) then
 				set commit_action="Committed";
 				printf "No previous commit messages could be found.  I new commit will be created.";
+				unset commit_log;
 			else
 				set commit_action="Commit Appended";
+				set append;
 			endif
 			breaksw;
 		case "follow-sysmlinks":
@@ -159,17 +161,20 @@ while ( "${1}" != "" )
 			# git:commit+push+sync logs are stored & saved;
 			# Mustly its until I decide how & if I want to;
 			# impliment a way of using git's append commits.;
-			if( ! ${?commit_log} ) then
+			if(! ${?commit_log} ) then
 				if( ! -d ${log_dir} ) then
 					set log_dir_is_new;
 					mkdir -p "${log_dir}";
 				endif
 				set commit_log="${log_dir}/`date '+%Y-%m-%d @ %T'`.message";
 				set commit_action="Committed";
+				touch "${commit_log}";
+			else if( ${?append} ) then
+				printf "\n\n%s on : %s\n" "${commit_action}" "`date '+%Y-%m-%d @ %r'`" >> "${commit_log}";
 			else
-				printf '\n\n' > "${commit_log}";
+				printf '\n\n' >> "${commit_log}";
 			endif
-			printf "${1}" >> "${commit_log}";
+			printf "\t%s" "${1}" >> "${commit_log}";
 			breaksw;
 		endsw
 		shift;
@@ -196,7 +201,9 @@ if(!(${?commit_log} && "${commit_log}" != "" && -e "${commit_log}")) then
 	goto usage;
 endif
 
-printf "\n\n%s on : %s\n" "${commit_action}" "`date '+%Y-%m-%d @ %r'`" >> "${commit_log}";
+if(! ${?append} )	\
+	printf "\n\n%s on : %s\n" "${commit_action}" "`date '+%Y-%m-%d @ %r'`" >> "${commit_log}";
+
 unset commit_action;
 
 follow_symlinks:
@@ -241,7 +248,7 @@ git_commit:
 	git add .;
 
 	if( ${?symlink_log} ) then
-		if( -e "${symlink_log}" ) git  rm --cached --quiet "${symlink_log}";
+		if( -e "${symlink_log}" ) git rm --cached --quiet "${symlink_log}";
 	endif
 	
 	# Keep extremely large files from being committed;
@@ -282,10 +289,17 @@ git_commit:
 	git rm -r --cached --quiet "${log_dir}";
 	
 	if(! ${?branch} ) then
-		set branch="`head -1 '${commit_log}'`";
-		if(!( "${branch}" != "" && -e ".git/refs/heads/${branch}" && `/bin/ls ".git/refs/heads/${branch}"` != "" ))	\
-			unset branch;
-		
+		set branch="`head -1 "\""${commit_log}"\""`";
+		foreach branch_test("`git branch | sed -r 's/^[\ \t]*(.*)${eol}/\1/'`")
+			if( "${branch}" == "${branch_test}" )	\
+				break;
+			unset branch_test;
+		end
+		if(! ${?branch_test} ) then
+			if( ${?append} ) then
+				set branch="`git branch | tail -2 | head -1 | sed -r 's/^[\ \t]*(.*)${eol}/\1/'`";
+			endif
+		endif
 	else if( ${?branch} ) then
 		if( "`head -1 '${commit_log}'`" != "${branch}" ) then
 			printf "${branch}\n\n" > "${commit_log}.swp";

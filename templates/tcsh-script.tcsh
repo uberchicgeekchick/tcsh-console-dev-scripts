@@ -39,7 +39,7 @@ init:
 	#set supports_being_source;
 	#set argz="";
 	
-	alias	ex	"ex -E -n -X --noplugin";
+	alias	ex	"ex -E -X -n --noplugin -s";
 	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
@@ -221,8 +221,6 @@ main:
 	set label_current="main";
 	if( "${label_current}" != "${label_previous}" )	\
 		goto label_stack_set;
-	
-	alias	ex	"ex -E -n -X --noplugin";
 #main:
 
 
@@ -231,10 +229,32 @@ exec:
 	if( "${label_current}" != "${label_previous}" )	\
 		goto label_stack_set;
 	
+	if( ${?filename_list} ) then
+		set callback="process_filename_list";
+		goto callback_handler;
+	endif
+	
 	if( ${?debug} )	\
 		printf "Executing %s's main.\n" "${scripts_basename}";
 	goto scripts_main_quit;
 #exec:
+
+process_filename_list:
+	foreach filename("`cat '${filename_list}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`")
+		ex '+1d' '+wq!' "${filename_list}";
+		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)${eol}/\2/g'`";
+		set original_extension="${extension}";
+		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)${eol}/\1/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g'| sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g'  | sed -r 's/(\[)/\\\1/g'`";
+		set filename="`printf "\""${filename}"\"" | sed -r 's/\\([*])/\1/g' | sed -r 's/\\\[/\[/g'`";
+		if(! -e "${filename}${extension}" )	\
+			continue;
+		
+		/bin/ls "${filename}${extension}";
+		
+		set callback="exec";
+		goto callback_handler;
+	end
+#process_filename_list:
 
 
 scripts_main_quit:
@@ -339,6 +359,12 @@ scripts_main_quit:
 		unset oldcwdcmd;
 	endif
 	
+	if( ${?filename} )	\
+		unset filename;
+	if( ${?extension} )	\
+		unset extension;
+	if( ${?original_extension} )	\
+		unset original_extension;
 	if( ${?filename_list} ) then
 		if( -e "${filename_list}" )	\
 			rm "${filename_list}";
@@ -450,20 +476,6 @@ exception_handler:
 	goto scripts_main_quit;
 #exception_handler:
 
-process_filename_list:
-	foreach filename("`cat '${filename_list}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`")
-		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)${eol}/\2/g'`";
-		set original_extension="${extension}";
-		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)${eol}/\1/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g'| sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g'  | sed -r 's/(\[)/\\\1/g'`";
-		set filename="`printf "\""${filename}"\"" | sed -r 's/\\([*])/\1/g' | sed -r 's/\\\[/\[/g'`";
-		ex '+1d' '+wq!' "${filename_list}";
-		if(! -e "${filename}${extension}" )	\
-			continue;
-		
-		/bin/ls "${filename}${extension}";
-	end
-#process_filename_list:
-
 parse_argv:
 	set label_current="parse_argv";
 	if( "${label_current}" != "${label_previous}" )	\
@@ -512,6 +524,7 @@ parse_argv:
 	
 	@ arg=0;
 	@ parsed_argc=0;
+	unset strict;
 #parse_argv:
 
 parse_arg:
@@ -528,33 +541,33 @@ parse_arg:
 		
 		if( -e "$argv[$arg]" ) then
 			if(! ${?filename_list} ) then
-				set filename_list="./.${scripts_name}.filenames@`date '+%s'`";
+				set filename_list="./.${scripts_basename}.filenames@`date '+%s'`";
 				touch "${filename_list}";
 			endif
 			if( ${?debug} )	\
-				printf "Adding %s to %s.\n" "$argv[$arg]" "${filename_list}";
+				printf "Handling %sargv[%d] adding file:\n\t<%s>\n\t\tto\n\t<%s>.\n" \$ $arg "$argv[$arg]" "${filename_list}";
 			printf "%s\n" "$argv[$arg]" >> "${filename_list}";
 			continue;
 		endif
 		
-		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/'`";
+		set dashes="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 		if( "${dashes}" == "$argv[$arg]" )	\
 			set dashes="";
 		
-		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/'`";
+		set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 		if( "${option}" == "$argv[$arg]" )	\
 			set option="";
 		
-		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/'`";
-		if( "${equals}" == "$argv[$arg]" )	\
+		set equals="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+		if( "${equals}" == "" )	\
 			set equals="";
 		
-		set quotes="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/'`";
-		if( "${quotes}" == "$argv[$arg]" )	\
+		set quotes="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\4/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+		if( "${quotes}" == "" )	\
 			set quotes="";
 		
 		#set equals="";
-		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/'`";
+		set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 		#if( "${value}" != "" && "${value}" != "$argv[$arg]" ) then
 		#	set equals="=";
 		#else if( "${option}" != "" ) then
@@ -565,11 +578,11 @@ parse_arg:
 			else if( -e "$argv[$arg]" ) then
 				@ arg--;
 			else
-				set test_dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'  | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/'`";
-				set test_option="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'  | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/'`";
-				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'  | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/'`";
-				set test_quotes="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'  | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\4/'`";
-				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'  | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/'`";
+				set test_dashes="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/'`";
+				set test_option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+				set test_equals="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+				set test_quotes="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\4/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+				set test_value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 				
 				if( ${?debug} || ${?diagnostic_mode} )	\
 					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_quotes: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_quotes}" \$ "${test_value}";
@@ -712,7 +725,7 @@ parse_arg:
 			
 			default:
 				if(! ${?strict} )	\
-					continue;
+					breaksw;
 				
 				if(! ${?argz} ) then
 					@ errno=-505;

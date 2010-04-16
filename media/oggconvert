@@ -24,7 +24,7 @@ check_source:
 		printf "Setting up aliases for: oggconvert and oggcombine.\n";
 		alias	oggconvert	"${TCSH_RC_SESSION_PATH}/../media/offconvert";
 		alias	oggcombine	"${TCSH_RC_SESSION_PATH}/../media/offconvert --combine";
-
+		
 		source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "art:grep-and-find.cshrc.tcsh";
 		exit ${status};
 	endif

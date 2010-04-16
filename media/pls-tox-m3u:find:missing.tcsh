@@ -31,8 +31,6 @@ init:
 	set message="";
 	set extensions="";
 	
-	alias	ex	"ex -E -n -X --noplugin";
-	
 	goto parse_argv;
 #init:
 

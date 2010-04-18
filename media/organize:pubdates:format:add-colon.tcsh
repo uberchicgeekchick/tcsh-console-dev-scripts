@@ -20,9 +20,9 @@ foreach title("`/usr/bin/find -L "\""${cwd}"\"" -regextype posix-extended -irege
 	set file_path="`printf "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on)\ ([^\.]+)\.([^\.]+)/\1/g'`";
 	set file_name="`printf "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on)\ ([^\.]+)\.([^\.]+)/\2/g'`";
 	set rel_string="`printf "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on)\ ([^\.]+)\.([^\.]+)/\3/g'`";
-	set rel_date="`printf "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on)\ ([^\.]+)\.([^\.]+)/\4/g'`";
+	set pubDate="`printf "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on)\ ([^\.]+)\.([^\.]+)/\4/g'`";
 	set extension="`printf "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on)\ ([^\.]+)\.([^\.]+)/\5/g'`";
-	mv -v "${title}" "${file_path}/${file_name}${rel_string}: ${rel_date}.${extension}";
+	mv -v "${title}" "${file_path}/${file_name}${rel_string}: ${pubDate}.${extension}";
 end
 
 if( ${?old_owd} ) then

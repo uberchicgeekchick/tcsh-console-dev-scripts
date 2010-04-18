@@ -121,10 +121,10 @@ convert_filenames:
 		unset length;
 	if( ${?save_to_filename} )	\
 		unset save_to_filename;
-	foreach filename ( "`cat '${filename_list}' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`" )
+	foreach filename ( "`cat '${filename_list}' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`" )
 		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)${eol}/\2/g'`";
 		set original_extension="${extension}";
-		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)${eol}/\1/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g'| sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g'  | sed -r 's/(\[)/\\\1/g'`";
+		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)${eol}/\1/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 		set filename="`printf "\""${filename}"\"" | sed -r 's/\\([*])/\1/g' | sed -r 's/\\\[/\[/g'`";
 		ex '+1d' '+wq!' "${filename_list}";
 		if(! -e "${filename}${extension}" ) then
@@ -145,7 +145,7 @@ convert_filenames:
 					goto oggconvert;
 				
 				if( ${?re_encode} )	\
-					goto confirm_rencode;
+					goto confirm_over_write;
 			endif
 		endif
 		if( "${extension}" != ".ogg" ) then
@@ -167,7 +167,7 @@ convert_filenames:
 	goto exit_script;
 #convert_filenames
 
-confirm_rencode:
+confirm_over_write:
 	if( -e "${filename}.ogg" ) then
 		printf "\n%s.ogg already exists.\nWould you like to remove it and re-encode a new ogg vorbis file?\n" "${filename}";
 		"`rm -iv "\""${filename}.ogg"\"""`";
@@ -177,7 +177,7 @@ confirm_rencode:
 		set status=-4;
 		goto convert_filenames;
 	endif
-#confirm_rencode:
+#confirm_over_write:
 
 
 oggconvert:
@@ -209,19 +209,19 @@ oggconvert:
 		
 		if( ${?debug} ) then
 			printf "\n\nRunning:\n\t";
-			printf "${ffmpeg} -y${ffmpeg_input_file_options} -i "\""${filename}${extension}"\"" ${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" >& ${output}";
+			printf "${ffmpeg} -y${ffmpeg_input_file_options} -i "\""${filename}${extension}"\""${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" >& ${output}";
 			printf "\n\n";
 		endif
 		
 		printf "\t\t\tCreating temporary WAV file.  This may take several moments...";
 		if( "${filename}" != "${save_to_filename}" ) then
-			printf "#\!/bin/tcsh -f\nset echo;\n${ffmpeg} -y${ffmpeg_input_file_options} ${filename}${extension} ${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" -newaudio\n" >! "./ffmpeg-combined.tcsh";
+			printf "#\!/bin/tcsh -f\nset echo;\n${ffmpeg} -y${ffmpeg_input_file_options} ${filename}${extension}${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" -newaudio\n" >! "./ffmpeg-combined.tcsh";
 			chmod u+x "./ffmpeg-combined.tcsh";
 			"./ffmpeg-combined.tcsh";
-			#rm -v "./ffmpeg-combined.tcsh";
-			${ffmpeg} -y${ffmpeg_input_file_options} ${filename}${extension} ${ffmpeg_output_file_options} "${save_to_filename}.wav" >& ${output};
+			#rm "./ffmpeg-combined.tcsh";
+			${ffmpeg} -y${ffmpeg_input_file_options} ${filename}${extension}${ffmpeg_output_file_options} "${save_to_filename}.wav" >& ${output};
 		else
-			${ffmpeg} -y${ffmpeg_input_file_options} -i "${filename}${extension}" ${ffmpeg_output_file_options} "${save_to_filename}.wav" >& ${output};
+			${ffmpeg} -y${ffmpeg_input_file_options} -i "${filename}${extension}"${ffmpeg_output_file_options} "${save_to_filename}.wav" >& ${output};
 		endif
 		
 		unset ffmpeg_input_file_options ffmpeg_output_file_options;
@@ -234,7 +234,7 @@ oggconvert:
 				goto exit_script;
 			goto convert_filenames;
 		endif
-		printf "\t[success]\n";
+		printf "\t\t[success]\n";
 	endif
 	
 	printf "\t\t\tEncoding OGG Vorbis file.  Please wait several moments...";
@@ -251,7 +251,7 @@ oggconvert:
 		goto convert_filenames;
 	endif
 	
-	printf "\t[success]\n";
+	printf "\t\t[success]\n";
 	rm "${save_to_filename}.wav";
 	if( "${filename}" != "${save_to_filename}" )	\
 		goto exit_script;
@@ -260,7 +260,7 @@ oggconvert:
 		if( ${?debug} ) then
 			${ogginfo} "${save_to_filename}.ogg";
 		endif
-		printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t[complete]\n\n";
+		printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[complete]\n\n";
 		if( ${?transcode} && "${original_extension}" != ".ogg") then
 			rm ${transcode} "${filename}${original_extension}";
 		endif
@@ -288,7 +288,7 @@ find_length:
 	set rtrim_hours="`printf '%s' '${rtrim}' | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
 	set rtrim_minutes="`printf '%s' '${rtrim}' | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
 	set rtrim_seconds="`printf '%s' '${rtrim}' | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
-	set oggs_length="`${ogginfo} '${filename}.ogg'  | /bin/grep --perl-regexp 'Playback length:'`";
+	set oggs_length="`${ogginfo} '${filename}.ogg' | /bin/grep --perl-regexp 'Playback length:'`";
 	set oggs_hours="`printf '%s' '${oggs_length}' | sed -r 's/^[^0-9]*([0-9]+)(h:)([0-9]+)(m:)([0-9]+)\..*${eol}/\1/'`";
 	if( "${oggs_hours}" == "${oggs_length}" )	\
 		set oggs_hours="00";
@@ -444,7 +444,10 @@ continue_combine:
 
 exit_script:
 	if( ${?filename_list} ) then
-		rm -v "${filename_list}" "${filename_list}.all";
+		if( -e "${filename_list}")	\
+			rm "${filename_list}";
+		if( -e "${filename_list}.all")	\
+			rm "${filename_list}.all";
 	endif
 	if( ${?use_old_owd} ) then
 		cd "${owd}";
@@ -502,20 +505,20 @@ parse_argv:
 			continue;
 		endif
 		
-		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
+		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
 		if( "${dashes}" == "$argv[$arg]" )	\
 			set dashes="";
 		
-		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
+		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
 		if( "${option}" == "$argv[$arg]" )	\
 			set option="";
 		
-		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
+		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
 		if( "${equals}" == "$argv[$arg]" )	\
 			set equals="";
 		
 		#set equals="";
-		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
+		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
 		#if( "${value}" != "" && "${value}" != "$argv[$arg]" ) then
 		#	set equals="=";
 		#else if( "${option}" != "" ) then
@@ -526,10 +529,10 @@ parse_argv:
 			else if( -e "$argv[$arg]" ) then
 				@ arg--;
 			else
-				set test_dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
-				set test_option="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
-				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
-				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
+				set test_dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
+				set test_option="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
+				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
+				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
 				
 				if( ${?debug} || ${?diagnostic_mode} )	\
 					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_value}";
@@ -581,6 +584,11 @@ parse_argv:
 				endif
 			
 				set ltrim="${value}";
+				breaksw;
+			
+			case "no-transcode":
+				if( ${?transcode} )	\
+					unset transcode;
 				breaksw;
 			
 			case "transcode":
@@ -647,9 +655,15 @@ parse_argv:
 							set debug;
 						breaksw;
 					
+					case "reencode":
 					case "re-encode":
 						if(! ${?re_encode} )	\
 							set re_encode;
+						breaksw;
+					
+					case "force":
+						if(! ${?force} )	\
+							set force;
 						breaksw;
 					
 					case "transcode":
@@ -676,9 +690,15 @@ parse_argv:
 							unset debug;
 						breaksw;
 					
+					case "reencode":
 					case "re-encode":
 						if( ${?re_encode} )	\
 							unset re_encode;
+						breaksw;
+					
+					case "force":
+						if(! ${?force} )	\
+							set force;
 						breaksw;
 					
 					case "transcode":

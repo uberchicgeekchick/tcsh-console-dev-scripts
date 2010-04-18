@@ -36,7 +36,7 @@ init:
 	
 	set script="${scripts_path}/${scripts_basename}";
 	
-	alias	ex	"ex -E -n -X --noplugin";
+	alias	"ex"	"ex -E -n -X --noplugin";
 	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
@@ -93,21 +93,23 @@ main:
 	endif
 	
 	set please_wait_phrase="...please be patient, I may need several moments.\t\t";
+	
+	set download_log="/dev/null";
+	if( ${?logging} ) then
+		set download_log="./00-"`basename "${0}"`".log";
+		touch "${download_log}" > /dev/null;
+	endif
+	
+	if( "`alias cwdcmd`" != "" ) then
+		set old_cwdcmd="`alias cwdcmd`";
+		unalias cwdcmd;
+	endif
 #main:
 
 
 fetch_podcasts:
-	set download_log="/dev/null";
-	if( ${?logging} ) then
-		set download_log="./00-"`basename "${0}"`".log";
-		touch "${download_log}";
-	endif
-	
-	if( "`alias cwdcmd`" != "" )	\
-		unalias cwdcmd;
-	
 	foreach feed ("`cat '${alacasts_download_log}'`")
-		ex -s '+1d' '+wq!' "${alacasts_download_log}";
+		ex -c '1d' -c 'wq!' "${alacasts_download_log}" > /dev/null;
 		if(! ${?silent} ) printf "Downloading podcast's feed.\n\t<%s>\n" "${feed}";
 		if( ${?logging} ) printf "Downloading podcast's feed.\n\t<%s>\n" "${feed}" >> "${download_log}";
 		goto fetch_podcast;
@@ -119,43 +121,48 @@ fetch_podcast:
 	if( ! ${?list_episodes} && ! ${?downloading} && ! ${?save_script} )	\
 		set downloading;
 	
-	${download_command_with_options} './00-feed.xml' "${feed}";
-	ex '+1,$s/^<!\-\-.*\-\->[\r\n]/' '+wq!' './00-feed.xml' > /dev/null;
+	${download_command_with_options} './00-feed.xml' "${feed}" > /dev/null;
+	ex -c '1,$s/^<!\-\-.*\-\->[\r\n]/' -c 'wq!' './00-feed.xml' > /dev/null;
 	
-	if(! ${?silent} ) printf "Finding feed's title.\n";
-	set title="`/usr/bin/grep '<title.*>' './00-feed.xml' | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g' | sed  's/[\ \t]*\&[^;]\+\;[\ \t]*/\ /ig'`";
+	if(! ${?silent} )	\
+		printf "Finding feed's title.\n";
+	set title="`/bin/grep '<title.*>' './00-feed.xml' | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g' | sed  's/[\ \t]*\&[^;]\+\;[\ \t]*/\ /ig'`";
 	
 	if( "`printf "\""${title}"\"" | sed -r 's/(The)(.*)/\1/g'`" == "The" ) \
 		set title="`printf "\""${title}"\"" | sed -r 's/(The)\ (.*)/\2,\ \1/g' | sed 's/&[^;]\+;/ /'`";
 	
-	if(! -d "${title}" ) mkdir -p "${title}";
+	if(! -d "${title}" )	\
+		mkdir -p "${title}" > /dev/null;
 	set old_owd="${owd}";
-	cd "${title}";
+	if( "`alias cwdcmd`" != "" )	\
+		unalias cwdcmd;
+	cd "${title}" > /dev/null;
 	
 	if(! ${?silent} ) printf "Preparing to download: %s\n" "${title}";
 	if( ${?logging} ) printf "Preparing to download: %s\n" "${title}" >> "${download_log}";
 	if(! ${?silent} ) printf "\tURI:\t[%s]\n" "${feed}";
 	if( ${?logging} ) printf "\tURI:\t[%s]\n" "${feed}" >> "${download_log}";
 	
-	if( -e './00-feed.xml' && -e './00-titles.lst' && -e './00-enclosures.lst' && -e './00-pubDates.lst' ) goto continue_download;
+	if( -e './00-feed.xml' && -e './00-titles.lst' && -e './00-enclosures.lst' && -e './00-pubDates.lst' )	\
+		goto continue_download;
 	
 	# This to make sure we're working with UNIX file types & don't have to repeat newline replacement.
 	cp '../00-feed.xml' "./00-feed.xml";
-	rm -f '../00-feed.xml'
+	rm -f "../00-feed.xml";
 	
 	# Grabs the titles of the podcast and all episodes.
 	if(! ${?silent} ) printf "Finding title${please_wait_phrase}\t";
 	if( ${?logging} ) printf "Finding titles${please_wait_phrase}\t" >> "${download_log}";
 	
 	# Puts each item, or entry, on its own line:
-	ex '+1,$s/[\r\n]\+[\ \t]*//' '+wq!' './00-feed.xml' >& /dev/null;
-	ex '+1,$s/[\r\n]\+[\ \t]*//' '+1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' '+$d' '+wq!' './00-feed.xml' >& /dev/null;
+	ex -c '1,$s/[\r\n]\+[\ \t]*//' -c 'wq!' './00-feed.xml' >& /dev/null;
+	ex -c '1,$s/[\r\n]\+[\ \t]*//' -c '1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' -c '$d' -c 'wq!' './00-feed.xml' >& /dev/null;
 	
 	cp './00-feed.xml' './00-titles.lst';
 	
-	ex '+1,$s/.*<\(item\|entry\)[^>]*>.*<title[^>]*>\(.*\)<\/title>.*\(enclosure\).*<\/\(item\|entry\)>$/\2/ig' '+1,$s/.*<\(item\|entry\)[^>]*>.*\(enclosure\).*<title[^>]*>\(.*\)<\/title>.*<\/\(item\|entry\)>$/\3/ig' '+1,$s/.*<\(item\|entry\)[^>]*>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/.*<\(item\|entry\)[^>]*>.*<title[^>]*>\(.*\)<\/title>.*\(enclosure\).*<\/\(item\|entry\)>$/\2/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*\(enclosure\).*<title[^>]*>\(.*\)<\/title>.*<\/\(item\|entry\)>$/\3/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
-	ex '+1,$s/&\(#038\|amp\)\;/\&/ig' '+1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' '+1,$s/&[^;]\+\;[\ \t]*/\ /ig' '+1,$s/<\!\[CDATA\[\(.*\)\]\]>/\1/g' '+1,$s/#//g' '+1,$s/\//\ \-\ /g' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/&\(#038\|amp\)\;/\&/ig' -c '1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' -c '1,$s/&[^;]\+\;[\ \t]*/\ /ig' -c '1,$s/<\!\[CDATA\[\(.*\)\]\]>/\1/g' -c '1,$s/#//g' -c '1,$s/\//\ \-\ /g' -c 'wq!' './00-titles.lst' >& /dev/null;
 	if(! ${?silent} )printf "[done]\n";
 	if( ${?logging} ) printf "[done]\n" >> "${download_log}";
 	
@@ -163,30 +170,30 @@ fetch_podcast:
 	# This fixes episode & chapter titles so that they will sort correctly
 	if(! ${?silent} ) printf "Formating titles${please_wait_phrase}";
 	if( ${?logging} ) printf "Formating titles${please_wait_phrase}" >> "${download_log}";
-	ex '+1,$s/^\(Zero\)/0/gi' '+1,$s/^\(One\)/1/gi' '+1,$s/^\(Two\)/2/gi' '+1,$s/^\(Three\)/3/gi' '+1,$s/^\(Four\)/4/gi' '+1,$s/^\(Five\)/5/gi' '+wq!' './00-titles.lst' >& /dev/null;
-	ex '+1,$s/^\(Six\)/6/gi' '+1,$s/^\(Seven\)/7/gi' '+1,$s/^\(Eight\)/8/gi' '+1,$s/^\(Nine\)/9/gi' '+1,$s/^\(Ten\)/10/gi' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/^\(Zero\)/0/gi' -c '1,$s/^\(One\)/1/gi' -c '1,$s/^\(Two\)/2/gi' -c '1,$s/^\(Three\)/3/gi' -c '1,$s/^\(Four\)/4/gi' -c '1,$s/^\(Five\)/5/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/^\(Six\)/6/gi' -c '1,$s/^\(Seven\)/7/gi' -c '1,$s/^\(Eight\)/8/gi' -c '1,$s/^\(Nine\)/9/gi' -c '1,$s/^\(Ten\)/10/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
-	ex '+1,$s/^\([0-9]\)ty/\10/gi' '+1,$s/^\(Fifty\)/50/gi' '+1,$s/^\(Thirty\)/30/gi' '+1,$s/^\(Twenty\)/20/gi' '+wq!' './00-titles.lst' >& /dev/null;
-	ex '+1,$s/^\([0-9]\)teen/1\1/gi' '+1,$s/^\(Fifteen\)/15/gi' '+1,$s/^\(Thirteen\)/13/gi' '+1,$s/^\(Twelve\)/12/gi' '+1,$s/^\(Eleven\)/11/gi' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/^\([0-9]\)ty/\10/gi' -c '1,$s/^\(Fifty\)/50/gi' -c '1,$s/^\(Thirty\)/30/gi' -c '1,$s/^\(Twenty\)/20/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/^\([0-9]\)teen/1\1/gi' -c '1,$s/^\(Fifteen\)/15/gi' -c '1,$s/^\(Thirteen\)/13/gi' -c '1,$s/^\(Twelve\)/12/gi' -c '1,$s/^\(Eleven\)/11/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
-	ex '+1,$s/\([^a-zA-Z]\)\(Zero\)/\10/gi' '+1,$s/\([^a-zA-Z]\)\(One\)/\11/gi' '+1,$s/\([^a-zA-Z]\)\(Two\)/\12/gi' '+1,$s/\([^a-zA-Z]\)\(Three\)/\13/gi' '+1,$s/\([^a-zA-Z]\)\(Four\)/\14/gi' '+1,$s/\([^a-zA-Z]\)\(Five\)/\15/gi' '+wq!' './00-titles.lst' >& /dev/null;
-	ex '+1,$s/\([^a-zA-Z]\)\(Six\)/\16/gi' '+1,$s/\([^a-zA-Z]\)\(Seven\)/\17/gi' '+1,$s/\([^a-zA-Z]\)\(Eight\)/\18/gi' '+1,$s/\([^a-zA-Z]\)\(Nine\)/\19/gi' '+1,$s/\([^a-zA-Z]\)\(Ten\)/\110/gi' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\([^a-zA-Z]\)\(Zero\)/\10/gi' -c '1,$s/\([^a-zA-Z]\)\(One\)/\11/gi' -c '1,$s/\([^a-zA-Z]\)\(Two\)/\12/gi' -c '1,$s/\([^a-zA-Z]\)\(Three\)/\13/gi' -c '1,$s/\([^a-zA-Z]\)\(Four\)/\14/gi' -c '1,$s/\([^a-zA-Z]\)\(Five\)/\15/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\([^a-zA-Z]\)\(Six\)/\16/gi' -c '1,$s/\([^a-zA-Z]\)\(Seven\)/\17/gi' -c '1,$s/\([^a-zA-Z]\)\(Eight\)/\18/gi' -c '1,$s/\([^a-zA-Z]\)\(Nine\)/\19/gi' -c '1,$s/\([^a-zA-Z]\)\(Ten\)/\110/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
-	ex '+1,$s/\([^a-zA-Z]\)\([0-9]\)ty\([^a-zA-Z]\)/\1\20\3/gi' '+1,$s/\([^a-zA-Z]\)\(Fifty\)\([^a-zA-Z]\)/\150\3/gi' '+1,$s/\([^a-zA-Z]\)\(Thirty\)\([^a-zA-Z]\)/\130\3/gi' '+1,$s/\([^a-zA-Z]\)\(Twenty\)\([^a-zA-Z]\)/\120\3/gi' '+wq!' './00-titles.lst' >& /dev/null;
-	ex '+1,$s/\([^a-zA-Z]\)\([0-9]\)teen\([^a-zA-Z]\)/\11\2\3/gi' '+1,$s/\([^a-zA-Z]\)\(Fifteen\)\([^a-zA-Z]\)/\115\3/gi' '+1,$s/\([^a-zA-Z]\)\(Thirteen\)\([^a-zA-Z]\)/\113\3/gi' '+1,$s/\([^a-zA-Z]\)\(Twelve\)\([^a-zA-Z]\)/\112\3/gi' '+1,$s/\([^a-zA-Z]\)\(Eleven\)\([^a-zA-Z]\)/\111\3/gi' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\([^a-zA-Z]\)\([0-9]\)ty\([^a-zA-Z]\)/\1\20\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifty\)\([^a-zA-Z]\)/\150\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirty\)\([^a-zA-Z]\)/\130\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Twenty\)\([^a-zA-Z]\)/\120\3/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\([^a-zA-Z]\)\([0-9]\)teen\([^a-zA-Z]\)/\11\2\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifteen\)\([^a-zA-Z]\)/\115\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirteen\)\([^a-zA-Z]\)/\113\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Twelve\)\([^a-zA-Z]\)/\112\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Eleven\)\([^a-zA-Z]\)/\111\3/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
-	ex '+1,$s/\([^a-zA-Z]\)\([0-9]\)ty/\1\20/gi' '+1,$s/\([^a-zA-Z]\)\(Fifty\)/\150/gi' '+1,$s/\([^a-zA-Z]\)\(Thirty\)/\130/gi' '+1,$s/\([^a-zA-Z]\)\(Twenty\)/\120/gi' '+wq!' './00-titles.lst' >& /dev/null;
-	ex '+1,$s/\([^a-zA-Z]\)\([0-9]\)teen/\11\2/gi' '+1,$s/\([^a-zA-Z]\)\(Fifteen\)/\115/gi' '+1,$s/\([^a-zA-Z]\)\(Thirteen\)/\113/gi' '+1,$s/\([^a-zA-Z]\)\(Twelve\)/\112/gi' '+1,$s/\([^a-zA-Z]\)\(Eleven\)/\111/gi' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\([^a-zA-Z]\)\([0-9]\)ty/\1\20/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifty\)/\150/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirty\)/\130/gi' -c '1,$s/\([^a-zA-Z]\)\(Twenty\)/\120/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\([^a-zA-Z]\)\([0-9]\)teen/\11\2/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifteen\)/\115/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirteen\)/\113/gi' -c '1,$s/\([^a-zA-Z]\)\(Twelve\)/\112/gi' -c '1,$s/\([^a-zA-Z]\)\(Eleven\)/\111/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
-	ex '+1,$s/^\v([0-9])([^0-9])/0\1\2/' '+1,$s/\v([^0-9])([0-9])([^0-9])/\10\2\3/g' '+1,$s/\v([^0-9])([0-9])$/\10\2/' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/^\v([0-9])([^0-9])/0\1\2/' -c '1,$s/\v([^0-9])([0-9])([^0-9])/\10\2\3/g' -c '1,$s/\v([^0-9])([0-9])$/\10\2/' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
 	#start: fixing/renaming roman numerals
-	ex '+1,$s/\ I\ /\ 1\ /g' '+1,$s/\ II\ /\ 2\ /g' '+1,$s/\ III\ /\ 3\ /g' '+1,$s/\ IV\ /\ 4\ /g' '+1,$s/\ V\ /\ 5\ /g' '+wq!' './00-titles.lst' >& /dev/null;
-	ex '+1,$s/\ VI\ /\ 6\ /g' '+1,$s/\ VII\ /\ 7\ /g' '+1,$s/\ VIII\ /\ 8\ /g' '+1,$s/\ IX\ /\ 9\ /g' '+1,$s/\ X\ /\ 10\ /g' '+wq!' './00-titles.lst' >& /dev/null;
-	ex '+1,$s/\ XI\ /\ 11\ /g' '+1,$s/\ XII\ /\ 12\ /g' '+1,$s/\ XIII\ /\ 13\ /g' '+1,$s/\ XIV\ /\ 14\ /g' '+1,$s/\ XV\ /\ 15\ /g' '+wq!' './00-titles.lst' >& /dev/null;
-	ex '+1,$s/\ XVI\ /\ 16\ /g' '+1,$s/\ XVII\ /\ 17\ /g' '+1,$s/\ XVIII\ /\ 18\ /g' '+1,$s/\ XIX\ /\ 19\ /g' '+1,$s/\ XX\ /\ 20\ /g' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\ I\ /\ 1\ /g' -c '1,$s/\ II\ /\ 2\ /g' -c '1,$s/\ III\ /\ 3\ /g' -c '1,$s/\ IV\ /\ 4\ /g' -c '1,$s/\ V\ /\ 5\ /g' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\ VI\ /\ 6\ /g' -c '1,$s/\ VII\ /\ 7\ /g' -c '1,$s/\ VIII\ /\ 8\ /g' -c '1,$s/\ IX\ /\ 9\ /g' -c '1,$s/\ X\ /\ 10\ /g' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\ XI\ /\ 11\ /g' -c '1,$s/\ XII\ /\ 12\ /g' -c '1,$s/\ XIII\ /\ 13\ /g' -c '1,$s/\ XIV\ /\ 14\ /g' -c '1,$s/\ XV\ /\ 15\ /g' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\ XVI\ /\ 16\ /g' -c '1,$s/\ XVII\ /\ 17\ /g' -c '1,$s/\ XVIII\ /\ 18\ /g' -c '1,$s/\ XIX\ /\ 19\ /g' -c '1,$s/\ XX\ /\ 20\ /g' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
-	ex '+1,$s/\//\ \-\ /g' '+1,$s/[\ ]\{2,\}/\ /g' '+wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\//\ \-\ /g' -c '1,$s/[\ ]\{2,\}/\ /g' -c 'wq!' './00-titles.lst' >& /dev/null;
 	if(! ${?silent} ) printf "[done]\n";
 	if( ${?logging} ) printf "[done]\n" >> "${download_log}";
 	
@@ -196,7 +203,7 @@ fetch_podcast:
 	cp './00-feed.xml' './00-pubDates.lst';
 	
 	# Concatinates all data into one single string:
-	ex '+1,$s/.*<\(item\|entry\)[^>]*>.*<\(pubDate\|updated\)[^>]*>\(.*\)<\/\(pubDate\|updated\)>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\3/ig' '+1,$s/.*<\(item\|entry\)[^>]*>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\(pubDate\|updated\)[^>]*>\(.*\)<\/\(pubDate\|updated\)>.*<\/\(item\|entry\)>$/\5/ig' '+1,$s/.*<\(item\|entry\)[^>]*>.*<\(pubDate\|updated\)[^>]*>\([^<]*\)<\/\(pubDate\|updated\)>.*<\/\(item\|entry\)>[\n\r]*//ig' '+wq!' './00-pubDates.lst' >& /dev/null;
+	ex -c '1,$s/.*<\(item\|entry\)[^>]*>.*<\(pubDate\|updated\)[^>]*>\(.*\)<\/\(pubDate\|updated\)>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\3/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\(pubDate\|updated\)[^>]*>\(.*\)<\/\(pubDate\|updated\)>.*<\/\(item\|entry\)>$/\5/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*<\(pubDate\|updated\)[^>]*>\([^<]*\)<\/\(pubDate\|updated\)>.*<\/\(item\|entry\)>[\n\r]*//ig' -c 'wq!' './00-pubDates.lst' >& /dev/null;
 	
 	if(! ${?silent} ) printf "[done]\n";
 	if( ${?logging} ) printf "[done]\n" >> "${download_log}";
@@ -207,17 +214,17 @@ fetch_podcast:
 	if( ${?logging} ) printf "Finding enclosures . . . this may take a few moments\t\t\t\t" >> "${download_log}";
 	cp './00-feed.xml' './00-enclosures-01.lst';
 	
-	ex '+1,$s/.*<\(item\|entry\)[^>]*>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\3/ig' '+1,$s/.*<\(item\|entry\)[^>]*>.*<\/\(item\|entry\)>[\n\r]*//ig' '+wq!' '00-enclosures-01.lst' >& /dev/null;
-	ex '+1,$s/^[\ \s\r\n]\+//g' '+1,$s/[\ \s\r\n]\+$//g' '+1,$s/?/\\?/g' '+wq!' './00-enclosures-01.lst' >& /dev/null;
+	ex -c '1,$s/.*<\(item\|entry\)[^>]*>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\3/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*<\/\(item\|entry\)>[\n\r]*//ig' -c 'wq!' '00-enclosures-01.lst' >& /dev/null;
+	ex -c '1,$s/^[\ \s\r\n]\+//g' -c '1,$s/[\ \s\r\n]\+$//g' -c '1,$s/?/\\?/g' -c 'wq!' './00-enclosures-01.lst' >& /dev/null;
 	
 	# This second method grabs all enclosures.
 	cp './00-feed.xml' './00-enclosures-02.lst';
 	
 	# Concatinates all data into one single string:
-	ex '+1,$s/[\r\n]\+[\ \t]*//g' '+wq!' './00-enclosures-02.lst' >& /dev/null;
+	ex -c '1,$s/[\r\n]\+[\ \t]*//g' -c 'wq!' './00-enclosures-02.lst' >& /dev/null;
 	
-	/usr/bin/grep --perl-regex '.*<.*enclosure[^>]*>.*' './00-enclosures-02.lst' | sed 's/.*url=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/.*<link[^>]\+href=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/^\(http:\/\/\).*\(http:\/\/.*$\)/\2/gi' | sed 's/<.*>[\r\n]\+//ig' >! './00-enclosures-02.lst';
-	ex '+1,$s/^[\ \s\r\n]\+//g' '+1,$s/[\ \s\r\n]\+$//g' '+1,$s/?/\\?/g' '+wq!' './00-enclosures-02.lst' >& /dev/null;
+	/bin/grep --perl-regex '.*<.*enclosure[^>]*>.*' './00-enclosures-02.lst' | sed 's/.*url=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/.*<link[^>]\+href=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/^\(http:\/\/\).*\(http:\/\/.*$\)/\2/gi' | sed 's/<.*>[\r\n]\+//ig' >! './00-enclosures-02.lst';
+	ex -c '1,$s/^[\ \s\r\n]\+//g' -c '1,$s/[\ \s\r\n]\+$//g' -c '1,$s/?/\\?/g' -c 'wq!' './00-enclosures-02.lst' >& /dev/null;
 	
 	set enclosure_count_01=`cat "./00-enclosures-01.lst"`;
 	set enclosure_count_02=`cat "./00-enclosures-02.lst"`;
@@ -238,17 +245,17 @@ fetch_podcast:
 	if( ${?start_with} ) then
 		if( ${start_with} > 1 ) then
 			set start_with="`printf '%s-1\n' '${start_with}'`";
-			ex "+1,${start_with}d" '+wq!' './00-enclosures.lst' >& /dev/null;
-			ex "+1,${start_with}d" '+wq!' './00-titles.lst' >& /dev/null;
-			ex "+1,${start_with}d" '+wq!' './00-pubDates.lst' >& /dev/null;
+			ex -c "1,${start_with}d" -c 'wq!' './00-enclosures.lst' >& /dev/null;
+			ex -c "1,${start_with}d" -c 'wq!' './00-titles.lst' >& /dev/null;
+			ex -c "1,${start_with}d" -c 'wq!' './00-pubDates.lst' >& /dev/null;
 		endif
 	endif
 	if( ${?download_limit} ) then
 		if( ${download_limit} > 0 ) then
 			set download_limit="`printf '%s+1\n' '${download_limit}' | bc`";
-			ex "+${download_limit},${eol}d" '+wq!' './00-enclosures.lst' >& /dev/null;
-			ex "+${download_limit},${eol}d" '+wq!' './00-titles.lst' >& /dev/null;
-			ex "+${download_limit},${eol}d" '+wq!' './00-pubDates.lst' >& /dev/null;
+			ex -c "${download_limit},${eol}d" -c 'wq!' './00-enclosures.lst' >& /dev/null;
+			ex -c "${download_limit},${eol}d" -c 'wq!' './00-titles.lst' >& /dev/null;
+			ex -c "${download_limit},${eol}d" -c 'wq!' './00-pubDates.lst' >& /dev/null;
 		endif
 	endif
 	
@@ -361,10 +368,14 @@ fetch_episodes:
 	end
 	
 	if(! ${?iagnostic_mode} ) then
-		if( -e './00-titles.lst' ) rm './00-titles.lst';
-		if( -e './00-enclosures.lst' ) rm './00-enclosures.lst';
-		if( -e './00-pubDates.lst' ) rm './00-pubDates.lst';
-		if( -e './00-feed.xml' ) rm './00-feed.xml';
+		if( -e './00-titles.lst' )	\
+			rm './00-titles.lst';
+		if( -e './00-enclosures.lst' )	\
+			rm './00-enclosures.lst';
+		if( -e './00-pubDates.lst' )	\
+			rm './00-pubDates.lst';
+		if( -e './00-feed.xml' )	\
+			rm './00-feed.xml';
 	endif
 	
 	if(! ${?silent} ) printf "\n\n*w00t\!*, I'm done; enjoy online media at its best!\n";
@@ -394,7 +405,7 @@ exit_script:
 	endif
 	
 	if( ${?oldcwdcmd} ) then
-		alias cwdcmd "${oldcwdcmd}";
+		alias cwdcmd $oldcwdcmd;
 		unset oldcwdcmd;
 	endif
 	

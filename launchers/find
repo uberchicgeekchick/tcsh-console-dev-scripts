@@ -115,14 +115,14 @@ main:
 
 exec:
 	set status=0;
-	if(! ${?OUTPUT_STDERR} ) then
+	if(! ${?SURPRESS_STDERR} ) then
 		if( ${?debug} )	\
-			printf "( %s -%s %s -regextype %s %s > /dev/tty ) >& /dev/null;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}" "${argz}";
-		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} $argz > /dev/tty ) >& /dev/null;
+			printf "( %s -%s %s -regextype %s $argv > /dev/tty ) >& /dev/stderr;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
+		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} $argv > /dev/tty ) >& /dev/stderr;
 	else
 		if( ${?debug} )	\
-			printf "( %s -%s %s -regextype %s %s > /dev/tty ) >& /dev/stderr;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}" "${argz}";
-		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} ${argz} > /dev/tty ) >& /dev/stderr;
+			printf "( %s -%s %s -regextype %s $argv > /dev/tty ) >& /dev/null;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
+		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} $argv > /dev/tty ) >& /dev/null;
 	endif
 	goto script_main_quit;
 #exec:
@@ -219,24 +219,24 @@ parse_arg:
 		if( ${?debug} || ${?diagnostic_mode} )		\
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
 		
-		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/'`";
+		set dashes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/' | sed -r 's/(["\$"])/"\""\\"\$""\""/g'`";
 		if( "${dashes}" == "$argv[$arg]" )	\
 			set dashes="";
 		
-		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/'`";
+		set option="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
 		if( "${option}" == "$argv[$arg]" )	\
 			set option="";
 		
-		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/'`";
+		set equals="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
 		if( "${equals}" == "$argv[$arg]" )	\
 			set equals="";
 		
-		set quotes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\4/'`";
+		set quotes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\4/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
 		if( "${quotes}" == "$argv[$arg]" )	\
 			set quotes="";
 		
 		#set equals="";
-		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/'`";
+		set value="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
 		#if( "${value}" != "" && "${value}" != "$argv[$arg]" ) then
 		#	set equals="=";
 		#else if( "${option}" != "" ) then
@@ -245,11 +245,11 @@ parse_arg:
 			if( ${arg} > ${argc} ) then
 				@ arg--;
 			else
-				set test_dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/'`";
-				set test_option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/'`";
-				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/'`";
-				set test_quotes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\4/'`";
-				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/'`";# | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+				set test_dashes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\1/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
+				set test_option="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\2/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
+				set test_equals="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\3/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
+				set test_quotes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\4/' | sed -r 's/(["\$"])/"\""\\"\$""\""/g'`";
+				set test_value="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)${eol}/\5/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";# | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 				
 				if( ${?debug} || ${?diagnostic_mode} )	\
 					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_quotes: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_quotes}" \$ "${test_value}";
@@ -290,13 +290,33 @@ parse_arg:
 			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "${parsed_arg}";
 		
 		switch("${option}")
+			case "diagnosis":
+			case "diagnostic-mode":
+			case "debug":
+				if(${?arg_shifted}) then
+					@ arg--;
+					unset arg_shifted;
+				endif
+				set argv[$arg]="";
+				breaksw;
+			
 			case "L":
 			case "H":
 			case "P":
+				if(${?arg_shifted}) then
+					@ arg--;
+					unset arg_shifted;
+				endif
 				set follow_symlinks="${option}";
+				set argv[$arg]="";
 				breaksw;
 			
 			case "regextype":
+				if(${?arg_shifted}) then
+					@ arg--;
+					unset arg_shifted;
+				endif
+				set argv[$arg]="";
 				switch("${value}")
 					case "emacs":
 					case "posix-awk":
@@ -304,12 +324,18 @@ parse_arg:
 					case "posix-egrep":
 					case "posix-extended":
 						set regextype="${value}"
+						breaksw;
+					
+					default:
+						printf "Invalid %s specified.  Supported %s values are: posix-extended (this is the default), posix-awk, posix-basic, posix-egrep and emacs.\n" "${option}" "${option}" > /dev/stderr;
+						breaksw;
 				endsw
 				breaksw;
 			
 			default:
 				if( -d "$argv[$arg]" || -e "$argv[$arg]" ) then
 					set find_target="$argv[$arg]";
+					set argv[$arg]="";
 					breaksw;
 				endif
 				
@@ -319,9 +345,9 @@ parse_arg:
 				endif
 				
 				if( "${argz}" == "" ) then
-					set argz="${parsed_arg}";
+					set argz="$argv[$arg]";
 				else
-					set argz="${argz} ${parsed_arg}";
+					set argz="${argz} $argv[$arg]";
 				endif
 				breaksw;
 		endsw

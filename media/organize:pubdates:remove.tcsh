@@ -6,18 +6,19 @@ if(! ${?0} ) then
 endif
 
 while( "${1}" != "" )
-	case "--keep-pubdate":
-		set keep_pubdate;
-		breaksw;
-	
-	default:
-		if( ! ${?target_directory} && -d "${1}" ) then
-			set target_directory="${1}";
+	switch( "${1}" )
+		case "--keep-pubdate":
+			set keep_pubdate;
 			breaksw;
-		endif
 		
-		printf "%s is an unsupported option.\n" > /dev/stderr;
-		breaksw;
+		default:
+			if( ! ${?target_directory} && -d "${1}" ) then
+				set target_directory="${1}";
+				breaksw;
+			endif
+			
+			printf "%s is an unsupported option.\n" > /dev/stderr;
+			breaksw;
 	endsw
 	shift;
 end

@@ -109,7 +109,7 @@ if(! ${?eol} ) then
 	set eol='$';
 endif
 
-switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
+switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`" )
 	case "m3u":
 		set playlist_type="m3u";
 		breaksw;
@@ -119,7 +119,7 @@ switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
 		breaksw;
 	
 	default:
-		printf "**error:** unknown playlist type: [%s].\n" "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]+\)${eol}/\1/'`" > /dev/stderr;
+		printf "**error:** unknown playlist type: [%s].\n" "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]+\)"\$"/\1/'`" > /dev/stderr;
 		exit -2;
 		breaksw;
 endsw
@@ -130,7 +130,7 @@ if( ${?import} ) then
 		exit -3;
 	endif
 	
-	switch( "`printf "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
+	switch( "`printf "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`" )
 		case "m3u":
 			m3u-to-tox.tcsh${edit_playlist} "${import}" "${playlist}";
 			breaksw;
@@ -147,7 +147,7 @@ if( ${?export_to} ) then
 		exit -3;
 	endif
 	
-	switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)${eol}/\1/'`" )
+	switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`" )
 		case "m3u":
 			m3u-to-tox.tcsh${edit_playlist} "${playlist}" "${export_to}";
 			breaksw;

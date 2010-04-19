@@ -84,9 +84,10 @@ main:
 
 	if( ${?save_to_dir} ) then
 		if( "${save_to_dir}" != "${cwd}" ) then
-			if(! -d "${save_to_dir}" ) mkdir -p "${save_to_dir}";
+			if(! -d "${save_to_dir}" )	\
+				mkdir -p "${save_to_dir}";
 			set starting_old_owd="${owd}";
-			mv "${alacasts_download_log}" "${save_to_dir}/.${alacasts_download_log_prefix}.${alacasts_download_log_timestamp}.log";
+			/bin/mv "${alacasts_download_log}" "${save_to_dir}/.${alacasts_download_log_prefix}.${alacasts_download_log_timestamp}.log";
 			cd "${save_to_dir}";
 		endif
 		unset save_to_dir;
@@ -110,8 +111,15 @@ main:
 fetch_podcasts:
 	foreach feed ("`cat '${alacasts_download_log}'`")
 		ex -c '1d' -c 'wq!' "${alacasts_download_log}" > /dev/null;
-		if(! ${?silent} ) printf "Downloading podcast's feed.\n\t<%s>\n" "${feed}";
-		if( ${?logging} ) printf "Downloading podcast's feed.\n\t<%s>\n" "${feed}" >> "${download_log}";
+		set my_feed_xml=".my.feed.`date '+%s'.xml`";
+		while( -e "./${my_feed_xml}" )
+			sleep 5;
+			set my_feed_xml=".my.feed.`date '+%s'.xml`";
+		end
+		if(! ${?silent} )	\
+			printf "Downloading podcast's feed.\n\t<%s>\n" "${feed}";
+		if( ${?logging} )	\
+			printf "Downloading podcast's feed.\n\t<%s>\n" "${feed}" >> "${download_log}";
 		goto fetch_podcast;
 	end
 	goto exit_script;
@@ -121,16 +129,15 @@ fetch_podcast:
 	if( ! ${?list_episodes} && ! ${?downloading} && ! ${?save_script} )	\
 		set downloading;
 	
-	${download_command_with_options} './00-feed.xml' "${feed}" > /dev/null;
-	ex -c '1,$s/^<!\-\-.*\-\->[\r\n]/' -c 'wq!' './00-feed.xml' > /dev/null;
+	${download_command_with_options} "./${my_feed_xml}" "${feed}" > /dev/null;
+	ex -c '1,$s/^<!\-\-.*\-\->[\r\n]/' -c 'wq!' "./${my_feed_xml}" > /dev/null;
 	
 	if(! ${?silent} )	\
 		printf "Finding feed's title.\n";
-	set title="`/bin/grep '<title.*>' './00-feed.xml' | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g' | sed  's/[\ \t]*\&[^;]\+\;[\ \t]*/\ /ig'`";
+	set title="`/bin/grep '<title.*>' "./${my_feed_xml}" | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g' | sed  's/[\ \t]*\&[^;]\+\;[\ \t]*/\ /ig'`";
 	
 	if( "`printf "\""${title}"\"" | sed -r 's/(The)(.*)/\1/g'`" == "The" ) \
 		set title="`printf "\""${title}"\"" | sed -r 's/(The)\ (.*)/\2,\ \1/g' | sed 's/&[^;]\+;/ /'`";
-	
 	if(! -d "${title}" )	\
 		mkdir -p "${title}" > /dev/null;
 	set old_owd="${owd}";
@@ -138,38 +145,52 @@ fetch_podcast:
 		unalias cwdcmd;
 	cd "${title}" > /dev/null;
 	
-	if(! ${?silent} ) printf "Preparing to download: %s\n" "${title}";
-	if( ${?logging} ) printf "Preparing to download: %s\n" "${title}" >> "${download_log}";
-	if(! ${?silent} ) printf "\tURI:\t[%s]\n" "${feed}";
-	if( ${?logging} ) printf "\tURI:\t[%s]\n" "${feed}" >> "${download_log}";
+	if( ${?playlist} && ${?playlist_ext} ) then
+		set playlist="${title}.${playlist_ext}";
+	endif
+	
+	if(! ${?silent} )	\
+		printf "Preparing to download: %s\n" "${title}";
+	if( ${?logging} )	\
+		printf "Preparing to download: %s\n" "${title}" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "\tURI:\t[%s]\n" "${feed}";
+	if( ${?logging} )	\
+		printf "\tURI:\t[%s]\n" "${feed}" >> "${download_log}";
 	
 	if( -e './00-feed.xml' && -e './00-titles.lst' && -e './00-enclosures.lst' && -e './00-pubDates.lst' )	\
 		goto continue_download;
 	
 	# This to make sure we're working with UNIX file types & don't have to repeat newline replacement.
-	cp '../00-feed.xml' "./00-feed.xml";
-	rm -f "../00-feed.xml";
+	/bin/cp "../${my_feed_xml}" "./00-feed.xml";
+	/bin/rm "../${my_feed_xml}";
 	
 	# Grabs the titles of the podcast and all episodes.
-	if(! ${?silent} ) printf "Finding title${please_wait_phrase}\t";
-	if( ${?logging} ) printf "Finding titles${please_wait_phrase}\t" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "Finding title${please_wait_phrase}\t";
+	if( ${?logging} )	\
+		printf "Finding titles${please_wait_phrase}\t" >> "${download_log}";
 	
 	# Puts each item, or entry, on its own line:
 	ex -c '1,$s/[\r\n]\+[\ \t]*//' -c 'wq!' './00-feed.xml' >& /dev/null;
 	ex -c '1,$s/[\r\n]\+[\ \t]*//' -c '1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' -c '$d' -c 'wq!' './00-feed.xml' >& /dev/null;
 	
-	cp './00-feed.xml' './00-titles.lst';
+	/bin/cp './00-feed.xml' './00-titles.lst';
 	
 	ex -c '1,$s/.*<\(item\|entry\)[^>]*>.*<title[^>]*>\(.*\)<\/title>.*\(enclosure\).*<\/\(item\|entry\)>$/\2/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*\(enclosure\).*<title[^>]*>\(.*\)<\/title>.*<\/\(item\|entry\)>$/\3/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*<title[^>]*>\([^<]*\)<\/title>.*<\/\(item\|entry\)>[\n\r]*//ig' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
 	ex -c '1,$s/&\(#038\|amp\)\;/\&/ig' -c '1,$s/&\(#8243\|#8217\|#8220\|#8221\|\#039\|rsquo\|lsquo\)\;/'\''/ig' -c '1,$s/&[^;]\+\;[\ \t]*/\ /ig' -c '1,$s/<\!\[CDATA\[\(.*\)\]\]>/\1/g' -c '1,$s/#//g' -c '1,$s/\//\ \-\ /g' -c 'wq!' './00-titles.lst' >& /dev/null;
-	if(! ${?silent} )printf "[done]\n";
-	if( ${?logging} ) printf "[done]\n" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "[done]\n";
+	if( ${?logging} )	\
+		printf "[done]\n" >> "${download_log}";
 	
 	# This will be my last update to any part of Alacast v1
 	# This fixes episode & chapter titles so that they will sort correctly
-	if(! ${?silent} ) printf "Formating titles${please_wait_phrase}";
-	if( ${?logging} ) printf "Formating titles${please_wait_phrase}" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "Formating titles${please_wait_phrase}";
+	if( ${?logging} )	\
+		printf "Formating titles${please_wait_phrase}" >> "${download_log}";
 	ex -c '1,$s/^\(Zero\)/0/gi' -c '1,$s/^\(One\)/1/gi' -c '1,$s/^\(Two\)/2/gi' -c '1,$s/^\(Three\)/3/gi' -c '1,$s/^\(Four\)/4/gi' -c '1,$s/^\(Five\)/5/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	ex -c '1,$s/^\(Six\)/6/gi' -c '1,$s/^\(Seven\)/7/gi' -c '1,$s/^\(Eight\)/8/gi' -c '1,$s/^\(Nine\)/9/gi' -c '1,$s/^\(Ten\)/10/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
@@ -194,31 +215,39 @@ fetch_podcast:
 	ex -c '1,$s/\ XVI\ /\ 16\ /g' -c '1,$s/\ XVII\ /\ 17\ /g' -c '1,$s/\ XVIII\ /\ 18\ /g' -c '1,$s/\ XIX\ /\ 19\ /g' -c '1,$s/\ XX\ /\ 20\ /g' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
 	ex -c '1,$s/\//\ \-\ /g' -c '1,$s/[\ ]\{2,\}/\ /g' -c 'wq!' './00-titles.lst' >& /dev/null;
-	if(! ${?silent} ) printf "[done]\n";
-	if( ${?logging} ) printf "[done]\n" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "[done]\n";
+	if( ${?logging} )	\
+		printf "[done]\n" >> "${download_log}";
 	
 	# Grabs the release dates of the podcast and all episodes.
-	if(! ${?silent} ) printf "Finding release dates...please be patient, I may need several moments\t\t";
-	if( ${?logging} ) printf "Finding release dates${please_wait_phrase}\t\t" >> "${download_log}";
-	cp './00-feed.xml' './00-pubDates.lst';
+	if(! ${?silent} )	\
+		printf "Finding release dates...please be patient, I may need several moments\t\t";
+	if( ${?logging} )	\
+		printf "Finding release dates${please_wait_phrase}\t\t" >> "${download_log}";
+	/bin/cp './00-feed.xml' './00-pubDates.lst';
 	
 	# Concatinates all data into one single string:
 	ex -c '1,$s/.*<\(item\|entry\)[^>]*>.*<\(pubDate\|updated\)[^>]*>\(.*\)<\/\(pubDate\|updated\)>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\3/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\(pubDate\|updated\)[^>]*>\(.*\)<\/\(pubDate\|updated\)>.*<\/\(item\|entry\)>$/\5/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*<\(pubDate\|updated\)[^>]*>\([^<]*\)<\/\(pubDate\|updated\)>.*<\/\(item\|entry\)>[\n\r]*//ig' -c 'wq!' './00-pubDates.lst' >& /dev/null;
 	
-	if(! ${?silent} ) printf "[done]\n";
-	if( ${?logging} ) printf "[done]\n" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "[done]\n";
+	if( ${?logging} )	\
+		printf "[done]\n" >> "${download_log}";
 	
 	# Grabs the enclosures from the feed.
 	# This 1st method only grabs one enclosure per item/entry.
-	if(! ${?silent} ) printf "Finding enclosures . . . this may take a few moments\t\t\t\t";
-	if( ${?logging} ) printf "Finding enclosures . . . this may take a few moments\t\t\t\t" >> "${download_log}";
-	cp './00-feed.xml' './00-enclosures-01.lst';
+	if(! ${?silent} )	\
+		printf "Finding enclosures . . . this may take a few moments\t\t\t\t";
+	if( ${?logging} )	\
+		printf "Finding enclosures . . . this may take a few moments\t\t\t\t" >> "${download_log}";
+	/bin/cp './00-feed.xml' './00-enclosures-01.lst';
 	
 	ex -c '1,$s/.*<\(item\|entry\)[^>]*>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\3/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*<\/\(item\|entry\)>[\n\r]*//ig' -c 'wq!' '00-enclosures-01.lst' >& /dev/null;
 	ex -c '1,$s/^[\ \s\r\n]\+//g' -c '1,$s/[\ \s\r\n]\+$//g' -c '1,$s/?/\\?/g' -c 'wq!' './00-enclosures-01.lst' >& /dev/null;
 	
 	# This second method grabs all enclosures.
-	cp './00-feed.xml' './00-enclosures-02.lst';
+	/bin/cp './00-feed.xml' './00-enclosures-02.lst';
 	
 	# Concatinates all data into one single string:
 	ex -c '1,$s/[\r\n]\+[\ \t]*//g' -c 'wq!' './00-enclosures-02.lst' >& /dev/null;
@@ -229,17 +258,21 @@ fetch_podcast:
 	set enclosure_count_01=`cat "./00-enclosures-01.lst"`;
 	set enclosure_count_02=`cat "./00-enclosures-02.lst"`;
 	if( ${#enclosure_count_01} >= ${#enclosure_count_02} ) then
-		mv "./00-enclosures-01.lst" "./00-enclosures.lst";
-		rm "./00-enclosures-02.lst";
+		/bin/mv "./00-enclosures-01.lst" "./00-enclosures.lst";
+		/bin/rm "./00-enclosures-02.lst";
 	else
-		mv "./00-enclosures-02.lst" "./00-enclosures.lst";
-		rm "./00-enclosures-01.lst";
+		/bin/mv "./00-enclosures-02.lst" "./00-enclosures.lst";
+		/bin/rm "./00-enclosures-01.lst";
 	endif
-	if(! ${?silent} ) printf "[done]\n";
-	if( ${?logging} ) printf "[done]\n" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "[done]\n";
+	if( ${?logging} )	\
+		printf "[done]\n" >> "${download_log}";
 	
-	if(! ${?silent} ) printf "Beginning to download: %s\n" "${title}";
-	if( ${?logging} ) printf "Beginning to download: %s\n" "${title}" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "Beginning to download: %s\n" "${title}";
+	if( ${?logging} )	\
+		printf "Beginning to download: %s\n" "${title}" >> "${download_log}";
 	set episodes=();
 	set total_episodes="`cat './00-enclosures.lst'`";
 	if( ${?start_with} ) then
@@ -260,28 +293,36 @@ fetch_podcast:
 	endif
 	
 	set episodes="`cat './00-enclosures.lst'`";
-	if(! ${?silent} ) printf "\n\tDownloading %s out of %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${#total_episodes}" "${title}";
-	if( ${?logging} ) printf "\n\tDownloading %s out of %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${#total_episodes}" "${title}" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "\n\tDownloading %s out of %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${#total_episodes}" "${title}";
+	if( ${?logging} )	\
+		printf "\n\tDownloading %s out of %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${#total_episodes}" "${title}" >> "${download_log}";
 	
 	goto fetch_episodes;
 #fetch_podcast:
 
 continue_download:
-	rm  "../00-feed.xml";
+	if( -e "../${my_feed_xml}" )	\
+		/bin/rm  "../${my_feed_xml}";
 	set episodes="`cat './00-enclosures.lst'`";
-	if(! ${?silent} ) printf "\n\tFinishing downloading %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${title}";
-	if( ${?logging} ) printf "\n\tFinishing downloading %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${title}" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "\n\tFinishing downloading %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${title}";
+	if( ${?logging} )	\
+		printf "\n\tFinishing downloading %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${title}" >> "${download_log}";
 #continue_download:
 
 fetch_episodes:
 	@ episodes_downloaded=0;
 	@ episodes_number=0;
-	if(! ${?eol} ) set eol='$';
+	if(! ${?eol} )	\
+		set eol='$';
 	foreach episode ( "`cat './00-enclosures.lst'`" )
 		@ episodes_number++;
 		if( ${episodes_number} > 1 ) then
-			if(! ${?silent} ) printf "\n\n";
-			if( ${?logging} ) printf "\n\n" >> "${download_log}";
+			if(! ${?silent} )	\
+				printf "\n\n";
+			if( ${?logging} )	\
+				printf "\n\n" >> "${download_log}";
 		endif
 		
 		set episode=`printf '%s' "${episode}" | sed 's/[\r\n]$//'`;
@@ -294,7 +335,8 @@ fetch_episodes:
 		set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/[\r\n]//g' | sed 's/\?//g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 		set episodes_title_escaped="`cat './00-titles.lst' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 		
-		if( "${episodes_title}" == "" ) set episodes_title=`printf '%s' "${episodes_file}" | sed 's/\(.*\)\.[^.]*$/\1/'`;
+		if( "${episodes_title}" == "" )	\
+			set episodes_title=`printf '%s' "${episodes_file}" | sed 's/\(.*\)\.[^.]*$/\1/'`;
 		
 		if( "${episodes_pubdate}" != "" ) then
 			set episodes_filename="${episodes_title}, released on: ${episodes_pubdate}.${episodes_extension}";
@@ -302,8 +344,10 @@ fetch_episodes:
 			set episodes_filename="${episodes_title}.${episodes_extension}";
 		endif
 		
-		if(! ${?silent} ) printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}";
-		if( ${?logging} ) printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}" >> "${download_log}";
+		if(! ${?silent} )	\
+			printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}";
+		if( ${?logging} )	\
+			printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}" >> "${download_log}";
 		
 		# Skipping existing files.
 		if( ${?fetch_all} ) then
@@ -312,8 +356,10 @@ fetch_episodes:
 		endif
 		
 		if( -e "./${episodes_filename}" ) then
-			if(! ${?silent} ) printf "\t\t\t[skipped existing file]";
-			if( ${?logging} ) printf "\t\t\t[skipping existing file]" >> "${download_log}";
+			if(! ${?silent} )	\
+				printf "\t\t\t[skipped existing file]";
+			if( ${?logging} )	\
+				printf "\t\t\t[skipping existing file]" >> "${download_log}";
 			continue;
 		endif
 		
@@ -321,16 +367,20 @@ fetch_episodes:
 			case "theend.mp3":
 			case "caughtup.mp3":
 			case "caught_up_1.mp3":
-				if(! ${?silent} ) printf "\t\t\t[skipping podiobook.com notice]";
-				if( ${?logging} ) printf "\t\t\t[skipping podiobook.com notice]" >> "${download_log}";
+				if(! ${?silent} )	\
+					printf "\t\t\t[skipping podiobook.com notice]";
+				if( ${?logging} )	\
+					printf "\t\t\t[skipping podiobook.com notice]" >> "${download_log}";
 				continue;
 				breaksw;
 		endsw
 		
 		#if(! ${?download_extras} ) then
 		#	if( "`printf "\""${episodes_title_escaped}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_title}" ) then
-		#		if(! ${?silent} ) printf "\t\t\t[skipping commentary track]";
-		#		if( ${?logging} ) printf "\t\t\t[skipping commentary track]" >> "${download_log}";
+		#		if(! ${?silent} )	\
+		#	printf "\t\t\t[skipping commentary track]";
+		#		if( ${?logging} )	\
+		#	printf "\t\t\t[skipping commentary track]" >> "${download_log}";
 		#		continue;
 		#	endif
 		#endif
@@ -357,29 +407,80 @@ fetch_episodes:
 			${download_command_with_options} "./${episodes_filename}" "${episode}";
 			
 			if(! -e "./${episodes_filename}" ) then
-				if(! ${?silent} ) printf "\t\t\t[*epic fail* :(]";
-				if( ${?logging} ) printf "\t\t\t[*pout* :(]" >> "${download_log}";
+				if(! ${?silent} )	\
+					printf "\t\t\t[*epic fail* :(]";
+				if( ${?logging} )	\
+					printf "\t\t\t[*pout* :(]" >> "${download_log}";
 			else
 				@ episodes_downloaded++;
-				if(! ${?silent} ) printf "\t\t\t[*w00t\!*, FTW\!]";
-				if( ${?logging} ) printf "\t\t\t[*w00t\!*, FTW\!]" >> "${download_log}";
+				if(! ${?silent} )	\
+					printf "\t\t\t[*w00t\!*, FTW\!]";
+				if( ${?logging} )	\
+					printf "\t\t\t[*w00t\!*, FTW\!]" >> "${download_log}";
+				if( ${?playlist} ) then
+					if(! -e "${playlist}" ) then
+						touch "${playlist}";
+						switch("${playlist_ext}")
+							case "tox":
+							case "toxine":
+								printf "#toxine playlist\n" >! "${playlist}";
+								breaksw;
+						endsw
+					endif
+					
+					switch("${playlist_ext}")
+						case "pls":
+							printf "File%d=%s\nTitle%d=%s\n", $episodes_downloaded, "${episodes_filename}", $episodes_downloaded, "${episodes_title}" >> "${playlist}";
+							breaksw;
+						
+						case "tox":
+						case "toxine":
+							printf "\nentry {\n\tidentifier = %s;\n\tmrl = %s;\n};", "${episodes_title}", "${episodes_filename}" >> "${playlist}";
+							breaksw;
+						
+						case "m3u":
+						default:
+							if( $episodes_downloaded > 1 )	\
+								printf "\n" >> "${playlist}";
+							
+							printf "%s/%s" "${cwd}" "${episodes_filename}" >> "${playlist}";
+							breaksw;
+					endsw
+				endif
 			endif
 		endif
 	end
 	
-	if(! ${?iagnostic_mode} ) then
+	if(! ${?diagnostic_mode} ) then
 		if( -e './00-titles.lst' )	\
-			rm './00-titles.lst';
+			/bin/rm './00-titles.lst';
 		if( -e './00-enclosures.lst' )	\
-			rm './00-enclosures.lst';
+			/bin/rm './00-enclosures.lst';
 		if( -e './00-pubDates.lst' )	\
-			rm './00-pubDates.lst';
+			/bin/rm './00-pubDates.lst';
 		if( -e './00-feed.xml' )	\
-			rm './00-feed.xml';
+			/bin/rm './00-feed.xml';
 	endif
 	
-	if(! ${?silent} ) printf "\n\n*w00t\!*, I'm done; enjoy online media at its best!\n";
-	if( ${?logging} ) printf "\n\n*w00t\!*, I'm done; enjoy online media at its best!\n" >> "${download_log}";
+	if(! ${?silent} )	\
+		printf "\n\n*w00t\!*, I'm done; enjoy online media at its best!\n";
+	if( ${?logging} )	\
+		printf "\n\n*w00t\!*, I'm done; enjoy online media at its best!\n" >> "${download_log}";
+	
+	if( ${?playlist} ) then
+		switch("${playlist_ext}")
+			case "pls":
+				printf "[playlist]\nnumberofentries=%d\n", $episodes_downloaded >> "${playlist}.swp";
+				cat "${playlist}" "${playlist}.swp";
+				printf "Version=2" >> "${playlist}";
+				breaksw;
+			
+			case "tox":
+			case "toxine":
+				printf "\n#END" >> "${playlist}";
+				breaksw;
+		endsw
+	endif
 	
 	if( ${?old_owd} ) then
 		cd "${owd}";
@@ -390,13 +491,8 @@ fetch_episodes:
 #fetch_episodes:
 
 exit_script:
-	if( -e "${alacasts_download_log}" ) then
-		if(! ${?silent} ) then
-			rm -v "${alacasts_download_log}";
-		else
-			rm "${alacasts_download_log}";
-		endif
-	endif
+	if( -e "${alacasts_download_log}" )	\
+		/bin/rm "${alacasts_download_log}";
 	
 	if( ${?starting_old_owd} ) then
 		cd "${owd}";
@@ -421,7 +517,8 @@ usage:
 parse_argv:
 	set argc=${#argv};
 	
-	if( ${argc} == 0 ) goto usage;
+	if( ${argc} == 0 )	\
+		goto usage;
 	
 	@ arg=0;
 	while( $arg < $argc )
@@ -446,7 +543,8 @@ parse_argv:
 	@ arg=0;
 	@ parsed_argc=0;
 	
-	if( ${?debug} ) printf "Checking %s's argv options.  %d total.\n" "${scripts_basename}" "${argc}";
+	if( ${?debug} )	\
+		printf "Checking %s's argv options.  %d total.\n" "${scripts_basename}" "${argc}";
 #parse_argv:
 
 parse_arg:
@@ -458,13 +556,16 @@ parse_arg:
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
 		
 		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
-		if( "${dashes}" == "$argv[$arg]" ) set dashes="";
+		if( "${dashes}" == "$argv[$arg]" )	\
+			set dashes="";
 		
 		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
-		if( "${option}" == "$argv[$arg]" ) set option="";
+		if( "${option}" == "$argv[$arg]" )	\
+			set option="";
 		
 		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
-		if( "${equals}" == "$argv[$arg]" || "${equals}" == "" ) set equals="";
+		if( "${equals}" == "$argv[$arg]" || "${equals}" == "" )	\
+			set equals="";
 		
 		set equals="";
 		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
@@ -617,27 +718,50 @@ parse_arg:
 				breaksw;
 			
 			case "regex-match-titles":
-				if( "${value}" == "" ) breaksw;
+				if( "${value}" == "" )	\
+					breaksw;
 				set regex_match_titles="${value}";
 				breaksw;
 			
 			case "logging":
-				if(! ${?logging} ) set logging;
+				if(! ${?logging} )	\
+					set logging;
 				breaksw;
 			
 			case "debug":
-				if(! ${?debug} ) set debug;
+				if(! ${?debug} )	\
+					set debug;
 				breaksw;
 			
 			case "diagnosis":
 			case "diagnostic-mode":
-				if(! ${?diagnostic_mode} ) set diagnostic_mode;
+				if(! ${?diagnostic_mode} )	\
+					set diagnostic_mode;
 				breaksw;
 			
 			case "download-all":
 			case "download-extras":
 				if(! ${?download_extras} )	\
 					set download_extras;
+				breaksw;
+			
+			case "playlist":
+				set playlist;
+				switch("${value}")
+					case "pls":
+						set playlist_ext="pls";
+						breaksw;
+					
+					case "tox":
+					case "toxine":
+						set playlist_ext="tox";
+						breaksw;
+					
+					case "m3u":
+					default:
+						set playlist_ext="m3u";
+						breaksw;
+				endsw
 				breaksw;
 			
 			case "enable":
@@ -762,7 +886,8 @@ parse_arg:
 					printf "%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${scripts_basename}";
 					breaksw;
 				endif
-				if( "${value}" == "" ) set value="$argv[$arg]";
+				if( "${value}" == "" )	\
+					set value="$argv[$arg]";
 				if( "`echo '${value}' | sed -r 's/^(http|https|ftp)(:\/\/).*/\2/i'`" != "://" ) then
 					if( "${option}" != "" ) then
 						printf "%s%s=[url] must specify a valid http, https, or ftp URI.\n" "${dashes}" "${option}" > /dev/stderr;

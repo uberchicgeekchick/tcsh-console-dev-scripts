@@ -63,12 +63,14 @@ noexec:
 
 launchers_main:
 	set website="http://www.podiobooks.com/";
-	curl --location --fail --show-error --silent --output "./.index.html" "${website}/podiobooks/search.php?keyword=${search_phrase}";
-	if( -e "./.feed.xml" ) then
-		rm ./.feed.xml;
-		${program} "${website}title/${search_phrase}/";
-	else if( ${?search_phrase} ) then
-		${program} "${website}podiobooks/search.php?keyword=${search_phrase}";
+	if( ${?search_phrase} ) then
+		curl --location --fail --show-error --silent --output "./.feed.xml" "${website}title/${search_phrase}/feed/";
+		if( -e "./.feed.xml" ) then
+			rm ./.feed.xml;
+			${program} "${website}title/${search_phrase}/";
+		else
+			${program} "${website}podiobooks/search.php?keyword=`printf "\""${search_phrase}"\"" | sed -r 's/\ /%20/g'`";
+		endif
 	else
 		${program} "${website}";
 	endif

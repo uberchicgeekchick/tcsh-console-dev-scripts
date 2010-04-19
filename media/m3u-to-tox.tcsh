@@ -25,7 +25,8 @@ endif
 set insert_subdir="";
 if( "`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`" == "insert-subdir" ) then
 	set insert_subdir="`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/' | sed -r 's/^\///' | sed -r 's/\/${eol}//' | sed -r 's/\//\\\//'`\/";
-	if( "${insert_subdir}" == "" ) unset insert_subdir;
+	if( "${insert_subdir}" == "" )	\
+		unset insert_subdir;
 	shift;
 endif
 
@@ -49,15 +50,15 @@ if( ${?edit_playlist} ) ${EDITOR} "${tox_playlist}";
 
 printf "Converting %s to %s" "${m3u_playlist}" "${tox_playlist}";
 
-alias	ex	"ex -E -n -s -X --noplugin";
+alias	ex	"ex -E -n -X -s --noplugin";
 
 set m3u_playlist="`printf '%s' '${m3u_playlist}' | sed 's/\([()\ ]\)/\\\1/g'`";
 printf '#toxine playlist\n\n' >! "${tox_playlist}";
 ex "+2r ${m3u_playlist}" '+wq!' "${tox_playlist}";
-ex '+3,$s/^\#.*[\r\n]//' "+3,${eol}s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/([^\/]+)(, released on[^\.]+)\.([^\.]+)${eol}/entry \{\r\tidentifier\ =\ \3;\r\tmrl\ =\ \1${insert_subdir}\2\/\3\4\.\5;\r\tav_offset\ =\ 3600;\r};\r/" '+wq' "${tox_playlist}";
+ex '+3,$s/^\#.*[\r\n]//' "+3,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/([^\/]+)\.([^\.]+)"\$"/entry \{\r\tidentifier\ =\ \3;\r\tmrl\ =\ \1${insert_subdir}\2\/\3\.\4;\r\tav_offset\ =\ 3600;\r};\r/" '+wq' "${tox_playlist}";
 
 if( ${?strip_subdir} ) then
-	ex "+3,${eol}s/\v^(\tmrl\ \=\ \/[^\/]+\/[^\/]+\/)'${strip_subdir}'(.*)\/([^\/]+)(, released on[^\.]+)\.([^;]+);${eol}/\1\2\/\3\4\.\5;/" '+wq' "${tox_playlist}";
+	ex "+3,"\$"s/\v^(\tmrl\ \=\ \/[^\/]+\/[^\/]+\/)'${strip_subdir}'(.*)\/([^\/]+)\.([^;]+);"\$"/\1\2\/\3\.\4;/" '+wq' "${tox_playlist}";
 endif
 
 printf '#END' >> "${tox_playlist}";

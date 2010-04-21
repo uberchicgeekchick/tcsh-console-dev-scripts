@@ -1,5 +1,8 @@
 #!/bin/tcsh -f
 setenv:
+	set script_dirname="${TCSH_RC_SESSION_PATH}/../media/";
+	set script_basename="oggconvert";
+	set script="${script_dirname}/${script_basename}";
 	set status=0;
 #setenv:
 
@@ -21,9 +24,9 @@ check_source:
 		
 		if( ${?TCSH_RC_DEBUG} )	\
 			printf "Setting up aliases for: oggconvert, oggcombine, and oggtranscode.\n";
-		alias	oggconvert	"${TCSH_RC_SESSION_PATH}/../media/offconvert";
-		alias	oggtranscode	"${TCSH_RC_SESSION_PATH}/../media/offconvert --transcode";
-		alias	oggcombine	"${TCSH_RC_SESSION_PATH}/../media/offconvert --combine";
+		alias	oggconvert	"${script}";
+		alias	oggtranscode	"${script} --transcode";
+		alias	oggcombine	"${script} --combine";
 		
 		source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "oggconvert";
 		exit ${status};
@@ -32,8 +35,6 @@ check_source:
 
 
 init:
-	set script_path="${TCSH_RC_SESSION_PATH}/../media/";
-	set script_basename="`basename '${0}'`";
 	set script_supported_extensions="mp3|ogg|m4a";
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 	set escaped_starting_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";

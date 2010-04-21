@@ -6,15 +6,14 @@ endif
 
 if(! ${?TCSH_RC_DEBUG} ) set TCSH_RC_DEBUG="";
 
-if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)${eol}/\1/'`" == ".m3u" && -e "${1}" ) ) then
-	if( "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)${eol}/\1/'`" != ".m3u" ) printf "\n\t**ERROR:** %s is not a valid m3u playlist.\n" "${1}";
+if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)"\$"/\1/'`" == ".m3u" && -e "${1}" ) ) then
+	if( "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)"\$"/\1/'`" != ".m3u" ) printf "\n\t**ERROR:** %s is not a valid m3u playlist.\n" "${1}";
 	printf "Usage: %s playlist.m3u (e.g: ~/media/playlist/filename.m3u)\n" "`basename '${0}'`";
 	exit -1;
 endif
-if(! ${?eol} ) setenv eol '$';
 
-if(!( ${?2} && "${2}" != "" && ( "`printf "\""${2}"\"" | sed 's/.*\(\.tcsh\)${eol}/\1/g'`" == ".tcsh" || "${2}" == "--enable=auto-copy" ) )) then
-	set tcsh_shell_script="`printf "\""${1}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.m3u\)${eol}/\1\2\.tcsh/'`";
+if(!( ${?2} && "${2}" != "" && ( "`printf "\""${2}"\"" | sed 's/.*\(\.tcsh\)"\$"/\1/g'`" == ".tcsh" || "${2}" == "--enable=auto-copy" ) )) then
+	set tcsh_shell_script="`printf "\""${1}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.m3u\)"\$"/\1\2\.tcsh/'`";
 else if( "${2}" == "--enable=auto-copy" ) then
 	set auto_copy;
 	set tcsh_shell_script=".copy-local-@-`date '+%s'`";

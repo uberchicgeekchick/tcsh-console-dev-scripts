@@ -1,11 +1,6 @@
 #!/bin/tcsh -f
 
 init:
-	if(! ${?eol} ) then
-		set eol='$';
-		set eol_set;
-	endif
-	
 	set scripts_basename="alacast:feed:fetch-all:enclosures.tcsh";
 	
 	if(! ${?0} ) then
@@ -286,9 +281,9 @@ fetch_podcast:
 	if( ${?download_limit} ) then
 		if( ${download_limit} > 0 ) then
 			set download_limit="`printf '%s+1\n' '${download_limit}' | bc`";
-			ex -c "${download_limit},${eol}d" -c 'wq!' './00-enclosures.lst' >& /dev/null;
-			ex -c "${download_limit},${eol}d" -c 'wq!' './00-titles.lst' >& /dev/null;
-			ex -c "${download_limit},${eol}d" -c 'wq!' './00-pubDates.lst' >& /dev/null;
+			ex -c "${download_limit},"\$"d" -c 'wq!' './00-enclosures.lst' >& /dev/null;
+			ex -c "${download_limit},"\$"d" -c 'wq!' './00-titles.lst' >& /dev/null;
+			ex -c "${download_limit},"\$"d" -c 'wq!' './00-pubDates.lst' >& /dev/null;
 		endif
 	endif
 	
@@ -314,8 +309,6 @@ continue_download:
 fetch_episodes:
 	@ episodes_downloaded=0;
 	@ episodes_number=0;
-	if(! ${?eol} )	\
-		set eol='$';
 	foreach episode ( "`cat './00-enclosures.lst'`" )
 		@ episodes_number++;
 		if( ${episodes_number} > 1 ) then
@@ -326,7 +319,7 @@ fetch_episodes:
 		endif
 		
 		set episode=`printf '%s' "${episode}" | sed 's/[\r\n]$//'`;
-		set episodes_file="`printf '%s' '${episode}' | sed -r 's/.*\/([^\/\?]+)\??.*${eol}/\1/'`";
+		set episodes_file="`printf '%s' '${episode}' | sed -r 's/.*\/([^\/\?]+)\??.*"\$"/\1/'`";
 		set episodes_extension=`printf '%s' "${episodes_file}" | sed -r 's/.*\.([^\.\?]+)\??.*$/\1/'`;
 		
 		set episodes_pubdate="`cat './00-pubDates.lst' | head -${episodes_number} | tail -1 | sed 's/[\r\n]//g' | sed 's/\?//g'`";
@@ -375,12 +368,20 @@ fetch_episodes:
 				breaksw;
 		endsw
 		
+		if( "`printf "\""${episodes_file}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_file}" ) then
+			if(! ${?silent} )	\
+				printf "\t\t\t[skipping commentary track]";
+			if( ${?logging} )	\
+				printf "\t\t\t[skipping commentary track]" >> "${download_log}";
+			continue;
+		endif
+		
 		#if(! ${?download_extras} ) then
-		#	if( "`printf "\""${episodes_title_escaped}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_title}" ) then
+		#	if( "`printf "\""${episodes_title_escaped}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_title_escaped}" ) then
 		#		if(! ${?silent} )	\
-		#	printf "\t\t\t[skipping commentary track]";
+		#			printf "\t\t\t[skipping commentary track]";
 		#		if( ${?logging} )	\
-		#	printf "\t\t\t[skipping commentary track]" >> "${download_log}";
+		#			printf "\t\t\t[skipping commentary track]" >> "${download_log}";
 		#		continue;
 		#	endif
 		#endif
@@ -555,20 +556,20 @@ parse_arg:
 		if( ${?debug} || ${?diagnostic_mode} )		\
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
 		
-		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
+		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\1/'`";
 		if( "${dashes}" == "$argv[$arg]" )	\
 			set dashes="";
 		
-		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
+		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\2/'`";
 		if( "${option}" == "$argv[$arg]" )	\
 			set option="";
 		
-		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
+		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\3/'`";
 		if( "${equals}" == "$argv[$arg]" || "${equals}" == "" )	\
 			set equals="";
 		
 		set equals="";
-		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
+		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/'`";
 		if( "${value}" != "" && "${value}" != "$argv[$arg]" ) then
 			set equals="=";
 		else if( "${option}" != "" ) then
@@ -576,10 +577,10 @@ parse_arg:
 			if( ${arg} > ${argc} ) then
 				@ arg--;
 			else
-				set test_dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
-				set test_option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
-				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
-				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?${eol}/\4/'`";
+				set test_dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\1/'`";
+				set test_option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\2/'`";
+				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\3/'`";
+				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/'`";
 				
 				if( ${?debug} || ${?diagnostic_mode} )	\
 					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_value}";

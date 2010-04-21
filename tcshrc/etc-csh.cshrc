@@ -5,8 +5,6 @@
 # 	${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh
 # are sourced from this file.
 #
-if(! ${?eol} ) setenv eol '$';
-#if(! ${?eol} ) setenv eol '"\$"';
 if( ${?TCSH_RC_SOURCE_FILE} ) then
 	unsetenv TCSH_RC_SOURCE_FILE;
 endif

@@ -15,9 +15,6 @@ unset args_handled;
 #set echo
 set addsuffix
 
-if(! ${?eol} ) setenv eol '$';
-#if(! ${?eol} ) setenv eol '"\$"';
-
 setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify --group-directories-first --format=vertical"
 
 set correct=cmd

@@ -3,11 +3,6 @@ if(! ${?TCSH_RC_SOURCE_FILE} ) then
 	setenv TCSH_RC_SOURCE_FILE "$argv[1]";
 endif
 
-if(! ${?eol} ) then
-	if( ${?TCSH_RC_DEBUG} ) printf "Setting environments "\$"{eol}: "\$".\n\t"\$"{eol} is intended to be in regex statements.\n\tE.G. commands and command line arguments, e.g. sed's 's' option.\n";
-	if(! ${?eol} ) setenv eol '$';
-endif
-
 @ args_handled=0;
 @ argc=${#argv};
 @ arg=0;

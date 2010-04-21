@@ -59,7 +59,7 @@ while("${1}" != "" )
 	endif
 	
 	set new_path="";
-	set search_dir="`echo '${1}' | sed -r 's/(.*)\/?${eol}/\1/'`";
+	set search_dir="`echo '${1}' | sed -r 's/(.*)\/?"\$"/\1/'`";
 	shift;
 	if( ${?TCSH_RC_DEBUG} ) echo "\nRecusively looking for possible paths is: <${search_dir}> using:\n\t/usr/bin/find '${search_dir}'${maxdepth}${mindepth}${find_name_argv} -type d\n";
 	
@@ -95,7 +95,7 @@ while("${1}" != "" )
 	end
 	
 	if( "${new_path}" != "" ) then
-		set new_path="`printf '%s' '${new_path}' | sed -r 's/::/:/g' | sed -r 's/:${eol}//'`";
+		set new_path="`printf '%s' '${new_path}' | sed -r 's/::/:/g' | sed -r 's/:"\$"//'`";
 		setenv PATH "${PATH}:${new_path}";
 	endif
 	unset dir escaped_dir new_path find_name_argv;

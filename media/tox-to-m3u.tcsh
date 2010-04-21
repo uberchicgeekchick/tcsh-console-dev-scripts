@@ -13,8 +13,6 @@ endif
 set tox_playlist="${1}";
 shift;
 
-if( ! ${?eol} ) setenv eol '$';
-
 if( ! ( "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)"\$"/\1/g'`" == ".m3u" ) ) then
 	set m3u_playlist="`printf "\""${tox_playlist}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.tox\)"\$"/\1\2\.m3u/'`";
 else

@@ -1,9 +1,5 @@
 #!/bin/tcsh -f
 init:
-	if(! ${?eol} ) then
-		set eol='$';
-		set eol_set;
-	endif
 	set supports_being_source;
 	set scripts_name="tcsh-script.tcsh";
 #init:
@@ -125,8 +121,6 @@ script_main_quit:
 		unset argz;
 	if( ${?debug} )	\
 		unset debug;
-	if( ${?eol_set} )	\
-		unset eol_set eol;
 	if( ${?escaped_cwd} )	\
 		unset escaped_cwd;
 	if( ${?dependency} )	\
@@ -265,17 +259,17 @@ parse_arg:
 		@ arg++;
 		
 		set equals="";
-		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?${eol}/\3/'`";
+		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?"\$"/\3/'`";
 		if( "${value}" == "$argv[$arg]" ) then
 			set value="";
 		else
 			set equals="=";
 		endif
 		
-		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?${eol}/\1/'`";
+		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?"\$"/\1/'`";
 		if( "${dashes}" == "$argv[$arg]" ) set dashes="";
 		
-		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?${eol}/\2/'`";
+		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?"\$"/\2/'`";
 		if( "${option}" == "$argv[$arg]" ) set option="";
 		
 		if( ${?debug} )		\

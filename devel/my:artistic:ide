@@ -1,5 +1,4 @@
 #!/bin/tcsh -f
-if(! ${?eol} ) setenv eol '$';
 
 set resolutions_path="`dirname '${0}'`/../resolutions/gnome-terminal";
 
@@ -374,7 +373,7 @@ next_canvas:
 		endif
 		
 		foreach working_directory("`echo '${my_canvas}'`")
-			set canvas_directory="`printf '%s' '${working_directory}' | sed -r 's/.*\-\-working\-directory\=["\""'\'']?([^\ ]*)["\""'\'']?.*${eol}/\1/'`";
+			set canvas_directory="`printf '%s' '${working_directory}' | sed -r 's/.*\-\-working\-directory\=["\""'\'']?([^\ ]*)["\""'\'']?.*"\$"/\1/'`";
 			if( "${canvas_directory}" == "${working_directory}" ) continue;
 			echo "${canvas_directory}";
 			if( -d "${canvas_directory}" ) continue;

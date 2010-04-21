@@ -72,8 +72,8 @@ missing_dependency:
 
 parse_argv:
 	while( "${1}" != "" )
-		set option="`echo '${1}' | sed -r 's/[\-]{1,2}([^=]+)=?(.*)${eol}/\1/'`";
-		set value="`echo '${1}' | sed -r 's/[\-]{1,2}([^=]+)=?(.*)${eol}/\2/'`";
+		set option="`echo '${1}' | sed -r 's/[\-]{1,2}([^=]+)=?(.*)"\$"/\1/'`";
+		set value="`echo '${1}' | sed -r 's/[\-]{1,2}([^=]+)=?(.*)"\$"/\2/'`";
 		
 		switch( "${option}" )
 			case "help":

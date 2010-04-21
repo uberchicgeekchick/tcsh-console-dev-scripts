@@ -1,4 +1,0 @@
-./tcshrc/mount:sshfs:dreams.tcsh	=	../remote-fs/mount:sshfs:dreams.tcsh
-./tcshrc/aliases:launchers.tcsh	=	../launchers/init.tcsh
-./tcshrc/art:alacast.cshrc.tcsh	=	/projects/cli/alacast/scripts/alacast:environment.cshrc.tcsh
-./xml-parsers/feed:fetch-all:enclosures.tcsh	=	/projects/gtk/alacast/scripts/alacast:feed:fetch-all:enclosures.tcsh

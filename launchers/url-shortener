@@ -18,7 +18,6 @@ noexec:
 
 launcher_main:
 	set uri_shortener_domain="http://ur1.ca/";
-	if(! ${?eol} ) set eol='$';
 	set status=0;
 
 next_uri:

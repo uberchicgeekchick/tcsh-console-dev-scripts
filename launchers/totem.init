@@ -33,16 +33,11 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if(! ${?eol} ) then
-	if( ${?TCSH_RC_DEBUG} ) printf "*I shouldn't see this*\nSetting environments %s{eol} to: %s for use in sed scripts & calls.\n" "${eol}" "${eol}";
-	setenv eol '$';
-endif
-
 set playlists_path="/media/library/playlists/m3u";
 set playlists_files=( "podcasts.local.m3u" "${this_program}-audio.m3u" "${this_program}-video.m3u" );
 foreach playlist( ${playlists_files} )
-	set alias_suffix="`printf '%s' '${playlist}' | sed -r 's/^[^\-]+\-([^\.]+)\..*${eol}/\1/'`";
-	if(!( "${alias_suffix}" != "" && "${alias_suffix}" != "${playlist}" )) set alias_suffix="`printf '%s' '${playlist}' | sed -r 's/^([^\.]+)\..*${eol}/\1/'`";
+	set alias_suffix="`printf '%s' '${playlist}' | sed -r 's/^[^\-]+\-([^\.]+)\..*"\$"/\1/'`";
+	if(!( "${alias_suffix}" != "" && "${alias_suffix}" != "${playlist}" )) set alias_suffix="`printf '%s' '${playlist}' | sed -r 's/^([^\.]+)\..*"\$"/\1/'`";
 	set playlist="${playlists_path}/${playlist}";
 	set playlist_path="`dirname '${playlist}'`";
 	set alias_target="if(! -d '${playlist_path}' ) mkdir -p '${playlist_path}'; if( ! -e '${playlists_path}/${playlist}' ) touch '${playlists_path}/${playlist}' ; ${program} --class='${this_program}-${alias_suffix}' '${playlists_path}/${playlist}'";

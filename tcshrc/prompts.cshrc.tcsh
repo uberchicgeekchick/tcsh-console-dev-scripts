@@ -11,9 +11,6 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if(! ${?eol} ) setenv eol '$';
-#if(! ${?eol} ) setenv eol '"\$"';
-
 set padhour='0'
 set ellipsis
 
@@ -29,7 +26,7 @@ if( "${uid}" != "0" ) then
 	set prompt="${prompt}#>";
 else
 	if( ${?TCSH_RC_DEBUG} ) printf "Setting super user's prompt.\n";
-	set prompt="${prompt}${eol}>";
+	set prompt="${prompt}"\$">";
 endif
 
 # echo's the new current directory when the current working directory's changed.

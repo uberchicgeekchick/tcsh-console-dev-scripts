@@ -44,7 +44,7 @@ foreach lib_dir(${lib_dirs})
 end
 
 foreach lib_dir(${lib_dirs})
-	set lib_dir="`printf '%s' '${lib_dir}' | sed -r 's/(.*)64${eol}/\1/'`";
+	set lib_dir="`printf '%s' '${lib_dir}' | sed -r 's/(.*)64"\$"/\1/'`";
 	if( -d "${lib_dir}" && "`/bin/ls '${lib_dir}'`" != "" )	\
 		set library_paths="${library_paths}:${lib_dir}";
 end

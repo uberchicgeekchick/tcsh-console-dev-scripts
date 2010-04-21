@@ -14,8 +14,8 @@ unset args_handled;
 setenv color_start `cat ${TCSH_RC_SESSION_PATH}/art:color`;
 setenv tcsh_color "${color_start}";
 setenv color "${color_start}";
-#if( ${?TCSH_RC_DEBUG} ) printf "${color_start}00;31mSetting TCSH color environmental variables\n\t${eol}color_start\n\t${eol}tcsh_color\n\t${eol}color\n${color_start}00;00m\n";
-if( ${?TCSH_RC_DEBUG} ) printf "Setting TCSH color environmental variables\n\t${eol}color_start\n\t${eol}tcsh_color\n\t${eol}color\n";
+#if( ${?TCSH_RC_DEBUG} ) printf "${color_start}00;31mSetting TCSH color environmental variables\n\t"\$"color_start\n\t"\$"tcsh_color\n\t"\$"color\n${color_start}00;00m\n";
+if( ${?TCSH_RC_DEBUG} ) printf "Setting TCSH color environmental variables\n\t"\$"color_start\n\t"\$"tcsh_color\n\t"\$"color\n";
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "art:color.cshrc.tcsh";
 

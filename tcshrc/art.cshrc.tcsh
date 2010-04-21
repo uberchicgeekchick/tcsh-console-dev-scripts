@@ -17,9 +17,6 @@ else if( "${echo_style}" != "sysv" ) then
 	set echo_style=sysv;
 endif
 
-if(! ${?eol} ) setenv eol '$';
-#if(! ${?eol} ) setenv eol '"\$"';
-
 source ${TCSH_RC_SESSION_PATH}/source:argv "${TCSH_RC_SESSION_PATH}/art:color.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:devel:make:init.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" "art:grep-and-find.cshrc.tcsh";
 
 

@@ -12,8 +12,6 @@ endif
 unset args_handled;
 
 
-if(! ${?eol} ) setenv eol '$';
-#if(! ${?eol} ) setenv eol '"\$"';
 set highlight;
 set histlit;
 set histdup=erase;

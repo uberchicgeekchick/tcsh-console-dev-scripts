@@ -11,9 +11,6 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if(! ${?eol} ) setenv eol '$';
-#if(! ${?eol} ) setenv eol '"\$"';
-
 if(!(${?DEBUG_EXEC})) then
 	setenv output " >& /dev/null &";
 else
@@ -71,7 +68,7 @@ foreach launcher ( "`/usr/bin/find '${TCSH_WEBSITE_LAUNCHER_PATH}' -type f -perm
 			breaksw;
 	endsw
 	
-	set website="`printf '%s' '${launcher}' | sed -r 's/(.*)\.tcsh${eol}/\1/'`";
+	set website="`printf '%s' '${launcher}' | sed -r 's/(.*)\.tcsh"\$"/\1/'`";
 	if( ${?TCSH_RC_DEBUG} ) printf "Setting up website alias for [%s] to [%s/%s].\n" "${website}" "${TCSH_WEBSITE_LAUNCHER_PATH}" "${launcher}";
 	if( "`alias '${website}'`" != "" )	\
 		unalias "${website}";

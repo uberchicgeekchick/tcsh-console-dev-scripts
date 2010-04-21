@@ -104,11 +104,6 @@ endif
 if(! ${?target_directory} )	\
 	set target_directory="${cwd}";
 
-if(! ${?eol} ) then
-	set eol_set;
-	set eol='$';
-endif
-
 switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`" )
 	case "m3u":
 		set playlist_type="m3u";
@@ -189,11 +184,6 @@ get_missing:
 
 
 exit_script:
-	if( ${?eol_set} ) then
-		unset eol_set;
-		unset eol;
-	endif
-	
 	if( ${?echo_set} ) then
 		unset echo;
 		unset echo_set;

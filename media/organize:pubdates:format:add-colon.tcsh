@@ -16,7 +16,7 @@ if( "${cwd}" != "${1}" ) then
 	cd "${1}";
 endif
 
-foreach title("`/usr/bin/find -L "\""${cwd}"\"" -regextype posix-extended -iregex '.*, released on .*\.([^\.]*)"\$"' -type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/[${eol}]/"\""\\${eol}"\""/g' | sed -r 's/(['\!'])/\\\1/g'`")
+foreach title("`/usr/bin/find -L "\""${cwd}"\"" -regextype posix-extended -iregex '.*, released on .*\.([^\.]*)"\$"' -type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g'`")
 	set file_path="`printf "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on)\ ([^\.]+)\.([^\.]+)/\1/g'`";
 	set file_name="`printf "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on)\ ([^\.]+)\.([^\.]+)/\2/g'`";
 	set rel_string="`printf "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on)\ ([^\.]+)\.([^\.]+)/\3/g'`";

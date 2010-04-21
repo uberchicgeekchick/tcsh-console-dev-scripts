@@ -13,7 +13,6 @@ exit_script:
 		set owd="${use_old_owd}";
 		unset use_old_owd;
 	endif
-	if( ${?eol_set} ) unset eol_set eol;
 	exit ${status}
 #exit_script:
 

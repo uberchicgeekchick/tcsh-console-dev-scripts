@@ -25,7 +25,7 @@ if( "${cwd}" != "${TCSH_RC_SESSION_PATH}" ) then
 	cd "${TCSH_RC_SESSION_PATH}";
 endif
 source "${TCSH_RC_SESSION_PATH}/source:argv" art:alacast.cshrc.tcsh art:paths.cshrc.tcsh paths:lib.cshrc.tcsh paths:lib64.cshrc.tcsh paths:programs.cshrc.tcsh;
-setenv PATH "`printf '%s' '${PATH}' | sed -r 's/::/:/g' | sed -r 's/:${eol}//'`";
+setenv PATH "`printf '%s' '${PATH}' | sed -r 's/::/:/g' | sed -r 's/:"\$"//'`";
 if( ${?revert_to_owd} ) then
 	cd "${revert_to_owd}";
 	if( ${?paths_oldcwdcmd} ) then

@@ -1,5 +1,4 @@
 #!/bin/tcsh -f
-if(! ${?eol} ) setenv eol '$';
 while("${1}" != "" )
 	while(! ${?ls_dir} )
 		switch ("${1}")
@@ -23,8 +22,8 @@ while("${1}" != "" )
 
 	if(! ${?output} ) set output="\5: \1\6";
 	
-	printf "Contents of <%s>:\n" "`echo "\""${ls_dir}"\"" | sed -r 's/\/${eol}//'`";
-	/bin/ls --width=1  "${ls_dir}" | /bin/sed -r "s/^(.*)(, released on)(:)?\ [^0-9,\ ]+,\ ( )?([0-9]+.*)(\.[^\.]*)${eol}/${output}/" | /bin/sort
+	printf "Contents of <%s>:\n" "`echo "\""${ls_dir}"\"" | sed -r 's/\/"\$"//'`";
+	/bin/ls --width=1  "${ls_dir}" | /bin/sed -r "s/^(.*)(, released on)(:)?\ [^0-9,\ ]+,\ ( )?([0-9]+.*)(\.[^\.]*)"\$"/${output}/" | /bin/sort
 	printf "\n";
 	unset ls_dir;
 end

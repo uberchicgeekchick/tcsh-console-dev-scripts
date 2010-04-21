@@ -290,14 +290,14 @@ git_commit:
 	
 	if(! ${?branch} ) then
 		set branch="`head -1 "\""${commit_log}"\""`";
-		foreach branch_test("`git branch | sed -r 's/^[\ \t]*(.*)${eol}/\1/'`")
+		foreach branch_test("`git branch | sed -r 's/^[\ \t]*(.*)"\$"/\1/'`")
 			if( "${branch}" == "${branch_test}" )	\
 				break;
 			unset branch_test;
 		end
 		if(! ${?branch_test} ) then
 			if( ${?append} ) then
-				set branch="`git branch | tail -2 | head -1 | sed -r 's/^[\ \t]*(.*)${eol}/\1/'`";
+				set branch="`git branch | tail -2 | head -1 | sed -r 's/^[\ \t]*(.*)"\$"/\1/'`";
 			endif
 		endif
 	else if( ${?branch} ) then

@@ -4,8 +4,8 @@ if( "${1}" != "" && "${1}" == "--edit-playlist" ) then
 	shift;
 endif
 
-if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)${eol}/\1/'`" == ".m3u" && -e "${1}" ) ) then
-	if( "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)${eol}/\1/'`" != ".m3u" ) printf "\n\t**ERROR:** %s is not a valid m3u playlist." "${1}";
+if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)"\$"/\1/'`" == ".m3u" && -e "${1}" ) ) then
+	if( "`printf "\""${1}"\"" | sed 's/.*\(\.m3u\)"\$"/\1/'`" != ".m3u" ) printf "\n\t**ERROR:** %s is not a valid m3u playlist." "${1}";
 	printf "Usage: %s playlist.m3u [toxine/playlist/filename.tox]" "`basename '${0}'`";
 	exit -1;
 endif
@@ -13,10 +13,8 @@ endif
 set m3u_playlist="${1}";
 shift;
 
-if( ! ${?eol} ) setenv eol '$';
-
-if( ! ( "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)${eol}/\1/g'`" == ".tox" ) ) then
-	set tox_playlist="`printf "\""${m3u_playlist}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.m3u\)${eol}/\1\2\.tox/'`";
+if( ! ( "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)"\$"/\1/g'`" == ".tox" ) ) then
+	set tox_playlist="`printf "\""${m3u_playlist}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.m3u\)"\$"/\1\2\.tox/'`";
 else
 	set tox_playlist="${1}";
 	shift;
@@ -24,14 +22,14 @@ endif
 
 set insert_subdir="";
 if( "`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`" == "insert-subdir" ) then
-	set insert_subdir="`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/' | sed -r 's/^\///' | sed -r 's/\/${eol}//' | sed -r 's/\//\\\//'`\/";
+	set insert_subdir="`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/' | sed -r 's/^\///' | sed -r 's/\/"\$"//' | sed -r 's/\//\\\//'`\/";
 	if( "${insert_subdir}" == "" )	\
 		unset insert_subdir;
 	shift;
 endif
 
 if( "`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`" == "strip-subdir" ) then
-	set strip_subdir="`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/' | sed -r 's/^\///' | sed -r 's/\/${eol}//' | sed -r 's/\//\\\//'`\/";
+	set strip_subdir="`printf '%s' "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/' | sed -r 's/^\///' | sed -r 's/\/"\$"//' | sed -r 's/\//\\\//'`\/";
 	if( "${strip_subdir}" == "" ) then
 		unset strip_subdir;
 	else if( "${strip_subdir}" == "${insert_subdir}" ) then

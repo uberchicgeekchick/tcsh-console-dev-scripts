@@ -7,7 +7,7 @@ set keywords=( "ifndef" "define" );
 foreach keyword( ${keywords} )
 	set duplicate_files=();
 	foreach h ( *.h )
-		set define="`egrep '#${keyword}[\ \t]+__[A-Z_]+_H__' '${h}' | sed -r 's/.*#${keyword}[\ \t]+(.*)${eol}/\1/'`";
+		set define="`egrep '#${keyword}[\ \t]+__[A-Z_]+_H__' '${h}' | sed -r 's/.*#${keyword}[\ \t]+(.*)"\$"/\1/'`";
 		set define_egrep="`egrep '#${keyword}[\ \t]+${define}' *.h | sed -r 's/(.*)[\ \t]*:[\ \t]*[0-9]+.*/\1/'`";
 		if(!( ${#define_egrep} > 1 )) continue;
 		foreach dup_h ( ${duplicate_files} )

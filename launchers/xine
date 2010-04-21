@@ -19,9 +19,9 @@ noexec:
 
 launchers_main:
 
-if(! ${?audio_driver} ) set audio_driver="oss";
+#if(! ${?audio_driver} ) set audio_driver="oss";
 
-if(! ${?video_driver} ) set video_driver="opengl";
+#if(! ${?video_driver} ) set video_driver="opengl";
 
 if(! ${?resolution} ) then
 	if(!( ${?1} && "${1}" != "" )) then

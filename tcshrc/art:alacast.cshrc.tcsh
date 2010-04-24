@@ -22,11 +22,14 @@ set_gtk_path:
 	setenv ALACAST_GTK_PATH "/projects/gtk/alacast";
 	set alacast_gtk_paths=("bin" "scripts");
 	foreach alacast_gtk_path(${alacast_gtk_paths})
+		set alacast_gtk_path="${ALACAST_GTK_PATH}/${alacast_gtk_path}";
+		
 		if( ${?TCSH_RC_DEBUG} )	\
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_gtk_path}";
-		set alacast_gtk_path="${ALACAST_GTK_PATH}/${alacast_gtk_path}";
-		set escaped_alacast_gtk_path="`printf "\""%s"\"" "\""${alacast_gtk_path}"\"" | sed -r 's/\//\\\//g'`";
-		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/.*\:(${escaped_alacast_gtk_path}).*/\1/g'`" == "${alacast_gtk_path}" ) then
+		
+		if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${alacast_gtk_path}"` != 0 ) then
+			if( ${?TCSH_RC_DEBUG} )	\
+				printf "[skipped]\n\t*skipped*: adding <file://%s> to your PATH.\n" "${alacast_gtk_path}";
 			continue;
 		endif
 		
@@ -47,13 +50,14 @@ set_cli_path:
 	setenv ALACAST_CLI_PATH "/projects/cli/alacast";
 	set alacast_cli_paths=("bin" "scripts" "helpers/gpodder-0.11.3-hacked/bin" "helpers/gpodder-0.11.3-hacked/scripts");
 	foreach alacast_cli_path(${alacast_cli_paths})
+		set alacast_cli_path="${ALACAST_CLI_PATH}/${alacast_cli_path}";
+		
 		if( ${?TCSH_RC_DEBUG} )	\
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_cli_path}";
-		set alacast_cli_path="${ALACAST_CLI_PATH}/${alacast_cli_path}";
-		set escaped_alacast_cli_path="`printf "\""%s"\"" "\""${alacast_cli_path}"\"" | sed -r 's/\//\\\//g'`";
-		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/.*\:(${escaped_alacast_cli_path}).*/\1/g'`" == "${alacast_cli_path}" ) then
+		
+		if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${alacast_cli_path}"` != 0 ) then
 			if( ${?TCSH_RC_DEBUG} )	\
-				printf "[skipped]\n\t\t\t<file://%s> is already in your PATH\n" "${alacast_cli_path}";
+				printf "[skipped]\n\t*skipped*: adding <file://%s> to your PATH.\n" "${alacast_cli_path}";
 			continue;
 		endif
 		

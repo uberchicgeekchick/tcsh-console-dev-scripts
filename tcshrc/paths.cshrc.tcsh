@@ -30,7 +30,7 @@ source "${TCSH_RC_SESSION_PATH}/source:argv" art:alacast.cshrc.tcsh art:paths.cs
 #if( "${MACHTYPE}" == "x86_64" ) \
 #	source "paths:lib.cshrc.tcsh" "${MACHTYPE}";
 
-setenv PATH "`printf '%s' '${PATH}' | sed -r 's/::/:/g' | sed -r 's/:"\$"//'`";
+setenv PATH "`printf '%s' '${PATH}' | sed -r 's/^\://' | sed -r 's/\:\:/\:/g' | sed -r 's/\:"\$"//'`";
 if( ${?revert_to_owd} ) then
 	cd "${revert_to_owd}";
 	if( ${?paths_oldcwdcmd} ) then

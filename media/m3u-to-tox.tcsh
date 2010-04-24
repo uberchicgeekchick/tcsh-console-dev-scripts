@@ -44,7 +44,8 @@ if( "${m3u_playlist}" == "${tox_playlist}" ) then
 	exit -1;
 endif
 
-if( ${?edit_playlist} ) ${EDITOR} "${tox_playlist}";
+if( ${?edit_playlist} ) \
+	${EDITOR} "${tox_playlist}";
 
 printf "Converting %s to %s" "${m3u_playlist}" "${tox_playlist}";
 

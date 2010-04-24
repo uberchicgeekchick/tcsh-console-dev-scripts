@@ -676,13 +676,39 @@ parse_arg:
 					set debug;
 				breaksw;
 			
+			case "switch-option":
+				switch("${value}")
+					case "iv":
+					case "verbose":
+					case "interactive":
+						set switch_option="${dashes}${value}";
+						breaksw;
+					
+					default:
+						set switch_option;
+						breaksw;
+				endsw
+				
+				if( ${?debug} ) \
+					printf "**%s debug:**, via "\$"argv[%d], %s:\t[disabled].\n\n" "${script_basename}" $arg "${option}";
+				breaksw;
+			
 			case "enable":
 				switch("${value}")
+					case "switch-option":
+						if( ${?switch_option} ) \
+							breaksw;
+						
+						if( ${?debug} ) \
+							printf "**%s debug:**, via "\$"argv[%d], %s mode:\t[%sd].\n\n" "${script_basename}" $arg "${value}" "${option}";
+						set switch_option;
+						breaksw;
+					
 					case "verbose":
 						if(! ${?be_verbose} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[enabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						set be_verbose;
 						breaksw;
 					
@@ -690,7 +716,7 @@ parse_arg:
 						if( ${?debug} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						set debug;
 						breaksw;
 					
@@ -700,7 +726,7 @@ parse_arg:
 							breaksw;
 						
 				
-						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						set diagnostic_mode;
 						if(! ${?debug} )	\
 							set debug;
@@ -714,11 +740,20 @@ parse_arg:
 			
 			case "disable":
 				switch("${value}")
+					case "switch-option":
+						if(! ${?switch_option} ) \
+							breaksw;
+						
+						if( ${?debug} ) \
+							printf "**%s debug:**, via "\$"argv[%d], %s mode:\t[%sd].\n\n" "${script_basename}" $arg "${value}" "${option}";
+						unset switch_option;
+						breaksw;
+					
 					case "verbose":
 						if(! ${?be_verbose} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[disabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						unset be_verbose;
 						breaksw;
 					
@@ -726,7 +761,7 @@ parse_arg:
 						if(! ${?debug} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[disabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						unset debug;
 						breaksw;
 					
@@ -735,7 +770,7 @@ parse_arg:
 						if(! ${?diagnostic_mode} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[disabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						unset diagnostic_mode;
 						breaksw;
 					

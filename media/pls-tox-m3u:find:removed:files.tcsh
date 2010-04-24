@@ -235,13 +235,46 @@ exec:
 		goto exception_handler;
 	endif
 	
-	if( ${?filename_list} ) then
-		set callback="process_filename_list";
+	if( ${?edit_playlist} && ! ${?playlist_edited} ) then
+		set playlist_edited;
+		${EDITOR} "${playlist}";
+	endif
+	
+	if(! ${?playlist_type} ) then
+		set callback="setup_playlist";
 		goto callback_handler;
 	endif
 	
 	if( ${?debug} )	\
 		printf "Executing %s's main.\n" "${script_basename}";
+	
+	if( ${?clean_up} && ! ${?playlist_new} ) then
+		set playlist_new="`printf "\""%s"\"" "\""${playlist}"\""` | sed -r 's/(.*)\.([^\.]+)"\$"/\1/'`.new.${playlist_type}";
+		if( -e "${playlist_new}" ) \
+			rm "${playlist_new}";
+	endif
+	
+	if( ${?filename_list} ) then
+		if( ${?filename} ) then
+			if( -e "${filename}.${extension}" ) then
+				if( ${?clean_up} ) then
+					if(! -e "${playlist_new}" ) then
+						printf "${filename}.${extension}" >! "${playlist_new}";
+					else
+						printf "\n${filename}.${extension}" >> "${playlist_new}";
+					endif
+			else
+				if(! ${?dead_file_count} ) then
+					@ dead_file_count=1;
+				else
+					@ dead_file_count++;
+				endif
+				printf "${filename}.${extension}\n";
+			endif
+		endif
+		set callback="process_filename_list";
+		goto callback_handler;
+	endif
 	goto script_main_quit;
 #exec:
 
@@ -252,11 +285,54 @@ process_filename_list:
 		set original_extension="${extension}";
 		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
 		set filename="`printf "\""${filename}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-		if(! -e "${filename}.${extension}" ) \
-			printf "${filename}.${extension}\n";
+		goto exec;
 	end
+	rm "${filename_list}";
+	unset filename filename_list;
 #process_filename_list:
 
+#format_new_playlist:
+	if(! ${?clean_up} ) then
+		set callback="script_main_quit";
+		goto callback_handler;
+	endif
+	
+	if(! -e "${playlist_new}" ) then
+		set callback="script_main_quit";
+		goto callback_handler;
+	endif
+	
+	if(! ${dead_file_count} ) then
+		rm "${playlist_new}";
+		set callback="script_main_quit";
+		goto callback_handler;
+	endif
+	
+	switch("${playlist_type}")
+		case "tox":
+			ex '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\/\2\.\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+wq!' "${playlist_new}";
+			breaksw;
+		
+		case "pls":
+			set lines=`wc -l "${playlist_new}"`;
+			@ line=0;
+			@ line_number=0;
+			while( $line < $lines )
+				@ line++;
+				@ line_number++;
+				ex "+${line_number}s/\v^(.*)\/([^\/]+)\.([^\.]+)"\$"/File${line}\=\1\/\2\.\3\rTitle${line}\=\2/" '+wq!' "${playlist_new}";
+				@ line_number++;
+			end
+			printf "[playlist]\nnumberofentries=${lines}\n" > "${playlist_new}.swp";
+			cat "${playlist_new}" >> "${playlist_new}.swp";
+			printf "\nVersion=2" >> "${playlist_new}.swp";
+			rm "${playlist_new}";
+			mv "${playlist_new}.swp" "${playlist_new}";
+			breaksw;
+		
+	endsw
+	mv ${clean_up} "${playlist_new}" "${playlist}";
+#format_new_playlist:
 
 script_main_quit:
 	set label_current="script_main_quit";
@@ -551,7 +627,6 @@ parse_arg:
 		
 		if( -e "$argv[$arg]" ) then
 			set playlist="$argv[$arg]";
-			goto setup_playlist;
 			continue;
 		endif
 		
@@ -641,6 +716,11 @@ parse_arg:
 				set numbered_option="${value}";
 				breaksw;
 			
+			case "edit-playlist":
+				if(! ${?edit_playlist} ) \
+					set edit_playlist;
+				breaksw;
+			
 			case "h":
 			case "help":
 				goto usage;
@@ -659,7 +739,6 @@ parse_arg:
 					breaksw;
 				endif
 				set playlist="${value}";
-				goto setup_playlist;
 				breaksw;
 			
 			case "debug":
@@ -678,13 +757,39 @@ parse_arg:
 					set debug;
 				breaksw;
 			
+			case "clean-up":
+				switch("${value}")
+					case "iv":
+					case "verbose":
+					case "interactive":
+						set clean_up="${dashes}${value}";
+						breaksw;
+					
+					default:
+						set clean_up;
+						breaksw;
+				endsw
+				
+				if( ${?debug} ) \
+					printf "**%s debug:**, via "\$"argv[%d], %s:\t[enabled].\n\n" "${script_basename}" $arg "${option}";
+				breaksw;
+			
 			case "enable":
 				switch("${value}")
+					case "clean-up":
+						if( ${?clean_up} ) \
+							breaksw;
+						
+						if( ${?debug} ) \
+							printf "**%s debug:**, via "\$"argv[%d], clean-up mode:\t[%sed].\n\n" "${script_basename}" $arg "${option}";
+						set clean_up;
+						breaksw;
+					
 					case "verbose":
 						if(! ${?be_verbose} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[enabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						set be_verbose;
 						breaksw;
 					
@@ -692,7 +797,7 @@ parse_arg:
 						if( ${?debug} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						set debug;
 						breaksw;
 					
@@ -702,7 +807,7 @@ parse_arg:
 							breaksw;
 						
 				
-						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						set diagnostic_mode;
 						if(! ${?debug} )	\
 							set debug;
@@ -716,11 +821,20 @@ parse_arg:
 			
 			case "disable":
 				switch("${value}")
+					case "clean-up":
+						if(! ${?clean_up} ) \
+							breaksw;
+						
+						if( ${?debug} ) \
+							printf "**%s debug:**, via "\$"argv[%d], clean-up mode:\t[%sd].\n\n" "${script_basename}" $arg "${option}";
+						unset clean_up;
+						breaksw;
+					
 					case "verbose":
 						if(! ${?be_verbose} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[disabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						unset be_verbose;
 						breaksw;
 					
@@ -728,7 +842,7 @@ parse_arg:
 						if(! ${?debug} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[disabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						unset debug;
 						breaksw;
 					
@@ -737,7 +851,7 @@ parse_arg:
 						if(! ${?diagnostic_mode} )	\
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[disabled].\n\n" "${script_basename}" $arg;
+						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						unset diagnostic_mode;
 						breaksw;
 					
@@ -883,7 +997,7 @@ setup_playlist:
 			breaksw;
 		
 	endsw
-	goto parse_arg;
+	set callback="exec";
 	goto callback_handler;
 #setup_playlist:
 

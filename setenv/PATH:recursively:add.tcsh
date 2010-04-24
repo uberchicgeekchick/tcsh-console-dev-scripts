@@ -1,7 +1,7 @@
 #!/usr/bin/tcsh -f
-set source_file="PATH:recursively:add.tcsh";
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "PATH:recursively:add.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -10,7 +10,7 @@ if( $args_handled > 0 ) then
 	end
 	unset args_shifted;
 endif
-unset args_handled source_file;
+unset args_handled;
 
 set maxdepth="";
 set mindepth="";
@@ -53,7 +53,8 @@ while("${1}" != "" )
 			goto next_argv;
 		endif
 		set status=-1;
-		printf "[%s] is not an existing directory.\n\n" "${1}" > /dev/stderr;
+		if( ${?TCSH_OUTPUT_ENABLED} )	\
+			printf "[%s] is not an existing directory.\n\n" "${1}" > /dev/stderr;
 		shift;
 		continue;
 	endif
@@ -61,10 +62,10 @@ while("${1}" != "" )
 	set new_path="";
 	set search_dir="`echo '${1}' | sed -r 's/(.*)\/?"\$"/\1/'`";
 	shift;
-	if( ${?TCSH_RC_DEBUG} ) echo "\nRecusively looking for possible paths is: <${search_dir}> using:\n\t/usr/bin/find '${search_dir}'${maxdepth}${mindepth}${find_name_argv} -type d\n";
+	if( ${?TCSH_RC_DEBUG} ) echo "\nRecusively looking for possible paths is: <${search_dir}> using:\n\tfind -L '${search_dir}' -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d\n";
 	
 	set escaped_recusive_dir="`echo '${search_dir}' | sed -r 's/\//\\\//g'`";
-	foreach dir ( "`/usr/bin/find '${search_dir}'${maxdepth}${mindepth}${find_name_argv} -type d`" )
+	foreach dir ( "`find -L '${search_dir}' -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d`" )
 		if( "${dir}" == "" ) continue;
 		if( "`echo '${dir}' | sed -r 's/${escaped_recusive_dir}(\.).*/\1/'`" == "." ) continue;
 		set escaped_dir="`echo '${dir}' | sed -r 's/.*\/([^\/]+)/\1/'`";
@@ -79,23 +80,26 @@ while("${1}" != "" )
 			default:
 				if( ${?TCSH_RC_DEBUG} )	\
 					printf "Attempting to add: [file://%s] to your PATH:\t\t" "${dir}";
-				set dir="`echo '${dir}' | sed -r 's/([\:])/\\\1/g'`";
-				set escaped_dir="`echo '${dir}' | sed -r 's/\//\\\//g'`";
-				if( "`echo '${PATH}' | sed 's/.*:\(${escaped_dir}\).*/\1/g'`" == "${dir}" ) then
+				
+				if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${dir}"` != 0 ) then
 					if( ${?TCSH_RC_DEBUG} )	\
 						printf "[skipped]\n\t\t\t<file://%s> is already in your PATH\n" "${dir}";
 					continue;
 				endif
 				
 				if( ${?TCSH_RC_DEBUG} )	\
-					printf "[added]\n" "${dir}";
-				set new_path="${new_path}:${dir}";
+					printf "[added]\n";
+				if(! ${?new_path} ) then
+					set new_path="${dir}";
+				else
+					set new_path="${new_path}:${dir}";
+				endif
 				breaksw;
 		endsw
 	end
 	
 	if( "${new_path}" != "" ) then
-		set new_path="`printf '%s' '${new_path}' | sed -r 's/::/:/g' | sed -r 's/:"\$"//'`";
+		set new_path="`printf '%s' '${new_path}' | sed -r 's/::/:/g' | sed -r 's/^://' | sed -r 's/:"\$"//'`";
 		setenv PATH "${PATH}:${new_path}";
 	endif
 	unset dir escaped_dir new_path find_name_argv;
@@ -104,8 +108,7 @@ end
 	if( ${status} != 0 ) goto usage;
 
 main_quit:
-	set source_file="PATH:recursively:add.tcsh";
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "PATH:recursively:add.tcsh";
 	
 	exit ${status};
 

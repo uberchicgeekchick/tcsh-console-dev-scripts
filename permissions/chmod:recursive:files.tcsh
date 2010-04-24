@@ -2,6 +2,6 @@
 set mode="-x";
 set target="./";
 if( ${?1} && "${1}" != "" && -d "${1}" ) set target="${1}";
-foreach exec ( "`/usr/bin/find '${target}/' -type f`" )
+foreach exec ( "`find -L '${target}/' -ignore_readdir_race -type f`" )
 	chmod "${mode}" "${exec}";
 end

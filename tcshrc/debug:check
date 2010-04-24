@@ -1,15 +1,25 @@
 #!/bin/tcsh -f
 if( ${?TCSH_RC_DEBUG} ) then
-	if( ! ${?SSH_CONNECTION} ) exit 1;
+	if( ${?TCSH_OUTPUT_ENABLED} ) exit 1;
 	unsetenv TCSH_RC_DEBUG;
 	exit 0;
 endif
 
 @ debug=0;
 #setenv TCSH_RC_DEBUG;
-if( ! ${?SSH_CONNECTION} && ${?1} && "${1}" != "" && ( ( ${?2} && "${2}" != "" && "${2}" == "--debug" ) || ( ${?3} && "${3}" != "" && "${3}" == "--debug" ) ) ) then
-	printf "[%s]: enabling verbose debugging output @ %s.\n" "${1}" `date "+%I:%M:%S%P"`;
-	setenv TCSH_RC_DEBUG "${1}";
+if( ${?TCSH_OUTPUT_DISABLED} )	\
+	exit 0;
+	
+@ arg=1;
+set argc=${#argv};
+while( $arg < $argc )
+	@ arg++;
+	if( "$argv[$arg]" != "--debug" ) \
+		continue;
+	
+	printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[0]" `date "+%I:%M:%S%P"`;
+	setenv TCSH_RC_DEBUG "$argv[0]";
 	@ debug=1;
+	break;
 endif
 exit $debug;

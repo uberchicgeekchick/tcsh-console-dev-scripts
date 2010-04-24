@@ -17,9 +17,11 @@ endif
 unset args_handled;
 
 
-set history_skip_merge;
-source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
-unset history_skip_merge;
+if(! ${?histfile} ) then
+	set history_skip_merge;
+	source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
+	unset history_skip_merge;
+endif
 
 set status=-1;
 @ lock_step=0;
@@ -28,10 +30,11 @@ while( -e "${histfile}.lock" )
 	@ lock_step++;
 	if( ${lock_step} > 20 ) then
 		printf "History access is locked and the timeout has exceeded.\n\t%s exisits.\n" "${histfile}.lock";
-		exit ${status};
+		goto exit_script;
 	endif
 end
 
+touch "${histfile}.lock";
 jobs >! "${histfile}.jobs";
 if(! ${?logout_force} ) then
 	set status=-1;
@@ -41,17 +44,23 @@ if(! ${?logout_force} ) then
 		cat "${histfile}.jobs";
 		printf "\nset logout_force to skip this test.\n";
 		/bin/rm -fv "${histfile}.jobs";
+		/bin/rm -fv "${histfile}.lock";
 		set status=-1;
-		exit ${status};
+		goto exit_script;
 	endif
 endif
 
 set status=0;
-if( -e "${histfile}.jobs" ) rm -fv "${histfile}.jobs";
+if( -e "${histfile}.lock" )	\
+	rm -fv "${histfile}.lock";
+
+if( -e "${histfile}.jobs" )	\
+	rm -fv "${histfile}.jobs";
 
 source "${TCSH_RC_SESSION_PATH}/logout.cshrc.tcsh";
 
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "etc-csh.cshrc";
-
-exit ${status};
+exit_script:
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "etc-csh.cshrc";
+	exit ${status};
+#exit_script:
 

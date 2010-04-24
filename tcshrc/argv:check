@@ -1,6 +1,14 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SOURCE_FILE} ) then
+if(! ${?TCSH_RC_SOURCE_FILE} )	\
 	setenv TCSH_RC_SOURCE_FILE "$argv[1]";
+
+if( ! ${?TCSH_OUTPUT_ENABLED} && ! ${?TCSH_OUTPUT_DISABLED} ) then
+	#if( ${?TTY} && ! ${?SSH_CONNECTION} ) then
+	if( ! ${?SSH_CONNECTION} ) then
+		setenv TCSH_OUTPUT_ENABLED;
+	else
+		setenv TCSH_OUTPUT_DISABLED;
+	endif
 endif
 
 @ args_handled=0;
@@ -13,7 +21,7 @@ if(! ${?TCSH_RC_DEBUG} ) then
 			case "--debug":
 				@ args_handled++;
 				@ arg=${#argv};
-				if( ${?SSH_CONNECTION} ) breaksw;
+				if(! ${?TCSH_OUTPUT_ENABLED} ) breaksw;
 				if( ${?TCSH_RC_DEBUG} ) then
 					if( "${TCSH_RC_DEBUG}" != "$argv[1]" ) breaksw;
 				endif
@@ -60,7 +68,7 @@ while( $arg < $argc )
 			if(!( "${value}" != "" && -d "${value}" )) then
 				@ arg++;
 				if( $arg > $argc ) then
-					if(! ${?SSH_CONNECTION} ) then
+					if( ${?TCSH_OUTPUT_ENABLED} ) then
 						printf "Using [%s] as TCSH's working directory.\t" "${value}";
 						printf "[failed]\n\tNo valid directory was specified with %s.\n" "${option}";
 					endif
@@ -69,17 +77,17 @@ while( $arg < $argc )
 				@ args_handled++;
 				set value="$argv[$arg]";
 				if(!( "${value}" != "" && -d "${value}" )) then
-					if(! ${?SSH_CONNECTION} ) then
+					if( ${?TCSH_OUTPUT_ENABLED} ) then
 						printf "Using [%s] as TCSH's working directory.\t" "${value}";
 						printf "[failed]\n\tNo valid directory was specified with %s.\n" "${option}";
 					endif
 					continue;
 				endif
 			endif
-			if(! ${?SSH_CONNECTION} ) printf "Using [%s] as TCSH's working directory.\t" "${value}";
+			if( ${?TCSH_OUTPUT_ENABLED} ) printf "Using [%s] as TCSH's working directory.\t" "${value}";
 			if( ${?skip_cwd_test} ) continue;
 			setenv TCSH_RC_WORKING_DIR "$value";
-			if(! ${?SSH_CONNECTION} ) printf "[success]\n";
+			if( ${?TCSH_OUTPUT_ENABLED} ) printf "[success]\n";
 			if( "${cwd}" != "${value}" ) cd "${value}";
 		breaksw
 	endsw

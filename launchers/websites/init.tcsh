@@ -59,7 +59,7 @@ find_browser:
 
 
 source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=1 "${TCSH_WEBSITE_LAUNCHER_PATH}";
-foreach launcher ( "`/usr/bin/find '${TCSH_WEBSITE_LAUNCHER_PATH}' -type f -perm '/u=x' -printf '%f\n'`" )
+foreach launcher ( "`find -L '${TCSH_WEBSITE_LAUNCHER_PATH}' -ignore_readdir_race -type f -perm '/u=x' -printf '%f\n'`" )
 	switch( "${launcher}" )
 		case "init.tcsh":
 			if( ${?TCSH_RC_DEBUG} )	\

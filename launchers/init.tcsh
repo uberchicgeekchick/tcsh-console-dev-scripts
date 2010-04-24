@@ -22,7 +22,7 @@ setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
 if( ${?TCSH_RC_DEBUG} )	\
 	printf "Loading:\n\t[file://%s/init.tcsh] @ %s.\n" "${TCSH_LAUNCHER_PATH}" `date "+%I:%M:%S%P"`;
 source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=1 "${TCSH_LAUNCHER_PATH}";
-foreach launcher ( "`/usr/bin/find ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f -perm '/u=x' -printf '%f\n'`" )
+foreach launcher ( "`/usr/bin/find -L ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f -perm '/u=x' -printf '%f\n'`" )
 	switch( "${launcher}" )
 		case "init.tcsh":
 		case "find":
@@ -34,11 +34,17 @@ foreach launcher ( "`/usr/bin/find ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f -pe
 			breaksw;
 		case "xfmedia":
 		case "xine":
-		case "mp3info":
 			# let the launcher handle setting the alias:
 			if( ${?TCSH_RC_DEBUG} )	\
 				printf "Sourcing: %s\n" "${TCSH_LAUNCHER_PATH}/${launcher}";
 			source "${TCSH_LAUNCHER_PATH}/${launcher}";
+			continue;
+			breaksw;
+		case "mp3info":
+			# alias to target this launcher:
+			if( ${?TCSH_RC_DEBUG} )	\
+				printf "Aliasing: [%s] to [%s/%s]\n" "${launcher}" "${TCSH_LAUNCHER_PATH}" "${launcher}";
+			alias ${launcher} \$"{TCSH_LAUNCHER_PATH}/${launcher}";
 			continue;
 			breaksw;
 		case "browser":

@@ -1,18 +1,30 @@
 #!/bin/tcsh -f
+if(! ${?0} ) then
+	printf "This script does not support being sourced.\n";
+	exit -501;
+endif
+
 set this_program="id3v2";
 foreach program ("`which ${this_program}`")
 	if( "${program}" != "" && -x "${program}" ) break;
 	unset program;
 end
-if( ${?program} ) then
-	if( -x "${program}" ) then
-		if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
-			alias mp3info "${program} --list";
-		else
-			${program} --list "${argv}";
-		endif
-	endif
-	unset program;
-endif
-unset this_program;
+if(! ${?program} ) \
+	goto error_exit;
 
+if(! -x "${program}" ) \
+	goto error_exit;
+
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
+	alias mp3info "${program} --list";
+else
+	${program} --list "${argv}";
+endif
+
+unset program this_program;
+exit;
+
+error_exit:
+	printf "%s could not be found.  Its needed for mp3info to work.\n" "${this_program}";
+	exit -501;
+#error_exit:

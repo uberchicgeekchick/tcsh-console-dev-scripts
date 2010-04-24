@@ -11,6 +11,10 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
+if( ${?histfile} ) then
+	history -M;
+	goto exit_script;
+endif
 
 set highlight;
 set histlit;
@@ -26,7 +30,7 @@ set savehist=( $history "merge" );
 
 if( ${?history_skip_merge} ) goto exit_script;
 
-history -M;
+history -L;
 
 if( ${?loginsh} ) goto exit_script;
 

@@ -39,7 +39,7 @@ endif
 find_canvas:
 	while( ! ${?canvas_to_load} && "${cwd}" != "/" )
 		if( -e "./.custom.canvas" ) then
-			if(! ${?SSH_CONNECTION} ) printf "Setting up custom make environment @ %s.\n" `date "+%I:%M:%S%P"`;
+			if( ${?TCSH_OUTPUT_ENABLED} ) printf "Setting up custom make environment @ %s.\n" `date "+%I:%M:%S%P"`;
 			setenv OSS_CUSTOM_CANVAS;
 			set canvas_to_load="./.custom.canvas";
 		else if( -e "./.artistic.canvas" ) then
@@ -67,7 +67,7 @@ if(! ${?canvas_to_load} ) then
 endif
 
 load_canvas:
-if( ! ${?SSH_CONNECTION} ) then
+if( ${?TCSH_OUTPUT_ENABLED} ) then
 	source "${canvas_to_load}" ${argv};
 else
 	source "${canvas_to_load}" ${argv} >& /dev/null;

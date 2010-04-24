@@ -6,7 +6,7 @@ foreach program ( "`which '${this_program}'`" )
 end
 
 if(! ${?program} ) then
-	if(! ${?SSH_CONNECTION} ) printf "Unable to find %s.\n" "${this_program}";
+	if( ${?TCSH_OUTPUT_ENABLED} ) printf "Unable to find %s.\n" "${this_program}";
 	set status=-1;
 	exit ${status};
 endif

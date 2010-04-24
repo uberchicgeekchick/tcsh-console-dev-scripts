@@ -368,7 +368,7 @@ fetch_episodes:
 				breaksw;
 		endsw
 		
-		if( "`printf "\""${episodes_file}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_file}" ) then
+		if( "`printf "\""%s"\"" "\""${episodes_file}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_file}" ) then
 			if(! ${?silent} )	\
 				printf "\t\t\t[skipping commentary track]";
 			if( ${?logging} )	\
@@ -377,7 +377,7 @@ fetch_episodes:
 		endif
 		
 		#if(! ${?download_extras} ) then
-		#	if( "`printf "\""${episodes_title_escaped}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_title_escaped}" ) then
+		#	if( "`printf "\""%s"\"" "\""${episodes_title_escaped}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_title_escaped}" ) then
 		#		if(! ${?silent} )	\
 		#			printf "\t\t\t[skipping commentary track]";
 		#		if( ${?logging} )	\

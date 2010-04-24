@@ -4,7 +4,7 @@ set interactive="";
 if( "${1}" != "" && "${1}" == "--interactive" )	\
 	set interactive=" --interactive";
 
-foreach swp ( "`/usr/bin/find -L . -iregex '.*\.\(sw.\|~\)'`" )
+foreach swp ( "`find -L . -iregex '.*\.\(sw.\|~\)'`" )
 	if(! -e "${swp}" ) continue;
 	rm${interactive} --verbose "${swp}"
 end

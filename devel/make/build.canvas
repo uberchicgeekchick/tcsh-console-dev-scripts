@@ -22,7 +22,7 @@ if( ${?OSS_ARTISTIC_CANVAS} )	\
 	unsetenv OSS_ARTISTIC_CANVAS;
 setenv OSS_BUILD_CANVAS;
 
-if(! ${?SSH_CONNECTION} )	\
+if( ${?TCSH_OUTPUT_ENABLED} )	\
 	printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
 
 if( ${?GREP_OPTIONS} )	\
@@ -37,7 +37,7 @@ endif
 setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
 
 #setenv MAKEFLAGS "-Wall -Wextra -Werror -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
-setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -Wall -Wextra -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
+setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
 
 #setenv CFLAGS "-std=gnu99 ${INCLdUDE_AND_LIB_FLAGS_AND_PATHS}";
 setenv CFLAGS "${MAKEFLAGS}";

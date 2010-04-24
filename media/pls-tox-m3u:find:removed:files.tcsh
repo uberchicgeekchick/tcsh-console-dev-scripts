@@ -13,7 +13,7 @@ init:
 	if(! $?0 )	\
 		set being_sourced;
 	
-	set script_basename="tcsh-script.tcsh";
+	set script_basename="pls-tox-m3u:find:removed:files.tcsh";
 	set script_alias="`printf '%s' '${script_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	
 	#set escaped_starting_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
@@ -225,6 +225,16 @@ exec:
 	if( "${label_current}" != "${label_previous}" )	\
 		goto label_stack_set;
 	
+	if(! ${?playlist} ) then
+		@ errno=-506;
+		goto exception_handler;
+	endif
+	
+	if(! -e "${playlist}" ) then
+		@ errno=-506;
+		goto exception_handler;
+	endif
+	
 	if( ${?filename_list} ) then
 		set callback="process_filename_list";
 		goto callback_handler;
@@ -241,15 +251,9 @@ process_filename_list:
 		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/g'`";
 		set original_extension="${extension}";
 		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
-		if(! -e "`printf "\""${filename}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`.${extension}" )	\
-			continue;
-		
 		set filename="`printf "\""${filename}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-		
-		/bin/ls "${filename}.${extension}";
-		
-		set callback="exec";
-		goto callback_handler;
+		if(! -e "${filename}.${extension}" ) \
+			printf "${filename}.${extension}\n";
 	end
 #process_filename_list:
 
@@ -459,6 +463,10 @@ exception_handler:
 			printf "%s%s is an unsupported option.\n\tPlease see: %s%s --help%s for supported options and details" "${dashes}" "${option}" '`' "${script_basename}" '`' > /dev/stderr;
 			breaksw;
 		
+		case -506:
+			printf "A valid and existing play list must be specified.\n\tPlease see: %s%s --help%s for supported options and details" '`' "${script_basename}" '`' > /dev/stderr;
+			breaksw;
+		
 		case -599:
 		default:
 			printf "An unknown error "\$"errno: %s has occured" "${errno}" > /dev/stderr;
@@ -542,25 +550,8 @@ parse_arg:
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${script_basename}" "${arg}" "$argv[$arg]";
 		
 		if( -e "$argv[$arg]" ) then
-			if(! ${?filename_list} ) then
-				set filename_list="./.${script_basename}.filenames@`date '+%s'`";
-				touch "${filename_list}";
-			endif
-			if(! -d "$argv[$arg]" ) then
-				if( ${?debug} )	\
-					printf "Handling %sargv[%d] adding file:\n\t<%s>\n\t\tto\n\t<%s>.\n" \$ $arg "$argv[$arg]" "${filename_list}";
-				printf "%s\n" "$argv[$arg]" >> "${filename_list}";
-			else
-				if(! ${?script_supported_extensions} ) then
-					if( ${?debug} )	\
-						printf "Adding the contents of [%s] to [%s].\n" "$argv[$arg]" "${filename_list}";
-					find -L "$argv[$arg]" -type f | sort >> "${filename_list}";
-				else
-					if( ${?debug} )	\
-						printf "Adding any (%s) files found under [%s] to [%s].\n" "${script_supported_extensions}" "$argv[$arg]" "${filename_list}";
-					find -L "$argv[$arg]" -type f -regextype posix-extended -iregex '.*\.(script_supported_extensions)$' | sort >> "${filename_list}";
-				endif
-			endif
+			set playlist="$argv[$arg]";
+			goto setup_playlist;
 			continue;
 		endif
 		
@@ -658,6 +649,17 @@ parse_arg:
 			case "verbose":
 				if(! ${?be_verbose} )	\
 					set be_verbose;
+				breaksw;
+			
+			case "playlist":
+				if(! -e "${value}" ) then
+					@ errno=-506;
+					set callback="parse_arg";
+					goto exception_handler;
+					breaksw;
+				endif
+				set playlist="${value}";
+				goto setup_playlist;
 				breaksw;
 			
 			case "debug":
@@ -853,6 +855,37 @@ label_stack_set:
 	
 	goto callback_handler;
 #label_stack_set:
+
+setup_playlist:
+	set label_current="setup_playlist";
+	if( "${label_current}" != "${label_previous}" )	\
+		goto label_stack_set;
+	
+	if(! ${?playlist} ) \
+		goto parse_arg;
+	
+	set playlist_type="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/(.*)\.([^\.]+)"\$"/\1/'`";
+	if(! ${?filename_list} ) then
+		set filename_list="./.${script_basename}.filenames@`date '+%s'`";
+		cp "${playlist}" "${filename_list}";
+	endif
+	switch("${playlist_type}")
+		case "m3u":
+			ex '+1,$s/\v^\#.*[\r\n]+//' '+wq!' "${filename_list}";
+			breaksw;
+		
+		case "tox":
+			ex '+1,$s/\v^[\ \t]*mrl\ \=\ (.*);$/\1/' '+1,$s/\v^[^\/].*[\r\n]+//' '+wq!' "${filename_list}";
+			breaksw;
+		
+		case "pls":
+			ex '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+1,$s/\v^[^\/].*[\r\n]+//' '+wq!' "${filename_list}";
+			breaksw;
+		
+	endsw
+	goto parse_arg;
+	goto callback_handler;
+#setup_playlist:
 
 
 callback_handler:

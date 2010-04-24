@@ -1,15 +1,15 @@
 #!/bin/tcsh -f
 setenv:
-	set script_dirname="${TCSH_RC_SESSION_PATH}/../media/";
+	if(! ${?TCSH_RC_SESSION_PATH} )	\
+		setenv	TCSH_RC_SESSION_PATH	"/projects/cli/console.pallet/tcshrc";
+	
+	set script_dirname="${TCSH_RC_SESSION_PATH}/../media";
 	set script_basename="oggconvert";
 	set script="${script_dirname}/${script_basename}";
 	set status=0;
 #setenv:
 
 check_source:
-	if(! ${?TCSH_RC_SESSION_PATH} )	\
-		setenv	TCSH_RC_SESSION_PATH	"/projects/cli/console.pallet/tcshrc";
-	
 	if(! ${?0} ) then
 		source "${TCSH_RC_SESSION_PATH}/argv:check" "oggconvert" ${argv};
 		if( $args_handled > 0 ) then

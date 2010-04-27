@@ -158,7 +158,7 @@ clean_up:
 		goto get_missing;
 	
 	if(! ${?maxdepth} ) then
-		set maxdepth=" --maxdepth=2";
+		set maxdepth=" ";
 	endif
 	
 	pls-tox-m3u:find:missing.tcsh "${playlist}" "${target_directory}" --search-subdirs-only${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=interactive;

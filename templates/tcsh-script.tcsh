@@ -104,13 +104,6 @@ check_dependencies:
 	
 	set dependencies=("${scripts_basename}");# "${scripts_alias}");
 	@ dependencies_index=0;
-#check_dependencies:
-
-
-check_dependencies:
-	set label_current="check_dependencies";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
 	
 	foreach dependency(${dependencies})
 		@ dependencies_index++;

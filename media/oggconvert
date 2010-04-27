@@ -701,6 +701,19 @@ parse_argv:
 					unset transcode;
 				breaksw;
 			
+			case "playlist":
+				if( "${value}" != "" ) then
+					set playlist="${value}";
+				else
+					set playlist="${scripts_basename}.playlist.from.`date '+%I:%M:%S%P'`.m3u";
+				endif
+				
+				if(! -e "${playlist}" ) then
+					set playlist_new;
+					touch "${playlist}";
+				endif
+				breaksw;
+			
 			case "transcode":
 				switch( "${value}" )
 					case "i":

@@ -31,7 +31,7 @@ init:
 	
 	set script="${scripts_path}/${scripts_basename}";
 	
-	alias	"ex"	"ex -E -n -X --noplugin";
+	alias	ex	"ex -E -n -X --noplugin" >& /dev/null;
 	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
@@ -71,8 +71,9 @@ main:
 				set alacast_ini="`dirname '${0}'`../data/profiles/default/alacast.ini";
 			endif
 			if( ${?alacast_ini} ) then
-				set save_to_dir="`cat '${alacast_ini}' | /bin/grep --perl-regexp 'save_to_dir.*' | /bin/sed -r 's/.*[^=]*=["\""'\'']([^"\""'\'']*)["\""'\''];/\1/'`";
-				unset alacast_ini;
+				set media_dir="`/bin/grep --perl-regexp '^media_dir.*' '${alacast_ini}' | /bin/sed -r 's/.*[^=]*=["\""'\'']([^"\""'\'']*)["\""'\''];/\1/' | sed -r 's/\//\\\//g'`";
+				set save_to_dir="`/bin/grep --perl-regexp '^save_to_dir.*' '${alacast_ini}' | /bin/sed -r 's/.*[^=]*=["\""'\'']([^"\""'\'']*)["\""'\''];/\1/' | sed -r 's/\{media_dir\}/${media_dir}/g'`";
+				unset alacast_ini media_dir;
 			endif
 		endif
 	endif
@@ -87,6 +88,8 @@ main:
 		endif
 		unset save_to_dir;
 	endif
+	
+	set noglob;
 	
 	set please_wait_phrase="...please be patient, I may need several moments.\t\t";
 	
@@ -105,7 +108,7 @@ main:
 
 fetch_podcasts:
 	foreach feed ("`cat '${alacasts_download_log}'`")
-		ex -c '1d' -c 'wq!' "${alacasts_download_log}" > /dev/null;
+		ex -c '1d' -c 'wq!' "${alacasts_download_log}" >& /dev/null;
 		set my_feed_xml=".my.feed.`date '+%s'.xml`";
 		while( -e "./${my_feed_xml}" )
 			sleep 5;
@@ -124,15 +127,16 @@ fetch_podcast:
 	if( ! ${?list_episodes} && ! ${?downloading} && ! ${?save_script} )	\
 		set downloading;
 	
-	${download_command_with_options} "./${my_feed_xml}" "${feed}" > /dev/null;
-	ex -c '1,$s/^<!\-\-.*\-\->[\r\n]/' -c 'wq!' "./${my_feed_xml}" > /dev/null;
+	${download_command_with_options} "./${my_feed_xml}" "${feed}";
+	ex '+set ff=unix' "+0r ./${my_feed_xml}" '+1,$s/\v\<\!\-\-.*\-\-\>//' '+1,$s/\v\r?\_$//g' '+1,$s/\n//g' '+1,$s/\v\>[\ \t]*\</\>\r\</g' "+w! ./${my_feed_xml}" '+q!' >& /dev/null;
 	
 	if(! ${?silent} )	\
 		printf "Finding feed's title.\n";
-	set title="`/bin/grep '<title.*>' "./${my_feed_xml}" | sed 's/.*<title[^>]*>\([^<]*\)<\/title>.*/\1/gi' | head -1 | sed 's/[\r\n]//g' | sed 's/\//\ \-\ /g' | sed  's/[\ \t]*\&[^;]\+\;[\ \t]*/\ /ig'`";
+	set title="`/bin/grep --perl-regexp '\<title[^\>]*\>' "./${my_feed_xml}" | sed -r 's/.*<title[^>]*>([^<]*)<\/title>.*/\1/gi' | head -1 | sed 's/\//\ \-\ /g' | sed -r 's/[\ \t]*\&[^\;]+\;[\ \t]*/\ /ig'`";
 	
 	if( "`printf "\""${title}"\"" | sed -r 's/(The)(.*)/\1/g'`" == "The" ) \
 		set title="`printf "\""${title}"\"" | sed -r 's/(The)\ (.*)/\2,\ \1/g' | sed 's/&[^;]\+;/ /'`";
+	
 	if(! -d "${title}" )	\
 		mkdir -p "${title}" > /dev/null;
 	set old_owd="${owd}";
@@ -167,8 +171,8 @@ fetch_podcast:
 		printf "Finding titles${please_wait_phrase}\t" >> "${download_log}";
 	
 	# Puts each item, or entry, on its own line:
-	ex -c '1,$s/[\r\n]\+[\ \t]*//' -c 'wq!' './00-feed.xml' >& /dev/null;
-	ex -c '1,$s/[\r\n]\+[\ \t]*//' -c '1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' -c '$d' -c 'wq!' './00-feed.xml' >& /dev/null;
+	ex -c '1,$s/[\n][\ \t]*//' -c 'wq!' './00-feed.xml' >& /dev/null;
+	ex -c '1,$s/[\n][\ \t]*//' -c '1,$s/<\/\(item\|entry\)>/\<\/\1\>\r/ig' -c '$d' -c 'wq!' './00-feed.xml' >& /dev/null;
 	
 	/bin/cp './00-feed.xml' './00-titles.lst';
 	
@@ -190,16 +194,16 @@ fetch_podcast:
 	ex -c '1,$s/^\(Six\)/6/gi' -c '1,$s/^\(Seven\)/7/gi' -c '1,$s/^\(Eight\)/8/gi' -c '1,$s/^\(Nine\)/9/gi' -c '1,$s/^\(Ten\)/10/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
 	ex -c '1,$s/^\([0-9]\)ty/\10/gi' -c '1,$s/^\(Fifty\)/50/gi' -c '1,$s/^\(Thirty\)/30/gi' -c '1,$s/^\(Twenty\)/20/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
-	ex -c '1,$s/^\([0-9]\)teen/1\1/gi' -c '1,$s/^\(Fifteen\)/15/gi' -c '1,$s/^\(Thirteen\)/13/gi' -c '1,$s/^\(Twelve\)/12/gi' -c '1,$s/^\(Eleven\)/11/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/^0\?\([0-9]\)teen/1\1/gi' -c '1,$s/^\(Fifteen\)/15/gi' -c '1,$s/^\(Thirteen\)/13/gi' -c '1,$s/^\(Twelve\)/12/gi' -c '1,$s/^\(Eleven\)/11/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
 	ex -c '1,$s/\([^a-zA-Z]\)\(Zero\)/\10/gi' -c '1,$s/\([^a-zA-Z]\)\(One\)/\11/gi' -c '1,$s/\([^a-zA-Z]\)\(Two\)/\12/gi' -c '1,$s/\([^a-zA-Z]\)\(Three\)/\13/gi' -c '1,$s/\([^a-zA-Z]\)\(Four\)/\14/gi' -c '1,$s/\([^a-zA-Z]\)\(Five\)/\15/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	ex -c '1,$s/\([^a-zA-Z]\)\(Six\)/\16/gi' -c '1,$s/\([^a-zA-Z]\)\(Seven\)/\17/gi' -c '1,$s/\([^a-zA-Z]\)\(Eight\)/\18/gi' -c '1,$s/\([^a-zA-Z]\)\(Nine\)/\19/gi' -c '1,$s/\([^a-zA-Z]\)\(Ten\)/\110/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
 	ex -c '1,$s/\([^a-zA-Z]\)\([0-9]\)ty\([^a-zA-Z]\)/\1\20\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifty\)\([^a-zA-Z]\)/\150\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirty\)\([^a-zA-Z]\)/\130\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Twenty\)\([^a-zA-Z]\)/\120\3/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
-	ex -c '1,$s/\([^a-zA-Z]\)\([0-9]\)teen\([^a-zA-Z]\)/\11\2\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifteen\)\([^a-zA-Z]\)/\115\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirteen\)\([^a-zA-Z]\)/\113\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Twelve\)\([^a-zA-Z]\)/\112\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Eleven\)\([^a-zA-Z]\)/\111\3/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\([^a-zA-Z]\)0\?\([0-9]\)teen\([^a-zA-Z]\)/\11\2\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifteen\)\([^a-zA-Z]\)/\115\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirteen\)\([^a-zA-Z]\)/\113\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Twelve\)\([^a-zA-Z]\)/\112\3/gi' -c '1,$s/\([^a-zA-Z]\)\(Eleven\)\([^a-zA-Z]\)/\111\3/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
 	ex -c '1,$s/\([^a-zA-Z]\)\([0-9]\)ty/\1\20/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifty\)/\150/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirty\)/\130/gi' -c '1,$s/\([^a-zA-Z]\)\(Twenty\)/\120/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
-	ex -c '1,$s/\([^a-zA-Z]\)\([0-9]\)teen/\11\2/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifteen\)/\115/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirteen\)/\113/gi' -c '1,$s/\([^a-zA-Z]\)\(Twelve\)/\112/gi' -c '1,$s/\([^a-zA-Z]\)\(Eleven\)/\111/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
+	ex -c '1,$s/\([^a-zA-Z]\)0\?\([0-9]\)teen/\11\2/gi' -c '1,$s/\([^a-zA-Z]\)\(Fifteen\)/\115/gi' -c '1,$s/\([^a-zA-Z]\)\(Thirteen\)/\113/gi' -c '1,$s/\([^a-zA-Z]\)\(Twelve\)/\112/gi' -c '1,$s/\([^a-zA-Z]\)\(Eleven\)/\111/gi' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
 	ex -c '1,$s/^\v([0-9])([^0-9])/0\1\2/' -c '1,$s/\v([^0-9])([0-9])([^0-9])/\10\2\3/g' -c '1,$s/\v([^0-9])([0-9])$/\10\2/' -c 'wq!' './00-titles.lst' >& /dev/null;
 	
@@ -239,16 +243,16 @@ fetch_podcast:
 	/bin/cp './00-feed.xml' './00-enclosures-01.lst';
 	
 	ex -c '1,$s/.*<\(item\|entry\)[^>]*>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\3/ig' -c '1,$s/.*<\(item\|entry\)[^>]*>.*<\/\(item\|entry\)>[\n\r]*//ig' -c 'wq!' '00-enclosures-01.lst' >& /dev/null;
-	ex -c '1,$s/^[\ \s\r\n]\+//g' -c '1,$s/[\ \s\r\n]\+$//g' -c '1,$s/?/\\?/g' -c 'wq!' './00-enclosures-01.lst' >& /dev/null;
+	ex -c 'set ff=unix' -c '0r ./00-enclosures-01.lst' -c '1,$s/^[\ \t\n]\+//g' -c '1,$s/[\ \t\n]\+$//g' -c '1,$s/?/\\?/g' -c 'w! ./00-enclosures-01.lst' -c 'q!' >& /dev/null;
 	
 	# This second method grabs all enclosures.
 	/bin/cp './00-feed.xml' './00-enclosures-02.lst';
 	
 	# Concatinates all data into one single string:
-	ex -c '1,$s/[\r\n]\+[\ \t]*//g' -c 'wq!' './00-enclosures-02.lst' >& /dev/null;
+	ex -c '1,$s/[\n][\ \t]*//g' -c 'wq!' './00-enclosures-02.lst' >& /dev/null;
 	
-	/bin/grep --perl-regex '.*<.*enclosure[^>]*>.*' './00-enclosures-02.lst' | sed 's/.*url=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/.*<link[^>]\+href=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/^\(http:\/\/\).*\(http:\/\/.*$\)/\2/gi' | sed 's/<.*>[\r\n]\+//ig' >! './00-enclosures-02.lst';
-	ex -c '1,$s/^[\ \s\r\n]\+//g' -c '1,$s/[\ \s\r\n]\+$//g' -c '1,$s/?/\\?/g' -c 'wq!' './00-enclosures-02.lst' >& /dev/null;
+	/bin/grep --perl-regex '.*<.*enclosure[^>]*>.*' './00-enclosures-02.lst' | sed 's/.*url=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/.*<link[^>]\+href=["'\'']\([^"'\'']\+\)["'\''].*/\1/gi' | sed 's/^\(http:\/\/\).*\(http:\/\/.*$\)/\2/gi' | sed -r 's/\<[^\>]*\>[\r\n]+//ig' >! './00-enclosures-02.lst';
+	ex -c '1,$s/\v^[\ \t\n]+//g' -c '1,$s/\v[\ \t\n]+$//g' '+1,$s/\v\?/\\\?/g' -c 'wq!' './00-enclosures-02.lst' >& /dev/null;
 	
 	set enclosure_count_01=`cat "./00-enclosures-01.lst"`;
 	set enclosure_count_02=`cat "./00-enclosures-02.lst"`;
@@ -318,18 +322,17 @@ fetch_episodes:
 				printf "\n\n" >> "${download_log}";
 		endif
 		
-		set episode=`printf '%s' "${episode}" | sed 's/[\r\n]$//'`;
 		set episodes_file="`printf '%s' '${episode}' | sed -r 's/.*\/([^\/\?]+)\??.*"\$"/\1/'`";
 		set episodes_extension=`printf '%s' "${episodes_file}" | sed -r 's/.*\.([^\.\?]+)\??.*$/\1/'`;
 		
-		set episodes_pubdate="`cat './00-pubDates.lst' | head -${episodes_number} | tail -1 | sed 's/[\r\n]//g' | sed 's/\?//g'`";
+		set episodes_pubdate="`cat './00-pubDates.lst' | head -${episodes_number} | tail -1 | sed 's/\?//g'`";
 		
-		#set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/[\r\n]//g' | sed 's/\?//g' | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\!\?\*\+\-])/\\\1/g'`";
-		set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/[\r\n]//g' | sed 's/\?//g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
+		#set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/\?//g' | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\!\?\*\+\-])/\\\1/g'`";
+		set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/\?//g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 		set episodes_title_escaped="`cat './00-titles.lst' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 		
 		if( "${episodes_title}" == "" )	\
-			set episodes_title=`printf '%s' "${episodes_file}" | sed 's/\(.*\)\.[^.]*$/\1/'`;
+			set episodes_title="`printf "\""%s"\"" "\""${episodes_file}"\"" | sed -r 's/(.*)\/([^\/]+)\.([^.]+)"\$"/\1/'`";
 		
 		if( "${episodes_pubdate}" != "" ) then
 			set episodes_filename="${episodes_title}, released on: ${episodes_pubdate}.${episodes_extension}";
@@ -816,10 +819,6 @@ parse_arg:
 					default:
 						printf "enabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
 						breaksw;
-					
-					default:
-						printf "enabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
-						breaksw;
 				endsw
 				breaksw;
 			
@@ -885,7 +884,7 @@ parse_arg:
 			default:
 				if( "${option}" != "" && "${option}" != "xmlUrl" ) then
 					printf "%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${scripts_basename}";
-					breaksw;
+					goto exit_script;
 				endif
 				if( "${value}" == "" )	\
 					set value="$argv[$arg]";

@@ -70,7 +70,7 @@ while( "${1}" != "" )
 					set maxdepth=" --maxdepth=${value} ";
 			endif
 			if(! ${?maxdepth} )	\
-				printf "--maxdepth must be an integer value that is gretter than 2" > /dev/null;
+				printf "--maxdepth must be an integer value that is gretter than 2" > /dev/stderr;
 			breaksw;
 		
 		case "playlist":
@@ -121,7 +121,7 @@ endsw
 
 if( ${?import} ) then
 	if(! -e "${import}" ) then
-		printf "Cannot import a non-existing playlist.\n" > /dev/null;
+		printf "Cannot import a non-existing playlist.\n" > /dev/stderr;
 		exit -3;
 	endif
 	
@@ -138,7 +138,7 @@ endif
 
 if( ${?export_to} ) then
 	if(! -e "${playlist}" ) then
-		printf "Cannot export a non-existing playlist.\n" > /dev/null;
+		printf "Cannot export a non-existing playlist.\n" > /dev/stderr;
 		exit -3;
 	endif
 	

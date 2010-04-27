@@ -27,9 +27,10 @@ set_gtk_path:
 		if( ${?TCSH_RC_DEBUG} )	\
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_gtk_path}";
 		
-		if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${alacast_gtk_path}"` != 0 ) then
+		set escaped_alacast_gtk_path="`printf "\""%s"\""  "\""${alacast_gtk_path}"\"" | sed -r 's/\//\\\//g'`";
+		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed 's/.*\:?\(${escaped_alacast_gtk_path}\)\:?.*/\1/g'`" == "${alacast_gtk_path}" ) then
 			if( ${?TCSH_RC_DEBUG} )	\
-				printf "[skipped]\n\t*skipped*: adding <file://%s> to your PATH.\n" "${alacast_gtk_path}";
+				printf "[already listed]\n\t<file://%s> is already listed in your "\$"\n" "${alacast_gtk_path}";
 			continue;
 		endif
 		
@@ -55,9 +56,10 @@ set_cli_path:
 		if( ${?TCSH_RC_DEBUG} )	\
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_cli_path}";
 		
-		if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${alacast_cli_path}"` != 0 ) then
+		set escaped_alacast_cli_path="`printf "\""%s"\""  "\""${alacast_cli_path}"\"" | sed -r 's/\//\\\//g'`";
+		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed 's/.*\:?\(${escaped_alacast_cli_path}\)\:?.*/\1/g'`" == "${alacast_cli_path}" ) then
 			if( ${?TCSH_RC_DEBUG} )	\
-				printf "[skipped]\n\t*skipped*: adding <file://%s> to your PATH.\n" "${alacast_cli_path}";
+				printf "[already listed]\n\t<file://%s> is already listed in your "\$"PATH.\n" "${alacast_cli_path}";
 			continue;
 		endif
 		

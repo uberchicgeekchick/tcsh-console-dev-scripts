@@ -12,7 +12,7 @@ foreach library( "`find -L ${lib_path} -ignore_readdir_race -type f -perm /u+x,g
 	
 	if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${library}"` != 0 ) then
 		if( ${?TCSH_RC_DEBUG} )	\
-			printf "[skipped]\n\t*skipped*: adding <file://%s> to your PATH.\n" "${library}";
+			printf "[already listed]\n\t<file://%s> is already listed in your "\$"\n" "${library}";
 		continue;
 	endif
 	

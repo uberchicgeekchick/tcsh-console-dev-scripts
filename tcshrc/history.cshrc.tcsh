@@ -11,9 +11,13 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
+
 if( ${?histfile} ) then
-	history -M;
-	goto exit_script;
+	if( "${histfile}" == "/profile.d/history" && -e "${histfile}" ) then
+		history -M;
+		history -S;
+		goto exit_script;
+	endif
 endif
 
 set highlight;
@@ -21,18 +25,18 @@ set histlit;
 set histdup=erase;
 set histfile="/profile.d/history";
 if(! -e "${histfile}" ) then
-	if( -e "${histfile}.bckcp" ) cp "${histfile}.bckcp" "${histfile}";
+	if( -e "${histfile}.bckcp" ) \
+		cp "${histfile}.bckcp" "${histfile}";
 endif
 if( -e "${histfile}.jobs" ) /bin/rm -f "${histfile}.jobs";
 if( -e "${histfile}.lock" ) /bin/rm -f "${histfile}.lock";
 set history=6000;
 set savehist=( $history "merge" );
 
-if( ${?history_skip_merge} ) goto exit_script;
-
 history -L;
 
-if( ${?loginsh} ) goto exit_script;
+if( ${?loginsh} ) \
+	goto exit_script;
 
 unalias logout;
 unalias exit;

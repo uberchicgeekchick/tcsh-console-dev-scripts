@@ -23,7 +23,7 @@ set logout=normal;
 set highlight
 set implicitcd
 
-set cdpath="/projects/gtk:/projects/cli:/projects/www:/projects/games:/projects/media:/projects/cli/profile.d:/media:/media/library:.";
+set cdpath="/art/games:/art/www:/art/media:/projects/gtk:/projects/cli:/profile.d:/media:/media/library:.";
 
 alias jobs "jobs -l";
 

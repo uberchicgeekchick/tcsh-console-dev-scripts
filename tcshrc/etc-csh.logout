@@ -17,11 +17,8 @@ endif
 unset args_handled;
 
 
-if(! ${?histfile} ) then
-	set history_skip_merge;
+if(! ${?histfile} ) \
 	source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
-	unset history_skip_merge;
-endif
 
 set status=-1;
 @ lock_step=0;

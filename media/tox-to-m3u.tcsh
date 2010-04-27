@@ -49,10 +49,10 @@ printf "Converting %s to %s" "${tox_playlist}" "${m3u_playlist}";
 
 alias	ex	"ex -E -n -s -X --noplugin";
 
-printf "" >! "${m3u_playlist}";
 set tox_playlist="`printf '%s' '${tox_playlist}' | sed 's/\([()\ ]\)/\\\1/g'`";
+printf '#EXTM3U\n' >! "${m3u_playlist}";
 ex "+1r ${tox_playlist}" '+wq!' "${m3u_playlist}";
-ex '+1,$s/^\#.*[\r\n]//' '+2,$s/^entry\ {[\r\n]\+//' '+2,$s/^};$//' "+2,"\$"s/^\tmrl\ =\ \(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);"\$"/\1${insert_subdir}\2\/\3\.\4/" '+2,$s/^\t.*;[\r\n]\+//' '+1,$s/^[\r\n]\+//' '+$d' '+wq' "${m3u_playlist}";
+ex '+2,$s/^\#.*[\r\n]//' '+2,$s/^entry\ {[\r\n]\+//' '+2,$s/^};$//' "+2,"\$"s/^\tmrl\ =\ \(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);"\$"/\#EXTINF:,\3\r\1${insert_subdir}\2\/\3\.\4/" '+2,$s/^\t.*;[\r\n]\+//' '+1,$s/^[\r\n]\+//' '+$d' '+wq' "${m3u_playlist}";
 
 if( ${?strip_subdir} ) then
 	ex "+3,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)${strip_subdir}\/(.*)\/([^\/]+)\.([^;]+);"\$"/\1\2\/\3\.\4;/" '+wq' "${m3u_playlist}";

@@ -1,97 +1,198 @@
 #!/bin/tcsh -f
 setenv:
-	if(! ${?TCSH_RC_SESSION_PATH} )	\
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
 		setenv	TCSH_RC_SESSION_PATH	"/projects/cli/console.pallet/tcshrc";
 	
 	set script_dirname="${TCSH_RC_SESSION_PATH}/../media";
 	set script_basename="oggconvert";
 	set script="${script_dirname}/${script_basename}";
-	set status=0;
-#setenv:
-
-check_source:
-	if(! ${?0} ) then
-		source "${TCSH_RC_SESSION_PATH}/argv:check" "oggconvert" ${argv};
-		if( $args_handled > 0 ) then
-			@ args_shifted=0;
-			while( $args_shifted < $args_handled )
-				@ args_shifted++;
-				shift;
-			end
-			unset args_shifted;
-		endif
-		unset args_handled;
-		
-		if( ${?TCSH_RC_DEBUG} )	\
-			printf "Setting up aliases for: oggconvert, oggcombine, and oggtranscode.\n";
-		alias	oggconvert	"${script}";
-		alias	oggtranscode	"${script} --transcode";
-		alias	oggcombine	"${script} --combine";
-		
-		source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "oggconvert";
-		exit ${status};
-	endif
-#check_source
-
-
-init:
-	set script_supported_extensions="mp3|ogg|m4a";
+	@ status=0;
+	
+	set script_supported_extensions="ogg|mp3|m4a";
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 	set escaped_starting_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
+#setenv:
+
+
+debug_check:
+	set current_label="debug_check";
+	@ arg=0;
+	@ argc=${#argv};
+	while( $arg < $argc )
+		@ arg++;
+		set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)['\''"\""]?(.*)['\''"\""]?"\$"/\2/'`";
+		set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/'`";
+		switch("${option}")
+			case "diagnosis":
+			case "diagnostic-mode":
+				printf "**%s notice:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${script_basename}" $arg;
+				set diagnostic_mode;
+				unset argv[$arg];
+				if(! ${?debug} ) \
+					set debug;
+				breaksw;
+			
+			case "debug":
+				switch("${value}")
+					case "length":
+						if( ${?debug_length} ) \
+							breaksw;
+						
+						printf "**%s notice:**, via "\$"argv[%d], length debugging:\t[enabled]\n\n" "${script_basename}" $arg;
+						set debug_length;
+						unset argv[$arg];
+						breaksw;
+					
+					case "encoding":
+						if( ${?debug_encoding} ) \
+							breaksw;
+						
+						printf "**%s notice:**, via "\$"argv[%d], encoding debugging:\t[enabled]\n\n" "${script_basename}" $arg;
+						set debug_encoding;
+						unset argv[$arg];
+						breaksw;
+					
+					default:
+						if( ${?debug} ) \
+							breaksw;
+						
+						printf "**%s notice:**, via "\$"argv[%d], debug mode:\t[enabled]\n\n" "${script_basename}" $arg;
+						set debug;
+						unset argv[$arg];
+						breaksw;
+				endsw
+				breaksw;
+			
+			default:
+				continue;
+		endsw
+	end
+#debug_check:
+
+
+check_dependencies:
+	set dependencies=( "${script_basename}" "ffmpeg" "oggenc" "ogginfo" );# "`printf '%s' '${script_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`");
+	@ dependencies_index=0;
+	foreach dependency(${dependencies})
+		@ dependencies_index++;
+		unset dependencies[$dependencies_index];
+		if( ${?debug} ) \
+			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${script_basename}" "${dependency}"; 
+			
+		foreach program("`where '${dependency}'`")
+			if( -x "${program}" ) \
+				break;
+			unset program;
+		end
+		
+		if(! ${?program} ) then
+			@ errno=-501;
+			printf "One or more required dependencies couldn't be found.\n\t[%s] couldn't be found.\n\t%s requires: %s" "${dependency}" "${script_basename}" "${dependencies}";
+			goto exit_script;
+		endif
+		
+		if( ${?debug} )	then
+			if( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([1-3])"\$"/\1/`" )
+				case "1":
+					set suffix="st";
+					breaksw;
+				
+				case "2":
+					set suffix="nd";
+					breaksw;
+				
+				case "3":
+					set suffix="rd";
+					breaksw;
+				
+				default:
+					set suffix="th";
+					breaksw;
+			endsw
+			
+			printf "**%s debug:** found %d%s dependency: %s.\n" "${script_basename}" $dependencies_index "${suffix}" "${dependency}";
+			unset suffix;
+		endif
+		
+		switch("${dependency}")
+			case "${script_basename}":
+				if( ${?scripts_dirname} ) \
+					breaksw;
+				
+				set old_owd="${cwd}";
+				cd "`dirname '${program}'`";
+				set scripts_dirname="${cwd}";
+				cd "${owd}";
+				set owd="${old_owd}";
+				unset old_owd;
+				set script="${scripts_dirname}/${script_basename}";
+				if(! ${?TCSH_RC_SESSION_PATH} ) \
+					setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+				
+				if(! ${?TCSH_LAUNCHER_PATH} ) \
+					setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
+				breaksw;
+			
+			case "ffmpeg":
+				set ffmpeg="${program}";
+				breaksw;
+			
+			case "oggenc":
+				set oggenc="${program}";
+				breaksw;
+			
+			case "ogginfo":
+				set ogginfo="${program}";
+				breaksw;
+			
+		endsw
+		
+		unset program;
+	end
+	
+	unset dependency dependencies;
 	
 	goto parse_argv;
-#init
+#check_dependencies:
+
+
+if_sourced:
+	if( ${?0} ) \
+		goto main;
+	
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "oggconvert" ${argv};
+	if( $args_handled > 0 ) then
+		@ args_shifted=0;
+		while( $args_shifted < $args_handled )
+			@ args_shifted++;
+			shift;
+		end
+		unset args_shifted;
+	endif
+	unset args_handled;
+	
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Setting up aliases for: oggconvert, oggcombine, and oggtranscode.\n";
+	
+	alias	oggconvert	"${script}";
+	alias	oggtranscode	"${script} --transcode";
+	alias	oggcombine	"${script} --combine";
+	
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "oggconvert";
+	exit ${status};
+#if_sourced:
 
 
 main:
-	set status=0;
-	if(! ${?filename_list} )	\
-		goto usage;
-	
-	foreach ffmpeg( `where ffmpeg` )
-		if( -x "${ffmpeg}" )	\
-			break;
-		unset ffmpeg;
-	end
-	
-	if(! ${?ffmpeg} )	\
-		set ffmpeg="";
-	if(! -x "${ffmpeg}" ) then
-		printf "\nUnable to find executable ffmpeg.  Found: %s.\n" ${ffmpeg};
-		set status=-1;
-		goto exit_script;
-	endif
-	
-	
-	foreach encoder( `where oggenc` )
-		if( -x "${encoder}" )	\
-			break;
-		unset encoder;
-	end
-	if(! ${?encoder} )	\
-		set encoder="";
-	if(! -x "${encoder}" ) then
-		printf "\nUnable to find executable oggenc.  Found: %s.\n" ${encoder};
-		set status=-2;
-		goto exit_script;
-	endif
-	
-	
-	foreach ogginfo( `where ogginfo` )
-		if( -x "${ogginfo}" )	\
-			break;
-		unset ogginfo;
-	end
-	
-	if(! ${?ogginfo} )	\
-		set ogginfo="";
-	if(! -x "${ogginfo}" ) then
-		printf "\nUnable to find executable ogginfo.  Found: %s.\n" ${ogginfo};
-		set status=-3;
-		goto exit_script;
-	endif
+	@ status=0;
 	
 	alias	ex	"ex -E -X -n --noplugin -s";
+	
+	if(! ${?filename_list} ) \
+		goto usage;
+	set file_count="`cat '${filename_list}'`";
+	if(! ${#file_count} > 0 ) \
+		goto usage;
 	
 	if( ! ${?debug} && ! ${?debug_encoding} ) then
 		set output="/dev/null";
@@ -99,14 +200,13 @@ main:
 		set output="/dev/stdout";
 	endif
 	
-	@ files_coverted=1;
-	set filenames="`cat '${filename_list}'`";
+	@ files_coverted=0;
+	@ files_processed=1;
 	cp "${filename_list}" "${filename_list}.all";
-	set files_to_convert=${#filenames};
 	
-	if( ${?combine} && ${files_to_convert} <= 1 ) then
+	if( ${?combine} && ${#file_count} <= 1 ) then
 		printf "--combine reqires at least two input files";
-		set status=-5;
+		@ status=-5;
 		goto exit_script;
 	endif
 	
@@ -115,42 +215,38 @@ main:
 
 
 convert_filenames:
-	if( ${?filename} && ${?extension} ) then
-		if( -e "${filename}.ogg" )	\
-			@ files_coverted++;
-	endif
-	if( ${?length} )	\
+	if( ${?length} ) \
 		unset length;
-	if( ${?save_to_filename} )	\
+	if( ${?save_to_filename} ) \
 		unset save_to_filename;
 	foreach filename ( "`cat '${filename_list}' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`" )
-		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
+		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/g'`";
 		set original_extension="${extension}";
 		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 		set filename="`printf "\""${filename}"\"" | sed -r 's/\\([*])/\1/g' | sed -r 's/\\\[/\[/g'`";
 		ex '+1d' '+wq!' "${filename_list}";
-		if(! -e "${filename}${extension}" ) then
-			if( ! ${?no_exit_on_usage} && ${files_to_convert} > 1 )	\
+		if(! -e "${filename}.${extension}" ) then
+			if( ! ${?no_exit_on_usage} && ${#file_count} > 1 ) \
 				set no_exit_on_usage;
 			goto usage;
 		endif
-		if( "${filename}${extension}" != "${filename}.ogg" ) then
+		if( "${filename}.${extension}" != "${filename}.ogg" ) then
 			if( -e "${filename}.ogg" ) then
 				if(!( ${?force} || ${?re_encode} )) then
-					printf "\n%s.ogg: already exists\n\tRun '%s --re-encode' or '%s --force' to over-write existing files.\n\n" "${filename}";
-					if( ! ${?no_exit_on_usage} && ${files_to_convert} > 1 )	\
+					printf "\n%s.ogg: already exists\n\tRun %s%s --re-encode%s or %s%s --force%s to over-write existing files.\n\n" \` "${filename}" \` \` "${filename}" \`;
+					if( ! ${?no_exit_on_usage} && ${#file_count} > 1 ) \
 						set no_exit_on_usage;
 					goto usage;
 				endif
 				
-				if( ${?force} )	\
+				if( ${?force} ) \
 					goto oggconvert;
 				
-				if( ${?re_encode} )	\
+				if( ${?re_encode} ) \
 					goto confirm_over_write;
 			endif
 		endif
-		if( "${extension}" != ".ogg" ) then
+		if( "${extension}" != "ogg" ) then
 			goto oggconvert;
 		else
 			if( ${?ltrim} )	then
@@ -159,12 +255,13 @@ convert_filenames:
 				set save_to_filename="${filename}";
 				goto find_length;
 			endif
-			if(! ${?combine} )	\
-				printf "Skipping %s%s: no advanced conversion options specified.\n\n" "${filename}" "${extension}";
+			if(! ${?combine} ) \
+				printf "Skipping %s.%s: no advanced conversion options specified.\n\n" "${filename}" "${extension}";
+			@ files_processed++;
 			goto convert_filenames;
 		endif
 	end
-	if( ${?combine} )	\
+	if( ${?combine} ) \
 		goto init_combine;
 	goto exit_script;
 #convert_filenames
@@ -172,25 +269,26 @@ convert_filenames:
 confirm_over_write:
 	if( -e "${filename}.ogg" ) then
 		printf "\n%s.ogg already exists.\nWould you like to remove it and re-encode a new ogg vorbis file?\n" "${filename}";
-		"`rm -iv "\""${filename}.ogg"\"""`";
+		rm -iv "${filename}.ogg";
 	endif
 	if( -e "${filename}.ogg" ) then
 		printf "\n%s.ogg will be perserved %s will exit." "${filename}" "${script_basename}";
-		set status=-4;
+		@ status=-4;
+		@ files_processed++;
 		goto convert_filenames;
 	endif
 #confirm_over_write:
 
 
 oggconvert:
-	if(! ${?save_to_filename} )	\
+	if(! ${?save_to_filename} ) \
 		set save_to_filename="${filename}";
 	printf "\n\tConverting";
-	if( ${files_to_convert} > 1 )	\
-		printf " (file %d of %d)" ${files_coverted} ${files_to_convert};
-	printf ":\n\t\t[%s%s]\n" "${filename}" "${extension}";
+	if( ${#file_count} > 1 ) \
+		printf " (file %d of %d)" ${files_processed} ${#file_count};
+	printf ":\n\t\t[%s.%s]\n" "${filename}" "${extension}";
 	
-	if( "${extension}" != ".wav" ) then
+	if( "${extension}" != "wav" ) then
 		set ffmpeg_input_file_options="";
 		set ffmpeg_output_file_options="";
 		if( ${?length} ) then
@@ -198,42 +296,42 @@ oggconvert:
 		else if( ${?ltrim} ) then
 			set ffmpeg_input_file_options=" -ss ${ltrim}";
 		endif
-		if( "${extension}" == ".ogg" ) then
+		if( "${extension}" == "ogg" ) then
 			set ffmpeg_input_file_options="${ffmpeg_input_file_options} -acodec vorbis";
 			set oggenc_output_file_options="";
-		#else if( "${extension}" == "" && ${?combine} ) then
-		#	set ffmpeg_output_file_options=" -ac 1 -ar 44100 -ab 64000";
-		#	set oggenc_output_file_options=" --min-bitrate 44 --max-bitrate 64";
 		else if( "${extension}" != "" ) then
 			set ffmpeg_output_file_options=" -ac 1 -ab 64000";
 			set oggenc_output_file_options="";
+		else if( "${extension}" == "" && ${?combine} ) then
+			set ffmpeg_output_file_options=" -ac 1 -ar 44100 -ab 64000";
+			set oggenc_output_file_options=" --min-bitrate 44 --max-bitrate 64";
 		endif
 		
-		if( ${?debug} ) then
+		if( ${?debug} || ${?debug_encoding} ) then
 			printf "\n\nRunning:\n\t";
-			printf "( ${ffmpeg} -y${ffmpeg_input_file_options} -i "\""${filename}${extension}"\""${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" > ${output} ) >& /dev/stderr";
+			printf "( ${ffmpeg} -y${ffmpeg_input_file_options} -i "\""${filename}.${extension}"\""${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" > ${output} ) >& /dev/stderr";
 			printf "\n\n";
 		endif
 		
 		printf "\t\t\tCreating temporary WAV file.  This may take several moments...";
 		if( "${filename}" != "${save_to_filename}" ) then
-			printf "#\!/bin/tcsh -f\nset echo;\n${ffmpeg} -y${ffmpeg_input_file_options} ${filename}${extension}${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" -newaudio\n" >! "./ffmpeg-combined.tcsh";
+			printf "#\!/bin/tcsh -f\nset echo;\n${ffmpeg} -y${ffmpeg_input_file_options} ${filename}.${extension}${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" -newaudio\n" >! "./ffmpeg-combined.tcsh";
 			chmod u+x "./ffmpeg-combined.tcsh";
 			"./ffmpeg-combined.tcsh";
 			#rm "./ffmpeg-combined.tcsh";
-			${ffmpeg} -y${ffmpeg_input_file_options} ${filename}${extension}${ffmpeg_output_file_options} "${save_to_filename}.wav" >& ${output};
+			#${ffmpeg} -y${ffmpeg_input_file_options} ${filename}.${extension}${ffmpeg_output_file_options} "${save_to_filename}.wav" >& ${output};
 		else
-			${ffmpeg} -y${ffmpeg_input_file_options} -i "${filename}${extension}"${ffmpeg_output_file_options} "${save_to_filename}.wav" >& ${output};
+			${ffmpeg} -y${ffmpeg_input_file_options} -i "${filename}.${extension}"${ffmpeg_output_file_options} "${save_to_filename}.wav" >& ${output};
 		endif
 		
 		unset ffmpeg_input_file_options ffmpeg_output_file_options;
 		
 		if(!("${status}" == "0" && -e "${save_to_filename}.wav")) then
 			printf "\t[failed]\n\t\t\tUnable to create temorary WAV  file.\n\t\t\tffmpeg returned: %d.\n" ${status};
-			if( -e "${save_to_filename}.wav" )	\
+			if( -e "${save_to_filename}.wav" ) \
 				rm "${save_to_filename}.wav";
-			if( ${?exit_on_error} )	\
-				goto exit_script;
+			
+			@ files_processed++;
 			goto convert_filenames;
 		endif
 		printf "\t\t[success]\n";
@@ -241,38 +339,43 @@ oggconvert:
 	
 	printf "\t\t\tEncoding OGG Vorbis file.  Please wait several moments...";
 	
-	${encoder} ${oggenc_output_file_options} "${save_to_filename}.wav" >& ${output};
+	${oggenc} ${oggenc_output_file_options} "${save_to_filename}.wav" >& ${output};
 	if(!("${status}" == "0" && -e "${save_to_filename}.ogg")) then
-		printf "\t[failed]\n\t\t\tUnable to encode file.  Encoder: %s; returned: %d.\n" `basename ${encoder}` ${status};
-		if( -e "${save_to_filename}.wav" )	\
+		printf "\t[failed]\n\t\t\tUnable to encode file.  Encoder: %s; returned: %d.\n" `basename ${oggenc}` ${status};
+		if( -e "${save_to_filename}.wav" ) \
 			rm "${save_to_filename}.wav";
-		if( "${original_extension}" != ".ogg" && -e "${save_to_filename}.ogg" )	\
+		if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
 			rm "${save_to_filename}.ogg";
-		if( ${?exit_on_error} )	\
-			goto exit_script;
+		
+		@ files_processed++;
 		goto convert_filenames;
 	endif
 	
 	printf "\t\t[success]\n";
 	rm "${save_to_filename}.wav";
-	if( "${filename}" != "${save_to_filename}" )	\
+	if( "${filename}" != "${save_to_filename}" ) \
 		goto exit_script;
 	
 	if( ! ${?rtrim} || ${?length} ) then
 		if( ${?debug} ) then
 			${ogginfo} "${save_to_filename}.ogg";
 		endif
-		printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[complete]\n\n";
-		if( ${?transcode} && "${original_extension}" != ".ogg") then
-			rm ${transcode} "${filename}${original_extension}";
+		
+		printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[completed]\n\n";
+		
+		if( ${?transcode} && "${original_extension}" != "ogg") then
+			rm ${transcode} "${filename}.${original_extension}";
 		endif
+		
+		@ files_coverted++;
+		@ files_processed++;
 		goto convert_filenames;
 	endif
 #oggconvert
 
 
 find_length:
-	if( ! ${?debug} && ${?debug_length} ) then
+	if( ! ${?debug} && ( ${?debug_length} || ${?debug_encoding} ) ) then
 		set debug;
 		set debug_set;
 	endif
@@ -290,15 +393,15 @@ find_length:
 	set rtrim_hours="`printf '%s' '${rtrim}' | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
 	set rtrim_minutes="`printf '%s' '${rtrim}' | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
 	set rtrim_seconds="`printf '%s' '${rtrim}' | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
-	set oggs_length="`${ogginfo} '${filename}.ogg' | /bin/grep --perl-regexp 'Playback length:'`";
+	set oggs_length="`${ogginfo} "\""${filename}.ogg"\"" | /bin/grep --perl-regexp 'Playback length:'`";
 	set oggs_hours="`printf '%s' '${oggs_length}' | sed -r 's/^[^0-9]*([0-9]+)(h:)([0-9]+)(m:)([0-9]+)\..*"\$"/\1/'`";
-	if( "${oggs_hours}" == "${oggs_length}" )	\
+	if( "${oggs_hours}" == "${oggs_length}" ) \
 		set oggs_hours="00";
 	set oggs_minutes="`printf '%s' '${oggs_length}' | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\1/'`";
-	if( "${oggs_minutes}" == "${oggs_length}" )	\
+	if( "${oggs_minutes}" == "${oggs_length}" ) \
 		set oggs_minutes="00";
 	set oggs_seconds="`printf '%s' '${oggs_length}' | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\3/'`";
-	if( "${oggs_seconds}" == "${oggs_length}" )	\
+	if( "${oggs_seconds}" == "${oggs_length}" ) \
 		set oggs_seconds="00";
 	
 	if( ${?debug} ) then
@@ -376,24 +479,23 @@ calculate_length:
 	set length="${hours}:${minutes}:${seconds}";
 	if( "`printf '%s' '${length}' | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
 		printf "Invalid length: %s specified, lenth must be formatted as: hh:mm:ss\n" "${length}";
-		if( ${?exit_on_error} )	\
-			goto exit_script;
+		@ files_processed++;
 		goto convert_filenames;
 	endif
 	if( ${?debug} ) then
-		printf "-->%s\n" "${length}";
-		if( "${extension}" == ".ogg" )	\
+		printf "Calcucated Length: %s\n" "${length}";
+		if( "${extension}" == "ogg" ) \
 			goto exit_script;
 	endif
 	
 	unset oggs_hours rtrim_hours oggs_minutes rtrim_minutes oggs_seconds rtrim_seconds hours minutes seconds;
-	if( "${extension}" != ".ogg" )	\
-		set extension=".ogg";
+	if( "${extension}" != "ogg" ) \
+		set extension="ogg";
 	
-	if( ${?debug_set} )	\
+	if( ${?debug_set} ) \
 		unset debug_set debug;
 	
-	if( "${filename}" == "${save_to_filename}" )	\
+	if( "${filename}" == "${save_to_filename}" ) \
 		goto oggconvert;
 	goto continue_combine;
 #calculate_length
@@ -422,12 +524,12 @@ continue_combine:
 	foreach filename ( "`cat '${filename_list}.all'`" )
 		set filename="`printf "\""%s"\"" "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g'`";
 		ex '+1d' '+wq' "${filename_list}.all";
-		if(! -e "${filename}.ogg" )	\
+		if(! -e "${filename}.ogg" ) \
 			continue;
 		@ files_coverted++;
 		if(! ${?all_filenames} ) then
 			set all_filenames="-acodec vorbis -i "\""${filename}.ogg"\""";
-			if( ${?rtrim} )	\
+			if( ${?rtrim} ) \
 				unset rtrim;
 			set rtrim="00:00:00";
 			goto find_length;
@@ -438,7 +540,6 @@ continue_combine:
 		endif
 	end
 	set filename="${all_filenames}";
-	set exit_on_error;
 	set extension="";
 	goto oggconvert;
 #continue_combine
@@ -446,9 +547,9 @@ continue_combine:
 
 exit_script:
 	if( ${?filename_list} ) then
-		if( -e "${filename_list}")	\
+		if( -e "${filename_list}") \
 			rm "${filename_list}";
-		if( -e "${filename_list}.all")	\
+		if( -e "${filename_list}.all") \
 			rm "${filename_list}.all";
 	endif
 	if( ${?use_old_owd} ) then
@@ -466,34 +567,27 @@ usage:
 		set usage_displayed;
 	endif
 	if(! ${?no_exit_on_usage} ) then
-		set status=-1;
+		@ status=-1;
 		goto exit_script;
 	endif
+	
+	@ files_processed++;
 	goto convert_filenames;
 #usage
 
 
 parse_argv:
-	if( ${#argv} == 0 )	\
-		goto main;
+	if( ${#argv} == 0 ) \
+		goto if_sourced;
 	@ argc=${#argv};
-	@ arg=0;
-	while( $arg < $argc )
-		@ arg++;
-		if( "$argv[$arg]" != "--debug" )	\
-			continue;
-		printf "Enabling debug mode (via "\$"argv[%d]\n" $arg;
-		set debug;
-		break;
-	end
 	@ arg=0;
 	if( ${?debug} ) printf "Checking %s's argv options.  %d total.\n" "${script_basename}" "${argc}";
 
 	while( $arg < $argc )
-		if(! ${?arg_shifted} )	\
+		if(! ${?arg_shifted} ) \
 			@ arg++;
 		
-		if( ${?debug} || ${?diagnostic_mode} )		\
+		if( ${?debug} || ${?diagnostic_mode} )	 \
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${script_basename}" "${arg}" "$argv[$arg]";
 		
 		if( -e "$argv[$arg]" ) then
@@ -502,16 +596,18 @@ parse_argv:
 				touch "${filename_list}";
 			endif
 			if(! -d "$argv[$arg]" ) then
-				if( ${?debug} )	\
+				if( ${?debug} ) \
 					printf "Handling %sargv[%d] adding file:\n\t<%s>\n\t\tto\n\t<%s>.\n" \$ $arg "$argv[$arg]" "${filename_list}";
 				printf "%s\n" "$argv[$arg]" >> "${filename_list}";
 			else
 				if(! ${?script_supported_extensions} ) then
-					if( ${?debug} )	\
+					if( ${?debug} ) \
 						printf "Adding the contents of [%s] to [%s].\n" "$argv[$arg]" "${filename_list}";
 					find "$argv[$arg]" -type f | sort >> "${filename_list}";
 				else
-					if( ${?debug} )	\
+					if( "${script_supported_extensions}" == "ogg|mp3|m4a" && ! ${?ltrim} && ! ${?rtrim} ) \
+						set script_supported_extensions="mp3|m4a";
+					if( ${?debug} ) \
 						printf "Adding any (%s) files found under [%s] to [%s].\n" "${script_supported_extensions}" "$argv[$arg]" "${filename_list}";
 					find "$argv[$arg]" -regextype posix-extended -iregex ".*\.(${script_supported_extensions})"\$ -type f | sort >> "${filename_list}";
 				endif
@@ -520,15 +616,15 @@ parse_argv:
 		endif
 		
 		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\1/'`";
-		if( "${dashes}" == "$argv[$arg]" )	\
+		if( "${dashes}" == "$argv[$arg]" ) \
 			set dashes="";
 		
 		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\2/'`";
-		if( "${option}" == "$argv[$arg]" )	\
+		if( "${option}" == "$argv[$arg]" ) \
 			set option="";
 		
 		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\3/'`";
-		if( "${equals}" == "$argv[$arg]" )	\
+		if( "${equals}" == "$argv[$arg]" ) \
 			set equals="";
 		
 		#set equals="";
@@ -548,7 +644,7 @@ parse_argv:
 				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\3/'`";
 				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/'`";
 				
-				if( ${?debug} || ${?diagnostic_mode} )	\
+				if( ${?debug} || ${?diagnostic_mode} ) \
 					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_value}";
 				
 				if(!("${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]")) then
@@ -578,7 +674,7 @@ parse_argv:
 			set parsed_argv="${parsed_argv} ${parsed_arg}";
 		endif
 		
-		if( ${?debug} || ${?diagnostic_mode} )	\
+		if( ${?debug} || ${?diagnostic_mode} ) \
 			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "${parsed_arg}";
 		
 		switch("${option}")
@@ -601,7 +697,7 @@ parse_argv:
 				breaksw;
 			
 			case "no-transcode":
-				if( ${?transcode} )	\
+				if( ${?transcode} ) \
 					unset transcode;
 				breaksw;
 			
@@ -623,12 +719,12 @@ parse_argv:
 				breaksw;
 			
 			case "force":
-				if(! ${?force} )	\
+				if(! ${?force} ) \
 					set force;
 				breaksw;
 			
 			case "combine":
-				if(! ${?combine} )	\
+				if(! ${?combine} ) \
 					set combine;
 				breaksw;
 			
@@ -638,64 +734,68 @@ parse_argv:
 				breaksw;
 			
 			case "verbose":
-				if(! ${?be_verbose} )	\
+				if(! ${?be_verbose} ) \
 					set be_verbose;
 				breaksw;
 			
 			case "debug":
 				switch("${value}")
+					case "length":
+						if( ${?debug_length} ) \
+							breaksw;
+						
+						printf "**%s notice:**, via "\$"argv[%d], length debugging:\t[enabled]\n\n" "${script_basename}" $arg;
+						set debug_length;
+						breaksw;
+					
 					case "encoding":
-						if(! ${?debug_encoding} )	\
-							set debug_encoding;
+						if( ${?debug_encoding} ) \
+							breaksw;
+						
+						printf "**%s notice:**, via "\$"argv[%d], encoding debugging:\t[enabled]\n\n" "${script_basename}" $arg;
+						set debug_encoding;
 						breaksw;
 					
 					default:
-						if(! ${?debug} )	\
-							set debug;
+						if( ${?debug} ) \
+							breaksw;
+						
+						printf "**%s notice:**, via "\$"argv[%d], debug mode:\t[enabled]\n\n" "${script_basename}" $arg;
+						set debug;
 						breaksw;
-					endsw
+				endsw
 				breaksw;
 			
 			case "no-re-encode":
-				if( ${?re_encode} )	\
+				if( ${?re_encode} ) \
 					unset re_encode;
 				breaksw;
 			
 			case "re-encode":
-				if(! ${?re_encode} )	\
+				if(! ${?re_encode} ) \
 					set re_encode;
 				breaksw;
 			
 			case "enable":
 				switch("${value}")
 					case "verbose":
-						if(! ${?be_verbose} )	\
+						if(! ${?be_verbose} ) \
 							set be_verbose;
-						breaksw;
-					
-					case "debug":
-						if(! ${?debug} )	\
-							set debug;
-						breaksw;
-					
-					case "debug-encoding":
-						if(! ${?debug_encoding} )	\
-							set debug_encoding;
 						breaksw;
 					
 					case "reencode":
 					case "re-encode":
-						if(! ${?re_encode} )	\
+						if(! ${?re_encode} ) \
 							set re_encode;
 						breaksw;
 					
 					case "force":
-						if(! ${?force} )	\
+						if(! ${?force} ) \
 							set force;
 						breaksw;
 					
 					case "transcode":
-						if(! ${?transcode} )	\
+						if(! ${?transcode} ) \
 							set transcode;
 						breaksw;
 					
@@ -709,33 +809,23 @@ parse_argv:
 			case "disable":
 				switch("${value}")
 					case "verbose":
-						if( ${?be_verbose} )	\
+						if( ${?be_verbose} ) \
 							unset be_verbose;
-						breaksw;
-					
-					case "debug":
-						if( ${?debug} )	\
-							unset debug;
-						breaksw;
-					
-					case "debug-encoding":
-						if( ${?debug_encoding} )	\
-							unset debug_encoding;
 						breaksw;
 					
 					case "reencode":
 					case "re-encode":
-						if( ${?re_encode} )	\
+						if( ${?re_encode} ) \
 							unset re_encode;
 						breaksw;
 					
 					case "force":
-						if(! ${?force} )	\
+						if(! ${?force} ) \
 							set force;
 						breaksw;
 					
 					case "transcode":
-						if( ${?transcode} )	\
+						if( ${?transcode} ) \
 							unset transcode;
 						breaksw;
 					
@@ -746,11 +836,11 @@ parse_argv:
 				breaksw;
 			
 			default:
-				if( ${?strict} ) then
-					printf "%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${script_basename}";
-					goto usage;
-				endif
+				if(! ${?strict} ) \
+					breaksw;
 				
+				printf "%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${script_basename}";
+				goto usage;
 				breaksw;
 		endsw
 		
@@ -761,6 +851,6 @@ parse_argv:
 		
 		unset dashes option value;
 	end
-	goto main;
+	goto if_sourced;
 #parse_argv
 

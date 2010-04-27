@@ -11,12 +11,6 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if(!(${?DEBUG_EXEC})) then
-	setenv output " >& /dev/null &";
-else
-	setenv output " &";
-endif
-
 setenv TCSH_WEBSITE_LAUNCHER_PATH "${TCSH_LAUNCHER_PATH}/websites";
 if( ${?TCSH_RC_DEBUG} )	\
 	printf "Loading:\n\t[file://%s/init.tcsh] @ %s.\n" "${TCSH_WEBSITE_LAUNCHER_PATH}" `date "+%I:%M:%S%P"`;
@@ -82,8 +76,6 @@ exit_script:
 		unalias sed;
 		unset sed_regexp_set;
 	endif
-	
-	unsetenv output
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "launchers/websites/init.tcsh";
 	exit;

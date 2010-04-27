@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} )	\
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 
 source "${TCSH_RC_SESSION_PATH}/argv:check" "aliases.tcsh" ${argv};
 
@@ -13,7 +14,7 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-alias			set-alias	"source "\$"{TCSH_RC_SESSION_PATH}/../setenv/alias.check-and-set.tcsh";
+alias			set-alias	"source "\$"{TCSH_RC_SESSION_PATH}/../setenv/set-alias.tcsh";
 
 
 complete		alias		'p/1/c/' 'p/2,/c,f/';
@@ -36,7 +37,6 @@ set-alias		rd	rmdir;
 set-alias		rm	"rm --verbose";
 set-alias		rr	"rm --recursive";
 set-alias		rf	"/bin/rm --recursive --force";
-set-alias		rrf	"rr --force";
 
 set-alias		pidof	"pidof -x";
 complete		pidof	'p/*/c/';

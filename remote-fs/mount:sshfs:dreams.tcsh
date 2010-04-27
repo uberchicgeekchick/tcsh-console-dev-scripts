@@ -27,7 +27,7 @@ set ssh_user="dreams";
 set ssh_server="sky.ocssolutions.com";
 set ssh_path="/home/dreams";
 
-set ssh_mount_point="/projects/ssh";
+set ssh_mount_point="/art/ssh";
 
 alias	"mount:sshfs:${ssh_user}"	"sshfs '${ssh_user}@${ssh_server}:${ssh_path}' '${ssh_mount_point}'";
 

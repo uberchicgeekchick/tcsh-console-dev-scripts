@@ -8,7 +8,7 @@ set wifi_id_3="${lan_ip_3}"
 set lan_ip_4="8";
 set wifi_id_1="4"
 set server="${lan_ip_1}.${lan_ip_2}.${lan_ip_3}.${lan_ip_4}";
-set shares=( "art" "art/games" "art/media" "projects/gtk" "projects/cli" "projects/www" "projects/references" "media" "media/library" "media/podcasts" "media/podiobooks" "media/music" "media/videos" "media/torrents" "uberChick" "programs" "profile.d" "srv" );
+set shares=( "art" "art/games" "art/media" "art/www" "projects" "projects/gtk" "projects/cli" "projects/references" "media" "media/library" "media/podcasts" "media/podiobooks" "media/music" "media/videos" "media/torrents" "uberChick" "programs" "profile.d" "srv" );
 
 next_mount:
 while( ${?1} && "${1}" != "" )

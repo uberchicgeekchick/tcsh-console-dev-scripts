@@ -1,15 +1,31 @@
 #!/bin/tcsh -f
+if(! ${?TCSH_RC_SESSION_PATH} )	\
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 
-foreach program ( /programs/*/ )
+source "${TCSH_RC_SESSION_PATH}/argv:check" "paths:programs.cshrc.tcsh" ${argv};
+
+if( $args_handled > 0 ) then
+	@ args_shifted=0;
+	while( $args_shifted < $args_handled )
+		@ args_shifted++;
+		shift;
+	end
+	unset args_shifted;
+endif
+unset args_handled;
+
+foreach program ( /programs/* )
+	if(! -d "${program}" ) \
+		continue;
 	if( -d "${program}/bin" ) \
-		set program="${program}bin";
+		set program="${program}/bin";
 	
 	if( ${?TCSH_RC_DEBUG} )	\
 		printf "Attempting to add: [file://%s] to your PATH:\t\t" "${program}";
 	
 	if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${program}"` != 0 ) then
 		if( ${?TCSH_RC_DEBUG} )	\
-			printf "[skipped]\n\t*skipped*: adding <file://%s> to your PATH.\n" "${program}";
+			printf "[already listed]\n\t<file://%s> is already listed in your "\$"\n" "${program}";
 		continue;
 	endif
 	
@@ -21,11 +37,12 @@ foreach program ( /programs/*/ )
 		set programs_path="${programs_path}:${program}";
 	endif
 end
-if( ${?program_path} ) then
+if( ${?programs_path} ) then
+	set programs_path="`printf "\""%s"\"" "\""${programs_path}"\"" | sed -r 's/^\://' | sed -r 's/\:\:/\:/g' | sed -r 's/(\/)(\:)/\2/g' | sed -r 's/[\/\:]+"\$"//g'`";
 	if(! ${?PATH} ) then
-		setenv PATH "${program_path}";
+		setenv PATH "${programs_path}";
 	else
-		setenv PATH "${PATH}:${program_path}";
+		setenv PATH "${PATH}:${programs_path}";
 	endif
 	unset programs_path;
 endif
@@ -38,4 +55,7 @@ else if( -d /usr/lib/jvm/java-openjdk ) then
 endif
 
 alias	thunderbird	'/programs/mozilla/Thunderbird3/x86_64/thunderbird-bin -compose %s'
+
+
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "paths:programs.cshrc.tcsh";
 

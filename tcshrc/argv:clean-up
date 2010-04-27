@@ -1,7 +1,14 @@
 #!/bin/tcsh -f
+if( ${?TCSH_RC_CURRENT_SOURCE_FILE} ) then
+	if( "${TCSH_RC_CURRENT_SOURCE_FILE}" == "$argv[1]" ) then
+		unsetenv TCSH_RC_CURRENT_SOURCE_FILE;
+	endif
+endif
+
 if( ${?TCSH_RC_SOURCE_FILE} ) then
 	if( "${TCSH_RC_SOURCE_FILE}" != "$argv[1]" ) then
-		if( ${?TCSH_RC_DEBUG} ) printf "%s%s != %s%s\n" \$ "${TCSH_RC_SOURCE_FILE}" \$ "$argv[1]";
+		if( ${?TCSH_RC_DEBUG} )	\
+			printf "%s%s != %s%s\n" \$ "${TCSH_RC_SOURCE_FILE}" \$ "$argv[1]";
 		exit 0;
 	endif
 endif
@@ -16,8 +23,10 @@ endif
 
 if( ${?TCSH_RC_SOURCE_FILE} ) then
 	if( "${TCSH_RC_SOURCE_FILE}" == "$argv[1]" ) then
+		unsetenv TCSH_RC_SOURCE_FILE;
 		if( ${?oldcwdcmd} ) then
-			if( ${?TCSH_RC_DEBUG} ) printf "Resetting cwdcmd.\n";
+			if( ${?TCSH_RC_DEBUG} )	\
+				printf "Resetting cwdcmd.\n";
 			alias cwdcmd "${oldcwdcmd}";
 			unsetenv oldcwdcmd;
 		endif
@@ -33,13 +42,14 @@ if( ${?TCSH_RC_SOURCE_FILE} ) then
 endif
 
 if(! ${?skip_cwd_test} ) then
-	if(! ${?TCSH_RC_WORKING_DIR} ) then
+	if(! ${?TCSH_WORKING_DIR} ) then
 		if( "${cwd}" != "/" ) then
-			setenv TCSH_RC_WORKING_DIR "${cwd}";
+			setenv TCSH_WORKING_DIR "${cwd}";
 		else
-			setenv TCSH_RC_WORKING_DIR "${HOME}";
+			setenv TCSH_WORKING_DIR "${HOME}";
 		endif
-	if( "${cwd}" != "${TCSH_RC_WORKING_DIR}" ) cd "${TCSH_RC_WORKING_DIR}";
+	if( "${cwd}" != "${TCSH_WORKING_DIR}" )	\
+		cd "${TCSH_WORKING_DIR}";
 endif
 
 if( ${?TCSH_RC_DEBUG} ) then
@@ -48,11 +58,7 @@ if( ${?TCSH_RC_DEBUG} ) then
 	else
 		printf "TCSH finished: %s, starting from: <%s>, debug mode is being disabled @ %s.\n" "${usage_message}" "$argv[1]" "`date '+%I:%M:%S%P'`";
 	endif
-	if( "${TCSH_RC_DEBUG}" == "$argv[1]" ) unsetenv TCSH_RC_DEBUG;
-endif
-if( ${?TCSH_RC_SOURCE_FILE} ) then
-	if( "${TCSH_RC_SOURCE_FILE}" == "$argv[1]" ) then
-		unsetenv TCSH_RC_SOURCE_FILE;
-	endif
+	if( "${TCSH_RC_DEBUG}" == "$argv[1]" )	\
+		unsetenv TCSH_RC_DEBUG;
 endif
 

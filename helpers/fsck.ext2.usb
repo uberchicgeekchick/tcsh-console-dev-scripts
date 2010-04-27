@@ -2,10 +2,10 @@
 init:
 	set current_label="init";
 	
-	if( `printf '%s' "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` == "csh" )	\
+	if( `printf '%s' "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` == "csh" ) \
 		set being_sourced;
 	
-	set scripts_basename="tcsh-script.tcsh";
+	set scripts_basename="fsck.ext2.usb";
 	
 	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
 	set escaped_home_dir="`printf '%s' '${HOME}' | sed -r 's/\//\\\//g'`";
@@ -14,19 +14,40 @@ init:
 	
 	#set supports_being_source;
 	#set argz="";
-	
-	goto parse_argv;
 #init:
 
-init_complete:
-	set current_label="init_complete";
-	set init_completed;
-#init_complete:
+
+debug_check:
+	set current_label="debug_check";
+	@ arg=0;
+	@ argc=${#argv};
+	while( $arg < $argc )
+		@ arg++;
+		switch("$argv[$arg]")
+			case "--diagnosis":
+			case "--diagnostic-mode":
+				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
+				set diagnostic_mode;
+				if(! ${?debug} ) \
+					set debug;
+				break;
+			
+			case "--debug":
+				printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${scripts_basename}" $arg;
+				set debug;
+				break;
+			
+			default:
+				continue;
+		endsw
+	end
+#debug_check:
+
 
 check_dependencies:
 	set current_label="check_dependencies";
 	
-	set dependencies=("${scripts_basename}");# "`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`");
+	set dependencies=( "${scripts_basename}" "fsck.ext2" );# "`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`");
 	@ dependencies_index=0;
 #check_dependencies:
 
@@ -37,71 +58,83 @@ check_dependency:
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
 		unset dependencies[$dependencies_index];
-		foreach dependency("`where '${dependency}'`")
-			if( ${?debug} )	\
-				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
+		if( ${?debug} ) \
+			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
 			
-			if(! -x "${dependency}" ) continue;
-			
-			if(! ${?scripts_dirname} ) then
-				if("`basename '${dependency}'`" == "${scripts_basename}" ) then
-					set old_owd="${cwd}";
-					cd "`dirname '${dependency}'`";
-					set scripts_dirname="${cwd}";
-					cd "${owd}";
-					set owd="${old_owd}";
-					unset old_owd;
-					set script="${scripts_dirname}/${scripts_basename}";
-					if(! ${?TCSH_RC_SESSION_PATH} )	\
-						setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
-					
-					if(! ${?TCSH_LAUNCHER_PATH} )	\
-						setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
-				endif
-			endif
-			
-			if( ${?debug} )	\
-				printf "\n**%s debug:** found dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
-			
-			switch("${dependency}")
-				case "${scripts_basename}":
-				case "./${dependency}":
-				case "${TCSH_LAUNCHER_PATH}/${dependency}":
-					continue;
-					breaksw;
-			endsw
-			break;
+		foreach program("`where '${dependency}'`")
+			if( -x "${program}" ) \
+				break;
+			unset program;
 		end
 		
-		if(! ${?program} )	\
-			set program="${script}";
-		
-		if(!( ${?dependency} && ${?script} && ${?program} )) then
-			set missing_dependency;
-		else
-			if(!( -x ${script} && -x ${dependency} && -x ${program} ))	\
-				set missing_dependency;
-		endif
-		
-		if( ${?missing_dependency} ) then
+		if(! ${?program} ) then
 			@ errno=-501;
 			goto exception_handler;
 		endif
 		
-		unset dependency;
+		if( ${?debug} )	then
+			if( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[1]?[0-9]*([1-3])"\$"/\1/`" )
+				case "1":
+					set suffix="st";
+					breaksw;
+				
+				case "2":
+					set suffix="nd";
+					breaksw;
+				
+				case "3":
+					set suffix="rd";
+					breaksw;
+				
+				default:
+					set suffix="th";
+					breaksw;
+			endsw
+			
+			printf "**%s debug:** found %d%s dependency: %s.\n" "${script_basename}" $dependencies_index "${suffix}" "${dependency}";
+			unset suffix;
+		endif
+		
+		switch("${dependency}")
+			case "${scripts_basename}":
+				if( ${?scripts_dirname} ) \
+					breaksw;
+				
+				set old_owd="${cwd}";
+				cd "`dirname '${program}'`";
+				set scripts_dirname="${cwd}";
+				cd "${owd}";
+				set owd="${old_owd}";
+				unset old_owd;
+				set script="${scripts_dirname}/${scripts_basename}";
+				if(! ${?TCSH_RC_SESSION_PATH} ) \
+					setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+				
+				if(! ${?TCSH_LAUNCHER_PATH} ) \
+					setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
+				breaksw;
+			
+			case "fsck.ext2":
+				set fsck_ext2_exec="${program}";
+				breaksw;
+		endsw
+		
+		unset program;
 	end
 	
 	unset dependency dependencies;
+	
+	goto parse_argv;
 #check_dependency:
 
 
 if_sourced:
 	set current_label="if_sourced";
 	
-	if(! ${?being_sourced} )	\
+	if(! ${?being_sourced} ) \
 		goto main;
 	
-	if(! ${?supports_being_source} )	\
+	if(! ${?supports_being_source} ) \
 		goto sourcing_disabled;
 	
 	goto sourcing_init;
@@ -138,7 +171,7 @@ sourcing_main:
 sourcing_main_quit:
 	set current_label="sourcing_main_quit";
 	
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
+	ource "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	
 	# END: source scripts_basename support.
 	
@@ -163,10 +196,10 @@ exec:
 	set current_label="exec";
 	
 	printf "Executing %s's main.\n" "${scripts_basename}";
-	if(! ${?device} )	\
-		set device="/dec/sdc";
+	if(! ${?device} ) \
+		set device=/dev/sdc;
 	
-	foreach usb (${device}[12356])
+	foreach usb( ${device}[12356] )
 		printf "\n\n---------**checking <%s>**-----------------\n\n" "${usb}";
 		fsck.ext2 -c -y "${usb}";
 	end
@@ -178,60 +211,57 @@ exec:
 scripts_main_quit:
 	set current_label="scripts_main_quit";
 	
-	if( ${?argc} )	\
+	if( ${?argc} ) \
 		unset argc;
 	
-	if( ${?init_completed} )	\
-		unset init_completed;
-	
-	if( ${?being_sourced} )	\
+	if( ${?being_sourced} ) \
 		unset being_sourced;
-	if( ${?supports_being_source} )	\
+	if( ${?supports_being_source} ) \
 		unset supports_being_source;
 	
-	if( ${?scripts_basename} )	\
+	if( ${?scripts_basename} ) \
 		unset scripts_basename;
-	if( ${?scripts_dirname} )	\
+	if( ${?scripts_dirname} ) \
 		unset scripts_dirname;
-	if( ${?script} )	\
+	if( ${?script} ) \
 		unset script;
 	
-	if( ${?missing_dependency} )	\
+	if( ${?missing_dependency} ) \
 		unset missing_dependency;
 	
-	if( ${?parsed_argv} )	\
+	if( ${?parsed_argv} ) \
 		unset parsed_argv;
-	if( ${?parsed_argc} )	\
+	if( ${?parsed_argc} ) \
 		unset parsed_argc;
-	if( ${?argz} )	\
+	if( ${?argz} ) \
 		unset argz;
 	
-	if( ${?debug} )	\
+	if( ${?debug} ) \
 		unset debug;
-	if( ${?escaped_cwd} )	\
+	if( ${?escaped_cwd} ) \
 		unset escaped_cwd;
-	if( ${?escaped_home_dir} )	\
+	if( ${?escaped_home_dir} ) \
 		unset escaped_home_dir;
-	if( ${?dependency} )	\
+	if( ${?dependency} ) \
 		unset dependency;
-	if( ${?dependencies} )	\
+	if( ${?dependencies} ) \
 		unset dependencies;
-	if( ${?usage_displayed} )	\
+	if( ${?usage_displayed} ) \
 		unset usage_displayed;
-	if( ${?no_exit_on_usage} )	\
+	if( ${?no_exit_on_usage} ) \
 		unset no_exit_on_usage;
-	if( ${?display_usage_on_error} )	\
+	if( ${?display_usage_on_error} ) \
 		unset display_usage_on_error;
-	if( ${?last_exception_handled} )	\
+	if( ${?last_exception_handled} ) \
 		unset last_exception_handled;
 	
-	if( ${?current_label} )	\
+	if( ${?current_label} ) \
 		unset current_label;
-	if( ${?callback} )	\
+	if( ${?callback} ) \
 		unset callback;
-	if( ${?last_callback} )	\
+	if( ${?last_callback} ) \
 		unset last_callback;
-	if( ${?callback_stack} )	\
+	if( ${?callback_stack} ) \
 		unset callback_stack;
 	
 	if( ${?old_owd} ) then
@@ -240,12 +270,6 @@ scripts_main_quit:
 		unset old_owd;
 	endif
 	
-	if(! ${?errno} ) then
-		set status=0;
-	else
-		set status=$errno;
-		unset errno;
-	endif
 	exit ${status}
 #scripts_main_quit:
 
@@ -255,10 +279,10 @@ usage:
 	
 	if( ${?errno} ) then
 		if( ${errno} != 0 ) then
-			if(! ${?last_exception_handled} )	\
+			if(! ${?last_exception_handled} ) \
 				set last_exception_handled=0;
 			if( ${last_exception_handled} != ${errno} ) then
-				if(! ${?callback} )	\
+				if(! ${?callback} ) \
 					set callback="usage";
 				goto exception_handler;
 			endif
@@ -271,13 +295,13 @@ usage:
 		${program} --help;
 	endif
 	
-	if(! ${?usage_displayed} )	\
+	if(! ${?usage_displayed} ) \
 		set usage_displayed;
 	
-	if(! ${?no_exit_on_usage} )	\
+	if(! ${?no_exit_on_usage} ) \
 		goto scripts_main_quit;
 	
-	if(! ${?callback} )	\
+	if(! ${?callback} ) \
 		set callback="parse_arg";
 	goto callback_handler;
 #usage:
@@ -286,7 +310,7 @@ usage:
 exception_handler:
 	set current_label="exception_handler";
 	
-	if(! ${?errno} )	\
+	if(! ${?errno} ) \
 		@ errno=-599;
 	printf "\n**%s error("\$"errno:%d):**\n\t" "${scripts_basename}"  $errno;
 	switch( $errno )
@@ -319,10 +343,10 @@ exception_handler:
 	set last_exception_handled=$errno;
 	printf "\n\n" > /dev/stderr;
 	
-	if( ${?display_usage_on_error} )	\
+	if( ${?display_usage_on_error} ) \
 		goto usage;
 	
-	if( ${?callback} )	\
+	if( ${?callback} ) \
 		goto callback_handler;
 	
 	goto scripts_main_quit;
@@ -332,15 +356,6 @@ exception_handler:
 
 parse_argv:
 	set current_label="parse_argv";
-	
-	if( ${?init_completed} ) then
-		if(! ${?being_sourced} ) then
-			set callback="exec";
-		else
-			set callback="sourcing_main";
-		endif
-		goto callback_handler;
-	endif
 	
 	@ argc=${#argv};
 	
@@ -354,28 +369,8 @@ parse_argv:
 	endif
 	
 	@ arg=0;
-	while( $arg < $argc )
-		@ arg++;
-		switch("$argv[$arg]")
-			case "--diagnosis":
-			case "--diagnostic-mode":
-				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
-				set diagnostic_mode;
-				break;
-			
-			case "--debug":
-				printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${scripts_basename}" $arg;
-				set debug;
-				break;
-			
-			default:
-				continue;
-		endsw
-	end
-	if( $arg > 1 )	\
-		@ arg=0;
 	
-	if( ${?debug} || ${?diagnostic_mode} )	\
+	if( ${?debug} || ${?diagnostic_mode} ) \
 		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${scripts_basename}" "${argc}";
 	
 	#set parsed_argv=();
@@ -388,7 +383,7 @@ parse_arg:
 	while( $arg < $argc )
 		@ arg++;
 		
-		if( ${?debug} || ${?diagnostic_mode} )		\
+		if( ${?debug} || ${?diagnostic_mode} )	 \
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
 		
 		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\1/'`";
@@ -414,7 +409,7 @@ parse_arg:
 				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\3/'`";
 				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/'`";
 				
-				if( ${?debug} || ${?diagnostic_mode} )	\
+				if( ${?debug} || ${?diagnostic_mode} ) \
 					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_value}";
 				
 				if(!("${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]")) then
@@ -441,7 +436,7 @@ parse_arg:
 		else
 			set parsed_argv=($parsed_argv "${dashes}${option}${equals}${value}");
 		endif
-		if( ${?debug} || ${?diagnostic_mode} )	\
+		if( ${?debug} || ${?diagnostic_mode} ) \
 			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "$parsed_argv[$parsed_argc]";
 		
 		switch("${option}")
@@ -541,16 +536,8 @@ parse_arg:
 	endif
 	if( ${?diagnostic_mode} ) then
 		set callback="diagnostic_mode";
-	else
-		if(! ${?callback} ) then
-			if(! ${?init_completed} ) then
-				set callback="init_complete";
-			else if(! ${?being_sourced} ) then
-				set callback="exec";
-			else
-				set callback="sourcing_main";
-			endif
-		endif
+	else if(! ${?callback} ) then
+		set callback="if_sourced";
 	endif
 	
 	goto callback_handler;
@@ -559,7 +546,7 @@ parse_arg:
 callback_handler:
 	set current_label="callback_handler";
 	
-	if(! ${?callback} )	\
+	if(! ${?callback} ) \
 		goto scripts_main_quit;
 	
 	if(! ${?callback_stack} ) then
@@ -575,7 +562,7 @@ callback_handler:
 		endif
 		unset callback;
 	endif
-	if( ${?debug} || ${?diagnostic_mode} )	\
+	if( ${?debug} || ${?diagnostic_mode} ) \
 		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
 	
 	goto $last_callback;

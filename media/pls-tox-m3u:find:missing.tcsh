@@ -2,14 +2,14 @@
 init:
 	set scripts_name="pls-tox-m3u:find:missing.tcsh";
 	
-	if( `printf '%s' "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` == "csh" ) then
-		set errno=-501;
+	if( `printf "%s" "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` == "csh" ) then
+		@ errno=-501;
 		goto exception_handler;
 	endif
 	
 	set argc=${#argv};
 	if( ${argc} < 1 ) then
-		set errno=-503;
+		@ errno=-503;
 		goto exception_handler;
 	endif
 	
@@ -17,7 +17,7 @@ init:
 	cd "`dirname '${0}'`";
 	set scripts_path="${cwd}";
 	cd "${owd}";
-	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	set escaped_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g'`";
 	set owd="${old_owd}";
 	unset old_owd;
 	
@@ -31,7 +31,7 @@ init:
 
 main:
 	if(! ${?playlist} ) then
-		set errno=-4;
+		@ errno=-4;
 		goto exception_handler;
 	endif
 
@@ -52,14 +52,14 @@ main:
 #main:
 
 find_missing_media:
-	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
+	set escaped_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g'`";
 	if( ${?debug} ) then
 		printf "Searching for missing multimedia files using:\n\t";
-		printf "find -L ${cwd}/${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"'-type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\\1/g' | sed -r 's/\\(\[)/\\\\1/g' | sed -r 's/([*])/\\\\1/g'\n";
+		printf "find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\\\\1/g' | sed -r 's/(\[)/\\\\\\1/g' | sed -r 's/([*])/\\\\\\1/g'\n";
 	endif
 	@ removed_podcasts=0;
-	foreach podcast("`find -L ${cwd}/${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`")
-		#printf '-->%s\n' "${podcast}";
+	foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`")
+		#printf "-->%s\n" "${podcast}";
 		#continue;
 		if( ${?skip_subdirs} ) then
 			foreach skip_subdir ( "`printf "\""${skip_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
@@ -133,12 +133,11 @@ find_missing_media:
 		
 		set podcast_dir="`dirname "\""${this_podcast}"\""`";
 		set podcast_dir_for_ls="`dirname "\""${this_podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g'`";
-		while( "${podcast_dir}" != "/" && "${podcast_dir}" != "${cwd}" )
-			
-			if( "`ls "\""${podcast_dir_for_ls}"\""`" != "" )	\
+		while( "${podcast_dir}" != "/" )
+			if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" )	\
 				break;
 			
-			rm -rv "${podcast_dir}";
+			rmdir -v "${podcast_dir}";
 			if( ${?create_script} ) then
 				printf "rm -rv "\""${podcast_dir}"\"";\n" >> "${create_script}";
 			endif
@@ -174,12 +173,11 @@ find_missing_media:
 			
 			set podcast_dir="`dirname "\""${duplicate_podcast}"\""`";
 			set podcast_dir_for_ls="`dirname "\""${duplicate_podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g'`";
-			while( "${podcast_dir}" != "/" && "${podcast_dir}" != "${cwd}" )
-				
-				if( "`/bin/ls "\""${podcast_dir_for_ls}"\""`" != "" )	\
+			while( "${podcast_dir}" != "/" )
+				if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" )	\
 					break;
 				
-				rm -rv "${podcast_dir}";
+				rmdir -v "${podcast_dir}";
 				if( ${?create_script} ) then
 					printf "rm -rv "\""${podcast_dir}"\"";\n" >> "${create_script}";
 				endif
@@ -211,22 +209,20 @@ if( ${?duplicates_subdir} )	\
 if( ${?duplicate_podcast} )	\
 	unset duplicate_podcast;
 unset podcast_dir podcast playlist;
-set errno=0;
+@ errno=0;
 
 
 script_main_quit:
-	if(! ${?errno} ) then
-		set status=0;
-	else
-		set status=$errno;
-		unset errno;
-	endif
-	exit ${status};
+	if(! ${?errno} ) \
+		@ errno=0;
+	
+	@ status=$errno;
+	exit ${errno};
 #script_main_quit:
 
 
 usage:
-	printf "\nUsage:\n\t%s playlist [directory] [--(extension|extensions)=] [--maxdepth=] [--skip-subdir=<sub-directory>] [--check-for-duplicates-in-subdir=<sub-directory>] [--remove[=(interactive|force)]]\n\tfinds any files in [directory], or its sub-directories, up to files of --maxdepth.  If the file is not not found in playlist,\n\tThe [directory] that's searched is [./] by default unless another absolute, or relative, [directory] is specified.\n\t[--(extension|extensions)=] is optional and used to search for files with extension(s) matching the string or escaped, posix-extended, regular expression, e.g. --extensions='(mp3|ogg)' only. Otherwise all files are searched for.\n--remove is also optional.  When this option is given %s will remove podcasts which aren't in the specified playlist.  Unless --remove is set to force you'll be prompted before each file is actually deleted.  If, after the file(s) are deleted, the parent directory is empty it will also be removed.\n" "`basename '${0}'`" "`basename '${0}'`";
+	printf "\nUsage:\n\t%s playlist [directory] [--(extension|extensions)=] [--maxdepth=] [--recuive] [--search-all] [--skip-subdir=<sub-directory>] [--check-for-duplicates-in-subdir=<sub-directory>] [--remove[=(interactive|force)]]\n\tfinds any files in [directory], or its sub-directories, up to files of --maxdepth.  If the file is not not found in playlist,\n\tThe [directory] that's searched is [./] by default unless another absolute, or relative, [directory] is specified.\n\t[--(extension|extensions)=] is optional and used to search for files with extension(s) matching the string or escaped, posix-extended, regular expression, e.g. --extensions='(mp3|ogg)' only. Otherwise all files are searched for.\n--remove is also optional.  When this option is given %s will remove podcasts which aren't in the specified playlist.  Unless --remove is set to force you'll be prompted before each file is actually deleted.  If, after the file(s) are deleted, the parent directory is empty it will also be removed.\n" "`basename '${0}'`" "`basename '${0}'`";
 	if( ${?no_exit_on_usage} )	\
 		goto next_option;
 	
@@ -243,11 +239,19 @@ default_callback:
 
 exception_handler:
 	if(! ${?errno} )	\
-		set errno=-599;
+		@ errno=-599;
 	printf "\n**%s error("\$"errno:%d):**\n\t" "${scripts_name}"  $errno;
 	switch( $errno )
 		case -4:
+			if(! ${?exit_on_error} )	\
+				set exit_on_error;
 			printf "An existing playlist must be specified" > /dev/stderr;
+			breaksw;
+		
+		case -5:
+			if(! ${?exit_on_error} )	\
+				set exit_on_error;
+			printf "An existing directory must be specified as the location to search for missing podcasts" > /dev/stderr;
 			breaksw;
 		
 		case -501:
@@ -259,11 +263,11 @@ exception_handler:
 			breaksw;
 		
 		case -503:
-			printf "One or more required options have not been provided" "${dashes}" "${option}" '`' "${scripts_name}" '`' > /dev/stderr;
+			printf "One or more required options have not been provided" "${dashes}" "${option}" \` "${scripts_name}" \` > /dev/stderr;
 			breaksw;
 		
 		case -504:
-			printf "%s%s is an unsupported option.\n\tRun %s%s --help%s for supported options and details" "${dashes}" "${option}" '`' "${scripts_name}" '`' > /dev/stderr;
+			printf "%s%s is an unsupported option" "${dashes}" "${option}" > /dev/stderr;
 			breaksw;
 		
 		case -599:
@@ -271,7 +275,7 @@ exception_handler:
 			printf "An unknown error "\$"errno: %s has occured" "${errno}" > /dev/stderr;
 			breaksw;
 	endsw
-	printf "\n" > /dev/stderr;
+	printf ".\n\nPlease see: %s%s --help%s for more information and supported options\n" \` "${scripts_name}" \` > /dev/stderr;
 	
 	if( ${?callback} ) then
 		set last_callback=$callback;
@@ -306,7 +310,7 @@ parse_argv:
 		@ arg=1;
 	
 	if(! -e "$argv[$arg]" ) then
-		set errno=-4;
+		@ errno=-4;
 		goto exception_handler;
 	endif
 	
@@ -316,7 +320,8 @@ parse_argv:
 	if( $arg > $argc )	\
 		goto main;
 	if(!( "$argv[$arg]" != "" && -d "$argv[$arg]" )) then
-		@ arg--;
+		@ errno=-5;
+		goto exception_handler;
 	else if( "$argv[$arg]" != "${cwd}" ) then
 		set old_owd="${owd}";
 		cd "$argv[$arg]";
@@ -391,7 +396,7 @@ parse_arg:
 			case "skip-files-in-subdir":
 			case "skip-subdir":
 			case "dups-subdir":
-				set value="`printf '%s' "\""${value}"\"" | sed -r 's/^\///' | sed -r 's/\/"\$"//'`";
+				set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^\///' | sed -r 's/\/"\$"//'`";
 				if( ! -d "${value}" && ! -L "${value}" ) then
 					printf "--%s must specify a sub-directory of %s.\n" "${option}" "${cwd}" > /dev/stderr;
 					continue;
@@ -400,7 +405,7 @@ parse_arg:
 				switch("${option}")
 					case "skip-files-in-subdir":
 					case "skip-subdir":
-						#set value="`printf '%s' '${value}' | sed -r 's/\//\\\//g'`";
+						#set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/\//\\\//g'`";
 						if(! ${?skip_subdirs} ) then
 							set skip_subdirs=("${value}");
 						else
@@ -486,28 +491,44 @@ parse_arg:
 				breaksw;
 			
 			case "recursive":
-				set maxdepth=" ";
+				set maxdepth="";
 				breaksw;
 			
 			case "maxdepth":
-				if( ${value} != "" && `printf '%s' "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
-					set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
+				if( ${value} != "" && `printf "%s" "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
+					set value=`printf "%s" "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
 					if( ${value} > 2 )	\
-						set maxdepth=" -maxdepth ${value} ";
+						set maxdepth=" -maxdepth ${value}";
 				endif
 				if(! ${?maxdepth} )	\
-					printf "--maxdepth must be an integer value that is gretter than 2" > /dev/null;
+					printf "--maxdepth must be an integer value that is gretter than 2." > /dev/stderr;
+				breaksw;
+			
+			case "mindepth":
+				if( ${value} != "" && `printf "%s" "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
+					set value=`printf "%s" "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
+					if( ${value} > 0 ) \
+						set mindepth=" -mindepth ${value} ";
+				endif
+				if(! ${?mindepth} )	\
+					printf "--maxdepth must be an integer gretter than 0." > /dev/stderr
 				breaksw;
 			
 			case "search-subdirs-only":
 				set mindepth=" -mindepth 2 ";
 				breaksw;
 			
+			case "search-all":
+			case "search-all-subdirs":
+				set mindepth=" ";
+				set maxdepth="";
+				breaksw;
+			
 			case "":
 				breaksw;
 			
 			default:
-				set errno=-504;
+				@ errno=-504;
 				set callback="parse_arg";
 				goto exception_handler;
 				breaksw;

@@ -1,18 +1,25 @@
 #!/bin/tcsh -f
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
+if(! ${?0} ) then
+	printf "screen only supports being launched from with an interactive shell and cannot be sourced.\n";
+	exit;
+endif
+
 set this_program="`basename '${0}'`";
 foreach program ( "`which '${this_program}'`" )
 	if( "${program}" != "${0}" && -x "${program}" ) break;
 	unset program;
 end
 
-if(! ${?program} ) goto noexec;
-if(! -x "${program}" ) goto noexec;
+if(! ${?program} ) \
+	goto noexec;
+if(! -x "${program}" ) \
+	goto noexec;
 goto launchers_main;
 
 noexec:
 	printf "Unable to find %s.\n" "${this_program}";
-	if( ${?program} ) unset program;
+	if( ${?program} ) \
+		unset program;
 	unset this_program;
 	exit -1;
 
@@ -20,7 +27,8 @@ launchers_main:
 
 set screens_command="${program} -aAUR";
 set screens_sessions=`${program} -list`;
-if( "$screens_sessions[1]" != "No" ) set screens_command="${screens_command}x";
+if( "$screens_sessions[1]" != "No" ) \
+	set screens_command="${screens_command}x";
 unset screens_sessions;
 
 $screens_command

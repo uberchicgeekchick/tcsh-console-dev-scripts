@@ -382,7 +382,7 @@ oggconvert:
 		
 		if( ${?playlist} ) then
 			if( `echo ${save_to_filename} | sed -r 's/^(.)(.*)$/\1/'` != "/" ) then
-				echo "${cwd}" >> "${playlist}.new";
+				echo "${cwd}/" >> "${playlist}.new";
 			echo "${save_to_filename}.ogg\n" >> "${playlist}.new";
 		endif
 		
@@ -921,8 +921,19 @@ parse_arg:
 				breaksw;
 			
 			case "re-encode":
-				if(! ${?re_encode} ) \
-					set re_encode;
+				switch("${value}")
+					case "force":
+						if(! ${?force} ) \
+							set force;
+						if(! ${?re_encode} ) \
+							set re_encode;
+						breaksw;
+					
+					default:
+						if(! ${?re_encode} ) \
+							set re_encode;
+						breaksw;
+				endsw
 				breaksw;
 			
 			case "enable":
@@ -1019,6 +1030,9 @@ filename_list_append_value:
 		touch "${filename_list}";
 	endif
 	
+	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|wav" && ! ${?ltrim} && ! ${?rtrim} ) \
+		set scripts_supported_extensions="mp3|m4a|wav";
+	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} ) then
 			echo "Adding [${value}] to [${filename_list}].\nBy running:\n\tfind -L "\""$value"\""";
@@ -1045,9 +1059,6 @@ filename_list_append_value:
 			echo " \! -iregex '.*\/\..*'";
 		echo " | sort >> "\""${filename_list}"\";
 	endif
-	
-	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|wav" && ! ${?ltrim} && ! ${?rtrim} ) \
-		set scripts_supported_extensions="mp3|m4a|wav";
 	
 	if(! ${?supports_hidden_files} ) then
 		find -L "$value" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*'  | sort >> "${filename_list}";

@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SOURCE_FILE} )	\
+if(! ${?TCSH_RC_SOURCE_FILE} ) \
 	setenv TCSH_RC_SOURCE_FILE "$argv[1]";
 
 if( ! ${?TCSH_OUTPUT_ENABLED} && ! ${?TCSH_OUTPUT_DISABLED} ) then
@@ -25,10 +25,10 @@ if(! ${?TCSH_RC_DEBUG} ) then
 			case "--debug":
 				@ args_handled++;
 				@ arg=${#argv};
-				if(! ${?TCSH_OUTPUT_ENABLED} )	\
+				if(! ${?TCSH_OUTPUT_ENABLED} ) \
 					breaksw;
 				if( ${?TCSH_RC_DEBUG} ) then
-					if( "${TCSH_RC_DEBUG}" != "$argv[1]" )	\
+					if( "${TCSH_RC_DEBUG}" != "$argv[1]" ) \
 						breaksw;
 				endif
 				
@@ -39,14 +39,14 @@ if(! ${?TCSH_RC_DEBUG} ) then
 			breaksw;
 		endsw
 	end
-	if( ! ${?TCSH_RC_DEBUG} || $arg > 1 )	\
+	if( ! ${?TCSH_RC_DEBUG} || $arg > 1 ) \
 		@ arg=0;
 endif
 
 if( ${?TCSH_RC_DEBUG} ) then
 	printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
 else if( "`alias cwdcmd`" != "" ) then
-	if( ${?TCSH_RC_DEBUG} )	\
+	if( ${?TCSH_RC_DEBUG} ) \
 		printf "Saving cwdcmd until TCSH finishes loading.\n";
 	setenv oldcwdcmd "`alias cwdcmd`";
 	unalias cwdcmd;
@@ -54,15 +54,15 @@ endif
 
 while( $arg < $argc )
 	@ arg++;
-	if( ${?TCSH_RC_DEBUG} )	\
+	if( ${?TCSH_RC_DEBUG} ) \
 		printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]";
 	
 	set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
-	if( "${dashes}" == "$argv[$arg]" )	\
+	if( "${dashes}" == "$argv[$arg]" ) \
 		set dashes="";
 	
 	set option="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
-	if( "${option}" == "$argv[$arg]" )	\
+	if( "${option}" == "$argv[$arg]" ) \
 		set option="";
 	
 	set value="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\3/'`";
@@ -101,22 +101,22 @@ while( $arg < $argc )
 				endif
 			endif
 			
-			if( ${?TCSH_OUTPUT_ENABLED} )	\
+			if( ${?TCSH_OUTPUT_ENABLED} ) \
 				printf "Using [%s] as TCSH's working directory.\t" "${value}";
 			
 			setenv TCSH_WORKING_DIR "`printf "\""%s"\"" "\""$value"\"" | sed -r 's/\/"\$"//'`";
-			if( ${?TCSH_OUTPUT_ENABLED} )	\
+			if( ${?TCSH_OUTPUT_ENABLED} ) \
 				printf "[success]\n";
 			
 			if( ${?skip_cwd_test} ) \
 				breaksw;
 			
-			if( "${cwd}" != "${value}" )	\
+			if( "${cwd}" != "${value}" ) \
 				cd "${value}";
 		breaksw
 	endsw
 end
 setenv TCSH_RC_CURRENT_SOURCE_FILE "$argv[1]";
-if( ${?TCSH_RC_DEBUG} )	\
+if( ${?TCSH_RC_DEBUG} ) \
 	printf "Started loading %s @ %s.\n\n" "$argv[1]" `date "+%I:%M:%S%P"`;
 exit $args_handled;

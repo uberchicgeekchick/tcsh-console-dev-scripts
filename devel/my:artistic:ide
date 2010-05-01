@@ -299,7 +299,7 @@ ssh_canvas:
 	switch("${canvas}")
 		case "EEE":
 		case "eee":
-			if(! ${?eee_geometry} )	\
+			if(! ${?eee_geometry} ) \
 				set eee_geometry=`cat "${resolutions_path}/ssh/eee.rc"`;
 			set geometry="${eee_geometry}";
 			set with_ssh_our_eee;

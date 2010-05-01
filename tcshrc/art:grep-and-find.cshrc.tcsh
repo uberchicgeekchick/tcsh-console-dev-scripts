@@ -6,7 +6,7 @@
 		exit ${status};
 	endif
 	
-	if(! ${?TCSH_RC_SESSION_PATH} )	\
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
 		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 		source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_name}" "${argv}";
 		if( $args_handled > 0 ) then

@@ -2,7 +2,7 @@
 while( ${?1} && "${1}" != "" )
 	set option="`printf '%s' '${1}' | sed -r 's/[\-]{2}(.*)/\1/'`";
 	set value="`printf "\""${1}"\"" | sed -r 's/^([\-]{2})([^\=]+)(\=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/'`";
-	if( "${value}" == "" && "${2}" != "" )	\
+	if( "${value}" == "" && "${2}" != "" ) \
 		set value="${2}";
 	
 	switch("${option}")
@@ -14,7 +14,7 @@ while( ${?1} && "${1}" != "" )
 		
 		case "browser":
 			foreach browser("`where '${value}'`")
-				if( -x "${browser}" )	\
+				if( -x "${browser}" ) \
 					break;
 				unset browser;
 			end

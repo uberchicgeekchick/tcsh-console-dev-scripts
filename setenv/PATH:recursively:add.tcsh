@@ -53,7 +53,7 @@ while("${1}" != "" )
 			goto next_argv;
 		endif
 		set status=-1;
-		if( ${?TCSH_OUTPUT_ENABLED} )	\
+		if( ${?TCSH_OUTPUT_ENABLED} ) \
 			printf "[%s] is not an existing directory.\n\n" "${1}" > /dev/stderr;
 		shift;
 		continue;
@@ -78,16 +78,16 @@ while("${1}" != "" )
 				breaksw;
 			
 			default:
-				if( ${?TCSH_RC_DEBUG} )	\
+				if( ${?TCSH_RC_DEBUG} ) \
 					printf "Attempting to add: [file://%s] to your PATH:\t\t" "${dir}";
 				
 				if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${dir}"` != 0 ) then
-					if( ${?TCSH_RC_DEBUG} )	\
+					if( ${?TCSH_RC_DEBUG} ) \
 						printf "[skipped]\n\t\t\t<file://%s> is already in your PATH\n" "${dir}";
 					continue;
 				endif
 				
-				if( ${?TCSH_RC_DEBUG} )	\
+				if( ${?TCSH_RC_DEBUG} ) \
 					printf "[added]\n";
 				if(! ${?new_path} ) then
 					set new_path="${dir}";

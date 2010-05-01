@@ -15,9 +15,9 @@ if( ! -d "${music_path}/${music_library}" ) then
 endif
 
 cd "${music_path}/${music_library}";
-if(! -d "Genres" )	\
+if(! -d "Genres" ) \
 	mkdir "Genres";
-if(! -d "Genres" )	\
+if(! -d "Genres" ) \
 	mkdir "Artists";
 
 # Archiving all new sons, top tracks, or podcasts:
@@ -35,7 +35,7 @@ rm "${podcasts_download_path}/.New ${music_library} Songs.lst";
 
 foreach title ( "`/usr/bin/find Genres -iregex '.*, released on.*'`" )
 	set pubdate="`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\4/g'`";
-	if( "${pubdate}" == "" || "${pubdate}" == "${title}" )	\
+	if( "${pubdate}" == "" || "${pubdate}" == "${title}" ) \
 		continue;
 	set genre = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\1/g'`";
 	set song = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\3/g'`";
@@ -49,12 +49,12 @@ foreach title ( "`/usr/bin/find Genres -type f`" )
 	set artist = "`printf "\""${title}"\"" | sed -r 's/.*\/(.*)\ \-\ (.*)\.([^\.]+)"\$"/\1/g'`";
 	set extension = "`printf "\""${title}"\"" | sed -r 's/.*\.([^\.]+)"\$"/\1/g'`";
 	
-	if( -e "Artists/${artist}/${song}.${extension}" )	\
+	if( -e "Artists/${artist}/${song}.${extension}" ) \
 		continue;
 	
 	printf "Linking Artists/%s/%s.%s to %s\n" "${artist}" "${song}" "${extension}" "${title}";
 	if( ! -d "Artists/${artist}" ) mkdir -p "Artists/${artist}";
 	ln "${title}" "Artists/${artist}/${song}.${extension}";
-	if( ! -e "Artists/${artist}/${song}.${extension}" )	\
+	if( ! -e "Artists/${artist}/${song}.${extension}" ) \
 		printf "\tERROR: I was unable to link %s to Artists/%s/%s.${extension}\n" "${title}" "${artist}" "${song}";
 end

@@ -1,13 +1,13 @@
 #!/bin/tcsh -f
 if( ${?1} && "${1}" != "" && "${1}" == "--debug" ) then
 	shift;
-	if(! ${?TCSH_RC_DEBUG} ) setenv TCSH_RC_DEBUG "`basename ${0}`";
+	if(! ${?TCSH_RC_DEBUG} ) \
+		setenv TCSH_RC_DEBUG "`basename ${0}`";
 endif
 
-if(! ${?TCSH_RC_DEBUG} ) set TCSH_RC_DEBUG="";
-
 if( ! ( ${?1} && "${1}" != "" && "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)"\$"/\1/'`" == ".tox" && -e "${1}" ) ) then
-	if( "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)"\$"/\1/'`" != ".tox" ) printf "\n\t**ERROR:** %s is not a valid m3u playlist.\n" "${1}";
+	if( "`printf "\""${1}"\"" | sed 's/.*\(\.tox\)"\$"/\1/'`" != ".tox" ) \
+		printf "\n\t**ERROR:** %s is not a valid m3u playlist.\n" "${1}";
 	printf "Usage: %s playlist.tox (e.g. ~/media/playlist/toxine.tox)\n" "`basename '${0}'`";
 	set status=-1;
 	exit ${status};
@@ -32,30 +32,30 @@ else
 	printf "Preparing to copy contents of %s" "${1}";
 endif
 
-alias	ex	"ex -E -n -s -X --noplugin";
+alias	ex	"ex -E -n -X --noplugin";
+
+/bin/cp "${1}" "./.local.playlist.swp";
+ex -s '+1,$s/^\tmrl\ =\ \(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\2\/\3\.\4/' '+wq!' "./.local.playlist.swp";
+ex -s '+1,$s/^[^\/].*[\r\n]*//' '+1,$s/\([\"\$\!]\)/\"\\\1\"/g' '+wq!' "./.local.playlist.swp";
 
 printf '#\!/bin/tcsh -f\nset old_podcast="";\n' >! "${tcsh_shell_script}";
 chmod u+x "${tcsh_shell_script}";
-
-/bin/cp "${1}" "./.local.playlist.swp";
-ex "+2r ./.local.playlist.swp" '+wq!' "${tcsh_shell_script}";
+ex -s "+2r ./.local.playlist.swp" '+wq!' "${tcsh_shell_script}";
 /bin/rm "./.local.playlist.swp";
 
-ex '+3d'"+2,"\$"s/^entry\ {[\r\n]\+//" "+2,"\$"s/^};"\$"//" "+2,"\$"s/^\tmrl\ =\ \(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);"\$"/\1\2\/\3\.\4/" "+2,"\$"s/^\t.*;[\r\n]\+//" "+1,"\$"s/^[\r\n]\+//"  '+wq!' "${tcsh_shell_script}";
-ex '+3,$s/^\#.*[\r\n]*//' '+3,$s/^[^\/].*[\r\n]*//' '+3,$s/\([\!]\)/\\\1/g' '+3,$s/"/"\\""/g' '+wq!' "${tcsh_shell_script}";
-ex '+3,$s/\(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\([^\/]\+\)\/\(.*\)/if(! -e "\1nfs\/\2\3\/\4" ) then\r\t\tprintf "**error coping:** remote file <%s> doesn'\''t exists." "\1nfs\/\2\3\/\4" > \/dev\/stderr;\r\telse\r\tif(! -d "\1\2\3" ) mkdir -p "\1\2\3";\r\tif(! -e "\1\2\3\/\4" ) then\r\t\tif( "${old_podcast}" != "\2\3" ) then\r\t\t\tprintf "\\nCopying: %s'\''s content(s):" "\2\3";\r\t\t\tset old_podcast="\2\3";\r\tendif\r\t\tprintf "\\n\\tCopying: %s" "\4";\r\t\tcp "\1nfs\/\2\3\/\4" "\1\2\3\/\4"\r\t\tprintf "\\n\\t\\t\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
+ex -s '+3,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/(.*)(\..*)$/if\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\techo "**error coping:** remote file \<\1nfs\/\2\/\3\4\> doesn'\''t exists." \> \/dev\/stderr;\r\telse\r\tif\(\!  -d "\1\2" \) mkdir -fp "\1\2";\r\tif\(\! -e "\1\2\/\3\4" \) then\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\techo "\\nCopying: ${old_podcast}'\''s content(s)  :";\r\t\tendif\r\t\techo "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4"\r\t\techo "  \\n\\t\\t\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
+#3,$s/^\(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\(\.[^\.]\+\)$/if(! -e "\1nfs\/\2\3" ) then\r\t\tprintf "**error coping:** remote file <%s> doesn't exists." "\1nfs\/\2\3" > \/dev\/stderr;\r\telse\r\t\tset podcast_dir="`dirname "\\\""\1\2\3"\\\""`";\r\t\tif(! -d "\${podcast_dir}" ) mkdir -p "\${podcast_dir}";\r\t\tif(! -e "\1\2\3" ) then\r\t\t\tif( "\${old_podcast}" != "`basename "\\\""\${podcast_dir}"\\\""`" ) then\r\t\t\t\tset old_podcast="`basename "\\\""\${podcast_dir}"\\\""`";\r\t\t\t\tprintf "\\nCopying: %s's content(s):" "\${old_podcast}";\r\t\t\tendif\r\t\tprintf "\\n\\tCopying: %s" "` basename "\\\""\1\2\3"\\\"" | sed -r "\\""s\/(.*)(\\.[^\\.])\$\/\\1\/"\\""`";\r\t\tcp "\1nfs\/\2\3 " "\1\2\3"\r\t\tprintf "\\n\\t\\t\\t[done]\\n";\r\tendif\rendif\r/
 
 printf "\t[done]\n";
 
 if( ${?auto_copy} ) then
 	printf "\nCopying nfs files to local directory.\n";
-	./"${tcsh_shell_script}";
+	"${tcsh_shell_script}";
+	/bin/rm "${tcsh_shell_script}";
 endif
 
-if( "${TCSH_RC_DEBUG}" != "`basename '${0}'`" ) then
-	unset TCSH_RC_DEBUG;
-	/bin/rm ./"${tcsh_shell_script}";
-else
-	unsetenv TCSH_RC_DEBUG;
+if( ${?TCSH_RC_DEBUG} ) then
+	if( "${TCSH_RC_DEBUG}" == "`basename '${0}'`" ) \
+		unsetenv TCSH_RC_DEBUG;
 endif
 

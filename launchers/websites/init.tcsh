@@ -12,39 +12,39 @@ endif
 unset args_handled;
 
 setenv TCSH_WEBSITE_LAUNCHER_PATH "${TCSH_LAUNCHER_PATH}/websites";
-if( ${?TCSH_RC_DEBUG} )	\
+if( ${?TCSH_RC_DEBUG} ) \
 	printf "Loading:\n\t[file://%s/init.tcsh] @ %s.\n" "${TCSH_WEBSITE_LAUNCHER_PATH}" `date "+%I:%M:%S%P"`;
 
 find_browser:
 	set browsers=( "links" "lynx" );
 	foreach browser(${browsers})
 		foreach browser("`where '${browser}'`")
-			if( -x "${browser}" )	\
+			if( -x "${browser}" ) \
 				break;
 			unset browser;
 		end
-		if( ${?browser} )	\
+		if( ${?browser} ) \
 			break;
 	end
-	if(! ${?browser} )	\
+	if(! ${?browser} ) \
 		goto no_browser;
-	if(! -x ${browser} )	\
+	if(! -x ${browser} ) \
 		goto no_browser;
 	setenv BROWSER "${browser}";
 	
 	set browsers=( "firefox" "ephinany" );
 	foreach browser(${browsers})
 		foreach browser("`where '${browser}'`")
-			if( -x "${browser}" )	\
+			if( -x "${browser}" ) \
 				break;
 			unset browser;
 		end
-		if( ${?browser} )	\
+		if( ${?browser} ) \
 			break;
 	end
-	if(! ${?browser} )	\
+	if(! ${?browser} ) \
 		goto no_browser;
-	if(! -x ${browser} )	\
+	if(! -x ${browser} ) \
 		goto no_browser;
 	setenv XBROWSER "${browser}";
 	
@@ -56,7 +56,7 @@ source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=
 foreach launcher ( "`find -L '${TCSH_WEBSITE_LAUNCHER_PATH}' -ignore_readdir_race -type f -perm '/u=x' -printf '%f\n'`" )
 	switch( "${launcher}" )
 		case "init.tcsh":
-			if( ${?TCSH_RC_DEBUG} )	\
+			if( ${?TCSH_RC_DEBUG} ) \
 				printf "Skipping:\n\t[file://%s/%s]\n\tits not a launcher.\n" "${TCSH_WEBSITE_LAUNCHER_PATH}" "${launcher}";
 			continue;
 			breaksw;
@@ -64,7 +64,7 @@ foreach launcher ( "`find -L '${TCSH_WEBSITE_LAUNCHER_PATH}' -ignore_readdir_rac
 	
 	set website="`printf '%s' '${launcher}' | sed -r 's/(.*)\.tcsh"\$"/\1/'`";
 	if( ${?TCSH_RC_DEBUG} ) printf "Setting up website alias for [%s] to [%s/%s].\n" "${website}" "${TCSH_WEBSITE_LAUNCHER_PATH}" "${launcher}";
-	if( "`alias '${website}'`" != "" )	\
+	if( "`alias '${website}'`" != "" ) \
 		unalias "${website}";
 	alias	"${website}"	\$"{TCSH_WEBSITE_LAUNCHER_PATH}/${launcher}";
 	unset	website	launcher;
@@ -82,7 +82,7 @@ exit_script:
 #exit_script:
 
 no_browser:
-	if( ${?TERM} )	\
+	if( ${?TERM} ) \
 		printf "**error finding compatible browser while looking for %s.\n" "${browsers}" > /dev/stderr;
 	unset browsers;
 	goto exit_script;

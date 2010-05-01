@@ -1,18 +1,18 @@
 #!/bin/tcsh -f
-	if(! ${?TCSH_RC_SESSION_PATH} )	\
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
 		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 
 init:
-	if( `alias grep` != "" )	\
+	if( `alias grep` != "" ) \
 		unalias grep;
 	
 	
-	if(! ${?TCSH_CANVAS_PATH} )	\
+	if(! ${?TCSH_CANVAS_PATH} ) \
 		setenv TCSH_CANVAS_PATH "${TCSH_RC_SESSION_PATH}/../devel/make";
 	source "${TCSH_CANVAS_PATH}/canvas.init.tcsh" ${argv};
 	
 	
-	if( "${1}" == "--reset" )	\
+	if( "${1}" == "--reset" ) \
 		shift;
 	
 	
@@ -34,10 +34,10 @@ init:
 	set mozilla_top_dir="/programs/mozilla";
 	set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
 	
-	if( "${cwd}" != "${mozilla_top_dir}" )	\
+	if( "${cwd}" != "${mozilla_top_dir}" ) \
 		cd "${mozilla_top_dir}";
 	
-	if( ${?GREP_OPTIONS} )	\
+	if( ${?GREP_OPTIONS} ) \
 		unsetenv GREP_OPTIONS;
 	
 	unalias grep;
@@ -47,7 +47,7 @@ init:
 parse_argv:
 	while( "${1}" != "" )
 		
-		#if( `printf '%s' "${2}" | sed -r 's/^(\-\-).*$/\1/'` != "--" )	\
+		#if( `printf '%s' "${2}" | sed -r 's/^(\-\-).*$/\1/'` != "--" ) \
 		#	goto configure;
 			
 		switch( "${1}" )
@@ -81,7 +81,7 @@ parse_argv:
 			default:
 				printf "Usage: %s [options...] (firefox|thunderbird)\n\t%s checks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"` `basename "${0}"`;
 				
-				if( "${1}" != "" && "${1}" != "--help" )	\
+				if( "${1}" != "" && "${1}" != "--help" ) \
 					printf "Unsupported option: %s\n" "${1}";
 				
 				printf "					\
@@ -146,15 +146,15 @@ configure:
 
 init_make:
 	set topdir="${mozilla_top_dir}/src";
-	if( ! -d "${topdir}" )	\
+	if( ! -d "${topdir}" ) \
 		mkdir -p "${topdir}";
 	
 	set srcdir="${topdir}/${build_mozilla}-srcdir";
-	if(! -d "${srcdir}" )	\
+	if(! -d "${srcdir}" ) \
 		mkdir -p "${srcdir}";
 	
 	set objdir="${topdir}/${build_mozilla}-objdir";
-	if(! -d "${objdir}" )	\
+	if(! -d "${objdir}" ) \
 		mkdir -p "${objdir}";
 	
 	if( -e "${srcdir}/.make.lock" ) then
@@ -174,7 +174,7 @@ checkout:
 		printf "Cloning: %s.\n" "${mercurial_repo}";
 		hg clone "http://hg.mozilla.org/${mercurial_repo}" "${srcdir}";
 	else
-		if( "${cwd}" != "${srcdir}" )	\
+		if( "${cwd}" != "${srcdir}" ) \
 			cd "${srcdir}";
 		set hg_reaction="update";
 		printf "Checking out: %s.\n" "${mercurial_repo}";
@@ -183,13 +183,13 @@ checkout:
 			hg update -C `hg branches | /bin/grep 'RELBRANCH' | head -1 | cut -d' ' -f1`;
 		endif
 	endif
-	if( "${cwd}" != "${srcdir}" )	\
+	if( "${cwd}" != "${srcdir}" ) \
 		cd "${srcdir}";
 	if( "${build_mozilla}" == "thunderbird" && -e client.py ) then
 		python client.py checkout;
 	endif
 	
-	if( ${status} != 0 )	\
+	if( ${status} != 0 ) \
 		goto status_failed;
 	unset hg_reaction;
 #checkout:
@@ -197,7 +197,7 @@ checkout:
 
 make_nss:
 	goto make;
-	if( "${cwd}" != "${srcdir}" )	\
+	if( "${cwd}" != "${srcdir}" ) \
 		cd "${srcdir}";
 	
 	if( "${MACHTYPE}" == "x86_64" ) then
@@ -211,16 +211,16 @@ make_nss:
 	set nsinstall_path="${srcdir}/security/coreconf/nsinstall/${arch_path}";
 	set nss_path="${srcdir}/dist/${arch_path}";
 	
-	if(! -d  "${objdir}/nss/ssl" )	\
+	if(! -d  "${objdir}/nss/ssl" ) \
 		mkdir -p  "${objdir}/nss/ssl";;
 	
-	if( "${cwd}" != "${srcdir}/security/coreconf/nsinstall" )	\
+	if( "${cwd}" != "${srcdir}/security/coreconf/nsinstall" ) \
 		cd "${srcdir}/security/coreconf/nsinstall";
 	make USE_64=${USE_64};
 	make USE_64=${USE_64} install;
 	setenv PATH "${PATH}:${cwd}/${${arch_path}}";
 	
-	if( "${cwd}" != "${srcdir}/security/nss" )	\
+	if( "${cwd}" != "${srcdir}/security/nss" ) \
 		cd "${srcdir}/security/nss";
 	make USE_64=${USE_64};
 	make USE_64=${USE_64} install;
@@ -234,7 +234,7 @@ make_nss:
 	
 	#cp "${srcdir}/security/nss/lib/ssl/${arch_path}/"* "${objdir}/nss/ssl";
 	
-	if( "${cwd}" != "${srcdir}" )	\
+	if( "${cwd}" != "${srcdir}" ) \
 		cd "${srcdir}";
 	
 	if( ${?run_distclean} ) then
@@ -245,7 +245,7 @@ make_nss:
 
 
 make:
-	if( "${cwd}" != "${srcdir}" )	\
+	if( "${cwd}" != "${srcdir}" ) \
 		cd "${srcdir}";
 	setenv	MOZCONFIG	"${srcdir}/.mozconfig";
 	
@@ -254,20 +254,20 @@ make:
 	#" --enable-default-toolkit=gtk2"
 	
 	make -f client.mk;
-	if( ${status} != 0 )	\
+	if( ${status} != 0 ) \
 		goto status_failed;
 #make:
 
 
 make_package:
-	if( "${cwd}" != "${objdir}" )	\
+	if( "${cwd}" != "${objdir}" ) \
 		cd "${objdir}";
 	make package;
 #make_package:
 
 
 backup:
-	if( "${cwd}" != "${objdir}" )	\
+	if( "${cwd}" != "${objdir}" ) \
 		cd "${objdir}";
 	set today=`date '+%Y-%m-%d'`;
 	if( "${build_mozilla}" == "thunderbird" ) cd mozilla;
@@ -290,7 +290,7 @@ backup:
 
 
 install:
-	if( "${cwd}" != "${objdir}" )	\
+	if( "${cwd}" != "${objdir}" ) \
 		cd "${objdir}";
 	printf "Installing %s to %s\n" "${tarball}" "${prefix}";
 	tar -C "${prefix}" -xjf "${tarball}";
@@ -302,7 +302,7 @@ install_plugins:
 	if( "${build_mozilla}" != "firefox" ) goto prepare_first_run
 	
 	printf "Installing plug-ins\n";
-	if( "${cwd}" != "${prefix}/${build_mozilla}" )	\
+	if( "${cwd}" != "${prefix}/${build_mozilla}" ) \
 		cd "${prefix}/${build_mozilla}";
 	rm -r searchplugins plugins;
 	ln -s ../searchplugins .;
@@ -363,7 +363,7 @@ test_exec:
 
 
 finish_exec:
-	if(! ${?second_run} )	\
+	if(! ${?second_run} ) \
 		goto make_default;
 	
 	rm -rf "${prefix}/x86_64";
@@ -373,7 +373,7 @@ finish_exec:
 
 
 stop_build:
-	if( ${?exec_stopped} )	\
+	if( ${?exec_stopped} ) \
 		goto test_exec;
 	
 	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}" "${build_mozilla}.sh");

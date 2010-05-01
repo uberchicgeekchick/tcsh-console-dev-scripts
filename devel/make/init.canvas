@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} )	\
+if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 
 source "${TCSH_RC_SESSION_PATH}/argv:check" "art:devel:make:init.cshrc.tcsh" ${argv};
@@ -13,10 +13,10 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if( ${?TCSH_RC_DEBUG} )	\
+if( ${?TCSH_RC_DEBUG} ) \
 	printf "Setting up make & gcc environment @ %s.\n" `date "+%I:%M:%S%P"`;
 
-if(! ${?TCSH_CANVAS_PATH} )	\
+if(! ${?TCSH_CANVAS_PATH} ) \
 	setenv TCSH_CANVAS_PATH "${TCSH_RC_SESSION_PATH}/../devel/make";
 source "${TCSH_CANVAS_PATH}/canvas.init.tcsh" ${argv};
 
@@ -49,14 +49,14 @@ find_canvas:
 			setenv OSS_BUILD_CANVAS;
 			set canvas_to_load="${TCSH_CANVAS_PATH}/build.canvas";
 		else
-			if(! ${?starting_dir} )	\
+			if(! ${?starting_dir} ) \
 				set starting_dir="${cwd}";
 			cd ..;
 		endif
 	end
 	
 	if( ${?starting_dir} ) then
-		if( "${starting_dir}" != "${cwd}" )	\
+		if( "${starting_dir}" != "${cwd}" ) \
 			cd "${starting_dir}";
 		unset starting_dir;
 	endif

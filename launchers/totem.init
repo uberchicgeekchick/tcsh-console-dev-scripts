@@ -20,9 +20,8 @@ noexec:
 launchers_main:
 
 if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-set source_file="totem.init";
 set skip_cwd_test;
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${source_file}" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "totem.init" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -53,5 +52,5 @@ foreach playlist( ${playlists_files} )
 end
 
 unset playlists_path playlist_path initial_alias audio_playlist video_playlist program this_program;
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${source_file}";
+source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "totem.init";
 unset skip_cwd_test;

@@ -34,7 +34,7 @@ endif
 
 if(! ${?output} ) set output=">& /dev/null &";
 
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
+if(! ${?0} ) then
 	set set_alias;
 else if( "`basename '${0}'`" != "${this_program}" && "`basename '${0}'`" != "${this_program}-${resolution}" ) then
 	set set_alias;
@@ -46,7 +46,8 @@ if( ${?set_alias} ) then
 	else
 		set new_alias="${this_program}-${alias_suffix}";
 	endif
-	if( ${?TCSH_RC_DEBUG} ) printf "Aliasing [%s] to [%s].\n" $new_alias $program;
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Aliasing [%s] to [%s].\n" $new_alias $program;
 	
 	# alias to target this launcher:
 	#alias "${new_alias}" "${TCSH_LAUNCHER_PATH}/${new_alias}";
@@ -60,17 +61,26 @@ endif
 
 goto set_exec_target;
 launcher_exec:
-echo -n ${exec_target} ${argv};
-if( ${?output} ) echo "${output}";
-printf "\n";
+	echo ${exec_target} ${argv};
+	if( ${?output} ) \
+		echo "${output}";
+	echo "\n";
+	
+	if(!( ${?1} && "${1}" != "" && "${1}" != "--debug" )) \
+		${exec_target} ${argv} ${output};
+	
+	goto launcher_unset;
+#launcher_exec:
 
-if(!( ${?1} && "${1}" != "" && "${1}" != "--debug" )) \
-	${exec_target} ${argv} ${output};
-
-goto launcher_unset;
 
 launcher_exit:
-exit;
+	if(! ${?status_set} ) \
+		exit 0;
+	
+	unset status_set;
+	exit ${status};
+#launcher_exit:
+
 
 set_exec_target:
 	set exec_target="${program}";
@@ -80,9 +90,10 @@ set_exec_target:
 	if( ${?audio_driver} ) then
 		set exec_target="${exec_target} --audio-driver ${audio_driver}";
 	endif
-	set exec_target="${exec_target} --geometry='${resolution}' --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic";
+	set exec_target="${exec_target} --hide-video --geometry='${resolution}' --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic";
 	if( ${?set_alias} ) goto launcher_alias;
 	goto launcher_exec;
+#set_exec_target:
 
 launcher_unset:
 	if( ${?video_driver} ) unset video_driver;

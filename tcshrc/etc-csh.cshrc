@@ -42,7 +42,7 @@ endif
 #
 # Default echo style
 #
-set echo_style=sysv
+set echo_style=both
 
 #
 # If `login files' are not sourced first

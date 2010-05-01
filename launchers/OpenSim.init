@@ -1,6 +1,12 @@
 #!/bin/tcsh -f
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
-if(! ${?TCSH_LAUNCHER_PATH} ) setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
+if( ${?0} ) then
+	printf "This script is used to setup OpenSim's environment and can only be sourced.\n" > /dev/stderr;
+	@ status=-1;
+	exit ${status};
+endif
+
+if(! ${?TCSH_LAUNCHER_PATH} ) \
+	setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
 
 set scripts_name="`basename '${0}'`.exe";
 set dependencies=( "mono" "${scripts_name}" );
@@ -9,41 +15,52 @@ foreach dependency(${dependencies})
 	foreach dependency( "`where '${dependency}'`" )
 		if(! -x "${dependency}" ) then
 			unset dependency;
-		else
-			switch("${dependency}")
-				case "${0}":
-				case "./${dependency}":
-				case "${TCSH_LAUNCHER_PATH}/${dependency}":
-					unset dependency;
-					breaksw;
-				case "${scripts_name}":
-					cd "`dirname '${scripts_name}'`";
-					set scripts_working_dir="${cwd}";
-					cd "${owd}";
-					breaksw;
-			endsw
+			continue;
 		endif
+		
+		switch("${dependency}")
+			case "${0}":
+			case "./${dependency}":
+			case "${TCSH_LAUNCHER_PATH}/${dependency}":
+				unset dependency;
+				breaksw;
+			case "${scripts_name}":
+				cd "`dirname '${scripts_name}'`";
+				set scripts_working_dir="${cwd}";
+				cd "${owd}";
+				breaksw;
+		endsw
 	end
-	if(! ${?dependency} ) goto missing_dependency;
+	
+	if(! ${?dependency} ) \
+		goto missing_dependency;
 end
 
 #goto main;
 
 main:
-	unset dependencies;
-	if( ${?dependency} ) unset dependency;
-	if( ${?program} ) unset program;
-	set status=0;
+	@ status=0;
 	cd "${scripts_working_dir}";
 	mono OpenSim.exe
+#main:
 
 exit_script:
+	if( ${?scripts_name} ) \
+		unset scripts_name;
+	if( ${?dependency} ) \
+		unset dependency;
+	if( ${?program} ) \
+		unset program;
+	if( ${?dependencies} ) \
+		unset dependencies;
+	if( ${?scripts_working_dir} ) \
+		unset scripts_working_dir;
 	exit ${status};
 #exit_script:
 
 missing_dependency:
 	printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_name}" "${dependencies}";
-	set status=-1;
+	@ status=-1;
 	goto exit_script;
 #missing_dependency:
 

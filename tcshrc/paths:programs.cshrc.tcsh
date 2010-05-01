@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} )	\
+if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 
 source "${TCSH_RC_SESSION_PATH}/argv:check" "paths:programs.cshrc.tcsh" ${argv};
@@ -20,16 +20,16 @@ foreach program ( /programs/* )
 	if( -d "${program}/bin" ) \
 		set program="${program}/bin";
 	
-	if( ${?TCSH_RC_DEBUG} )	\
+	if( ${?TCSH_RC_DEBUG} ) \
 		printf "Attempting to add: [file://%s] to your PATH:\t\t" "${program}";
 	
 	if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${program}"` != 0 ) then
-		if( ${?TCSH_RC_DEBUG} )	\
+		if( ${?TCSH_RC_DEBUG} ) \
 			printf "[already listed]\n\t<file://%s> is already listed in your "\$"\n" "${program}";
 		continue;
 	endif
 	
-	if( ${?TCSH_RC_DEBUG} )	\
+	if( ${?TCSH_RC_DEBUG} ) \
 		printf "[added]\n";
 	if(! ${?programs_path} ) then
 		set programs_path="${program}";

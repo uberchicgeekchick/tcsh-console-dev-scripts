@@ -7,16 +7,16 @@ if(! -d "${lib_path}" ) \
 	exit -1;
 
 foreach library( "`find -L ${lib_path} -ignore_readdir_race -type f -perm /u+x,g+x,o+x -printf '%h\n' | sort | uniq`" )
-	if( ${?TCSH_RC_DEBUG} )	\
+	if( ${?TCSH_RC_DEBUG} ) \
 		printf "Attempting to add: [file://%s] to your PATH:\t\t" "${library}";
 	
 	if( `${TCSH_RC_SESSION_PATH}/../setenv/PATH:add:test.tcsh "${library}"` != 0 ) then
-		if( ${?TCSH_RC_DEBUG} )	\
+		if( ${?TCSH_RC_DEBUG} ) \
 			printf "[already listed]\n\t<file://%s> is already listed in your "\$"\n" "${library}";
 		continue;
 	endif
 	
-	if( ${?TCSH_RC_DEBUG} )	\
+	if( ${?TCSH_RC_DEBUG} ) \
 		printf "[added]\n";
 	if(! ${?lib_path} ) then
 		set lib_path="${library}";

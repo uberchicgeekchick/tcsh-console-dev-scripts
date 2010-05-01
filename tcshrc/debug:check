@@ -7,7 +7,7 @@ endif
 
 @ debug=0;
 #setenv TCSH_RC_DEBUG;
-if( ${?TCSH_OUTPUT_DISABLED} )	\
+if( ${?TCSH_OUTPUT_DISABLED} ) \
 	exit 0;
 	
 @ arg=1;

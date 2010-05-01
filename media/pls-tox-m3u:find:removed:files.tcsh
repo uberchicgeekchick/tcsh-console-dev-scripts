@@ -3,14 +3,14 @@ set label_current="init";
 goto label_stack_set;
 init:
 	set label_current="init";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	set strict;
 	set original_owd=${owd};
 	set starting_dir=${cwd};
 	set escaped_starting_dir=${escaped_cwd};
 	
-	if(! $?0 )	\
+	if(! $?0 ) \
 		set being_sourced;
 	
 	set script_basename="pls-tox-m3u:find:removed:files.tcsh";
@@ -50,14 +50,14 @@ init:
 
 init_complete:
 	set label_current="init_complete";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	set init_completed;
 #init_complete:
 
 check_dependencies:
 	set label_current="check_dependencies";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	set dependencies=("${script_basename}");# "${script_alias}");
@@ -67,17 +67,17 @@ check_dependencies:
 
 check_dependencies:
 	set label_current="check_dependencies";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
 		unset dependencies[$dependencies_index];
 		foreach dependency("`where '${dependency}'`")
-			if( ${?debug} )	\
+			if( ${?debug} ) \
 				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${script_basename}" "${dependency}"; 
 			
-			if(! -x "${dependency}" )	\
+			if(! -x "${dependency}" ) \
 				continue;
 			
 			if(! ${?script_dirname} ) then
@@ -89,10 +89,10 @@ check_dependencies:
 					set owd="${old_owd}";
 					unset old_owd;
 					set script="${script_dirname}/${script_basename}";
-					if(! ${?TCSH_RC_SESSION_PATH} )	\
+					if(! ${?TCSH_RC_SESSION_PATH} ) \
 						setenv TCSH_RC_SESSION_PATH "${script_dirname}/../tcshrc";
 					
-					if(! ${?TCSH_LAUNCHER_PATH} )	\
+					if(! ${?TCSH_LAUNCHER_PATH} ) \
 						setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
 				endif
 			endif
@@ -130,13 +130,13 @@ check_dependencies:
 			break;
 		end
 		
-		if(! ${?program} )	\
+		if(! ${?program} ) \
 			set program="${script}";
 		
 		if(!( ${?dependency} && ${?script} && ${?program} )) then
 			set missing_dependency;
 		else
-			if(!( -x ${script} && -x ${dependency} && -x ${program} ))	\
+			if(!( -x ${script} && -x ${dependency} && -x ${program} )) \
 				set missing_dependency;
 		endif
 		
@@ -154,13 +154,13 @@ check_dependencies:
 
 if_sourced:
 	set label_current="if_sourced";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	if(! ${?being_sourced} )	\
+	if(! ${?being_sourced} ) \
 		goto main;
 	
-	if(! ${?supports_being_source} )	\
+	if(! ${?supports_being_source} ) \
 		goto sourcing_disabled;
 	
 	goto sourcing_init;
@@ -169,7 +169,7 @@ if_sourced:
 
 sourcing_disabled:
 	set label_current="sourcing_disabled";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	# BEGIN: disable source script_basename.  For exception handeling when this file is 'sourced'.
@@ -181,7 +181,7 @@ sourcing_disabled:
 
 sourcing_init:
 	set label_current="sourcing_init";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	# BEGIN: source script_basename support.
@@ -191,7 +191,7 @@ sourcing_init:
 
 sourcing_main:
 	set label_current="sourcing_main";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	# START: special handler for when this file is sourced.
@@ -202,7 +202,7 @@ sourcing_main:
 
 sourcing_main_quit:
 	set label_current="sourcing_main_quit";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${script_basename}";
@@ -215,14 +215,14 @@ sourcing_main_quit:
 
 main:
 	set label_current="main";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 #main:
 
 
 exec:
 	set label_current="exec";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	if(! ${?playlist} ) then
@@ -245,24 +245,19 @@ exec:
 		goto callback_handler;
 	endif
 	
-	if( ${?debug} )	\
+	if( ${?debug} ) \
 		printf "Executing %s's main.\n" "${script_basename}";
-	
-	if( ${?clean_up} && ! ${?playlist_new} ) then
-		set playlist_new="`printf "\""%s"\"" "\""${playlist}"\""` | sed -r 's/(.*)\.([^\.]+)"\$"/\1/'`.new.${playlist_type}";
-		if( -e "${playlist_new}" ) \
-			rm "${playlist_new}";
-	endif
 	
 	if( ${?filename_list} ) then
 		if( ${?filename} ) then
 			if( -e "${filename}.${extension}" ) then
 				if( ${?clean_up} ) then
-					if(! -e "${playlist_new}" ) then
-						printf "${filename}.${extension}" >! "${playlist_new}";
+					if(! -e "${playlist}.new" ) then
+						printf "${filename}.${extension}" >! "${playlist}.new";
 					else
-						printf "\n${filename}.${extension}" >> "${playlist_new}";
+						printf "\n${filename}.${extension}" >> "${playlist}.new";
 					endif
+				endif
 			else
 				if(! ${?dead_file_count} ) then
 					@ dead_file_count=1;
@@ -297,130 +292,144 @@ process_filename_list:
 		goto callback_handler;
 	endif
 	
-	if(! -e "${playlist_new}" ) then
+	if(! -e "${playlist}.new" ) then
 		set callback="script_main_quit";
 		goto callback_handler;
 	endif
 	
 	if(! ${dead_file_count} ) then
-		rm "${playlist_new}";
+		rm "${playlist}.new";
 		set callback="script_main_quit";
 		goto callback_handler;
 	endif
 	
 	switch("${playlist_type}")
 		case "tox":
-			ex '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\/\2\.\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+wq!' "${playlist_new}";
+			ex '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\/\2\.\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+wq!' "${playlist}.new";
+			printf "#toxine playlist\n\n" >! "${playlist}.swp";
+			cat "${playlist}.new" >> "${playlist}.swp";
+			printf "#END" >> "${playlist}.swp";
+			rm "${playlist}.new";
+			mv "${playlist}.swp" "${playlist}.new";
 			breaksw;
 		
 		case "pls":
-			set lines=`wc -l "${playlist_new}"`;
+			set lines=`wc -l "${playlist}.new"`;
 			@ line=0;
 			@ line_number=0;
 			while( $line < $lines )
 				@ line++;
 				@ line_number++;
-				ex "+${line_number}s/\v^(.*)\/([^\/]+)\.([^\.]+)"\$"/File${line}\=\1\/\2\.\3\rTitle${line}\=\2/" '+wq!' "${playlist_new}";
+				ex "+${line_number}s/\v^(.*)\/([^\/]+)\.([^\.]+)"\$"/File${line}\=\1\/\2\.\3\rTitle${line}\=\2/" '+wq!' "${playlist}.new";
 				@ line_number++;
 			end
-			printf "[playlist]\nnumberofentries=${lines}\n" > "${playlist_new}.swp";
-			cat "${playlist_new}" >> "${playlist_new}.swp";
-			printf "\nVersion=2" >> "${playlist_new}.swp";
-			rm "${playlist_new}";
-			mv "${playlist_new}.swp" "${playlist_new}";
+			printf "[playlist]\nnumberofentries=${lines}\n" > "${playlist}.swp";
+			cat "${playlist}.new" >> "${playlist}.swp";
+			printf "\nVersion=2" >> "${playlist}.swp";
+			rm "${playlist}.new";
+			mv "${playlist}.swp" "${playlist}.new";
 			breaksw;
 		
+		case "m3u":
+		default:
+			ex '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/\#EXTINF:,\2\r\1\/\2\.\3/' '+wq!' "${playlist}.new";
+			ex '+1,$s/\v^(\#EXTINF\:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist}.new";
+			printf "#EXTM3U\n" >! "${playlist}.swp";
+			cat "${playlist}.new" >> "${playlist}.swp";
+			rm "${playlist}.new";
+			mv "${playlist}.swp" "${playlist}.new";
+			breaksw;
 	endsw
-	mv ${clean_up} "${playlist_new}" "${playlist}";
+	mv ${clean_up} "${playlist}.new" "${playlist}";
 #format_new_playlist:
 
 script_main_quit:
 	set label_current="script_main_quit";
-	if( "${label_current}" != "${label_previous}" )		\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	if( ${?label_current} )					\
+	if( ${?label_current} ) \
 		unset label_current;
-	if( ${?label_previous} )				\
+	if( ${?label_previous} ) \
 		unset label_previous;
-	if( ${?labels_previous} )				\
+	if( ${?labels_previous} ) \
 		unset labels_previous;
-	if( ${?label_next} )					\
+	if( ${?label_next} ) \
 		unset label_next;
 	
-	if( ${?argc} )						\
+	if( ${?argc} ) \
 		unset argc;
-	if( ${?argz} )						\
+	if( ${?argz} ) \
 		unset argz;
-	if( ${?parsed_arg} )					\
+	if( ${?parsed_arg} ) \
 		unset parsed_arg;
-	if( ${?parsed_argv} )					\
+	if( ${?parsed_argv} ) \
 		unset parsed_argv;
-	if( ${?parsed_argc} )					\
+	if( ${?parsed_argc} ) \
 		unset parsed_argc;
 	
-	if( ${?init_completed} )				\
+	if( ${?init_completed} ) \
 		unset init_completed;
 	
-	if( ${?being_sourced} )					\
+	if( ${?being_sourced} ) \
 		unset being_sourced;
-	if( ${?supports_being_source} )				\
+	if( ${?supports_being_source} ) \
 		unset supports_being_source;
 	
-	if( ${?script} )					\
+	if( ${?script} ) \
 		unset script;
-	if( ${?script_alias} )					\
+	if( ${?script_alias} ) \
 		unset script_alias;
-	if( ${?script_basename} )				\
+	if( ${?script_basename} ) \
 		unset script_basename;
-	if( ${?script_dirname} )				\
+	if( ${?script_dirname} ) \
 		unset script_dirname;
 	
-	if( ${?dependency} )					\
+	if( ${?dependency} ) \
 		unset dependency;
-	if( ${?dependencies} )					\
+	if( ${?dependencies} ) \
 		unset dependencies;
-	if( ${?missing_dependency} )				\
+	if( ${?missing_dependency} ) \
 		unset missing_dependency;
 	
-	if( ${?usage_displayed} )				\
+	if( ${?usage_displayed} ) \
 		unset usage_displayed;
-	if( ${?no_exit_on_usage} )				\
+	if( ${?no_exit_on_usage} ) \
 		unset no_exit_on_usage;
-	if( ${?display_usage_on_error} )			\
+	if( ${?display_usage_on_error} ) \
 		unset display_usage_on_error;
-	if( ${?last_exception_handled} )			\
+	if( ${?last_exception_handled} ) \
 		unset last_exception_handled;
 	
-	if( ${?label_previous} )				\
+	if( ${?label_previous} ) \
 		unset label_previous;
-	if( ${?label_next} )					\
+	if( ${?label_next} ) \
 		unset label_next;
 	
-	if( ${?callback} )					\
+	if( ${?callback} ) \
 		unset callback;
-	if( ${?last_callback} )					\
+	if( ${?last_callback} ) \
 		unset last_callback;
-	if( ${?callback_stack} )				\
+	if( ${?callback_stack} ) \
 		unset callback_stack;
 	
-	if( ${?argc_required} )					\
+	if( ${?argc_required} ) \
 		unset argc_required;
 	if( ${?arg_shifted} ) 					\
 		unset arg_shifted;
 	
-	if( ${?escaped_cwd} )					\
+	if( ${?escaped_cwd} ) \
 		unset escaped_cwd;
-	if( ${?escaped_home_dir} )				\
+	if( ${?escaped_home_dir} ) \
 		unset escaped_home_dir;
-	if( ${?escaped_starting_dir} )				\
+	if( ${?escaped_starting_dir} ) \
 		unset escaped_starting_dir;
 	
-	if( ${?old_owd} )					\
+	if( ${?old_owd} ) \
 		unset old_owd;
 	
 	if( ${?starting_cwd} ) then
-		if( "${starting_cwd}" != "${cwd}" )		\
+		if( "${starting_cwd}" != "${cwd}" ) \
 			cd "${starting_cwd}";
 	endif
 	
@@ -434,27 +443,27 @@ script_main_quit:
 		unset oldcwdcmd;
 	endif
 	
-	if( ${?script_supported_extensions} )	\
+	if( ${?script_supported_extensions} ) \
 		unset script_supported_extensions;
 	if( ${?filename_list} ) then
-		if( ${?filename} )	\
+		if( ${?filename} ) \
 			unset filename;
-		if( ${?extension} )	\
+		if( ${?extension} ) \
 			unset extension;
-		if( ${?original_extension} )	\
+		if( ${?original_extension} ) \
 			unset original_extension;
 		
-		if( -e "${filename_list}" )	\
+		if( -e "${filename_list}" ) \
 			rm "${filename_list}";
 		unset filename_list;
 	endif
 	
-	if( ${?debug} )						\
+	if( ${?debug} ) \
 		unset debug;
-	if( ${?script_diagnosis_log} )	\
+	if( ${?script_diagnosis_log} ) \
 		unset script_diagnosis_log;
 	
-	if( ${?strict} )					\
+	if( ${?strict} ) \
 		unset strict;
 	
 	if(! ${?errno} ) then
@@ -469,15 +478,15 @@ script_main_quit:
 
 usage:
 	set label_current="usage";
-	if( "${label_next}" != "${label_current}" )	\
+	if( "${label_next}" != "${label_current}" ) \
 		goto label_stack_set;
 	
 	if( ${?errno} ) then
 		if( ${errno} != 0 ) then
-			if(! ${?last_exception_handled} )	\
+			if(! ${?last_exception_handled} ) \
 				set last_exception_handled=0;
 			if( ${last_exception_handled} != ${errno} ) then
-				if(! ${?callback} )	\
+				if(! ${?callback} ) \
 					set callback="usage";
 				goto exception_handler;
 			endif
@@ -490,13 +499,13 @@ usage:
 		${program} --help;
 	endif
 	
-	if(! ${?usage_displayed} )	\
+	if(! ${?usage_displayed} ) \
 		set usage_displayed;
 	
-	if(! ${?no_exit_on_usage} )	\
+	if(! ${?no_exit_on_usage} ) \
 		goto script_main_quit;
 	
-	if(! ${?callback} )		\
+	if(! ${?callback} ) \
 		set callback="parse_arg";
 	goto callback_handler;
 #usage:
@@ -504,10 +513,10 @@ usage:
 
 exception_handler:
 	set label_current="exception_handler";
-	if( "${label_next}" != "${label_current}" )	\
+	if( "${label_next}" != "${label_current}" ) \
 		goto label_stack_set;
 	
-	if(! ${?errno} )	\
+	if(! ${?errno} ) \
 		@ errno=-599;
 	printf "\n**%s error("\$"errno:%d):**\n\t" "${script_basename}" $errno;
 	switch( $errno )
@@ -526,7 +535,7 @@ exception_handler:
 		
 		case -503:
 			printf "An internal script error has caused an exception.  Please see any output above" > /dev/stderr;
-			if(! ${?debug} )	\
+			if(! ${?debug} ) \
 				printf " or run: %s%s --debug%s to find where %s failed" '`' "${script_basename}" '`' "${script_basename}" > /dev/stderr;
 			printf ".\n" > /dev/stderr;
 			breaksw;
@@ -551,10 +560,10 @@ exception_handler:
 	set last_exception_handled=$errno;
 	printf "\nrun: %s%s --help%s for more information\n" '`' "${script_basename}" '`' > /dev/stderr;
 	
-	if( ${?display_usage_on_error} )	\
+	if( ${?display_usage_on_error} ) \
 		goto usage;
 	
-	if( ${?callback} )			\
+	if( ${?callback} ) \
 		goto callback_handler;
 	
 	goto script_main_quit;
@@ -562,7 +571,7 @@ exception_handler:
 
 parse_argv:
 	set label_current="parse_argv";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	if( ${?init_completed} ) then
@@ -591,7 +600,7 @@ parse_argv:
 			case "--diagnostic-mode":
 				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${script_basename}" $arg;
 				set diagnostic_mode;
-				if(! ${?debug} )	\
+				if(! ${?debug} ) \
 					set debug;
 				break;
 			
@@ -605,7 +614,7 @@ parse_argv:
 		endsw
 	end
 	
-	if( ${?debug} )	\
+	if( ${?debug} ) \
 		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${script_basename}" "${argc}";
 	
 	@ arg=0;
@@ -615,14 +624,14 @@ parse_argv:
 
 parse_arg:
 	set label_current="parse_arg";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	while( $arg < $argc )
-		if(! ${?arg_shifted} )	\
+		if(! ${?arg_shifted} ) \
 			@ arg++;
 		
-		if( ${?debug} )		\
+		if( ${?debug} ) \
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${script_basename}" "${arg}" "$argv[$arg]";
 		
 		if( -e "$argv[$arg]" ) then
@@ -631,19 +640,19 @@ parse_arg:
 		endif
 		
 		set dashes="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\1/'`";
-		if( "${dashes}" == "$argv[$arg]" )	\
+		if( "${dashes}" == "$argv[$arg]" ) \
 			set dashes="";
 		
 		set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\2/'`";
-		if( "${option}" == "$argv[$arg]" )	\
+		if( "${option}" == "$argv[$arg]" ) \
 			set option="";
 		
 		set equals="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\3/'`";
-		if( "${equals}" == "" )	\
+		if( "${equals}" == "" ) \
 			set equals="";
 		
 		set quotes="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\4/'`";
-		if( "${quotes}" == "" )	\
+		if( "${quotes}" == "" ) \
 			set quotes="";
 		
 		#set equals="";
@@ -659,7 +668,7 @@ parse_arg:
 				@ arg--;
 			else
 			
-				if( ${?debug} )		\
+				if( ${?debug} ) \
 					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${script_basename}" "${arg}" "$argv[$arg]";
 				
 				set test_dashes="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\1/'`";
@@ -668,7 +677,7 @@ parse_arg:
 				set test_quotes="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\4/'`";
 				set test_value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\5/'`";
 				
-				if( ${?debug} )	\
+				if( ${?debug} ) \
 					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_quotes: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_quotes}" \$ "${test_value}";
 				
 				if(!("${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]")) then
@@ -703,7 +712,7 @@ parse_arg:
 			set parsed_argv="${parsed_argv} ${parsed_arg}";
 		endif
 		
-		if( ${?debug} )	\
+		if( ${?debug} ) \
 			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "${parsed_arg}";
 		
 		switch("${option}")
@@ -727,7 +736,7 @@ parse_arg:
 				breaksw;
 			
 			case "verbose":
-				if(! ${?be_verbose} )	\
+				if(! ${?be_verbose} ) \
 					set be_verbose;
 				breaksw;
 			
@@ -742,18 +751,18 @@ parse_arg:
 				breaksw;
 			
 			case "debug":
-				if(! ${?debug} )	\
+				if(! ${?debug} ) \
 					set debug;
 				breaksw;
 			
 			case "diagnosis":
 			case "diagnostic-mode":
-				if( ${?diagnostic_mode} )	\
+				if( ${?diagnostic_mode} ) \
 					breaksw;
 				
 				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${script_basename}" $arg;
 				set diagnostic_mode;
-				if(! ${?debug} )	\
+				if(! ${?debug} ) \
 					set debug;
 				breaksw;
 			
@@ -786,7 +795,7 @@ parse_arg:
 						breaksw;
 					
 					case "verbose":
-						if(! ${?be_verbose} )	\
+						if(! ${?be_verbose} ) \
 							breaksw;
 						
 						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${script_basename}" $arg "${option}";
@@ -794,7 +803,7 @@ parse_arg:
 						breaksw;
 					
 					case "debug":
-						if( ${?debug} )	\
+						if( ${?debug} ) \
 							breaksw;
 						
 						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
@@ -803,13 +812,13 @@ parse_arg:
 					
 					case "diagnosis":
 					case "diagnostic-mode":
-						if( ${?diagnostic_mode} )	\
+						if( ${?diagnostic_mode} ) \
 							breaksw;
 						
 				
 						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
 						set diagnostic_mode;
-						if(! ${?debug} )	\
+						if(! ${?debug} ) \
 							set debug;
 						breaksw;
 					
@@ -831,7 +840,7 @@ parse_arg:
 						breaksw;
 					
 					case "verbose":
-						if(! ${?be_verbose} )	\
+						if(! ${?be_verbose} ) \
 							breaksw;
 						
 						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${script_basename}" $arg "${option}";
@@ -839,7 +848,7 @@ parse_arg:
 						breaksw;
 					
 					case "debug":
-						if(! ${?debug} )	\
+						if(! ${?debug} ) \
 							breaksw;
 						
 						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
@@ -848,7 +857,7 @@ parse_arg:
 					
 					case "diagnosis":
 					case "diagnostic-mode":
-						if(! ${?diagnostic_mode} )	\
+						if(! ${?diagnostic_mode} ) \
 							breaksw;
 						
 						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
@@ -862,7 +871,7 @@ parse_arg:
 				breaksw;
 			
 			default:
-				if(! ${?strict} )	\
+				if(! ${?strict} ) \
 					breaksw;
 				
 				if(! ${?argz} ) then
@@ -892,7 +901,7 @@ parse_arg:
 
 parse_argv_quit:
 	set label_current="parse_argv_quit";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	if(! ${?callback} ) then
@@ -922,7 +931,7 @@ parse_argv_quit:
 
 label_stack_set:
 	if( ${?current_cwd} ) then
-		if( ${current_cwd} != ${cwd} )	\
+		if( ${current_cwd} != ${cwd} ) \
 			cd ${current_cwd};
 		unset current_cwd;
 	endif
@@ -961,7 +970,7 @@ label_stack_set:
 	
 	set callback=${label_previous};
 	
-	if( ${?debug} )	\
+	if( ${?debug} ) \
 		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/stdout;
 	
 	#unset label_previous;
@@ -972,7 +981,7 @@ label_stack_set:
 
 setup_playlist:
 	set label_current="setup_playlist";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	if(! ${?playlist} ) \
@@ -1003,7 +1012,7 @@ setup_playlist:
 
 
 callback_handler:
-	if(! ${?callback} )	\
+	if(! ${?callback} ) \
 		goto script_main_quit;
 	
 	if(! ${?callback_stack} ) then
@@ -1019,7 +1028,7 @@ callback_handler:
 		endif
 		unset callback;
 	endif
-	if( ${?debug} )	\
+	if( ${?debug} ) \
 		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
 	
 	goto $last_callback;
@@ -1028,7 +1037,7 @@ callback_handler:
 
 diagnostic_mode:
 	set label_current="diagnostic_mode";
-	if( "${label_current}" != "${label_previous}" )	\
+	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	if(! -d "${HOME}/tmp" ) then
@@ -1036,7 +1045,7 @@ diagnostic_mode:
 	else
 		set script_diagnosis_log="${HOME}/tmp/${script_basename}.diagnosis.log";
 	endif
-	if( -e "${script_diagnosis_log}" )	\
+	if( -e "${script_diagnosis_log}" ) \
 		rm -v "${script_diagnosis_log}";
 	touch "${script_diagnosis_log}";
 	printf "----------------%s debug.log-----------------\n" "${script_basename}" >> "${script_diagnosis_log}";

@@ -48,10 +48,10 @@ if(! ${?logout_force} ) then
 endif
 
 set status=0;
-if( -e "${histfile}.lock" )	\
+if( -e "${histfile}.lock" ) \
 	rm -fv "${histfile}.lock";
 
-if( -e "${histfile}.jobs" )	\
+if( -e "${histfile}.jobs" ) \
 	rm -fv "${histfile}.jobs";
 
 source "${TCSH_RC_SESSION_PATH}/logout.cshrc.tcsh";

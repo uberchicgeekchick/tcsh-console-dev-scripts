@@ -11,11 +11,17 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if(! ${?echo_style} ) then
-	set echo_style=sysv;
-else if( "${echo_style}" != "sysv" ) then
-	set echo_style=sysv;
-endif
+	if(! ${?echo_style} ) then
+		set echo_style_set;
+		set echo_style=both;
+	else
+		if( "${echo_style}" != "both" ) then
+			set original_echo_style="${echo_style}";
+			set echo_style_set;
+			set echo_style=both;
+		endif
+	endif
+	alias echo "echo -n";
 
 source ${TCSH_RC_SESSION_PATH}/source:argv "${TCSH_RC_SESSION_PATH}/art:color.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:devel:make:init.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" "art:grep-and-find.cshrc.tcsh";
 

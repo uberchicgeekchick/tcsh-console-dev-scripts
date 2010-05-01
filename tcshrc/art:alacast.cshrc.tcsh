@@ -7,13 +7,13 @@ if( $?0 ) then
 	exit -1;
 endif
 
-if( ${?TCSH_RC_DEBUG} )	\
+if( ${?TCSH_RC_DEBUG} ) \
 	printf "Setting up Alacast v1's and v2's environment @ %s\n" `date "+%I:%M:%S%P"`;
 
 
 clean_alacasts_path:
 	setenv PATH "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/\/projects\/(cli|gtk)\/alacast(\/[^\:]*\:)?//g'`";
-	if( ${?alacasts_path} )	\
+	if( ${?alacasts_path} ) \
 		unset alacasts_path;
 #clean_alacasts_path:
 
@@ -24,17 +24,17 @@ set_gtk_path:
 	foreach alacast_gtk_path(${alacast_gtk_paths})
 		set alacast_gtk_path="${ALACAST_GTK_PATH}/${alacast_gtk_path}";
 		
-		if( ${?TCSH_RC_DEBUG} )	\
+		if( ${?TCSH_RC_DEBUG} ) \
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_gtk_path}";
 		
 		set escaped_alacast_gtk_path="`printf "\""%s"\""  "\""${alacast_gtk_path}"\"" | sed -r 's/\//\\\//g'`";
 		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed 's/.*\:?\(${escaped_alacast_gtk_path}\)\:?.*/\1/g'`" == "${alacast_gtk_path}" ) then
-			if( ${?TCSH_RC_DEBUG} )	\
+			if( ${?TCSH_RC_DEBUG} ) \
 				printf "[already listed]\n\t<file://%s> is already listed in your "\$"\n" "${alacast_gtk_path}";
 			continue;
 		endif
 		
-		if( ${?TCSH_RC_DEBUG} )	\
+		if( ${?TCSH_RC_DEBUG} ) \
 			printf "[added]\n";
 		
 		if(! ${?alacasts_path} ) then
@@ -53,17 +53,17 @@ set_cli_path:
 	foreach alacast_cli_path(${alacast_cli_paths})
 		set alacast_cli_path="${ALACAST_CLI_PATH}/${alacast_cli_path}";
 		
-		if( ${?TCSH_RC_DEBUG} )	\
+		if( ${?TCSH_RC_DEBUG} ) \
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_cli_path}";
 		
 		set escaped_alacast_cli_path="`printf "\""%s"\""  "\""${alacast_cli_path}"\"" | sed -r 's/\//\\\//g'`";
 		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed 's/.*\:?\(${escaped_alacast_cli_path}\)\:?.*/\1/g'`" == "${alacast_cli_path}" ) then
-			if( ${?TCSH_RC_DEBUG} )	\
+			if( ${?TCSH_RC_DEBUG} ) \
 				printf "[already listed]\n\t<file://%s> is already listed in your "\$"PATH.\n" "${alacast_cli_path}";
 			continue;
 		endif
 		
-		if( ${?TCSH_RC_DEBUG} )	\
+		if( ${?TCSH_RC_DEBUG} ) \
 			printf "[added]\n";
 		
 		if(! ${?alacasts_path} ) then
@@ -109,7 +109,7 @@ setup_ini:
 	endif
 	
 	if( ${?alacast_ini} ) then
-		if( -e "${alacast_ini}" )	\
+		if( -e "${alacast_ini}" ) \
 			setenv ALACAST_INI "${alacast_ini}";
 		unset alacast_ini;
 	endif

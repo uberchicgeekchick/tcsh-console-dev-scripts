@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} )	\
+if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "include-and-lib.paths-and-flags.init.tcsh" ${argv};
 if( $args_handled > 0 ) then
@@ -12,7 +12,7 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if( ${?TCSH_RC_DEBUG} )	\
+if( ${?TCSH_RC_DEBUG} ) \
 	printf "Setting up make & linker environment @ %s.\n" `date "+%I:%M:%S%P"`;
 
 #Path to xmkmf, Makefile generator for X Window System
@@ -45,7 +45,7 @@ end
 
 foreach lib_dir(${lib_dirs})
 	set lib_dir="`printf '%s' '${lib_dir}' | sed -r 's/(.*)64"\$"/\1/'`";
-	if( -d "${lib_dir}" && "`/bin/ls '${lib_dir}'`" != "" )	\
+	if( -d "${lib_dir}" && "`/bin/ls '${lib_dir}'`" != "" ) \
 		set library_paths="${library_paths}:${lib_dir}";
 end
 

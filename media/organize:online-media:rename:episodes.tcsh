@@ -47,11 +47,11 @@ foreach episode("`/usr/bin/find -L "\""${target_directory}"\"" -regextype posix-
 	set books_path="`printf "\""${episode}"\"" | sed -r 's/^(.*)\/.*\.([^\.]+)"\$"/\1/g'`";
 	
 	set rel_string="`printf "\""${episode}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on\:\ )([^\.]*)\.([^\.]+)"\$"/\3/g'`";
-	if( "${rel_string}" == "${episode}" )	\
+	if( "${rel_string}" == "${episode}" ) \
 		set rel_string="";
 	
 	set pubDate="`printf "\""${episode}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on\:\ )([^\.]*)\.([^\.]+)"\$"/\4/g'`";
-	if( "${pubDate}" == "${episode}" )	\
+	if( "${pubDate}" == "${episode}" ) \
 		set pubDate="";
 	
 	set books_chapter_number="`printf "\""${title}"\"" | sed -r 's/(.*)\/[^0-9\/]*([0-9]+).*(.*)"\$"/\2/g' | sed -r 's/^0//'`";
@@ -64,7 +64,7 @@ foreach episode("`/usr/bin/find -L "\""${target_directory}"\"" -regextype posix-
 	set extension="`printf "\""${title}"\"" | sed -r 's/.*\/[^\/]+\.([^\.]+)"\$"/\1/g'`";
 	
 	#echo "${books_path}/<${books_title}> - [${books_chapter_or_episode_string}] [#${books_chapter_number}].${extension}";
-	if( $books_chapter_number < 10 && `printf "${books_chapter_number}" | wc -m` == 1 )	\
+	if( $books_chapter_number < 10 && `printf "${books_chapter_number}" | wc -m` == 1 ) \
 		set books_chapter_number="0${books_chapter_number}";
 	
 	if(! ${?keep_pubDate} ) then

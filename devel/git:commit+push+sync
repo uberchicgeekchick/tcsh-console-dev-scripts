@@ -180,10 +180,10 @@ while ( "${1}" != "" )
 		shift;
 	end
 	
-	if( ${#push_to} < 1 )	\
+	if( ${#push_to} < 1 ) \
 		unset push_to;
 	
-	if( ${?debug_commit} )	\
+	if( ${?debug_commit} ) \
 		printf "Option parsing complete.\n";
 
 if(! ${?commit_log} ) then
@@ -201,13 +201,13 @@ if(!(${?commit_log} && "${commit_log}" != "" && -e "${commit_log}")) then
 	goto usage;
 endif
 
-if(! ${?append} )	\
+if(! ${?append} ) \
 	printf "\n\n%s on : %s\n" "${commit_action}" "`date '+%Y-%m-%d @ %r'`" >> "${commit_log}";
 
 unset commit_action;
 
 follow_symlinks:
-	if(! ${?follow_symlinks} )	\
+	if(! ${?follow_symlinks} ) \
 		goto git_commit;
 	
 	set symlink_log="./.symlink.`date '+%s'`.lst";
@@ -291,7 +291,7 @@ git_commit:
 	if(! ${?branch} ) then
 		set branch="`head -1 "\""${commit_log}"\""`";
 		foreach branch_test("`git branch | sed -r 's/^[\ \t]*(.*)"\$"/\1/'`")
-			if( "${branch}" == "${branch_test}" )	\
+			if( "${branch}" == "${branch_test}" ) \
 				break;
 			unset branch_test;
 		end
@@ -367,7 +367,7 @@ git_push:
 		endif
 		
 		foreach repo(${push_to})
-			if("${repo}" != "${git_repo}" )	\
+			if("${repo}" != "${git_repo}" ) \
 				continue;
 			
 			if( ${?branch} ) then

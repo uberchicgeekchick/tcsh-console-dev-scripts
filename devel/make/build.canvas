@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} )	\
+if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "build.canvas" ${argv};
 if( $args_handled > 0 ) then
@@ -13,19 +13,19 @@ endif
 unset args_handled;
 
 
-if(! ${?TCSH_CANVAS_PATH} )	\
+if(! ${?TCSH_CANVAS_PATH} ) \
 	setenv TCSH_CANVAS_PATH "${TCSH_RC_SESSION_PATH}/../devel/make";
 source "${TCSH_CANVAS_PATH}/canvas.init.tcsh" ${argv};
 
 
-if( ${?OSS_ARTISTIC_CANVAS} )	\
+if( ${?OSS_ARTISTIC_CANVAS} ) \
 	unsetenv OSS_ARTISTIC_CANVAS;
 setenv OSS_BUILD_CANVAS;
 
-if( ${?TCSH_OUTPUT_ENABLED} )	\
+if( ${?TCSH_OUTPUT_ENABLED} ) \
 	printf "Setting up program build environment @ %s.\n" `date "+%I:%M:%S%P"`;
 
-if( ${?GREP_OPTIONS} )	\
+if( ${?GREP_OPTIONS} ) \
 	unsetenv GREP_OPTIONS;
 
 if( `alias grep` != "" ) then

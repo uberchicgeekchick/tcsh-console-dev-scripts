@@ -45,7 +45,7 @@ parse_argv:
 		set debug;
 		break;
 	end
-	if( ${my_arg} > 1 )	\
+	if( ${my_arg} > 1 ) \
 		@ my_arg=0;
 	
 	if( ${?debug} ) printf "Checking %s's argv options.  %d total.\n" "${script_name}" "${my_argc}";
@@ -70,7 +70,7 @@ while( $my_arg < $my_argc )
 	set option="`printf "\""$argv[$my_arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
 	if( "${option}" == "$argv[$my_arg]" ) set option="";
 	
-	if( ${?debug} )		\
+	if( ${?debug} ) \
 		printf "Checking argv #%d (%s).\n\tParsed option: %s%s%s%s\n" "${my_arg}" "$argv[$my_arg]" "${dashes}" "${option}" "${equals}" "${value}";
 	
 	switch( "${option}" )
@@ -117,6 +117,7 @@ while( $my_arg < $my_argc )
 					unset usage_message;
 				endif
 			endif
+			unset source_file;
 		breaksw;
 	endsw
 end

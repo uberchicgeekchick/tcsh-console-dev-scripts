@@ -15,7 +15,7 @@ set edit_playlist="";
 while( "${1}" != "" )
 	set option = "`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\1/g'`";
 	set value = "`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\2/g'`";
-	if( "${value}" == "" && "${2}" != "" )	\
+	if( "${value}" == "" && "${2}" != "" ) \
 		set value="${2}";
 	#printf "Checking\n\toption: %s\n\tvalue %s\n" "${option}" "${value}";
 	
@@ -25,27 +25,27 @@ while( "${1}" != "" )
 			breaksw;
 		
 		case "debug":
-			if(! ${?debug} )	\
+			if(! ${?debug} ) \
 				set debug;
 			breaksw;
 		
 		case "clean-up":
-			if(! ${?clean_up} )	\
+			if(! ${?clean_up} ) \
 				set clean_up;
 			breaksw;
 		
 		case "auto-copy":
-			if(! ${?auto_copy} )	\
+			if(! ${?auto_copy} ) \
 				set auto_copy;
 			breaksw;
 		
 		case "verbose":
-			if(! ${?be_verbose} )	\
+			if(! ${?be_verbose} ) \
 				set be_verbose;
 			breaksw;
 		
 		case "import":
-			if( -e "${value}" )	\
+			if( -e "${value}" ) \
 				set import="${value}";
 			breaksw;
 		
@@ -66,10 +66,10 @@ while( "${1}" != "" )
 		case "maxdepth":
 			if( ${value} != "" && `printf '%s' "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
 				set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
-				if( ${value} > 2 )	\
+				if( ${value} > 2 ) \
 					set maxdepth=" --maxdepth=${value} ";
 			endif
-			if(! ${?maxdepth} )	\
+			if(! ${?maxdepth} ) \
 				printf "--maxdepth must be an integer value that is gretter than 2" > /dev/stderr;
 			breaksw;
 		
@@ -101,7 +101,7 @@ if( ${?export_to} || ! ${?import} ) then
 	endif	
 endif
 
-if(! ${?target_directory} )	\
+if(! ${?target_directory} ) \
 	set target_directory="${cwd}";
 
 switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`" )
@@ -154,7 +154,7 @@ if( ${?export_to} ) then
 endif
 
 clean_up:
-	if(! ${?clean_up} )	\
+	if(! ${?clean_up} ) \
 		goto get_missing;
 	
 	if(! ${?maxdepth} ) then
@@ -163,12 +163,12 @@ clean_up:
 	
 	pls-tox-m3u:find:missing.tcsh "${playlist}" "${target_directory}" --search-subdirs-only${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=interactive;
 	
-	#if( "${target_directory}" != "/media/podiobooks" && "`/bin/ls /media/podiobooks/`" != 'nfs' )	\
+	#if( "${target_directory}" != "/media/podiobooks" && "`/bin/ls /media/podiobooks/`" != 'nfs' ) \
 	#	pls-tox-m3u:find:missing.tcsh "${playlist}" /media/podiobooks --search-subdirs-only --maxdepth=5 --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\|m4a\)' --remove=interactive;
 #clean_up:
 
 get_missing:
-	if(!( ${?auto_copy} || ${?import} ))	\
+	if(!( ${?auto_copy} || ${?import} )) \
 		goto exit_script;
 	
 	switch( "${playlist_type}" )
@@ -189,37 +189,37 @@ exit_script:
 		unset echo_set;
 	endif
 	
-	if( ${?debug} )			\
+	if( ${?debug} ) \
 		unset debug;
 	
-	if( ${?be_verbose} )		\
+	if( ${?be_verbose} ) \
 		unset be_verbose;
 	
-	if( ${?auto_copy} )		\
+	if( ${?auto_copy} ) \
 		unset auto_copy;
 	
-	if( ${?import} )		\
+	if( ${?import} ) \
 		unset import;
 	
-	if( ${?export_to} )		\
+	if( ${?export_to} ) \
 		unset export_to;
 	
-	if( ${?edit_playlist} )		\
+	if( ${?edit_playlist} ) \
 		unset edit_playlist;
 	
-	if( ${?target_directory} )	\
+	if( ${?target_directory} ) \
 		unset target_directory;
 	
-	if( ${?clean_up} )		\
+	if( ${?clean_up} ) \
 		unset clean_up;
 	
-	if( ${?maxdepth} )		\
+	if( ${?maxdepth} ) \
 		unset maxdepth;
 	
-	if( ${?playlist} )		\
+	if( ${?playlist} ) \
 		unset playlist;
 	
-	if( ${?scripts_basename} )	\
+	if( ${?scripts_basename} ) \
 		unset scripts_basename;
 	
 	if(! ${?errno} ) then

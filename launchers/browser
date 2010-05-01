@@ -59,7 +59,7 @@ noexec:
 
 launchers_main:
 
-	if(! ${?url} )	\
+	if(! ${?url} ) \
 		set url="http://slashdot.org/"
 	
 	${program} "${url}";

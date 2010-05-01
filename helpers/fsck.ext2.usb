@@ -2,7 +2,24 @@
 init:
 	set current_label="init";
 	
-	if( `printf '%s' "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` == "csh" ) \
+	if(! ${?echo_style} ) then
+		set echo_style_set;
+		set echo_style=both;
+	else
+		if( "${echo_style}" != "both" ) then
+			set original_echo_style="${echo_style}";
+			set echo_style_set;
+			set echo_style=both;
+		endif
+	endif
+	if( "`alias echo`" != "echo -n" ) then
+		if( "`alias echo`" != "" ) \
+			set original_echo_alias="`alias echo`";
+		alias echo "echo -n";
+		set echo_alias_set;
+	endif
+	
+	if(! ${?0} ) \
 		set being_sourced;
 	
 	set scripts_basename="fsck.ext2.usb";
@@ -183,12 +200,11 @@ main:
 	set current_label="main";
 	
 	set argc=${#argv};
-	if( ${argc} < 1 ) then
+	@ required_arguments=0;
+	if( ${argc} < ${required_arguments} ) then
 		@ errno=-503;
 		goto exception_handler;
 	endif
-	
-	alias	ex	"ex -E -n -X --noplugin";
 #main:
 
 
@@ -196,14 +212,19 @@ exec:
 	set current_label="exec";
 	
 	printf "Executing %s's main.\n" "${scripts_basename}";
-	if(! ${?device} ) \
-		set device=/dev/sdc;
+	if(! ${?devices} ) \
+		set devices=/dev/sdc[12356];
+	if( ${uid} != 0 ) then
+		set use_sudo="sudo ";
+	else
+		set use_sudo="";
+	endif
 	
-	foreach usb( ${device}[12356] )
-		printf "\n\n---------**checking <%s>**-----------------\n\n" "${usb}";
-		fsck.ext2 -c -y "${usb}";
+	foreach usb( ${devices} )
+		echo "\n\n-----------------**Checking <${usb}>**-----------------\n\tRunning: ${use_sudo}fsck.ext2 -c -y ${usb}\n";
+		${use_sudo}fsck.ext2 -c -y "${usb}";
 	end
-	unset device usb;
+	unset devices usb;
 	goto scripts_main_quit;
 #exec:
 
@@ -268,6 +289,20 @@ scripts_main_quit:
 		cd "${owd}";
 		set owd="${old_owd}";
 		unset old_owd;
+	endif
+	
+	if( ${?original_echo_style} ) then
+		set echo_style="${original_echo_style}";
+		unset original_echo_style;
+	else if( ${?echo_style_set} ) then
+		unset echo_style;
+	endif
+	if( ${?echo_alias_set} ) then
+		if( ${?original_echo_alias} ) then
+			alias echo "${original_echo_alias}";
+			unset original_echo_alias;
+		endif
+		unset echo_alias_set;
 	endif
 	
 	exit ${status}
@@ -460,6 +495,10 @@ parse_arg:
 			
 			case "debug":
 				if(! ${?debug} ) set debug;
+				breaksw;
+			
+			case "devices":
+				set devices=${value};
 				breaksw;
 			
 			case "diagnosis":

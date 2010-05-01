@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} )	\
+if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "canvas.init.tcsh" ${argv};
 if( $args_handled > 0 ) then
@@ -18,7 +18,7 @@ if( "${1}" == "--reset" ) then
 	source "${TCSH_CANVAS_PATH}/compilers.environment" --reset;
 	source "${TCSH_CANVAS_PATH}/include-and-lib.paths-and-flags.init.tcsh";
 else
-	if(! ${?INCLUDE_AND_LIB_FLAGS_AND_PATHS} )	\
+	if(! ${?INCLUDE_AND_LIB_FLAGS_AND_PATHS} ) \
 		source "${TCSH_CANVAS_PATH}/include-and-lib.paths-and-flags.init.tcsh";
 	source "${TCSH_CANVAS_PATH}/compilers.environment";
 endif

@@ -42,8 +42,10 @@ bindkey		"^d"		backward-delete-word
 bindkey	-c	"^e"		"source /etc/csh.cshrc"
 bindkey		"^[ "		magic-space
 bindkey		"^[!"		expand-history
-bindkey		"^f"		i-search-fwd
 bindkey		"^b"		i-search-back
+bindkey		"^f"		i-search-fwd
+bindkey		"^[b"		vi-search-back
+bindkey		"^[f"		vi-search-fwd
 bindkey		"^n"		complete-word-fwd
 bindkey		"^r"		complete-word-back
 bindkey	-c	"^s"		"source '${TCSH_RC_SESSION_PATH}/source:session'"

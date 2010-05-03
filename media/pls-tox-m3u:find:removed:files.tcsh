@@ -993,19 +993,16 @@ setup_playlist:
 		cp "${playlist}" "${filename_list}";
 	endif
 	switch("${playlist_type}")
-		case "m3u":
-			ex '+1,$s/\v^\#.*[\r\n]+//' '+wq!' "${filename_list}";
-			breaksw;
-		
 		case "tox":
-			ex '+1,$s/\v^[\ \t]*mrl\ \=\ (.*);$/\1/' '+1,$s/\v^[^\/].*[\r\n]+//' '+wq!' "${filename_list}";
+			ex '+1,$s/\v^[\ \t]*mrl\ \=\ (.*);$/\1/' '+wq!' "${filename_list}";
 			breaksw;
 		
 		case "pls":
-			ex '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+1,$s/\v^[^\/].*[\r\n]+//' '+wq!' "${filename_list}";
+			ex '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq!' "${filename_list}";
 			breaksw;
 		
 	endsw
+	ex -s '+1,$s/\v^[^\/].*\n//' '+wq!' "${filename_list}";
 	set callback="exec";
 	goto callback_handler;
 #setup_playlist:

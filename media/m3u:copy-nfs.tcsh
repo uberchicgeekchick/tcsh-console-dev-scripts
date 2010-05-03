@@ -33,7 +33,7 @@ endif
 alias	ex	"ex -E -n -X --noplugin";
 
 /bin/cp "${1}" "./.local.playlist.swp";
-ex -s '+1,$s/^[^\/].*[\r\n]*//' '+1,$s/\([\"\$\!]\)/\"\\\1\"/g' '+wq!' "./.local.playlist.swp";
+ex -s '+1,$s/^[^\/].*\n//' '+1,$s/\([\"\$\!]\)/\"\\\1\"/g' '+wq!' "./.local.playlist.swp";
 
 printf '#\!/bin/tcsh -f\nset old_podcast="";\n' >! "${tcsh_shell_script}";
 chmod u+x "${tcsh_shell_script}";

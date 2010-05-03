@@ -22,6 +22,15 @@ setenv:
 		unsetenv GREP_OPTIONS;
 	endif
 	
+	set scripts_basename="tcsh-script.tcsh";
+	set scripts_alias="`echo -n "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
+	
+	set strict;
+	set supports_being_source;
+	
+	#set supports_hidden_files;
+	set scripts_supported_extensions="mp3|ogg|m4a|wav";
+	
 	if(! ${?echo_style} ) then
 		set echo_style_set;
 		set echo_style=both;
@@ -30,13 +39,6 @@ setenv:
 			set original_echo_style="${echo_style}";
 			set echo_style_set;
 			set echo_style=both;
-		endif
-	endif
-	if( "`alias echo`" != "echo -n" ) then
-		if( "`alias echo`" != "" ) \
-			set original_echo_alias="`alias echo`";
-		alias echo "echo -n";
-		set echo_alias_set;
 	endif
 #setenv:
 
@@ -46,26 +48,18 @@ init:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	#set supports_being_source;
-	#set supports_hidden_files;
-	#set scripts_supported_extensions="mp3|ogg|m4a";
-	#set strict;
+	set usage_message="Usage: ${scripts_basename} [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.";
 	
 	set original_owd=${owd};
 	set starting_dir=${cwd};
 	set escaped_starting_cwd=${escaped_cwd};
 	
-	set scripts_basename="tcsh-script.tcsh";
-	set scripts_alias="`echo -n "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
-	
-	set usage_message="Usage: ${scripts_basename} [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.";
-	
-	set escaped_home_dir=`echo ${HOME}  | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
+	set escaped_home_dir=`echo -n ${HOME}  | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 #init:
 
 
 debug_check:
-	set current_label="debug_check";
+	set label_current="debug_check";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -76,14 +70,15 @@ debug_check:
 		if( -e "$argv[$arg]" ) \
 			continue;
 		
-		set argument=`echo $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
-		set option=`echo $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(['\''"])?(.*)(['\''"])?$/\2/'`;
-		set value=`echo $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(['\''"])?(.*)(['\''"])?$/\5/'`;
+		set argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
+		set option=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(['\''"])?(.*)(['\''"])?$/\2/'`;
+		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(['\''"])?(.*)(['\''"])?$/\5/'`;
 		if( -e "`echo -n "\""${value}"\""`" ) \
 			continue;
 		
-		if( ${?debug} ) \
+		if( ${?debug} || ${?debug_arguments} ) \
 			echo -n "**${scripts_basename} [debug_check:]**"\$"option: [${option}]; "\$"value: [${value}].\n";
+		
 		switch("${option}")
 			case "diagnosis":
 			case "diagnostic-mode":
@@ -100,7 +95,25 @@ debug_check:
 							breaksw;
 						
 						echo -n "**${scripts_basename}**, via "\$"argv[${arg}], debug logging:\t[enabled].\n\n";
-						set logging;
+						set debug_logging;
+						breaksw;
+					
+					case "argv":
+					case "parse_argv":
+					case "arguments":
+						if( ${?debug_arguments} ) \
+							breaksw;
+						
+						echo -n "**${scripts_basename}**, via "\$"argv[${arg}], debugging arguments:\t[enabled].\n\n";
+						set debug_arguments;
+						breaksw;
+					
+					case "filelist":
+						if( ${?debug_filelist} ) \
+							breaksw;
+						
+						echo -n "**${scripts_basename}**, via "\$"argv[${arg}], filelist debugging:\t[enabled].\n\n";
+						set debug_filelist;
 						breaksw;
 					
 					default:
@@ -146,7 +159,7 @@ check_dependencies:
 		endif
 		
 		if( ${?debug} ) then
-			switch( `echo ${dependencies_index} | sed -r 's/^[0-9]*[^1]?([1-3])$/\1/'` )
+			switch( `echo -n ${dependencies_index} | sed -r 's/^[0-9]*[^1]?([1-3])$/\1/'` )
 				case "1":
 					set suffix="st";
 					breaksw;
@@ -203,14 +216,17 @@ check_dependencies:
 	
 	unset dependency dependencies;
 	
-	goto parse_argv;
+	set callback="parse_argv";
+	goto callback_handler;
 #check_dependencies:
 
 
-scripts_if_sourced:
-	set label_current="scripts_if_sourced";
+if_sourced:
+	set label_current="if_sourced";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
+	
+	@ errno=0;
 	
 	alias	ex	"ex -E -X -n --noplugin -s";
 	
@@ -222,16 +238,20 @@ scripts_if_sourced:
 	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
 	#alias	"wget"	"${download_command_with_options}";
 	
-	if( ${?0} ) \
-		goto main;
+	if( ${?0} ) then
+		set callback="scripts_main";
+		goto callback_handler;
+	endif
 	
-	if( ${?supports_being_source} ) \
-		goto scripts_sourcing_main;
+	if( ${?supports_being_source} ) then
+		set callback="scripts_sourcing_main";
+		goto callback_handler;
+	endif
 	
 	@ errno=-502;
 	goto exception_handler;
 	# END: disable source scripts_basename.
-#scripts_if_sourced:
+#if_sourced:
 
 
 scripts_sourcing_main:
@@ -263,8 +283,8 @@ scripts_sourcing_quit:
 #scripts_sourcing_quit:
 
 
-main:
-	set label_current="main";
+scripts_main:
+	set label_current="scripts_main";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -273,19 +293,46 @@ main:
 	@ required_options=1;
 	
 	if( ${argc} < ${required_options} ) then
-		@ errno=-504;
+		@ errno=-503;
 		set callback="parse_argv_quit";
 		goto exception_handler;
 	endif
 	
 	if(! ${?filename_list} ) then
-		set callback="exec";
+		set callback="scripts_exec";
 		goto callback_handler;
 	endif
 	
-	set callback="process_filename_list";
+	set callback="process_filename_list_init";
 	goto callback_handler;
-#main:
+#scripts_main:
+
+
+process_filename_list_init:
+	set label_current="process_filename_list_init";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
+	mv -f "${filename_list}.swp" "${filename_list}";
+	
+	set file_count=`cat "${filename_list}" | wc -l | sed -r 's/^(.*)[\r\n]*/\1/'`;
+	
+	if(! ${file_count} > 0 ) then
+		if( ${?no_exit_on_exception} ) \
+			unset no_exit_on_exception;
+		
+		if(! ${?display_usage_on_exception} ) \
+			unset display_usage_on_exception;
+		
+		@ errno=-503;
+		set callback="scripts_main_quit";
+		goto exception_handler;
+	endif
+	
+	@ files_processed=0;
+	cp "${filename_list}" "${filename_list}.all";
+#process_filename_list_init:
 
 
 process_filename_list:
@@ -293,55 +340,56 @@ process_filename_list:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
-	mv -f "${filename_list}.swp" "${filename_list}";
-	cp "${filename_list}" "${filename_list}.all";
-	
-	set file_count="`cat '${filename_list}'`";
-	if(! ${#file_count} > 0 ) then
-		if( ${?no_exit_on_exception} ) \
-			unset no_exit_on_exception;
-		
-		if(! ${?display_usage_on_exception} ) \
-			unset display_usage_on_exception;
-		
-		@ errno=-505;
-		set callback="scripts_main_quit";
-		goto exception_handler;
-	endif
-	
 	foreach filename("`cat "\""${filename_list}"\""`")
 		ex -s '+1d' '+wq!' "${filename_list}";
-		set callback="exec_process_file";
+		@ files_processed++;
+		if( ${?debug} ) \
+			echo -n "Attempting to process_file: [${filename}] (file: #${files_processed} of ${file_count})\n";
+		set callback="process_file";
 		goto callback_handler;
 	end
+	if( ${files_processed} > 0 ) then
+		set callback="scripts_main_quit";
+	else
+		set callback="usage";
+	endif
+	goto callback_handler;
 #process_filename_list:
 
 
-exec:
-	set label_current="exec";
+scripts_exec:
+	set label_current="scripts_exec";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	echo -n "Executing ${scripts_basename}.\n";
+	echo -n "Executing ${scripts_basename}'s exec.\n";
 	
 	set callback="scripts_main_quit";
 	goto callback_handler;
-#exec:
+#scripts_exec:
 
-exec_process_file:
-	#set filename=`echo $filename | sed -r 's/(["])/"\\""/g' | sed -r 's/[$]/"\\$"/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/^(.*)(\.[^\.]+)$/\1/g'`;
-	set filename=`echo $filename | sed -r 's/^(.*)(\.[^\.]+)$/\1/g'`;
-	set extension=`echo $filename | sed -r 's/^(.*)(\.[^\.]+)$/\2/g'`;
+process_file:
+	set label_current="process_file";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	set callback="process_filename_list";
+	set extension=`echo -n ${filename} | sed -r 's/^(.*)(\.[^\.]+)$/\2/g'`;
 	if( "${extension}" == "${filename}" ) \
 		set extension="";
 	set original_extension="${extension}";
-	if(! -e "${filename}${extension}" ) \
-		goto callback_handler;
+	set filename=`echo -n ${filename} | sed -r 's/^(.*)(\.[^\.]+)$/\1/g'`;
+	if(! -e "${filename}${extension}" ) then
+		if( ! ${?no_exit_on_usage} ) \ 
+			set no_exit_on_usage;
+		echo -n "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found.\n";
+		set callback="process_filename_list";
+		goto usage;
+	endif
 	
-	set filename_for_regexp=`echo ${filename} | sed -r 's/([*\[\/])/\\\1/g'`;
-	set filename_for_editor=`echo ${filename}| sed -r 's/([\(\)\ ])/\\\1/g'`;
-	echo -n "\n--------------- File info for: <file://${filename}> ---------------";
+	set filename_for_regexp=`echo -n ${filename}${extension} | sed -r 's/([*\[\/])/\\\1/g'`;
+	set filename_for_editor=`echo -n ${filename}${extension} | sed -r 's/([\(\)\ ])/\\\1/g'`;
+	echo -n "\nFile info for:\n\t<file://${filename}${extension}>\n";
 	
 	if( -d "${filename}${extension}" ) \
 		/bin/ls -d -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
@@ -349,15 +397,15 @@ exec_process_file:
 	/bin/ls -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
 	
 	set grep_test=`grep "^${filename_for_regexp}"\$ "${filename_list}.all"`;
+	echo -n "grep ";
 	if( "${grep_test}" != "" ) then
-		echo -n "grep found: ${grep_test}";
+		echo -n "found:\n\t${grep_test}\n";
 	else
-		echo -n "nope: not here.\n";
+		echo -n "couldn't find:\n\t${filename}${extension}.\n";
 	endif
 	
-	set callback="process_filename_list";
 	goto callback_handler;
-#exec_process_file:
+#process_file:
 
 
 scripts_main_quit:
@@ -478,13 +526,6 @@ scripts_main_quit:
 	else if( ${?echo_style_set} ) then
 		unset echo_style;
 	endif
-	if( ${?echo_alias_set} ) then
-		if( ${?original_echo_alias} ) then
-			alias echo "${original_echo_alias}";
-			unset original_echo_alias;
-		endif
-		unset echo_alias_set;
-	endif
 	
 	if( ${?scripts_supported_extensions} ) \
 		unset scripts_supported_extensions;
@@ -504,6 +545,8 @@ scripts_main_quit:
 			unset original_extension;
 		if( ${?file_count} ) \
 			unset file_count;
+		if( ${?files_processed} ) \
+			unset files_processed;
 		
 		if( -e "${filename_list}" ) \
 			rm "${filename_list}";
@@ -537,7 +580,6 @@ usage:
 		if( ${errno} != 0 ) then
 			if(! ${?last_exception_handled} ) \
 				set last_exception_handled=0;
-			
 			if( ${last_exception_handled} != ${errno} ) then
 				if(! ${?callback} ) \
 					set callback="usage";
@@ -566,7 +608,7 @@ usage:
 			set callback="scripts_main_quit";
 		endif
 	else if(! ${?callback} ) then
-		set callback="parse_arg";
+		set callback="scripts_main_quit";
 	endif
 	
 	goto callback_handler;
@@ -595,22 +637,18 @@ exception_handler:
 			breaksw;
 		
 		case -503:
-			echo -n "An internal script error has caused an exception.  Please see any output above" > /dev/stderr;
-			if(! ${?debug} ) \
-				echo -n " or run: %s%s --debug%s to find where %s failed" '`' "${scripts_basename}" '`' "${scripts_basename}" > /dev/stderr;
-			breaksw;
-		
-		case -504:
 			echo -n "One or more required options have not been provided" > /dev/stderr;
 			breaksw;
 		
-		case -505:
-			echo  "${dashes}${option} is an unsupported option" > /dev/stderr;
+		case -504:
+			echo -n  "${dashes}${option} is an unsupported option" > /dev/stderr;
 			breaksw;
 		
 		case -599:
 		default:
-			echo -n "An unknown error, "\$"errno: %s, has occured" "${errno}" > /dev/stderr;
+			echo -n "An internal script error has caused an exception.  Please see any output above" > /dev/stderr;
+			if(! ${?debug} ) \
+				echo -n " or run: %s%s --debug%s to find where %s failed" '`' "${scripts_basename}" '`' "${scripts_basename}" > /dev/stderr;
 			breaksw;
 	endsw
 	set last_exception_handled=$errno;
@@ -622,18 +660,21 @@ exception_handler:
 		else
 			set callback="scripts_sourcing_quit";
 		endif
-	endif
-	
-	if(! ${?display_usage_on_exception} ) then
-		echo -n "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > /dev/stderr;
-	else
-		goto usage;
-	endif
-	
-	if( ${?callback} ) \
+		if( ${?display_usage_on_exception} ) \
+			goto usage;
+		
 		goto callback_handler;
+	endif
 	
-	goto scripts_main_quit;
+	echo -n "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > /dev/stderr;
+	
+	if(! ${?callback} ) \
+		set callback="scripts_main_quit";
+	
+	if( ${?display_usage_on_exception} ) \
+		goto usage;
+	
+	goto callback_handler;
 #exception_handler:
 
 parse_argv:
@@ -643,12 +684,15 @@ parse_argv:
 	
 	@ arg=0;
 	
-	if( ${?debug} ) \
-		echo -n "**${scripts_basename} debug:** checking argv.  ${argc} total arguments.\n\n";
-	
 	@ arg=0;
 	@ parsed_argc=0;
 	@ argc=${#argv};
+	
+	if( ${?debug_arguments} && ! ${?debug} ) \
+		set debug debug_set;
+	
+	if( ${?debug} ) \
+		echo -n "**${scripts_basename} debug:** checking argv.  ${argc} total arguments.\n\n";
 #parse_argv:
 
 parse_arg:
@@ -663,26 +707,24 @@ parse_arg:
 		if( ${?debug} ) \
 			echo -n "**${scripts_basename} debug:** Checking argv #${arg} ($argv[$arg]).\n";
 		
-		set argument=`echo $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
+		set argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
 		
-		set dashes=`echo $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
+		set dashes=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
 		if( "${dashes}" == "${argument}" ) \
 			set dashes="";
 		
-		set option=`echo $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
+		set option=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
 		if( "${option}" == "${argument}" ) \
 			set option="";
 		
-		set equals=`echo $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\3/'`;
-		if( "${equals}" == "" || "${equals}" == "${argument}" ) \
-			set equals="";
+		set equals=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\3/'`;
 		
-		#set equals="";
-		set value=`echo $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
+		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
 		
 		if( ${?debug} ) \
 			echo -n "\tparsed "\$"argument: [${argument}]; "\$"argv[${arg}] ($argv[$arg])\n\t"\$"dashes: [${dashes}];\n\t"\$"option: [${option}];\n\t"\$"equals: [${equals}];\n\t"\$"value: [${value}]\n\n";
-		if( "${option}" != "$argument" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "$argument" ) ) then
+		
+		if( ( "${option}" != "${argument}" && "${option}" != "" ) && "${equals}" == "" && ( "${value}" == "" || "${value}" == "${argument}" ) ) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;
@@ -690,19 +732,19 @@ parse_arg:
 				if( ${?debug} ) \
 					echo -n "**${scripts_basename} debug:** Looking for replacement value.  Checking argv #${arg} ($argv[$arg]).\n";
 				
-				set test_argument=`echo $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
+				set test_argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
 				
-				set test_dashes=`echo ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
-				set test_option=`echo ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
-				set test_equals=`echo ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\3/'`;
-				set test_value=`echo ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
+				set test_dashes=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
+				set test_option=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
+				set test_equals=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\3/'`;
+				set test_value=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
 				
-				if( ${?debug} ) \
-					echo -n "\tparsed "\$"argument: [${test_argument}]; "\$"argv[${arg}] ($argv[$arg])\n\t"\$"dashes: [${test_dashes}];\n\t"\$"option: [${test_option}];\n\t"\$"equals: [${test_equals}];\n\t"\$"value: [${test_value}]\n\n";
-				
-				if(!("${test_dashes}" == "${test_argument}" && "${test_option}" == "${test_argument}" && "${test_equals}" == "${test_argument}" && "${test_value}" == "${test_argument}")) then
+				if( "${test_dashes}" != "${test_argument}" && "${test_option}" != "${test_argument}" && ( "${test_value}" == "" || "${test_value}" == "${argument}" ) ) then
 					@ arg--;
 				else
+					if( ${?debug} ) \
+						echo -n "\tparsed replacement value from "\$"test_argument: [${test_argument}]; "\$"argv[${arg}] ($argv[$arg])\n\t"\$"test_dashes: [${test_dashes}];\n\t"\$"test_option: [${test_option}];\n\t"\$"test_equals: [${test_equals}];\n\t"\$"test_value: [${test_value}]\n\n";
+					
 					set equals="=";
 					set value="${test_argument}";
 					set arg_shifted;
@@ -728,14 +770,30 @@ parse_arg:
 			case "numbered_option":
 				if(! ( "${value}" != "" && ${value} > 0 )) then
 					echo -n "${dashes}${option} must be followed by a valid number greater than zero.";
+					@ errno=-601;
+					goto exception_handler;
 					breaksw;
 				endif
 			
 				set numbered_option="${value}";
 				breaksw;
 			
+			case "length_option":
+				if( `echo -n ${value} | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}$//'` != "" ) then
+					echo -n "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
+					@ errno=-602;
+					goto exception_handler;
+					breaksw;
+				endif
+				
+				set rtrim="${value}";
+				breaksw;
+			
 			case "h":
 			case "help":
+				if( ${?callback} ) \
+					unset callback;
+				
 				goto usage;
 				breaksw;
 			
@@ -745,19 +803,9 @@ parse_arg:
 				breaksw;
 			
 			case "debug":
-				if(! ${?debug} ) \
-					set debug;
-				breaksw;
-			
 			case "diagnosis":
 			case "diagnostic-mode":
-				if( ${?diagnostic_mode} ) \
-					breaksw;
-				
-				echo -n "**${scripts_basename} debug:**, via "\$"argv[${arg}], diagnostic mode:\t[enabled].\n\n"
-				set diagnostic_mode;
-				if(! ${?debug} ) \
-					set debug;
+				# these are all caught above. See: [debug_check:]
 				breaksw;
 			
 			case "switch-option":
@@ -796,26 +844,6 @@ parse_arg:
 						set be_verbose;
 						breaksw;
 					
-					case "debug":
-						if( ${?debug} ) \
-							breaksw;
-						
-						echo -n "**${scripts_basename} debug:**, via "\$"argv[${arg}], debug mode:\t[${option}d].\n\n";
-						set debug;
-						breaksw;
-					
-					case "diagnosis":
-					case "diagnostic-mode":
-						if( ${?diagnostic_mode} ) \
-							breaksw;
-						
-				
-						echo -n "**${scripts_basename} debug:**, via "\$"argv[${arg}], diagnostic mode:\t[${option}d].\n\n";
-						set diagnostic_mode;
-						if(! ${?debug} ) \
-							set debug;
-						breaksw;
-					
 					default:
 						echo -n "enabling ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
 						breaksw;
@@ -841,23 +869,6 @@ parse_arg:
 						unset be_verbose;
 						breaksw;
 					
-					case "debug":
-						if(! ${?debug} ) \
-							breaksw;
-						
-						echo -n "**${scripts_basename} debug:**, via "\$"argv[${arg}], debug mode:\t[${option}d].\n\n";
-						unset debug;
-						breaksw;
-					
-					case "diagnosis":
-					case "diagnostic-mode":
-						if(! ${?diagnostic_mode} ) \
-							breaksw;
-						
-						echo -n "**${scripts_basename} debug:**, via "\$"argv[${arg}], diagnostic mode:\t[${option}d].\n\n";
-						unset diagnostic_mode;
-						breaksw;
-					
 					default:
 						echo -n "disabling ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
 						breaksw;
@@ -865,8 +876,10 @@ parse_arg:
 				breaksw;
 			
 			default:
-				if( -e "`echo -n "\""${value}"\""`" ) \
-					goto filename_list_append_value;
+				if( -e "`echo -n "\""${value}"\""`" ) then
+					set callback="filename_list_append_value";
+					goto callback_handler;
+				endif
 				
 				if(! ${?strict} ) \
 					breaksw;
@@ -874,7 +887,7 @@ parse_arg:
 				if(! ${?no_exit_on_exception} ) \
 					set no_exit_on_exception;
 				
-				@ errno=-505;
+				@ errno=-504;
 				set callback="parse_arg";
 				goto exception_handler;
 				breaksw;
@@ -895,6 +908,9 @@ parse_argv_quit:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
+	if( ${?debug_set} ) \
+		unset debug debug_set;
+	
 	if(! ${?callback} ) then
 		unset arg;
 	else
@@ -906,7 +922,7 @@ parse_argv_quit:
 	if( ${?diagnostic_mode} ) then
 		set callback="diagnostic_mode";
 	else if(! ${?callback} ) then
-		set callback="scripts_if_sourced";
+		set callback="if_sourced";
 	endif
 	
 	goto callback_handler;
@@ -914,49 +930,159 @@ parse_argv_quit:
 
 
 filename_list_append_value:
-	set value="`echo "\""${value}"\""`";
+	set label_current="filename_list_append_value";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	set value="`echo -n "\""${value}"\""`";
 	if(! ${?filename_list} ) then
 		set filename_list="./.${scripts_basename}.filenames@`date '+%s'`";
 		touch "${filename_list}";
 	endif
 	
 	if(! ${?scripts_supported_extensions} ) then
-		if( ${?debug} ) then
-			echo "Adding [${value}] to [${filename_list}].\nBy running:\n\tfind -L "\""$value"\""";
+		if( ${?debug} || ${?debug_filelist}  ) then
+			echo -n "Adding [${value}] to [${filename_list}].\nBy running:\n\tfind -L "\""$value"\""";
 			if(! ${?supports_hidden_files} ) \
-				echo  \! -iregex '.*\/\..*';
-			echo "| sort >> "\""${filename_list}"\";
+				echo -n  \! -iregex '.*\/\..*';
+			echo -n "| sort >> "\""${filename_list}"\""\n\n";
 		endif
 		if(! ${?supports_hidden_files} ) then
 			find -L "$value" \! -iregex '.*\/\..*' | sort >> "${filename_list}";
 		else
 			find -L "$value" | sort >> "${filename_list}";
 		endif
-		goto parse_arg;
+		
+		set callback="parse_arg";
+		goto callback_handler;
 	endif
 	
-	if( ${?debug} ) then
+	if( "${scripts_supported_extensions}" == "mp3|ogg|m4a|wav" && ! ${?ltrim} && ! ${?rtrim} ) \
+		set scripts_supported_extensions="mp3|m4a|wav";
+	
+	if( ${?debug}  || ${?debug_filelist} ) then
 		if(! -d "$value" ) then
-			echo "Adding [${value}] to [${filename_list}] if its a supported file type.\nSupported extensions are: `echo '${scripts_supported_extensions}' | sed -r 's/\|/,\ /g'`.\n";
+			echo -n "Adding [${value}] to [${filename_list}] if its a supported file type.\nSupported extensions are:\n\t`echo -n '${scripts_supported_extensions}' | sed -r 's/\|/,\ /g'`.\n";
 		else
-			echo "Adding any supported files found under [${value}] to [${filename_list}].\nSupported extensions are: `echo '${scripts_supported_extensions}' | sed -r 's/\|/,\ /g'`.\n";
+			echo -n "Adding any supported files found under [${value}] to [${filename_list}].\nSupported extensions are:\n\t`echo -n '${scripts_supported_extensions}' | sed -r 's/\|/,\ /g'`.\n";
 		endif
-		echo "By running:\n\tfind -L "\""$value"\"" -regextype posix-extended -iregex "\"".*\.(${scripts_supported_extensions})"\"""\$"";
+		echo -n "By running:\n\tfind -L "\""$value"\"" -regextype posix-extended -iregex "\"".*\.(${scripts_supported_extensions})"\"""\$"";
 		if(! ${?supports_hidden_files} ) \
-			echo " \! -iregex '.*\/\..*'";
-		echo " | sort >> "\""${filename_list}"\";
+			echo -n " \! -iregex '.*\/\..*'";
+		echo -n " | sort >> "\""${filename_list}"\""\n\n";
 	endif
-	
-	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a" && ! ${?ltrim} && ! ${?rtrim} ) \
-		set scripts_supported_extensions="mp3|m4a";
 	
 	if(! ${?supports_hidden_files} ) then
 		find -L "$value" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*'  | sort >> "${filename_list}";
 	else
 		find -L "$value" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${filename_list}";
 	endif
-	goto parse_arg;
+	
+	set callback="parse_arg";
+	goto callback_handler;
 #filename_list_append_value:
 
+
+diagnostic_mode:
+	set label_current="diagnostic_mode";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if(! -d "${HOME}/tmp" ) then
+		set scripts_diagnosis_log="/tmp/${scripts_basename}.diagnosis.log";
+	else
+		set scripts_diagnosis_log="${HOME}/tmp/${scripts_basename}.diagnosis.log";
+	endif
+	if( -e "${scripts_diagnosis_log}" ) \
+		rm -v "${scripts_diagnosis_log}";
+	touch "${scripts_diagnosis_log}";
+	printf "----------------%s debug.log-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
+	printf \$"argv:\n\t%s\n\n" "$argv" >> "${scripts_diagnosis_log}";
+	printf \$"parsed_argv:\n\t%s\n\n" "$parsed_argv" >> "${scripts_diagnosis_log}";
+	printf \$"{0} == [%s]\n" "${0}" >> "${scripts_diagnosis_log}";
+	@ arg=0;
+	while( "${1}" != "" )
+		@ arg++;
+		printf \$"{%d} == [%s]\n" $arg "${1}" >> "${scripts_diagnosis_log}";
+		shift;
+	end
+	printf "\n\n----------------<%s> environment-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
+	env >> "${scripts_diagnosis_log}";
+	printf "\n\n----------------<%s> variables-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
+	set >> "${scripts_diagnosis_log}";
+	printf "Create %s diagnosis log:\n\t%s\n" "${scripts_basename}" "${scripts_diagnosis_log}";
+	@ errno=-500;
+	if(! ${?being_sourced} ) then
+		set callback="scripts_main_quit";
+	else
+		set callback="sourcing_main_quit";
+	endif
+	goto exception_handler;
+#diagnostic_mode:
+
+
+label_stack_set:
+	if( ${?current_cwd} ) then
+		if( ${current_cwd} != ${cwd} ) \
+			cd ${current_cwd};
+		unset current_cwd;
+	endif
+	
+	if( ${?old_owd} ) then
+		if( ${old_owd} != ${owd} ) then
+			set owd=${old_owd};
+		endif
+	endif
+	
+	set old_owd="${owd}";
+	set current_cwd="${cwd}";
+	set escaped_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/([\[])/\\\1/g'`";
+	
+	set label_next=${label_current};
+	
+	if(! ${?labels_previous} ) then
+		set labels_previous=("${label_current}");
+		set label_previous=$labels_previous[${#labels_previous}];
+	else
+		if("${label_current}" != "$labels_previous[${#labels_previous}]" ) then
+			set labels_previous=($labels_previous "${label_current}");
+			set label_previous=$labels_previous[${#labels_previous}];
+		else
+			set label_previous=$labels_previous[${#labels_previous}];
+			unset labels_previous[${#labels_previous}];
+		endif
+	endif
+	
+	#set callback=${label_previous};
+	
+	if( ${?debug} ) \
+		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/stdout;
+	
+	goto ${label_previous};
+#label_stack_set:
+
+
+callback_handler:
+	if(! ${?callback} ) \
+		set callback="scripts_main_quit";
+	
+	if(! ${?callback_stack} ) then
+		set callback_stack=("${callback}");
+		set last_callback="$callback_stack[${#callback_stack}]";
+	else
+		if("${callback}" != "$callback_stack[${#callback_stack}]" ) then
+			set callback_stack=($callback_stack "${callback}");
+			set last_callback="$callback_stack[${#callback_stack}]";
+		else
+			set last_callback="$callback_stack[${#callback_stack}]";
+			unset callback_stack[${#callback_stack}];
+		endif
+		unset callback;
+	endif
+	if( ${?debug} ) \
+		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
+	
+	goto $last_callback;
+#callback_handler:
 
 

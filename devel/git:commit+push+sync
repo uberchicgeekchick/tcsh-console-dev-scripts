@@ -252,10 +252,6 @@ follow_symlinks:
 git_commit:
 	git add .;
 
-	if( ${?symlink_log} ) then
-		if( -e "${symlink_log}" ) git rm --cached --quiet "${symlink_log}";
-	endif
-	
 	# Keep extremely large files from being committed;
 	set extensions="bz2\|gz\|tgz\|zip";
 	foreach tarball("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\.git.*' -printf '%P\n' | uniq`")

@@ -93,10 +93,17 @@ main:
 	
 	set please_wait_phrase="...please be patient, I may need several moments.\t\t";
 	
-	set download_log="/dev/null";
-	if( ${?logging} ) then
+	if(! ${?logging} ) then
+		set download_log=/dev/null;
+	else
 		set download_log="./00-"`basename "${0}"`".log";
 		touch "${download_log}";
+	endif
+	
+	if(! ${?silent} ) then
+		set output=/dev/stdout;
+	else
+		set output=/dev/null;
 	endif
 	
 	if( "`alias cwdcmd`" != "" ) then
@@ -129,28 +136,43 @@ fetch_podcast:
 	
 	${download_command_with_options} "./${my_feed_xml}" "${feed}";
 	
+	if( "`/bin/grep --no-messages --perl-regexp '\r\n\"$"' "\""./${my_feed_xml}"\""`" != "" ) then
+		
+		if(! ${?silent} ) \
+			printf "Reformatting Dos feed to Unix format.\n";
+		if( ${?logging} ) \
+			printf "Reformatting Dos feed to Unix format.\n" >> "${download_log}";
+		
+		dos2unix --convmode ASCII "./${my_feed_xml}" >& ${output};
+		
+	else if( "`/bin/grep --no-messages --perl-regexp '\r\"$"' "\""./${my_feed_xml}"\""`" != "" ) \
+		
+		if(! ${?silent} ) \
+			printf "Reformatting Mac OS feed to Unix format.\n";
+		if( ${?logging} ) \
+			printf "Reformatting Mac OS feed to Unix format.\n" >> "${download_log}";
+		
+		dos2unix --convmode Mac "./${my_feed_xml}" >& ${output};
+	endif
+	
 	if(! ${?silent} ) \
 		printf "Finding feed's title.\n";
 	if( ${?logging} ) \
 		printf "Finding feed's title.\n" >> "${download_log}";
 	
-	ex -s '+set ff=unix' "+0r ./${my_feed_xml}" '+1,$s/\v\<\!\-\-.*\-\-\>//' '+1,$s/\v\r\n?\_$//g' '+1,$s/\n//g' '+1,$s/\v\>[\ \t]*\</\>\r\</g' "+w! ./${my_feed_xml}" '+q!';
-	
-	# a previous test & regex to fix dos formatted xml though I don't seem to need this any longer
-	# I think I've fixed it with: '+1,$s/\v\r\n?\_$//g' though I've only tested it with one feed.
-	# so I'm leaving this in place for a lil while.
-	#while( "`/bin/grep --no-messages --perl-regexp '\r\n\"$"' "\""./${my_feed_xml}"\""`" != "" )
-	#	ex -s '+1,$s/\v\r\n?\_$//g' '+wq!' "./${my_feed_xml}";
-	#end
-	
-	# same purpose & cavates as the above fixes for dos formaatted feed.
-	# except this one's for mac formatted feeds.
-	# I'm leaving it here, for now for the same reason mentioned above.
-	#while( "`/bin/grep --no-messages --perl-regexp '\r\"$"' "\""./${my_feed_xml}"\""`" != "" )
-	#	ex -s '+1,$s/\v\r\_$//g' '+wq!' "./${my_feed_xml}";
-	#end
+	ex -s '+set ff=unix' "+0r ./${my_feed_xml}" '+1,$s/\v\<\!\-\-.*\-\-\>//' '+1,$s/\v\>[\ \t]*\</\>\r\</g' '+1,$s/\v\r\n?\_$//g' '+1,$s/\n//g' "+w! ./${my_feed_xml}" '+q!';
 	
 	set title="`cat "\""./${my_feed_xml}"\"" | sed -r 's/(\<item\>)/\1\n/g' | head -2 | /bin/grep --no-messages --perl-regexp '\<title[^\>]*\>' | sed -r 's/.*<title[^>]*>([^<]+)<\/title>.*/\1/g' | sed 's/\//\ \-\ /g' | sed -r 's/[\ \t]*\&[^;]+;[\ \t]*/\ /ig' | sed -r 's/^[\ \t]*//g' | sed -r 's/[\ \t]*"\$"//g'`";
+	
+	if( "${title}" == "" ) then
+		if(! ${?silent} ) \
+			printf "**error** failed to find feed's title.\n" > /dev/stderr;
+		if( ${?logging} ) \
+			printf "**error** failed to find feed's title\n" >> "${download_log}";
+		
+		set status=-1;
+		goto exit_script;	
+	endif
 	
 	if( "`printf "\""${title}"\"" | sed -r 's/^(The)(.*)"\$"/\1/g'`" == "The" ) \
 		set title="`printf "\""${title}"\"" | sed -r 's/^(The)\ (.*)"\$"/\2,\ \1/g'`";

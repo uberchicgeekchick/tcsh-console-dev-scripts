@@ -43,7 +43,7 @@ chmod u+x "${tcsh_shell_script}";
 ex -s "+3r ./.local.playlist.swp" '+wq!' "${tcsh_shell_script}";
 /bin/rm "./.local.playlist.swp";
 
-ex '+4,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/(.*)(\..*)$/if\(\! -e "\1\2\/\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\techo -n "**error coping:** remote file \<\1nfs\/\2\/\3\4\> doesn'\''t exists.\n" \> \/dev\/stderr;\r\telse\r\t\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\techo -n "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\techo -n "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4";\r\t\techo -n "\\t[done]\\n";\r\tendif\rendif\r/' '+w' "${tcsh_shell_script}";
+ex -s '+4,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/(.*)(\..*)$/if\(\! -e "\1\2\/\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\techo -n "**error coping:** remote file \<\1nfs\/\2\/\3\4\> doesn'\''t exists.\n" \> \/dev\/stderr;\r\telse\r\t\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\techo -n "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\techo -n "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4";\r\t\techo -n "\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
 
 printf "\t[done]\n";
 

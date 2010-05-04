@@ -277,7 +277,9 @@ convert_filenames:
 		ex -s '+1d' '+wq!' "${filename_list}";
 		set extension="`echo -n "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/g'`";
 		set original_extension="${extension}";
-		set filename="`echo -n "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+		set filename="`echo -n "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g'` | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+		if( ${?debug} || ${?debug_filelist} ) \
+			echo -n "Looking for: ${filename}.${extension}\n";
 		if(! -e "${filename}.${extension}" ) then
 			if( ! ${?no_exit_on_usage} && ${#file_count} > 1 ) \
 				set no_exit_on_usage;

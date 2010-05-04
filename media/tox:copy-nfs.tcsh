@@ -38,13 +38,12 @@ alias	ex	"ex -E -n -X --noplugin";
 ex -s '+1,$s/^\tmrl\ =\ \(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\/\([^\/]\+\)\.\([^\.]\+\);$/\1\2\/\3\.\4/' '+wq!' "./.local.playlist.swp";
 ex -s '+1,$s/^[^\/].*\n//' '+1,$s/\([\"\$\!]\)/\"\\\1\"/g' '+wq!' "./.local.playlist.swp";
 
-printf '#\!/bin/tcsh -f\nset old_podcast="";\n' >! "${tcsh_shell_script}";
+printf '#\!/bin/tcsh -f\nset old_podcast="";\nset echo_style=both;\n' >! "${tcsh_shell_script}";
 chmod u+x "${tcsh_shell_script}";
-ex -s "+2r ./.local.playlist.swp" '+wq!' "${tcsh_shell_script}";
+ex -s "+3r ./.local.playlist.swp" '+wq!' "${tcsh_shell_script}";
 /bin/rm "./.local.playlist.swp";
 
-ex -s '+3,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/(.*)(\..*)$/if\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\techo "**error coping:** remote file \<\1nfs\/\2\/\3\4\> doesn'\''t exists." \> \/dev\/stderr;\r\telse\r\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\tif\(\! -e "\1\2\/\3\4" \) then\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\techo "\\nCopying: ${old_podcast}'\''s content(s)  :";\r\t\tendif\r\t\techo "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4"\r\t\techo "  \\n\\t\\t\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
-#3,$s/^\(\/[^\/]\+\/[^\/]\+\/\)\(.*\)\(\.[^\.]\+\)$/if(! -e "\1nfs\/\2\3" ) then\r\t\tprintf "**error coping:** remote file <%s> doesn't exists." "\1nfs\/\2\3" > \/dev\/stderr;\r\telse\r\t\tset podcast_dir="`dirname "\\\""\1\2\3"\\\""`";\r\t\tif(! -d "\${podcast_dir}" ) mkdir -p "\${podcast_dir}";\r\t\tif(! -e "\1\2\3" ) then\r\t\t\tif( "\${old_podcast}" != "`basename "\\\""\${podcast_dir}"\\\""`" ) then\r\t\t\t\tset old_podcast="`basename "\\\""\${podcast_dir}"\\\""`";\r\t\t\t\tprintf "\\nCopying: %s's content(s):" "\${old_podcast}";\r\t\t\tendif\r\t\tprintf "\\n\\tCopying: %s" "` basename "\\\""\1\2\3"\\\"" | sed -r "\\""s\/(.*)(\\.[^\\.])\$\/\\1\/"\\""`";\r\t\tcp "\1nfs\/\2\3 " "\1\2\3"\r\t\tprintf "\\n\\t\\t\\t[done]\\n";\r\tendif\rendif\r/
+ex -s '+4,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/(.*)(\..*)$/if\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\techo -n "**error coping:** remote file \<\1nfs\/\2\/\3\4\> doesn'\''t exists.\n" \> \/dev\/stderr;\r\telse\r\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\tif\(\! -e "\1\2\/\3\4" \) then\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\techo -n "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\techo -n "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4"\r\t\techo -n "\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
 
 printf "\t[done]\n";
 

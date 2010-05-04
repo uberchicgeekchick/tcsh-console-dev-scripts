@@ -114,7 +114,7 @@ switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`" )
 		breaksw;
 	
 	default:
-		printf "**error:** unknown playlist type: [%s].\n" "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]+\)"\$"/\1/'`" > /dev/stderr;
+		printf "**error:** unsupported playlist type: [%s].\n" "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]+\)"\$"/\1/'`" > /dev/stderr;
 		exit -2;
 		breaksw;
 endsw
@@ -125,15 +125,21 @@ if( ${?import} ) then
 		exit -3;
 	endif
 	
-	switch( "`printf "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`" )
-		case "m3u":
-			m3u-to-tox.tcsh${edit_playlist} "${import}" "${playlist}";
-			breaksw;
-		
-		case "tox":
-			tox-to-m3u.tcsh${edit_playlist} "${import}" "${playlist}";
-			breaksw;
-	endsw
+	set import_type="`printf "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
+	if( "${import_type}" == "${playlist_type}" ) then
+		cp -vf "${import}" "${playlist}";
+	else
+		switch( "${import_type}" )
+			case "m3u":
+				m3u-to-tox.tcsh${edit_playlist} "${import}" "${playlist}";
+				breaksw;
+			
+			case "tox":
+				tox-to-m3u.tcsh${edit_playlist} "${import}" "${playlist}";
+				breaksw;
+		endsw
+	endif
+	unset import_type;
 endif
 
 if( ${?export_to} ) then
@@ -142,15 +148,21 @@ if( ${?export_to} ) then
 		exit -3;
 	endif
 	
-	switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`" )
-		case "m3u":
-			m3u-to-tox.tcsh${edit_playlist} "${playlist}" "${export_to}";
-			breaksw;
-		
-		case "tox":
-			tox-to-m3u.tcsh${edit_playlist} "${playlist}" "${export_to}";
-			breaksw;
-	endsw
+	set export_type="`printf "\""${export_to}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
+	if( "${playlist_type}" == "${export_type}" ) then
+		cp -vf "${playlist}" "${export_to}";
+	else
+		switch( "${playlist_type}" )
+			case "m3u":
+				m3u-to-tox.tcsh${edit_playlist} "${playlist}" "${export_to}";
+				breaksw;
+			
+			case "tox":
+				tox-to-m3u.tcsh${edit_playlist} "${playlist}" "${export_to}";
+				breaksw;
+		endsw
+	endif
+	unset export_type;
 endif
 
 clean_up:

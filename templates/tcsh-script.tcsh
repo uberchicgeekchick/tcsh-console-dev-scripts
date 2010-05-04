@@ -71,8 +71,8 @@ debug_check:
 			continue;
 		
 		set argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
-		set option=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(['\''"])?(.*)(['\''"])?$/\2/'`;
-		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(['\''"])?(.*)(['\''"])?$/\5/'`;
+		set option=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
+		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
 		if( -e "`echo -n "\""${value}"\""`" ) \
 			continue;
 		
@@ -641,7 +641,7 @@ exception_handler:
 			breaksw;
 		
 		case -504:
-			echo -n  "${dashes}${option} is an unsupported option" > /dev/stderr;
+			echo -n  "${dashes}${option}${equals}${value} is an unsupported option" > /dev/stderr;
 			breaksw;
 		
 		case -599:
@@ -652,27 +652,24 @@ exception_handler:
 			breaksw;
 	endsw
 	set last_exception_handled=$errno;
-	echo -n ".\n";
-	
-	if( ! ${?no_exit_on_exception} || ! ${?callback} ) then
-		if(! ${?0} ) then
-			set callback="scripts_main_quit";
-		else
-			set callback="scripts_sourcing_quit";
-		endif
-		if( ${?display_usage_on_exception} ) \
-			goto usage;
-		
-		goto callback_handler;
-	endif
-	
-	echo -n "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > /dev/stderr;
+	echo -n ".\n\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > /dev/stderr;
 	
 	if(! ${?callback} ) \
 		set callback="scripts_main_quit";
 	
 	if( ${?display_usage_on_exception} ) \
 		goto usage;
+	
+	if(! ${?no_exit_on_exception} ) then
+		if(! ${?0} ) then
+			set callback="scripts_main_quit";
+		else
+			set callback="scripts_sourcing_quit";
+		endif
+	endif
+	
+	if( ${?no_exit_on_exception_set} ) \
+		unset no_exit_on_exception_set no_exit_on_exception;
 	
 	goto callback_handler;
 #exception_handler:
@@ -693,6 +690,7 @@ parse_argv:
 	
 	if( ${?debug} ) \
 		echo -n "**${scripts_basename} debug:** checking argv.  ${argc} total arguments.\n\n";
+	#echo $argv >! ./.argv.lst
 #parse_argv:
 
 parse_arg:
@@ -718,6 +716,8 @@ parse_arg:
 			set option="";
 		
 		set equals=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\3/'`;
+		if( "${equals}" == "${argument}" ) \
+			set equals="";
 		
 		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
 		
@@ -733,20 +733,29 @@ parse_arg:
 					echo -n "**${scripts_basename} debug:** Looking for replacement value.  Checking argv #${arg} ($argv[$arg]).\n";
 				
 				set test_argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
+				#set test_argument="`echo -n "\""${test_argument}"\"" | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 				
 				set test_dashes=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
-				set test_option=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
-				set test_equals=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\3/'`;
+				if( "${test_dashes}" == "${test_argument}" ) \
+					set test_dashes="";
+				
+				set test_option=`echo -n $test_argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
+				if( "${test_option}" == "${test_argument}" ) \
+					set test_option="";
+				
+				set test_equals=`echo -n $test_argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\3/'`;
+				if( "${test_equals}" == "${test_argument}" ) \
+					set test_equals="";
+				
 				set test_value=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
 				
-				if( "${test_dashes}" != "${test_argument}" && "${test_option}" != "${test_argument}" && ( "${test_value}" == "" || "${test_value}" == "${argument}" ) ) then
+				if( "${test_dashes}" != "" && "${test_option}" != "" && "${test_equals}" != "" && ( "${test_value}" == "" || "${test_value}" == "${test_argument}" ) ) then
 					@ arg--;
 				else
 					if( ${?debug} ) \
 						echo -n "\tparsed replacement value from "\$"test_argument: [${test_argument}]; "\$"argv[${arg}] ($argv[$arg])\n\t"\$"test_dashes: [${test_dashes}];\n\t"\$"test_option: [${test_option}];\n\t"\$"test_equals: [${test_equals}];\n\t"\$"test_value: [${test_value}]\n\n";
-					
 					set equals="=";
-					set value="${test_argument}";
+					set value="${test_value}";
 					set arg_shifted;
 				endif
 				unset test_argument test_dashes test_option test_equals test_value;
@@ -780,13 +789,13 @@ parse_arg:
 			
 			case "length_option":
 				if( `echo -n ${value} | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}$//'` != "" ) then
-					echo -n "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
+					echo -n "Invalid ${dashes}${option}: ${value} specified, length value must be formatted as: hh:mm:ss\n" > /dev/stderr;
 					@ errno=-602;
 					goto exception_handler;
 					breaksw;
 				endif
 				
-				set rtrim="${value}";
+				set length="${value}";
 				breaksw;
 			
 			case "h":
@@ -876,16 +885,28 @@ parse_arg:
 				breaksw;
 			
 			default:
-				if( -e "`echo -n "\""${value}"\""`" ) then
-					set callback="filename_list_append_value";
+				if( -e "${value}" ) then
+					if( ${?arg_shifted} ) then
+						unset arg_shifted;
+						@ arg--;
+					endif
+					goto filename_list_append_value;
 					goto callback_handler;
 				endif
 				
-				if(! ${?strict} ) \
-					breaksw;
+				if( -e "`echo -n "\""${value}"\""`" ) then
+					if( ${?arg_shifted} ) then
+						unset arg_shifted;
+						@ arg--;
+					endif
+					goto filename_list_append_value;
+					goto callback_handler;
+				endif
 				
-				if(! ${?no_exit_on_exception} ) \
-					set no_exit_on_exception;
+				if(! ${?strict} ) then
+					if(! ${?no_exit_on_exception} ) \
+						set no_exit_on_exception_set no_exit_on_exception;
+				endif
 				
 				@ errno=-504;
 				set callback="parse_arg";
@@ -934,7 +955,6 @@ filename_list_append_value:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	set value="`echo -n "\""${value}"\""`";
 	if(! ${?filename_list} ) then
 		set filename_list="./.${scripts_basename}.filenames@`date '+%s'`";
 		touch "${filename_list}";

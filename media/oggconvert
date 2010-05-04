@@ -13,7 +13,7 @@ setenv:
 		endif
 	endif
 	
-	set scripts_supported_extensions="ogg|mp3|m4a|wav";
+	set scripts_supported_extensions="ogg|mp3|m4a";
 	set escaped_home_dir=`echo -n ${HOME} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 	set escaped_starting_cwd=`echo -n ${cwd} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 #setenv:
@@ -273,18 +273,11 @@ convert_filenames:
 	if( ${?save_to_filename} ) \
 		unset save_to_filename;
 	
-	foreach filename ( "`cat '${filename_list}' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g'`" )
+	foreach filename ( "`cat '${filename_list}' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 		ex -s '+1d' '+wq!' "${filename_list}";
 		set extension="`echo -n "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/g'`";
 		set original_extension="${extension}";
-		set filename="`echo -n "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g'`";
-	#foreach filename("`cat "\""${filename_list}"\"" | sort | uniq`")
-	#	ex -s '+1d' '+wq!' "${filename_list}";
-	#	set extension=`echo -n "${filename}" | sed -r 's/^(.*)\.([^\.]+)$/\2/g'`;
-	#	if( "${extension}" == "${filename}" ) \
-	#		set extension="";
-	#	set original_extension="${extension}";
-	#	set filename=`echo -n ${filename} | sed -r 's/^(.*)\.([^\.]+)$/\1/g'`;
+		set filename="`echo -n "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 		if(! -e "${filename}.${extension}" ) then
 			if( ! ${?no_exit_on_usage} && ${#file_count} > 1 ) \
 				set no_exit_on_usage;
@@ -464,17 +457,17 @@ find_length:
 		set reverse_modifier="-";
 	endif
 	
-	set rtrim_hours=`echo -n ${rtrim} | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`;
-	set rtrim_minutes=`echo -n ${rtrim} | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`;
-	set rtrim_seconds=`echo -n ${rtrim} | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`;
+	set rtrim_hours="`echo -n '${rtrim}' | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
+	set rtrim_minutes="`echo -n '${rtrim}' | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
+	set rtrim_seconds="`echo -n '${rtrim}' | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
 	set oggs_length="`${ogginfo} "\""${filename}.ogg"\"" | /bin/grep --perl-regexp 'Playback length:'`";
-	set oggs_hours=`echo -n ${oggs_length} | sed -r 's/^[^0-9]*([0-9]+)(h:)([0-9]+)(m:)([0-9]+)\..*"\$"/\1/'`;
+	set oggs_hours="`echo -n '${oggs_length}' | sed -r 's/^[^0-9]*([0-9]+)(h:)([0-9]+)(m:)([0-9]+)\..*"\$"/\1/'`";
 	if( "${oggs_hours}" == "${oggs_length}" ) \
 		set oggs_hours="00";
-	set oggs_minutes=`echo -n ${oggs_length} | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\1/'`;
+	set oggs_minutes="`echo -n '${oggs_length}' | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\1/'`";
 	if( "${oggs_minutes}" == "${oggs_length}" ) \
 		set oggs_minutes="00";
-	set oggs_seconds=`echo -n ${oggs_length} | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\3/'`;
+	set oggs_seconds="`echo -n '${oggs_length}' | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\3/'`";
 	if( "${oggs_seconds}" == "${oggs_length}" ) \
 		set oggs_seconds="00";
 	
@@ -486,9 +479,9 @@ find_length:
 	endif
 	unset oggs_length;
 	
-	set hours=`echo -n '${oggs_hours}${modifier}${rtrim_hours}\n' | bc`;
-	set minutes=`echo -n '${oggs_minutes}${modifier}${rtrim_minutes}\n' | bc`;
-	set seconds=`echo -n '${oggs_seconds}${modifier}${rtrim_seconds}\n' | bc`;
+	set hours="`echo -n '${oggs_hours}${modifier}${rtrim_hours}\n' | bc`";
+	set minutes="`echo -n '${oggs_minutes}${modifier}${rtrim_minutes}\n' | bc`";
+	set seconds="`echo -n '${oggs_seconds}${modifier}${rtrim_seconds}\n' | bc`";
 	if( ${?debug} ) then
 		echo -n "After ${function}ing rtrim length from the ogg file's length:\n";
 		echo -n "\thours: ${hours}\n";
@@ -502,25 +495,25 @@ calculate_length:
 	if( "${hours}" == "" ) then
 		set hours="00";
 	endif
-	if( `echo -n ${minutes} | sed -r 's/^(\-).*/\1/'` == "-" ) then
-		set hours=`echo -n "${hours}${modifier}1\n" | bc`;
-		set minutes=`echo -n "(${oggs_minutes}${reverse_modifier}60)${modifier}${rtrim_minutes}\n" | bc`;
+	if( "`echo -n '${minutes}' | sed -r 's/^(\-).*/\1/'`" == "-" ) then
+		set hours="`echo -n '${hours}${modifier}1\n' | bc`";
+		set minutes="`echo -n '(${oggs_minutes}${reverse_modifier}60)${modifier}${rtrim_minutes}\n' | bc`";
 	endif
 	if( ${minutes} > 60 ) then
-		set hours=`echo -n "${hours}+1\n" | bc`;
-		set minutes=`echo -n "${minutes}-60\n" | bc`;
+		set hours="`echo -n '${hours}+1\n' | bc`";
+		set minutes="`echo -n '${minutes}-60\n' | bc`";
 	endif
 	if( "${minutes}" == "" ) then
 		set minutes="00";
 	endif
 	
-	if( `echo -n ${seconds} | sed -r 's/^(\-).*/\1/'` == "-" ) then
-		set minutes=`echo -n "${minutes}${modifier}1\n" | bc`;
-		set seconds=`echo -n "(${oggs_seconds}${reverse_modifier}60)${modifier}${rtrim_seconds}\n" | bc`;
+	if( "`echo -n '${seconds}' | sed -r 's/^(\-).*/\1/'`" == "-" ) then
+		set minutes="`echo -n '${minutes}${modifier}1\n' | bc`";
+		set seconds="`echo -n '(${oggs_seconds}${reverse_modifier}60)${modifier}${rtrim_seconds}\n' | bc`";
 	endif
 	if( ${seconds} > 60 ) then
-		set minutes=`echo -n "${minutes}+1\n" | bc`;
-		set seconds=`echo -n "${seconds}-60\n" | bc`;
+		set minutes="`echo -n '${minutes}+1\n' | bc`";
+		set seconds="`echo -n '${seconds}-60\n' | bc`";
 	endif
 	if( "${seconds}" == "" ) then
 		set seconds="00";
@@ -532,16 +525,16 @@ calculate_length:
 		echo -n "\tseconds: ${seconds}\n";
 	endif
 	
-	if( "${hours}" == "" || `echo -n ${hours} | sed -r 's/^(\-).*/\1/'` == "-" ) then
+	if( "${hours}" == "" || "`echo -n '${hours}' | sed -r 's/^(\-).*/\1/'`" == "-" ) then
 		set hours="00";
 	endif
-	if( `echo -n ${hours} | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'` == "${hours}" ) then
+	if( "`echo -n '${hours}' | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${hours}" ) then
 		set hours="0${hours}";
 	endif
-	if( `echo -n ${minutes} | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'` == "${minutes}" ) then
+	if( "`echo -n '${minutes}' | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${minutes}" ) then
 		set minutes="0${minutes}";
 	endif
-	if( `echo -n ${seconds} | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'` == "${seconds}" ) then
+	if( "`echo -n '${seconds}' | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${seconds}" ) then
 		set seconds="0${seconds}";
 	endif
 	if( ${?debug} ) then
@@ -552,7 +545,7 @@ calculate_length:
 	endif
 	
 	set length="${hours}:${minutes}:${seconds}";
-	if( `echo -n ${length} | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}$//'` != "" ) then
+	if( "`echo -n '${length}' | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
 		echo -n "Invalid calculated length: ${length}, lenth must be formatted as: hh:mm:ss\n" "";
 		@ files_processed++;
 		goto convert_filenames;
@@ -633,11 +626,13 @@ setup_playlist:
 		goto exit_script;
 	endif
 	
-	switch("${playlist_type}")
+	set playlist_new=`echo ${playlist}.new | sed -r 's/([\(\)\ ])/\\\1/g'`;
+	switch( "${playlist_type}" )
+		case "tox":
 		case "toxine":
 			ex -s '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\/\2\.\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq!' "${playlist}.new";
 			echo -n "#toxine playlist\n\n" >! "${playlist}.swp";
-			ex -s "+2r ${playlist}.new" '+wq!' "${playlist}.swp";
+			ex -s "+2r ${playlist_new}" '+wq!' "${playlist}.swp";
 			echo -n "#END" >> "${playlist}.swp";
 			breaksw;
 		
@@ -653,7 +648,7 @@ setup_playlist:
 				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist}.new";
 			end
 			echo -n "[playlist]\nnumberofentries=${lines}\n" >! "${playlist}.swp";
-			ex -s "+1r ${playlist}.new" '+wq!' "${playlist}.swp";
+			ex -s "+1r ${playlist_new}" '+wq!' "${playlist}.swp";
 			echo -n "\nVersion=2" >> "${playlist}.swp";
 			breaksw;
 		
@@ -661,17 +656,14 @@ setup_playlist:
 			ex -s '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/\#EXTINF:,\2\r\1\/\2\.\3/' '+wq!' "${playlist}.new";
 			ex -s '+1,$s/\v^(\#EXTINF\:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist}.new";
 			echo -n "#EXTM3U\n" >! "${playlist}.swp";
-			ex -s "+1r ${playlist}.new" '+wq!' "${playlist}.swp";
+			ex -s "+1r ${playlist_new}" '+wq!' "${playlist}.swp";
 			breaksw;
 	endsw
 	if( -e "${playlist}.new" ) \
 		rm "${playlist}.new";
 	mv -f "${playlist}.swp" "${playlist}";
 	
-	if( ${?playlist_new} ) \
-		unset playlist_new;
-	
-	unset playlist;
+	unset playlist_new  playlist;
 	goto exit_script;
 #setup_playlist:
 	
@@ -1046,8 +1038,8 @@ filename_list_append_value:
 		touch "${filename_list}";
 	endif
 	
-	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|wav" && ! ${?ltrim} && ! ${?rtrim} ) \
-		set scripts_supported_extensions="mp3|m4a|wav";
+	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a" && ! ${?ltrim} && ! ${?rtrim} ) \
+		set scripts_supported_extensions="mp3|m4a";
 	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} || ${?debug_filelist} ) then

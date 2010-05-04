@@ -1,65 +1,78 @@
 #!/bin/tcsh -f
-if( ${?0} ) then
-	printf "This script is used to setup OpenSim's environment and can only be sourced.\n" > /dev/stderr;
-	@ status=-1;
-	exit ${status};
-endif
-
-if(! ${?TCSH_LAUNCHER_PATH} ) \
-	setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
-
-set scripts_name="`basename '${0}'`.exe";
-set dependencies=( "mono" "${scripts_name}" );
+	set scripts_basename="OpenSim.init";
+	set dependencies=( "mono" "OpenSim.exe" "${scripts_basename}" );
 
 foreach dependency(${dependencies})
-	foreach dependency( "`where '${dependency}'`" )
-		if(! -x "${dependency}" ) then
-			unset dependency;
+	foreach program( "`where '${dependency}'`" )
+		if(! -x "${program}" ) then
+			unset program;
 			continue;
 		endif
 		
 		switch("${dependency}")
-			case "${0}":
-			case "./${dependency}":
-			case "${TCSH_LAUNCHER_PATH}/${dependency}":
-				unset dependency;
-				breaksw;
-			case "${scripts_name}":
-				cd "`dirname '${scripts_name}'`";
-				set scripts_working_dir="${cwd}";
+			case "${scripts_basename}":
+				cd "`dirname '${dependency}'`";
+				set scripts_dirname="${cwd}";
 				cd "${owd}";
 				breaksw;
+			
+			case "OpenSim.exe":
+				cd "`dirname '${dependency}'`";
+				set scripts_working_dir="${cwd}";
+				cd "${owd}";
+				unset dependency;
+			breaksw;
 		endsw
 	end
 	
-	if(! ${?dependency} ) \
+	if(! ${?program} ) \
 		goto missing_dependency;
 end
 
-#goto main;
+scripts_sourcing_init:
+	if( ${?0} ) \
+		goto main;
+	
+	if(! ${?TCSH_LAUNCHER_PATH} ) \
+		setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
+	
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+	
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
+	
+	set scripts_alias="`echo -n "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(init)"\$"/\1/'`";
+	alias ${scripts_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
+	goto exit_script;
+#scripts_sourcing_init:
+
 
 main:
-	@ status=0;
+	@ status=0t
 	cd "${scripts_working_dir}";
 	mono OpenSim.exe
 #main:
 
 exit_script:
-	if( ${?scripts_name} ) \
-		unset scripts_name;
+	if( ${?scripts_basename} ) \
+		unset scripts_basename;
 	if( ${?dependency} ) \
 		unset dependency;
 	if( ${?program} ) \
 		unset program;
 	if( ${?dependencies} ) \
 		unset dependencies;
+	if( ${?scripts_dirname} ) \
+		unset scripts_dirname;
 	if( ${?scripts_working_dir} ) \
 		unset scripts_working_dir;
 	exit ${status};
 #exit_script:
 
 missing_dependency:
-	printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_name}" "${dependencies}";
+	if( ${?TCSH_OUTPUT_ENABLED} ) \
+		echo -n "One or more required dependencies couldn't be found.\n\n[${dependency}] couldn't be found.\n\n${scripts_basename} requires: ${dependencies}\n" > /dev/stderr;
 	@ status=-1;
 	goto exit_script;
 #missing_dependency:

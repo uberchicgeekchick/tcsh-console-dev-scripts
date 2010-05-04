@@ -200,7 +200,6 @@ artistic_canvas:
 				"--tab-with-profile=projects:cli --title='[@console.pallet>] #>' --working-directory=/projects/cli/console.pallet" \
 				"--tab-with-profile=projects:www --title='[@a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=projects:media --title='[@media] #>'  --working-directory=/media" \
-				#"--tab-with-profile=projects:gtk --title='[@connectED] #>' --working-directory=/projects/gtk/connectED" \
 				"--tab-with-profile=projects:gtk --title='[@get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \
 				"--tab-with-profile=projects:gtk --title='[@alacast.v2] #>' --working-directory=/projects/gtk/alacast" \
 				"--tab-with-profile=projects:games --title='[@many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
@@ -358,23 +357,40 @@ default_canvas:
 
 next_canvas:
 	if( ${?my_canvas} ) then
+		if( ( ${?with_screen} || ${?with_rtorrent} ) && ! ${?rtorrent_session_dir} ) then
+			if(! -e "${HOME}/.rtorrent.rc" ) then
+				set rtorrent_session_dir="${HOME}";
+			else
+				set rtorrent_session_dir="`/bin/grep 'session' '${HOME}/.rtorrent.rc' | sed -r 's/^[^\=]+\=\ (.*)"\$"/\1/g'`";
+				if(!( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" )) then
+					set rtorrent_session_dir="${HOME}";
+				else
+					set screens_sessions=`/usr/bin/screen -list`;
+					if( "$screens_sessions[1]" == "No" ) then
+						rm -f "${rtorrent_session_dir}/rtorrent.lock";
+						rm -f "${rtorrent_session_dir}/rtorrent.dht_cache";
+					endif
+				endif
+			endif
+		endif
+		
+		
 		if(! ${?with_screen} ) then
 			set with_screen="";
 		else
-			set rtorrent;
 			set with_screen=("--tab-with-profile=screen --working-directory='${rtorrent_session_dir}'");
 		endif
 		
 		if(! ${?with_ssh_dreams} ) then
 			set with_ssh_dreams="";
 		else
-			set with_ssh_our_dreams=("--tab-with-profile=ssh:dreams --title='<ssh:[dreams@sky.ocssolutions.com] #>' --command='ssh dreams@sky.ocssolutions.com'");
+			set with_ssh_our_dreams=("--tab-with-profile=ssh:dreams --title='<ssh:[dreams@sky.ocssolutions.com] #>'");# --command='ssh dreams@sky.ocssolutions.com'");
 		endif
 		
 		if(! ${?with_ssh_our_eee} ) then
 			set with_ssh_our_eee="";
 		else
-			set with_ssh_our_eee=("--tab-with-profile=ssh:our-eee --title='<ssh:[uberChick@192.168.0.6] #>' --command='ssh uberChick@192.168.0.6'");
+			set with_ssh_our_eee=("--tab-with-profile=ssh:our-eee --title='<ssh:[uberChick@192.168.0.6] #>'");# --command='ssh uberChick@192.168.0.6'");
 		endif
 		
 		if(! ${?with_home} ) then
@@ -383,31 +399,10 @@ next_canvas:
 			set with_home=("--tab-with-profile='${USER}' --title='[@~] #>' --working-directory='${HOME}' --command='/projects/cli/console.pallet/launchers/screen'");
 		endif
 		
-		if( ! ${?rtorrent} && ! ${?with_rtorrent} ) then
-			set with_rorrent="";
+		if(! ${?with_rtorrent} ) then
+			set with_rtorrent="";
 		else
-			if(! -e "${HOME}/.rtorrent.rc" ) then
-				set rtorrent_session_dir="${HOME}";
-			else
-				set rtorrent_session_dir="`/bin/grep 'session' '${HOME}/.rtorrent.rc' | sed -r 's/^[^\=]+\=\ (.*)$/\1/g'`";
-				if(!( "${rtorrent_session_dir}" != "" && -d "${rtorrent_session_dir}" )) then
-					set rtorrent_session_dir="${HOME}";
-				else
-					set screens_sessions=`${program} -list`;
-					if( "$screens_sessions[1]" == "No" ) then
-						rm -f "${rtorrent_session_dir}/rtorrent.lock";
-						rm -f "${rtorrent_session_dir}/rtorrent.dht_cache";
-					endif
-				endif
-			endif
-			if(! ${?with_rtorrent} ) then
-				set with_rorrent="";
-			else
-				set with_rorrent=("--tab-with-profile=rtorrent --title='[`rtorrent`] #>' --working-directory=/media/torrents --command='rtorrent'");
-			endif
-			
-			if( ${?rtorrent} ) \
-				unset rtorrent;
+			set with_rtorrent=("--tab-with-profile=rtorrent --title='[`rtorrent`] #>' --working-directory=/media/torrents --command='rtorrent'");
 		endif
 		
 		if( "${my_canvas}" != "" ) then

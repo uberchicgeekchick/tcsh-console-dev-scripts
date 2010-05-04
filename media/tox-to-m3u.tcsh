@@ -124,7 +124,7 @@ endif
 
 ex -s '+2,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)([^\/]+)(\.[^\.]+)$/\#EXTINF\:,\3\r\1\2\3\4/' '+2,$s/\v^(\#EXTINF\:,)(.*), released on.*$/\1\2/' '+$d' '+wq' "${m3u_playlist}";
 
-printf "\n\t\t\t\t\t[done]\n";
+printf "\t\t[done]\n";
 
 exit_script:
 	if( ${?original_echo_style} ) then

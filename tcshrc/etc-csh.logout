@@ -1,10 +1,11 @@
 #!/bin/tcsh -f
-if( ${?TCSH_RC_DEBUG} ) unsetenv TCSH_RC_DEBUG;
-#if(! ${?TCSH_RC_SESSION_PATH} )
-if( ${?TCSH_RC_SOURCE_FILE} ) then
+if( ${?TCSH_RC_DEBUG} ) \
+	unsetenv TCSH_RC_DEBUG;
+if( ${?TCSH_RC_SOURCE_FILE} ) \
 	unsetenv TCSH_RC_SOURCE_FILE;
-endif
-setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "etc-csh.logout" "${argv}";
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -16,38 +17,45 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
+source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
+@ errno=0;
+	
+	if( -e "${histfile}.lock" ) then
+		@ errno=-1;
+		@ lock_step=0;
+		while( -e "${histfile}.lock" )
+			sleep 1;
+			@ lock_step++;
+			if( ${lock_step} > 20 ) then
+				printf "History access is locked and the timeout has exceeded.\n\t%s exisits.\n" "${histfile}.lock";
+				goto exit_script;
+			endif
+		end
+	endif
 
-if(! ${?histfile} ) \
-	source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
-
-set status=-1;
-@ lock_step=0;
-while( -e "${histfile}.lock" )
-	sleep 1;
-	@ lock_step++;
-	if( ${lock_step} > 20 ) then
-		printf "History access is locked and the timeout has exceeded.\n\t%s exisits.\n" "${histfile}.lock";
+	if( ${?logout_force} ) then
+		@ errno=0;
 		goto exit_script;
 	endif
-end
 
-touch "${histfile}.lock";
-jobs >! "${histfile}.jobs";
-if(! ${?logout_force} ) then
-	set status=-1;
+	touch "${histfile}.lock";
 	jobs >! "${histfile}.jobs";
-	if( "`cat '${histfile}.jobs'`" != "" ) then
-		printf "There background jobs are currently running:\n";
-		cat "${histfile}.jobs";
-		printf "\nset logout_force to skip this test.\n";
+	if( "`cat '${histfile}.jobs'`" == "" ) then
+		@ errrno=0;
 		/bin/rm -fv "${histfile}.jobs";
 		/bin/rm -fv "${histfile}.lock";
-		set status=-1;
 		goto exit_script;
 	endif
+	
+	@ errno=-1;
+	printf "There background jobs are currently running:\n";
+	cat "${histfile}.jobs";
+	printf "\nset logout_force to skip this test.\n";
+	/bin/rm -fv "${histfile}.jobs";
+	/bin/rm -fv "${histfile}.lock";
+	goto exit_script;
 endif
 
-set status=0;
 if( -e "${histfile}.lock" ) \
 	rm -fv "${histfile}.lock";
 
@@ -58,6 +66,9 @@ source "${TCSH_RC_SESSION_PATH}/logout.cshrc.tcsh";
 
 exit_script:
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "etc-csh.cshrc";
+	if(! ${?errno} ) \
+		@ errno=0;
+	set status=$errno;
 	exit ${status};
 #exit_script:
 

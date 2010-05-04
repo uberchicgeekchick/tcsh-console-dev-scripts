@@ -126,7 +126,7 @@ ex -s '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq' "${tox_p
 
 echo -n '#END' >> "${tox_playlist}";
 
-echo -n "\n\t\t\t\t\t[done]\n";
+echo -n "\t\t[done]\n";
 
 exit_script:
 	if( ${?original_echo_style} ) then

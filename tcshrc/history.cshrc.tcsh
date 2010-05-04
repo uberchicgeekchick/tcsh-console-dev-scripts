@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "history.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -11,23 +12,18 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-
-if( ${?histfile} ) then
-	if( "${histfile}" == "/profile.d/history" && -e "${histfile}" ) then
-		history -M;
-		history -S;
+if( ${?histfile} && ${?my_history} ) then
+	if( "${histfile}" == "${my_history}" ) then
 		goto exit_script;
 	endif
+else
+	source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
 endif
 
 set highlight;
 set histlit;
 set histdup=erase;
-set histfile="/profile.d/history";
-if(! -e "${histfile}" ) then
-	if( -e "${histfile}.bckcp" ) \
-		cp "${histfile}.bckcp" "${histfile}";
-endif
+set histfile="${my_history}";
 if( -e "${histfile}.jobs" ) /bin/rm -f "${histfile}.jobs";
 if( -e "${histfile}.lock" ) /bin/rm -f "${histfile}.lock";
 set history=6000;
@@ -46,4 +42,5 @@ alias	logout	'source "${TCSH_RC_SESSION_PATH}/etc-csh.logout"; \
 
 exit_script:
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "history.cshrc.tcsh";
+#exit_script:
 

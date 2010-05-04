@@ -5,8 +5,9 @@ if(! ${?0} ) then
 endif
 
 set this_program="`basename '${0}'`";
-foreach program ( "`which '${this_program}'`" )
-	if( "${program}" != "${0}" && -x "${program}" ) break;
+foreach program ( "`where '${this_program}'`" )
+	if( "${program}" != "${0}" && -x "${program}" ) \
+		break;
 	unset program;
 end
 

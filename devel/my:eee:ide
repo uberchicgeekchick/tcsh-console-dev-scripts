@@ -1,6 +1,19 @@
 #!/bin/tcsh -f
+
+set use_wifi;
+
+if(! ${?use_wifi} ) then
+	set lan_ip_4="8";
+else
+	set lan_ip_4="4";
+endif
+
 gnome-terminal --geometry=98x26 --hide-menubar --role=Artistic:EEE \
 	--tab-with-profile='screen' --title='[screen] #>' --command='/projects/cli/console.pallet/launchers/screen' \
-	--tab-with-profile='ssh:008' --title='uberChick@192.168.0.8' --command='ssh uberChick@192.168.0.8' \
+	--tab-with-profile="ssh:00${lan_ip_4}" --title="[uberChick@192.168.0.${lan_ip_4}] #>" --command="ssh uberChick@192.168.0.${lan_ip_4}" \
 	${argv} &;
 
+if( ${?use_wifi} ) \
+	unset use_wifi;
+
+unset lan_ip_4;

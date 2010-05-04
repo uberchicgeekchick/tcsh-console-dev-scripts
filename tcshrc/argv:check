@@ -101,10 +101,10 @@ while( $arg < $argc )
 				endif
 			endif
 			
-			if( ${?TCSH_OUTPUT_ENABLED} ) \
-				printf "Using [%s] as TCSH's working directory.\t" "${value}";
-			
 			setenv TCSH_WORKING_DIR "`printf "\""%s"\"" "\""$value"\"" | sed -r 's/\/"\$"//'`";
+			
+			if( ${?TCSH_OUTPUT_ENABLED} ) \
+				printf "Using [%s] as TCSH's working directory.\t" "${TCSH_WORKING_DIR}";
 			if( ${?TCSH_OUTPUT_ENABLED} ) \
 				printf "[success]\n";
 			

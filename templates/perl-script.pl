@@ -9,6 +9,7 @@ sub var_escape_for_shell{
 	
 	$value=~s/([\$])/\\$1/g;
 	$value=~s/([\"])/$1\\$1$1/g;
+	$value=~s/([\`])/\\$1/g;
 	#$value=~s/([*])/\\$1/g;
 	#$value=~s/([\!])/\\$1/g;
 	
@@ -22,38 +23,49 @@ sub parse_arg{
 	my $dashes=$argv;
 	my $option=$argv;
 	my $equals=$argv;
-	my $quotes=$argv;
 	my $value=$argv;
 	my $args_used=1;
-	$dashes=~s/^([\-]{1,2})([^\=]+)([\=]?)(['"]?)(.*)(['"]?)$/$1/g;
+	$dashes=~s/^([\-]{1,2})([^\=]+)([\=]?)(.*)$/$1/g;
 	if("$dashes" eq "$argv"){ $dashes=""; }
 	
-	$option=~s/^([\-]{1,2})([^\=]+)([\=]?)(['"]?)(.*)(['"]?)$/$2/g;
+	$option=~s/^([\-]{1,2})([^\=]+)([\=]?)(.*)$/$2/g;
 	if("$option" eq "$argv"){ $option=""; }
 	
-	$equals=~s/^([\-]{1,2})([^\=]+)([\=]?)(['"]?)(.*)(['"]?)$/$3/g;
+	$equals=~s/^([\-]{1,2})([^\=]+)([\=]?)(.*)$/$3/g;
 	if("$equals" eq "$argv"){ $equals=""; }
 	
-	$quotes=~s/^([\-]{1,2})([^\=]+)([\=]?)(['"]?)(.*)(['"]?)$/$4/g;
-	if("$quotes" eq "$argv"){ $quotes=""; }
+	$value=~s/^([\-]{1,2})([^\=]+)([\=]?)(.*)$/$4/g;
 	
-	$value=~s/^([\-]{1,2})([^\=]+)([\=]?)(['"]?)(.*)(['"]?)$/$5/g;
-	if("$value" eq "$argv"){ $value=""; }
 	if("$option" ne "" && "$equals" eq "" && "$value" eq ""){ $args_used++; $value=shift; }
 	
 	if( -e "$value" ){
 		my $cmd;
-		my $cmd_output;
+		my @cmd_output;
 		
 		$cmd="/bin/grep \"".var_escape_for_shell($value, $TRUE)."\" /media/library/playlists/m3u/local.podcasts.m3u";
-		$cmd_output=`$cmd`;
-		chomp($cmd_output);
-		if( "$cmd_output" ne "" ){ printf("%s output:\n\t%s\n", $cmd, $cmd_output); }
+		@cmd_output=`$cmd`;
+		if( @cmd_output > 0 ){
+			printf("\n%s output:", $cmd);
+			for( my $i=0; $i<@cmd_output; $i++) {
+				chomp($cmd_output[$i]);
+				if( "$cmd_output[$i]" ne "" ){
+					printf("\n\t%s\n", $cmd_output[$i]);
+				}
+			}
+		}
 		
-		$cmd="/bin/ls -l \"".var_escape_for_shell($value, $FALSE)."\" /media/library/playlists/m3u/local.podcasts.m3u";
-		$cmd_output=`$cmd`;
-		chomp($cmd_output);
-		if( "$cmd_output" ne "" ){ printf("%s output:\n\t%s\n", $cmd, $cmd_output); }
+		$cmd="/bin/ls -l \"".var_escape_for_shell($value, $FALSE)."\"";
+		@cmd_output=`$cmd`;
+		if( @cmd_output > 0 ){
+			printf("\n%s output:", $cmd);
+			for( my $i=0; $i<@cmd_output; $i++) {
+				chomp($cmd_output[$i]);
+				if( "$cmd_output[$i]" ne "" ){
+					printf("\n\t%s", $cmd_output[$i]);
+				}
+			}
+		}
+		printf("\n\n");
 	}
 	return $args_used;
 }#parse_arg($ARGV[0], $ARGV[1]);

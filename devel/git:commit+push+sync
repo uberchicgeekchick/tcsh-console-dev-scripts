@@ -1,8 +1,13 @@
 #!/bin/tcsh -f
+if(! ${?0} ) then
+	printf "This script cannot be sourced and can only be executed.\n";
+	set status=-1;
+	exit -1;
+endif
 
 set status=0;
 
-set git_commit_setting_files=( "sync.default" "no.pushing" "no.logging" );
+set git_commit_setting_files=( "sync.default" "no.pushing" "no.logging" ".artistic.canvas" ".build.canvas" ".custom.canvas" );
 
 if(! -e "./.sync.default" ) then
 	set sync_method="no-sync";
@@ -15,21 +20,21 @@ if(! -e ./.no.logging ) set logging;
 
 set original_owd="${owd}";
 set original_cwd="${cwd}";
-while( "${cwd}" != "/" )
-	if(! -d "./.git" ) then
+while( "${cwd}" != "/" && ! ${?top_git_dir} )
+	if( -d "../.git" ) then
 		cd ..;
 		continue;
 	endif
-	set git_dir="${cwd}";
+	set top_git_dir="${cwd}";
 	break;
 end
 
-if(! ${?git_dir} ) then
+if(! ${?top_git_dir} ) then
 	cd "${original_cwd}";
 	set owd="${original_owd}";
 	unset old_owd;
 	unset old_cwd;
-	printf "Unable to find projects base git directory" > /dev/stderr;
+	printf "Unable to find projects base git directory.\n" > /dev/stderr;
 	goto exit_script;
 endif
 
@@ -253,27 +258,21 @@ git_commit:
 	
 	# Keep extremely large files from being committed;
 	set extensions="bz2\|gz\|tgz\|zip";
-	foreach tarball ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)"\$"' | uniq`" )
-		if( "`printf '%s' '${tarball}' | sed -r 's/^\.\/(\.git).*/\1/'`" == ".git" ) continue;
-		set tarball="`printf '${tarball}' | sed 's/^\.\///'`";
+	foreach tarball("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\.git.*' -printf '%P\n' | uniq`")
 		git rm -r --cached --quiet "${tarball}";
 	end
 	unset tarball;
 	
 	# Remove any vim, connectED, gedit, or etc 'swp' files.;
 	set extensions="sw.\|bck\|~\|o";
-	foreach swp ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)"\$"' | uniq`" )
-		if( "`printf '%s' '${swp}' | sed -r 's/^\.\/(\.git).*/\1/'`" == ".git" ) continue;
-		set swp="`printf '${swp}' | sed 's/^\.\///'`";
+	foreach swp("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\.git.*' -printf '%P\n' | uniq`")
 		git rm -r --cached --quiet "${swp}";
 	end
 	unset swp;
 	
 	# Don't commit early art works, uber-alpha code, & ald works;
 	set extensions="art\|dev\|ref\|new\|old\|symlink[s]?";
-	foreach art ( "`/usr/bin/find . -iregex '.*\.\(${extensions}\)"\$"' | uniq`" )
-		if( "`printf '%s' '${art}' | sed -r 's/^\.\/(\.git).*/\1/'`" == ".git" ) continue;
-		set art="`printf '${art}' | sed 's/^\.\///'`";
+	foreach art("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\.git.*' -printf '%P\n' | uniq`")
 		git rm -r --cached --quiet "${art}";
 	end
 	unset art;
@@ -282,11 +281,18 @@ git_commit:
 	
 	# Keep my logs from being added to any commit.
 	foreach git_commit_setting_file( ${git_commit_setting_files} )
-		if( -e "./.${git_commit_setting_file}" ) git rm --cached --quiet "./.${git_commit_setting_file}";
+		if( -e "./.${git_commit_setting_file}" ) \
+			git rm --cached --quiet "./.${git_commit_setting_file}";
 	end
 	unset git_commit_setting_file git_commit_setting_files;
 	
 	git rm -r --cached --quiet "${log_dir}";
+	
+	# Keep any remaining hidden files from being committed;
+	foreach hidden_file("`find . -iregex '.*\/\..*' \! -iregex '.*\/\.git.*' -printf '%P\n' | uniq`")
+		git rm -r --cached --quiet "${hidden_file}";
+	end
+	unset hidden_file;
 	
 	if(! ${?branch} ) then
 		set branch="`head -1 "\""${commit_log}"\""`";
@@ -382,7 +388,7 @@ git_push:
 goto check_sync;
 
 exit_script:
-	if( ${?git_dir} ) then
+	if( ${?top_git_dir} ) then
 		cd "${original_cwd}";
 		set owd="${original_owd}";
 		unset old_owd;
@@ -426,7 +432,7 @@ sync:
 	
 		# cleaning up swp files that may have been copied to the remote location
 		printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
-		foreach swp ( "`/usr/bin/find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
+		foreach swp("`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`")
 			rm --verbose "${swp}";
 		end
 		printf "\t\t[done]";
@@ -442,7 +448,7 @@ remote_clean_up:
 	# and remove remote files that no longer exist locally.;
 	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
 	set remove_remote_regexp="`printf "\""${sshfs_path}/${project_name}/"\"" | sed 's/\//\\\//g'`";
-	foreach remote_file ( "`/usr/bin/find "\""${sshfs_path}/${project_name}/"\""*`" )
+	foreach remote_file("`find "\""${sshfs_path}/${project_name}/"\""*`")
 		# escape special characters to keep them from being expanded by the terminal;
 		# set remote_file="`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
 		

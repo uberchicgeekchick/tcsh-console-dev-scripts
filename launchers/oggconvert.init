@@ -621,14 +621,8 @@ continue_combine:
 setup_playlist:
 	if(! ${?files_encoded} ) \
 		@ files_encoded=0;
-	if( $files_encoded == 0 ) then
-		if( ${?playlist_new} ) then
-			rm "${playlist}.new" "${playlist}";
-			unset playlist_new;
-		endif
-		unset playlist;
+	if( $files_encoded == 0 ) \
 		goto exit_script;
-	endif
 	
 	set playlist_new="`echo "\""${playlist}.new"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 	switch( "${playlist_type}" )
@@ -667,7 +661,8 @@ setup_playlist:
 		rm "${playlist}.new";
 	mv -f "${playlist}.swp" "${playlist}";
 	
-	unset playlist_new  playlist;
+	unset playlist_new;
+	
 	goto exit_script;
 #setup_playlist:
 	
@@ -687,6 +682,21 @@ exit_script:
 			rm "${filename_list}";
 		if( -e "${filename_list}.all") \
 			rm "${filename_list}.all";
+	endif
+	
+	if( ${?playlist} ) then
+		if(! ${?files_encoded} ) \
+			@ files_encoded=0;
+		if( $files_encoded == 0 ) then
+			if( -e "${playlist}.new" ) \
+				rm "${playlist}.new"
+			if( ${?playlist_new} ) then
+				if( -e "${playlist}" ) \
+					rm "${playlist}";
+				unset playlist_new;
+			endif
+		endif
+		unset playlist files_encoded;
 	endif
 	
 	if( ${?use_old_owd} ) then

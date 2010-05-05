@@ -989,7 +989,7 @@ setup_playlist:
 	
 	set playlist_type="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/(.*)\.([^\.]+)"\$"/\1/'`";
 	if(! ${?filename_list} ) then
-		set filename_list="./.${script_basename}.filenames@`date '+%s'`";
+		set filename_list="./.filenames.${script_basename}.@`date '+%s'`";
 		cp "${playlist}" "${filename_list}";
 	endif
 	switch("${playlist_type}")

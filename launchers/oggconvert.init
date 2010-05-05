@@ -28,9 +28,9 @@ debug_check:
 		if( -e "$argv[$arg]" ) \
 			continue;
 		
-		set argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
-		set option=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(['\''"])?(.*)(['\''"])?$/\2/'`;
-		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(['\''"])?(.*)(['\''"])?$/\5/'`;
+		set argument=`echo -n $argv[$arg] | sed -r 's/([\"\!\$])/"\\\\\1"/g'`;
+		set option=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
+		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
 		if( -e "`echo -n "\""${value}"\""`" ) \
 			continue;
 		
@@ -273,11 +273,13 @@ convert_filenames:
 	if( ${?save_to_filename} ) \
 		unset save_to_filename;
 	
-	foreach filename ( "`cat '${filename_list}' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+	foreach filename ( "`cat '${filename_list}' | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+		if( ${?debug} || ${?debug_filelist} ) \
+			echo -n "Parsing: ${filename}.\n";
 		ex -s '+1d' '+wq!' "${filename_list}";
 		set extension="`echo -n "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/g'`";
 		set original_extension="${extension}";
-		set filename="`echo -n "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g'` | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+		set filename="`echo -n "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g'`";# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`";# | sed -r 's/["\""]/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 		if( ${?debug} || ${?debug_filelist} ) \
 			echo -n "Looking for: ${filename}.${extension}\n";
 		if(! -e "${filename}.${extension}" ) then
@@ -617,9 +619,9 @@ continue_combine:
 
 
 setup_playlist:
-	if(! ${?file_encode} ) \
+	if(! ${?files_encoded} ) \
 		@ files_encoded=0;
-	if( ${files_encoded} == 0 ) then
+	if( $files_encoded == 0 ) then
 		if( ${?playlist_new} ) then
 			rm "${playlist}.new" "${playlist}";
 			unset playlist_new;
@@ -628,7 +630,7 @@ setup_playlist:
 		goto exit_script;
 	endif
 	
-	set playlist_new=`echo ${playlist}.new | sed -r 's/([\(\)\ ])/\\\1/g'`;
+	set playlist_new="`echo "\""${playlist}.new"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 	switch( "${playlist_type}" )
 		case "tox":
 		case "toxine":
@@ -650,7 +652,7 @@ setup_playlist:
 				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist}.new";
 			end
 			echo -n "[playlist]\nnumberofentries=${lines}\n" >! "${playlist}.swp";
-			ex -s "+1r ${playlist_new}" '+wq!' "${playlist}.swp";
+			ex -s "+2r ${playlist_new}" '+wq!' "${playlist}.swp";
 			echo -n "\nVersion=2" >> "${playlist}.swp";
 			breaksw;
 		
@@ -750,7 +752,7 @@ parse_arg:
 		if( ${?debug} || ${?diagnostic_mode} )	 \
 			echo -n "**${scripts_basename} debug:** Checking argv #${arg} ($argv[$arg]).\n";
 		
-		set argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
+		set argument=`echo -n $argv[$arg] | sed -r 's/([\"\!\$])/"\\\\\1"/g'`;
 		
 		set dashes=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
 		if( "${dashes}" == "${argument}" ) \
@@ -775,7 +777,7 @@ parse_arg:
 				if( ${?debug} ) \
 					echo -n "**${scripts_basename} debug:** Looking for replacement value.  Checking argv #${arg} ($argv[$arg]).\n";
 				
-				set test_argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
+				set test_argument=`echo -n $argv[$arg] | sed -r 's/([\"\!\$])/"\\\\\1"/g'`;
 				
 				set test_dashes=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
 				set test_option=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
@@ -838,8 +840,8 @@ parse_arg:
 				breaksw;
 			
 			case "playlist":
-				set playlist_type=`echo -n ${value} | sed -r 's/^(.*)\.([^\.]+)$/\2/'`;
-				switch("${playlist_type}")
+				set playlist_type="`echo -n "\""${value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+				switch( "${playlist_type}" )
 					case "tox":
 						set playlist_type="toxine";
 						set playlist="${value}";
@@ -863,11 +865,12 @@ parse_arg:
 					touch "${playlist}.new";
 				else
 					cp "${playlist}" "${playlist}.new";
-					switch("${playlist_type}")
+					switch( "${playlist_type}" )
 						case "pls":
-							ex -s '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+1,$s/\v^[^\/].*\n/\1/';
+							ex -s '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq' "${playlist}.new";
 							breaksw;
 						
+						case "tox":
 						case "toxine":
 							ex -s '+1,$s/\v^[\ \t]+mrl\ \=\ (\/.*);$/\1/' '+wq' "${playlist}.new";
 							breaksw;
@@ -1005,6 +1008,8 @@ parse_arg:
 			
 			default:
 				if( -e "`echo -n "\""${value}"\""`" ) \
+					set value="`echo -n "\""${value}"\""`";
+				if( -e "${value}" ) \
 					goto filename_list_append_value;
 				
 				echo -n "**${scripts_basename} error:** ${dashes}${option}${equals}${value} is an unsupported option.\n\nSee "\`"${scripts_basename} -h|--help"\`" for more information.\n" > /dev/stderr;
@@ -1034,9 +1039,8 @@ parse_argv_quit:
 #parse_argv_quit
 
 filename_list_append_value:
-	set value="`echo -n "\""${value}"\""`";
 	if(! ${?filename_list} ) then
-		set filename_list="./.${scripts_basename}.filenames@`date '+%s'`";
+		set filename_list="./.filenames.${scripts_basename}.@`date '+%s'`";
 		touch "${filename_list}";
 	endif
 	

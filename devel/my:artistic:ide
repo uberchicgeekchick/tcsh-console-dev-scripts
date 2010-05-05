@@ -396,7 +396,7 @@ next_canvas:
 		if(! ${?with_home} ) then
 			set with_home="";
 		else
-			set with_home=("--tab-with-profile='${USER}' --title='[@~] #>' --working-directory='${HOME}' --command='/projects/cli/console.pallet/launchers/screen'");
+			set with_home=("--tab-with-profile='${USER}' --title="\'"[@~] #>"\'" --working-directory="\'"${HOME}"\'" --command="\'"tcsh -f"\'"");
 		endif
 		
 		if(! ${?with_rtorrent} ) then

@@ -70,7 +70,7 @@ debug_check:
 		if( -e "$argv[$arg]" ) \
 			continue;
 		
-		set argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
+		set argument=`echo -n $argv[$arg] | sed -r 's/([\"\!\$])/"\\\\\1"/g'`;
 		set option=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
 		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
 		if( -e "`echo -n "\""${value}"\""`" ) \
@@ -705,7 +705,7 @@ parse_arg:
 		if( ${?debug} ) \
 			echo -n "**${scripts_basename} debug:** Checking argv #${arg} ($argv[$arg]).\n";
 		
-		set argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
+		set argument=`echo -n $argv[$arg] | sed -r 's/([\"\!\$])/"\\\\\1"/g'`;
 		
 		set dashes=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
 		if( "${dashes}" == "${argument}" ) \
@@ -732,8 +732,7 @@ parse_arg:
 				if( ${?debug} ) \
 					echo -n "**${scripts_basename} debug:** Looking for replacement value.  Checking argv #${arg} ($argv[$arg]).\n";
 				
-				set test_argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
-				#set test_argument="`echo -n "\""${test_argument}"\"" | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+				set test_argument=`echo -n $argv[$arg] | sed -r 's/([\"\!\$])/"\\\\\1"/g'`;
 				
 				set test_dashes=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
 				if( "${test_dashes}" == "${test_argument}" ) \
@@ -956,7 +955,7 @@ filename_list_append_value:
 		goto label_stack_set;
 	
 	if(! ${?filename_list} ) then
-		set filename_list="./.${scripts_basename}.filenames@`date '+%s'`";
+		set filename_list="./.filenames.${scripts_basename}.@`date '+%s'`";
 		touch "${filename_list}";
 	endif
 	

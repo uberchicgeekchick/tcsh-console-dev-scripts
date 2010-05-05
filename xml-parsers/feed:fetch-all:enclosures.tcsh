@@ -116,10 +116,10 @@ main:
 fetch_podcasts:
 	foreach feed ("`cat '${alacasts_download_log}'`")
 		ex -s '+1d' '+wq!' "${alacasts_download_log}";
-		set my_feed_xml=".my.feed.`date '+%s'.xml`";
-		while( -e "./${my_feed_xml}" )
-			sleep 5;
-			set my_feed_xml=".my.feed.`date '+%s'.xml`";
+		set my_feed_xml="./.my.feed.`date '+%s'.xml`";
+		while( -e "${my_feed_xml}" )
+			sleep 2;
+			set my_feed_xml="./.my.feed.`date '+%s'.xml`";
 		end
 		if(! ${?silent} ) \
 			printf "Downloading podcast's feed.\n\t<%s>\n" "${feed}";
@@ -134,35 +134,30 @@ fetch_podcast:
 	if( ! ${?list_episodes} && ! ${?downloading} && ! ${?save_script} ) \
 		set downloading;
 	
-	${download_command_with_options} "./${my_feed_xml}" "${feed}";
-	
-	if( "`/bin/grep --no-messages --perl-regexp '\r\n\"$"' "\""./${my_feed_xml}"\""`" != "" ) then
-		
-		if(! ${?silent} ) \
-			printf "Reformatting Dos feed to Unix format.\n";
-		if( ${?logging} ) \
-			printf "Reformatting Dos feed to Unix format.\n" >> "${download_log}";
-		
-		dos2unix --convmode ASCII "./${my_feed_xml}" >& ${output};
-		
-	else if( "`/bin/grep --no-messages --perl-regexp '\r\"$"' "\""./${my_feed_xml}"\""`" != "" ) \
-		
-		if(! ${?silent} ) \
-			printf "Reformatting Mac OS feed to Unix format.\n";
-		if( ${?logging} ) \
-			printf "Reformatting Mac OS feed to Unix format.\n" >> "${download_log}";
-		
-		dos2unix --convmode Mac "./${my_feed_xml}" >& ${output};
-	endif
+	${download_command_with_options} "${my_feed_xml}" "${feed}";
 	
 	if(! ${?silent} ) \
 		printf "Finding feed's title.\n";
 	if( ${?logging} ) \
 		printf "Finding feed's title.\n" >> "${download_log}";
 	
-	ex -s '+set ff=unix' "+0r ./${my_feed_xml}" '+1,$s/\v\<\!\-\-.*\-\-\>//' '+1,$s/\v\>[\ \t]*\</\>\r\</g' '+1,$s/\v\r\n?\_$//g' '+1,$s/\n//g' "+w! ./${my_feed_xml}" '+q!';
+	if( "`/bin/grep --no-messages --perl-regexp '\r\n\"\$"' "\""${my_feed_xml}"\""`" != "" ) then	
+		if(! ${?silent} ) \
+			printf "Reformatting Dos feed to Unix format.\n";
+		if( ${?logging} ) \
+			printf "Reformatting Dos feed to Unix format.\n" >> "${download_log}";
+		dos2unix --convmode ASCII "${my_feed_xml}" >& ${output};	
+	else if( "`/bin/grep --no-messages --perl-regexp '\r\"\$"' "\""${my_feed_xml}"\""`" != "" ) then	
+		if(! ${?silent} ) \
+			printf "Reformatting Mac OS feed to Unix format.\n";
+		if( ${?logging} ) \
+			printf "Reformatting Mac OS feed to Unix format.\n" >> "${download_log}";
+		dos2unix --convmode Mac "${my_feed_xml}" >& ${output};
+	endif
 	
-	set title="`cat "\""./${my_feed_xml}"\"" | sed -r 's/(\<item\>)/\1\n/g' | head -2 | /bin/grep --no-messages --perl-regexp '\<title[^\>]*\>' | sed -r 's/.*<title[^>]*>([^<]+)<\/title>.*/\1/g' | sed 's/\//\ \-\ /g' | sed -r 's/[\ \t]*\&[^;]+;[\ \t]*/\ /ig' | sed -r 's/^[\ \t]*//g' | sed -r 's/[\ \t]*"\$"//g'`";
+	ex -s '+set ff=unix' "+0r ${my_feed_xml}" '+1,$s/\v\<\!\-\-.*\-\-\>//' '+1,$s/\v\>[\ \t]*\</\>\r\</g' '+1,$s/\v\r\n?\_$//g' '+1,$s/\n//g' "+w! ${my_feed_xml}" '+q!';
+	
+	set title="`cat "\""${my_feed_xml}"\"" | sed -r 's/(\<item\>)/\1\n/g' | head -1 | /bin/grep --no-messages --perl-regexp '\<title[^\>]*\>' | sed -r 's/.*<title[^>]*>([^<]+)<\/title>.*/\1/g' | sed 's/\//\ \-\ /g' | sed -r 's/[\ \t]*\&[^;]+;[\ \t]*/\ /ig' | sed -r 's/^[\ \t]*//g' | sed -r 's/[\ \t]*"\$"//g'`";
 	
 	if( "${title}" == "" ) then
 		if(! ${?silent} ) \

@@ -260,6 +260,8 @@ exec:
 				endif
 			else
 				if(! ${?dead_file_count} ) then
+					if( ${?clean_up} ) \
+						printf "\n**${scripts_basename} notice:** These files will be removed from [${playlist}]:\n";
 					@ dead_file_count=1;
 				else
 					@ dead_file_count++;
@@ -270,6 +272,8 @@ exec:
 		set callback="process_filename_list";
 		goto callback_handler;
 	endif
+	if( ${?clean_up} ) \
+		goto format_new_playlist;
 	goto script_main_quit;
 #exec:
 
@@ -286,7 +290,7 @@ process_filename_list:
 	unset filename filename_list;
 #process_filename_list:
 
-#format_new_playlist:
+format_new_playlist:
 	if(! ${?clean_up} ) then
 		set callback="script_main_quit";
 		goto callback_handler;
@@ -297,7 +301,7 @@ process_filename_list:
 		goto callback_handler;
 	endif
 	
-	if(! ${dead_file_count} ) then
+	if(! ${?dead_file_count} ) then
 		rm "${playlist}.new";
 		set callback="script_main_quit";
 		goto callback_handler;
@@ -309,8 +313,6 @@ process_filename_list:
 			printf "#toxine playlist\n\n" >! "${playlist}.swp";
 			cat "${playlist}.new" >> "${playlist}.swp";
 			printf "#END" >> "${playlist}.swp";
-			rm "${playlist}.new";
-			mv "${playlist}.swp" "${playlist}.new";
 			breaksw;
 		
 		case "pls":
@@ -326,8 +328,6 @@ process_filename_list:
 			printf "[playlist]\nnumberofentries=${lines}\n" > "${playlist}.swp";
 			cat "${playlist}.new" >> "${playlist}.swp";
 			printf "\nVersion=2" >> "${playlist}.swp";
-			rm "${playlist}.new";
-			mv "${playlist}.swp" "${playlist}.new";
 			breaksw;
 		
 		case "m3u":
@@ -336,11 +336,11 @@ process_filename_list:
 			ex '+1,$s/\v^(\#EXTINF\:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist}.new";
 			printf "#EXTM3U\n" >! "${playlist}.swp";
 			cat "${playlist}.new" >> "${playlist}.swp";
-			rm "${playlist}.new";
-			mv "${playlist}.swp" "${playlist}.new";
 			breaksw;
 	endsw
-	mv ${clean_up} "${playlist}.new" "${playlist}";
+	if( -e "${playlist}.new" ) \
+		rm "${playlist}.new";
+	mv ${clean_up} "${playlist}.swp" "${playlist}";
 #format_new_playlist:
 
 script_main_quit:

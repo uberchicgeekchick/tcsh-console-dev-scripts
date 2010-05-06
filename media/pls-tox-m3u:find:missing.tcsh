@@ -23,7 +23,6 @@ init:
 	
 	set script="${scripts_path}/${scripts_name}";
 	
-	set message="";
 	set extensions="";
 	
 	goto parse_argv;
@@ -34,10 +33,7 @@ main:
 		@ errno=-4;
 		goto exception_handler;
 	endif
-
-	if( ${?message} ) \
-		printf "${message}";
-
+	
 	if(! ${?maxdepth} ) \
 		set maxdepth=" -maxdepth 2";
 	
@@ -72,7 +68,6 @@ find_missing_media:
 		endif
 		
 		set status=0;
-		#echo "/bin/grep "\""${podcast}"\"" "\""${playlist}"\""";
 		set grep_test="`/bin/grep "\""${podcast}"\"" "\""${playlist}"\""`";
 		#if( ${status} != 0 ) then
 			#printf "**error:** searching for: %s\n" "/bin/grep ${podcast} "\""${playlist}"\""";
@@ -84,9 +79,9 @@ find_missing_media:
 			continue;
 		endif
 		
-		if( ${?debug} ) then
+		if( ${?debug} || ${?debug_grep} ) then
 			printf "Searching for podcast using:\n\t/bin/grep "\""${podcast}"\"" "\""${playlist}"\""\n\n";
-			printf "grep's output:\n\t%s\n" "${grep_test}";
+			printf "grep's output:\n\t%s\n\n" "${grep_test}";
 		endif
 		
 		if(! ${?remove} ) then
@@ -120,6 +115,11 @@ find_missing_media:
 		set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 		if(! -e "`printf "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`" ) \
 			continue;
+		
+		if( ${?message} && ! ${?message_displayed} ) then
+			printf "${message}";
+			set message_displayed;
+		endif
 		
 		set status=0;
 		set rm_confirmation="`rm -vf${remove} "\""${this_podcast}"\""`";
@@ -471,7 +471,19 @@ parse_arg:
 				breaksw;
 			
 			case "debug":
-				set debug;
+				switch("${value}")
+					case "grep":
+						if( ${?debug_grep} ) \
+							breaksw;
+						set debug_grep;
+					breaksw;
+					
+					default:
+						if( ${?debug} ) \
+							breaksw;
+						set debug;
+					breaksw;
+				endsw
 				breaksw;
 			
 			case "remove":
@@ -479,14 +491,13 @@ parse_arg:
 					case "force":
 						set remove="";
 						set message="\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t[${playlist}]\n\twill be removed.**\n\n";
-						breaksw;
+					breaksw;
 					
 					case "interactive":
 					default:
 						set remove="i";
 						set message="\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t[${playlist}]\n\twill be prompted for removal.**\n\n";
-						breaksw;
-					
+					breaksw;
 				endsw
 				breaksw;
 			

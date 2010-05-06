@@ -22,14 +22,14 @@ setenv:
 		unsetenv GREP_OPTIONS;
 	endif
 	
-	set scripts_basename="tcsh-script.tcsh";
+	set scripts_basename="tcsh-script.template.tcsh";
 	set scripts_alias="`echo -n "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	
 	set strict;
 	set supports_being_source;
 	
 	#set supports_hidden_files;
-	set scripts_supported_extensions="mp3|ogg|m4a|wav";
+	set scripts_supported_extensions="mp3|ogg|m4a";
 	
 	if(! ${?echo_style} ) then
 		set echo_style_set;
@@ -67,10 +67,14 @@ debug_check:
 	@ argc=${#argv};
 	while( $arg < $argc )
 		@ arg++;
-		if( -e "$argv[$arg]" ) \
-			continue;
 		
-		set argument=`echo -n $argv[$arg] | sed -r 's/([\"\!\$])/"\\\\\1"/g'`;
+		set argument_file="./.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		echo -n $argv[$arg] >! "${argument_file}";
+		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		set argument="`cat "\""${argument_file}"\""`";
+		rm -f "${argument_file}";
+		unset argument_file;
+		
 		set option=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
 		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
 		if( -e "`echo -n "\""${value}"\""`" ) \
@@ -340,11 +344,12 @@ process_filename_list:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	foreach filename("`cat "\""${filename_list}"\""`")
+	foreach original_filename ( "`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+	#foreach filename("`cat "\""${filename_list}"\""`")
 		ex -s '+1d' '+wq!' "${filename_list}";
 		@ files_processed++;
 		if( ${?debug} ) \
-			echo -n "Attempting to process_file: [${filename}] (file: #${files_processed} of ${file_count})\n";
+			echo -n "Attempting to process_file: [${original_filename}] (file: #${files_processed} of ${file_count})\n";
 		set callback="process_file";
 		goto callback_handler;
 	end
@@ -374,11 +379,11 @@ process_file:
 		goto label_stack_set;
 	
 	set callback="process_filename_list";
-	set extension=`echo -n ${filename} | sed -r 's/^(.*)(\.[^\.]+)$/\2/g'`;
-	if( "${extension}" == "${filename}" ) \
+	set extension="`echo -n "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
+	if( "${extension}" == "${original_filename}" ) \
 		set extension="";
 	set original_extension="${extension}";
-	set filename=`echo -n ${filename} | sed -r 's/^(.*)(\.[^\.]+)$/\1/g'`;
+	set filename="`echo -n "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
 		if( ! ${?no_exit_on_usage} ) \ 
 			set no_exit_on_usage;
@@ -387,8 +392,8 @@ process_file:
 		goto usage;
 	endif
 	
-	set filename_for_regexp=`echo -n ${filename}${extension} | sed -r 's/([*\[\/])/\\\1/g'`;
-	set filename_for_editor=`echo -n ${filename}${extension} | sed -r 's/([\(\)\ ])/\\\1/g'`;
+	set filename_for_regexp="`echo -n "\""${original_filename}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g' | sed -r 's/([\*\[\/])/\\\1/g' | sed -r 's/\\\\/\\/g'`";
+	set filename_for_editor="`echo -n "\""${original_filename}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g' | sed -r 's/([\(\)\ ])/\\\1/g' | sed -r 's/\\\\/\\/g'`";
 	echo -n "\nFile info for:\n\t<file://${filename}${extension}>\n";
 	
 	if( -d "${filename}${extension}" ) \
@@ -396,12 +401,12 @@ process_file:
 	
 	/bin/ls -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
 	
-	set grep_test=`grep "^${filename_for_regexp}"\$ "${filename_list}.all"`;
 	echo -n "grep ";
+	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
 	if( "${grep_test}" != "" ) then
 		echo -n "found:\n\t${grep_test}\n";
 	else
-		echo -n "couldn't find:\n\t${filename}${extension}.\n";
+		echo -n "couldn't find:\n\t${filename_for_regexp}.\n";
 	endif
 	
 	goto callback_handler;
@@ -533,6 +538,8 @@ scripts_main_quit:
 		unset supports_hidden_files;
 	
 	if( ${?filename_list} ) then
+		if( ${?original_filename} ) \
+			unset original_filename;
 		if( ${?filename} ) \
 			unset filename;
 		if( ${?filename_for_regexp} ) \
@@ -705,7 +712,12 @@ parse_arg:
 		if( ${?debug} ) \
 			echo -n "**${scripts_basename} debug:** Checking argv #${arg} ($argv[$arg]).\n";
 		
-		set argument=`echo -n $argv[$arg] | sed -r 's/([\"\!\$])/"\\\\\1"/g'`;
+		set argument_file="./.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		echo -n $argv[$arg] >! "${argument_file}";
+		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		set argument="`cat "\""${argument_file}"\""`";
+		rm -f "${argument_file}";
+		unset argument_file;
 		
 		set dashes=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
 		if( "${dashes}" == "${argument}" ) \
@@ -732,7 +744,13 @@ parse_arg:
 				if( ${?debug} ) \
 					echo -n "**${scripts_basename} debug:** Looking for replacement value.  Checking argv #${arg} ($argv[$arg]).\n";
 				
-				set test_argument=`echo -n $argv[$arg] | sed -r 's/([\"\!\$])/"\\\\\1"/g'`;
+				set argument_file="./.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+				echo -n $argv[$arg] >! "${argument_file}";
+				ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+				set test_argument="`cat "\""${argument_file}"\""`";
+				rm -f "${argument_file}";
+				unset argument_file;
+		
 				
 				set test_dashes=`echo -n ${test_argument} | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
 				if( "${test_dashes}" == "${test_argument}" ) \
@@ -884,16 +902,9 @@ parse_arg:
 				breaksw;
 			
 			default:
+				if( -e "`echo -n "\""${value}"\""`" ) \
+					set value="`echo -n "\""${value}"\""`";
 				if( -e "${value}" ) then
-					if( ${?arg_shifted} ) then
-						unset arg_shifted;
-						@ arg--;
-					endif
-					goto filename_list_append_value;
-					goto callback_handler;
-				endif
-				
-				if( -e "`echo -n "\""${value}"\""`" ) then
 					if( ${?arg_shifted} ) then
 						unset arg_shifted;
 						@ arg--;
@@ -976,8 +987,8 @@ filename_list_append_value:
 		goto callback_handler;
 	endif
 	
-	if( "${scripts_supported_extensions}" == "mp3|ogg|m4a|wav" && ! ${?ltrim} && ! ${?rtrim} ) \
-		set scripts_supported_extensions="mp3|m4a|wav";
+	#if( "${scripts_supported_extensions}" == "mp3|ogg|m4a" && ! ${?ltrim} && ! ${?rtrim} ) \
+	#	set scripts_supported_extensions="mp3|m4a";
 	
 	if( ${?debug}  || ${?debug_filelist} ) then
 		if(! -d "$value" ) then

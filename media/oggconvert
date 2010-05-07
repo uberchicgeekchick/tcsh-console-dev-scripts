@@ -370,7 +370,7 @@ oggconvert:
 		
 		printf "\t\t\tCreating temporary WAV file.  This may take several moments...";
 		if( "${filename}" != "${save_to_filename}" ) then
-			printf "#\!/bin/tcsh -f\nset echo;\n${ffmpeg} -y${ffmpeg_input_file_options} ${filename}.${extension}${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" -newaudio\n" >! "./ffmpeg-combined.tcsh";
+			printf "#\!/bin/tcsh -f\nset echo;\n${ffmpeg} -y${ffmpeg_input_file_options} ${filename}.${extension}${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\""\n" >! "./ffmpeg-combined.tcsh";
 			chmod u+x "./ffmpeg-combined.tcsh";
 			"./ffmpeg-combined.tcsh";
 			#rm "./ffmpeg-combined.tcsh";
@@ -623,7 +623,7 @@ setup_playlist:
 	switch( "${playlist_type}" )
 		case "tox":
 		case "toxine":
-			ex -s '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\/\2\.\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq!' "${playlist}.new";
+			ex -s '+1,$s/\v^(.*\/)([^.]+)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq!' "${playlist}.new";
 			printf "#toxine playlist\n\n" >! "${playlist}.swp";
 			ex -s "+2r ${playlist_new}" '+wq!' "${playlist}.swp";
 			printf "#END" >> "${playlist}.swp";
@@ -636,7 +636,7 @@ setup_playlist:
 			while( $line < $lines )
 				@ line++;
 				@ line_number++;
-				ex -s "+${line_number}s/\v^(.*)\/([^\/]+)\.([^\.]+)"\$"/File${line}\=\1\/\2\.\3\rTitle${line}\=\2/" '+wq!' "${playlist}.new";
+				ex -s "+${line_number}s/\v^(.*\/)([^.]+)(\.[^.]+)"\$"/File${line}\=\1\2\3\rTitle${line}\=\2/" '+wq!' "${playlist}.new";
 				@ line_number++;
 				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist}.new";
 			end
@@ -646,7 +646,7 @@ setup_playlist:
 			breaksw;
 		
 		case "m3u":
-			ex -s '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/\#EXTINF:,\2\r\1\/\2\.\3/' '+wq!' "${playlist}.new";
+			ex -s '+1,$s/\v^(.*\/)([^.]+)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${playlist}.new";
 			ex -s '+1,$s/\v^(\#EXTINF\:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist}.new";
 			printf "#EXTM3U\n" >! "${playlist}.swp";
 			ex -s "+1r ${playlist_new}" '+wq!' "${playlist}.swp";
@@ -894,7 +894,7 @@ parse_arg:
 							ex -s '+1,$s/\v^[\ \t]+mrl\ \=\ (\/.*);$/\1/' '+wq' "${playlist}.new";
 							breaksw;
 					endsw
-					ex -s '+1,$s/\v^[^\/].*\n//' '+wq' "${playlist}.new";
+					ex -s '+1,$s/\v^[^\/].*\n//' '+1,$s/\v^\n//g' '+wq' "${playlist}.new";
 				endif
 				if( ${?arg_shifted} ) \
 					@ arg++;

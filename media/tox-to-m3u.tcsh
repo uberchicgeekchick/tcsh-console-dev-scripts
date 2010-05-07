@@ -113,13 +113,13 @@ alias	ex	"ex -E -n -X --noplugin";
 set tox_playlist="`printf "\""%s"\"" "\""${tox_playlist}"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 printf '#EXTM3U\n' >! "${m3u_playlist}";
 ex -s "+1r ${tox_playlist}" '+wq!' "${m3u_playlist}";
-ex -s "+2,"\$"s/\v^\tmrl\ \=\ (\/[^\/]+\/[^\/]+\/)(.*\/)([^\/]+)(\.[^\.]+);"\$"/\1${insert_subdir}\2\3\4/" '+2,$s/\v^[^\/]*\n//' '+wq' "${m3u_playlist}";
+ex -s "+2,"\$"s/\v^\tmrl\ \=\ (\/[^\/]+\/[^\/]+\/)(.*)([^.]+)(\.[^.]+);"\$"/\1${insert_subdir}\2\3\4/" '+2,$s/\v^[^\/].*\n//' '+2,$s/\v^\n//' '+wq' "${m3u_playlist}";
 
 if( ${?strip_subdir} ) then
 	ex -s "+2,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)${strip_subdir}\/(.*\/)[^\/]+)(\.([^\.]+)"\$"/\1\2\3\4/" '+wq' "${m3u_playlist}";
 endif
 
-ex -s '+2,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)([^\/]+)(\.[^\.]+)$/\#EXTINF\:,\3\r\1\2\3\4/' '+2,$s/\v^(\#EXTINF\:,)(.*), released on.*$/\1\2/' '+$d' '+wq' "${m3u_playlist}";
+ex -s '+2,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)([^.]+)(\.[^.]+)$/\#EXTINF\:,\3;\r\1\2\3\4/' '+2,$s/\v^(\#EXTINF\:,)(.*), released on.*$/\1\2/' '+$d' '+wq' "${m3u_playlist}";
 
 printf "\t\t[done]\n";
 

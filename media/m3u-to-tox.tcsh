@@ -113,7 +113,7 @@ alias	ex	"ex -E -n -X --noplugin";
 set m3u_playlist="`printf "\""%s"\"" "\""${m3u_playlist}"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 printf '#toxine playlist\n\n' >! "${tox_playlist}";
 ex -s "+2r ${m3u_playlist}" '+wq!' "${tox_playlist}";
-ex -s '+3,$s/^\#.*\n//' "+3,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)([^\/]+)(\.[^\.]+)"\$"/entry\ \{\r\tidentifier\ \=\ \3;\r\tmrl\ \=\ \1${insert_subdir}\2\3\4\;\r\tav_offset\ \=\ 3600;\r\}\;\r/" '+wq' "${tox_playlist}";
+ex -s '+3,$s/^\#.*\n//' "+3,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)([^.]+)(\.[^.]+)"\$"/entry\ \{\r\tidentifier\ \=\ \3;\r\tmrl\ \=\ \1${insert_subdir}\2\3\4\;\r\tav_offset\ \=\ 3600;\r\}\;\r/" '+wq' "${tox_playlist}";
 
 if( ${?strip_subdir} ) then
 	ex -s "+3,"\$"s/\v^(\tmrl\ \=\ \/[^\/]+\/[^\/]+\/)'${strip_subdir}'\/(.*\/)([^\/]+)(\.[^.]+;)"\$"/\1\2\3\4;/" '+wq' "${tox_playlist}";

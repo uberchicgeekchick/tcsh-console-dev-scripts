@@ -54,7 +54,7 @@ find_missing_media:
 		printf "find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\\\\1/g' | sed -r 's/(\[)/\\\\\\1/g' | sed -r 's/([*])/\\\\\\1/g'\n";
 	endif
 	@ removed_podcasts=0;
-	foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
+	foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\)/\\\\/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
 		#printf "-->%s\n" "${podcast}";
 		#continue;
 		if( ${?skip_subdirs} ) then

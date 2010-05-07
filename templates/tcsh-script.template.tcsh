@@ -392,8 +392,8 @@ filename_process:
 		goto usage;
 	endif
 	
-	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g' | sed -r 's/([\*\[\/])/\\\1/g' | sed -r 's/\\\\/\\/g'`";
-	set filename_for_editor="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"\[\(\)\ \<\>])/\\\1/g' | sed -r 's/\\\\/\\/g'`";
+	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/([\\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	set filename_for_editor="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"\[\(\)\ \<\>])/\\\1/g'`";
 	if( ${?edit_all_files} ) \
 		${EDITOR} "+0r ${filename_for_editor}";
 	printf "\nFile info for:\n\t<file://${filename}${extension}>\n";
@@ -403,7 +403,9 @@ filename_process:
 	
 	/bin/ls -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
 	
+	set echo;
 	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
+	unset echo;
 	printf "grep ";
 	if( "${grep_test}" != "" ) then
 		printf "found:\n\t${grep_test}\n";

@@ -309,7 +309,7 @@ format_new_playlist:
 	
 	switch("${playlist_type}")
 		case "tox":
-			ex '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\/\2\.\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+wq!' "${playlist}.new";
+			ex '+1,$s/\v^(.*\/)([^.]+)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+wq!' "${playlist}.new";
 			printf "#toxine playlist\n\n" >! "${playlist}.swp";
 			cat "${playlist}.new" >> "${playlist}.swp";
 			printf "#END" >> "${playlist}.swp";
@@ -322,8 +322,9 @@ format_new_playlist:
 			while( $line < $lines )
 				@ line++;
 				@ line_number++;
-				ex "+${line_number}s/\v^(.*)\/([^\/]+)\.([^\.]+)"\$"/File${line}\=\1\/\2\.\3\rTitle${line}\=\2/" '+wq!' "${playlist}.new";
+				ex "+${line_number}s/\v^(.*\/)([^.]+)(\.[^.]+)"\$"/File${line}\=\1\2\3\rTitle${line}\=\2/" '+wq!' "${playlist}.new";
 				@ line_number++;
+				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist}.new";
 			end
 			printf "[playlist]\nnumberofentries=${lines}\n" > "${playlist}.swp";
 			cat "${playlist}.new" >> "${playlist}.swp";
@@ -332,7 +333,7 @@ format_new_playlist:
 		
 		case "m3u":
 		default:
-			ex '+1,$s/\v^(.*)\/([^\/]+)\.([^\.]+)$/\#EXTINF:,\2\r\1\/\2\.\3/' '+wq!' "${playlist}.new";
+			ex '+1,$s/\v^(.*\/)([^.]+)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${playlist}.new";
 			ex '+1,$s/\v^(\#EXTINF\:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist}.new";
 			printf "#EXTM3U\n" >! "${playlist}.swp";
 			cat "${playlist}.new" >> "${playlist}.swp";
@@ -1002,7 +1003,7 @@ setup_playlist:
 			breaksw;
 		
 	endsw
-	ex -s '+1,$s/\v^[^\/].*\n//' '+wq!' "${filename_list}";
+	ex -s '+1,$s/\v^[^\/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${filename_list}";
 	set callback="exec";
 	goto callback_handler;
 #setup_playlist:

@@ -6,11 +6,11 @@ set argc=${#argv};
 @ arg=0;
 while( $arg < $argc )
 	@ arg++;
-	switch($argv[$argc])
+	switch("$argv[$arg]")
 		case "--firefox":
 		case "--xulrunner":
 		case "--thunderbird":
-			set project="$argv[$argc]";
+			set project="`echo $argv[$arg] | sed -r 's/\-\-(.*)"\$"/\1/'`";
 			breaksw;
 		
 		case "clean":
@@ -20,10 +20,15 @@ while( $arg < $argc )
 			set make_action="$argv[$arg]";
 			breaksw;
 		
+		case "-h":
+		case "--help":
+			printf "Usage:\n\t%s (clean|distclean|install|package) [--firefox|--thunderbird|--xulrunner]" "`basename '${0}'`";
+			breaksw;
+		
 		default:
 			printf "%s is an unsupported option.\n" "$argv[$arg]";
 			if(! ${?usage_displayed} ) then
-				printf "\t%s%s%s --help for usage and display.\n" "\`" "`basename '${0}'`" "\`"
+				printf "\t%s%s%s --help for usage and display.\n" \` "`basename '${0}'`" \`;
 				set usage_displayed;
 			endif
 			breaksw;
@@ -31,9 +36,9 @@ while( $arg < $argc )
 end
 
 set mozilla_src_path="/programs/mozilla/src";
-foreach m ( "${mozilla_src_path}/${project}"*-srcdir/ )
+foreach m ( "${mozilla_src_path}/${project}"*-srcdir )
 	if(!( -d "${m}" && -e "${m}/client.mk" )) continue;
-	printf '\n\n\t\t********running <make -f client.mk %s> in %s************\n' "${make_action}" "`basename '${m}' | sed -r 's/^([^\-]+)\-.*$/\1/'`";
+	printf '\n\n\t\t********running <make -f client.mk %s> in %s************\n' "${make_action}" "`basename '${m}' | sed -r 's/^([^\-]+)\-.*"\$"/\1/'`";
 	cd "${m}";
 	make -f client.mk ${make_action};
 	cd "${owd}";

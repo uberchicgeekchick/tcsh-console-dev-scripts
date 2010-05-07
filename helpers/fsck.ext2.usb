@@ -2,23 +2,6 @@
 init:
 	set current_label="init";
 	
-	if(! ${?echo_style} ) then
-		set echo_style_set;
-		set echo_style=both;
-	else
-		if( "${echo_style}" != "both" ) then
-			set original_echo_style="${echo_style}";
-			set echo_style_set;
-			set echo_style=both;
-		endif
-	endif
-	if( "`alias echo`" != "echo -n" ) then
-		if( "`alias echo`" != "" ) \
-			set original_echo_alias="`alias echo`";
-		alias echo "echo -n";
-		set echo_alias_set;
-	endif
-	
 	if(! ${?0} ) \
 		set being_sourced;
 	
@@ -221,7 +204,7 @@ exec:
 	endif
 	
 	foreach usb( ${devices} )
-		echo "\n\n-----------------**Checking <${usb}>**-----------------\n\tRunning: ${use_sudo}fsck.ext2 -c -y ${usb}\n";
+		printf "\n\n-----------------**Checking <${usb}>**-----------------\n\tRunning: ${use_sudo}fsck.ext2 -c -y ${usb}\n";
 		${use_sudo}fsck.ext2 -c -y "${usb}";
 	end
 	unset devices usb;
@@ -289,20 +272,6 @@ scripts_main_quit:
 		cd "${owd}";
 		set owd="${old_owd}";
 		unset old_owd;
-	endif
-	
-	if( ${?original_echo_style} ) then
-		set echo_style="${original_echo_style}";
-		unset original_echo_style;
-	else if( ${?echo_style_set} ) then
-		unset echo_style;
-	endif
-	if( ${?echo_alias_set} ) then
-		if( ${?original_echo_alias} ) then
-			alias echo "${original_echo_alias}";
-			unset original_echo_alias;
-		endif
-		unset echo_alias_set;
 	endif
 	
 	exit ${status}

@@ -1,35 +1,32 @@
 #!/bin/tcsh -f
 	set scripts_basename="`basename '${0}'`";
-	
-	if(! ${?echo_style} ) then
-		set echo_style_set;
-		set echo_style=both;
-	else
-		if( "${echo_style}" != "both" ) then
-			set original_echo_style="${echo_style}";
-			set echo_style_set;
-			set echo_style=both;
-		endif
-	endif
+	alias ex "ex -E -X -n --noplugin";
 	
 	@ arg=0;
 	set argc=${#argv};
 	while( $arg < $argc )
 		@ arg++;
 		
-		set argument=`echo -n $argv[$arg] | sed -r 's/([\!\$\"])/"\\\1"/g'`;
+		set argument_file="./.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		printf "$argv[$arg]" >! "${argument_file}";
+		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		set argument="`cat "\""${argument_file}"\""`";
+		rm -f "${argument_file}";
+		unset argument_file;
 		
-		set dashes=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\1/'`;
+		set dashes="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
 		if( "${dashes}" == "${argument}" ) \
 			set dashes="";
 		
-		set option=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\2/'`;
+		set option="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
 		if( "${option}" == "${argument}" ) \
 			set option="";
 		
-		set equals=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\3/'`;
+		set equals="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
+		if( "${equals}" == "${argument}" ) \
+			set equals="";
 		
-		set value=`echo -n $argument | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)$/\4/'`;
+		set value="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 		
 		switch("${option}")
 			case "edit-playlist":
@@ -68,7 +65,7 @@
 					breaksw;
 				endif
 				
-				echo -n "**${scripts_basename} error:** ${dashes}${option}${equals}${value} is an unsupported option.\n\nSee "\`"${scripts_basename} -h|--help"\`" for more information.\n" > /dev/stderr;
+				printf "**${scripts_basename} error:** ${dashes}${option}${equals}${value} is an unsupported option.\n\nSee "\`"${scripts_basename} -h|--help"\`" for more information.\n" > /dev/stderr;
 				@ errno=-609;
 				goto exit_script;
 			breaksw;
@@ -76,8 +73,8 @@
 	end
 
 if(! ${?tox_playlist} ) then
-	echo -n "\n\t**ERROR:** a valid toxine playlist has not been specified.\n";
-	echo -n "Usage: "\`"${scripts_basename}"\`" playlist.tox [m3u/playlist/filename.m3u]\n";
+	printf "\n\t**ERROR:** a valid toxine playlist has not been specified.\n";
+	printf "Usage: "\`"${scripts_basename}"\`" playlist.tox [m3u/playlist/filename.m3u]\n";
 	@ errno -1;
 	goto exit_script;
 endif
@@ -87,7 +84,7 @@ if(! ${?m3u_playlist} ) then
 endif
 
 if( "${tox_playlist}" == "${m3u_playlist}" ) then
-	echo -n "Failed to generate a m3u playlist filename." > /dev/stderr;
+	printf "Failed to generate a m3u playlist filename." > /dev/stderr;
 	@ errno=-1;
 	goto exit_script;
 endif
@@ -114,7 +111,7 @@ printf "Converting "\""${tox_playlist}"\"" to "\""${m3u_playlist}"\";
 alias	ex	"ex -E -n -X --noplugin";
 
 set tox_playlist=`echo ${tox_playlist} | sed -r 's/([\(\)\ ])/\\\1/g'`;
-echo -n '#EXTM3U\n' >! "${m3u_playlist}";
+printf '#EXTM3U\n' >! "${m3u_playlist}";
 ex -s "+1r ${tox_playlist}" '+wq!' "${m3u_playlist}";
 ex -s "+2,"\$"s/\v^\tmrl\ \=\ (\/[^\/]+\/[^\/]+\/)(.*\/)([^\/]+)(\.[^\.]+);"\$"/\1${insert_subdir}\2\3\4/" '+2,$s/\v^[^\/]*\n//' '+wq' "${m3u_playlist}";
 
@@ -127,20 +124,6 @@ ex -s '+2,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)([^\/]+)(\.[^\.]+)$/\#EXTINF\:,\3\r\1\
 printf "\t\t[done]\n";
 
 exit_script:
-	if( ${?original_echo_style} ) then
-		set echo_style="${original_echo_style}";
-		unset original_echo_style;
-	else if( ${?echo_style_set} ) then
-		unset echo_style;
-	endif
-	if( ${?echo_alias_set} ) then
-		if( ${?original_echo_alias} ) then
-			alias echo "${original_echo_alias}";
-			unset original_echo_alias;
-		endif
-		unset echo_alias_set;
-	endif
-	
 	if(! ${?errno} ) \
 		@ errno=0;
 	@ status=${errno};

@@ -32,7 +32,7 @@ sub var_escape_for_shell{
 	my $seconds=`date '+%s'`;
 	chomp($seconds);
 	my $rm_list="$search_dir/.rm.$seconds.lst";
-	system("find -L \"".var_escape_for_shell($search_dir, $FALSE)."\" -ignore_readdir_race -regextype posix-extended -iregex '.*\/.(oggconvert|tcsh\-template|perl\-template|filelist|filenames|alacast|my\.feed|gPodder|New|rm).*' > '$rm_list' 2> /dev/null");
+	system("find -L \"".var_escape_for_shell($search_dir, $FALSE)."\" -ignore_readdir_race -regextype posix-extended -iregex '.*\/.(oggconvert|tcsh\-script\.template|tcsh\-template|perl\-script\.template|perl\-template|filelist|filenames|alacast|my\.feed|gPodder|New|rm|argument|escaped).*' > '$rm_list' 2> /dev/null");
 	my @files=`cat "$rm_list"`;
 	if( @files > 0 ) {
 		system("rm -v `cat '$rm_list'`");

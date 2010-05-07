@@ -30,17 +30,17 @@ else
 	printf "Preparing to copy contents of %s" "${1}";
 endif
 
-alias	ex	"ex -E -n -X --noplugin";
+alias ex "ex -E -n -X --noplugin";
 
 /bin/cp "${1}" "./.local.playlist.swp";
 ex -s '+1,$s/^[^\/].*\n//' '+1,$s/\([\"\$\!]\)/\"\\\1\"/g' '+wq!' "./.local.playlist.swp";
 
-printf '#\!/bin/tcsh -f\nset old_podcast="";\nset echo_style=both;\n' >! "${tcsh_shell_script}";
+printf '#\!/bin/tcsh -f\nset old_podcast="";\n' >! "${tcsh_shell_script}";
 chmod u+x "${tcsh_shell_script}";
-ex -s "+3r ./.local.playlist.swp" '+wq!' "${tcsh_shell_script}";
+ex -s "+2r ./.local.playlist.swp" '+wq!' "${tcsh_shell_script}";
 /bin/rm "./.local.playlist.swp";
 
-ex -s '+4,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/(.*)(\..*)$/if\(\! -e "\1\2\/\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\techo -n "**error coping:** remote file \<\1nfs\/\2\/\3\4\> doesn'\''t exists.\n" \> \/dev\/stderr;\r\telse\r\t\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\techo -n "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\techo -n "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4";\r\t\techo -n "\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
+ex -s '+3,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/(.*)(\..*)$/if\(\! -e "\1\2\/\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\tprintf "**error coping:** remote file \<\1nfs\/\2\/\3\4\> doesn'\''t exists.\n" \> \/dev\/stderr;\r\telse\r\t\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\tprintf "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\tprintf "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4";\r\t\tprintf "\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
 
 printf "\t[done]\n";
 

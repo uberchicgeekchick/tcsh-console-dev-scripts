@@ -99,7 +99,7 @@ playlist_save:
 	switch( "${playlist_save_as_type}" )
 		case "tox":
 		case "toxine":
-			ex -s '+1,$s/\v^(.*\/)([^.]+)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq!' "${playlist}.new";
+			ex -s '+1,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq!' "${playlist}.new";
 			echo -n "#toxine playlist\n\n" >! "${playlist}.swp";
 			ex -s "+2r ${playlist_new}" '+wq!' "${playlist}.swp";
 			echo -n "#END" >> "${playlist}.swp";
@@ -112,7 +112,7 @@ playlist_save:
 			while( $line < $lines )
 				@ line++;
 				@ line_number++;
-				ex -s "+${line_number}s/\v^(.*\/)([^.]+)(\.[^.]+)"\$"/File${line}\=\1\2\3\rTitle${line}\=\2/" '+wq!' "${playlist}.new";
+				ex -s "+${line_number}s/\v^(.*\/)(.*)(\.[^.]+)"\$"/File${line}\=\1\2\3\rTitle${line}\=\2/" '+wq!' "${playlist}.new";
 				@ line_number++;
 				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist}.new";
 			end
@@ -122,7 +122,7 @@ playlist_save:
 			breaksw;
 		
 		case "m3u":
-			ex -s '+1,$s/\v^(.*\/)([^.]+)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${playlist}.new";
+			ex -s '+1,$s/\v^(.*\/)(.*)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${playlist}.new";
 			ex -s '+1,$s/\v^(\#EXTINF\:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist}.new";
 			echo -n "#EXTM3U\n" >! "${playlist}.swp";
 			ex -s "+1r ${playlist_new}" '+wq' "${playlist}.swp";

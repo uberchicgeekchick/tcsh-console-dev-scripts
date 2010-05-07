@@ -403,9 +403,7 @@ filename_process:
 	
 	/bin/ls -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
 	
-	set echo;
 	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
-	unset echo;
 	printf "grep ";
 	if( "${grep_test}" != "" ) then
 		printf "found:\n\t${grep_test}\n";

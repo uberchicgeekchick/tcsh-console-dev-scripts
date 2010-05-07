@@ -7,7 +7,7 @@ endif
 
 set status=0;
 
-set git_commit_setting_files=( "sync.default" "no.pushing" "no.logging" ".artistic.canvas" ".build.canvas" ".custom.canvas" );
+set git_commit_setting_files=( "sync.default" "no.pushing" "no.logging" "artistic.canvas" "build.canvas" "custom.canvas" );
 
 if(! -e "./.sync.default" ) then
 	set sync_method="no-sync";
@@ -254,21 +254,21 @@ git_commit:
 
 	# Keep extremely large files from being committed;
 	set extensions="bz2\|gz\|tgz\|zip";
-	foreach tarball("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\.git.*' -printf '%P\n' | uniq`")
+	foreach tarball("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
 		git rm -r --cached --quiet "${tarball}";
 	end
 	unset tarball;
 	
 	# Remove any vim, connectED, gedit, or etc 'swp' files.;
 	set extensions="sw.\|bck\|~\|o";
-	foreach swp("`find . -iregex '.*\.\(${extensions}\)"\$"' -printf '%P\n' | uniq`")
+	foreach swp("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
 		git rm -r --cached --quiet "${swp}";
 	end
 	unset swp;
 	
 	# Don't commit early art works, uber-alpha code, & ald works;
 	set extensions="art\|dev\|ref\|new\|old\|symlink[s]?";
-	foreach art("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\.git.*' -printf '%P\n' | uniq`")
+	foreach art("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
 		git rm -r --cached --quiet "${art}";
 	end
 	unset art;
@@ -276,11 +276,11 @@ git_commit:
 	unset extensions;
 	
 	# Keep my logs from being added to any commit.
-	foreach git_commit_setting_file( ${git_commit_setting_files} )
-		if( -e "./.${git_commit_setting_file}" ) \
-			git rm --cached --quiet "./.${git_commit_setting_file}";
-	end
-	unset git_commit_setting_file git_commit_setting_files;
+	#foreach git_commit_setting_file( ${git_commit_setting_files} )
+	#	if( -e "./.${git_commit_setting_file}" ) \
+	#		git rm --cached --quiet "./.${git_commit_setting_file}";
+	#end
+	#unset git_commit_setting_file git_commit_setting_files;
 	
 	git rm -r --cached --quiet "${log_dir}";
 	

@@ -260,8 +260,8 @@ git_commit:
 	unset tarball;
 	
 	# Remove any vim, connectED, gedit, or etc 'swp' files.;
-	set extensions="sw.\|bck\|~\|o";
-	foreach swp("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
+	set swp_extensions="sw.\|bck\|~\|o";
+	foreach swp("`find . -iregex '.*\.\(${swp_extensions}\)"\$"' -printf '%P\n' | uniq`")
 		git rm -r --cached --quiet "${swp}";
 	end
 	unset swp;
@@ -273,8 +273,6 @@ git_commit:
 	end
 	unset art;
 	
-	unset extensions;
-	
 	# Keep my logs from being added to any commit.
 	#foreach git_commit_setting_file( ${git_commit_setting_files} )
 	#	if( -e "./.${git_commit_setting_file}" ) \
@@ -285,10 +283,12 @@ git_commit:
 	git rm -r --cached --quiet "${log_dir}";
 	
 	# Keep any remaining hidden files from being committed;
-	foreach hidden_file("`find . -iregex '.*\/\..*' \! -iregex '.*\/\.git.*' -printf '%P\n' | uniq`")
+	foreach hidden_file("`find . -iregex '.*\/\..*' \! -iregex '.*\/\.git.*' \! -iregex '.*\.\(${swp_extensions}\)"\$"' -printf '%P\n' | uniq`")
 		git rm -r --cached --quiet "${hidden_file}";
 	end
 	unset hidden_file;
+	
+	unset swp_extensions extensions;
 	
 	if(! ${?branch} ) then
 		set branch="`head -1 "\""${commit_log}"\""`";

@@ -239,7 +239,7 @@ main:
 	endif
 	
 	if( ${?combine} && ${#file_count} <= 1 ) then
-		echo "--combine reqires at least two input files";
+		printf "--combine reqires at least two input files.\n";
 		@ errno=-5;
 		goto exit_script;
 	endif
@@ -619,7 +619,7 @@ setup_playlist:
 	if( $files_encoded == 0 ) \
 		goto exit_script;
 	
-	set playlist_new="`echo "\""${playlist}.new"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
+	set playlist_new="`printf "\""${playlist}.new"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 	switch( "${playlist_type}" )
 		case "tox":
 		case "toxine":

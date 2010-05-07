@@ -55,13 +55,13 @@
 				breaksw;
 			
 			default:
-				if( -e "`echo "\""${value}"\""`" && `echo ${value} | sed -r 's/.*(\.m3u)$/\1/'` == ".m3u" ) then
-					set m3u_playlist="`echo "\""${value}"\""`";
+				if( -e "${value}" && "`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/.*(\.m3u)"\$"/\1/'`" == ".m3u" ) then
+					set m3u_playlist="${value}";
 					breaksw;
 				endif
 				
-				if( `echo ${value} | sed -r 's/.*(\.tox)$/\1/'` == ".tox" ) then
-					set tox_playlist="`echo "\""${value}"\""`";
+				if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/.*(\.tox)"\$"/\1/'`" == ".tox" ) then
+					set tox_playlist="${value}";
 					breaksw;
 				endif
 				
@@ -80,7 +80,7 @@ if(! ${?m3u_playlist} ) then
 endif
 
 if(! ${?tox_playlist} ) then
-	set tox_playlist="`echo "\""${tox_playlist}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.m3u\)"\$"/\1\2\.tox/'`";
+	set tox_playlist="`printf "\""%s"\"" "\""${tox_playlist}"\"" | sed 's/\(.*\)\([^\/]\+\)\(\.m3u\)"\$"/\1\2\.tox/'`";
 endif
 
 if( "${m3u_playlist}" == "${tox_playlist}" ) then
@@ -110,7 +110,7 @@ printf "Converting: "\""${m3u_playlist}"\"" to "\""${tox_playlist}"\";
 
 alias	ex	"ex -E -n -X --noplugin";
 
-set m3u_playlist=`echo ${m3u_playlist} | sed -r 's/([\(\)\ ])/\\\1/g'`;
+set m3u_playlist="`printf "\""%s"\"" "\""${m3u_playlist}"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 printf '#toxine playlist\n\n' >! "${tox_playlist}";
 ex -s "+2r ${m3u_playlist}" '+wq!' "${tox_playlist}";
 ex -s '+3,$s/^\#.*\n//' "+3,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)([^\/]+)(\.[^\.]+)"\$"/entry\ \{\r\tidentifier\ \=\ \3;\r\tmrl\ \=\ \1${insert_subdir}\2\3\4\;\r\tav_offset\ \=\ 3600;\r\}\;\r/" '+wq' "${tox_playlist}";

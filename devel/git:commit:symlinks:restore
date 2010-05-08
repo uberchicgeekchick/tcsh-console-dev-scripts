@@ -1,0 +1,45 @@
+#!/bin/tcsh -f
+if(! ${?0} ) then
+	printf "This script cannot be sourced.\n";
+	goto exit_script;
+endif
+
+	if(!( "${1}" != "" && -e "${1}" )) then
+		printf "Usage:\n\t%s ./.symlink."\`"date '+%s'"\`".lst\n" "`basename '${0}'`";
+		goto exit_script;
+	endif
+	
+	set symlink_log="${1}";
+	
+restore_symlinks:
+	if(! ${?symlink_log} ) goto exit_script;
+	if(! -e "${symlink_log}" ) goto exit_script;
+	
+	printf "Restoring symlinks.\n";
+	
+	foreach project_symlink("`cat '${symlink_log}'`")
+		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
+		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
+		
+		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+			unset target symlink;
+			continue;
+		endif
+		
+		cd `dirname "${symlink}"`;
+		rm -rf ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) ln -sf "${target}" ./`basename "${symlink}"`;
+		
+		cd "${owd}";
+		
+		unset target symlink;
+	end
+	
+	rm -f "${symlink_log}" > /dev/null;
+	unset project_symlink follow_symlinks symlink_log;
+#restore_symlinks:
+
+exit_script:
+	exit;
+#exit_script:

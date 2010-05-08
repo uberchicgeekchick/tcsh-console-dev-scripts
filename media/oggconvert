@@ -113,7 +113,7 @@ debug_check:
 
 
 check_dependencies:
-	set dependencies=( "${scripts_basename}" "ffmpeg" "oggenc" "ogginfo" );# `printf ${scripts_basename} | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
+	set dependencies=("${scripts_basename}" "ffmpeg" "oggenc" "ogginfo" "playlist:new:create.tcsh" "playlist:new:save.tcsh");# `printf ${scripts_basename} | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
@@ -231,14 +231,14 @@ main:
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
 	mv -f "${filename_list}.swp" "${filename_list}";
 	
-	set file_count="`cat '${filename_list}'`";
-	if(! ${#file_count} > 0 ) then
+	set file_count="`wc -l "\""${filename_list}"\""`";
+	if(! ${file_count} > 0 ) then
 		printf "No convertable files where found.\n" > /dev/stderr;
 		@ errno=-610;
 		goto exit_script;
 	endif
 	
-	if( ${?combine} && ${#file_count} <= 1 ) then
+	if( ${?combine} && ${file_count} <= 1 ) then
 		printf "--combine reqires at least two input files.\n";
 		@ errno=-5;
 		goto exit_script;
@@ -278,9 +278,8 @@ convert_filenames:
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "Looking for: ${filename}.${extension}\n";
 		if(! -e "${filename}.${extension}" ) then
-			if( ! ${?no_exit_on_usage} && ${#file_count} > 1 ) \
-				set no_exit_on_usage;
-			goto usage;
+			printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found.\n" > /dev/stderr;
+			continue;
 		endif
 		
 		if( -e "${filename}.ogg" ) then
@@ -339,8 +338,8 @@ oggconvert:
 	if(! ${?save_to_filename} ) \
 		set save_to_filename="${filename}";
 	printf "\n\tConverting";
-	if( ${#file_count} > 1 ) \
-		printf " (file ${files_processed} of ${#file_count})";
+	if( ${file_count} > 1 ) \
+		printf " (file ${files_processed} of ${file_count})";
 	printf ":\n\t\t[${filename}.${extension}]\n";
 	
 	if( "${extension}" != "wav" ) then
@@ -619,44 +618,7 @@ setup_playlist:
 	if( $files_encoded == 0 ) \
 		goto exit_script;
 	
-	set playlist_new="`printf "\""${playlist}.new"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
-	switch( "${playlist_type}" )
-		case "tox":
-		case "toxine":
-			ex -s '+1,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq!' "${playlist}.new";
-			printf "#toxine playlist\n\n" >! "${playlist}.swp";
-			ex -s "+2r ${playlist_new}" '+wq!' "${playlist}.swp";
-			printf "#END" >> "${playlist}.swp";
-			breaksw;
-		
-		case "pls":
-			set lines=`wc -l "${playlist}"`;
-			@ line=0;
-			@ line_number=0;
-			while( $line < $lines )
-				@ line++;
-				@ line_number++;
-				ex -s "+${line_number}s/\v^(.*\/)(.*)(\.[^.]+)"\$"/File${line}\=\1\2\3\rTitle${line}\=\2/" '+wq!' "${playlist}.new";
-				@ line_number++;
-				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist}.new";
-			end
-			printf "[playlist]\nnumberofentries=${lines}\n" >! "${playlist}.swp";
-			ex -s "+2r ${playlist_new}" '+wq!' "${playlist}.swp";
-			printf "\nVersion=2" >> "${playlist}.swp";
-			breaksw;
-		
-		case "m3u":
-			ex -s '+1,$s/\v^(.*\/)(.*)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${playlist}.new";
-			ex -s '+1,$s/\v^(\#EXTINF\:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist}.new";
-			printf "#EXTM3U\n" >! "${playlist}.swp";
-			ex -s "+1r ${playlist_new}" '+wq!' "${playlist}.swp";
-			breaksw;
-	endsw
-	if( -e "${playlist}.new" ) \
-		rm "${playlist}.new";
-	mv -f "${playlist}.swp" "${playlist}";
-	
-	unset playlist_new;
+	playlist:new:save.tcsh "${playlist}";
 	
 	goto exit_script;
 #setup_playlist:

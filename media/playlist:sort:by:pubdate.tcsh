@@ -24,15 +24,15 @@ setenv:
 		unsetenv GREP_OPTIONS;
 	endif
 	
-	set scripts_basename="tcsh-script.template.tcsh";
+	set scripts_basename="playlist:sort:by:pubdate.tcsh";
 	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	
 	set strict;
-	set supports_being_sourced;
+	#set supports_being_sourced;
 	
-	set supports_multiple_files;
+	#set supports_multiple_files;
 	#set supports_hidden_files;
-	set scripts_supported_extensions="mp3|ogg|m4a";
+	#set scripts_supported_extensions="mp3|ogg|m4a";
 #setenv:
 
 
@@ -41,7 +41,7 @@ init:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	set usage_message="Usage: ${scripts_basename} [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.";
+	set usage_message="Usage:\n\t${scripts_basename} [options] [path/to/playlist/file.(m3u|tox|pls)] [path/to/new/playlist.(m3u|tox|pls)](optional)\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n\t\t--force\tForces the new, sorted, playlist to over-write the the output file, if it exists.\n\t\t\n\t\t--interactive\tPrompts for confimation before saving the final playlist if it would over-write an existing file.\nNOTE:\n--force and --interactive are both optional and may be used together or separate.\n";
 	
 	set original_owd=${owd};
 	set starting_dir=${cwd};
@@ -146,7 +146,7 @@ check_dependencies:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	set dependencies=("${scripts_basename}" "find" "sed" "ex");# "${scripts_alias}");
+	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh");# "${script_alias}");
 	@ dependencies_index=0;
 	
 	foreach dependency(${dependencies})
@@ -291,9 +291,7 @@ scripts_main:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	printf "Executing ${scripts_basename}'s main.\n";
-	
-	@ required_options=1;
+	@ required_options=2;
 	
 	if( ${argc} < ${required_options} ) then
 		@ errno=-503;
@@ -301,15 +299,41 @@ scripts_main:
 		goto exception_handler;
 	endif
 	
+	if(! ${?playlist} ) then
+		if(! ${?display_usage_on_exception} ) \
+			set display_usage_on_exception display_usage_on_exception_set;
+		@ errno=-601;
+		goto exception_handler;
+	endif
+	
+	if(! -e "${playlist}" ) then
+		if(! ${?display_usage_on_exception} ) \
+			set display_usage_on_exception display_usage_on_exception_set;
+		@ errno=-601;
+		goto exception_handler;
+	endif
+	
+	if(! ${?new_playlist} ) then
+		set new_playlist="${playlist}";
+		set playlist_save_as_type="${playlist_type}";
+	else if( "${new_playlist}" != "${playlist}" && -e "${new_playlist}" ) then
+		if(! ${?force} ) then
+			printf "You've specified that you want to over-write an existing playlist with the newly sorted playlist\nIn order to do this the existing playlist must first be removed.\nAre you sure you want to proceed?\n" > /dev/stderr;
+			set rm_confirmation="`rm -vfi "\""${new_playlist}"\""`";
+			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) then
+				printf "Your playlist(s) have been left alone and %s is now exiting.\n" "${scripts_basename}";
+				set callback="scripts_main_quit";
+				goto callback_handler;
+			endif
+		endif
+	endif
+	
+	if(! ${?interactive} ) \
+		set interactive="";
+	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
 		set callback="scripts_exec";
 		goto callback_handler;
-	endif
-	
-	if(! ${?supports_multiple_files} ) then
-		@ errno=-505;
-		set callback="scripts_main_quit";
-		goto exception_handler;
 	endif
 	
 	set callback="filename_list_process_init";
@@ -322,7 +346,29 @@ scripts_exec:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	printf "Executing ${scripts_basename}'s exec.\n";
+	printf "Creating sorted playlist from files listed in [%s]" "${playlist}";
+	playlist:new:create.tcsh "${playlist}";
+	cat "${playlist}.new" | \
+		sed -r 's/(.*\/)([^\/]*, released on\:? [^,]+, )([0-9]+ )(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)( [^\.]+)(\.[^\.]+)/\3\4\5\ \:\ \1\2\3\4\5\6/' \
+		| sed -r 's/([0-9]+ )(Jan) ([0-9]+) ([^\:]+)(\:.*)/\3\-01\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Feb) ([0-9]+) ([^\:]+)(\:.*)/\3\-02\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Mar) ([0-9]+) ([^\:]+)(\:.*)/\3\-03\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Apr) ([0-9]+) ([^\:]+)(\:.*)/\3\-04\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(May) ([0-9]+) ([^\:]+)(\:.*)/\3\-05\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Jun) ([0-9]+) ([^\:]+)(\:.*)/\3\-06\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Jul) ([0-9]+) ([^\:]+)(\:.*)/\3\-07\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Aug) ([0-9]+) ([^\:]+)(\:.*)/\3\-08\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Sep) ([0-9]+) ([^\:]+)(\:.*)/\3\-09\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Oct) ([0-9]+) ([^\:]+)(\:.*)/\3\-10\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Nov) ([0-9]+) ([^\:]+)(\:.*)/\3\-11\-\1\4\5/' \
+		| sed -r 's/([0-9]+ )(Dec) ([0-9]+) ([^\:]+)(\:.*)/\3\-12\-\1\4\5/' \
+		| sort \
+		| sed -r 's/(.*)\ \:\ (.*)/\2/' >! "${playlist}.new";
+	playlist:new:save.tcsh --force ${interactive} "${playlist}" "${new_playlist}";
+	printf "\t\t[done]\n";
+	
+	if( "${playlist}" != "${new_playlist}" ) \
+		printf "New, and sorted, playlist created:\t[%s]\n" "${new_playlist}";
 	
 	set callback="scripts_main_quit";
 	goto callback_handler;
@@ -333,12 +379,6 @@ filename_list_process_init:
 	set label_current="filename_list_process_init";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
-	
-	if(! ${?supports_multiple_files} ) then
-		@ errno=-505;
-		set callback="scripts_main_quit";
-		goto exception_handler;
-	endif
 	
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
 	mv -f "${filename_list}.swp" "${filename_list}";
@@ -368,12 +408,6 @@ filename_list_process:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	if(! ${?supports_multiple_files} ) then
-		@ errno=-505;
-		set callback="scripts_main_quit";
-		goto exception_handler;
-	endif
-	
 	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 	#foreach filename("`cat "\""${filename_list}"\""`")
 		ex -s '+1d' '+wq!' "${filename_list}";
@@ -383,13 +417,11 @@ filename_list_process:
 		set callback="filename_process";
 		goto callback_handler;
 	end
-	
 	if( ${files_processed} > 0 ) then
 		set callback="scripts_main_quit";
 	else
 		set callback="usage";
 	endif
-	
 	goto callback_handler;
 #filename_list_process:
 
@@ -399,12 +431,6 @@ filename_process:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	if(! ${?supports_multiple_files} ) then
-		@ errno=-505;
-		set callback="scripts_main_quit";
-		goto exception_handler;
-	endif
-	
 	set callback="filename_list_process";
 	set extension="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
 	if( "${extension}" == "${original_filename}" ) \
@@ -412,13 +438,11 @@ filename_process:
 	set original_extension="${extension}";
 	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
-		if(! ${?no_exit_on_exception} ) \ 
-			set no_exit_on_exception;
-		if( ${?display_usage_on_exception} ) \
-			unset display_usage_on_exception;
-		@ errno=-603;
+		if( ! ${?no_exit_on_usage} ) \ 
+			set no_exit_on_usage;
+		printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found.\n";
 		set callback="filename_list_process";
-		goto exception_handler;
+		goto usage;
 	endif
 	
 	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/([\\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
@@ -692,20 +716,20 @@ exception_handler:
 			breaksw;
 		
 		case -601:
-			printf "${dashes}${option} must be followed by a valid number greater than zero" > /dev/stderr;
+			printf "An existing playlist to sort by release date must be specified" > /dev/stderr;
 			breaksw;
 		
 		case -602:
-			printf "Invalid length specified for: [${dashes}${option}]: ${value} must be formatted as: 'hh:mm:ss'" > /dev/stderr;
+			printf "An existing and supported playlist type must be specified.\n[%s] either doesn't exist or isn't supported.\n%s supports m3u, tox, and pls playlists" "${value}" "${scripts_basename}" > /dev/stderr;
 			breaksw;
 		
 		case -603:
-			printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found" > /dev/stderr;
+			printf "[%s] isn't a supported playlist type.\n%s supports m3u, tox, and pls playlists" "${scripts_basename}" > /dev/stderr;
 			breaksw;
 		
 		case -999:
 		default:
-			printf "An internal script error has caused an exception.  Please see any output above" > /dev/stderr;
+			printf "An internal script error has caused an exception: errno: [#%d].  Please see any output above" $errno > /dev/stderr;
 			breaksw;
 	endsw
 	set last_exception_handled=$errno;
@@ -853,37 +877,22 @@ parse_arg:
 		endif
 		
 		if( ${?debug} ) \
-			printf "\tparsed option "\$"parsed_argv[${parsed_argc}]: ${parsed_arg}\n\n" "";
+			printf "\tparsed option "\$"parsed_argv[${parsed_argc}]: ${parsed_arg}\n\n";
 		
 		switch("${option}")
-			case "numbered_option":
-				if(! ( "${value}" != "" && ${value} > 0 )) then
-					@ errno=-601;
-					set callback="parse_arg";
-					goto exception_handler;
-					breaksw;
-				endif
-			
-				set numbered_option="${value}";
-				breaksw;
-			
-			case "length_option":
-				if( "`printf "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
-					@ errno=-602;
-					set callback="parse_arg";
-					goto exception_handler;
-					breaksw;
-				endif
-				
-				set length="${value}";
-				breaksw;
-			
 			case "h":
 			case "help":
 				if( ${?callback} ) \
 					unset callback;
 				
 				goto usage;
+				breaksw;
+			
+			case "force":
+				if( ${?force} ) \
+					breaksw;
+				
+				set force;
 				breaksw;
 			
 			case "verbose":
@@ -897,32 +906,28 @@ parse_arg:
 				# these are all caught above. See: [debug_check:]
 				breaksw;
 			
-			case "switch-option":
-				switch("${value}")
-					case "iv":
-					case "verbose":
-					case "interactive":
-						set switch_option="${dashes}${value}";
-						breaksw;
-					
-					default:
-						set switch_option;
-						breaksw;
-				endsw
-				
-				if( ${?debug} ) \
-					printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${option}:\t[enabled].\n\n";
+			case "interactive":
+				set interactive="--interactive";
 				breaksw;
-			
+					
 			case "enable":
 				switch("${value}")
-					case "switch-option":
-						if( ${?switch_option} ) \
+					case "interactive":
+						if( ${?interactive} ) \
 							breaksw;
 						
 						if( ${?debug} ) \
 							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n";
-						set switch_option;
+						set interactive="--interactive";
+						breaksw;
+					
+					case "force":
+						if( ${?force} ) \
+							breaksw;
+						
+						if( ${?debug} ) \
+							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n";
+						set force;
 						breaksw;
 					
 					case "verbose":
@@ -941,13 +946,22 @@ parse_arg:
 			
 			case "disable":
 				switch("${value}")
-					case "switch-option":
-						if(! ${?switch_option} ) \
+					case "interactive":
+						if(! ${?interactive} ) \
 							breaksw;
 						
 						if( ${?debug} ) \
 							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n";
-						unset switch_option;
+						unset interactive="--interactive";
+						breaksw;
+					
+					case "force":
+						if(! ${?force} ) \
+							breaksw;
+						
+						if( ${?debug} ) \
+							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n";
+						unset force;
 						breaksw;
 					
 					case "verbose":
@@ -969,6 +983,51 @@ parse_arg:
 					set value_used;
 					set callback="filename_list_append";
 					goto callback_handler;
+				endif
+				
+				if(! ${?playlist} ) then
+					if(! -e "${value}" ) then
+						if(! ${?display_usage_on_exception} ) \
+							set display_usage_on_exception display_usage_on_exception_set;
+						@ errno=-601;
+						goto exception_handler;
+					endif
+					
+					set playlist_type="`printf "\""${value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+					switch("${playlist_type}")
+						case "m3u":
+						case "pls":
+						case "tox":
+							set playlist="${value}";
+							set value_used;
+							breaksw;
+						
+						default:
+							if(! ${?display_usage_on_exception} ) \
+								set display_usage_on_exception display_usage_on_exception_set;
+							unset playlist_type;
+							@ errno=-602;
+							goto exception_handler;
+							breaksw;
+					endsw
+				else if(! ${?new_playlist} ) then
+					set playlist_save_as_type="`printf "\""$value"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+					switch("${playlist_save_as_type}")
+						case "m3u":
+						case "pls":
+						case "tox":
+							set new_playlist="${value}";
+							set value_used;
+							breaksw;
+						
+						default:
+							if(! ${?display_usage_on_exception} ) \
+								set display_usage_on_exception display_usage_on_exception_set;
+							unset playlist_save_as_type;
+							@ errno=-603;
+							goto exception_handler;
+							breaksw;
+					endsw
 				endif
 				
 				if( ${?value_used} ) \

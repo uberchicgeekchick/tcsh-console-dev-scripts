@@ -254,41 +254,29 @@ git_commit:
 
 	# Keep extremely large files from being committed;
 	set extensions="bz2\|gz\|tgz\|zip";
-	foreach tarball("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
-		git rm -r --cached --quiet "${tarball}";
+	foreach file("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
+		git rm -r --cached --quiet "${file}";
 	end
-	unset tarball;
-	
-	# Remove any vim, connectED, gedit, or etc 'swp' files.;
-	set swp_extensions="sw.\|bck\|~\|o";
-	foreach swp("`find . -iregex '.*\.\(${swp_extensions}\)"\$"' -printf '%P\n' | uniq`")
-		git rm -r --cached --quiet "${swp}";
-	end
-	unset swp;
 	
 	# Don't commit early art works, uber-alpha code, & ald works;
 	set extensions="art\|dev\|ref\|new\|old\|symlink[s]?";
-	foreach art("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
-		git rm -r --cached --quiet "${art}";
+	foreach file("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
+		git rm -r --cached --quiet "${file}";
 	end
-	unset art;
-	
-	# Keep my logs from being added to any commit.
-	#foreach git_commit_setting_file( ${git_commit_setting_files} )
-	#	if( -e "./.${git_commit_setting_file}" ) \
-	#		git rm --cached --quiet "./.${git_commit_setting_file}";
-	#end
-	#unset git_commit_setting_file git_commit_setting_files;
 	
 	git rm -r --cached --quiet "${log_dir}";
 	
-	# Keep any remaining hidden files from being committed;
-	foreach hidden_file("`find . -iregex '.*\/\..*' \! -iregex '.*\/\.git.*' \! -iregex '.*\.\(${swp_extensions}\)"\$"' -printf '%P\n' | uniq`")
-		git rm -r --cached --quiet "${hidden_file}";
+	# Remove any vim, connectED, gedit, or etc 'swp' files.;
+	set extensions="sw.\|bck\|~\|o";
+	foreach file("`find . -iregex '.*\.\(${extensions}\)"\$"' -printf '%P\n' | uniq`")
+		git rm -r --cached --quiet "${file}";
 	end
-	unset hidden_file;
 	
-	unset swp_extensions extensions;
+	# Keep any remaining hidden files from being committed;
+	foreach file("`find . -iregex '.*\/\..*' \! -iregex '.*\/\.git.*' \! -iregex '.*\.\(${extensions}\)"\$"' -printf '%P\n' | uniq`")
+		git rm -r --cached --quiet "${file}";
+	end
+	unset file extensions;
 	
 	if(! ${?branch} ) then
 		set branch="`head -1 "\""${commit_log}"\""`";

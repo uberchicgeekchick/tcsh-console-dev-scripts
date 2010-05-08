@@ -263,11 +263,11 @@ exception_handler:
 			breaksw;
 		
 		case -503:
-			printf "One or more required options have not been provided" "${dashes}" "${option}" \` "${scripts_name}" \` > /dev/stderr;
+			printf "One or more required options have not been provided" > /dev/stderr;
 			breaksw;
 		
 		case -504:
-			printf "%s%s is an unsupported option" "${dashes}" "${option}" > /dev/stderr;
+			printf "[%s%s%s%s] is an unsupported option" "${dashes}" "${option}" "${equals}" "${value}" > /dev/stderr;
 			breaksw;
 		
 		case -599:
@@ -307,10 +307,12 @@ parse_argv:
 		break;
 	end
 	
-	if( ! ${?debug} && ${arg} > 1 ) \
+	if(!( ${?debug} && $arg == 2 )) \
 		@ arg=1;
 	
-	printf \$"argv[%d]: %s\n" $arg "$argv[$arg]";
+	if( ${?debug} ) \
+		printf \$"argv[%d]: %s\n" $arg "$argv[$arg]";
+	
 	if(! -e "$argv[$arg]" ) then
 		@ errno=-4;
 		goto exception_handler;

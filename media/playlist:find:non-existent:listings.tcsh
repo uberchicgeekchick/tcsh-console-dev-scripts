@@ -13,8 +13,8 @@ init:
 	if(! $?0 ) \
 		set being_sourced;
 	
-	set script_basename="pls-tox-m3u:find:removed:files.tcsh";
-	set script_alias="`printf '%s' '${script_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
+	set scripts_basename="playlist:find:non-existent:listings.tcsh";
+	set script_alias="`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	
 	#set escaped_starting_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
@@ -60,7 +60,7 @@ check_dependencies:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	set dependencies=("${script_basename}");# "${script_alias}");
+	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh");# "${script_alias}");
 	@ dependencies_index=0;
 #check_dependencies:
 
@@ -75,20 +75,20 @@ check_dependencies:
 		unset dependencies[$dependencies_index];
 		foreach dependency("`where '${dependency}'`")
 			if( ${?debug} ) \
-				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${script_basename}" "${dependency}"; 
+				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
 			
 			if(! -x "${dependency}" ) \
 				continue;
 			
 			if(! ${?script_dirname} ) then
-				if("`basename '${dependency}'`" == "${script_basename}" ) then
+				if("`basename '${dependency}'`" == "${scripts_basename}" ) then
 					set old_owd="${cwd}";
 					cd "`dirname '${dependency}'`";
 					set script_dirname="${cwd}";
 					cd "${owd}";
 					set owd="${old_owd}";
 					unset old_owd;
-					set script="${script_dirname}/${script_basename}";
+					set script="${script_dirname}/${scripts_basename}";
 					if(! ${?TCSH_RC_SESSION_PATH} ) \
 						setenv TCSH_RC_SESSION_PATH "${script_dirname}/../tcshrc";
 					
@@ -116,12 +116,12 @@ check_dependencies:
 						breaksw;
 				endsw
 				
-				printf "\n**%s debug:** found %d%s dependency: %s.\n\n" "${script_basename}" $dependencies_index "$suffix" "${dependency}";
+				printf "\n**%s debug:** found %d%s dependency: %s.\n\n" "${scripts_basename}" $dependencies_index "$suffix" "${dependency}";
 				unset suffix;
 			endif
 			
 			switch("${dependency}")
-				case "${script_basename}":
+				case "${scripts_basename}":
 				case "./${dependency}":
 				case "${TCSH_LAUNCHER_PATH}/${dependency}":
 					continue;
@@ -172,10 +172,10 @@ sourcing_disabled:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	# BEGIN: disable source script_basename.  For exception handeling when this file is 'sourced'.
+	# BEGIN: disable source scripts_basename.  For exception handeling when this file is 'sourced'.
 	@ errno=-502;
 	goto exception_handler;
-	# END: disable source script_basename.
+	# END: disable source scripts_basename.
 #sourcing_disabled:
 
 
@@ -184,8 +184,8 @@ sourcing_init:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	# BEGIN: source script_basename support.
-	source "${TCSH_RC_SESSION_PATH}/argv:check" "${script_basename}" ${argv};
+	# BEGIN: source scripts_basename support.
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 #sourcing_init:
 
 
@@ -195,7 +195,7 @@ sourcing_main:
 		goto label_stack_set;
 	
 	# START: special handler for when this file is sourced.
-	alias ${script_alias} \$"{TCSH_LAUNCHER_PATH}/${script_basename}";
+	alias ${script_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.
 #sourcing_main:
 
@@ -205,9 +205,9 @@ sourcing_main_quit:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${script_basename}";
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	
-	# END: source script_basename support.
+	# END: source scripts_basename support.
 	
 	goto script_main_quit;
 #sourcing_main_quit:
@@ -246,7 +246,7 @@ exec:
 	endif
 	
 	if( ${?debug} ) \
-		printf "Executing %s's main.\n" "${script_basename}";
+		printf "Executing %s's main.\n" "${scripts_basename}";
 	
 	if( ${?filename_list} ) then
 		if( ${?filename} ) then
@@ -307,41 +307,7 @@ format_new_playlist:
 		goto callback_handler;
 	endif
 	
-	switch("${playlist_type}")
-		case "tox":
-			ex '+1,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+wq!' "${playlist}.new";
-			printf "#toxine playlist\n\n" >! "${playlist}.swp";
-			cat "${playlist}.new" >> "${playlist}.swp";
-			printf "#END" >> "${playlist}.swp";
-			breaksw;
-		
-		case "pls":
-			set lines=`wc -l "${playlist}.new"`;
-			@ line=0;
-			@ line_number=0;
-			while( $line < $lines )
-				@ line++;
-				@ line_number++;
-				ex "+${line_number}s/\v^(.*\/)(.*)(\.[^.]+)"\$"/File${line}\=\1\2\3\rTitle${line}\=\2/" '+wq!' "${playlist}.new";
-				@ line_number++;
-				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist}.new";
-			end
-			printf "[playlist]\nnumberofentries=${lines}\n" > "${playlist}.swp";
-			cat "${playlist}.new" >> "${playlist}.swp";
-			printf "\nVersion=2" >> "${playlist}.swp";
-			breaksw;
-		
-		case "m3u":
-		default:
-			ex '+1,$s/\v^(.*\/)(.*)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${playlist}.new";
-			ex '+1,$s/\v^(\#EXTINF\:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist}.new";
-			printf "#EXTM3U\n" >! "${playlist}.swp";
-			cat "${playlist}.new" >> "${playlist}.swp";
-			breaksw;
-	endsw
-	if( -e "${playlist}.new" ) \
-		rm "${playlist}.new";
-	mv ${clean_up} "${playlist}.swp" "${playlist}";
+	playlist:new:save.tcsh ${clean_up} "${playlist}";
 #format_new_playlist:
 
 script_main_quit:
@@ -381,8 +347,8 @@ script_main_quit:
 		unset script;
 	if( ${?script_alias} ) \
 		unset script_alias;
-	if( ${?script_basename} ) \
-		unset script_basename;
+	if( ${?scripts_basename} ) \
+		unset scripts_basename;
 	if( ${?script_dirname} ) \
 		unset script_dirname;
 	
@@ -495,7 +461,7 @@ usage:
 	endif
 	
 	if(! ${?script} ) then
-		printf "Usage:\n\t%s [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n" "${script_basename}";
+		printf "Usage:\n\t%s [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n" "${scripts_basename}";
 	else if( "${program}" != "${script}" ) then
 		${program} --help;
 	endif
@@ -519,15 +485,15 @@ exception_handler:
 	
 	if(! ${?errno} ) \
 		@ errno=-599;
-	printf "\n**%s error("\$"errno:%d):**\n\t" "${script_basename}" $errno;
+	printf "\n**%s error("\$"errno:%d):**\n\t" "${scripts_basename}" $errno;
 	switch( $errno )
 		case -500:
-			printf "Debug mode has triggered an exception for diagnosis.  Please see any output above.\n" "${script_basename}" > /dev/stderr;
+			printf "Debug mode has triggered an exception for diagnosis.  Please see any output above.\n" "${scripts_basename}" > /dev/stderr;
 			@ errno=0;
 			breaksw;
 		
 		case -501:
-			printf "One or more required dependencies couldn't be found.\n\t[%s] couldn't be found.\n\t%s requires: %s" "${dependency}" "${script_basename}" "${dependencies}";
+			printf "One or more required dependencies couldn't be found.\n\t[%s] couldn't be found.\n\t%s requires: %s" "${dependency}" "${scripts_basename}" "${dependencies}";
 			breaksw;
 		
 		case -502:
@@ -537,7 +503,7 @@ exception_handler:
 		case -503:
 			printf "An internal script error has caused an exception.  Please see any output above" > /dev/stderr;
 			if(! ${?debug} ) \
-				printf " or run: %s%s --debug%s to find where %s failed" '`' "${script_basename}" '`' "${script_basename}" > /dev/stderr;
+				printf " or run: %s%s --debug%s to find where %s failed" '`' "${scripts_basename}" '`' "${scripts_basename}" > /dev/stderr;
 			printf ".\n" > /dev/stderr;
 			breaksw;
 		
@@ -546,11 +512,11 @@ exception_handler:
 			breaksw;
 		
 		case -505:
-			printf "%s%s is an unsupported option.\n\tPlease see: %s%s --help%s for supported options and details" "${dashes}" "${option}" '`' "${script_basename}" '`' > /dev/stderr;
+			printf "%s%s is an unsupported option.\n\tPlease see: %s%s --help%s for supported options and details" "${dashes}" "${option}" '`' "${scripts_basename}" '`' > /dev/stderr;
 			breaksw;
 		
 		case -506:
-			printf "A valid and existing play list must be specified.\n\tPlease see: %s%s --help%s for supported options and details" '`' "${script_basename}" '`' > /dev/stderr;
+			printf "A valid and existing play list must be specified.\n\tPlease see: %s%s --help%s for supported options and details" '`' "${scripts_basename}" '`' > /dev/stderr;
 			breaksw;
 		
 		case -599:
@@ -559,7 +525,7 @@ exception_handler:
 			breaksw;
 	endsw
 	set last_exception_handled=$errno;
-	printf "\nrun: %s%s --help%s for more information\n" '`' "${script_basename}" '`' > /dev/stderr;
+	printf "\nrun: %s%s --help%s for more information\n" '`' "${scripts_basename}" '`' > /dev/stderr;
 	
 	if( ${?display_usage_on_error} ) \
 		goto usage;
@@ -599,14 +565,14 @@ parse_argv:
 		switch("$argv[$arg]")
 			case "--diagnosis":
 			case "--diagnostic-mode":
-				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${script_basename}" $arg;
+				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
 				set diagnostic_mode;
 				if(! ${?debug} ) \
 					set debug;
 				break;
 			
 			case "--debug":
-				printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${script_basename}" $arg;
+				printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${scripts_basename}" $arg;
 				set debug;
 				break;
 			
@@ -616,7 +582,7 @@ parse_argv:
 	end
 	
 	if( ${?debug} ) \
-		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${script_basename}" "${argc}";
+		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${scripts_basename}" "${argc}";
 	
 	@ arg=0;
 	@ parsed_argc=0;
@@ -633,7 +599,7 @@ parse_arg:
 			@ arg++;
 		
 		if( ${?debug} ) \
-			printf "**%s debug:** Checking argv #%d (%s).\n" "${script_basename}" "${arg}" "$argv[$arg]";
+			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
 		
 		if( -e "$argv[$arg]" ) then
 			set playlist="$argv[$arg]";
@@ -670,7 +636,7 @@ parse_arg:
 			else
 			
 				if( ${?debug} ) \
-					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${script_basename}" "${arg}" "$argv[$arg]";
+					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
 				
 				set test_dashes="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\1/'`";
 				set test_option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\2/'`";
@@ -761,7 +727,7 @@ parse_arg:
 				if( ${?diagnostic_mode} ) \
 					breaksw;
 				
-				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${script_basename}" $arg;
+				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
 				set diagnostic_mode;
 				if(! ${?debug} ) \
 					set debug;
@@ -769,10 +735,9 @@ parse_arg:
 			
 			case "clean-up":
 				switch("${value}")
-					case "iv":
-					case "verbose":
+					case "i":
 					case "interactive":
-						set clean_up="${dashes}${value}";
+						set clean_up="--interactive";
 						breaksw;
 					
 					default:
@@ -781,7 +746,7 @@ parse_arg:
 				endsw
 				
 				if( ${?debug} ) \
-					printf "**%s debug:**, via "\$"argv[%d], %s:\t[enabled].\n\n" "${script_basename}" $arg "${option}";
+					printf "**%s debug:**, via "\$"argv[%d], %s:\t[enabled].\n\n" "${scripts_basename}" $arg "${option}";
 				breaksw;
 			
 			case "enable":
@@ -791,7 +756,7 @@ parse_arg:
 							breaksw;
 						
 						if( ${?debug} ) \
-							printf "**%s debug:**, via "\$"argv[%d], clean-up mode:\t[%sed].\n\n" "${script_basename}" $arg "${option}";
+							printf "**%s debug:**, via "\$"argv[%d], clean-up mode:\t[%sed].\n\n" "${scripts_basename}" $arg "${option}";
 						set clean_up;
 						breaksw;
 					
@@ -799,7 +764,7 @@ parse_arg:
 						if(! ${?be_verbose} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${script_basename}" $arg "${option}";
+						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
 						set be_verbose;
 						breaksw;
 					
@@ -807,7 +772,7 @@ parse_arg:
 						if( ${?debug} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
+						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
 						set debug;
 						breaksw;
 					
@@ -817,14 +782,14 @@ parse_arg:
 							breaksw;
 						
 				
-						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
+						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
 						set diagnostic_mode;
 						if(! ${?debug} ) \
 							set debug;
 						breaksw;
 					
 					default:
-						printf "enabling %s is not supported by %s.  See %s --help\n" "${value}" "${script_basename}" "${script_basename}";
+						printf "enabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
 						breaksw;
 				endsw
 				breaksw;
@@ -836,7 +801,7 @@ parse_arg:
 							breaksw;
 						
 						if( ${?debug} ) \
-							printf "**%s debug:**, via "\$"argv[%d], clean-up mode:\t[%sd].\n\n" "${script_basename}" $arg "${option}";
+							printf "**%s debug:**, via "\$"argv[%d], clean-up mode:\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
 						unset clean_up;
 						breaksw;
 					
@@ -844,7 +809,7 @@ parse_arg:
 						if(! ${?be_verbose} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${script_basename}" $arg "${option}";
+						printf "**%s debug:**, via "\$"argv[%d], verbose output\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
 						unset be_verbose;
 						breaksw;
 					
@@ -852,7 +817,7 @@ parse_arg:
 						if(! ${?debug} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
+						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
 						unset debug;
 						breaksw;
 					
@@ -861,12 +826,12 @@ parse_arg:
 						if(! ${?diagnostic_mode} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${script_basename}" $arg "${option}";
+						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
 						unset diagnostic_mode;
 						breaksw;
 					
 					default:
-						printf "disabling %s is not supported by %s.  See %s --help\n" "${value}" "${script_basename}" "${script_basename}";
+						printf "disabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
 						breaksw;
 				endsw
 				breaksw;
@@ -985,25 +950,12 @@ setup_playlist:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	if(! ${?playlist} ) \
-		goto parse_arg;
-	
-	set playlist_type="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/(.*)\.([^\.]+)"\$"/\1/'`";
-	if(! ${?filename_list} ) then
-		set filename_list="./.filenames.${script_basename}.@`date '+%s'`";
-		cp "${playlist}" "${filename_list}";
+	if(! ${?playlist} ) then
+		@ errno=-506;
+		goto exception_handler;
 	endif
-	switch("${playlist_type}")
-		case "tox":
-			ex '+1,$s/\v^[\ \t]*mrl\ \=\ (.*);$/\1/' '+wq!' "${filename_list}";
-			breaksw;
-		
-		case "pls":
-			ex '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq!' "${filename_list}";
-			breaksw;
-		
-	endsw
-	ex -s '+1,$s/\v^[^\/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${filename_list}";
+	
+	playlist:new:create.tcsh "${playlist}";
 	set callback="exec";
 	goto callback_handler;
 #setup_playlist:
@@ -1039,14 +991,14 @@ diagnostic_mode:
 		goto label_stack_set;
 	
 	if(! -d "${HOME}/tmp" ) then
-		set script_diagnosis_log="/tmp/${script_basename}.diagnosis.log";
+		set script_diagnosis_log="/tmp/${scripts_basename}.diagnosis.log";
 	else
-		set script_diagnosis_log="${HOME}/tmp/${script_basename}.diagnosis.log";
+		set script_diagnosis_log="${HOME}/tmp/${scripts_basename}.diagnosis.log";
 	endif
 	if( -e "${script_diagnosis_log}" ) \
 		rm -v "${script_diagnosis_log}";
 	touch "${script_diagnosis_log}";
-	printf "----------------%s debug.log-----------------\n" "${script_basename}" >> "${script_diagnosis_log}";
+	printf "----------------%s debug.log-----------------\n" "${scripts_basename}" >> "${script_diagnosis_log}";
 	printf \$"argv:\n\t%s\n\n" "$argv" >> "${script_diagnosis_log}";
 	printf \$"parsed_argv:\n\t%s\n\n" "$parsed_argv" >> "${script_diagnosis_log}";
 	printf \$"{0} == [%s]\n" "${0}" >> "${script_diagnosis_log}";
@@ -1056,11 +1008,11 @@ diagnostic_mode:
 		printf \$"{%d} == [%s]\n" $arg "${1}" >> "${script_diagnosis_log}";
 		shift;
 	end
-	printf "\n\n----------------<%s> environment-----------------\n" "${script_basename}" >> "${script_diagnosis_log}";
+	printf "\n\n----------------<%s> environment-----------------\n" "${scripts_basename}" >> "${script_diagnosis_log}";
 	env >> "${script_diagnosis_log}";
-	printf "\n\n----------------<%s> variables-----------------\n" "${script_basename}" >> "${script_diagnosis_log}";
+	printf "\n\n----------------<%s> variables-----------------\n" "${scripts_basename}" >> "${script_diagnosis_log}";
 	set >> "${script_diagnosis_log}";
-	printf "Create %s diagnosis log:\n\t%s\n" "${script_basename}" "${script_diagnosis_log}";
+	printf "Create %s diagnosis log:\n\t%s\n" "${scripts_basename}" "${script_diagnosis_log}";
 	@ errno=-500;
 	if(! ${?being_sourced} ) then
 		set callback="script_main_quit";

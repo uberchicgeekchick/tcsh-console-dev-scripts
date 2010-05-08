@@ -231,8 +231,8 @@ main:
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
 	mv -f "${filename_list}.swp" "${filename_list}";
 	
-	set file_count="`wc -l "\""${filename_list}"\""`";
-	if(! ${file_count} > 0 ) then
+	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+	if(!( ${file_count} > 0 )) then
 		printf "No convertable files where found.\n" > /dev/stderr;
 		@ errno=-610;
 		goto exit_script;
@@ -277,6 +277,7 @@ convert_filenames:
 		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g'`";# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`";# | sed -r 's/["\""]/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "Looking for: ${filename}.${extension}\n";
+		
 		if(! -e "${filename}.${extension}" ) then
 			printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found.\n" > /dev/stderr;
 			continue;

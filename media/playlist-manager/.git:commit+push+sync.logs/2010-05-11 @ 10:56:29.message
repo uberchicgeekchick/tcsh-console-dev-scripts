@@ -1,0 +1,11 @@
+rc1.02
+
+	More implementations of my tcsh shell script argument fu' with all of my hackish sed & ex magickes. And a lot of other new goodies too.
+
+	Though I'd still like more of it in perl - I'm just not ~that~ bored.
+
+	-oh- and I'm starting to implement mktemp for temporary files, intead of creating them as hidden files under the current directory.  I hope the reason are obvious as to why... as for why only now?  I'm a ditzy, disabled, spacey blonde AND my script are my hacks very lil more... okay so that's not even close to true.
+
+	I just did analyze the architecture of a few of my shell script, to poo :-P . . . and besides: now I am.
+
+Committed on : 2010-05-11 @ 10:56:29 AM

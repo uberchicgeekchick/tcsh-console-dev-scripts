@@ -1,1 +1,142 @@
-rm:dir:empty
+#!/bin/tcsh -f
+# cleaning up empty directories.
+if(! ${?0} ) then
+	printf "This script can only be executed and doesn't support being sourced.\n" > /dev/stderr;
+	set status=-501;
+	exit ${status};
+endif
+
+set almost_all=' -iregex '\''\.\/[^\.].*'\''';
+while("${1}" != "")
+	set dashes="`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/(\-{1,2})([^\=]+)(\=?)(.*)/\1/g'`";
+	if( "${dashes}" == "${1}" ) \
+		set dashes="";
+	
+	set option="`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/(\-{1,2})([^\=]+)(\=?)(.*)/\2/g'`";
+	if( "${option}" == "${1}" ) \
+		set option="";
+		
+	set equals="`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/(\-{1,2})([^\=]+)(\=?)(.*)/\3/g'`";
+	if( "${equals}" == "${1}" ) \
+		set equals="";
+	
+	set value="`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/(\-{1,2})([^\=]+)(\=?)(.*)/\4/g'`";
+	if( "${equals}" == "" && "${value}" == "" && "${2}" != "" ) \
+		set value="${2}";
+	
+	switch("${dashes}")
+		case "-":
+			switch("${option}")
+				case "i":
+					if(! ${?interactive} ) \
+						set interactive;
+					breaksw;
+				case "f":
+					if(! ${?force} ) \
+						set force;
+					breaksw;
+				case "v":
+					if(! ${?be_verbose} ) \
+						set be_verbose;
+					breaksw;
+				
+				case "A":
+					if( "${almost_all}" != "" ) \
+						set almost_all="";
+					breaksw;
+				
+				case "a":
+					if( "${almost_all}" == "" ) \
+						set almost_all=' -iregex '\''\.\/[^\.].*'\''';
+					breaksw;
+				
+			endsw
+			breaksw;
+		
+		case "--":
+			switch("${option}")
+				case "debug":
+					if(! ${?debug} ) \
+						set debug;
+					breaksw;
+				
+				case "interactive":
+					if(! ${?interactive} ) \
+						set interactive;
+				breaksw;
+			
+				case "force":
+					if(! ${?force} ) \
+						set force;
+					breaksw;
+				case "verbose":
+					if(! ${?be_verbose} ) \
+						set be_verbose;
+					breaksw;
+				
+				case "all":
+					if( "${almost_all}" != "" ) \
+						set almost_all="";
+					breaksw;
+				
+				case "most":
+					if( "${almost_all}" == "" ) \
+						set almost_all=' -iregex '\''\.\/[^\.].*'\''';
+					breaksw;
+				
+			endsw
+			breaksw;
+		
+		default:
+			if( -d "${1}" && "${cwd}" != "${1}" ) \
+				cd "${1}";
+			breaksw;
+	endsw
+	shift;
+end
+
+set rm_dir_options="";
+if( ${?interactive} ) then
+	set rm_dir_options="${rm_dir_options} --interactive";
+	unset interactive;
+endif
+
+if( ${?force} ) then
+	set rm_dir_options="${rm_dir_options} --force";
+	unset force;
+endif
+
+if( ${?be_verbose} ) then
+	set rm_dir_options="${rm_dir_options} --verbose";
+	unset be_verbose;
+endif
+
+if( ${?debug} ) \
+	printf "Cleaning-up directories using:\n\trmdir %s\n" "${rm_dir_options}";
+
+foreach dir( "`/usr/bin/find -L ./ -type d -empty`" )
+	switch("`basename '${dir}'`")
+		case "lost+found":
+		case "tmp":
+			breaksw;
+		
+		default:
+			switch( "`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/^\.\/(\.git).*/\1/'`" )
+				case ".git":
+				case ".svn":
+				case ".hg":
+					breaksw;
+				default:
+					if( -l "${dir}" ) then
+						rm${rm_dir_options} "${dir}";
+					else
+						rmdir${rm_dir_options} "${dir}"
+					endif
+				breaksw;
+			endsw
+		breaksw;
+	endsw
+end
+
+unset rm_dir_options;
+

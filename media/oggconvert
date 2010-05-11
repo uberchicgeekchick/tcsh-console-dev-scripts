@@ -280,7 +280,7 @@ convert_filenames:
 			printf "Looking for: ${filename}.${extension}\n";
 		
 		if(! -e "${filename}.${extension}" ) then
-			printf "**%s notice:** a previously specified or found file cannot be converted.\n\t<file://%s.%s> can no longer be found\t[skipped]\n" "${scripts_basename}" "${filename}" "${extension}" > /dev/stderr;
+			printf "**%s error:** a previously specified or found file cannot be processed.\n\t<file://%s%s> can no longer exists\t[skipped]\n\n" "${scripts_basename}" "${filename}" "${extension}" > /dev/stderr;
 			continue;
 		endif
 		

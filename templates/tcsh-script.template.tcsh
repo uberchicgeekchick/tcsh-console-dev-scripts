@@ -447,8 +447,6 @@ filename_process:
 	if(! -e "${filename}${extension}" ) then
 		if(! ${?no_exit_on_exception} ) \ 
 			set no_exit_on_exception_set no_exit_on_exception;
-		if( ${?display_usage_on_exception} ) \
-			unset display_usage_on_exception_unset display_usage_on_exception;
 		@ errno=-498;
 		set callback="filename_list_process";
 		goto exception_handler;
@@ -539,10 +537,6 @@ scripts_main_quit:
 	
 	if(! ${?no_exit_on_exception} ) \
 		set no_exit_on_exception;
-	if( ${?display_usage_on_exception_unset} ) \
-		unset display_usage_on_exception_unset;
-	if( ${?display_usage_on_exception} ) \
-		unset display_usage_on_exception;
 	if( ${?last_exception_handled} ) \
 		unset last_exception_handled;
 	
@@ -715,17 +709,15 @@ exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-999;
 	
-	if( $errno < -500 || ${?strict} ) then
+	if( $errno <= -500 || ${?strict} ) then
 		if( ${?no_exit_on_exception} ) \
 			unset no_exit_on_exception;
-		if( ${?display_usage_on_exception} && ! ${?display_usage_on_exception_set} ) \
-			unset display_usage_on_exception;
 	endif
 	
 	printf "\n**${scripts_basename} error("\$"errno:$errno):**\n\t" > ${stderr};
 	switch( $errno )
 		case -498:
-			printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found" > ${stderr};
+			printf "**%s error:** a previously specified or found file cannot be processed.\n\t<file://%s%s> no longer exists\t[skipped]\n\n" "${scripts_basename}" "${filename}" "${extension}" > ${stderr};
 			breaksw;
 		
 		case -499:
@@ -770,9 +762,11 @@ exception_handler:
 			breaksw;
 	endsw
 	set last_exception_handled=$errno;
-	printf ".\n\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
-	if(! ${?debug} ) \
-		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr};
+	if( $errno < -500 ) then
+		printf ".\n\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
+		if(! ${?debug} ) \
+			printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr};
+	endif
 	printf "\n" > ${stderr};
 	
 	if(! ${?callback} ) then
@@ -782,15 +776,6 @@ exception_handler:
 			set callback="scripts_main_quit";
 		endif
 	endif
-	
-	if( ${?display_usage_on_exception} ) then
-		if( ${?display_usage_on_exception_set} ) \
-			unset display_usage_on_exception display_usage_on_exception_set;
-		goto usage;
-	endif
-	
-	if( ${?display_usage_on_exception_unset} ) \
-		unset display_usage_on_exception display_usage_on_exception_unset;
 	
 	if(! ${?no_exit_on_exception} ) then
 		if( ! ${?0} && ${?supports_being_sourced} ) then

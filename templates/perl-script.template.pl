@@ -45,6 +45,19 @@ sub var_escape_for_shell{
 	return $value;
 }#var_escape_for_shell($value);
 
+sub my_exec{
+	my $command=shift;
+	my $stdout=shift;
+	my $stderr=shift;
+	if("$stdout" ne ""){
+		$command="$command > $stdout";
+	}
+	if("$stderr" ne ""){
+		$command="( $command ) >& $stderr";
+	}
+	system("tcsh -f -c \"".var_escape_for_shell($command, $FALSE)."\";");
+}#my_exec($command);
+
 
 sub debug_check {
 	for(my $i=0; $i<@ARGV; $i++){
@@ -106,7 +119,7 @@ sub append_files {
 	my $tmp_file=`mktemp --tmpdir filename.from.$scripts_basename.arguments.XXXXXX`;
 	chomp($tmp_file);
 	if( $debug{'files'} ){ printf("looking for %s files to add to \$files found in: [%s]\n", $scripts_supported_extensions, $value); }
-	system("find -L \"".var_escape_for_shell($value, $FALSE)."\" -ignore_readdir_race -regextype posix-extended -iregex '.*\.$scripts_supported_extensions\$' > '$tmp_file' 2> /dev/null");
+	my_exec("find -L \"".var_escape_for_shell($value, $FALSE)."\" -ignore_readdir_race -regextype posix-extended -iregex \".*\.".var_escape_for_shell($scripts_supported_extensions, $FALSE)."\$\"", $tmp_file, "/dev/null");
 	my @files_found=`cat "$tmp_file"`;
 	if( @files_found <= 0 ) {
 		if( -e "$tmp_file" ) { system("rm '$tmp_file'"); }
@@ -127,7 +140,7 @@ sub append_files {
 	}
 	
 	if( -e "$tmp_file" ) {
-		system("rm '$tmp_file'");
+		system("rm '$tmp_file';");
 	}
 }#append_files($value);#
 

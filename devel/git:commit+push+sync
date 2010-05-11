@@ -21,7 +21,7 @@ if(! -e ./.no.logging ) set logging;
 set original_owd="${owd}";
 set original_cwd="${cwd}";
 while( "${cwd}" != "/" && ! ${?top_git_dir} )
-	if( -d "../.git" ) then
+	if(! -d "./.git" ) then
 		cd ..;
 		continue;
 	endif

@@ -1,9 +1,19 @@
-#!/bin/tcsh
-if( ! ${?1} || "${1}" == "" ) then
-	printf "Usage: ${0} command2renice"
-	exit
+#!/bin/tcsh -f
+if(! ${?0} ) then
+	printf "This script cannot be sourced.\n";
+	exit -1;
 endif
 
-foreach thread ( `pidof -x "${1}"` )
-	sudo renice -20 "${thread}"
-end
+	if( ! ${?1} || "${1}" == "" ) then
+		printf "Usage: `basename '${0}'` command2renice";
+		exit;
+	endif
+
+	set exec="renice";
+	if( ${uid} != 0 ) \
+		set sudo="sudo ${exec}";
+
+	foreach pid(`/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ ${1}" | sed -r 's/^[0-9]+[\\ ]+([0-9]+).*[\r\n]*/\1/'`)
+		${exec} -20 "${pid}";
+	end
+	

@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 set database = "${1}"
 set dir_to_dump_to = "./"
 

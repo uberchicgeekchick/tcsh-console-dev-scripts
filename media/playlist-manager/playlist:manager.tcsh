@@ -76,6 +76,11 @@ while( "${1}" != "" )
 		case "playlist":
 			set playlist="${value}";
 			breaksw;
+		
+		default:
+			if( ! ${?playlist} && "${2}" == "" && -e "${value}" ) \
+				set playlist="${value}";
+			breaksw;
 	endsw
 	shift;
 end
@@ -94,35 +99,45 @@ if(! ${?playlist} ) then
 endif
 
 if( ${?export_to} || ! ${?import} ) then
-	if( -e "${?playlist}" )	then
+	if(! -e "${playlist}" )	then
 		printf "**error:** an existing playlist must be specified.\n" > /dev/stderr;
 		@ errno=-2;
 		goto exit_script;
 	endif	
 endif
 
-if(! ${?target_directory} ) \
-	set target_directory="${cwd}";
+if( ${?export_to} && ${?import} ) then
+	printf "**error:** you cannot import and export a playlist at the same time.\nPlease choose to either import or export a playlist and than export or import the playlist created by your initial playlist import or export.\n" > /dev/stderr;
+	@ errno=-3;
+	goto exit_script;
+endif
 
-switch( "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`" )
+set playlist_type="`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
+switch( "${playlist_type}" )
 	case "m3u":
-		set playlist_type="m3u";
-		breaksw;
-	
 	case "tox":
-		set playlist_type="tox";
+	case "pls":
 		breaksw;
 	
 	default:
-		printf "**error:** unsupported playlist type: [%s].\n" "`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]+\)"\$"/\1/'`" > /dev/stderr;
-		exit -2;
+		printf "**error:** [%s] is an unsupported playlist type: [%s].\n" "${playlist}" "${playlist_type}" > /dev/stderr;
+		unset playlist playlist_type;
+		@ errno=-2;;
+		goto exit_script;
 		breaksw;
 endsw
 
 if( ${?import} ) then
+	if( "${import}" == "${playlist}" ) then
+		printf "**error** [%s] and [%s] are the same file.\nImporting playlist:\t\t[failed]\n" "${import}" "${playlist}"
+		set status=-4;
+		goto exit_script;
+	endif
+	
 	if(! -e "${import}" ) then
-		printf "Cannot import a non-existing playlist.\n" > /dev/stderr;
-		exit -3;
+		printf "**error:** [%s] does not exist/could not be found.\nImporting <file://%s>:\t\t[failed]\n" "${import}" "${import}" > /dev/stderr;
+		@ errno=-3;;
+		goto exit_script;
 	endif
 	
 	set import_type="`printf "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
@@ -131,11 +146,9 @@ if( ${?import} ) then
 	else
 		switch( "${import_type}" )
 			case "m3u":
-				m3u-to-tox.tcsh${edit_playlist} "${import}" "${playlist}";
-				breaksw;
-			
 			case "tox":
-				tox-to-m3u.tcsh${edit_playlist} "${import}" "${playlist}";
+			case "pls":
+				playlist:convert --force "${import}" "${playlist}";
 				breaksw;
 		endsw
 	endif
@@ -143,9 +156,16 @@ if( ${?import} ) then
 endif
 
 if( ${?export_to} ) then
+	if( "${export_to}" == "${playlist}" ) then
+		printf "**error** [%s] and [%s] are the same file.\nExporting playlist:\t\t[failed]\n" "${export_to}" "${playlist}"
+		set status=-4;
+		goto exit_script;
+	endif
+	
 	if(! -e "${playlist}" ) then
-		printf "Cannot export a non-existing playlist.\n" > /dev/stderr;
-		exit -3;
+		printf "**error:** [%s] does not exist/could not be found.\nCannot export a non-existing playlist.\nExporting playlist:\t\t[failed]\n" "${playlist}" > /dev/stderr;
+		@ errno=-3;;
+		goto exit_script;
 	endif
 	
 	set export_type="`printf "\""${export_to}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
@@ -169,10 +189,13 @@ clean_up:
 	if(! ${?clean_up} ) \
 		goto get_missing;
 	
-	if(! ${?maxdepth} ) then
+	if(! ${?maxdepth} ) \
 		set maxdepth=" ";
-	endif
 	
+	if(! ${?target_directory} ) \
+		set target_directory="${cwd}";
+	
+	printf "Checking for any files found under: [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
 	playlist:find:missing.tcsh "${playlist}" "${target_directory}" --search-subdirs-only${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=interactive;
 	
 	#if( "${target_directory}" != "/media/podiobooks" && "`/bin/ls /media/podiobooks/`" != 'nfs' ) \
@@ -185,11 +208,9 @@ get_missing:
 	
 	switch( "${playlist_type}" )
 		case "m3u":
-			m3u:copy-nfs.tcsh "${playlist}" --enable=auto-copy;
-			breaksw;
-		
 		case "tox":
-			tox:copy-nfs.tcsh "${playlist}" --enable=auto-copy;
+		case "pls":
+			playlist:copy:missing.tcsh "${playlist}";
 			breaksw;
 	endsw
 #get_missing:

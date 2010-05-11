@@ -1,6 +1,7 @@
 #!/bin/tcsh -f
 setenv:
 	set scripts_basename="oggconvert";
+	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
 	set scripts_supported_extensions="ogg|mp3|m4a";
 	set escaped_home_dir=`printf ${HOME} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
@@ -17,7 +18,7 @@ debug_check:
 		if( -e "$argv[$arg]" ) \
 			continue;
 		
-		set argument_file="./.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
 		printf "$argv[$arg]" >! "${argument_file}";
 		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
@@ -279,7 +280,7 @@ convert_filenames:
 			printf "Looking for: ${filename}.${extension}\n";
 		
 		if(! -e "${filename}.${extension}" ) then
-			printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found.\n" > /dev/stderr;
+			printf "**%s notice:** a previously specified or found file cannot be converted.\n\t<file://%s.%s> can no longer be found\t[skipped]\n" "${scripts_basename}" "${filename}" "${extension}" > /dev/stderr;
 			continue;
 		endif
 		
@@ -668,6 +669,12 @@ exit_script:
 	if( ${?nohup_set} ) \
 		unset nohup nohup_set;
 	
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
+	
 	if(! ${?errno} ) \
 		@ errno=0;
 	
@@ -713,7 +720,7 @@ parse_arg:
 		if( ${?debug} ) \
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 		
-		set argument_file="./.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
 		printf "$argv[$arg]" >! "${argument_file}";
 		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
@@ -746,7 +753,7 @@ parse_arg:
 				if( ${?debug} ) \
 					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 				
-				set argument_file="./.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+				set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
 				printf "$argv[$arg]" >! "${argument_file}";
 				ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 				set test_argument="`cat "\""${argument_file}"\""`";
@@ -1023,7 +1030,7 @@ parse_argv_quit:
 
 filename_list_append_value:
 	if(! ${?filename_list} ) then
-		set filename_list="./.filenames.${scripts_basename}.@`date '+%s'`";
+		set filename_list="${scripts_tmpdir}/.filenames.${scripts_basename}.@`date '+%s'`";
 		touch "${filename_list}";
 	endif
 	

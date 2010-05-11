@@ -103,14 +103,13 @@ sub parse_arg{
 sub append_files {
 	my $value=shift;
 	my $scripts_supported_extensions="";
-	my $seconds=`date '+%s'`;
-	chomp($seconds);
-	my $rm_list="./.rm.$seconds.lst";
+	my $tmp_file=`mktemp --tmpdir filename.from.$scripts_basename.arguments.XXXXXX`;
+	chomp($tmp_file);
 	if( $debug{'files'} ){ printf("looking for %s files to add to \$files found in: [%s]\n", $scripts_supported_extensions, $value); }
-	system("find -L \"".var_escape_for_shell($value, $FALSE)."\" -ignore_readdir_race -regextype posix-extended -iregex '.*\.$scripts_supported_extensions\$' > '$rm_list' 2> /dev/null");
-	my @files_found=`cat "$rm_list"`;
+	system("find -L \"".var_escape_for_shell($value, $FALSE)."\" -ignore_readdir_race -regextype posix-extended -iregex '.*\.$scripts_supported_extensions\$' > '$tmp_file' 2> /dev/null");
+	my @files_found=`cat "$tmp_file"`;
 	if( @files_found <= 0 ) {
-		if( -e "$rm_list" ) { system("rm '$rm_list'"); }
+		if( -e "$tmp_file" ) { system("rm '$tmp_file'"); }
 		return;
 	}
 	for(my $i=0; $i<@files_found; $i++){
@@ -127,8 +126,8 @@ sub append_files {
 		}
 	}
 	
-	if( -e "$rm_list" ) {
-		system("rm '$rm_list'");
+	if( -e "$tmp_file" ) {
+		system("rm '$tmp_file'");
 	}
 }#append_files($value);#
 

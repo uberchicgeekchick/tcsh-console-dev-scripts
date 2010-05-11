@@ -124,7 +124,7 @@ mount_shares:
 		endif
 		printf "%sing %s:/%s %s /%s/nfs\n" "${action}" "${server}" "${share}" "${to_or_from}" "${share}";
 		if( "${action}" == "umount" ) then
-			set nfs_umount_test="`/bin/mount | grep '${ssh_mount_point}'`"
+			set nfs_umount_test="`/bin/mount | grep '/${share}/nfs'`"
 			if( ${#nfs_umount_test} > 0 ) then
 				${use_sudo} ${action} -f "/${share}/nfs";
 			else

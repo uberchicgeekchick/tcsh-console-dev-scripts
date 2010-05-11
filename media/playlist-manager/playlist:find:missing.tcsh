@@ -337,7 +337,11 @@ parse_argv:
 
 parse_arg:
 	while( $arg < $argc )
-		@ arg++;
+		if(! ${?arg_shifted} ) then
+			@ arg++;
+		else
+			unset arg_shifted;
+		endif
 		
 		if( ${?debug} ) \
 			printf "Checking argv #%d (%s).\n" "${arg}" "$argv[$arg]";
@@ -368,6 +372,7 @@ parse_arg:
 				if(!("${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]")) then
 					@ arg--;
 				else
+					set arg_shifted;
 					set equals="=";
 					set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
 				endif
@@ -505,6 +510,8 @@ parse_arg:
 				endsw
 				breaksw;
 			
+			case "all":
+			case "search-all":
 			case "recursive":
 				set maxdepth="";
 				breaksw;
@@ -549,6 +556,10 @@ parse_arg:
 				breaksw;
 			
 		endsw
+		if( ${?arg_shifted} ) then
+			unset arg_shifted;
+			@ arg--;
+		endif
 	end
 	goto main;
 #parse_arg:

@@ -6,13 +6,14 @@ init:
 	endif
 	
 	set scripts_basename="pls-m3u-tox:new:save.tcsh":
+	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	alias ex "ex -E -X -n --noplugin";
 #init:
 
 
 playlist_init:
 	@ argc=${#argv};
-	if( $argc < 1 || $argc > 3 ) \
+	if( $argc < 1 || $argc > 4 ) \
 		goto usage;
 	
 	@ arg=1;
@@ -40,10 +41,10 @@ playlist_init:
 	
 	if( $arg <= $argc ) then
 		set new_playlist="$argv[$arg]";
-		set playlist_save_as_type="`printf "\""$argv[$arg]"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+		set new_playlist_type="`printf "\""$argv[$arg]"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
 	else
 		set new_playlist="${playlist}";
-		set playlist_save_as_type="${playlist_type}";
+		set new_playlist_type="${playlist_type}";
 	endif
 	
 	if( "${new_playlist}" != "${playlist}" && -e "${new_playlist}" ) then
@@ -63,12 +64,12 @@ playlist_save:
 	mv -f "${playlist}.new" "${new_playlist}.new";
 	ex -s '+1,$s/\v^\n//g' '+wq!' "${new_playlist}.new";
 	set new_playlist_to_read="`printf "\""%s"\"" "\""${new_playlist}.new"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
-	switch( "${playlist_save_as_type}" )
+	switch( "${new_playlist_type}" )
 		case "tox":
 		case "toxine":
 			printf "#toxine playlist\n\n" >! "${new_playlist}.swp";
 			ex -s "+2r ${new_playlist_to_read}" '+wq!' "${new_playlist}.swp";
-			ex -s '+3,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq!' "${new_playlist}.swp";
+			ex -s '+3,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+1,$s/\v^(\tidentifier\ \=\ )([^:]*):?.*;$/\1\2;/' '+wq' "${new_playlist}.swp";
 			printf "#END" >> "${new_playlist}.swp";
 			breaksw;
 		
@@ -81,7 +82,7 @@ playlist_save:
 				@ line_number++;
 				ex -s "+${line_number}s/\v^(.*\/)(.*)(\.[^.]+)"\$"/File${line}\=\1\2\3\rTitle${line}\=\2/" '+wq!' "${new_playlist}.new";
 				@ line_number++;
-				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${new_playlist}.new";
+				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" "+${line_number}s/\v^(Title\=)([^:]*):?.*"\$"/\1\2/" '+wq!' "${new_playlist}.new";
 			end
 			printf "[playlist]\nnumberofentries=${lines}\n" >! "${new_playlist}.swp";
 			ex -s "+2r ${new_playlist_to_read}" '+wq!' "${new_playlist}.swp";
@@ -92,7 +93,7 @@ playlist_save:
 			printf "#EXTM3U\n" >! "${new_playlist}.swp";
 			ex -s "+1r ${new_playlist_to_read}" '+wq' "${new_playlist}.swp";
 			ex -s '+2,$s/\v^(.*\/)(.*)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${new_playlist}.swp";
-			ex -s '+2,$s/\v^(\#EXTINF\:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${new_playlist}.swp";
+			ex -s '+2,$s/\v^(#EXTINF:,.*)(,\ released\ on.*)$/\1/' '+1,$s/\v^(\#EXTINF:,)([^:]*):?.*$/\1\2/' '+wq!' "${new_playlist}.swp";
 			breaksw;
 	endsw
 	rm "${new_playlist}.new";

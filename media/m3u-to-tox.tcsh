@@ -35,11 +35,13 @@
 				breaksw;
 			
 			case "insert-subdir":
-				set insert_subdir="${value}";
+				if( "${value}" != "" ) \
+					set insert_subdir="${value}";
 				breaksw;
 			
 			case "strip-subdir":
-				set strip_subdir="${value}";
+				if( "${value}" != "" ) \
+					set strip_subdir="${value}";
 				breaksw;
 			
 			case "clean-up":
@@ -89,17 +91,11 @@ if( "${m3u_playlist}" == "${tox_playlist}" ) then
 	goto exit_script;
 endif
 
-if( ${?strip_subdir} ) then
-	if( "${strip_subdir}" == "" ) then
+if( ${?insert_subdir} && ${?strip_subdir} ) then
+	if( "${strip_subdir}" == "${insert_subdir}" ) then
+		unset insert_subdir;
 		unset strip_subdir;
-	else if( ${?insert_subdir} ) then
-		if( "${strip_subdir}" == "${insert_subdir}" ) then
-			set insert_subdir="";
-			unset strip_subdir;
-		endif
 	endif
-else if(! ${?insert_subdir} ) then
-	set insert_subdir="";
 endif
 
 
@@ -113,13 +109,17 @@ alias	ex	"ex -E -n -X --noplugin";
 set m3u_playlist="`printf "\""%s"\"" "\""${m3u_playlist}"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 printf '#toxine playlist\n\n' >! "${tox_playlist}";
 ex -s "+2r ${m3u_playlist}" '+wq!' "${tox_playlist}";
-ex -s '+3,$s/^\#.*\n//' "+3,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)(.*)(\.[^.]+)"\$"/entry\ \{\r\tidentifier\ \=\ \3;\r\tmrl\ \=\ \1${insert_subdir}\2\3\4\;\r\tav_offset\ \=\ 3600;\r\}\;\r/" '+wq' "${tox_playlist}";
+ex -s '+3,$s/^\#.*\n//' "+3,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)(.*)(\.[^.]+)"\$"/entry\ \{\r\tidentifier\ \=\ \3;\r\tmrl\ \=\ \1\2\3\4\;\r\tav_offset\ \=\ 3600;\r\}\;\r/" '+wq' "${tox_playlist}";
 
-if( ${?strip_subdir} ) then
-	ex -s "+2,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)${strip_subdir}\/(.*\/)(.*)(\.([^\.]+)"\$"/\1\2\3\4/" '+wq' "${m3u_playlist}";
+if( ${?insert_subdir} ) then
+	ex -s "+3,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)(.*)(\.([^\.]+)"\$"/\1${insert_subdir}\/\2\3\4/" '+wq' "${m3u_playlist}";
 endif
 
-ex -s '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq' "${tox_playlist}";
+if( ${?strip_subdir} ) then
+	ex -s "+3,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)${strip_subdir}\/(.*\/)(.*)(\.([^\.]+)"\$"/\1\2\3\4/" '+wq' "${m3u_playlist}";
+endif
+
+ex -s '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+1,$s/\v^(\tidentifier\ \=\ )([^\:]*)\:?.*;$/\1\2;/' '+wq' "${tox_playlist}";
 
 printf '#END' >> "${tox_playlist}";
 

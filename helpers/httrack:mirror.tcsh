@@ -1,4 +1,4 @@
-#!/bin/tcsh
+#!/bin/tcsh -f
 if( ! ${?1} || "${1}" == "" ) then
 	printf "Usage: %s URI\n"
 	exit -1

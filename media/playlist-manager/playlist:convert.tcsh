@@ -2,8 +2,6 @@
 set label_current="setenv";
 goto label_stack_set;
 setenv:
-	alias ex "ex -E -X -n --noplugin -s";
-	
 	if(! ${?noglob} ) then
 		set noglob;
 		set noglob_set;
@@ -24,15 +22,27 @@ setenv:
 		unsetenv GREP_OPTIONS;
 	endif
 	
-	set scripts_basename="playlist:sort:by:pubdate.tcsh";
+	set scripts_basename="playlist:convert.tcsh";
+	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	
 	set strict;
 	#set supports_being_sourced;
 	
+	alias ex "ex -E -X -n --noplugin";
+	
 	#set supports_multiple_files;
 	#set supports_hidden_files;
 	#set scripts_supported_extensions="mp3|ogg|m4a";
+	
+	#set download_command="curl";
+	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
+	#alias	"curl"	"${download_command_with_options}";
+	
+	#set download_command="wget";
+	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
+	#alias	"wget"	"${download_command_with_options}";
+	
 #setenv:
 
 
@@ -47,9 +57,9 @@ init:
 	set starting_dir=${cwd};
 	set escaped_starting_cwd=${escaped_cwd};
 	
-	set argument_file="./.escaped.dir.`date '+%s'`.file";
+	set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
 	printf "${HOME}" >! "${argument_file}";
-	ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 	set escaped_cwd="`cat "\""${argument_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
 	rm -f "${argument_file}";
 	unset argument_file;
@@ -66,9 +76,9 @@ debug_check:
 	while( $arg < $argc )
 		@ arg++;
 		
-		set argument_file="./.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
 		printf "$argv[$arg]" >! "${argument_file}";
-		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
 		unset argument_file;
@@ -203,19 +213,9 @@ check_dependencies:
 				set script="${scripts_dirname}/${scripts_basename}";
 				breaksw;
 			
-			case "find":
-				set find_exec="${program}";
-				breaksw;
-			
-			case "sed":
-				set sed_exec="${program}";
-				breaksw;
-			
-			case "ex":
-				set ex_exec="${program}";
-				breaksw;
-			
-			case "":
+				if(! ${?execs} ) \
+					set execs=()
+				set execs=(${execs} "${program}");
 				breaksw;
 		endsw
 		
@@ -235,14 +235,6 @@ if_sourced:
 		goto label_stack_set;
 	
 	@ errno=0;
-	
-	#set download_command="curl";
-	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
-	#alias	"curl"	"${download_command_with_options}";
-	
-	#set download_command="wget";
-	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
-	#alias	"wget"	"${download_command_with_options}";
 	
 	if( ${?0} ) then
 		set callback="scripts_main";
@@ -300,23 +292,32 @@ scripts_main:
 	endif
 	
 	if(! ${?playlist} ) then
-		if(! ${?display_usage_on_exception} ) \
-			set display_usage_on_exception display_usage_on_exception_set;
 		@ errno=-601;
 		goto exception_handler;
 	endif
 	
 	if(! -e "${playlist}" ) then
 		if(! ${?display_usage_on_exception} ) \
-			set display_usage_on_exception display_usage_on_exception_set;
+			set display_usage_on_exception;
 		@ errno=-601;
 		goto exception_handler;
 	endif
 	
-	if(! ${?new_playlist} ) then
-		set new_playlist="${playlist}";
-		set playlist_save_as_type="${playlist_type}";
-	else if( "${new_playlist}" != "${playlist}" && -e "${new_playlist}" ) then
+	if(!( ${?new_playlist} && ${?new_playlist_type} )) then
+		if(! ${?display_usage_on_exception} ) \
+			set display_usage_on_exception;
+		@ errno=-602;
+		goto exception_handler;
+	endif
+	
+	if( "${new_playlist}" == "${playlist}" ) then
+		if(! ${?display_usage_on_exception} ) \
+			set display_usage_on_exception;
+		@ errno=-603;
+		goto exception_handler;
+	endif
+	
+	if( ! ${?force} && -e "${new_playlist}" ) then
 		if(! ${?force} ) then
 			printf "You've specified that you want to over-write an existing playlist with the newly sorted playlist\nIn order to do this the existing playlist must first be removed.\nAre you sure you want to proceed?\n" > /dev/stderr;
 			set rm_confirmation="`rm -vfi "\""${new_playlist}"\""`";
@@ -346,29 +347,10 @@ scripts_exec:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	printf "Creating sorted playlist from files listed in [%s]" "${playlist}";
+	printf "Converting [%s] to [%s]" "${playlist}" "${new_playlist}";
 	playlist:new:create.tcsh "${playlist}";
-	cat "${playlist}.new" | \
-		sed -r 's/(.*\/)([^\/]*, released on\:? [^,]+, )([0-9]+ )(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)( [^\.]+)(\.[^\.]+)/\3\4\5\ \:\ \1\2\3\4\5\6/' \
-		| sed -r 's/([0-9]+ )(Jan) ([0-9]+) ([^\:]+)(\:.*)/\3\-01\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Feb) ([0-9]+) ([^\:]+)(\:.*)/\3\-02\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Mar) ([0-9]+) ([^\:]+)(\:.*)/\3\-03\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Apr) ([0-9]+) ([^\:]+)(\:.*)/\3\-04\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(May) ([0-9]+) ([^\:]+)(\:.*)/\3\-05\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Jun) ([0-9]+) ([^\:]+)(\:.*)/\3\-06\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Jul) ([0-9]+) ([^\:]+)(\:.*)/\3\-07\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Aug) ([0-9]+) ([^\:]+)(\:.*)/\3\-08\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Sep) ([0-9]+) ([^\:]+)(\:.*)/\3\-09\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Oct) ([0-9]+) ([^\:]+)(\:.*)/\3\-10\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Nov) ([0-9]+) ([^\:]+)(\:.*)/\3\-11\-\1\4\5/' \
-		| sed -r 's/([0-9]+ )(Dec) ([0-9]+) ([^\:]+)(\:.*)/\3\-12\-\1\4\5/' \
-		| sort \
-		| sed -r 's/(.*)\ \:\ (.*)/\2/' >! "${playlist}.new";
 	playlist:new:save.tcsh --force ${interactive} "${playlist}" "${new_playlist}";
 	printf "\t\t[done]\n";
-	
-	if( "${playlist}" != "${new_playlist}" ) \
-		printf "New, and sorted, playlist created:\t[%s]\n" "${new_playlist}";
 	
 	set callback="scripts_main_quit";
 	goto callback_handler;
@@ -388,10 +370,8 @@ filename_list_process_init:
 	if(! ${file_count} > 0 ) then
 		if( ${?no_exit_on_exception} ) \
 			unset no_exit_on_exception;
-		
 		if(! ${?display_usage_on_exception} ) \
-			unset display_usage_on_exception;
-		
+			set display_usage_on_exception;
 		@ errno=-503;
 		set callback="scripts_main_quit";
 		goto exception_handler;
@@ -438,11 +418,11 @@ filename_process:
 	set original_extension="${extension}";
 	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
-		if( ! ${?no_exit_on_usage} ) \ 
-			set no_exit_on_usage;
-		printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found.\n";
+		if(! ${?no_exit_on_exception} ) \ 
+			set no_exit_on_exception_set no_exit_on_exception;
+		@ errno=-498;
 		set callback="filename_list_process";
-		goto usage;
+		goto exception_handler;
 	endif
 	
 	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/([\\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
@@ -519,7 +499,15 @@ scripts_main_quit:
 		unset scripts_basename;
 	if( ${?scripts_dirname} ) \
 		unset scripts_dirname;
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
 	
+	
+	if( ${?execs} ) \
+		unset execs;
 	if( ${?dependency} ) \
 		unset dependency;
 	if( ${?dependencies} ) \
@@ -627,8 +615,21 @@ scripts_main_quit:
 	if( ${?scripts_diagnosis_log} ) \
 		unset scripts_diagnosis_log;
 	
-	if( ${?strict} ) \
+	if( ${?strict} ) then
 		unset strict;
+		if( ${?arg_shifted} ) \
+			unset arg_shifted;
+		if( ${?value_used} ) \
+			unset value_used;
+		if( ${?dashes} ) \
+			unset dashes;
+		if( ${?option} ) \
+			unset option;
+		if( ${?equals} ) \
+			unset equals;
+		if( ${?value} ) \
+			unset value;
+	endif
 	
 	if(! ${?errno} ) \
 		@ errno=0;
@@ -689,8 +690,22 @@ exception_handler:
 	
 	if(! ${?errno} ) \
 		@ errno=-999;
+	
+	if( $errno > 0 && $errno < -500 ) then
+		if( ${?no_exit_on_exception} ) \
+			set no_exit_on_exception;
+	endif
+	
 	printf "\n**${scripts_basename} error("\$"errno:$errno):**\n\t";
 	switch( $errno )
+		case -498:
+			printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found" > ${stderr};
+			breaksw;
+		
+		case -499:
+			printf "${dashes}${option}${equals}${value} is an unsupported option" > /dev/stderr;
+			breaksw;
+		
 		case -500:
 			printf "Debug mode has triggered an exception for diagnosis.  Please see any output above" > /dev/stderr;
 			breaksw;
@@ -707,10 +722,6 @@ exception_handler:
 			printf "One or more required options have not been provided" > /dev/stderr;
 			breaksw;
 		
-		case -504:
-			printf "${dashes}${option}${equals}${value} is an unsupported option" > /dev/stderr;
-			breaksw;
-		
 		case -505:
 			printf "handling and/or processing multiple files isn't supported" > /dev/stderr;
 			breaksw;
@@ -723,8 +734,12 @@ exception_handler:
 			printf "An existing and supported playlist type must be specified.\n[%s] either doesn't exist or isn't supported.\n%s supports m3u, tox, and pls playlists" "${value}" "${scripts_basename}" > /dev/stderr;
 			breaksw;
 		
+		case -602:
+			printf "[%s] isn't a supported playlist type.\n%s supports m3u, tox, and pls playlists" "${value}" "${scripts_basename}" > /dev/stderr;
+			breaksw;
+		
 		case -603:
-			printf "[%s] isn't a supported playlist type.\n%s supports m3u, tox, and pls playlists" "${scripts_basename}" > /dev/stderr;
+			printf "[%s] doesn't support converting between the same playlist types.\nJust copy them" "${scripts_basename}" > /dev/stderr;
 			breaksw;
 		
 		case -999:
@@ -792,17 +807,20 @@ parse_arg:
 	while( $arg < $argc )
 		if(! ${?arg_shifted} ) then
 			@ arg++;
-		else if( ${?value_used} ) then
-			@ arg++;
-			unset value_used;
+		else
+			if( ${?value_used} ) then
+				@ arg++;
+				unset value_used;
+			endif
+			unset arg_shifted;
 		endif
 		
 		if( ${?debug} ) \
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 		
-		set argument_file="./.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
 		printf "$argv[$arg]" >! "${argument_file}";
-		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
 		unset argument_file;
@@ -832,9 +850,9 @@ parse_arg:
 				if( ${?debug} ) \
 					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 				
-				set argument_file="./.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+				set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
 				printf "$argv[$arg]" >! "${argument_file}";
-				ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+				ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 				set test_argument="`cat "\""${argument_file}"\""`";
 				rm -f "${argument_file}";
 				unset argument_file;
@@ -1003,16 +1021,28 @@ parse_arg:
 							breaksw;
 						
 						default:
+							if( ${?no_exit_on_exception} ) \
+								unset no_exit_on_exception;
 							if(! ${?display_usage_on_exception} ) \
-								set display_usage_on_exception display_usage_on_exception_set;
+								set display_usage_on_exception;
 							unset playlist_type;
 							@ errno=-602;
 							goto exception_handler;
 							breaksw;
 					endsw
 				else if(! ${?new_playlist} ) then
-					set playlist_save_as_type="`printf "\""$value"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
-					switch("${playlist_save_as_type}")
+					set new_playlist_type="`printf "\""$value"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+					if( "${new_playlist_type}" == "${playlist_type}" ) then
+							if( ${?no_exit_on_exception} ) \
+								unset no_exit_on_exception;
+							if(! ${?display_usage_on_exception} ) \
+								set display_usage_on_exception;
+							set unsupported_playlist_type="${playlist_type}";
+							unset new_playlist_type;
+							@ errno=-602;
+							goto exception_handler;
+					endif
+					switch("${new_playlist_type}")
 						case "m3u":
 						case "pls":
 						case "tox":
@@ -1021,10 +1051,13 @@ parse_arg:
 							breaksw;
 						
 						default:
+							if( ${?no_exit_on_exception} ) \
+								unset no_exit_on_exception;
 							if(! ${?display_usage_on_exception} ) \
-								set display_usage_on_exception display_usage_on_exception_set;
-							unset playlist_save_as_type;
-							@ errno=-603;
+								set display_usage_on_exception;
+							unset new_playlist_type;
+							set unsupported_playlist_type="${new_playlist_type}";
+							@ errno=-602;
 							goto exception_handler;
 							breaksw;
 					endsw
@@ -1036,6 +1069,8 @@ parse_arg:
 				if(! ${?strict} ) then
 					if(! ${?no_exit_on_exception} ) \
 						set no_exit_on_exception_set no_exit_on_exception;
+				else if( ${?no_exit_on_exception} ) then
+					unset no_exit_on_exception;
 				endif
 				
 				@ errno=-504;
@@ -1096,7 +1131,7 @@ filename_list_append:
 	endif
 	
 	if(! ${?filename_list} ) then
-		set filename_list="./.filenames.${scripts_basename}.@`date '+%s'`";
+		set filename_list="${scripts_tmpdir}/.filenames.${scripts_basename}.@`date '+%s'`";
 		touch "${filename_list}";
 	endif
 	
@@ -1197,9 +1232,9 @@ label_stack_set:
 	if( "${current_cwd}" != "${cwd}" ) then
 		set old_owd="${owd}";
 		set current_cwd="${cwd}";
-		set argument_file="./.escaped.dir.`date '+%s'`.file";
+		set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
 		printf "${cwd}" >! "${argument_file}";
-		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set escaped_cwd="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
 		unset argument_file;

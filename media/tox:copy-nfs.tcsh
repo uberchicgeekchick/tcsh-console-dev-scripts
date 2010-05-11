@@ -36,14 +36,14 @@ alias ex "ex -E -n -X --noplugin";
 
 /bin/cp "${1}" "./.local.playlist.swp";
 ex -s '+1,$s/\v^\tmrl\ \=\ (\/[^\/]+\/[^\/]+\/)(.*)([^.]+)(\.[^.]+);$/\1\2\3\4/' '+wq!' "./.local.playlist.swp";
-ex -s '+1,$s/\v^[^\/].*\n//' '+1,$s/\v([\"\$\!])/\"\\\1\"/g' '+wq!' "./.local.playlist.swp";
+ex -s '+1,$s/\v^[^\/].*\n//' '+1,$s/\v([\"\$\!\`])/\"\\\1\"/g' '+wq!' "./.local.playlist.swp";
 
 printf '#\!/bin/tcsh -f\nset old_podcast="";\n' >! "${tcsh_shell_script}";
 chmod u+x "${tcsh_shell_script}";
 ex -s "+2r ./.local.playlist.swp" '+wq!' "${tcsh_shell_script}";
 /bin/rm "./.local.playlist.swp";
 
-ex -s '+3,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*)\/(.*)(\..*)$/if\(\! -e "\1\2\/\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\tprintf "**error coping:** remote file \<\1nfs\/\2\/\3\4\> doesn'\''t exists.\n" \> \/dev\/stderr;\r\telse\r\t\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\tprintf "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\tprintf "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4";\r\t\tprintf "\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
+ex -s '+3,$s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)(.*)(\.[^.]+)$/if\(\! -e "\1\2\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\3\4" \) then\r\t\tprintf "**error coping:** remote file\\n\\t\<\1nfs\/\2\3\4\> doesn'\''t exists.\\n" \> \/dev\/stderr;\r\telse\r\t\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\tprintf "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\tprintf "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\3\4" "\1\2\/\3\4";\r\t\tprintf "\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_shell_script}";
 
 printf "\t[done]\n";
 
@@ -51,6 +51,7 @@ if( ${?auto_copy} ) then
 	printf "\nCopying nfs files to local directory.\n";
 	"${tcsh_shell_script}";
 	/bin/rm "${tcsh_shell_script}";
+	printf "\nCopying remote files to local fs:\t[finished]\n";
 endif
 
 if( ${?TCSH_RC_DEBUG} ) then

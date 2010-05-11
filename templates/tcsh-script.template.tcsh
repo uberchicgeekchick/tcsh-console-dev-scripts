@@ -37,16 +37,16 @@ setenv:
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --continue --quiet --output-document";
 	#alias ${download_command} "${download_command_with_options}";
+	
+	set scripts_basename="tcsh-script.template.tcsh";
+	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
+	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 #setenv:
 
 
 set label_current="setup";
 goto label_stack_set;
 setup:
-	set scripts_basename="tcsh-script.template.tcsh";
-	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
-	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
-	
 	set strict;
 	set supports_being_sourced;
 	
@@ -316,13 +316,14 @@ scripts_main:
 	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
 		set callback="scripts_exec";
-		goto callback_handler;
-	endif
-	
-	if(! ${?supports_multiple_files} ) then
+	else if( ${?filename_list} && ${?supports_multiple_files} ) then
+		set callback="filename_list_process_init";
+	else if( ${?filename_list} && ! ${?supports_multiple_files} ) then
 		@ errno=-505;
 		set callback="scripts_main_quit";
 		goto exception_handler;
+	else
+		set callback="scripts_main_quit";
 	endif
 	
 	set callback="filename_list_process_init";
@@ -337,7 +338,33 @@ scripts_exec:
 	
 	printf "Executing ${scripts_basename}'s exec.\n" > ${stdout};
 	
-	set callback="scripts_main_quit";
+	if( ${?filename} && ! ${?supports_multiple_files} ) then
+		@ errno=-505;
+		set callback="scripts_main_quit";
+		goto exception_handler;
+	endif
+	
+	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/([\\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	set filename_for_editor="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"'\''\[\(\)\ \<\>])/\\\1/g'`";
+	if( ${?edit_all_files} ) \
+		${EDITOR} "+0r ${filename_for_editor}";
+	printf "\nFile info for:\n\t<file://${filename}${extension}>\n" > ${stdout};
+	
+	if( -d "${filename}${extension}" ) \
+		/bin/ls -d -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
+	
+	/bin/ls -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
+	
+	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
+	printf "grep " > ${stdout};
+	if( "${grep_test}" != "" ) then
+		printf "found:\n\t${grep_test}\n" > ${stdout};
+	else
+		printf "couldn't find:\n\t${filename_for_regexp}.\n" > ${stdout};
+	endif
+	printf "\n\n";
+	
+	set callback="filename_list_process";
 	goto callback_handler;
 #scripts_exec:
 
@@ -364,7 +391,7 @@ filename_list_process_init:
 		goto exception_handler;
 	endif
 	
-	@ files_processed=0;
+	@ filenames_processed=0;
 	#ex -X -n --noplugin -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${filename_list}";
 	cp "${filename_list}" "${filename_list}.all";
 #filename_list_process_init:
@@ -384,14 +411,13 @@ filename_list_process:
 	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 	#foreach filename("`cat "\""${filename_list}"\""`")
 		ex -s '+1d' '+wq!' "${filename_list}";
-		@ files_processed++;
 		if( ${?debug} ) \
-			printf "Attempting to filename_process: [${original_filename}] (file: #${files_processed} of ${file_count})\n" > ${stdout};
+			printf "Attempting to filename_process: [${original_filename}] (file: #${filenames_processed} of ${file_count})\n" > ${stdout};
 		set callback="filename_process";
 		goto callback_handler;
 	end
 	
-	if( ${files_processed} > 0 ) then
+	if( ${filenames_processed} > 0 ) then
 		set callback="scripts_main_quit";
 	else
 		set callback="usage";
@@ -428,25 +454,8 @@ filename_process:
 		goto exception_handler;
 	endif
 	
-	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/([\\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	set filename_for_editor="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"'\''\[\(\)\ \<\>])/\\\1/g'`";
-	if( ${?edit_all_files} ) \
-		${EDITOR} "+0r ${filename_for_editor}";
-	printf "\nFile info for:\n\t<file://${filename}${extension}>\n" > ${stdout};
-	
-	if( -d "${filename}${extension}" ) \
-		/bin/ls -d -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
-	
-	/bin/ls -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
-	
-	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
-	printf "grep " > ${stdout};
-	if( "${grep_test}" != "" ) then
-		printf "found:\n\t${grep_test}\n" > ${stdout};
-	else
-		printf "couldn't find:\n\t${filename_for_regexp}.\n" > ${stdout};
-	endif
-	
+	@ filenames_processed++;
+	set callback="scripts_exec";
 	goto callback_handler;
 #filename_process:
 
@@ -551,7 +560,7 @@ scripts_main_quit:
 	
 	if( ${?argc_required} ) \
 		unset argc_required;
-	if( ${?arg_shifted} ) 				 \
+	if( ${?arg_shifted} ) \
 		unset arg_shifted;
 	
 	if( ${?escaped_cwd} ) \
@@ -610,8 +619,8 @@ scripts_main_quit:
 			unset original_extension;
 		if( ${?file_count} ) \
 			unset file_count;
-		if( ${?files_processed} ) \
-			unset files_processed;
+		if( ${?filenames_processed} ) \
+			unset filenames_processed;
 		
 		if( -e "${filename_list}" ) \
 			rm "${filename_list}";
@@ -709,7 +718,7 @@ exception_handler:
 	if( $errno < -500 || ${?strict} ) then
 		if( ${?no_exit_on_exception} ) \
 			unset no_exit_on_exception;
-		if( ${?display_usage_on_exception} && ! ${display_usage_on_exception_set} ) \
+		if( ${?display_usage_on_exception} && ! ${?display_usage_on_exception_set} ) \
 			unset display_usage_on_exception;
 	endif
 	

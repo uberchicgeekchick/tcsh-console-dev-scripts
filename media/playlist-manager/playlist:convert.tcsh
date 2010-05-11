@@ -330,14 +330,20 @@ scripts_main:
 	endif
 	
 	if(! ${?interactive} ) \
-		set interactive="";
+		set interactive;
 	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
 		set callback="scripts_exec";
-		goto callback_handler;
+	else if( ${?filename_list} && ${?supports_multiple_files} ) then
+		set callback="filename_list_process_init";
+	else if( ${?filename_list} && ! ${?supports_multiple_files} ) then
+		@ errno=-505;
+		set callback="scripts_main_quit";
+		goto exception_handler;
+	else
+		set callback="scripts_main_quit";
 	endif
 	
-	set callback="filename_list_process_init";
 	goto callback_handler;
 #scripts_main:
 
@@ -349,6 +355,15 @@ scripts_exec:
 	
 	printf "Converting [%s] to [%s]" "${playlist}" "${new_playlist}";
 	playlist:new:create.tcsh "${playlist}";
+	
+	if( ${?insert_subdir} ) then
+		ex -s "+1,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)(.*)(\.([^\.]+)"\$"/\1${insert_subdir}\/\2\3\4/" '+wq' "${playlist}.new";
+	endif
+	
+	if( ${?strip_subdir} ) then
+		ex -s "+1,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)${strip_subdir}\/(.*\/)(.*)(\.([^\.]+)"\$"/\1\2\3\4/" '+wq' "${playlist}.new";
+	endif
+	
 	playlist:new:save.tcsh --force ${interactive} "${playlist}" "${new_playlist}";
 	printf "\t\t[done]\n";
 	
@@ -541,7 +556,7 @@ scripts_main_quit:
 	
 	if( ${?argc_required} ) \
 		unset argc_required;
-	if( ${?arg_shifted} ) 				 \
+	if( ${?arg_shifted} ) \
 		unset arg_shifted;
 	
 	if( ${?escaped_cwd} ) \
@@ -918,6 +933,16 @@ parse_arg:
 					set be_verbose;
 				breaksw;
 			
+			case "insert-subdir":
+				if( "${value}" != "" ) \
+					set insert_subdir="${value}";
+				breaksw;
+			
+			case "strip-subdir":
+				if( "${value}" != "" ) \
+					set strip_subdir="${value}";
+				breaksw;
+			
 			case "debug":
 			case "diagnosis":
 			case "diagnostic-mode":
@@ -970,7 +995,7 @@ parse_arg:
 						
 						if( ${?debug} ) \
 							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n";
-						unset interactive="--interactive";
+						unset interactive;
 						breaksw;
 					
 					case "force":

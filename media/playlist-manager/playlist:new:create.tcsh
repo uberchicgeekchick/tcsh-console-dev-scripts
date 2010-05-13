@@ -24,7 +24,6 @@ playlist_init:
 	switch( "${playlist_type}" )
 		case "pls":
 		case "tox":
-		case "toxine":
 		case "m3u":
 			breaksw;
 		
@@ -52,7 +51,6 @@ playlist_setup:
 			breaksw;
 		
 		case "tox":
-		case "toxine":
 			ex -s '+1,$s/\v^\tmrl\ \=\ (\/.*);$/\1/' '+wq!' "${playlist}.swp";
 			breaksw;
 		

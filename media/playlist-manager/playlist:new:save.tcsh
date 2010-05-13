@@ -108,7 +108,6 @@ playlist_save:
 	set new_playlist_to_read="`printf "\""%s"\"" "\""${new_playlist}.new"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 	switch( "${new_playlist_type}" )
 		case "tox":
-		case "toxine":
 			printf "#toxine playlist\n\n" >! "${new_playlist}.swp";
 			ex -s "+2r ${new_playlist_to_read}" '+wq!' "${new_playlist}.swp";
 			ex -s '+3,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+1,$s/\v^(\tidentifier\ \=\ )([^:]*):?.*;$/\1\2;/' '+wq!' "${new_playlist}.swp";

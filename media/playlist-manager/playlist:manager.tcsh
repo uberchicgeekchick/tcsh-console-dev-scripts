@@ -1,15 +1,88 @@
 #!/bin/tcsh -f
-if(! ${?0} ) then
-	printf "This script does not support being sourced and can only be exectuted.\n" > /dev/stderr;
-	@ errno=-501;
-	goto exit_script;
-endif
+init:
+	set scripts_basename="playlist:manager.tcsh";
+	if(! ${?0} ) then
+		printf "This script does not support being sourced and can only be exectuted.\n" > /dev/stderr;
+		@ errno=-501;
+		goto exit_script;
+	endif
+	
+	if( "${1}" == "" ) then
+		printf "One or more required options are missing.\n" > /dev/stderr;
+		@ errno=-502;
+		goto exit_script;
+	endif
+#init:
 
-if( "${1}" == "" ) then
-	printf "One or more required options are missing.\n" > /dev/stderr;
-	@ errno=-502;
-	goto exit_script;
-endif
+
+check_dependencies:
+	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh" "playlist:convert.tcsh" "playlist:find:missing:listings.tcsh" "playlist:copy:missing:listings.tcsh" "playlist:find:non-existent:listings.tcsh");# "`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
+	@ dependencies_index=0;
+	foreach dependency(${dependencies})
+		@ dependencies_index++;
+		unset dependencies[$dependencies_index];
+		if( ${?debug} || ${?debug_dependencies} ) \
+			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
+			
+		foreach program("`where '${dependency}'`")
+			if( -x "${program}" ) \
+				break;
+			unset program;
+		end
+		
+		if(! ${?program} ) then
+			@ errno=-501;
+			printf "One or more required dependencies couldn't be found.\n\t[${dependency}] couldn't be found.\n\t${scripts_basename} requires: ${dependencies}\n";
+			goto exit_script;
+		endif
+		
+		if( ${?debug} || ${?debug_dependencies} ) then
+			switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([1-3])"\$"/\1/'`" )
+				case "1":
+					set suffix="st";
+					breaksw;
+				
+				case "2":
+					set suffix="nd";
+					breaksw;
+				
+				case "3":
+					set suffix="rd";
+					breaksw;
+				
+				default:
+					set suffix="th";
+					breaksw;
+			endsw
+			
+			printf "**${scripts_basename} debug:** found ${dependencies_index}${suffix} dependency: ${dependency}.\n";
+			unset suffix;
+		endif
+		
+		switch("${dependency}")
+			case "${scripts_basename}":
+				if( ${?scripts_dirname} ) \
+					breaksw;
+				
+				set old_owd="${cwd}";
+				cd "`dirname '${program}'`";
+				set scripts_dirname="${cwd}";
+				cd "${owd}";
+				set owd="${old_owd}";
+				unset old_owd;
+				set script="${scripts_dirname}/${scripts_basename}";
+				breaksw;
+			
+			default:
+				breaksw;
+			
+		endsw
+		
+		unset program;
+	end
+	
+	unset dependency dependencies dependencies_index;
+#check_dependencies:
 
 while( "${1}" != "" )
 	set option = "`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\1/g'`";
@@ -287,7 +360,6 @@ exit_script:
 
 
 usage:
-	set scripts_basename="`basename '${0}'`";
 	printf "Usage:\n\t%s [options] --playlist=[playlist]\n" "${scripts_basename}";
 	printf "Supported options are:							\
 		--help				Displays this screen.			\

@@ -188,7 +188,7 @@ check_dependencies:
 		unset program;
 	end
 	
-	unset dependency dependencies;
+	unset dependency dependencies dependencies_index;
 	
 	goto parse_argv;
 #check_dependencies:

@@ -220,9 +220,6 @@ check_dependencies:
 				set script="${scripts_dirname}/${scripts_basename}";
 				breaksw;
 			
-			case "find":
-			case "sed":
-			case "ex":
 			default:
 				if(! ${?execs} ) \
 					set execs=()
@@ -233,7 +230,7 @@ check_dependencies:
 		unset program;
 	end
 	
-	unset dependency dependencies;
+	unset dependency dependencies dependencies_index;
 	
 	set callback="parse_argv";
 	goto callback_handler;

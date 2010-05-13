@@ -204,26 +204,14 @@ check_dependencies:
 				set script="${scripts_dirname}/${scripts_basename}";
 				breaksw;
 			
-			case "find":
-				set find_exec="${program}";
-				breaksw;
-			
-			case "sed":
-				set sed_exec="${program}";
-				breaksw;
-			
-			case "ex":
-				set ex_exec="${program}";
-				breaksw;
-			
-			case "":
+			default:
 				breaksw;
 		endsw
 		
 		unset program;
 	end
 	
-	unset dependency dependencies;
+	unset dependency dependencies dependencies_index;
 	
 	set callback="parse_argv";
 	goto callback_handler;
@@ -993,6 +981,20 @@ parse_arg:
 				endsw
 				breaksw;
 			
+			case "i":
+			case "input":
+			case "playlist":
+				set callback="set_playlist";
+				goto callback_handler;
+				breaksw;
+			
+			case "o":
+			case "output":
+			case "new-playlist":
+				set callback="set_new_playlist";
+				goto callback_handler;
+				breaksw;
+			
 			default:
 				if( -e "${value}" && ${?supports_multiple_files} ) then
 					set value_used;
@@ -1001,48 +1003,11 @@ parse_arg:
 				endif
 				
 				if(! ${?playlist} ) then
-					if(! -e "${value}" ) then
-						if(! ${?display_usage_on_exception} ) \
-							set display_usage_on_exception display_usage_on_exception_set;
-						@ errno=-601;
-						goto exception_handler;
-					endif
-					
-					set playlist_type="`printf "\""${value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
-					switch("${playlist_type}")
-						case "m3u":
-						case "pls":
-						case "tox":
-							set playlist="${value}";
-							set value_used;
-							breaksw;
-						
-						default:
-							if(! ${?display_usage_on_exception} ) \
-								set display_usage_on_exception display_usage_on_exception_set;
-							unset playlist_type;
-							@ errno=-602;
-							goto exception_handler;
-							breaksw;
-					endsw
+					set callback="set_playlist";
+					goto callback_handler;
 				else if(! ${?new_playlist} ) then
-					set new_playlist_type="`printf "\""$value"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
-					switch("${new_playlist_type}")
-						case "m3u":
-						case "pls":
-						case "tox":
-							set new_playlist="${value}";
-							set value_used;
-							breaksw;
-						
-						default:
-							if(! ${?display_usage_on_exception} ) \
-								set display_usage_on_exception display_usage_on_exception_set;
-							unset new_playlist_type;
-							@ errno=-603;
-							goto exception_handler;
-							breaksw;
-					endsw
+					set callback="set_new_playlist";
+					goto callback_handler;
 				endif
 				
 				if( ${?value_used} ) \
@@ -1099,6 +1064,69 @@ parse_argv_quit:
 	
 	goto callback_handler;
 #parse_argv_quit:
+
+
+set_playlist:
+	set label_current="set_playlist";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if(! -e "${value}" ) then
+		if(! ${?display_usage_on_exception} ) \
+			set display_usage_on_exception display_usage_on_exception_set;
+		@ errno=-601;
+		goto exception_handler;
+	endif
+	
+	set playlist_type="`printf "\""${value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+	switch("${playlist_type}")
+		case "m3u":
+		case "pls":
+		case "tox":
+			set playlist="${value}";
+			set value_used;
+			breaksw;
+		
+		default:
+			if(! ${?display_usage_on_exception} ) \
+				set display_usage_on_exception display_usage_on_exception_set;
+			unset playlist_type;
+			@ errno=-602;
+			goto exception_handler;
+			breaksw;
+	endsw
+	
+	set callback="parse_arg";
+	goto callback_handler;
+#set_playlist:
+
+
+set_new_playlist:
+	set label_current="set_new_playlist";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	set new_playlist_type="`printf "\""$value"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+	switch("${new_playlist_type}")
+		case "m3u":
+		case "pls":
+		case "tox":
+			set new_playlist="${value}";
+			set value_used;
+			breaksw;
+		
+		default:
+			if(! ${?display_usage_on_exception} ) \
+				set display_usage_on_exception display_usage_on_exception_set;
+			unset new_playlist_type;
+			@ errno=-603;
+			goto exception_handler;
+			breaksw;
+	endsw
+	
+	set callback="parse_arg";
+	goto callback_handler;
+#set_new_playlist:
 
 
 filename_list_append:

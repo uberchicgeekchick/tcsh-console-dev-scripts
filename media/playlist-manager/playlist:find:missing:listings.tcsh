@@ -1,11 +1,12 @@
 #!/bin/tcsh -f
 init:
-	set scripts_name="pls-tox-m3u:find:missing.tcsh";
-	
-	if( `printf "%s" "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` == "csh" ) then
+	if(! ${?0} ) then
 		@ errno=-501;
 		goto exception_handler;
 	endif
+	
+	set scripts_name="pls-tox-m3u:find:missing.tcsh";
+	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
 	set argc=${#argv};
 	if( ${argc} < 1 ) then
@@ -251,6 +252,11 @@ script_main_quit:
 		unset podcast;
 	if( ${?playlist} ) \
 		unset playlist;
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
 	
 	if(! ${?errno} ) \
 		@ errno=0;

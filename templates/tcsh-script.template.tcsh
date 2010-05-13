@@ -39,6 +39,11 @@ setenv:
 		unsetenv GREP_OPTIONS;
 	endif
 	
+	if( "`alias grep`" != "" ) then
+		set original_grep="`alias grep`";
+		unalias grep;
+	endif
+	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
 	#alias ${download_command} "${download_command_with_options}";
@@ -582,6 +587,11 @@ scripts_main_quit:
 	if( ${?grep_options} ) then
 		setenv GREP_OPTIONS "${grep_options}";
 		unset grep_options;
+	endif
+	
+	if( ${?original_grep} ) then
+		alias grep "${original_grep}";
+		unset original_grep;
 	endif
 	
 	if( ${?supports_multiple_files} ) \

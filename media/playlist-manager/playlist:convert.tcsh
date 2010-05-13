@@ -328,9 +328,6 @@ scripts_main:
 		endif
 	endif
 	
-	if(! ${?interactive} ) \
-		set interactive;
-	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
 		set callback="scripts_exec";
 	else if( ${?filename_list} && ${?supports_multiple_files} ) then
@@ -363,7 +360,7 @@ scripts_exec:
 		ex -s "+1,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)${strip_subdir}\/(.*\/)(.*)(\.([^\.]+)"\$"/\1\2\3\4/" '+wq' "${playlist}.new";
 	endif
 	
-	playlist:new:save.tcsh --force ${interactive} "${playlist}" "${new_playlist}";
+	playlist:new:save.tcsh --force "${playlist}" "${new_playlist}";
 	printf "\t\t[done]\n";
 	
 	set callback="scripts_main_quit";
@@ -948,21 +945,8 @@ parse_arg:
 				# these are all caught above. See: [debug_check:]
 				breaksw;
 			
-			case "interactive":
-				set interactive="--interactive";
-				breaksw;
-					
 			case "enable":
 				switch("${value}")
-					case "interactive":
-						if( ${?interactive} ) \
-							breaksw;
-						
-						if( ${?debug} ) \
-							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n";
-						set interactive="--interactive";
-						breaksw;
-					
 					case "force":
 						if( ${?force} ) \
 							breaksw;
@@ -988,15 +972,6 @@ parse_arg:
 			
 			case "disable":
 				switch("${value}")
-					case "interactive":
-						if(! ${?interactive} ) \
-							breaksw;
-						
-						if( ${?debug} ) \
-							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n";
-						unset interactive;
-						breaksw;
-					
 					case "force":
 						if(! ${?force} ) \
 							breaksw;

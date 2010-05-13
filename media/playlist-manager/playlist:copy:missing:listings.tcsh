@@ -463,6 +463,11 @@ scripts_main_quit:
 			rm -f "${argument_file}";
 		unset argument_file;
 	endif
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
 	
 	if( ${?noglob_set} ) \
 		unset noglob noglob_set;

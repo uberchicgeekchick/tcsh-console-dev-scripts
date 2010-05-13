@@ -6,6 +6,7 @@ init:
 	endif
 	
 	set scripts_basename="pls-m3u-tox:new:create.tcsh":
+	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	alias ex "ex -E -X -n --noplugin";
 #init:
 
@@ -63,6 +64,11 @@ playlist_setup:
 exit_script:
 	if( ${?playlist} ) \
 		unset playlist;
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
 	
 	if(! ${?status} ) \
 		set status=0;

@@ -15,6 +15,7 @@ init:
 	
 	set scripts_basename="playlist:find:non-existent:listings.tcsh";
 	set script_alias="`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
+	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
 	#set escaped_starting_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
@@ -314,7 +315,7 @@ format_new_playlist:
 		goto callback_handler;
 	endif
 	
-	playlist:new:save.tcsh ${clean_up} "${playlist}";
+	playlist:new:save.tcsh --force "${playlist}";
 #format_new_playlist:
 
 script_main_quit:
@@ -430,6 +431,11 @@ script_main_quit:
 		if( -e "${filename_list}" ) \
 			rm "${filename_list}";
 		unset filename_list;
+	endif
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
 	endif
 	
 	if( ${?debug} ) \
@@ -736,18 +742,6 @@ parse_arg:
 			case "clean-up":
 				if(! ${?clean_up} ) \
 					set clean_up;
-				
-				switch("${value}")
-					case "i":
-					case "interactive":
-						set clean_up="${clean_up} --interactive";
-						breaksw;
-					
-					case "f":
-					case "force":
-						set clean_up="${clean_up} --force";
-						breaksw;
-				endsw
 				
 				if( ${?debug} ) \
 					printf "**%s debug:**, via "\$"argv[%d], %s:\t[enabled].\n\n" "${scripts_basename}" $arg "${option}";

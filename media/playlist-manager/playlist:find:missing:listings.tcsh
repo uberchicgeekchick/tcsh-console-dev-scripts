@@ -1,12 +1,12 @@
 #!/bin/tcsh -f
 init:
+	set scripts_basename="playlist:find:missing:listings.tcsh";
+	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
+	
 	if(! ${?0} ) then
 		@ errno=-501;
 		goto exception_handler;
 	endif
-	
-	set scripts_name="playlist:find:missing:listings.tcsh";
-	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
 	set argc=${#argv};
 	if( ${argc} < 1 ) then
@@ -345,7 +345,7 @@ default_callback:
 exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-599;
-	printf "\n**%s error("\$"errno:%d):**\n\t" "${scripts_name}"  $errno;
+	printf "\n**%s error("\$"errno:%d):**\n\t" "${scripts_basename}"  $errno;
 	switch( $errno )
 		case -4:
 			if(! ${?exit_on_error} ) \
@@ -364,7 +364,7 @@ exception_handler:
 			breaksw;
 		
 		case -502:
-			printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_name}" "${dependencies}";
+			printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_basename}" "${dependencies}";
 			breaksw;
 		
 		case -503:
@@ -380,7 +380,7 @@ exception_handler:
 			printf "An unknown error "\$"errno: %s has occured" "${errno}" > /dev/stderr;
 			breaksw;
 	endsw
-	printf ".\n\nPlease see: %s%s --help%s for more information and supported options\n" \` "${scripts_name}" \` > /dev/stderr;
+	printf ".\n\nPlease see: %s%s --help%s for more information and supported options\n" \` "${scripts_basename}" \` > /dev/stderr;
 	
 	if( ${?callback} ) then
 		set last_callback=$callback;

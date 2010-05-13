@@ -56,24 +56,25 @@ init_complete:
 	set init_completed;
 #init_complete:
 
-check_dependencies:
-	set label_current="check_dependencies";
+
+dependencies_check:
+	set label_current="dependencies_check";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh");# "${script_alias}");
 	@ dependencies_index=0;
-#check_dependencies:
+#dependencies_check:
 
 
-check_dependencies:
-	set label_current="check_dependencies";
+dependency_check:
+	set label_current="dependency_check";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	foreach dependency(${dependencies})
+	while( $dependencies_index < ${#dependencies} )
 		@ dependencies_index++;
-		unset dependencies[$dependencies_index];
+		set dependency=$dependencies[$dependencies_index];
 		foreach dependency("`where '${dependency}'`")
 			if( ${?debug} ) \
 				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
@@ -146,11 +147,22 @@ check_dependencies:
 			goto exception_handler;
 		endif
 		
-		unset dependency;
+		unset program;
 	end
+#dependency_check:
+
+
+dependencies_found:
+	set label_current="dependencies_found";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
 	
-	unset dependency dependencies;
-#check_dependencies:
+	unset dependency dependencies dependencies_index;
+	
+	set callback="parse_argv";
+	goto callback_handler;
+#dependencies_found:
+	
 
 
 if_sourced:

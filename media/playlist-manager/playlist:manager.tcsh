@@ -226,12 +226,12 @@ clean_up:
 		set target_directory="${cwd}";
 	
 	printf "Checking for any files found under: [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
-	playlist:find:missing.tcsh "${playlist}" "${target_directory}" ${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=interactive;
+	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=interactive;
 #clean_up:
 
 get_missing:
 	if( ${?auto_copy} || ${?import} ) \
-		playlist:copy:missing.tcsh "${playlist}";
+		playlist:copy:missing:listings.tcsh "${playlist}";
 #get_missing:
 
 

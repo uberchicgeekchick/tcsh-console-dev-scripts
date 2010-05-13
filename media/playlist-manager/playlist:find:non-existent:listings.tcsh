@@ -217,13 +217,9 @@ main:
 	set label_current="main";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
-#main:
-
-
-exec:
-	set label_current="exec";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	
+	if( ${?debug} ) \
+		printf "Executing %s's main.\n" "${scripts_basename}";
 	
 	if(! ${?playlist} ) then
 		@ errno=-506;
@@ -235,28 +231,38 @@ exec:
 		goto exception_handler;
 	endif
 	
-	if( ${?edit_playlist} && ! ${?playlist_edited} ) then
-		set playlist_edited;
+	if( ${?edit_playlist} ) \
 		${EDITOR} "${playlist}";
-	endif
 	
 	if(! ${?playlist_type} ) then
 		set callback="setup_playlist";
 		goto callback_handler;
 	endif
+#main:
+
+
+exec:
+	set label_current="exec";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
 	
 	if( ${?debug} ) \
-		printf "Executing %s's main.\n" "${scripts_basename}";
+		printf "Executing %s's exec.\n" "${scripts_basename}";
 	
 	if( ${?filename_list} ) then
 		if( ${?filename} ) then
 			if( -e "${filename}.${extension}" ) then
 				if( ${?clean_up} ) then
-					if(! -e "${playlist}.new" ) then
-						printf "${filename}.${extension}" >! "${playlist}.new";
+					if(! ${?playlist_files} ) then
+						@ playlist_files=1;
+						if( -e "${playlist}.swp" ) \
+							rm "${playlist}.swp";
+						touch "${playlist}.swp";
 					else
-						printf "\n${filename}.${extension}" >> "${playlist}.new";
+						@ playlist_files++;
+						printf "\n" >> "${playlist}.swp";
 					endif
+					printf "%s" "${filename}.${extension}" >> "${playlist}.swp";
 				endif
 			else
 				if(! ${?dead_file_count} ) then
@@ -284,7 +290,8 @@ process_filename_list:
 		set original_extension="${extension}";
 		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
 		set filename="`printf "\""${filename}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-		goto exec;
+		set callback="exec";
+		goto callback_handler;
 	end
 	rm "${filename_list}";
 	unset filename filename_list;
@@ -296,13 +303,13 @@ format_new_playlist:
 		goto callback_handler;
 	endif
 	
-	if(! -e "${playlist}.new" ) then
+	if(! -e "${playlist}.swp" ) then
 		set callback="script_main_quit";
 		goto callback_handler;
 	endif
 	
 	if(! ${?dead_file_count} ) then
-		rm "${playlist}.new";
+		rm "${playlist}.swp";
 		set callback="script_main_quit";
 		goto callback_handler;
 	endif
@@ -382,7 +389,7 @@ script_main_quit:
 	
 	if( ${?argc_required} ) \
 		unset argc_required;
-	if( ${?arg_shifted} ) 					\
+	if( ${?arg_shifted} ) \
 		unset arg_shifted;
 	
 	if( ${?escaped_cwd} ) \
@@ -516,7 +523,8 @@ exception_handler:
 			breaksw;
 		
 		case -506:
-			printf "A valid and existing play list must be specified.\n\tPlease see: %s%s --help%s for supported options and details" '`' "${scripts_basename}" '`' > /dev/stderr;
+			printf "<file://%s> does not exist.\nA valid and existing playlist must be specified.\n\tPlease see: %s%s --help%s for supported options and details" "${playlist}" '`' "${scripts_basename}" '`' > /dev/stderr;
+			unset playlist;
 			breaksw;
 		
 		case -599:
@@ -543,7 +551,7 @@ parse_argv:
 	
 	if( ${?init_completed} ) then
 		if(! ${?being_sourced} ) then
-			set callback="exec";
+			set callback="main";
 		else
 			set callback="sourcing_main";
 		endif
@@ -647,7 +655,7 @@ parse_arg:
 				if( ${?debug} ) \
 					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_quotes: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_quotes}" \$ "${test_value}";
 				
-				if(!("${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]")) then
+				if( "${test_dashes}" != "" && "${test_option}" != "" && ( "${test_value}" == "" || "${test_value}" == "$argv[$arg]" ) ) then
 					@ arg--;
 				else
 					set equals="=";
@@ -708,13 +716,13 @@ parse_arg:
 				breaksw;
 			
 			case "playlist":
+				set playlist="${value}";
 				if(! -e "${value}" ) then
 					@ errno=-506;
 					set callback="parse_arg";
 					goto exception_handler;
 					breaksw;
 				endif
-				set playlist="${value}";
 				breaksw;
 			
 			case "debug":
@@ -734,14 +742,18 @@ parse_arg:
 				breaksw;
 			
 			case "clean-up":
+				if(! ${?clean_up} ) \
+					set clean_up;
+				
 				switch("${value}")
 					case "i":
 					case "interactive":
-						set clean_up="--interactive";
+						set clean_up="${clean_up} --interactive";
 						breaksw;
 					
-					default:
-						set clean_up;
+					case "f":
+					case "force":
+						set clean_up="${clean_up} --force";
 						breaksw;
 				endsw
 				
@@ -884,7 +896,7 @@ parse_argv_quit:
 			if(! ${?init_completed} ) then
 				set callback="init_complete";
 			else if(! ${?being_sourced} ) then
-				set callback="exec";
+				set callback="main";
 			else
 				set callback="sourcing_main";
 			endif
@@ -956,6 +968,9 @@ setup_playlist:
 	endif
 	
 	playlist:new:create.tcsh "${playlist}";
+	if(! ${?filename_list} ) \
+		set filename_list="`mktemp --tmpdir filenames.${scripts_basename}.XXXXXX`";
+	cp -f "${playlist}.swp" "${filename_list}";
 	set callback="exec";
 	goto callback_handler;
 #setup_playlist:

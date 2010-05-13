@@ -649,11 +649,6 @@ exit_script:
 		if( $files_encoded == 0 ) then
 			if( -e "${playlist}.new" ) \
 				rm "${playlist}.new"
-			if( ${?playlist_new} ) then
-				if( -e "${playlist}" ) \
-					rm "${playlist}";
-				unset playlist_new;
-			endif
 		endif
 		unset playlist files_encoded;
 	endif
@@ -848,24 +843,9 @@ parse_arg:
 						breaksw;
 				endsw
 				
-				if(! -e "${playlist}" ) then
+				playlist:new:create.tcsh "${playlist}";
+				if(! -e "${playlist}" ) \
 					set playlist_new;
-					touch "${playlist}";
-					touch "${playlist}.new";
-				else
-					cp "${playlist}" "${playlist}.new";
-					switch( "${playlist_type}" )
-						case "pls":
-							ex -s '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq' "${playlist}.new";
-							breaksw;
-						
-						case "tox":
-						case "toxine":
-							ex -s '+1,$s/\v^[\ \t]+mrl\ \=\ (\/.*);$/\1/' '+wq' "${playlist}.new";
-							breaksw;
-					endsw
-					ex -s '+1,$s/\v^[^\/].*\n//' '+1,$s/\v^\n//g' '+wq' "${playlist}.new";
-				endif
 				if( ${?arg_shifted} ) \
 					@ arg++;
 				breaksw;

@@ -349,7 +349,7 @@ scripts_exec:
 	
 	printf "Creating sorted playlist from files listed in [%s]" "${playlist}";
 	playlist:new:create.tcsh "${playlist}";
-	cat "${playlist}.new" | \
+	cat "${playlist}.swp" | \
 		sed -r 's/(.*\/)([^\/]*, released on\:? [^,]+, )([0-9]+ )(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)( [^\.]+)(\.[^\.]+)/\3\4\5\ \:\ \1\2\3\4\5\6/' \
 		| sed -r 's/([0-9]+ )(Jan) ([0-9]+) ([^\:]+)(\:.*)/\3\-01\-\1\4\5/' \
 		| sed -r 's/([0-9]+ )(Feb) ([0-9]+) ([^\:]+)(\:.*)/\3\-02\-\1\4\5/' \
@@ -365,7 +365,10 @@ scripts_exec:
 		| sed -r 's/([0-9]+ )(Dec) ([0-9]+) ([^\:]+)(\:.*)/\3\-12\-\1\4\5/' \
 		| sort \
 		| sed -r 's/(.*)\ \:\ (.*)/\2/' >! "${playlist}.new";
+	rm "${playlist}.swp";
 	playlist:new:save.tcsh --force ${interactive} "${playlist}" "${new_playlist}";
+	if( -e "${playlist}.new" ) \
+		rm "${playlist}.new";
 	printf "\t\t[done]\n";
 	
 	if( "${playlist}" != "${new_playlist}" ) \
@@ -562,7 +565,7 @@ scripts_main_quit:
 	
 	if( ${?argc_required} ) \
 		unset argc_required;
-	if( ${?arg_shifted} ) 				 \
+	if( ${?arg_shifted} ) \
 		unset arg_shifted;
 	
 	if( ${?escaped_cwd} ) \

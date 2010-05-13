@@ -381,7 +381,6 @@ filename_list_process_init:
 	mv -f "${filename_list}.swp" "${filename_list}";
 	
 	set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
-	
 	if(! ${file_count} > 0 ) then
 		@ errno=-503;
 		set callback="scripts_main_quit";
@@ -408,6 +407,7 @@ filename_list_process:
 	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 	#foreach filename("`cat "\""${filename_list}"\""`")
 		ex -s '+1d' '+wq!' "${filename_list}";
+		@ filenames_processed++;
 		if( ${?debug} ) \
 			printf "Attempting to filename_process: [${original_filename}] (file: #${filenames_processed} of ${file_count})\n" > ${stdout};
 		set callback="filename_process";
@@ -449,7 +449,6 @@ filename_process:
 		goto exception_handler;
 	endif
 	
-	@ filenames_processed++;
 	set callback="scripts_exec";
 	goto callback_handler;
 #filename_process:

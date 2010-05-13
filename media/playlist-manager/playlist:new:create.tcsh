@@ -15,41 +15,51 @@ playlist_init:
 	if( $argc != 1 ) \
 		goto usage;
 	
-	if(! -e "$argv[1]" ) then
-		touch "$argv[1].new";
-		goto exit_script;
-	endif
-	
 	set playlist="$argv[1]";
-	set playlist_type="`printf "\""$argv[1]"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
-	
-	cp -f "${playlist}" "${playlist}.new";
+	set playlist_type="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
 #playlist_init:
 
 
-playlist_setup:
+#playlist_check:
 	switch( "${playlist_type}" )
 		case "pls":
-			ex -s '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq!' "${playlist}.new";
-			breaksw;
-		
 		case "tox":
 		case "toxine":
-			ex -s '+1,$s/\v^\tmrl\ \=\ (\/.*);$/\1/' '+wq!' "${playlist}.new";
-			breaksw;
-		
 		case "m3u":
 			breaksw;
 		
 		default:
 			printf "**${scripts_basename} error:** [${playlist}] is an unsupported playlist with an an unsupported playlist type: [${playlist_type}].\n\nRun: "\`"${scripts_basename} --help"\`" for more information.\n" > /dev/stderr;
 			@ errno=-606;
-			if( -e "${playlist}.new" ) \
-				rm "${playlist}.new";
 			goto exit_script;
 			breaksw;
 	endsw
-	ex -s '+1,$s/\v^[^/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${playlist}.new";
+	
+	touch "${playlist}.new";
+	if(! -e "${playlist}" ) then
+		touch "${playlist}";
+		goto scripts_main_quit;
+	endif
+#playlist_check:
+
+
+playlist_setup:
+	cp -f "${playlist}" "${playlist}.swp";
+	
+	switch( "${playlist_type}" )
+		case "pls":
+			ex -s '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq!' "${playlist}.swp";
+			breaksw;
+		
+		case "tox":
+		case "toxine":
+			ex -s '+1,$s/\v^\tmrl\ \=\ (\/.*);$/\1/' '+wq!' "${playlist}.swp";
+			breaksw;
+		
+		case "m3u":
+			breaksw;
+	endsw
+	ex -s '+1,$s/\v^[^/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${playlist}.swp";
 #playlist_setup:
 
 exit_script:

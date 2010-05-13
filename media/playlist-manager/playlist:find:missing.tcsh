@@ -98,7 +98,7 @@ find_missing_media:
 		if( ${?append} ) then
 			@ added_podcasts++;
 			set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-			printf "<file://%s> will be added to <file://%s>\n" "${this_podcast}" "${playlist}";
+			printf "Adding:\n\t<file://%s>\n\t\tto\n\t<file://%s>\n" "${this_podcast}" "${playlist}";
 			printf "\n%s" "${this_podcast}" >> "${playlist}.new";
 			continue;
 		endif

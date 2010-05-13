@@ -45,7 +45,17 @@ main:
 	
 	if(! ${?regextype} ) \
 		set regextype="posix-extended";
+	
+	if(! ${?append} ) \
+		goto find_missing_media;
 #main:
+
+
+setup_playlist_new:
+	@ added_podcasts=0;
+	playlist:new:create.tcsh "${playlist}";
+#setup_playlist_new:
+
 
 find_missing_media:
 	set escaped_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g'`";
@@ -53,6 +63,7 @@ find_missing_media:
 		printf "Searching for missing multimedia files using:\n\t";
 		printf "find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\\\\1/g' | sed -r 's/(\[)/\\\\\\1/g' | sed -r 's/([*])/\\\\\\1/g'\n";
 	endif
+	@ errno=0;
 	@ removed_podcasts=0;
 	foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sed -r 's/(\\)/\\\\/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
 		#printf "-->%s\n" "${podcast}";
@@ -84,12 +95,21 @@ find_missing_media:
 			printf "grep's output:\n\t%s\n\n" "${grep_test}";
 		endif
 		
+		if( ${?append} ) then
+			@ added_podcasts++;
+			set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+			printf "<file://%s> will be added to <file://%s>\n" "${this_podcast}" "${playlist}";
+			printf "\n%s" "${this_podcast}" >> "${playlist}.new";
+			continue;
+		endif
+		
 		if(! ${?remove} ) then
 			set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 			if(! -e "${this_podcast}" ) \
 				continue;
 			
 			printf "${this_podcast}\n";
+			
 			if( ${?create_script} ) then
 				printf "%s\n" "${this_podcast}" >> "${create_script}";
 			endif
@@ -192,27 +212,47 @@ find_missing_media:
 			unset podcast_cwd;
 		unset rm_confirmation duplicates_subdir podcast_dir podcast_dir_for_ls duplicate_podcast;
 	end
+	goto script_main_quit;
 #find_missing_media:
 
-if( $removed_podcasts == 0 && ${?create_script} ) then
-	rm "${create_script}";
-endif
-
-if( ${?old_owd} ) then
-	cd "${owd}";
-	set owd="${old_owd}";
-	unset old_owd;
-endif
-
-if( ${?duplicates_subdir} ) \
-	unset duplicates_subdir;
-if( ${?duplicate_podcast} ) \
-	unset duplicate_podcast;
-unset podcast_dir podcast playlist;
-@ errno=0;
 
 
 script_main_quit:
+	if( ${?append} ) then
+		if(! ${?added_podcasts} ) \
+			@ added_podcasts=0;
+		if( $added_podcasts == 0 ) then
+			if( -e "${playlist}.new" ) \
+				rm -f "${playlist}.new";
+		else
+			playlist:new:save.tcsh "${playlist}";
+		endif
+		unset append added_podcasts;
+	endif
+	
+	if(! ${?removed_podcasts} ) \
+		@ removed_podcasts=0;
+	if( $removed_podcasts == 0 && ${?create_script} ) then
+		rm "${create_script}";
+	endif
+	
+	if( ${?old_owd} ) then
+		cd "${owd}";
+		set owd="${old_owd}";
+		unset old_owd;
+	endif
+	
+	if( ${?duplicates_subdir} ) \
+		unset duplicates_subdir;
+	if( ${?duplicate_podcast} ) \
+		unset duplicate_podcast;
+	if( ${?podcast_dir} ) \
+		unset podcast_dir;
+	if( ${?podcast} ) \
+		unset podcast;
+	if( ${?playlist} ) \
+		unset playlist;
+	
 	if(! ${?errno} ) \
 		@ errno=0;
 	
@@ -510,10 +550,12 @@ parse_arg:
 				endsw
 				breaksw;
 			
-			case "all":
-			case "search-all":
 			case "recursive":
 				set maxdepth="";
+				breaksw;
+			
+			case "append":
+				set append;
 				breaksw;
 			
 			case "maxdepth":
@@ -540,6 +582,7 @@ parse_arg:
 				set mindepth=" -mindepth 2 ";
 				breaksw;
 			
+			case "all":
 			case "search-all":
 			case "search-all-subdirs":
 				set mindepth=" ";

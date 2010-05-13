@@ -324,7 +324,8 @@ scripts_exec:
 	
 	printf '#\!/bin/tcsh -f\nset old_podcast="";\n' >! "${tcsh_copy_script}";
 	chmod u+x "${tcsh_copy_script}";
-	ex -s "+2r `printf "\""%s"\"" "\""${playlist}.new"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`" '+wq!' "${tcsh_copy_script}";
+	ex -s "+2r `printf "\""%s"\"" "\""${playlist}.swp"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`" '+wq!' "${tcsh_copy_script}";
+	/bin/rm "${playlist}.swp";
 	/bin/rm "${playlist}.new";
 	
 	ex -s '+3,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tcsh_copy_script}";

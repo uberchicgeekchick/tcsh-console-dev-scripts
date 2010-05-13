@@ -1,6 +1,4 @@
 #!/bin/tcsh -f
-set label_current="setenv";
-goto label_stack_set;
 setenv:
 	if(! ${?noglob} ) then
 		set noglob;
@@ -42,10 +40,11 @@ setenv:
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
 	#alias	"wget"	"${download_command_with_options}";
-	
 #setenv:
 
 
+set label_current="init";
+goto label_stack_set;
 init:
 	set label_current="init";
 	if( "${label_current}" != "${label_previous}" ) \

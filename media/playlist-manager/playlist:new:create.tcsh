@@ -30,12 +30,12 @@ playlist_init:
 playlist_setup:
 	switch( "${playlist_type}" )
 		case "pls":
-			ex -s '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq' "${playlist}.new";
+			ex -s '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq!' "${playlist}.new";
 			breaksw;
 		
 		case "tox":
 		case "toxine":
-			ex -s '+1,$s/\v^[\ \t]+mrl\ \=\ (\/.*);$/\1/' '+wq' "${playlist}.new";
+			ex -s '+1,$s/\v^\tmrl\ \=\ (\/.*);$/\1/' '+wq!' "${playlist}.new";
 			breaksw;
 		
 		case "m3u":
@@ -49,7 +49,7 @@ playlist_setup:
 			goto exit_script;
 			breaksw;
 	endsw
-	ex -s '+1,$s/\v^[^\/].*\n//' '+1,$s/\v^\n//g' '+wq' "${playlist}.new";
+	ex -s '+1,$s/\v^[^/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${playlist}.new";
 #playlist_setup:
 
 exit_script:

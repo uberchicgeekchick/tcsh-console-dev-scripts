@@ -81,7 +81,6 @@ main:
 			if(! -d "${save_to_dir}" ) \
 				mkdir -p "${save_to_dir}";
 			set starting_old_owd="${owd}";
-			/bin/mv "${alacasts_download_log}" "${save_to_dir}/`basename '${alacasts_download_log}'`";
 			cd "${save_to_dir}";
 		endif
 		unset save_to_dir;
@@ -923,8 +922,6 @@ parse_arg:
 					else
 						printf "A valid http, https, or ftp feeds URI must be specified.\n";
 					endif
-				else if(! -e "${alacasts_download_log}" ) then
-					printf "%s\n" "${value}" > "${alacasts_download_log}";
 				else
 					printf "%s\n" "${value}" >> "${alacasts_download_log}";
 				endif

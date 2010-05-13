@@ -1,5 +1,16 @@
 #!/bin/tcsh -f
 setenv:
+	set strict;
+	set supports_being_sourced;
+	
+	set supports_multiple_files;
+	#set supports_hidden_files;
+	set scripts_supported_extensions="mp3|ogg|m4a";
+	
+	set scripts_basename="tcsh-script.template.tcsh";
+	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
+	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
+	
 	if(! ${?TCSH_OUTPUT_ENABLED} ) then
 		set stdout=/dev/null;
 		set stderr=/dev/null;
@@ -28,8 +39,6 @@ setenv:
 		unsetenv GREP_OPTIONS;
 	endif
 	
-	alias ex "ex -E -X -n --noplugin";
-	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
 	#alias ${download_command} "${download_command_with_options}";
@@ -38,24 +47,12 @@ setenv:
 	#set download_command_with_options="${download_command} --no-check-certificate --continue --quiet --output-document";
 	#alias ${download_command} "${download_command_with_options}";
 	
-	set scripts_basename="tcsh-script.template.tcsh";
-	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
-	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
-#setenv:
-
-
-set label_current="setup";
-goto label_stack_set;
-setup:
-	set strict;
-	set supports_being_sourced;
-	
-	set supports_multiple_files;
-	#set supports_hidden_files;
-	set scripts_supported_extensions="mp3|ogg|m4a";
+	alias ex "ex -E -X -n --noplugin";
 #setup:
 
 
+set label_current="init";
+goto label_stack_set;
 init:
 	set label_current="init";
 	if( "${label_current}" != "${label_previous}" ) \

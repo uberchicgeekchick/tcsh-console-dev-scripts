@@ -11,7 +11,6 @@ if( "${1}" == "" ) then
 	goto exit_script;
 endif
 
-set edit_playlist="";
 while( "${1}" != "" )
 	set option = "`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\1/g'`";
 	set value = "`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\2/g'`";
@@ -55,7 +54,7 @@ while( "${1}" != "" )
 			breaksw;
 		
 		case "edit-playlist":
-			set edit_playlist=" --edit-playlist";
+			set edit_playlist;
 			breaksw;
 		
 		case "target-directory":
@@ -63,7 +62,14 @@ while( "${1}" != "" )
 				set target_directory="${value}"
 			breaksw;
 		
+		case "recursive":
+			set maxdepth="--recursive";
+			breaksw;
+		
 		case "maxdepth":
+			if( ${?maxdepth} ) \
+				breaksw;
+			
 			if( ${value} != "" && `printf '%s' "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
 				set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
 				if( ${value} > 2 ) \
@@ -75,6 +81,10 @@ while( "${1}" != "" )
 		
 		case "playlist":
 			set playlist="${value}";
+			breaksw;
+		
+		case "validate":
+			set validate;
 			breaksw;
 		
 		default:
@@ -122,11 +132,12 @@ switch( "${playlist_type}" )
 	default:
 		printf "**error:** [%s] is an unsupported playlist type: [%s].\n" "${playlist}" "${playlist_type}" > /dev/stderr;
 		unset playlist playlist_type;
-		@ errno=-2;;
+		@ errno=-2;
 		goto exit_script;
 		breaksw;
 endsw
 
+import:
 if( ${?import} ) then
 	if( "${import}" == "${playlist}" ) then
 		printf "**error** [%s] and [%s] are the same file.\nImporting playlist:\t\t[failed]\n" "${import}" "${playlist}"
@@ -136,25 +147,36 @@ if( ${?import} ) then
 	
 	if(! -e "${import}" ) then
 		printf "**error:** [%s] does not exist/could not be found.\nImporting <file://%s>:\t\t[failed]\n" "${import}" "${import}" > /dev/stderr;
-		@ errno=-3;;
+		@ errno=-3;
 		goto exit_script;
 	endif
 	
 	set import_type="`printf "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
-	if( "${import_type}" == "${playlist_type}" ) then
-		cp -vf "${import}" "${playlist}";
-	else
-		switch( "${import_type}" )
-			case "m3u":
-			case "tox":
-			case "pls":
-				playlist:convert --force "${import}" "${playlist}";
-				breaksw;
-		endsw
-	endif
+	switch( "${import_type}" )
+		case "m3u":
+		case "tox":
+		case "pls":
+			if( "${import_type}" == "${playlist_type}" ) then
+				cp -vf "${import}" "${playlist}";
+			else
+				playlist:convert.tcsh --force "${import}" "${playlist}";
+			endif
+			if( ${?edit_playlist} ) \
+				${EDITOR} "${playlist}";
+			breaksw;
+		
+		default:
+			printf "**error:** [%s] cannot by imported. It is an unsupported playlist type: [%s].\n" "${import}" "${import_type}" > /dev/stderr;
+			unset import import_type;
+			@ errno=-2;
+			goto exit_script;
+			breaksw;
+	endsw
 	unset import_type;
 endif
+#import:
 
+export:
 if( ${?export_to} ) then
 	if( "${export_to}" == "${playlist}" ) then
 		printf "**error** [%s] and [%s] are the same file.\nExporting playlist:\t\t[failed]\n" "${export_to}" "${playlist}"
@@ -164,55 +186,52 @@ if( ${?export_to} ) then
 	
 	if(! -e "${playlist}" ) then
 		printf "**error:** [%s] does not exist/could not be found.\nCannot export a non-existing playlist.\nExporting playlist:\t\t[failed]\n" "${playlist}" > /dev/stderr;
-		@ errno=-3;;
+		@ errno=-3;
 		goto exit_script;
 	endif
 	
 	set export_type="`printf "\""${export_to}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
-	if( "${playlist_type}" == "${export_type}" ) then
-		cp -vf "${playlist}" "${export_to}";
-	else
-		switch( "${playlist_type}" )
-			case "m3u":
-				m3u-to-tox.tcsh${edit_playlist} "${playlist}" "${export_to}";
-				breaksw;
-			
-			case "tox":
-				tox-to-m3u.tcsh${edit_playlist} "${playlist}" "${export_to}";
-				breaksw;
-		endsw
-	endif
+	switch( "${export_type}" )
+		case "m3u":
+		case "tox":
+		case "pls":
+			if( ${?edit_playlist} ) \
+				${EDITOR} "${playlist}";
+			if( "${export_type}" == "${playlist_type}" ) then
+				cp -vf "${playlist}" "${export_to}";
+			else
+				playlist:convert.tcsh --force "${playlist}" "${export_to}";
+			endif
+			breaksw;
+		
+		default:
+			printf "**error:** [%s] cannot by exported. It is an unsupported playlist type: [%s].\n" "${export}" "${export_type}" > /dev/stderr;
+			unset export export_type;
+			@ errno=-2;
+			goto exit_script;
+			breaksw;
+	endsw
 	unset export_type;
 endif
+#export:
 
 clean_up:
 	if(! ${?clean_up} ) \
 		goto get_missing;
 	
 	if(! ${?maxdepth} ) \
-		set maxdepth=" ";
+		set maxdepth="--search-subdirs-only";
 	
 	if(! ${?target_directory} ) \
 		set target_directory="${cwd}";
 	
 	printf "Checking for any files found under: [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
-	playlist:find:missing.tcsh "${playlist}" "${target_directory}" --search-subdirs-only${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=interactive;
-	
-	#if( "${target_directory}" != "/media/podiobooks" && "`/bin/ls /media/podiobooks/`" != 'nfs' ) \
-	#	pls-tox-m3u:find:missing.tcsh "${playlist}" /media/podiobooks --search-subdirs-only --maxdepth=5 --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='\(mp3\|ogg\|m4a\)' --remove=interactive;
+	playlist:find:missing.tcsh "${playlist}" "${target_directory}" ${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=interactive;
 #clean_up:
 
 get_missing:
-	if(!( ${?auto_copy} || ${?import} )) \
-		goto exit_script;
-	
-	switch( "${playlist_type}" )
-		case "m3u":
-		case "tox":
-		case "pls":
-			playlist:copy:missing.tcsh "${playlist}";
-			breaksw;
-	endsw
+	if( ${?auto_copy} || ${?import} ) \
+		playlist:copy:missing.tcsh "${playlist}";
 #get_missing:
 
 

@@ -5,8 +5,8 @@ init:
 		goto usage;
 	endif
 	
-	set scripts_basename="pls-m3u-tox:new:save.tcsh":
-	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
+	set scripts_basename="playlist:new:save.tcsh":
+	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	alias ex "ex -E -X -n --noplugin";
 #init:
 
@@ -61,15 +61,21 @@ playlist_init:
 
 
 playlist_save:
-	mv -f "${playlist}.new" "${new_playlist}.new";
-	ex -s '+1,$s/\v^\n//g' '+wq!' "${new_playlist}.new";
+	if( "${playlist}.new" != "${new_playlist}.new" ) \
+		mv -f "${playlist}.new" "${new_playlist}.new";
+	while( "`/bin/grep --perl-regex -c '^"\$"' "\""${new_playlist}.new"\""`" != 0 )
+		set line_numbers=`/bin/grep --perl-regex --line-number '^$' "${new_playlist}.new" | sed -r 's/^([0-9]+).*$/\1/' | grep --perl-regexp '^[0-9]+'`;
+		set line_numbers=`printf "%s\n" "${line_numbers}" | sed 's/ /,/g'`;
+	 	ex -s "+${line_numbers}d" '+1,$s/\v^\n//g' '+wq!' "${new_playlist}.new";
+		unset line_numbers;
+	end
 	set new_playlist_to_read="`printf "\""%s"\"" "\""${new_playlist}.new"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 	switch( "${new_playlist_type}" )
 		case "tox":
 		case "toxine":
 			printf "#toxine playlist\n\n" >! "${new_playlist}.swp";
 			ex -s "+2r ${new_playlist_to_read}" '+wq!' "${new_playlist}.swp";
-			ex -s '+3,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+1,$s/\v^(\tidentifier\ \=\ )([^:]*):?.*;$/\1\2;/' '+wq' "${new_playlist}.swp";
+			ex -s '+3,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+1,$s/\v^(\tidentifier\ \=\ )([^:]*):?.*;$/\1\2;/' '+wq!' "${new_playlist}.swp";
 			printf "#END" >> "${new_playlist}.swp";
 			breaksw;
 		
@@ -91,9 +97,13 @@ playlist_save:
 		
 		case "m3u":
 			printf "#EXTM3U\n" >! "${new_playlist}.swp";
-			ex -s "+1r ${new_playlist_to_read}" '+wq' "${new_playlist}.swp";
+			ex -s "+1r ${new_playlist_to_read}" '+wq!' "${new_playlist}.swp";
 			ex -s '+2,$s/\v^(.*\/)(.*)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${new_playlist}.swp";
-			ex -s '+2,$s/\v^(#EXTINF:,.*)(,\ released\ on.*)$/\1/' '+1,$s/\v^(\#EXTINF:,)([^:]*):?.*$/\1\2/' '+wq!' "${new_playlist}.swp";
+			ex -s '+2,$s/\v^(#EXTINF:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${new_playlist}.swp";
+			foreach line_number( "`grep --perl-regexp --line-number '^(#EXTINF:,)([^:]+):([^:]*)"\$"' "\""${new_playlist}.swp"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" )
+				ex -s "+${line_number}s/://g" "+${line_number}s/\v^(#EXTINF,)(.*)"\$"/\1:\2/g" '+wq!' "${new_playlist}.swp";
+				unset line_number;
+			end
 			breaksw;
 	endsw
 	rm "${new_playlist}.new";
@@ -105,6 +115,12 @@ playlist_save:
 #playlist_save:
 
 exit_script:
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
+	
 	if( ${?playlist} ) then
 		if( -e "${playlist}.new" ) \
 			rm "${playlist}.new";

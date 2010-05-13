@@ -1,6 +1,4 @@
 #!/bin/tcsh -f
-set label_current="setenv";
-goto label_stack_set;
 setenv:
 	alias ex "ex -E -X -n --noplugin";
 	
@@ -37,6 +35,8 @@ setenv:
 #setenv:
 
 
+set label_current="init";
+goto label_stack_set;
 init:
 	set label_current="init";
 	if( "${label_current}" != "${label_previous}" ) \
@@ -292,7 +292,7 @@ scripts_main:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	@ required_options=2;
+	@ required_options=1;
 	
 	if( ${argc} < ${required_options} ) then
 		@ errno=-503;

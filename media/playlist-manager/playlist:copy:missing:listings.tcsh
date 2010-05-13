@@ -20,7 +20,7 @@ setenv:
 		unsetenv GREP_OPTIONS;
 	endif
 	
-	set scripts_basename="playlist:copy:missing.tcsh";
+	set scripts_basename="playlist:copy:missing:listings.tcsh";
 	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	

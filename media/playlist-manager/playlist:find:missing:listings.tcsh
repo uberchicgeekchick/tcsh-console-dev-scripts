@@ -5,7 +5,7 @@ init:
 		goto exception_handler;
 	endif
 	
-	set scripts_name="pls-tox-m3u:find:missing.tcsh";
+	set scripts_name="playlist:find:missing:listings.tcsh";
 	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
 	set argc=${#argv};
@@ -14,20 +14,80 @@ init:
 		goto exception_handler;
 	endif
 	
-	set old_owd="${cwd}";
-	cd "`dirname '${0}'`";
-	set scripts_path="${cwd}";
-	cd "${owd}";
-	set escaped_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g'`";
-	set owd="${old_owd}";
-	unset old_owd;
-	
-	set script="${scripts_path}/${scripts_name}";
-	
 	set extensions="";
-	
-	goto parse_argv;
 #init:
+
+
+check_dependencies:
+	set dependencies=("${scripts_basename}");# "`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
+	@ dependencies_index=0;
+	foreach dependency(${dependencies})
+		@ dependencies_index++;
+		unset dependencies[$dependencies_index];
+		if( ${?debug} || ${?debug_dependencies} ) \
+			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
+			
+		foreach program("`where '${dependency}'`")
+			if( -x "${program}" ) \
+				break;
+			unset program;
+		end
+		
+		if(! ${?program} ) then
+			@ errno=-501;
+			printf "One or more required dependencies couldn't be found.\n\t[${dependency}] couldn't be found.\n\t${scripts_basename} requires: ${dependencies}\n";
+			goto exit_script;
+		endif
+		
+		if( ${?debug} || ${?debug_dependencies} ) then
+			switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([1-3])"\$"/\1/'`" )
+				case "1":
+					set suffix="st";
+					breaksw;
+				
+				case "2":
+					set suffix="nd";
+					breaksw;
+				
+				case "3":
+					set suffix="rd";
+					breaksw;
+				
+				default:
+					set suffix="th";
+					breaksw;
+			endsw
+			
+			printf "**${scripts_basename} debug:** found ${dependencies_index}${suffix} dependency: ${dependency}.\n";
+			unset suffix;
+		endif
+		
+		switch("${dependency}")
+			case "${scripts_basename}":
+				if( ${?scripts_dirname} ) \
+					breaksw;
+				
+				set old_owd="${cwd}";
+				cd "`dirname '${program}'`";
+				set scripts_dirname="${cwd}";
+				cd "${owd}";
+				set owd="${old_owd}";
+				unset old_owd;
+				set script="${scripts_dirname}/${scripts_basename}";
+				breaksw;
+			
+			default:
+				breaksw;
+			
+		endsw
+		
+		unset program;
+	end
+	
+	unset dependency dependencies dependencies_index;
+	goto parse_argv;
+#check_dependencies:
+
 
 main:
 	if(! ${?playlist} ) then

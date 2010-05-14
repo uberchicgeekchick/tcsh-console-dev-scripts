@@ -331,7 +331,7 @@ scripts_exec:
 	ex -s '+3,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tcsh_copy_script}";
 	ex -s '+3,$s/\v^(\/[^/]+\/[^/]+\/)(.*)\/(.*)(\.[^.]+)$/if\(\! -e "\1\2\/\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\tprintf "**error coping:** remote file\\n\\t\<\1nfs\/\2\/\3\4\> doesn'\''t exists.\\n" \> \/dev\/stderr;\r\telse\r\t\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\tprintf "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\tprintf "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4";\r\t\tprintf "\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_copy_script}";
 	
-	printf "[done]\n\nClecking local fs for any missing files and copying them to the local fs from the nfs share.\n";
+	printf "\t[done]\n\nChecking local fs for any missing files and copying them to the local fs from the nfs share.\n";
 	"${tcsh_copy_script}";
 	/bin/rm "${tcsh_copy_script}";
 	printf "\nCopying files from nfs share to local fs:\t[finished]\n";

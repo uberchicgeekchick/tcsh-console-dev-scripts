@@ -158,13 +158,7 @@ find_missing_media:
 		if( ${?append} ) then
 			set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 			printf "Adding:\n\t<file://%s>\n\t\tto\n\t<file://%s>\n" "${this_podcast}" "${playlist}";
-			if(! ${?playlist_files} ) then
-				@ playlist_files=1;
-			else
-				@ playlist_files++;
-				printf "\n" >> "${playlist}.new";
-			endif
-			printf "%s" "${this_podcast}" >> "${playlist}.new";
+			printf "%s\n" "${this_podcast}" >> "${playlist}.new";
 			continue;
 		endif
 		
@@ -284,8 +278,6 @@ find_missing_media:
 
 script_main_quit:
 	if( ${?append} ) then
-		if( ${?playlist_files} ) \
-			unset playlist_files;
 		playlist:new:save.tcsh "${playlist}";
 		unset append;
 	endif

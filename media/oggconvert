@@ -420,15 +420,9 @@ oggconvert:
 	endif
 	
 	if( ${?playlist} ) then
-		if(! ${?playlist_files} ) then
-			@ playlist_files=1;
-		else
-			@ playlist_files++;
-			printf "\n" >> "${playlist}.new";
-		endif
 		if( "`printf "\""%s"\"" "\""${save_to_filename}"\"" | sed -r 's/^(.)(.*)"\$"/\1/'`" != "/" ) \
 			printf "${cwd}/" >> "${playlist}.new";
-		printf "${save_to_filename}.ogg" >> "${playlist}.new";
+		printf "${save_to_filename}.ogg\n" >> "${playlist}.new";
 	endif
 	
 	printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[completed]\n\n";

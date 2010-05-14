@@ -266,16 +266,9 @@ exec:
 		if( ${?filename} ) then
 			if( -e "${filename}.${extension}" ) then
 				if( ${?clean_up} ) then
-					if(! ${?playlist_files} ) then
-						@ playlist_files=1;
-						if( -e "${playlist}.swp" ) \
-							rm "${playlist}.swp";
-						touch "${playlist}.swp";
-					else
-						@ playlist_files++;
-						printf "\n" >> "${playlist}.swp";
-					endif
-					printf "%s" "${filename}.${extension}" >> "${playlist}.swp";
+					if( -e "${playlist}.swp" ) \
+						rm "${playlist}.swp";
+					printf "%s\n" "${filename}.${extension}" >> "${playlist}.new";
 				endif
 			else
 				if(! ${?dead_file_count} ) then

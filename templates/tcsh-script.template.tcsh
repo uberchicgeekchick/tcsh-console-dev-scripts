@@ -264,9 +264,9 @@ if_sourced:
 	@ errno=0;
 	
 	if( ${?0} ) then
-		set callback="scripts_main";
+		set callback="main";
 	else if( ${?supports_being_sourced} ) then
-		set callback="scripts_sourcing_main";
+		set callback="sourcing_main";
 	else
 		@ errno=-502;
 		goto exception_handler;
@@ -276,8 +276,8 @@ if_sourced:
 #if_sourced:
 
 
-scripts_sourcing_main:
-	set label_current="scripts_sourcing_main";
+sourcing_main:
+	set label_current="sourcing_main";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -289,78 +289,102 @@ scripts_sourcing_main:
 	# START: special handler for when this file is sourced.
 	alias ${scripts_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.
-#scripts_sourcing_main:
+#sourcing_main:
 
 
-scripts_sourcing_quit:
-	set label_current="scripts_sourcing_quit";
+sourcing_quit:
+	set label_current="sourcing_quit";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	# END: source scripts_basename support.
 	
-	set callback="scripts_main_quit";
+	set callback="exit_script";
 	goto callback_handler;
-#scripts_sourcing_quit:
+#sourcing_quit:
 
 
-scripts_main:
-	set label_current="scripts_main";
+main:
+	set label_current="main";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	printf "Executing ${scripts_basename}'s main.\n" > ${stdout};
 	
-	@ required_options=1;
-	@ meximum_options=-1;
-	
-	if( ${argc} < ${required_options} ) then
-		@ errno=-503;
-		set callback="parse_argv_quit";
-		goto exception_handler;
-	endif
-	
-	if( ${meximum_options} > 0 && ${argc} > ${meximum_options} ) then
-		@ errno=-504;
-		set callback="parse_argv_quit";
-		goto exception_handler;
-	endif
-	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
-		set callback="scripts_exec";
-	else if( ${?filename_list} && ${?supports_multiple_files} ) then
-		set callback="filename_list_process_init";
+		set callback="exec";
 	else if( ${?filename_list} && ! ${?supports_multiple_files} ) then
 		@ errno=-505;
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 		goto exception_handler;
+	else if( ${?filename_list} && ${?supports_multiple_files} ) then
+		cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
+		mv -f "${filename_list}.swp" "${filename_list}";
+		
+		set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+		if(! ${file_count} > 0 ) then
+			@ errno=-503;
+			set callback="exit_script";
+			goto exception_handler;
+		endif
+		
+		@ filenames_processed=0;
+		#ex -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${filename_list}";
+		cp -f "${filename_list}" "${filename_list}.all";
 	else
-		set callback="scripts_main_quit";
+		@ errno=-999;
+		set callback="exit_script";
+		goto exception_handler;
 	endif
 	
-	set callback="filename_list_process_init";
+	set callback="exec";
 	goto callback_handler;
-#scripts_main:
+#main:
 
 
-scripts_exec:
-	set label_current="scripts_exec";
+exec:
+	set label_current="exec";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	printf "Executing ${scripts_basename}'s exec.\n" > ${stdout};
 	
-	if( ${?filename} && ! ${?supports_multiple_files} ) then
+	if( ${?filename_list} && ! ${?supports_multiple_files} ) then
 		@ errno=-505;
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 		goto exception_handler;
 	endif
 	
-	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/([\\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	set filename_for_editor="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"'\''\[\(\)\ \<\>])/\\\1/g'`";
+	if(! ${?filename_list} ) then
+		#A one time process
+		set callback="exit_script";
+		goto usage;
+	endif
+	
+	if(! ${?current_filename} ) then
+		set callback="filename_next";
+		goto callback_handler;
+	endif
+	
+	printf "Processing <file://%s>\n" "${current_filename}";
+	set extension="`printf "\""${current_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
+	if( "${extension}" == "${current_filename}" ) \
+		set extension="";
+	set original_extension="${extension}";
+	set filename="`printf "\""${current_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
+	if(! -e "${filename}${extension}" ) then
+		if(! ${?no_exit_on_exception} ) \ 
+			set no_exit_on_exception_set no_exit_on_exception;
+		@ errno=-498;
+		set callback="filename_next";
+		goto exception_handler;
+	endif
+	set filename_for_regexp="`printf "\""${current_filename}"\"" | sed -r 's/([\ \\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	set filename_for_editor="`printf "\""${current_filename}"\"" | sed -r 's/(["\"\$\!"'\''\[\(\)\ \<\>])/\\\1/g'`";
 	if( ${?edit_all_files} ) \
 		${EDITOR} "+0r ${filename_for_editor}";
+	
 	printf "\nFile info for:\n\t<file://${filename}${extension}>\n" > ${stdout};
 	
 	if( -d "${filename}${extension}" ) \
@@ -376,102 +400,53 @@ scripts_exec:
 		printf "couldn't find:\n\t${filename_for_regexp}.\n" > ${stdout};
 	endif
 	printf "\n\n";
-	
-	set callback="filename_list_process";
+	set callback="filename_next";
 	goto callback_handler;
-#scripts_exec:
+#exec:
 
 
-filename_list_process_init:
-	set label_current="filename_list_process_init";
+filename_next:
+	set label_current="filename_next";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	if(! ${?supports_multiple_files} ) then
 		@ errno=-505;
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 		goto exception_handler;
 	endif
 	
-	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
-	mv -f "${filename_list}.swp" "${filename_list}";
+	printf "Getting %s's next filename:\t" "${scripts_basename}";
 	
-	set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
-	if(! ${file_count} > 0 ) then
-		@ errno=-503;
-		set callback="scripts_main_quit";
-		goto exception_handler;
-	endif
-	
-	@ filenames_processed=0;
-	#ex -X -n --noplugin -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${filename_list}";
-	cp "${filename_list}" "${filename_list}.all";
-#filename_list_process_init:
-
-
-filename_list_process:
-	set label_current="filename_list_process";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	
-	if(! ${?supports_multiple_files} ) then
-		@ errno=-505;
-		set callback="scripts_main_quit";
-		goto exception_handler;
-	endif
-	
-	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+	foreach current_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 	#foreach filename("`cat "\""${filename_list}"\""`")
 		ex -s '+1d' '+wq!' "${filename_list}";
 		@ filenames_processed++;
-		if( ${?debug} ) \
-			printf "Attempting to filename_process: [${original_filename}] (file: #${filenames_processed} of ${file_count})\n" > ${stdout};
-		set callback="filename_process";
+		if( ${?debug} ) then
+			printf "Processing current file: [${current_filename}]" > ${stdout};
+			if( ${file_count} > 1 ) \
+				printf "( #${filenames_processed} of ${file_count} )" > ${stdout};
+			printf "\n" > ${stdout};
+		endif
+		printf "[done]\n";
+		set callback="exec";
 		goto callback_handler;
 	end
 	
 	if( ${filenames_processed} > 0 ) then
-		set callback="scripts_main_quit";
+		printf "[finished]\n";
+		set callback="exit_script";
 	else
+		printf "[no files found]\n";
 		set callback="usage";
 	endif
 	
 	goto callback_handler;
-#filename_list_process:
+#filename_next:
 
 
-filename_process:
-	set label_current="filename_process";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	
-	if(! ${?supports_multiple_files} ) then
-		@ errno=-505;
-		set callback="scripts_main_quit";
-		goto exception_handler;
-	endif
-	
-	set callback="filename_list_process";
-	set extension="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
-	if( "${extension}" == "${original_filename}" ) \
-		set extension="";
-	set original_extension="${extension}";
-	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
-	if(! -e "${filename}${extension}" ) then
-		if(! ${?no_exit_on_exception} ) \ 
-			set no_exit_on_exception_set no_exit_on_exception;
-		@ errno=-498;
-		set callback="filename_list_process";
-		goto exception_handler;
-	endif
-	
-	set callback="scripts_exec";
-	goto callback_handler;
-#filename_process:
-
-
-scripts_main_quit:
-	set label_current="scripts_main_quit";
+exit_script:
+	set label_current="exit_script";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -484,8 +459,8 @@ scripts_main_quit:
 	if( ${?label_next} ) \
 		unset label_next;
 	
-	if( ${?required_options} ) \
-		unset required_options;
+	if( ${?minimum_options} ) \
+		unset minimum_options;
 	if( ${?meximum_options} ) \
 		unset meximum_options;
 	if( ${?argc} ) \
@@ -616,8 +591,8 @@ scripts_main_quit:
 		unset supports_hidden_files;
 	
 	if( ${?filename_list} ) then
-		if( ${?original_filename} ) \
-			unset original_filename;
+		if( ${?current_filename} ) \
+			unset current_filename;
 		if( ${?filename} ) \
 			unset filename;
 		if( ${?filename_for_regexp} ) \
@@ -671,7 +646,7 @@ scripts_main_quit:
 	
 	@ status=$errno;
 	exit ${errno}
-#scripts_main_quit:
+#exit_script:
 
 
 usage:
@@ -706,12 +681,12 @@ usage:
 	
 	if(! ${?no_exit_on_usage} ) then
 		if(! ${0} ) then
-			set callback="scripts_sourcing_quit";
+			set callback="sourcing_quit";
 		else
-			set callback="scripts_main_quit";
+			set callback="exit_script";
 		endif
 	else if(! ${?callback} ) then
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	endif
 	
 	goto callback_handler;
@@ -788,17 +763,17 @@ exception_handler:
 	
 	if(! ${?callback} ) then
 		if(! ${?0} && ${?supports_being_sourced} ) then
-			set callback="scripts_sourcing_quit";
+			set callback="sourcing_quit";
 		else
-			set callback="scripts_main_quit";
+			set callback="exit_script";
 		endif
 	endif
 	
 	if(! ${?no_exit_on_exception} ) then
 		if( ! ${?0} && ${?supports_being_sourced} ) then
-			set callback="scripts_sourcing_quit";
+			set callback="sourcing_quit";
 		else
-			set callback="scripts_main_quit";
+			set callback="exit_script";
 		endif
 	endif
 	
@@ -813,11 +788,24 @@ parse_argv:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	@ arg=0;
+	@ minimum_options=-1;
+	@ maximum_options=-1;
+	@ argc=${#argv};
+	
+	if( ${minimum_options} > 0 && ${argc} < ${minimum_options} ) then
+		@ errno=-503;
+		set callback="parse_argv_quit";
+		goto exception_handler;
+	endif
+	
+	if( ${maximum_options} > 0 && ${argc} > ${maximum_options} ) then
+		@ errno=-504;
+		set callback="parse_argv_quit";
+		goto exception_handler;
+	endif
 	
 	@ arg=0;
 	@ parsed_argc=0;
-	@ argc=${#argv};
 	
 	if( ${?debug_arguments} && ! ${?debug} ) \
 		set debug debug_set;
@@ -1250,7 +1238,7 @@ label_stack_set:
 
 callback_handler:
 	if(! ${?callback} ) \
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	
 	if(! ${?callback_stack} ) then
 		set callback_stack=("${callback}");

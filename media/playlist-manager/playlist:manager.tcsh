@@ -87,8 +87,8 @@ check_dependencies:
 
 
 parse_argv:
+	@ arg=0;
 	@ argc=${#argv};
-	@ arg++;
 	while( $arg < $argc )
 		@ arg++;
 		set option = "`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\1/g'`";

@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 
-set use_wifi;
+#set use_wifi;
 
 if(! ${?use_wifi} ) then
 	set lan_ip_4="8";

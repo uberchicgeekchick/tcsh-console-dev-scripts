@@ -824,7 +824,11 @@ parse_arg:
 				breaksw;
 			
 			case "playlist":
-				set playlist_type="`printf "\""${value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+				if( "${value}" != "" ) then
+					set playlist_type="`printf "\""${value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+				else
+					set playlist_type="m3u";
+				endif
 				switch( "${playlist_type}" )
 					case "tox":
 						set playlist_type="toxine";
@@ -843,9 +847,10 @@ parse_arg:
 						breaksw;
 				endsw
 				
-				playlist:new:create.tcsh "${playlist}";
 				if(! -e "${playlist}" ) \
-					set playlist_new;
+					set playlist="${scripts_basename}'s ${playlist_type} playlist @ `date '+%c'`.${playlist_type}";
+				
+				playlist:new:create.tcsh "${playlist}";
 				if( ${?arg_shifted} ) \
 					@ arg++;
 				breaksw;

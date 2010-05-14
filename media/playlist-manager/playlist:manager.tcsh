@@ -85,144 +85,160 @@ check_dependencies:
 	unset dependency dependencies dependencies_index;
 #check_dependencies:
 
-while( "${1}" != "" )
-	set option = "`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\1/g'`";
-	set value = "`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\2/g'`";
-	if( "${value}" == "" && "${2}" != "" ) \
-		set value="${2}";
-	#printf "Checking\n\toption: %s\n\tvalue %s\n" "${option}" "${value}";
+
+parse_argv:
+	@ argc=${#argv};
+	@ arg++;
+	while( $arg < $argc )
+		@ arg++;
+		set option = "`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\1/g'`";
+		set value = "`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\2/g'`";
+		if( "${option}" != "" && "${value}" == "" ) then
+			@ arg++;
+			if( $arg < $argc ) then
+				set value="$argv[$arg]";
+			endif
+			@ arg--;
+		endif
+		
+		if( ${?debug} ) \
+			printf "Checking:\n\toption: %s\n\tvalue %s\n\t"\$"argv[%d](=%s)\n" "${option}" "${value}" $arg "$argv[$arg]";
 	
-	switch ( "${option}" )
-		case "help"
-			goto usage;
-			breaksw;
-		
-		case "debug":
-			if(! ${?debug} ) \
-				set debug;
-			breaksw;
-		
-		case "clean-up":
-			if(! ${?clean_up} ) \
-				set clean_up;
-			breaksw;
-		
-		case "auto-copy":
-			if(! ${?auto_copy} ) \
-				set auto_copy;
-			breaksw;
-		
-		case "verbose":
-			if(! ${?be_verbose} ) \
-				set be_verbose;
-			breaksw;
-		
-		case "import":
-			if( -e "${value}" ) \
-				set import="${value}";
-			breaksw;
-		
-		case "export":
-		case "export-to":
-			set export_to="${value}";
-			breaksw;
-		
-		case "edit-playlist":
-			set edit_playlist;
-			breaksw;
-		
-		case "target-directory":
-			if( -d "${value}" ) \
-				set target_directory="${value}"
-			breaksw;
-		
-		case "recursive":
-			set maxdepth="--recursive";
-			breaksw;
-		
-		case "maxdepth":
-			if( ${?maxdepth} ) \
+		switch ( "${option}" )
+			case "help"
+				goto usage;
 				breaksw;
 			
-			if( ${value} != "" && `printf '%s' "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
-				set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
-				if( ${value} > 2 ) \
-					set maxdepth=" --maxdepth=${value} ";
-			endif
-			if(! ${?maxdepth} ) \
-				printf "--maxdepth must be an integer value that is gretter than 2" > /dev/stderr;
-			breaksw;
-		
-		case "playlist":
-			set playlist="${value}";
-			breaksw;
-		
-		case "validate":
-			set validate;
-			breaksw;
-		
-		default:
-			if( ! ${?playlist} && "${2}" == "" && -e "${value}" ) \
+			case "debug":
+				if(! ${?debug} ) \
+					set debug;
+				breaksw;
+			
+			case "clean-up":
+				if(! ${?clean_up} ) \
+					set clean_up;
+				breaksw;
+			
+			case "auto-copy":
+				if(! ${?auto_copy} ) \
+					set auto_copy;
+				breaksw;
+			
+			case "verbose":
+				if(! ${?be_verbose} ) \
+					set be_verbose;
+				breaksw;
+			
+			case "import":
+				if( -e "${value}" ) \
+					set import="${value}";
+				breaksw;
+			
+			case "export":
+			case "export-to":
+				set export_to="${value}";
+				breaksw;
+			
+			case "edit-playlist":
+				set edit_playlist;
+				breaksw;
+			
+			case "target-directory":
+				if( -d "${value}" ) \
+					set target_directory="${value}"
+				breaksw;
+			
+			case "recursive":
+				set maxdepth="--recursive";
+				breaksw;
+			
+			case "maxdepth":
+				if( ${?maxdepth} ) \
+					breaksw;
+				
+				if( ${value} != "" && `printf '%s' "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
+					set value=`printf '%s' "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
+					if( ${value} > 2 ) \
+						set maxdepth="--maxdepth=${value}";
+				endif
+				if(! ${?maxdepth} ) \
+					printf "--maxdepth must be an integer value that is gretter than 2" > /dev/stderr;
+				breaksw;
+			
+			case "playlist":
 				set playlist="${value}";
-			breaksw;
-	endsw
-	shift;
-end
-	
+				breaksw;
+			
+			case "validate":
+				set validate;
+				breaksw;
+			
+			default:
+				if( ! ${?playlist} && "${2}" == "" && -e "${value}" ) \
+					set playlist="${value}";
+				breaksw;
+		endsw
+	end
+parse_argv:
+
+
+main:
 	if( ${?debug} && ${?be_verbose} ) then
 		if(! ${?echo} ) then
 			set echo;
 			set echo_set;
 		endif
 	endif
-
-if(! ${?playlist} ) then
-	printf "**error:** a valid target playlist must be specified.\n" > /dev/stderr;
-	@ errno=-1;
-	goto exit_script;
-endif
-
-if( ${?export_to} || ! ${?import} ) then
-	if(! -e "${playlist}" )	then
-		printf "**error:** an existing playlist must be specified.\n" > /dev/stderr;
-		@ errno=-2;
-		goto exit_script;
-	endif	
-endif
-
-if( ${?export_to} && ${?import} ) then
-	printf "**error:** you cannot import and export a playlist at the same time.\nPlease choose to either import or export a playlist and than export or import the playlist created by your initial playlist import or export.\n" > /dev/stderr;
-	@ errno=-3;
-	goto exit_script;
-endif
-
-set playlist_type="`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
-switch( "${playlist_type}" )
-	case "m3u":
-	case "tox":
-	case "pls":
-		breaksw;
 	
-	default:
-		printf "**error:** [%s] is an unsupported playlist type: [%s].\n" "${playlist}" "${playlist_type}" > /dev/stderr;
-		unset playlist playlist_type;
-		@ errno=-2;
+	if(! ${?playlist} ) then
+		printf "**error:** a valid target playlist must be specified.\n" > /dev/stderr;
+		@ errno=-1;
 		goto exit_script;
-		breaksw;
-endsw
+	endif
+	
+	if( ${?export_to} || ! ${?import} ) then
+		if(! -e "${playlist}" )	then
+			printf "**error:** an existing playlist must be specified.\n" > /dev/stderr;
+			@ errno=-2;
+			goto exit_script;
+		endif	
+	endif
+	
+	if( ${?export_to} && ${?import} ) then
+		printf "**error:** you cannot import and export a playlist at the same time.\nPlease choose to either import or export a playlist and than export or import the playlist created by your initial playlist import or export.\n" > /dev/stderr;
+		@ errno=-3;
+		goto exit_script;
+	endif
+	
+	set playlist_type="`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
+	switch( "${playlist_type}" )
+		case "m3u":
+		case "tox":
+		case "pls":
+			breaksw;
+		
+		default:
+			printf "**error:** [%s] is an unsupported playlist type: [%s].\n" "${playlist}" "${playlist_type}" > /dev/stderr;
+			unset playlist playlist_type;
+			@ errno=-2;
+			goto exit_script;
+			breaksw;
+	endsw
+#main:
+
 
 import:
-if( ${?import} ) then
+	if(! ${?import} ) \
+		goto export;
+	
 	if( "${import}" == "${playlist}" ) then
 		printf "**error** [%s] and [%s] are the same file.\nImporting playlist:\t\t[failed]\n" "${import}" "${playlist}"
-		set status=-4;
-		goto exit_script;
+		goto export;
 	endif
 	
 	if(! -e "${import}" ) then
 		printf "**error:** [%s] does not exist/could not be found.\nImporting <file://%s>:\t\t[failed]\n" "${import}" "${import}" > /dev/stderr;
-		@ errno=-3;
-		goto exit_script;
+		goto export;
 	endif
 	
 	set import_type="`printf "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
@@ -230,6 +246,9 @@ if( ${?import} ) then
 		case "m3u":
 		case "tox":
 		case "pls":
+			if(! ${?auto_copy} ) \
+				set auto_copy;
+			
 			if( "${import_type}" == "${playlist_type}" ) then
 				cp -vf "${import}" "${playlist}";
 			else
@@ -241,27 +260,23 @@ if( ${?import} ) then
 		
 		default:
 			printf "**error:** [%s] cannot by imported. It is an unsupported playlist type: [%s].\n" "${import}" "${import_type}" > /dev/stderr;
-			unset import import_type;
-			@ errno=-2;
-			goto exit_script;
-			breaksw;
 	endsw
-	unset import_type;
-endif
+	unset import import_type;
 #import:
 
+
 export:
-if( ${?export_to} ) then
+	if(! ${?export_to} ) \
+		goto clean_up;
+	
 	if( "${export_to}" == "${playlist}" ) then
 		printf "**error** [%s] and [%s] are the same file.\nExporting playlist:\t\t[failed]\n" "${export_to}" "${playlist}"
-		set status=-4;
-		goto exit_script;
+		goto clean_up;
 	endif
 	
 	if(! -e "${playlist}" ) then
 		printf "**error:** [%s] does not exist/could not be found.\nCannot export a non-existing playlist.\nExporting playlist:\t\t[failed]\n" "${playlist}" > /dev/stderr;
-		@ errno=-3;
-		goto exit_script;
+		goto clean_up;
 	endif
 	
 	set export_type="`printf "\""${export_to}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
@@ -280,14 +295,11 @@ if( ${?export_to} ) then
 		
 		default:
 			printf "**error:** [%s] cannot by exported. It is an unsupported playlist type: [%s].\n" "${export}" "${export_type}" > /dev/stderr;
-			unset export export_type;
-			@ errno=-2;
-			goto exit_script;
 			breaksw;
 	endsw
-	unset export_type;
-endif
+	unset export_type export;
 #export:
+
 
 clean_up:
 	if(! ${?clean_up} ) \
@@ -301,12 +313,27 @@ clean_up:
 	
 	printf "Checking for any files found under: [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
 	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=interactive;
+	
+	unset target_directory maxdepth clean_up;
 #clean_up:
 
+
 get_missing:
-	if( ${?auto_copy} || ${?import} ) \
-		playlist:copy:missing:listings.tcsh "${playlist}";
+	if(! ${?auto_copy} ) \
+		goto validate;
+	
+	playlist:copy:missing:listings.tcsh "${playlist}";
+	unset auto_copy;
 #get_missing:
+
+
+validate:
+	if(! ${?validate} ) \
+		goto exit_script;
+	
+	playlist:find:non-existent:listings.tcsh --clean-up "${playlist}";
+	usset validate;
+#validate:
 
 
 exit_script:

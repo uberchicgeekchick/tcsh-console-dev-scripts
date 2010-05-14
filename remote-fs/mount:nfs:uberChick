@@ -7,7 +7,7 @@ init:
 	set lan_ip_4="8";
 	set wifi_ip_4="4";
 
-	set use_wifi;
+	#set use_wifi;
 
 	set shares=( "art" "art/games" "art/media" "art/www" "projects" "projects/gtk" "projects/cli" "projects/references" "media" "media/library" "media/podcasts" "media/podiobooks" "media/music" "media/videos" "media/torrents" "uberChick" "programs" "profile.d" "srv" );
 #init:

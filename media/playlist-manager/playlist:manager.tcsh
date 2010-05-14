@@ -115,8 +115,19 @@ parse_argv:
 				breaksw;
 			
 			case "clean-up":
-				if(! ${?clean_up} ) \
-					set clean_up;
+				if( ${?clean_up} ) \
+					breaksw;
+				
+				switch("${value}")
+					case "force":
+					case "interactive":
+						set clean_up="${value}";
+						breaksw;
+					
+					default:
+						set clean_up="interactive";
+						breaksw;
+				endsw
 				breaksw;
 			
 			case "auto-copy":
@@ -312,7 +323,7 @@ clean_up:
 		set target_directory="${cwd}";
 	
 	printf "Checking for any files found under: [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
-	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=interactive;
+	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
 	
 	unset target_directory maxdepth clean_up;
 #clean_up:

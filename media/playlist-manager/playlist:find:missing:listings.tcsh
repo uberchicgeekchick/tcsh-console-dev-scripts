@@ -95,6 +95,25 @@ main:
 		goto exception_handler;
 	endif
 	
+	if(! -e "${playlist}" ) then
+		@ errno=-4;
+		goto exception_handler;
+	endif
+	
+	if(! ${?target_directory} ) then
+		set target_directory="${cwd}";
+	else
+		if(! -d "${target_directory}" ) then
+			@ errno=-5;
+			goto exception_handler;
+		endif
+	endif
+	
+	if( "${target_directory}" != "${cwd}" ) then
+		set old_owd="${owd}";
+		cd "${target_directory}";
+	endif
+	
 	if(! ${?maxdepth} ) \
 		set maxdepth=" -maxdepth 2";
 	
@@ -106,15 +125,25 @@ main:
 	
 	if(! ${?regextype} ) \
 		set regextype="posix-extended";
-	
-	if(! ${?append} ) \
-		goto find_missing_media;
 #main:
 
 
 setup_playlist_new:
-	playlist:new:create.tcsh "${playlist}";
+	if( ${?append} ) \
+		playlist:new:create.tcsh "${playlist}";
 #setup_playlist_new:
+
+
+create_clean_up_script:
+	if( ${?create_script} ) then
+		if( "${create_script}" == "" ) \
+			set create_script="script-to:remove:missing:listings:from:`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/\//\-/g'`.tcsh";
+		if(! -e "${create_script}" ) then
+			printf "#\!/bin/tcsh -f\n" > "${create_script}";
+			chmod u+x "${create_script}";
+		endif
+	endif
+#create_clean_up_script:
 
 
 find_missing_media:
@@ -400,36 +429,13 @@ parse_argv:
 			continue;
 		printf "Enabling debug mode (via "\$"argv[%d])\n" $arg;
 		set debug;
-		@ arg++;
 		break;
 	end
 	
-	if(!( ${?debug} && $arg == 2 )) \
-		@ arg=1;
+	@ arg=0;
 	
 	if( ${?debug} ) \
-		printf \$"argv[%d]: %s\n" $arg "$argv[$arg]";
-	
-	if(! -e "$argv[$arg]" ) then
-		@ errno=-4;
-		goto exception_handler;
-	endif
-	
-	set playlist="$argv[$arg]";
-	@ arg++;
-	
-	if( $arg > $argc ) \
-		goto main;
-	if(!( "$argv[$arg]" != "" && -d "$argv[$arg]" )) then
-		@ errno=-5;
-		goto exception_handler;
-	else if( "$argv[$arg]" != "${cwd}" ) then
-		set old_owd="${owd}";
-		cd "$argv[$arg]";
-	endif
-	
-	if( ${?debug} ) \
-		printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
+		printf "Checking %s's argv options.  %d total.\n" "${scripts_basename}" "${argc}";
 #parse_argv:
 
 parse_arg:
@@ -443,52 +449,64 @@ parse_arg:
 		if( ${?debug} ) \
 			printf "Checking argv #%d (%s).\n" "${arg}" "$argv[$arg]";
 		
-		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?/\1/'`";
-		if( "${dashes}" == "$argv[$arg]" ) \
+		set argument="`printf "\""$argv[$arg]"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+		set dashes="`printf "\""${argument}"\"" | sed -r 's/([\-]{1,2})([^\=]+)(=?)(.*)/\1/'`";
+		if( "${dashes}" == "${argument}" ) \
 			set dashes="";
 		
-		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?/\2/'`";
-		if( "${option}" == "$argv[$arg]" ) \
+		set option="`printf "\""${argument}"\"" | sed -r 's/([\-]{1,2})([^\=]+)(=?)(.*)/\2/'`";
+		if( "${option}" == "${argument}" ) \
 			set option="";
 		
-		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\3/'`";
-		if( "${equals}" == "$argv[$arg]" ) \
+		set equals="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\3/'`";
+		if( "${equals}" == "${argument}" ) \
 			set equals="";
 		
-		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
-		if( "${value}" == "" || ( "${option}" == "" && "${value}" == "$argv[$arg]" )  ) then
+		set value="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\4/'`";
+		
+		if( "${dashes}" != "" && "${option}" != "" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "${argument}" ) ) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;
 			else
-				set test_dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\1/'`";
-				set test_option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\2/'`";
-				set test_equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\3/'`";
-				set test_value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
+				set test_argument="`printf "\""$argv[$arg]"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
+				set test_dashes="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\1/'`";
+				if( "${test_dashes}" == "${test_argument}" ) \
+					set test_dashes="";
 				
-				if(!("${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]")) then
+				set test_option="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\2/'`";
+				if( "${test_option}" == "${test_argument}" ) \
+					set test_option="";
+				
+				set test_equals="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\3/'`";
+				if( "${test_equals}" == "${test_argument}" ) \
+					set test_equals="";
+				
+				set test_value="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\4/'`";
+				
+				if( "${test_dashes}" != "" && "${test_option}" != "" && ( "${test_value}" == "" || "${test_value}" == "${test_argument}" ) ) then
 					@ arg--;
 				else
 					set arg_shifted;
 					set equals="=";
-					set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
+					set value="${test_value}";
 				endif
-				unset test_dashes test_option test_equals test_value;
+				unset test_argument test_dashes test_option test_equals test_value;
 			endif
 		endif
 		
-		if( "`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
-		endif
+		#if( "`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
+		#	set value="`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
+		#endif
 		
-		if( "`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_cwd}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
-		endif
+		#if( "`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
+		#	set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_cwd}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
+		#endif
 		
-		if( "`printf "\""${value}"\"" | sed -r "\""s/^.*(\*)/\1/"\""`" == "*" ) then
-			set dir="`printf "\""${value}"\"" | sed -r "\""s/^(.*)\*"\$"/\1/"\""`";
-			set value="`/bin/ls --width=1 "\""${dir}"\""*`";
-		endif
+		#if( "`printf "\""${value}"\"" | sed -r "\""s/^.*(\*)/\1/"\""`" == "*" ) then
+		#	set dir="`printf "\""${value}"\"" | sed -r "\""s/^(.*)\*"\$"/\1/"\""`";
+		#	set value="`/bin/ls --width=1 "\""${dir}"\""*`";
+		#endif
 		
 		if( ${?debug} ) \
 			printf "**debug** parsed %sargv[%d] (%s).\n\tParsed option: %s%s%s%s\n" ""\$"" "${arg}" "$argv[$arg]" "${dashes}" "${option}" "${equals}" "${value}";
@@ -496,7 +514,7 @@ parse_arg:
 		switch( "${option}" )
 			case "help":
 				goto usage;
-				breaksw;
+			breaksw;
 			
 			case "check-for-duplicates-in-subdir":
 			case "skip-files-in-subdir":
@@ -517,7 +535,8 @@ parse_arg:
 						else
 							set skip_subdirs=( "${skip_subdirs}" "\n" "${value}" );
 						endif
-						breaksw;
+					breaksw;
+					
 					case "dups-subdir":
 					case "check-for-duplicates-in-subdir":
 						if(! ${?duplicates_subdirs} ) then
@@ -525,9 +544,9 @@ parse_arg:
 						else
 							set duplicates_subdirs=( "${duplicates_subdirs}" "\n" "${value}");
 						endif
-						breaksw;
+					breaksw;
 				endsw
-				breaksw;
+			breaksw;
 			
 			case "regextype":
 			case "regex-type":
@@ -538,12 +557,13 @@ parse_arg:
 					case "posix-egrep":
 					case "emacs":
 						set regextype="${value}";
-						breaksw;
+					breaksw;
 					
 					default:
 						printf "Invalid %s specified.  Supported %s values are: posix-extended (this is the default), posix-awk, posix-basic, posix-egrep and emacs.\n" "${option}" "${option}" > /dev/stderr;
-						breaksw;
+					breaksw;
 				endsw
+			breaksw;
 			
 			case "enable":
 				switch("${value}")
@@ -554,27 +574,24 @@ parse_arg:
 						printf "%s cannot be enabled.\n" "${value}" > /dev/stderr;
 						shfit;
 						continue;
-						breaksw;
-					
+					breaksw;
 				endsw
+			breaksw;
+			
 			case "create-script":
 			case "mk-script":
 				if("${value}" != "" &&  "${value}" != "logging") then
 					set create_script="${value}";
 				else
-					set create_script="clean-up:script.tcsh";
+					set create_script="";
 				endif
-				if(! -e "${create_script}" ) then
-					printf "#\!/bin/tcsh -f\n" > "${create_script}";
-					chmod u+x "${create_script}";
-				endif
-				breaksw;
+			breaksw;
 			
 			case "extension":
 			case "extensions":
 				if( "${value}" != "" ) \
 					set extensions="${value}";
-				breaksw;
+			breaksw;
 			
 			case "debug":
 				switch("${value}")
@@ -590,32 +607,46 @@ parse_arg:
 						set debug;
 					breaksw;
 				endsw
-				breaksw;
+			breaksw;
 			
 			case "remove":
+				if(! ${?message} ) \
+					set message;
+				
+				if(! ${?remove} ) \
+					set remove;
+				
 				switch("${value}")
+					case "verbose":
+						set remove="${remove}v";
+						set message="${message}\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t["\$"{playlist}]\n\twill be reorted when they're removed.**\n\n";
+					breaksw;
+					
 					case "force":
-						set remove="";
-						set message="\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t[${playlist}]\n\twill be removed.**\n\n";
+						set remove="${remove}f";
+						set message="${message}\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t["\$"{playlist}]\n\twill be removed.**\n\n";
 					breaksw;
 					
 					case "interactive":
 					default:
-						set remove="i";
-						set message="\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t[${playlist}]\n\twill be prompted for removal.**\n\n";
+						set remove="${remove}i";
+						set message="${message}\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t["\$"{playlist}]\n\twill be prompted for removal.**\n\n";
 					breaksw;
 				endsw
-				breaksw;
+			breaksw;
 			
 			case "recursive":
 				set maxdepth="";
-				breaksw;
+			breaksw;
 			
 			case "append":
 				set append;
-				breaksw;
+			breaksw;
 			
 			case "maxdepth":
+				if( ${?maxdepth} ) \
+					breaksw;
+				
 				if( ${value} != "" && `printf "%s" "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
 					set value=`printf "%s" "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
 					if( ${value} > 0 ) \
@@ -623,44 +654,80 @@ parse_arg:
 				endif
 				if(! ${?maxdepth} ) \
 					printf "--maxdepth must be an integer value that is gretter than 0." > /dev/stderr;
-				breaksw;
+			breaksw;
 			
 			case "mindepth":
+				if( ${?mindepth} ) \
+					breaksw;
+				
 				if( ${value} != "" && `printf "%s" "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
 					set value=`printf "%s" "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
 					if( ${value} > 0 ) \
 						set mindepth=" -mindepth ${value} ";
 				endif
+				
 				if(! ${?mindepth} ) \
 					printf "--maxdepth must be an integer gretter than 0." > /dev/stderr
-				breaksw;
+			breaksw;
 			
 			case "search-subdirs-only":
 				set mindepth=" -mindepth 2 ";
-				breaksw;
+			breaksw;
 			
 			case "all":
 			case "search-all":
 			case "search-all-subdirs":
 				set mindepth=" ";
 				set maxdepth="";
-				breaksw;
+			breaksw;
 			
-			case "":
-				breaksw;
+			case "target-directory":
+				if( -d "${value}" ) then
+					if(! ${?target_directory} ) then
+						set target_directory="${value}";
+					endif
+				endif
+			breaksw;
+			
+			case "playlist":
+				if( -e "${value}" ) then
+					if(! ${?playlist} ) then
+						set playlist="${value}";
+					endif
+				endif
+			breaksw;
+			
+			case "debug":
+			breaksw;
 			
 			default:
+				if( -d "${value}" ) then
+					if(! ${?target_directory} ) then
+						set target_directory="${value}";
+						breaksw;
+					endif
+				endif
+				
+				if( -e "${value}" ) then
+					if(! ${?playlist} ) then
+						set playlist="${value}";
+						breaksw;
+					endif
+				endif
+				
 				@ errno=-504;
 				set callback="parse_arg";
 				goto exception_handler;
-				breaksw;
-			
+			breaksw;
 		endsw
+		
 		if( ${?arg_shifted} ) then
 			unset arg_shifted;
 			@ arg--;
 		endif
+		unset argument dashes option equals value;
 	end
+	
 	goto main;
 #parse_arg:
 

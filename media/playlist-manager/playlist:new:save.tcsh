@@ -155,20 +155,30 @@ scripts_main_quit:
 	if( ${?new_playlist} ) \
 		unset new_playlist;
 	
+	if( ${?new_playlist_type} ) \
+		unset new_playlist_type;
+	
 	if( ${?playlist} ) then
-		if( ${?new_playlist_type} ) then
+		if( ${?playlist_temp} ) then
 			if( -e "${playlist_temp}" ) \
 				rm "${playlist_temp}";
-			if( -e "${playlist_swap}" ) \
-				rm "${playlist_swap}";
-			unset new_playlist_type;
+			unset playlist_temp;
 		endif
 		
+		if( ${?playlist_swap} ) then
+			if( -e "${playlist_swap}" ) \
+				rm "${playlist_swap}";
+			unset playlist_swap;
+		endif
 		if( -e "${playlist}.new" ) \
 			rm "${playlist}.new";
 		if( -e "${playlist}.swp" ) \
 			rm "${playlist}.swp";
-		unset playlist playlist_type;
+		
+		unset playlist;
+		
+		if( ${?playlist_type} ) \
+			unset playlist_type;
 	endif
 	
 	if( ${?scripts_tmpdir} ) then

@@ -225,7 +225,7 @@ find_missing_media:
 			continue;
 		
 		if( ${?message} && ! ${?message_displayed} ) then
-			printf "\t**Files found in\n\t\t[%s]\n\twhich are not in the playlist\n\t\t[%s]%s**" "${cwd}" "${playlist}" "${message}";
+			printf "\t**Files found in\n\t\t[%s]\n\twhich are not in the playlist\n\t\t[%s]%s**\n" "${cwd}" "${playlist}" "${message}";
 			set message_displayed;
 		endif
 		

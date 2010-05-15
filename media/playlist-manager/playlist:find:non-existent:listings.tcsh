@@ -45,17 +45,7 @@ init:
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
 	#alias	"wget"	"${download_command_with_options}";
-	
-	goto parse_argv;
 #init:
-
-init_complete:
-	set label_current="init_complete";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	set init_completed;
-#init_complete:
-
 
 dependencies_check:
 	set label_current="dependencies_check";
@@ -266,8 +256,6 @@ exec:
 		if( ${?filename} ) then
 			if( -e "${filename}.${extension}" ) then
 				if( ${?clean_up} ) then
-					if( -e "${playlist}.swp" ) \
-						rm "${playlist}.swp";
 					printf "%s\n" "${filename}.${extension}" >> "${playlist}.new";
 				endif
 			else
@@ -309,13 +297,13 @@ format_new_playlist:
 		goto callback_handler;
 	endif
 	
-	if(! -e "${playlist}.swp" ) then
+	if(! -e "${playlist}.new" ) then
 		set callback="script_main_quit";
 		goto callback_handler;
 	endif
 	
 	if(! ${?dead_file_count} ) then
-		rm "${playlist}.swp";
+		rm "${playlist}.new";
 		set callback="script_main_quit";
 		goto callback_handler;
 	endif
@@ -347,9 +335,6 @@ script_main_quit:
 		unset parsed_argv;
 	if( ${?parsed_argc} ) \
 		unset parsed_argc;
-	
-	if( ${?init_completed} ) \
-		unset init_completed;
 	
 	if( ${?being_sourced} ) \
 		unset being_sourced;
@@ -560,15 +545,6 @@ parse_argv:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	if( ${?init_completed} ) then
-		if(! ${?being_sourced} ) then
-			set callback="main";
-		else
-			set callback="sourcing_main";
-		endif
-		goto callback_handler;
-	endif
-	
 	@ argc=${#argv};
 	@ required_options=0;
 	
@@ -745,8 +721,7 @@ parse_arg:
 				breaksw;
 			
 			case "clean-up":
-				if(! ${?clean_up} ) \
-					set clean_up;
+				set clean_up;
 				
 				if( ${?debug} ) \
 					printf "**%s debug:**, via "\$"argv[%d], %s:\t[enabled].\n\n" "${scripts_basename}" $arg "${option}";
@@ -888,14 +863,10 @@ parse_argv_quit:
 	if( ${?diagnostic_mode} ) then
 		set callback="diagnostic_mode";
 	else
-		if(! ${?callback} ) then
-			if(! ${?init_completed} ) then
-				set callback="init_complete";
-			else if(! ${?being_sourced} ) then
-				set callback="main";
-			else
-				set callback="sourcing_main";
-			endif
+		if(! ${?being_sourced} ) then
+			set callback="main";
+		else
+			set callback="sourcing_main";
 		endif
 	endif
 	
@@ -966,7 +937,7 @@ setup_playlist:
 	playlist:new:create.tcsh "${playlist}";
 	if(! ${?filename_list} ) \
 		set filename_list="`mktemp --tmpdir filenames.${scripts_basename}.XXXXXX`";
-	cp -f "${playlist}.swp" "${filename_list}";
+	mv -f "${playlist}.swp" "${filename_list}";
 	set callback="exec";
 	goto callback_handler;
 #setup_playlist:

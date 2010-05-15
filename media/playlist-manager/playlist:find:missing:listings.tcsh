@@ -619,18 +619,18 @@ parse_arg:
 				switch("${value}")
 					case "verbose":
 						set remove="${remove}v";
-						set message="${message}\n\twill have they deletion reported.";
+						set message="${message}\\n\\twill have they deletion reported.";
 					breaksw;
 					
 					case "force":
 						set remove="${remove}f";
-						set message="${message}\n\twill be removed.";
+						set message="${message}\\n\\twill be removed.";
 					breaksw;
 					
 					case "interactive":
 					default:
 						set remove="${remove}i";
-						set message="${message}\n\twill be prompted for removal.";
+						set message="${message}\\n\\twill be prompted for removal.";
 					breaksw;
 				endsw
 			breaksw;

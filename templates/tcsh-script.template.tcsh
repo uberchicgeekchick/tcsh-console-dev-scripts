@@ -1144,7 +1144,7 @@ read_stdin:
 			goto callback_handler;
 		endif
 		
-			if(! ${?arg} ) then
+		if(! ${?arg} ) then
 			set stdin_arg=${#argv};
 		else
 			set stdin_arg=${arg};
@@ -1152,20 +1152,27 @@ read_stdin:
 		
 		if( "$argv[$arg]" != "-" ) then
 			unset stdin_arg;
-			set callback="parse_options_quit";
+			if(! ${?argv_parsed} ) then
+				set callback="parse_arg";
+			else
+				set callback="parse_options_quit";
+			endif
 			goto callback_handler;
 		endif
 		unset stdin_arg;
 	endif
 	
 	if( ${?stdin_read} ) then
-		set callback="parse_options_quit";
+		if(! ${?argv_parsed} ) then
+			set callback="parse_arg";
+		else
+			set callback="parse_options_quit";
+		endif
 		goto callback_handler;
 	endif
 	
 	set value="$<";
 	#set value=$<:q;
-	
 	while( "${value}" != "" )
 		if( ${?debug} ) \
 			printf "Processing stdin value: [%s].\n" "${value}";

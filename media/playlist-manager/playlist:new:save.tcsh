@@ -83,12 +83,10 @@ playlist_setup:
 	if(! -e "${playlist}.swp" ) \
 		goto playlist_save;
 	
-	set playlist_swap="`mktemp --tmpdir ${scripts_basename}.swp.playlist.${new_playlist_type}.XXXXXXXXXX`";
-	set new_playlist_to_read="`printf "\""%s"\"" "\""${playlist_swap}"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
-	mv -f "${playlist}.swp" "${playlist_swap}";
+	set new_playlist_to_read="`printf "\""%s"\"" "\""${playlist}.swp"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 	ex -s "+0r ${new_playlist_to_read}" '+wq!' "${playlist}.new";
-	rm "${playlist_swap}";
-	unset playlist_swap new_playlist_to_read;
+	rm "${playlist}.swp";
+	unset new_playlist_to_read;
 #playlist_setup:
 
 
@@ -115,7 +113,7 @@ playlist_save:
 			breaksw;
 		
 		case "pls":
-			set lines=`wc -l "${playlist_temp}" | sed -r 's/^([0-9]+).*"\$"/\1/'`;
+			set lines=`wc -l "${playlist_temp}" | sed -r 's/^([0-9]+).*$/\1/'`;
 			@ line=0;
 			@ line_number=0;
 			while( $line < $lines )
@@ -128,6 +126,7 @@ playlist_save:
 			printf "[playlist]\nnumberofentries=${lines}\n" >! "${playlist_swap}";
 			ex -s "+2r ${new_playlist_to_read}" '+wq!' "${playlist_swap}";
 			printf "\nVersion=2" >> "${playlist_swap}";
+			unset lines line_number line;
 			while( "`grep --perl-regexp -c '^(Title\=)([^\=]+)\=([^\=\n]*)"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
 				ex -s '+1,$s/\v^(Title\=)([^\=]+)[\=](.*)$/\1\2\3/' '+wq!' "${playlist_swap}";
 			end

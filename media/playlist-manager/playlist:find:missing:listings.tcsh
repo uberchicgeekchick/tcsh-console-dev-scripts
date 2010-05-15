@@ -225,7 +225,7 @@ find_missing_media:
 			continue;
 		
 		if( ${?message} && ! ${?message_displayed} ) then
-			printf "${message}";
+			printf "\t**Files found in\n\t\t[%s]\n\twhich are not in the playlist\n\t\t[%s]%s**" "${cwd}" "${playlist}" "${message}";
 			set message_displayed;
 		endif
 		
@@ -619,18 +619,18 @@ parse_arg:
 				switch("${value}")
 					case "verbose":
 						set remove="${remove}v";
-						set message="${message}\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t["\$"{playlist}]\n\twill be reorted when they're removed.**\n\n";
+						set message="${message}\n\twill have they deletion reported.";
 					breaksw;
 					
 					case "force":
 						set remove="${remove}f";
-						set message="${message}\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t["\$"{playlist}]\n\twill be removed.**\n\n";
+						set message="${message}\n\twill be removed.";
 					breaksw;
 					
 					case "interactive":
 					default:
 						set remove="${remove}i";
-						set message="${message}\t**Files found in\n\t\t[${cwd}]\n\twhich are not in the playlist\n\t\t["\$"{playlist}]\n\twill be prompted for removal.**\n\n";
+						set message="${message}\n\twill be prompted for removal.";
 					breaksw;
 				endsw
 			breaksw;

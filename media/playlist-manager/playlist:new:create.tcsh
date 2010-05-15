@@ -59,6 +59,7 @@ playlist_setup:
 			breaksw;
 	endsw
 	ex -s '+1,$s/\v^[^/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${playlist}.swp";
+	printf "\n" >> "${playlist}.swp";
 #playlist_setup:
 
 exit_script:

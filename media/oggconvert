@@ -135,7 +135,7 @@ check_dependencies:
 		endif
 		
 		if( ${?debug} || ${?debug_dependencies} ) then
-			switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([1-3])"\$"/\1/'`" )
+			switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([0-9])"\$"/\1/'`" )
 				case "1":
 					set suffix="st";
 					breaksw;
@@ -647,11 +647,16 @@ exit_script:
 		if(! ${?files_encoded} ) \
 			@ files_encoded=0;
 		if( $files_encoded == 0 ) then
+			if( -e "${playlist}.swp" ) \
+				rm "${playlist}.swp";
 			if( -e "${playlist}.new" ) \
-				rm "${playlist}.new"
+				rm "${playlist}.new";
 		endif
 		unset playlist files_encoded;
 	endif
+	
+	if( ${?current_label} ) \
+		unset current_label;
 	
 	if( ${?use_old_owd} ) then
 		cd "${owd}";

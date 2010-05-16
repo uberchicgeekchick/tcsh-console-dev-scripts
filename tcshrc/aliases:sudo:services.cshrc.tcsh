@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-if( ${uid} == 0 || ${?TCSH_SESSION_SERVICES_SETUP} ) \
+if( ${uid} == 0 ) \
 	exit 0;
 
 if(! ${?TCSH_RC_SESSION_PATH} ) \
@@ -38,8 +38,6 @@ foreach dir( ${dirs} )
 end
 
 unset dirs;
-
-setenv TCSH_SESSION_SERVICES_SETUP;
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "aliases:sudo:services.cshrc.tcsh";
 

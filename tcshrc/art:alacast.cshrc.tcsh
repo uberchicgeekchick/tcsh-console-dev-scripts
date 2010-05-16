@@ -1,8 +1,9 @@
 #!/bin/tcsh -f
 if( $?0 ) then
 	cd "`dirname '${0}'`";
-	set scripts_name="`basename '${0}'`";
-	printf "%s sets up alacast's environmental settings\n%s should be sourced and not run directly.\nUsage:\n\t%ssource %s%s" "${source}" "${scripts_name}" '`' "${cwd}/${scripts_name}" '`';
+	set scripts_basename="`basename '${0}'`";
+	set script="${cwd}/${scripts_basename}";
+	printf "%s sets up alacast's environmental settings\nand can only be sourced but not run directly.\nUsage:\n\t%ssource %s%s" "${scripts_basename}" \` "${scripts}" \`;
 	cd "${owd}"
 	exit -1;
 endif

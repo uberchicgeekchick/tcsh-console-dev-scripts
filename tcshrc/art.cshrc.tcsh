@@ -28,6 +28,6 @@ setenv	BONOBO_ACTIVATION_PATH	"/usr/lib64/bonobo/servers";
 setenv	SCREENRC	"/profile.d/~slash./screenrc";
 setenv	TERMCAP		"/profile.d/~slash./screens.termcap"
 
-alias	rsed		"sed --regexp-extended";
+alias	rsed		"sed -r";
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "art.cshrc.tcsh";

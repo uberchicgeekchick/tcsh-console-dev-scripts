@@ -23,6 +23,8 @@ complete		set-alias	'p/1/c/' 'p/2,/c,f/';
 set-alias		"feed:fetch-all:enclosures.tcsh" "${TCSH_RC_SESSION_PATH}/../xml-parsers/feed:fetch-all:enclosures.tcsh --disable=logging"
 set-alias		most	"most -w";
 
+set-alias		bc	"bc -q";
+
 set-alias		ps	"/bin/ps -A -c -F --forest --heading";
 set-alias		ps-g	"/bin/ps -A -c -F --forest --heading | egrep";
 

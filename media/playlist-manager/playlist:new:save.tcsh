@@ -5,6 +5,8 @@ init:
 		goto usage;
 	endif
 	
+	onintr scripts_main_quit;
+	
 	set scripts_basename="playlist:new:save.tcsh":
 	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	alias ex "ex -E -X -n --noplugin";

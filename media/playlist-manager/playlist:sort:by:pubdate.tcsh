@@ -1,5 +1,7 @@
 #!/bin/tcsh -f
 setenv:
+	onintr exit_script;
+	
 	alias ex "ex -E -X -n --noplugin";
 	
 	if(! ${?noglob} ) then

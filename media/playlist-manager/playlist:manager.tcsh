@@ -2,6 +2,8 @@
 init:
 	set scripts_basename="playlist:manager.tcsh";
 	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
+	onintr exit_script;
+	
 	if(! ${?0} ) then
 		printf "This script does not support being sourced and can only be exectuted.\n" > /dev/stderr;
 		@ errno=-501;

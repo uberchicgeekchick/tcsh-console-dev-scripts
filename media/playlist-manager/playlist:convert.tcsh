@@ -1,14 +1,6 @@
 #!/bin/tcsh -f
 setenv:
-	if(! ${?noglob} ) then
-		set noglob;
-		set noglob_set;
-	endif
-	
-	if(! ${?nohup} ) then
-		set nohup;
-		set nohup_set;
-	endif
+	onintr exit_script;
 	
 	if( "`alias cwdcmd`" != "" ) then
 		set original_cwdcmd="`alias cwdcmd`";
@@ -226,6 +218,20 @@ check_dependencies:
 	set callback="parse_argv";
 	goto callback_handler;
 #check_dependencies:
+
+
+exit_script:
+	set label_current="exit_script";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if( ! ${?0} && ${?supports_being_sourced} ) then
+		set callback="scripts_sourcing_quit";
+	else
+		set callback="scripts_main_quit";
+	endif
+	goto callback_handler;
+#exit_script:
 
 
 if_sourced:
@@ -491,11 +497,6 @@ scripts_main_quit:
 			rm -f "${argument_file}";
 		unset argument_file;
 	endif
-	
-	if( ${?noglob_set} ) \
-		unset noglob noglob_set;
-	if( ${?nohup_set} ) \
-		unset nohup nohup_set;
 	
 	if( ${?being_sourced} ) \
 		unset being_sourced;

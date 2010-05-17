@@ -1,5 +1,7 @@
 #!/bin/tcsh -f
 init:
+	onintr scripts_main_quit;
+	
 	set scripts_basename="playlist:find:missing:listings.tcsh";
 	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
@@ -36,7 +38,7 @@ check_dependencies:
 		if(! ${?program} ) then
 			@ errno=-501;
 			printf "One or more required dependencies couldn't be found.\n\t[${dependency}] couldn't be found.\n\t${scripts_basename} requires: ${dependencies}\n";
-			goto exit_script;
+			goto exception_handler;
 		endif
 		
 		if( ${?debug} || ${?debug_dependencies} ) then
@@ -300,17 +302,18 @@ find_missing_media:
 			unset podcast_cwd;
 		unset rm_confirmation duplicates_subdir podcast_dir podcast_dir_for_ls duplicate_podcast;
 	end
-	goto script_main_quit;
-#find_missing_media:
-
-
-
-script_main_quit:
+	
 	if( ${?append} ) then
 		playlist:new:save.tcsh "${playlist}";
 		unset append;
 	endif
 	
+	goto scripts_main_quit;
+#find_missing_media:
+
+
+
+scripts_main_quit:
 	if(! ${?removed_podcasts} ) \
 		@ removed_podcasts=0;
 	if( $removed_podcasts == 0 && ${?create_script} ) then
@@ -344,7 +347,7 @@ script_main_quit:
 	
 	@ status=$errno;
 	exit ${errno};
-#script_main_quit:
+#scripts_main_quit:
 
 
 usage:
@@ -352,14 +355,14 @@ usage:
 	if( ${?no_exit_on_usage} ) \
 		goto next_option;
 	
-	goto script_main_quit;
+	goto scripts_main_quit;
 #usage:
 
 
 default_callback:
 	printf "handling callback to [%s].\n", "${last_callback}";
 	unset last_callback;
-	goto script_main_quit;
+	goto scripts_main_quit;
 #default_callback:
 
 
@@ -412,7 +415,7 @@ exception_handler:
 	if(! ${?exit_on_error} ) \
 		goto usage;
 	
-	goto script_main_quit;
+	goto scripts_main_quit;
 #exception_handler:
 
 

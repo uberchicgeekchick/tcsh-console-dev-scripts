@@ -5,6 +5,9 @@ init:
 	set label_current="init";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
+	
+	onintr exit_script;
+	
 	set strict;
 	set original_owd=${owd};
 	set starting_dir=${cwd};
@@ -17,13 +20,7 @@ init:
 	set script_alias="`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
-	#set escaped_starting_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
-	#if(! -d "`printf "\""${escaped_home_dir}"\"" | sed -r 's/\\(\[)/\1/g' | sed -r 's/\\([*])/\1/g'`" ) then
-	#	set home_files=();
-	#else
-	#	set home_files="`/bin/ls "\""${escaped_home_dir}"\""`";
-	#endif
 	
 	if( "`alias cwdcmd`" != "" ) then
 		set oldcwdcmd="`alias cwdcmd`";

@@ -1,14 +1,6 @@
 #!/bin/tcsh -f
 setenv:
-	if(! ${?noglob} ) then
-		set noglob;
-		set noglob_set;
-	endif
-	
-	if(! ${?nohup} ) then
-		set nohup;
-		set nohup_set;
-	endif
+	onintr exit_script;
 	
 	if( "`alias cwdcmd`" != "" ) then
 		set original_cwdcmd="`alias cwdcmd`";
@@ -249,6 +241,20 @@ if_sourced:
 #if_sourced:
 
 
+exit_script:
+	set label_current="exit_script";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if( ! ${?0} && ${?supports_being_sourced} ) then
+		set callback="scripts_sourcing_quit";
+	else
+		set callback="scripts_main_quit";
+	endif
+	goto callback_handler;
+#exit_script:
+
+
 scripts_sourcing_main:
 	set label_current="scripts_sourcing_main";
 	if( "${label_current}" != "${label_previous}" ) \
@@ -335,6 +341,7 @@ scripts_exec:
 	"${tcsh_copy_script}";
 	/bin/rm "${tcsh_copy_script}";
 	printf "\nCopying files from nfs share to local fs:\t[finished]\n";
+	unset tcsh_copy_script;
 	
 	set callback="scripts_main_quit";
 	goto callback_handler;
@@ -469,11 +476,6 @@ scripts_main_quit:
 			rm -rf "${scripts_tmpdir}";
 		unset scripts_tmpdir;
 	endif
-	
-	if( ${?noglob_set} ) \
-		unset noglob noglob_set;
-	if( ${?nohup_set} ) \
-		unset nohup nohup_set;
 	
 	if( ${?being_sourced} ) \
 		unset being_sourced;

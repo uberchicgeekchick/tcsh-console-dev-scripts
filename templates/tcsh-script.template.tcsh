@@ -92,8 +92,7 @@ scripts_main_quit:
 		endif
 		unset supports_multiple_files;
 	else if( ${?filename_list} ) then
-		@ errno=-505;
-		set callback="exit_script";
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	
@@ -127,6 +126,8 @@ scripts_main_quit:
 		unset equals;
 	if( ${?value} ) \
 		unset value;
+	if( ${?escaped_value} ) \
+		unset escaped_value;
 	
 	if( ${?escaped_test_argument} ) \
 		unset escaped_test_argument;
@@ -145,8 +146,8 @@ scripts_main_quit:
 		unset parsed_arg;
 	if( ${?parsed_argv} ) \
 		unset parsed_argv;
-	if( ${?parsed_argc} ) \
-		unset parsed_argc;
+	if( ${?parsed_args} ) \
+		unset parsed_args;
 	
 	if( ${?stdin_read} ) \
 		unset stdin_read;
@@ -157,6 +158,18 @@ scripts_main_quit:
 		if( -e "${argument_file}" ) \
 			rm -f "${argument_file}";
 		unset argument_file;
+	endif
+	
+	if( ${?directory_file} ) then
+		if( -e "${directory_file}" ) \
+			rm -f "${directory_file}";
+		unset directory_file;
+	endif
+	
+	if( ${?values_file} ) then
+		if( -e "${values_file}" ) \
+			rm -f "${values_file}";
+		unset values_file;
 	endif
 	
 	if( ${?being_sourced} ) \
@@ -337,12 +350,12 @@ init:
 	set starting_cwd="${cwd}";
 	set escaped_starting_cwd="${escaped_cwd}";
 	
-	set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-	printf "${HOME}" >! "${argument_file}";
-	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
-	set escaped_cwd="`cat "\""${argument_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
-	rm -f "${argument_file}";
-	unset argument_file;
+	set directory_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
+	printf "${HOME}" >! "${directory_file}";
+	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${directory_file}";
+	set escaped_cwd="`cat "\""${directory_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
+	rm -f "${directory_file}";
+	unset directory_file;
 #init:
 
 
@@ -356,12 +369,12 @@ debug_check:
 	while( $arg < $argc )
 		@ arg++;
 		
-		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "$argv[$arg]" >! "${argument_file}";
-		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
-		set argument="`cat "\""${argument_file}"\""`";
-		rm -f "${argument_file}";
-		unset argument_file;
+		set directory_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		printf "$argv[$arg]" >! "${directory_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${directory_file}";
+		set argument="`cat "\""${directory_file}"\""`";
+		rm -f "${directory_file}";
+		unset directory_file;
 		
 		set option="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
 		set value="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
@@ -564,6 +577,16 @@ if_sourced:
 		goto exception_handler;
 	endif
 	
+	if(! ${?filename_list} ) then
+		@ errno=-503;
+		goto exception_handler;
+	endif
+	
+	if(! -e "${filename_list}" ) then
+		@ errno=-503;
+		goto exception_handler;
+	endif
+	
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
 	mv -f "${filename_list}.swp" "${filename_list}";
 	#ex -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${filename_list}";
@@ -602,14 +625,12 @@ main:
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
 		set callback="exec";
 	else if( ${?filename_list} && ! ${?supports_multiple_files} ) then
-		@ errno=-505;
-		set callback="exit_script";
+		@ errno=-506;
 		goto exception_handler;
 	else if( ${?filename_list} && ${?supports_multiple_files} ) then
 		set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
 		if(! ${file_count} > 0 ) then
 			@ errno=-503;
-			set callback="exit_script";
 			goto exception_handler;
 		endif
 		
@@ -635,8 +656,7 @@ exec:
 	printf "Executing ${scripts_basename}'s exec.\n" > ${stdout};
 	
 	if( ${?filename_list} && ! ${?supports_multiple_files} ) then
-		@ errno=-505;
-		set callback="exit_script";
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	
@@ -659,7 +679,7 @@ exec:
 	if(! -e "${filename}${extension}" ) then
 		if(! ${?no_exit_on_exception} ) \ 
 			set no_exit_on_exception_set no_exit_on_exception;
-		@ errno=-498;
+		@ errno=-496;
 		set callback="filename_next";
 		goto exception_handler;
 	endif
@@ -702,8 +722,7 @@ filename_next:
 		goto label_stack_set;
 	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
-		@ errno=-505;
-		set callback="exit_script";
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	
@@ -739,13 +758,18 @@ filename_list_post_process:
 		goto label_stack_set;
 	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
-		@ errno=-505;
-		set callback="exit_script";
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	
-	if(! ${?file_count} ) \
-		set file_count=`wc -l "${filename_list}.all" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+	if(! ${?file_count} ) then
+		if(! -e "${filename_list}.all" ) then
+			@ file_count=0;
+		else
+			set file_count=`wc -l "${filename_list}.all" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+		endif
+	endif
+	
 	if(! ${?filenames_processed} ) \
 		@ filenames_processed=0;
 	
@@ -829,27 +853,32 @@ exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-999;
 	
-	if( $errno < -499 || ${?strict} ) then
+	if( $errno <= -498 || ${?strict} ) then
 		if( ${?no_exit_on_exception} ) \
 			unset no_exit_on_exception;
 	endif
 	
 	printf "\n**${scripts_basename} error("\$"errno:$errno):**\n\t" > ${stderr};
 	switch( $errno )
+		case -496:
+			printf "a previously specified or found file cannot be processed.\n\t<file://%s%s> no longer exists\t[skipped]\n\n" "${scripts_basename}" "${filename}" "${extension}" > ${stderr};
+			breaksw;
+		
 		case -497:
 			printf "Cannot process:\n\t<file://%s>\n\tit no longer exists\t[skipped]\n\n" "${original_filename}" > ${stderr};
 			breaksw;
 		
 		case -498:
-			printf "a previously specified or found file cannot be processed.\n\t<file://%s%s> no longer exists\t[skipped]\n\n" "${scripts_basename}" "${filename}" "${extension}" > ${stderr};
+			printf "The value/file specified: <%s> is invalid and cannot be processed\t[stdin failed]" "${value}" > ${stderr};
 			breaksw;
 		
 		case -499:
 			printf "${dashes}${option}${equals}${value} is an unsupported option" > ${stderr};
+			unset dashes option equals value;
 			breaksw;
 		
 		case -500:
-			printf "Debug mode has triggered an exception for diagnosis.  Please see any output above" > ${stderr};
+			printf "Diagnoss mode has triggered an exception.\n\tFor more information please see the above output and the diagnosis log:\n\t<file://%s>" "${scripts_diagnosis_log}" > ${stderr};
 			breaksw;
 		
 		case -501:
@@ -861,14 +890,18 @@ exception_handler:
 			breaksw;
 		
 		case -503:
-			printf "One or more required options have not been provided" > ${stderr};
+			printf "No processable file have been provide, nor could any be found" > ${stderr};
 			breaksw;
 		
 		case -504:
-			printf "To many options have been provided" > ${stderr};
+			printf "One or more required options have not been provided" > ${stderr};
 			breaksw;
 		
 		case -505:
+			printf "To many options have been provided" > ${stderr};
+			breaksw;
+		
+		case -506:
 			printf "handling and/or processing multiple files isn't supported" > ${stderr};
 			if( ${?filename_list} ) then
 				if( -e "${filename_list}" ) \
@@ -879,12 +912,16 @@ exception_handler:
 			endif
 			breaksw;
 		
-		case -601:
+		case -602:
 			printf "${dashes}${option} must be followed by a valid number greater than zero" > ${stderr};
 			breaksw;
 		
-		case -602:
+		case -603:
 			printf "Invalid length specified for: [${dashes}${option}]: ${value} must be formatted as: 'hh:mm:ss'" > ${stderr};
+			breaksw;
+		
+		case -604:
+			printf "%s %s is not supported" "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e"\$"/\1ing/`" "${value}" "${scripts_basename}" > ${stderr};
 			breaksw;
 		
 		case -999:
@@ -892,14 +929,16 @@ exception_handler:
 			printf "An internal script error has caused an exception.  Please see any output above" > ${stderr};
 			breaksw;
 	endsw
+	printf ".\n" > ${stderr};
 	@ last_exception_handled=$errno;
-	if( $errno < -500 ) then
-		printf ".\n\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
+	if( $errno <= -498 || ${?strict} ) then
+		printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
 		if(! ${?debug} ) \
 			printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr};
 	endif
 	printf "\n" > ${stderr};
 	
+	#if( ${?strict} || (!( ${?callback} && ${?no_exit_on_exception} )) ) \
 	if(!( ${?callback} && ${?no_exit_on_exception} )) \
 		set callback="exit_script";
 	
@@ -920,25 +959,15 @@ options_init:
 	
 	@ argc=${#argv};
 	@ arg=0;
-	@ parsed_argc=0;
+	@ parsed_args=0;
 	
 	if( ${minimum_options} > 0 && ${argc} < ${minimum_options} ) then
-		if(! ${?supports_multiples_files} ) then
-			@ errno=-503;
-			set callback="parse_arg";
-			goto exception_handler;
-		endif
-		set callback="read_stdin";
+		set callback="read_stdin_init";
 		goto callback_handler;
 	endif
 	
 	if( ${maximum_options} > 0 && ${argc} > ${maximum_options} ) then
-		if(! ${?supports_multiples_files} ) then
-			@ errno=-504;
-			set callback="parse_arg";
-			goto exception_handler;
-		endif
-		set callback="read_stdin";
+		set callback="read_stdin_init";
 		goto callback_handler;
 	endif
 	
@@ -947,6 +976,7 @@ options_init:
 	
 	if( ${?debug} ) \
 		printf "**${scripts_basename} debug:** checking argv.  ${argc} total arguments.\n\n" > ${stdout};
+	
 	set callback="parse_arg";
 	goto callback_handler;
 #options_init:
@@ -973,7 +1003,7 @@ parse_arg:
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]" > ${stdout};
 		
 		if( "$argv[$arg]" == "-" ) then
-			set callback="read_stdin";
+			set callback="read_stdin_init";
 			goto callback_handler;
 		endif
 		
@@ -1002,7 +1032,7 @@ parse_arg:
 		if( ${?debug} ) \
 			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[$arg]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
 		
-		if( "${dashes}" != "" && "${option}" != "" && "${equals}" == "" && "${value}" == "" ) then
+		if(!( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;
@@ -1045,23 +1075,33 @@ parse_arg:
 			endif
 		endif
 		
-		@ parsed_argc++;
+		if( "${value}" != "" ) then
+			set values_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+			printf "${value}" >! "${values_file}";
+			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${values_file}";
+			set escaped_value="`cat "\""${values_file}"\""`";
+			rm -f "${values_file}";
+			unset values_file;
+			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+		endif
+		
+		@ parsed_args++;
 		if( "${option}" == "${value}" ) \
 			set option="";
 		set parsed_arg="${dashes}${option}${equals}${value}";
 		if(! ${?parsed_argv} ) then
-			set parsed_argv=("${parsed_arg}\n");
+			set parsed_argv=("${value}");
 		else
-			set parsed_argv=("${parsed_argv}${parsed_arg}\n");
+			set parsed_argv=("${parsed_argv}" "\n" "${value}");
 		endif
 		
 		if( ${?debug} ) \
-			printf "\tparsed option "\$"parsed_argv[%d]:\t%s\n\n" ${parsed_argc} "${parsed_arg}" > ${stdout};
+			printf "\tparsed option "\$"parsed_argv[%d]:\t%s\n\n" ${parsed_args} "${parsed_arg}" > ${stdout};
 		
 		switch("${option}")
 			case "numbered_option":
 				if(! ( "${value}" != "" && ${value} > 0 )) then
-					@ errno=-601;
+					@ errno=-602;
 					set callback="parse_arg";
 					goto exception_handler;
 					breaksw;
@@ -1069,11 +1109,19 @@ parse_arg:
 			
 				set numbered_option="${value}";
 				set value_used;
-				breaksw;
+			breaksw;
+			
+			case "option-array":
+				if(! ${?array_options} ) then
+					set array_options=("${value}");
+				else
+					set array_options=( "${array_options}" "\n" "${value}" );
+				endif
+			breaksw;
 			
 			case "length_option":
-				if( "`printf "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
-					@ errno=-602;
+				if( "`printf "\""${escaped_value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
+					@ errno=-603;
 					set callback="parse_arg";
 					goto exception_handler;
 					breaksw;
@@ -1081,7 +1129,7 @@ parse_arg:
 				
 				set length="${value}";
 				set value_used;
-				breaksw;
+			breaksw;
 			
 			case "h":
 			case "help":
@@ -1089,18 +1137,18 @@ parse_arg:
 					unset callback;
 				
 				goto usage;
-				breaksw;
+			breaksw;
 			
 			case "verbose":
 				if(! ${?be_verbose} ) \
 					set be_verbose;
-				breaksw;
+			breaksw;
 			
 			case "debug":
 			case "diagnosis":
 			case "diagnostic-mode":
 				# these are all caught above. See: [debug_check:]
-				breaksw;
+			breaksw;
 			
 			case "switch-option":
 				switch("${value}")
@@ -1109,16 +1157,16 @@ parse_arg:
 					case "interactive":
 						set switch_option="${dashes}${value}";
 						set value_used;
-						breaksw;
+					breaksw;
 					
 					default:
 						set switch_option;
-						breaksw;
+					breaksw;
 				endsw
 				
 				if( ${?debug} ) \
 					printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${option}:\t[enabled].\n\n" > ${stdout};
-				breaksw;
+			breaksw;
 			
 			case "enable":
 				switch("${value}")
@@ -1129,7 +1177,7 @@ parse_arg:
 						if( ${?debug} ) \
 							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" > ${stdout};
 						set switch_option;
-						breaksw;
+					breaksw;
 					
 					case "verbose":
 						if(! ${?be_verbose} ) \
@@ -1137,11 +1185,13 @@ parse_arg:
 						
 						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" > ${stdout};
 						set be_verbose;
-						breaksw;
+					breaksw;
 					
 					default:
-						printf "enabling ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n" > ${stdout};
-						breaksw;
+						@ errno=-604;
+						set callback="parse_arg";
+						goto exception_handler;
+					breaksw;
 				endsw
 				breaksw;
 			
@@ -1154,7 +1204,7 @@ parse_arg:
 						if( ${?debug} ) \
 							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" > ${stdout};
 						unset switch_option;
-						breaksw;
+					breaksw;
 					
 					case "verbose":
 						if(! ${?be_verbose} ) \
@@ -1162,18 +1212,18 @@ parse_arg:
 						
 						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" > ${stdout};
 						unset be_verbose;
-						breaksw;
+					breaksw;
 					
 					default:
-						printf "disabling ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n" > ${stdout};
-						breaksw;
+						@ errno=-604;
+						set callback="parse_arg";
+						goto exception_handler;
+					breaksw;
 				endsw
-				breaksw;
+			breaksw;
 			
 			case "-";
 			case "":
-				breaksw;
-			
 			default:
 				if( -e "${value}" && ${?supports_multiple_files} ) then
 					set value_used;
@@ -1189,20 +1239,21 @@ parse_arg:
 				endif
 				
 				@ errno=-499;
+				set callback="parse_arg";
 				goto exception_handler;
-				breaksw;
+			breaksw;
 		endsw
 		
 		if( ${?arg_shifted} ) then
-			unset arg_shifted;
 			if(! ${?value_used} ) \
 				@ arg--;
+			unset arg_shifted;
 		endif
 		
 		if( ${?value_used} ) \
 			unset value_used;
 		
-		unset escaped_argument argument dashes option equals value parsed_arg;
+		unset escaped_argument argument dashes option equals escaped_value value parsed_arg;
 	end
 	
 	set callback="parse_argv_quit";
@@ -1218,35 +1269,14 @@ parse_argv_quit:
 	if( ${?debug_set} ) \
 		unset debug debug_set;
 	
+	if( ${?arg} ) \
+		unset arg;
+	
 	if(! ${?argv_parsed} ) \
 		set argv_parsed;
 	
-	#if( ${?parsed_argc} && ${?parsed_argv} ) then
-	#	if( ${parsed_argc} > 0 ) then
-	# 		set parsed_argv_file="${scripts_tmpdir}/.escaped.parsed_argv.$scripts_basename.`date '+%s'`.arg";
-	#		printf "$parsed_argv" >! "${parsed_argv_file}";
-	#		ex -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${parsed_argv_file}";
-	#		set escaped_parsed_argv="`cat "\""${parsed_argv_file}"\""`";
-	#		@ parsed_argc=-1;
-	#		foreach parsed_arg("`cat "\""${parsed_argv_file}"\""`")
-	#			@ parsed_argc++;
-	#			if(! ${?parsed_argv} ) then
-	#				set parsed_argv=("`printf "\""${parsed_arg}"\""`");
-	#			else
-	#				set parsed_argv=("${parsed_argv}" "`printf "\""${parsed_arg}"\""`");
-	#			endif
-	#		end
-	#		rm -f "${parsed_argv_file}";
-	#		unset parsed_argv_file;
-	#		printf "-->%s\n" "${parsed_argv}";
-	#		foreach parsed_arg( ${escaped_parsed_argv} )
-	#			printf "-->%s\n" "${parsed_arg}";
-	#		end
-	#	endif
-	#endif
-	
-	if(! ${?stdin_read} ) then
-		set callback="read_stdin";
+	if( ${?always_read_stdin} && ! ${?stdin_read} ) then
+		set callback="read_stdin_init";
 	else
 		set callback="parse_options_quit";
 	endif
@@ -1254,13 +1284,10 @@ parse_argv_quit:
 #parse_argv_quit:
 
 
-read_stdin:
-	set label_current="read_stdin";
+read_stdin_init:
+	set label_current="read_stdin_init";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
-	
-	if( ( ${?debug_options} || ${?debug_stdin} ) && ! ${?debug} ) \
-		set debug debug_set;
 	
 	if(! ${?always_read_stdin} ) then
 		if(! ${#argv} > 0 ) then
@@ -1286,14 +1313,26 @@ read_stdin:
 		unset stdin_arg;
 	endif
 	
-	if( ${?stdin_read} ) then
+	if( ( ${?debug_options} || ${?debug_stdin} ) && ! ${?debug} ) \
+		set debug debug_set;
+	
+	if(! ${?stdin_read} ) then
+		set callback="read_stdin";
+	else
 		if(! ${?argv_parsed} ) then
 			set callback="parse_arg";
 		else
 			set callback="parse_options_quit";
 		endif
-		goto callback_handler;
 	endif
+	goto callback_handler;
+#read_stdin_init:
+
+
+read_stdin:
+	set label_current="read_stdin";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
 	
 	set value="$<";
 	#set value=$<:q;
@@ -1301,13 +1340,36 @@ read_stdin:
 		if( ${?debug} ) \
 			printf "Processing stdin value: [%s].\n" "${value}";
 		
-		if( -e "${value}" && ${?supports_multiple_files} ) then
-			set callback="filename_list_append";
-			goto callback_handler;
-		endif
+		switch("${value}")
+			default:
+				if( -e "${value}" && ${?supports_multiple_files} ) then
+					@ parsed_args++;
+					set callback="filename_list_append";
+					goto callback_handler;
+				endif
+				
+				@ errno=-498;
+				set callback="read_stdin";
+				goto exception_handler;
+			breaksw;
+		endsw
 	end
 	unset value;
+	
+	set callback="read_stdin_quit";
+	goto callback_handler;
+#read_stdin:
+
+
+read_stdin_quit:
+	set label_current="read_stdin_quit";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
 	set stdin_read;
+	
+	if( ${?debug_set} ) \
+		unset debug debug_set;
 	
 	if(! ${?argv_parsed} ) then
 		set callback="parse_arg";
@@ -1316,7 +1378,7 @@ read_stdin:
 	endif
 	
 	goto callback_handler;
-#read_stdin:
+#read_stdin_quit:
 
 
 parse_options_quit:
@@ -1324,11 +1386,42 @@ parse_options_quit:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
+	#if( ${?parsed_args} && ${?parsed_argv} ) then
+	#	if( ${parsed_args} > 0 ) then
+	# 		set parsed_argv_file="${scripts_tmpdir}/.escaped.parsed_argv.$scripts_basename.`date '+%s'`.arg";
+	#		printf "$parsed_argv" >! "${parsed_argv_file}";
+	#		ex -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${parsed_argv_file}";
+	#		set escaped_parsed_argv="`cat "\""${parsed_argv_file}"\""`";
+	#		@ parsed_args=0;
+	#		foreach parsed_arg("`cat "\""${parsed_argv_file}"\""`")
+	#			@ parsed_args++;
+	#			if(! ${?parsed_argv} ) then
+	#				set parsed_argv=("`printf "\""${parsed_arg}"\""`");
+	#			else
+	#				set parsed_argv=("${parsed_argv}" "`printf "\""${parsed_arg}"\""`");
+	#			endif
+	#		end
+	#		rm -f "${parsed_argv_file}";
+	#		unset parsed_argv_file;
+	#		printf "-->%s\n" "${parsed_argv}";
+	#		foreach parsed_arg( ${escaped_parsed_argv} )
+	#			printf "-->%s\n" "${parsed_arg}";
+	#		end
+	#	endif
+	#endif
+	
 	if( ${?debug_set} ) \
 		unset debug debug_set;
 	
-	if( ${?arg} ) \
-		unset arg;
+	if( ${minimum_options} > 0 && ${parsed_args} < ${minimum_options} ) then
+		@ errno=-504;
+		goto exception_handler;
+	endif
+	
+	if( ${maximum_options} > 0 && ${parsed_args} > ${maximum_options} ) then
+		@ errno=-505;
+		goto exception_handler;
+	endif
 	
 	if(! ${?diagnosis} ) then
 		set callback="if_sourced";
@@ -1346,8 +1439,7 @@ filename_list_append:
 		goto label_stack_set;
 	
 	if(! ${?supports_multiple_files} ) then
-		@ errno=-505;
-		set callback="parse_arg";
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	
@@ -1462,12 +1554,12 @@ label_stack_set:
 	if( "${current_cwd}" != "${cwd}" ) then
 		set old_owd="${owd}";
 		set current_cwd="${cwd}";
-		set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-		printf "${cwd}" >! "${argument_file}";
-		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
-		set escaped_cwd="`cat "\""${argument_file}"\""`";
-		rm -f "${argument_file}";
-		unset argument_file;
+		set directory_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
+		printf "${cwd}" >! "${directory_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${directory_file}";
+		set escaped_cwd="`cat "\""${directory_file}"\""`";
+		rm -f "${directory_file}";
+		unset directory_file;
 	endif
 	
 	set label_next=${label_current};

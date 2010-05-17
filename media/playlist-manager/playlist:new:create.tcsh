@@ -5,6 +5,8 @@ init:
 		goto usage;
 	endif
 	
+	onintr scripts_main_quit;
+	
 	set scripts_basename="pls-m3u-tox:new:create.tcsh":
 	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	alias ex "ex -E -X -n --noplugin";
@@ -31,7 +33,7 @@ playlist_init:
 		default:
 			printf "**${scripts_basename} error:** [${playlist}] is an unsupported playlist with an an unsupported playlist type: [${playlist_type}].\n\nRun: "\`"${scripts_basename} --help"\`" for more information.\n" > /dev/stderr;
 			@ errno=-606;
-			goto exit_script;
+			goto scripts_main_quit;
 			breaksw;
 	endsw
 	
@@ -62,7 +64,7 @@ playlist_setup:
 	printf "\n" >> "${playlist}.swp";
 #playlist_setup:
 
-exit_script:
+scripts_main_quit:
 	if( ${?playlist} ) \
 		unset playlist;
 	if( ${?scripts_tmpdir} ) then
@@ -74,10 +76,10 @@ exit_script:
 	if(! ${?status} ) \
 		set status=0;
 	exit $status;
-#exit_script:
+#scripts_main_quit:
 
 
 usage:
 	printf "%s [path/to/playlist/file.(m3u|tox|pls)]\n\Creates a [.new] playlist containing raw filenames which your script can use.\n\tThe .new playlist can than easily be saved using playlist:new:save.tcsh.\n" "${scripts_basename}";
-	goto exit_script;
+	goto scripts_main_quit;
 #usage:

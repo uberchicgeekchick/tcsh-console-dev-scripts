@@ -280,13 +280,13 @@ convert_filenames:
 			printf "Looking for: ${filename}.${extension}\n";
 		
 		if(! -e "${filename}.${extension}" ) then
-			printf "**%s error:** <file://%s.%s> no longer exists\t[skipping]\n\n" "${scripts_basename}" "${filename}" "${extension}" > /dev/stderr;
+			printf "\t**%s error:** <file://%s.%s> no longer exists\t[skipping]\n\n" "${scripts_basename}" "${filename}" "${extension}" > /dev/stderr;
 			continue;
 		endif
 		
 		if( -e "${filename}.ogg" ) then
 			if(!( ${?force} || ${?re_encode} )) then
-				printf "\n${filename}.ogg: already exists\n\tRun "\`"${scripts_basename} --re-encode"\`" or "\`"${scripts_basename} --force"\`" to over-write existing files.\n\n";
+				printf "\n\t${filename}.ogg: already exists\n\tRun "\`"${scripts_basename} --re-encode"\`" or "\`"${scripts_basename} --force"\`" to over-write existing files.\n\n";
 				goto convert_filenames;
 			endif
 			

@@ -267,8 +267,10 @@ import:
 			else
 				playlist:convert.tcsh --force "${import}" "${playlist}";
 			endif
-			if( ${?edit_playlist} ) \
+			if( ${?edit_playlist} && ! ${?playlist_edited} ) then
 				${EDITOR} "${playlist}";
+				set playlist_edited;
+			endif
 			breaksw;
 		
 		default:
@@ -297,8 +299,10 @@ export:
 		case "m3u":
 		case "tox":
 		case "pls":
-			if( ${?edit_playlist} ) \
+			if( ${?edit_playlist} && ! ${?playlist_edited} ) then
 				${EDITOR} "${playlist}";
+				set playlist_edited;
+			endif
 			if( "${export_type}" == "${playlist_type}" ) then
 				cp -vf "${playlist}" "${export_to}";
 			else
@@ -343,6 +347,11 @@ get_missing:
 validate:
 	if(! ${?validate} ) \
 		goto exit_script;
+	
+	if( ${?edit_playlist} && ! ${?playlist_edited} ) then
+		${EDITOR} "${playlist}";
+		set playlist_edited;
+	endif
 	
 	playlist:find:non-existent:listings.tcsh --clean-up "${playlist}";
 	usset validate;

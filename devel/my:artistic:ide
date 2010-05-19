@@ -93,19 +93,20 @@ game_design_canvas:
 	switch( "${canvas}" )
 		case "MyGames":
 			set my_canvas=( \
-				"--tab-with-profile=project --title='[@/art/games] #>' --working-directory=/art/games" \
-				"--tab-with-profile=project --title='[@many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
-				"--tab-with-profile=project --title='[@hackGirls] #>' --working-directory=/art/games/my-games/hackGirls" \
+				"--tab-with-profile=project:art --title='[@/art] #>' --working-directory=/art/games" \
+				"--tab-with-profile=project:art --title='[@/art/games] #>' --working-directory=/art/games" \
+				"--tab-with-profile=project:art --title='[@many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
+				"--tab-with-profile=project:art --title='[@hackGirls] #>' --working-directory=/art/games/my-games/hackGirls" \
 			);
 			breaksw;
 		
 		case "Resources":
 			set geometry="${games_geometry}"
 			set my_canvas=( \
-				"--tab-with-profile=project --title='[@/media-library] #>' --working-directory=/media/library" \
-				"--tab-with-profile=project --title='[@/projects/media] #>' --working-directory=/projects/media" \
-				"--tab-with-profile=project --title='[@/art] #>' --working-directory=/art" \
-				"--tab-with-profile=project --title='[@/games] #>' --working-directory=/art/games" \
+				"--tab-with-profile=project:art --title='[@/media-library] #>' --working-directory=/media/library" \
+				"--tab-with-profile=project:art --title='[@/projects/media] #>' --working-directory=/projects/media" \
+				"--tab-with-profile=project:art --title='[@/art] #>' --working-directory=/art" \
+				"--tab-with-profile=project:art --title='[@/art/games] #>' --working-directory=/art/games" \
 			);
 			breaksw;
 		
@@ -113,8 +114,8 @@ game_design_canvas:
 			set geometry="${games_geometry}"
 			set my_canvas= ( \
 				"--tab-with-profile=opensim --title='[`OpenSimulator`] #>' --working-directory='/art/games/tools/servers/opensim/bin --command=/art/games/tools/servers/opensim/OpenSim.tcsh'" \
-				"--tab-with-profile=projects:games --title='[@game:engines] #>' --working-directory=/art/games/libraries-and-engines" \
-				"--tab-with-profile=projects:games --title='[@game-design:tools] #>' --working-directory=/art/games/tools" \
+				"--tab-with-profile=projects:art --title='[@game:engines] #>' --working-directory=/art/games/libraries-and-engines" \
+				"--tab-with-profile=projects:art --title='[@game-design:tools] #>' --working-directory=/art/games/tools" \
 			);
 			breaksw;
 	endsw
@@ -167,17 +168,19 @@ artistic_canvas:
 		
 		case  "Projects":
 			set my_canvas=( \
+				"--tab-with-profile=projects:games --title='[@many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
 				"--tab-with-profile=projects:cli --title='[@console.pallet] #>' --working-directory=/projects/cli/console.pallet" \
 				"--tab-with-profile=projects:cli --title='[@alacast-cli] #>' --working-directory=/projects/cli/alacast" \
 				"--tab-with-profile=projects:www --title='[@a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=projects:gtk --title='[@get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \
 				"--tab-with-profile=projects:gtk --title='[@alacast-gtk] #>' --working-directory=/projects/gtk/alacast" \
-				"--tab-with-profile=projects:games --title='[@many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
 			);
 			breaksw;
 		
 		case  "All":
 			set my_canvas=( \
+				"--tab-with-profile=projects:games --title='[@/games] #>' --working-directory=/art/games" \
+				"--tab-with-profile=projects:games --title='[@...many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
 				"--tab-with-profile=projects:cli --title='[@cli] #>' --working-directory=/projects/cli" \
 				"--tab-with-profile=projects:cli --title='[@...console.pallet] #>' --working-directory=/projects/cli/console.pallet" \
 				"--tab-with-profile=projects:cli --title='[@...alacast-cli] #>' --working-directory=/projects/cli/alacast" \
@@ -187,8 +190,6 @@ artistic_canvas:
 				"--tab-with-profile=projects:gtk --title='[@...gtk] #>' --working-directory=/projects/gtk" \
 				"--tab-with-profile=projects:gtk --title='[@...get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \
 				"--tab-with-profile=projects:gtk --title='[@...alacast-gtk] #>' --working-directory=/projects/gtk/alacast" \
-				"--tab-with-profile=projects:games --title='[@/games] #>' --working-directory=/art/games" \
-				"--tab-with-profile=projects:games --title='[@...many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
 			);
 			breaksw;
 		
@@ -202,7 +203,6 @@ artistic_canvas:
 				"--tab-with-profile=projects:gtk --title='[@alacast.v2] #>' --working-directory=/projects/gtk/alacast" \
 				"--tab-with-profile=projects:gtk --title='[@connectED] #>' --working-directory=/projects/gtk/connectED" \
 				"--tab-with-profile=projects:games --title='[@many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
-				"--tab-with-profile=build:canvas --title='[@build:canvas] #>' --working-directory=/programs/src" \
 			);
 			breaksw;
 	endsw

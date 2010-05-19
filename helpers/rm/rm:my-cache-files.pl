@@ -62,7 +62,6 @@ sub var_escape_for_shell{
 		close(rm_lst);
 		close(tcsh_script);
 		chmod(0777, $tcsh_script);
-		system("tcsh -f -c '$ENV{EDITOR} $tcsh_script;'");
 		system("tcsh -f -c '$tcsh_script;'");
 	}
 	

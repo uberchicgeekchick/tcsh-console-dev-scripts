@@ -1,12 +1,92 @@
 #!/bin/tcsh -f
 setenv:
+	onintr exit_script;
+	
 	set scripts_basename="oggconvert";
 	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
 	set scripts_supported_extensions="ogg|mp3|m4a";
 	set escaped_home_dir=`printf ${HOME} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 	set escaped_starting_cwd=`printf ${cwd} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
+	set supports_being_sourced;
+	
+	goto debug_check;
 #setenv:
+
+
+exit_script:
+	if( ! ${?0} && ${?supports_being_sourced} ) \
+		goto sourcing_quit;
+	
+	goto scripts_main_quit;
+#exit_script:
+
+
+sourcing_quit:
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "oggconvert";
+	goto scripts_main_quit;
+#sourcing_quit:
+
+
+scripts_main_quit:
+	if(! ${?noglob} ) then
+		set noglob;
+		set noglob_set;
+	endif
+	
+	if(! ${?nohup} ) then
+		set nohup;
+		set nohup_set;
+	endif
+	
+	if( ${?filename_list} ) then
+		if( -e "${filename_list}") \
+			rm "${filename_list}";
+		if( -e "${filename_list}.all") \
+			rm "${filename_list}.all";
+	endif
+	
+	if( ${?playlist} ) then
+		if( -e "${playlist}.swp" ) \
+			rm "${playlist}.swp";
+		if( -e "${playlist}.new" ) \
+			rm "${playlist}.new";
+		unset playlist;
+	endif
+	
+	if( ${?files_encoded} ) \
+		unset files_encoded;
+	if( ${?files_coverted} ) \
+		unset files_coverted;
+	if( ${?files_processed} ) \
+		unset files_processed;
+	
+	if( ${?current_label} ) \
+		unset current_label;
+	
+	if( ${?use_old_owd} ) then
+		cd "${owd}";
+		set owd="${use_old_owd}";
+		unset use_old_owd;
+	endif
+	
+	if( ${?noglob_set} ) \
+		unset noglob noglob_set;
+	if( ${?nohup_set} ) \
+		unset nohup nohup_set;
+	
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
+	
+	if(! ${?errno} ) \
+		@ errno=0;
+	
+	@ status=$errno;
+	exit ${status}
+#scripts_main_quit
 
 
 debug_check:
@@ -131,7 +211,7 @@ check_dependencies:
 		if(! ${?program} ) then
 			@ errno=-501;
 			printf "One or more required dependencies couldn't be found.\n\t[${dependency}] couldn't be found.\n\t${scripts_basename} requires: ${dependencies}\n";
-			goto exit_script;
+			goto scripts_main_quit;
 		endif
 		
 		if( ${?debug} || ${?debug_dependencies} ) then
@@ -218,8 +298,7 @@ if_sourced:
 	alias	oggtranscode	"${script} --transcode";
 	alias	oggcombine	"${script} --combine";
 	
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "oggconvert";
-	goto exit_script;
+	goto sourcing_quit;
 #if_sourced:
 
 
@@ -236,13 +315,13 @@ main:
 	if(!( ${file_count} > 0 )) then
 		printf "No convertable files where found.\n" > /dev/stderr;
 		@ errno=-610;
-		goto exit_script;
+		goto scripts_main_quit;
 	endif
 	
 	if( ${?combine} && ${file_count} <= 1 ) then
 		printf "--combine reqires at least two input files.\n";
 		@ errno=-5;
-		goto exit_script;
+		goto scripts_main_quit;
 	endif
 	
 	if( ! ${?debug} && ! ${?debug_encoding} ) then
@@ -262,6 +341,23 @@ main:
 #main
 
 
+cancel_convert:
+	onintr exit_script;
+	printf "\t[cancled]\n";
+	if( ${?save_to_filename} ) then
+		if( -e "${save_to_filename}.wav" ) \
+			rm "${save_to_filename}.wav";
+		
+		if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
+			rm "${save_to_filename}.ogg";
+	endif
+	
+	@ files_processed++;
+	sleep 1;
+	goto convert_filenames;
+#cancel_conver:
+
+
 convert_filenames:
 	if( ${?length} ) \
 		unset length;
@@ -270,6 +366,7 @@ convert_filenames:
 		unset save_to_filename;
 	
 	foreach filename ( "`cat '${filename_list}' | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+		onintr cancel_convert;
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "Parsing: ${filename}.\n";
 		ex -s '+1d' '+wq!' "${filename_list}";
@@ -313,14 +410,19 @@ convert_filenames:
 		@ files_processed++;
 		goto convert_filenames;
 	end
+	
+	onintr exit_script;
+	
+	onintr exit_script;
 	if( ${?combine} ) \
 		goto init_combine;
 	
 	if( ${?playlist} ) \
-		goto setup_playlist;
+		goto save_playlist;
 	
-	goto exit_script;
+	goto scripts_main_quit;
 #convert_filenames
+
 
 confirm_over_write:
 	if( -e "${filename}.ogg" ) then
@@ -410,7 +512,7 @@ oggconvert:
 	printf "\t\t[success]\n";
 	rm "${save_to_filename}.wav";
 	if( "${filename}" != "${save_to_filename}" ) \
-		goto exit_script;
+		goto scripts_main_quit;
 	
 	if( ${?rtrim} && ! ${?length} ) \
 		goto find_length;
@@ -546,14 +648,14 @@ calculate_length:
 	
 	set length="${hours}:${minutes}:${seconds}";
 	if( "`printf '${length}' | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
-		printf "Invalid calculated length: ${length}, lenth must be formatted as: hh:mm:ss\n" "";
+		printf "Invalid calculated length: %s, lenth must be formatted as: hh:mm:ss\n" "${length}";
 		@ files_processed++;
 		goto convert_filenames;
 	endif
 	if( ${?debug} ) then
 		printf "Calcucated Length: ${length}\n";
 		if( "${extension}" == "ogg" ) \
-			goto exit_script;
+			goto scripts_main_quit;
 	endif
 	
 	unset oggs_hours rtrim_hours oggs_minutes rtrim_minutes oggs_seconds rtrim_seconds hours minutes seconds;
@@ -583,6 +685,7 @@ init_combine:
 	
 	set add_length;
 #init_combine
+
 
 continue_combine:
 	if( ${?length} ) then
@@ -614,73 +717,16 @@ continue_combine:
 #continue_combine
 
 
-setup_playlist:
+save_playlist:
 	if(! ${?files_encoded} ) \
 		@ files_encoded=0;
 	if( $files_encoded == 0 ) \
-		goto exit_script;
+		goto scripts_main_quit;
 	
 	playlist:new:save.tcsh "${playlist}";
 	
-	goto exit_script;
-#setup_playlist:
-	
-exit_script:
-	if(! ${?noglob} ) then
-		set noglob;
-		set noglob_set;
-	endif
-	
-	if(! ${?nohup} ) then
-		set nohup;
-		set nohup_set;
-	endif
-	
-	if( ${?filename_list} ) then
-		if( -e "${filename_list}") \
-			rm "${filename_list}";
-		if( -e "${filename_list}.all") \
-			rm "${filename_list}.all";
-	endif
-	
-	if( ${?playlist} ) then
-		if(! ${?files_encoded} ) \
-			@ files_encoded=0;
-		if( $files_encoded == 0 ) then
-			if( -e "${playlist}.swp" ) \
-				rm "${playlist}.swp";
-			if( -e "${playlist}.new" ) \
-				rm "${playlist}.new";
-		endif
-		unset playlist files_encoded;
-	endif
-	
-	if( ${?current_label} ) \
-		unset current_label;
-	
-	if( ${?use_old_owd} ) then
-		cd "${owd}";
-		set owd="${use_old_owd}";
-		unset use_old_owd;
-	endif
-	
-	if( ${?noglob_set} ) \
-		unset noglob noglob_set;
-	if( ${?nohup_set} ) \
-		unset nohup nohup_set;
-	
-	if( ${?scripts_tmpdir} ) then
-		if( -d "${scripts_tmpdir}" ) \
-			rm -rf "${scripts_tmpdir}";
-		unset scripts_tmpdir;
-	endif
-	
-	if(! ${?errno} ) \
-		@ errno=0;
-	
-	@ status=$errno;
-	exit ${status}
-#exit_script
+	goto scripts_main_quit;
+#save_playlist:
 
 
 usage:
@@ -690,7 +736,7 @@ usage:
 	endif
 	if(! ${?no_exit_on_usage} ) then
 		@ errno=-1;
-		goto exit_script;
+		goto scripts_main_quit;
 	endif
 	
 	@ files_processed++;
@@ -805,7 +851,7 @@ parse_arg:
 				if( "`printf "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
 					printf "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
 					@ errno=-601;
-					goto exit_script;
+					goto scripts_main_quit;
 					breaksw;
 				endif
 				
@@ -816,7 +862,7 @@ parse_arg:
 				if( "`printf "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
 					printf "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
 					@ errno=-602;
-					goto exit_script;
+					goto scripts_main_quit;
 					breaksw;
 				endif
 				
@@ -848,7 +894,7 @@ parse_arg:
 					default:
 						printf "**${scripts_basename} error:** [${value}] is an unsupported playlist with an an unsupported playlist type: [${playlist_type}].\n\nRun: "\`"${scripts_basename} --help"\`" for more information.\n" > /dev/stderr;
 						@ errno=-606;
-						goto exit_script;
+						goto scripts_main_quit;
 						breaksw;
 				endsw
 				
@@ -952,7 +998,7 @@ parse_arg:
 					default:
 						printf "`printf ${option} | sed -r 's/^(.*)e$/\1ing/'` ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
 						@ errno=-607;
-						goto exit_script;
+						goto scripts_main_quit;
 						breaksw;
 				endsw
 				breaksw;
@@ -983,7 +1029,7 @@ parse_arg:
 					default:
 						printf "`printf ${option} | sed -r 's/^(.*)e$/\1ing/'` ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
 						@ errno=-608;
-						goto exit_script;
+						goto scripts_main_quit;
 						breaksw;
 				endsw
 				breaksw;
@@ -994,7 +1040,7 @@ parse_arg:
 				
 				printf "**${scripts_basename} error:** ${dashes}${option}${equals}${value} is an unsupported option.\n\nSee "\`"${scripts_basename} -h|--help"\`" for more information.\n" > /dev/stderr;
 				@ errno=-609;
-				goto exit_script;
+				goto scripts_main_quit;
 				breaksw;
 		endsw
 		
@@ -1013,10 +1059,11 @@ parse_argv_quit:
 		unset debug debug_set;
 	
 	if( ${?debug_arguments} ) \
-		goto exit_script;
+		goto scripts_main_quit;
 	
 	goto if_sourced;
 #parse_argv_quit
+
 
 filename_list_append_value:
 	if(! ${?filename_list} ) then

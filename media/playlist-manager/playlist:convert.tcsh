@@ -32,11 +32,25 @@ setenv:
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
 	#alias	"wget"	"${download_command_with_options}";
+	set label_current="init";
+	goto label_stack_set;
 #setenv:
 
 
-set label_current="init";
-goto label_stack_set;
+exit_script:
+	set label_current="exit_script";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if( ! ${?0} && ${?supports_being_sourced} ) then
+		set callback="sourcing_quit";
+	else
+		set callback="scripts_main_quit";
+	endif
+	goto callback_handler;
+#exit_script:
+
+
 init:
 	set label_current="init";
 	if( "${label_current}" != "${label_previous}" ) \

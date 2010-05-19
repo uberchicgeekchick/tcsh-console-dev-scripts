@@ -123,13 +123,15 @@ playlist_save:
 				@ line_number++;
 				ex -s "+${line_number}s/\v^(.*\/)(.*)(\.[^.]+)"\$"/File${line}\=\1\2\3\rTitle${line}\=\2/" '+wq!' "${playlist_temp}";
 				@ line_number++;
-				ex -s "+${line_number}s/\v^(Title\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist_temp}";
+				ex -s "+${line_number}s/\v^(Title${line}\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist_temp}";
 			end
 			printf "[playlist]\nnumberofentries=${lines}\n" >! "${playlist_swap}";
 			ex -s "+2r ${new_playlist_to_read}" '+wq!' "${playlist_swap}";
-			printf "\nVersion=2" >> "${playlist_swap}";
+			#ex -s '+3,$s/\v^(Title[0-9]+\=.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist_temp}";
+			printf "Version=2" >> "${playlist_swap}";
 			unset lines line_number line;
 			while( "`grep --perl-regexp -c '^(Title\=)([^\=]+)\=([^\=\n]*)"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
+				grep --perl-regexp -c '^(Title\=)([^\=]+)\=([^\=\n]*)"\$"' "${playlist_swap}" | sed -r 's/^([0-9]+).*$/\1/';
 				ex -s '+1,$s/\v^(Title\=)([^\=]+)[\=](.*)$/\1\2\3/' '+wq!' "${playlist_swap}";
 			end
 			breaksw;

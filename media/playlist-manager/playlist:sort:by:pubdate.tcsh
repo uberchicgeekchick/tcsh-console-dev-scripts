@@ -34,11 +34,25 @@ setenv:
 	#set supports_multiple_files;
 	#set supports_hidden_files;
 	#set scripts_supported_extensions="mp3|ogg|m4a";
+	set label_current="init";
+	goto label_stack_set;
 #setenv:
 
 
-set label_current="init";
-goto label_stack_set;
+exit_script:
+	set label_current="exit_script";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if( ! ${?0} && ${?supports_being_sourced} ) then
+		set callback="sourcing_quit";
+	else
+		set callback="scripts_main_quit";
+	endif
+	goto callback_handler;
+#exit_script:
+
+
 init:
 	set label_current="init";
 	if( "${label_current}" != "${label_previous}" ) \
@@ -340,7 +354,7 @@ scripts_exec:
 	printf "Creating sorted playlist from files listed in [%s]" "${playlist}";
 	playlist:new:create.tcsh "${playlist}";
 	cat "${playlist}.swp" | \
-		sed -r 's/(.*\/)([^\/]*, released on\:? [^,]+, )([0-9]+ )(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)( [^\.]+)(\.[^\.]+)/\3\4\5\ \:\ \1\2\3\4\5\6/' \
+		sed -r 's/(.*\/)(.*, released on\:? [^,]+, )([0-9]+ )(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)( [^.]+)(\.[^\.]+)/\3\4\5\ \:\ \1\2\3\4\5\6/' \
 		| sed -r 's/([0-9]+ )(Jan) ([0-9]+) ([^\:]+)(\:.*)/\3\-01\-\1\4\5/' \
 		| sed -r 's/([0-9]+ )(Feb) ([0-9]+) ([^\:]+)(\:.*)/\3\-02\-\1\4\5/' \
 		| sed -r 's/([0-9]+ )(Mar) ([0-9]+) ([^\:]+)(\:.*)/\3\-03\-\1\4\5/' \
@@ -354,7 +368,11 @@ scripts_exec:
 		| sed -r 's/([0-9]+ )(Nov) ([0-9]+) ([^\:]+)(\:.*)/\3\-11\-\1\4\5/' \
 		| sed -r 's/([0-9]+ )(Dec) ([0-9]+) ([^\:]+)(\:.*)/\3\-12\-\1\4\5/' \
 		| sort \
-		| sed -r 's/(.*)\ \:\ (.*)/\2/' >! "${playlist}.new";
+		| sed -r 's/(.*)\ \:\ (.*)/\2/' \
+		#| sed -r 's/(.*\/)(.*, released on\:? [^,]+, )([0-9]+ )([0-9]{4}\-[0-9]{2}\-[0-9]{2})( [^.]+)(\.[^.]+)/\3\ \:\ \1\2\3\4\5/' \
+		#| sort \
+		#| sed -r 's/(.*)\ \:\ (.*)/\2/' \
+		>! "${playlist}.new";
 	rm "${playlist}.swp";
 	playlist:new:save.tcsh --force ${interactive} "${playlist}" "${new_playlist}";
 	if( -e "${playlist}.new" ) \

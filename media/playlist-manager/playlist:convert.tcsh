@@ -166,7 +166,6 @@ check_dependencies:
 	
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
-		unset dependencies[$dependencies_index];
 		if( ${?debug} ) \
 			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
 			
@@ -532,6 +531,8 @@ scripts_main_quit:
 	endif
 	
 	
+	if( ${?nodeps} ) \
+		unset nodeps;
 	if( ${?execs} ) \
 		unset execs;
 	if( ${?dependency} ) \
@@ -954,6 +955,7 @@ parse_arg:
 					set strip_subdir="${value}";
 				breaksw;
 			
+			case "nodeps":
 			case "debug":
 			case "diagnosis":
 			case "diagnostic-mode":

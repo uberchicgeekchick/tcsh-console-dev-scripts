@@ -192,14 +192,16 @@ scripts_main_quit:
 		unset scripts_tmpdir;
 	endif
 	
-	if( ${?execs} ) \
-		unset execs;
+	if( ${?nodeps} ) \
+		unset nodeps;
 	if( ${?dependency} ) \
 		unset dependency;
 	if( ${?dependencies} ) \
 		unset dependencies;
 	if( ${?missing_dependency} ) \
 		unset missing_dependency;
+	if( ${?execs} ) \
+		unset execs;
 	
 	if( ${?usage_message} ) \
 		unset usage_message;
@@ -385,6 +387,19 @@ debug_check:
 			printf "**${scripts_basename} [debug_check:]**"\$"option: [${option}]; "\$"value: [${value}].\n" > ${stdout};
 		
 		switch("${option}")
+			case "h":
+			case "help":
+				set callback="usage";
+				goto callback_handler;
+				breaksw;
+			
+			case "nodeps":
+				if( ${?nodeps} ) \
+					breaksw;
+				
+				set nodeps;
+				breaksw;
+			
 			case "diagnosis":
 			case "diagnostic-mode":
 				if( ${?diagnosis} ) \
@@ -459,6 +474,14 @@ debug_check:
 			printf " %s" "${value}" > ${stdout};
 		printf "debugging:\t[enabled].\n\n" > ${stdout};
 	end
+	if(! ${?nodeps} ) then
+		set callback="dependencies_check";
+	else
+		set callback="options_init";
+		unset nodeps;
+	endif
+	
+	goto callback_handler;
 #debug_check:
 
 
@@ -472,6 +495,9 @@ dependencies_check:
 	
 	set dependencies=("${scripts_basename}" "find" "sed" "ex");# "${scripts_alias}");
 	@ dependencies_index=0;
+	
+	set callback="dependency_check";
+	goto callback_handler;
 #dependencies_check:
 
 
@@ -543,6 +569,9 @@ dependency_check:
 		
 		unset program;
 	end
+	
+	set callback="dependencies_found";
+	goto callback_handler;
 #dependency_check:
 
 
@@ -1144,6 +1173,7 @@ parse_arg:
 					set be_verbose;
 			breaksw;
 			
+			case "nodeps":
 			case "debug":
 			case "diagnosis":
 			case "diagnostic-mode":

@@ -25,7 +25,6 @@ check_dependencies:
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
-		unset dependencies[$dependencies_index];
 		if( ${?debug} || ${?debug_dependencies} ) \
 			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
 			
@@ -326,6 +325,8 @@ scripts_main_quit:
 		unset old_owd;
 	endif
 	
+	if( ${?nodeps} ) \
+		unset nodeps;
 	if( ${?duplicates_subdir} ) \
 		unset duplicates_subdir;
 	if( ${?duplicate_podcast} ) \
@@ -703,6 +704,7 @@ parse_arg:
 				endif
 			breaksw;
 			
+			case "nodeps":
 			case "debug":
 			breaksw;
 			

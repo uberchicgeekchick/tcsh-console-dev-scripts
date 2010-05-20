@@ -81,6 +81,8 @@ scripts_main_quit:
 		unset scripts_tmpdir;
 	endif
 	
+	if( ${?nodeps} ) \
+		unset nodeps;
 	if(! ${?errno} ) \
 		@ errno=0;
 	
@@ -114,11 +116,20 @@ debug_check:
 			printf "**${scripts_basename} [debug_check:]**"\$"option: [${option}]; "\$"value: [${value}].\n";
 		
 		switch("${option}")
+			case "nodeps":
+				if( ${?nodeps} ) \
+					breaksw;
+				
+				set nodeps;
+				breaksw;
+			
 			case "diagnosis":
 			case "diagnostic-mode":
+				if( ${?diagnostic_mode} ) \
+					breaksw;
+				
 				printf "**${scripts_basename} debug:**, via "\$"argv[$arg], diagnostic mode:\t[enabled].\n\n";
 				set diagnostic_mode;
-				unset argv[$arg];
 				if(! ${?debug} ) \
 					set debug;
 				breaksw;
@@ -183,7 +194,6 @@ debug_check:
 						set debug;
 						breaksw;
 				endsw
-				unset argv[$arg];
 				breaksw;
 			
 			default:
@@ -198,7 +208,6 @@ check_dependencies:
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
-		unset dependencies[$dependencies_index];
 		if( ${?debug} || ${?debug_dependencies} ) \
 			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
 			
@@ -946,6 +955,7 @@ parse_arg:
 					set be_verbose;
 				breaksw;
 			
+			case "nodeps":
 			case "debug":
 			case "diagnosis":
 			case "diagnostic-mode":

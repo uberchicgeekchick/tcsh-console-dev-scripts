@@ -347,6 +347,8 @@ script_main_quit:
 	if( ${?script_dirname} ) \
 		unset script_dirname;
 	
+	if( ${?nodeps} ) \
+		unset nodeps;
 	if( ${?dependency} ) \
 		unset dependency;
 	if( ${?dependencies} ) \
@@ -743,26 +745,6 @@ parse_arg:
 						set be_verbose;
 						breaksw;
 					
-					case "debug":
-						if( ${?debug} ) \
-							breaksw;
-						
-						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
-						set debug;
-						breaksw;
-					
-					case "diagnosis":
-					case "diagnostic-mode":
-						if( ${?diagnostic_mode} ) \
-							breaksw;
-						
-				
-						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
-						set diagnostic_mode;
-						if(! ${?debug} ) \
-							set debug;
-						breaksw;
-					
 					default:
 						printf "enabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
 						breaksw;
@@ -788,29 +770,18 @@ parse_arg:
 						unset be_verbose;
 						breaksw;
 					
-					case "debug":
-						if(! ${?debug} ) \
-							breaksw;
-						
-						printf "**%s debug:**, via "\$"argv[%d], debug mode\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
-						unset debug;
-						breaksw;
-					
-					case "diagnosis":
-					case "diagnostic-mode":
-						if(! ${?diagnostic_mode} ) \
-							breaksw;
-						
-						printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[%sd].\n\n" "${scripts_basename}" $arg "${option}";
-						unset diagnostic_mode;
-						breaksw;
-					
 					default:
 						printf "disabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
 						breaksw;
 				endsw
 				breaksw;
 			
+			case "nodeps":
+			case "debug":
+			case "diagnosis":
+			case "diagnostic-mode":
+				breaksw;
+					
 			default:
 				if( -e "${value}" && ! ${?playlist} ) then
 					set playlist="${value}";

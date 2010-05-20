@@ -23,7 +23,6 @@ check_dependencies:
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
-		unset dependencies[$dependencies_index];
 		if( ${?debug} || ${?debug_dependencies} ) \
 			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
 			
@@ -109,6 +108,9 @@ parse_argv:
 		switch ( "${option}" )
 			case "help"
 				goto usage;
+				breaksw;
+			
+			case "nodeps":
 				breaksw;
 			
 			case "debug":
@@ -366,6 +368,9 @@ exit_script:
 	
 	if( ${?debug} ) \
 		unset debug;
+	
+	if( ${?nodeps} ) \
+		unset nodeps;
 	
 	if( ${?be_verbose} ) \
 		unset be_verbose;

@@ -497,6 +497,8 @@ scripts_main_quit:
 	endif
 	
 	
+	if( ${?nodeps} ) \
+		unset nodeps;
 	if( ${?execs} ) \
 		unset execs;
 	if( ${?dependency} ) \
@@ -902,6 +904,7 @@ parse_arg:
 					set be_verbose;
 				breaksw;
 			
+			case "nodeps":
 			case "debug":
 			case "diagnosis":
 			case "diagnostic-mode":

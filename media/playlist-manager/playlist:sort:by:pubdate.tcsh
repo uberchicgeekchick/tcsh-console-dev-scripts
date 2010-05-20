@@ -99,6 +99,19 @@ debug_check:
 			printf "**${scripts_basename} [debug_check:]**"\$"option: [${option}]; "\$"value: [${value}].\n";
 		
 		switch("${option}")
+			case "h":
+			case "help":
+				set callback="usage";
+				goto callback_handler;
+				breaksw;
+			
+			case "nodeps":
+				if( ${?nodeps} ) \
+					breaksw;
+				
+				set nodeps;
+				breaksw;
+			
 			case "diagnosis":
 			case "diagnostic-mode":
 				printf "**${scripts_basename} debug:**, via "\$"argv[$arg], diagnostic mode:\t[enabled].\n\n";
@@ -162,6 +175,12 @@ check_dependencies:
 	set label_current="check_dependencies";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
+	
+	if( ${?nodeps} ) then
+		unset nodeps;
+		set callback="parse_argv";
+		goto callback_handler;
+	endif
 	
 	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh");# "${script_alias}");
 	@ dependencies_index=0;
@@ -540,6 +559,8 @@ scripts_main_quit:
 	endif
 	
 	
+	if( ${?nodeps} ) \
+		unset nodeps;
 	if( ${?dependency} ) \
 		unset dependency;
 	if( ${?dependencies} ) \
@@ -923,6 +944,7 @@ parse_arg:
 					set be_verbose;
 				breaksw;
 			
+			case "nodeps":
 			case "debug":
 			case "diagnosis":
 			case "diagnostic-mode":

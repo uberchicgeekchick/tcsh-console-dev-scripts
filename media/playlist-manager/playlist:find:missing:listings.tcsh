@@ -101,6 +101,11 @@ main:
 		goto exception_handler;
 	endif
 	
+	if( ${?append} && ${?remove} ) then
+		@ errno=-6;
+		goto exception_handler;
+	endif
+	
 	if(! ${?target_directory} ) then
 		set target_directory="${cwd}";
 	else
@@ -371,17 +376,19 @@ exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-599;
 	printf "\n**%s error("\$"errno:%d):**\n\t" "${scripts_basename}"  $errno;
+	if(! ${?exit_on_error} ) \
+		set exit_on_error;
 	switch( $errno )
 		case -4:
-			if(! ${?exit_on_error} ) \
-				set exit_on_error;
 			printf "An existing playlist must be specified" > /dev/stderr;
 			breaksw;
 		
 		case -5:
-			if(! ${?exit_on_error} ) \
-				set exit_on_error;
 			printf "An existing directory must be specified as the location to search for missing podcasts" > /dev/stderr;
+			breaksw;
+		
+		case -6:
+			printf "--append and --remove are mutual exclusive options for the treatment of missing listings. i.e. They cannot be used together" > /dev/stderr;
 			breaksw;
 		
 		case -501:

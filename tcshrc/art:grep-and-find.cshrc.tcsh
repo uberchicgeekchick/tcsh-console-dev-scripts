@@ -24,7 +24,7 @@ if( ${?TCSH_RC_DEBUG} ) printf "Setting up grep, egrep, and find.\n";
 #setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --initial-tab --no-messages --context=6 --perl-regexp --ignore-case";
 setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --no-messages";
 alias	"grep"		"grep ${GREP_OPTIONS}";
-alias	"egrep"		"grep ${GREP_OPTIONS} --perl-regexp";
+alias	"egrep"		"grep --perl-regexp";# ${GREP_OPTIONS}";
 alias	"egrep-i"	"egrep --ignore-case";
 unsetenv GREP_OPTIONS
 

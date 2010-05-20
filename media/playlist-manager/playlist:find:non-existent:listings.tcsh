@@ -258,7 +258,7 @@ exec:
 			else
 				if(! ${?dead_file_count} ) then
 					if( ${?clean_up} ) \
-						printf "\n**${scripts_basename} notice:** These files will be removed from [${playlist}]:\n";
+						printf "\n**%s notice:** The following files will be removed from [%s]:\n" "${scripts_basename}" "${playlist}";
 					@ dead_file_count=1;
 				else
 					@ dead_file_count++;
@@ -300,6 +300,7 @@ format_new_playlist:
 	endif
 	
 	if(! ${?dead_file_count} ) then
+		rm "${playlist}.swp";
 		rm "${playlist}.new";
 		set callback="script_main_quit";
 		goto callback_handler;

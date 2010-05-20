@@ -191,9 +191,14 @@ find_missing_media:
 		endif
 		
 		if( ${?append} ) then
-			set this_podcast="`printf "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-			printf "Adding:\n\t<file://%s>\n\t\tto\n\t<file://%s>\n" "${this_podcast}" "${playlist}";
-			printf "%s\n" "${this_podcast}" >> "${playlist}.new";
+			set this_podcast="";
+				if(! ${?new_file_count} ) then
+					printf "**%s notice:** The following fills will be added to\n\t<file://%s>\n" "${scripts_basename}" "${playlist}";
+					@ new_file_count=1;
+				else
+					@ new_file_count++;
+				endif
+			printf "%s\n" "`printf "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`" >> "${playlist}.new";
 			continue;
 		endif
 		
@@ -308,7 +313,10 @@ find_missing_media:
 	end
 	
 	if( ${?append} ) then
-		playlist:new:save.tcsh "${playlist}";
+		if( ${?new_file_count} ) then
+			playlist:new:save.tcsh "${playlist}";
+			unset new_file_count;
+		endif
 		unset append;
 	endif
 	
@@ -340,8 +348,18 @@ scripts_main_quit:
 		unset podcast_dir;
 	if( ${?podcast} ) \
 		unset podcast;
-	if( ${?playlist} ) \
+	if( ${?playlist} ) then
+		if( ${?append} ) then
+			if( ${?new_file_count} ) \
+				unset new_file_count;
+			if( -e "${playlist}.new" ) \
+				rm "${playlist}.new";
+			if( -e "${playlist}.swp" ) \
+				rm "${playlist}.swp";
+			unset append;
+		endif
 		unset playlist;
+	endif
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) \
 			rm -rf "${scripts_tmpdir}";

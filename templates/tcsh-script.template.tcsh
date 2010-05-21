@@ -2,7 +2,7 @@
 setenv:
 	set strict;
 	set supports_being_sourced;
-	#set always_read_stdin;
+	#set scripts_interactive;
 	
 	set supports_multiple_files;
 	#set supports_hidden_files;
@@ -149,6 +149,8 @@ scripts_main_quit:
 	if( ${?parsed_args} ) \
 		unset parsed_args;
 	
+	if( ${?reading_stdin} ) \
+		unset reading_stdin;
 	if( ${?stdin_read} ) \
 		unset stdin_read;
 	
@@ -371,15 +373,25 @@ debug_check:
 	while( $arg < $argc )
 		@ arg++;
 		
-		set directory_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "$argv[$arg]" >! "${directory_file}";
-		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${directory_file}";
-		set argument="`cat "\""${directory_file}"\""`";
-		rm -f "${directory_file}";
-		unset directory_file;
+		if( "$argv[$arg]" == "-" ) then
+			if(! ${?scripts_interactive} ) \
+				set scripts_interactive;
+			continue;
+		endif
 		
-		set option="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
-		set value="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		printf "$argv[$arg]" >! "${argument_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		set escaped_argument="`cat "\""${argument_file}"\""`";
+		rm -f "${argument_file}";
+		unset argument_file;
+		set argument="`printf "\""%s"\"" "\""${escaped_argument}"\""`";
+		
+		set option="`printf "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+		if( "${option}" == "${argument}" ) \
+			set option="";
+		
+		set value="`printf "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 		if( -e "${value}" ) \
 			continue;
 		
@@ -477,7 +489,7 @@ debug_check:
 	if(! ${?nodeps} ) then
 		set callback="dependencies_check";
 	else
-		set callback="options_init";
+		set callback="parse_argv_init";
 		unset nodeps;
 	endif
 	
@@ -585,7 +597,7 @@ dependencies_found:
 	
 	unset dependency dependencies dependencies_index;
 	
-	set callback="options_init";
+	set callback="parse_argv_init";
 	goto callback_handler;
 #dependencies_found:
 
@@ -606,14 +618,30 @@ if_sourced:
 		goto exception_handler;
 	endif
 	
+	if( ${?file_count} ) \
+		unset file_count;
+	if( ${?stdin_file_count} ) \
+		unset stdin_file_count;
+	if( ${?filename_list_count} ) \
+		unset filename_list_count;
 	if(! ${?filename_list} ) then
-		@ errno=-503;
-		goto exception_handler;
+		if(! ${?scripts_interactive} ) then
+			@ errno=-503;
+			goto exception_handler;
+		endif
+		
+		set callback="read_stdin_init";
+		goto callback_handler;
 	endif
 	
 	if(! -e "${filename_list}" ) then
-		@ errno=-503;
-		goto exception_handler;
+		if(! ${?scripts_interactive} ) then
+			@ errno=-503;
+			goto exception_handler;
+		endif
+		
+		set callback="read_stdin_init";
+		goto callback_handler;
 	endif
 	
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
@@ -636,9 +664,20 @@ sourcing_main:
 		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 	
+	set callback="sourcing_main";
+	goto callback_handler;
+#sourcing_main:
+
+
+sourcing_main:
+	set label_current="sourcing_main";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
 	# START: special handler for when this file is sourced.
-	alias ${scripts_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
+	alias "${script_alias}" \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.
+	
 	set callback="exit_script";
 	goto callback_handler;
 #sourcing_main:
@@ -657,14 +696,14 @@ main:
 		@ errno=-506;
 		goto exception_handler;
 	else if( ${?filename_list} && ${?supports_multiple_files} ) then
-		set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+		set filename_list_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+		@ file_count=${filename_list_count};
+		unset filename_list_count;
 		if(! ${file_count} > 0 ) then
 			@ errno=-503;
 			goto exception_handler;
 		endif
-		
-		@ filenames_processed=0;
-	else
+	else if(! ${?scripts_interactive} ) then
 		@ errno=-999;
 		set callback="exit_script";
 		goto exception_handler;
@@ -675,6 +714,109 @@ main:
 #main:
 
 
+read_stdin_init:
+	set label_current="read_stdin_init";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if(! ${?scripts_interactive} ) then
+		set callback="exit_script";
+		goto callback_handler;
+	endif
+	
+	if( ( ${?debug_options} || ${?debug_stdin} ) && ! ${?debug} ) \
+		set debug debug_set;
+	
+	if(! ${?filename_list} ) then
+		set filename_list="${scripts_tmpdir}/.filenames.${scripts_basename}.@`date '+%s'`";
+		touch filename_list;
+	endif
+	
+	set reading_stdin;
+	
+	if(! ${?stdin_read} ) then
+		set callback="read_stdin";
+	else
+		set callback="exit_script";
+	endif
+	goto callback_handler;
+#read_stdin_init:
+
+
+read_stdin:
+	set label_current="read_stdin";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	set value="$<";
+	set value_file="${scripts_tmpdir}/.escaped.$scripts_basename.stdin.value.`date '+%s'`.arg";
+	printf "$value" >! "${value_file}";
+	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+	set escaped_value="`cat "\""${value_file}"\""`";
+	rm -f "${value_file}";
+	unset value_file;
+	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+		
+	#set value=$<:q;
+	while( "${value}" != "" )
+		if( ${?debug} ) \
+			printf "Processing stdin value: [%s].\n" "${value}";
+		
+		switch("${value}")
+			default:
+				if( -e "${value}" && ${?supports_multiple_files} ) then
+					@ file_count++;
+					printf "${value}\n" >> "${filename_list}";
+					printf "${value}\n" >> "${filename_list}.all";
+					set original_filename="${escaped_value}";
+					unset value;
+					set callback="exec";
+					goto callback_handler;
+				endif
+				
+				@ errno=-498;
+				set callback="read_stdin";
+				goto exception_handler;
+			breaksw;
+		endsw
+	end
+	unset value;
+	
+	set callback="read_stdin_quit";
+	goto callback_handler;
+#read_stdin:
+
+
+read_stdin_quit:
+	set label_current="read_stdin_quit";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if( ${?reading_stdin} ) \
+		unset reading_stdin;
+	
+	set stdin_read;
+	
+	if( ${?debug_set} ) \
+		unset debug debug_set;
+	
+	if( ${?filename_list} ) then
+		if( -e "${filename_list}" ) then
+			if(! -e "${filename_list}.all" ) \
+				cp "${filename_list}" "${filename_list}.all";
+			if(! ${?file_count} ) then
+				set stdin_file_count=`wc -l "${filename_list}.all" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+				@ file_count=$stdin_file_count;
+				unset stdin_file_count;
+			endif
+		endif
+	endif
+	
+	set callback="exit_script";
+	goto callback_handler;
+#read_stdin_quit:
+
+
 exec:
 	set label_current="exec";
 	if( "${label_current}" != "${label_previous}" ) \
@@ -682,6 +824,7 @@ exec:
 	
 	if( ${?original_filename} ) \
 		printf "\t" > ${stdout};
+	
 	printf "Executing ${scripts_basename}'s exec.\n" > ${stdout};
 	
 	if( ${?filename_list} && ! ${?supports_multiple_files} ) then
@@ -691,25 +834,49 @@ exec:
 	
 	if(! ${?filename_list} ) then
 		#A one time process
-		set callback="exit_script";
-		goto usage;
-	endif
-	
-	if(! ${?original_filename} ) then
-		set callback="filename_next";
+		if(! ${?scripts_interactive} ) then
+			set callback="exit_script";
+			goto usage;
+		else if(! ${?reading_stdin} ) then
+			set callback="read_stdin_init";
+		endif
 		goto callback_handler;
 	endif
 	
+	if(! ${?original_filename} ) then
+		if(! ${?reading_stdin} ) then
+			set callback="filename_next";
+		else
+			set callback="read_stdin";
+		endif
+		goto callback_handler;
+	endif
+	
+	if(! ${?filenames_processed} ) \
+		@ filenames_processed=0;
+	
+	@ filenames_processed++;
+	printf "\tProcessing: <file://%s>\t[started]\n" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
+	if( ${?file_count} ) then
+		if( ${file_count} > 1 ) \
+			printf " ( file #${filenames_processed} of ${file_count} )" > ${stdout};
+	endif
+	printf "\n" > ${stdout};
 	set extension="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
-	if( "${extension}" == "${original_filename}" ) \
+	if( "${extension}" == "`printf "\""${original_filename}"\""`" ) \
 		set extension="";
 	set original_extension="${extension}";
 	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
+		printf "\tProcessing: <file://%s>\t[skipped]\n" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
 		if(! ${?no_exit_on_exception} ) \ 
 			set no_exit_on_exception_set no_exit_on_exception;
-		@ errno=-496;
-		set callback="filename_next";
+		@ errno=-301;
+		if(! ${?reading_stdin} ) then
+			set callback="filename_next";
+		else
+			set callback="read_stdin";
+		endif
 		goto exception_handler;
 	endif
 	
@@ -719,13 +886,15 @@ exec:
 	if( ${?edit_all_files} ) \
 		${EDITOR} "+0r ${filename_for_editor}";
 	
-	printf "\n\tFile info for: <file://${filename}${extension}>\n" > ${stdout};
 	
-	if( -d "${filename}${extension}" || -L "${filename}${extension}" ) then
-		printf "\t\t%s\n" "`/bin/ls -d -l "\""${filename_for_exec}"\"" | grep -v --perl-regexp '^[\s\ \t\r\n]+"\$"'`" > ${stdout};
+	if( -d "${filename}${extension}" ) then
+		printf "\n\tDirectory" > ${stdout};
+	else if( -l "${filename}${extension}" ) then
+		printf "\n\tSymbolic link" > ${stdout};
 	else
-		printf "\t\t%s\n" "`/bin/ls -d -l "\""${filename_for_exec}"\"" | grep -v --perl-regexp '^[\s\ \t\r\n]+"\$"'`" > ${stdout};
+		printf "\n\tFile" > ${stdout};
 	endif
+	printf " data of: <file://%s%s>\n\t\t%s\n" "${filename}" "${extension}" "`/bin/ls -d -l "\""${filename_for_exec}"\"" | grep -v --perl-regexp '^[\s\ \t\r\n]+"\$"'`" > ${stdout};
 	
 	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
 	printf "\tgrep " > ${stdout};
@@ -734,13 +903,18 @@ exec:
 	else
 		printf "couldn't find:\n\t\t${filename}${extension}.\n" > ${stdout};
 	endif
-	printf "\n\n" > ${stdout};
+	printf "\n" > ${stdout};
 	
+	printf "\tProcessing: <file://%s>\t[finished]\n" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
 	unset original_filename filename extension;
 	unset filename_for_exec filename_for_regexp filename_for_editor;
 	unset grep_test;
 	
-	set callback="filename_next";
+	if(! ${?reading_stdin} ) then
+		set callback="filename_next";
+	else
+		set callback="read_stdin";
+	endif
 	goto callback_handler;
 #exec:
 
@@ -757,27 +931,27 @@ filename_next:
 	
 	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
 		ex -s '+1d' '+wq!' "${filename_list}";
-		@ filenames_processed++;
 		if( "${original_filename}" == "" ) \
 			continue;
 		
 		if(! -e "`printf "\""%s"\"" "\""${original_filename}"\""`" ) then
-			@ errno=-497;
+			if(! ${?no_exit_on_exception} ) \ 
+				set no_exit_on_exception_set no_exit_on_exception;
+			@ errno=-302;
 			set callback="filename_next";
 			goto exception_handler;
 		endif
 		
-		if( ${filenames_processed} > 1 ) \
-			printf "[done]\n" > ${stdout};
-		printf "Processing: <file://%s>" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
-		if( ${file_count} > 1 ) \
-			printf " ( file #${filenames_processed} of ${file_count} )" > ${stdout};
-		printf "\n" > ${stdout};
 		set callback="exec";
 		goto callback_handler;
 	end
 	
 	set callback="filename_list_post_process";
+	if( ${?scripts_interactive} ) then
+		if(! ${?stdin_read} ) \
+			set callback="read_stdin_init";
+	endif
+	
 	goto callback_handler;
 #filename_next:
 
@@ -795,7 +969,9 @@ filename_list_post_process:
 		if(! -e "${filename_list}.all" ) then
 			@ file_count=0;
 		else
-			set file_count=`wc -l "${filename_list}.all" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+			set filename_list_count=`wc -l "${filename_list}.all" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+			@ file_count=${filename_list_count};
+			unset filename_list_count;
 		endif
 	endif
 	
@@ -814,7 +990,7 @@ filename_list_post_process:
 		set callback="exit_script";
 	else
 		if( ${filenames_processed} != ${file_count} ) then
-			printf "not all files where processed" > ${stdout};
+			printf "[failed]]\n\t\t\t\t\t\t[only %d out %d files where" ${filenames_processed} ${file_count} > ${stdout};
 		else
 			# any post processing that's only to be done
 			# after the filename_list has been fully processed.
@@ -882,18 +1058,20 @@ exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-999;
 	
-	if( $errno <= -498 || ${?strict} ) then
+	if( ${?0} && ( $errno < -400 || ${?strict} )) then
 		if( ${?no_exit_on_exception} ) \
 			unset no_exit_on_exception;
 	endif
 	
-	printf "\n**${scripts_basename} error("\$"errno:$errno):**\n\t" > ${stderr};
+	if( $errno > -400 ) \
+		printf "\t" > ${stderr};
+	printf "**${scripts_basename} error("\$"errno:$errno):**\n\t" > ${stderr};
 	switch( $errno )
-		case -496:
+		case -301:
 			printf "a previously specified or found file cannot be processed.\n\t<file://%s%s> no longer exists\t[skipped]\n\n" "${scripts_basename}" "${filename}" "${extension}" > ${stderr};
 			breaksw;
 		
-		case -497:
+		case -302:
 			printf "Cannot process:\n\t<file://%s>\n\tit no longer exists\t[skipped]\n\n" "${original_filename}" > ${stderr};
 			breaksw;
 		
@@ -960,7 +1138,7 @@ exception_handler:
 	endsw
 	printf ".\n" > ${stderr};
 	@ last_exception_handled=$errno;
-	if( $errno <= -498 || ${?strict} ) then
+	if( ${?0} && ( $errno < -400 || ${?strict} )) then
 		printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
 		if(! ${?debug} ) \
 			printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr};
@@ -978,8 +1156,8 @@ exception_handler:
 #exception_handler:
 
 
-options_init:
-	set label_current="options_init";
+parse_argv_init:
+	set label_current="parse_argv_init";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -1008,7 +1186,7 @@ options_init:
 	
 	set callback="parse_arg";
 	goto callback_handler;
-#options_init:
+#parse_argv_init:
 
 
 parse_arg:
@@ -1032,8 +1210,9 @@ parse_arg:
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]" > ${stdout};
 		
 		if( "$argv[$arg]" == "-" ) then
-			set callback="read_stdin_init";
-			goto callback_handler;
+			if(! ${?scripts_interactive} ) \
+				set scripts_interactive;
+			continue;
 		endif
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
@@ -1302,120 +1481,6 @@ parse_argv_quit:
 	if( ${?arg} ) \
 		unset arg;
 	
-	if(! ${?argv_parsed} ) \
-		set argv_parsed;
-	
-	if( ${?always_read_stdin} && ! ${?stdin_read} ) then
-		set callback="read_stdin_init";
-	else
-		set callback="parse_options_quit";
-	endif
-	goto callback_handler;
-#parse_argv_quit:
-
-
-read_stdin_init:
-	set label_current="read_stdin_init";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	
-	if(! ${?always_read_stdin} ) then
-		if(! ${#argv} > 0 ) then
-			set callback="parse_options_quit";
-			goto callback_handler;
-		endif
-		
-		if(! ${?arg} ) then
-			set stdin_arg=${#argv};
-		else
-			set stdin_arg=${arg};
-		endif
-		
-		if( "$argv[$stdin_arg]" != "-" ) then
-			unset stdin_arg;
-			if(! ${?argv_parsed} ) then
-				set callback="parse_arg";
-			else
-				set callback="parse_options_quit";
-			endif
-			goto callback_handler;
-		endif
-		unset stdin_arg;
-	endif
-	
-	if( ( ${?debug_options} || ${?debug_stdin} ) && ! ${?debug} ) \
-		set debug debug_set;
-	
-	if(! ${?stdin_read} ) then
-		set callback="read_stdin";
-	else
-		if(! ${?argv_parsed} ) then
-			set callback="parse_arg";
-		else
-			set callback="parse_options_quit";
-		endif
-	endif
-	goto callback_handler;
-#read_stdin_init:
-
-
-read_stdin:
-	set label_current="read_stdin";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	
-	set value="$<";
-	#set value=$<:q;
-	while( "${value}" != "" )
-		if( ${?debug} ) \
-			printf "Processing stdin value: [%s].\n" "${value}";
-		
-		switch("${value}")
-			default:
-				if( -e "${value}" && ${?supports_multiple_files} ) then
-					@ parsed_args++;
-					set callback="filename_list_append";
-					goto callback_handler;
-				endif
-				
-				@ errno=-498;
-				set callback="read_stdin";
-				goto exception_handler;
-			breaksw;
-		endsw
-	end
-	unset value;
-	
-	set callback="read_stdin_quit";
-	goto callback_handler;
-#read_stdin:
-
-
-read_stdin_quit:
-	set label_current="read_stdin_quit";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	
-	set stdin_read;
-	
-	if( ${?debug_set} ) \
-		unset debug debug_set;
-	
-	if(! ${?argv_parsed} ) then
-		set callback="parse_arg";
-	else
-		set callback="parse_options_quit";
-	endif
-	
-	goto callback_handler;
-#read_stdin_quit:
-
-
-parse_options_quit:
-	set label_current="parse_options_quit";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	
 	#if( ${?parsed_args} && ${?parsed_argv} ) then
 	#	if( ${parsed_args} > 0 ) then
 	# 		set parsed_argv_file="${scripts_tmpdir}/.escaped.parsed_argv.$scripts_basename.`date '+%s'`.arg";
@@ -1460,7 +1525,7 @@ parse_options_quit:
 	endif
 	
 	goto callback_handler;
-#parse_options_quit:
+#parse_argv_quit:
 
 
 filename_list_append:
@@ -1474,13 +1539,7 @@ filename_list_append:
 	endif
 	
 	if( ! ${?0} && "${value}" == "${scripts_basename}" ) then
-		if(! ${?argv_parsed} ) then
-			set callback="parse_arg";
-		else if(! ${?stdin_read} ) then
-			set callback="read_stdin";
-		else
-			set callback="parse_options_quit";
-		endif
+		set callback="parse_arg";
 		goto callback_handler;
 	endif
 	
@@ -1502,13 +1561,7 @@ filename_list_append:
 			find -L "$value" | sort >> "${filename_list}";
 		endif
 		
-		if(! ${?argv_parsed} ) then
-			set callback="parse_arg";
-		else if(! ${?stdin_read} ) then
-			set callback="read_stdin";
-		else
-			set callback="parse_options_quit";
-		endif
+		set callback="parse_arg";
 		goto callback_handler;
 	endif
 	
@@ -1533,13 +1586,7 @@ filename_list_append:
 		find -L "$value" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${filename_list}";
 	endif
 	
-	if(! ${?argv_parsed} ) then
-		set callback="parse_arg";
-	else if(! ${?stdin_read} ) then
-		set callback="read_stdin";
-	else
-		set callback="parse_options_quit";
-	endif
+	set callback="parse_arg";
 	goto callback_handler;
 #filename_list_append:
 

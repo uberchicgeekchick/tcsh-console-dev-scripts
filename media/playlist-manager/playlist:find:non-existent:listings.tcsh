@@ -62,80 +62,69 @@ dependency_check:
 	while( $dependencies_index < ${#dependencies} )
 		@ dependencies_index++;
 		set dependency=$dependencies[$dependencies_index];
-		foreach dependency("`where '${dependency}'`")
-			if( ${?debug} ) \
-				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
+		if( ${?debug} ) \
+			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n";
 			
-			if(! -x "${dependency}" ) \
-				continue;
-			
-			if(! ${?script_dirname} ) then
-				if("`basename '${dependency}'`" == "${scripts_basename}" ) then
-					set old_owd="${cwd}";
-					cd "`dirname '${dependency}'`";
-					set script_dirname="${cwd}";
-					cd "${owd}";
-					set owd="${old_owd}";
-					unset old_owd;
-					set script="${script_dirname}/${scripts_basename}";
-					if(! ${?TCSH_RC_SESSION_PATH} ) \
-						setenv TCSH_RC_SESSION_PATH "${script_dirname}/../tcshrc";
-					
-					if(! ${?TCSH_LAUNCHER_PATH} ) \
-						setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
-				endif
-			endif
-			
-			if( ${?debug} )	then
-				switch( "`printf '%s' '${dependencies_index}' | sed -r 's/.*([1-3])"\$"/\1/'`" )
-					case "1":
-						set suffix="st";
-						breaksw;
-					
-					case "2":
-						set suffix="nd";
-						breaksw;
-					
-					case "3":
-						set suffix="rd";
-						breaksw;
-					
-					default:
-						set suffix="th";
-						breaksw;
-				endsw
-				
-				printf "\n**%s debug:** found %d%s dependency: %s.\n\n" "${scripts_basename}" $dependencies_index "$suffix" "${dependency}";
-				unset suffix;
-			endif
-			
-			switch("${dependency}")
-				case "${scripts_basename}":
-				case "./${dependency}":
-				case "${TCSH_LAUNCHER_PATH}/${dependency}":
-					continue;
-					breaksw;
-			endsw
-			break;
+		foreach program("`where '${dependency}'`")
+			if( -x "${program}" ) \
+				break;
+			unset program;
 		end
 		
-		if(! ${?program} ) \
-			set program="${script}";
-		
-		if(!( ${?dependency} && ${?script} && ${?program} )) then
-			set missing_dependency;
-		else
-			if(!( -x ${script} && -x ${dependency} && -x ${program} )) \
-				set missing_dependency;
-		endif
-		
-		if( ${?missing_dependency} ) then
+		if(! ${?program} ) then
 			@ errno=-501;
 			goto exception_handler;
 		endif
 		
+		if( ${?debug} ) then
+			switch(`printf "%d" "${dependencies_index}" | sed -r 's/^[0-9]*[^1]?([0-9])$/\1/'` )
+				case "1":
+					set suffix="st";
+					breaksw;
+				
+				case "2":
+					set suffix="nd";
+					breaksw;
+				
+				case "3":
+					set suffix="rd";
+					breaksw;
+				
+				default:
+					set suffix="th";
+					breaksw;
+			endsw
+			
+			printf "**%s debug:** %d%s dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${program}";
+			unset suffix;
+		endif
+		
+		switch("${dependency}")
+			case "${scripts_basename}":
+				if( ${?scripts_dirname} ) \
+					breaksw;
+				
+				set old_owd="${cwd}";
+				cd "`dirname '${program}'`";
+				set scripts_dirname="${cwd}";
+				cd "${owd}";
+				set owd="${old_owd}";
+				unset old_owd;
+				set script="${scripts_dirname}/${scripts_basename}";
+				breaksw;
+			
+			default:
+				if(! ${?execs} ) \
+					set execs=()
+				set execs=(${execs} "${program}");
+				breaksw;
+		endsw
+		
 		unset program;
 	end
+	
+	set callback="dependencies_found";
+	goto callback_handler;
 #dependency_check:
 
 
@@ -157,26 +146,19 @@ if_sourced:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	if(! ${?being_sourced} ) \
-		goto main;
+	if(! ${?0} ) then
+		if(! ${?supports_being_source} ) then
+			@ errno=-502;
+			goto exception_handler;
+		else
+			set callback="sourcing_init";
+		endif
+	else
+		set callback="main";
+	endif
 	
-	if(! ${?supports_being_source} ) \
-		goto sourcing_disabled;
-	
-	goto sourcing_init;
+	goto callback_handler;
 #if_sourced:
-
-
-sourcing_disabled:
-	set label_current="sourcing_disabled";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	
-	# BEGIN: disable source scripts_basename.  For exception handeling when this file is 'sourced'.
-	@ errno=-502;
-	goto exception_handler;
-	# END: disable source scripts_basename.
-#sourcing_disabled:
 
 
 sourcing_init:
@@ -185,6 +167,11 @@ sourcing_init:
 		goto label_stack_set;
 	
 	# BEGIN: source scripts_basename support.
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
+	
+	# START: special handler for when this file is sourced.
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 #sourcing_init:
 
@@ -194,8 +181,11 @@ sourcing_main:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+	
 	# START: special handler for when this file is sourced.
-	alias ${script_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
+	alias "${script_alias}" \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.
 #sourcing_main:
 
@@ -234,10 +224,12 @@ main:
 	if( ${?edit_playlist} ) \
 		${EDITOR} "${playlist}";
 	
-	if(! ${?playlist_type} ) then
-		set callback="setup_playlist";
-		goto callback_handler;
-	endif
+	playlist:new:create.tcsh "${playlist}";
+	if(! ${?filename_list} ) \
+		set filename_list="`mktemp --tmpdir filenames.${scripts_basename}.XXXXXX`";
+	mv -f "${playlist}.swp" "${filename_list}";
+	set callback="exec";
+	goto callback_handler;
 #main:
 
 
@@ -266,7 +258,7 @@ exec:
 				printf "${filename}.${extension}\n";
 			endif
 		endif
-		set callback="process_filename_list";
+		set callback="filename_next";
 		goto callback_handler;
 	endif
 	if( ${?clean_up} ) \
@@ -274,19 +266,18 @@ exec:
 	goto script_main_quit;
 #exec:
 
-process_filename_list:
-	foreach filename("`cat '${filename_list}' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`")
+filename_next:
+	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
 		ex -s '+1d' '+wq!' "${filename_list}";
-		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/g'`";
+		set extension="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/g'`";
 		set original_extension="${extension}";
-		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(["\$"])/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
-		set filename="`printf "\""${filename}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g'`";
 		set callback="exec";
 		goto callback_handler;
 	end
 	rm "${filename_list}";
 	unset filename filename_list;
-#process_filename_list:
+#filename_next:
 
 format_new_playlist:
 	if(! ${?clean_up} ) then
@@ -892,24 +883,6 @@ label_stack_set:
 	
 	goto callback_handler;
 #label_stack_set:
-
-setup_playlist:
-	set label_current="setup_playlist";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	
-	if(! ${?playlist} ) then
-		@ errno=-506;
-		goto exception_handler;
-	endif
-	
-	playlist:new:create.tcsh "${playlist}";
-	if(! ${?filename_list} ) \
-		set filename_list="`mktemp --tmpdir filenames.${scripts_basename}.XXXXXX`";
-	mv -f "${playlist}.swp" "${filename_list}";
-	set callback="exec";
-	goto callback_handler;
-#setup_playlist:
 
 
 callback_handler:

@@ -109,8 +109,8 @@ playlist_save:
 			ex -s "+2r ${new_playlist_to_read}" '+wq!' "${playlist_swap}";
 			ex -s '+3,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq!' "${playlist_swap}";
 			printf "#END" >> "${playlist_swap}";
-			while( "`grep --perl-regexp -c '^(\tidentifier\ \=\ )([^;\=]+)[;\=]([^;\=\n]*);"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
-				ex -s '+1,$s/\v^(\tidentifier\ \=\ )([^;\=]+)[;\=]([^;\=]*);$/\1\2\3;/' '+wq!' "${playlist_swap}";
+			while( "`grep --perl-regexp -c '^(\tidentifier\ \=\ )(.*)[\=;](.*);"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
+				ex -s '+1,$s/\v^(\tidentifier\ \=\ )(.*)[\=;](.*);$/\1\2\3;/' '+wq!' "${playlist_swap}";
 			end
 			breaksw;
 		
@@ -130,9 +130,8 @@ playlist_save:
 			#ex -s '+3,$s/\v^(Title[0-9]+\=.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist_temp}";
 			printf "Version=2" >> "${playlist_swap}";
 			unset lines line_number line;
-			while( "`grep --perl-regexp -c '^(Title\=)([^\=]+)\=([^\=\n]*)"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
-				grep --perl-regexp -c '^(Title\=)([^\=]+)\=([^\=\n]*)"\$"' "${playlist_swap}" | sed -r 's/^([0-9]+).*$/\1/';
-				ex -s '+1,$s/\v^(Title\=)([^\=]+)[\=](.*)$/\1\2\3/' '+wq!' "${playlist_swap}";
+			while( "`grep --perl-regexp -c '^(Title\=)(.*)[\=](.*)"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
+				ex -s '+1,$s/\v^(Title\=)(.*)[\=](.*)$/\1\2\3/' '+wq!' "${playlist_swap}";
 			end
 			breaksw;
 		
@@ -141,8 +140,8 @@ playlist_save:
 			ex -s "+1r ${new_playlist_to_read}" '+wq!' "${playlist_swap}";
 			ex -s '+2,$s/\v^(.*\/)(.*)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${playlist_swap}";
 			ex -s '+2,$s/\v^(#EXTINF:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist_swap}";
-			while( "`grep --perl-regexp -c '^(#EXTINF:,)([^:]+):([^:\n]*)"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
-				ex -s '+1,$s/\v^(#EXTINF:,)([^:]+):(.*)$/\1\2\3/' '+wq!' "${playlist_swap}";
+			while( "`grep --perl-regexp -c '^(#EXTINF:,)(.*)[:](.*)"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
+				ex  '+1,$s/\v^(#EXTINF:,)(.*)[:](.*)$/\1\2\3/' '+w' "${playlist_swap}";
 			end
 			breaksw;
 	endsw

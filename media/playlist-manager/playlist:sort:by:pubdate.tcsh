@@ -469,7 +469,7 @@ filename_process:
 	set original_extension="${extension}";
 	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
-		if(! ${?no_exit_on_exception} ) \ 
+		if(! ${?no_exit_on_exception} ) \
 			set no_exit_on_exception no_exit_on_exception_set;
 		if( ${?display_usage_on_exception} ) \
 			unset display_usage_on_exception;

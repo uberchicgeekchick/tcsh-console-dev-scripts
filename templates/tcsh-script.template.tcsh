@@ -168,10 +168,16 @@ scripts_main_quit:
 		unset directory_file;
 	endif
 	
-	if( ${?values_file} ) then
-		if( -e "${values_file}" ) \
-			rm -f "${values_file}";
-		unset values_file;
+	if( ${?value_file} ) then
+		if( -e "${value_file}" ) \
+			rm -f "${value_file}";
+		unset value_file;
+	endif
+	
+	if( ${?find_result_file} ) then
+		if( -e "${find_result_file}" ) \
+			rm -f "${find_result_file}";
+		unset find_result_file;
 	endif
 	
 	if( ${?being_sourced} ) \
@@ -748,6 +754,28 @@ read_stdin:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
+	if( ${?find_result_file} ) then
+		foreach original_filename("`cat "\""${find_result_file}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
+			ex -s '+1d' '+wq!' "${find_result_file}";
+			if( "${original_filename}" == "" ) \
+				continue;
+			
+			if(! -e "`printf "\""%s"\"" "\""${original_filename}"\""`" ) then
+				@ errno=-302;
+				set callback="read_stdin";
+				goto exception_handler;
+			endif
+			
+			@ file_count++;
+			printf "${original_filename}\n" >> "${filename_list}";
+			printf "${original_filename}\n" >> "${filename_list}.all";
+			set callback="exec";
+			goto callback_handler;
+		end
+		rm -f "${find_result_file}";
+		unset find_result_file;
+	endif
+	
 	set value="$<";
 	set value_file="${scripts_tmpdir}/.escaped.$scripts_basename.stdin.value.`date '+%s'`.arg";
 	printf "$value" >! "${value_file}";
@@ -756,7 +784,8 @@ read_stdin:
 	rm -f "${value_file}";
 	unset value_file;
 	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-		
+	unset escaped_value;
+	
 	#set value=$<:q;
 	while( "${value}" != "" )
 		if( ${?debug} ) \
@@ -765,12 +794,29 @@ read_stdin:
 		switch("${value}")
 			default:
 				if( -e "${value}" && ${?supports_multiple_files} ) then
-					@ file_count++;
-					printf "${value}\n" >> "${filename_list}";
-					printf "${value}\n" >> "${filename_list}.all";
-					set original_filename="${escaped_value}";
-					unset value;
-					set callback="exec";
+					set find_result_file="${scripts_tmpdir}/.escaped.$scripts_basename.find.result.`date '+%s'`.arg";
+					if(! ${?scripts_supported_extensions} ) then
+						if(! ${?supports_hidden_files} ) then
+							find -L "$value" \! -iregex '.*\/\..*' | sort >> "${find_result_file}";
+						else
+							find -L "$value" | sort >> "${find_result_file}";
+						endif
+					else if(! ${?supports_hidden_files} ) then
+						find -L "$value" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*'  | sort >> "${find_result_file}";
+					else
+						find -L "$value" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${find_result_file}";
+					endif
+					set find_result_count=`wc -l "${find_result_file}" | sed -r 's/^([0-9]+).*$/\1/'`;
+					set callback="read_stdin";
+					if( ${find_result_count} == 0 ) then
+						rm -f "${find_result_file}";
+						unset find_result_file;
+						@ errno=-300;
+						goto exception_handler;
+					else
+						#ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${find_result_file}";
+						unset value;
+					endif
 					goto callback_handler;
 				endif
 				
@@ -869,8 +915,6 @@ exec:
 	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
 		printf "\tProcessing: <file://%s>\t[skipped]\n" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
-		if(! ${?no_exit_on_exception} ) \ 
-			set no_exit_on_exception_set no_exit_on_exception;
 		@ errno=-301;
 		if(! ${?reading_stdin} ) then
 			set callback="filename_next";
@@ -935,8 +979,6 @@ filename_next:
 			continue;
 		
 		if(! -e "`printf "\""%s"\"" "\""${original_filename}"\""`" ) then
-			if(! ${?no_exit_on_exception} ) \ 
-				set no_exit_on_exception_set no_exit_on_exception;
 			@ errno=-302;
 			set callback="filename_next";
 			goto exception_handler;
@@ -1058,15 +1100,22 @@ exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-999;
 	
-	if( ${?0} && ( $errno < -400 || ${?strict} )) then
+	if( $errno < -400 && ${?strict} ) then
 		if( ${?no_exit_on_exception} ) \
 			unset no_exit_on_exception;
+	else if( $errno > -400 && $errno < -100 ) then
+		if(! ${?no_exit_on_exception} ) \
+			set no_exit_on_exception_set no_exit_on_exception;
 	endif
 	
 	if( $errno > -400 ) \
 		printf "\t" > ${stderr};
 	printf "**${scripts_basename} error("\$"errno:$errno):**\n\t" > ${stderr};
 	switch( $errno )
+		case -300:
+			printf "Cannot process: <file://%s> is an unsupported file" "${value}" > ${stderr};
+			breaksw;
+		
 		case -301:
 			printf "a previously specified or found file cannot be processed.\n\t<file://%s%s> no longer exists\t[skipped]\n\n" "${scripts_basename}" "${filename}" "${extension}" > ${stderr};
 			breaksw;
@@ -1138,11 +1187,9 @@ exception_handler:
 	endsw
 	printf ".\n" > ${stderr};
 	@ last_exception_handled=$errno;
-	if( ${?0} && ( $errno < -400 || ${?strict} )) then
-		printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
-		if(! ${?debug} ) \
-			printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr};
-	endif
+	printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
+	if(! ${?debug} ) \
+		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr};
 	printf "\n" > ${stderr};
 	
 	#if( ${?strict} || (!( ${?callback} && ${?no_exit_on_exception} )) ) \
@@ -1284,12 +1331,12 @@ parse_arg:
 		endif
 		
 		if( "${value}" != "" ) then
-			set values_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-			printf "${value}" >! "${values_file}";
-			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${values_file}";
-			set escaped_value="`cat "\""${values_file}"\""`";
-			rm -f "${values_file}";
-			unset values_file;
+			set value_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+			printf "${value}" >! "${value_file}";
+			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+			set escaped_value="`cat "\""${value_file}"\""`";
+			rm -f "${value_file}";
+			unset value_file;
 			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
 		endif
 		

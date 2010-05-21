@@ -409,7 +409,7 @@ filename_process:
 	set original_extension="${extension}";
 	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
-		if(! ${?no_exit_on_exception} ) \ 
+		if(! ${?no_exit_on_exception} ) \
 			set no_exit_on_exception_set no_exit_on_exception;
 		@ errno=-498;
 		set callback="filename_list_process";

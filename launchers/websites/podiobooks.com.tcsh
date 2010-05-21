@@ -6,10 +6,15 @@ while( ${?1} && "${1}" != "" )
 		set value="${2}";
 	
 	switch("${option}")
+		case "h":
+		case "help":
+			goto usage;
+			breaksw;
+		
 		case "firefox":
 		case "links":
 		case "lynx":
-			set browser="${option}";
+			set which_browser=" --${option}";
 			breaksw;
 		
 		case "browser":
@@ -21,61 +26,43 @@ while( ${?1} && "${1}" != "" )
 			breaksw;
 		
 		default:
-			if( ${?search_phrase} ) then
-				set search_phrase="${search_phrase}+${1}";
-			else
+			if(! ${?search_phrase} ) then
 				set search_phrase="${1}";
+			else
+				set search_phrase="${search_phrase}+${1}";
 			endif
-			shift;
 			breaksw;
 	endsw
+	shift;
 end
 
 if(! ${?browser} ) then
-	if( "${TERM}" == "gnome" ) then
-		set browser="firefox";
-	else
-		set browser="links"
-	endif
+	if(! ${?TCSH_LAUNCHER_PATH} ) \
+		setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
+	
+	if(! ${?which_browser} ) \
+		set which_browser;
+	
+	set browser="${TCSH_LAUNCHER_PATH}/browser${which_browser}";
 endif
-
-if( -x "${browser}" ) then
-	set program="${browser}";
-else
-	foreach program ( "`which '${browser}'`" )
-		if( "${program}" != "${0}" && -x "${program}" ) break;
-		unset program;
-	end
-endif
-
-if(! ${?program} ) goto noexec;
-if(! -x "${program}" ) goto noexec;
-goto launchers_main;
-
-noexec:
-	printf "Unable to find %s.\n" "${browser}";
-	if( ${?program} ) unset program;
-	unset browser;
-	set status=-1;
-	goto exit_script;
-#noexec
-
 
 launchers_main:
 	set website="http://www.podiobooks.com/";
 	if( ${?search_phrase} ) then
-		set podiobooks_book_feed="`mktemp -tmpdir -u podiobooks.com.book.feed.XXXXXX`";
-		curl --location --fail --show-error --silent --output "${podiobooks_book_feed}" "${website}title/${search_phrase}/feed/";
+		set podiobooks_book_feed="`mktemp --tmpdir -u podiobooks.com.book.feed.XXXXXX`";
+		set title="`printf "\""${search_phrase}"\"" | sed -r 's/([^ ]+)/\L\1/g' | sed -r 's/\ /\-/g'`";
+		curl --location --fail --show-error --silent --output "${podiobooks_book_feed}" "${website}title/${title}/feed/";
 		if( -e "${podiobooks_book_feed}" ) then
 			rm -f "${podiobooks_book_feed}";
 			unset podiobooks_book_feed;
-			${program} "${website}title/${search_phrase}/" &;
+			${browser} "${website}title/${title}/";
 		else
 			unset podiobooks_book_feed;
-			${program} "${website}podiobooks/search.php?keyword=`printf "\""${search_phrase}"\"" | sed -r 's/\ /%20/g'`" &;
+			${browser} "${website}podiobooks/search.php?keyword=`printf "\""${search_phrase}"\"" | sed -r 's/\ /%20/g'`";
 		endif
+		unset title;
 	else
-		${program} "${website}";
+		${browser} "${website}";
 	endif
 #launchers_main:
 

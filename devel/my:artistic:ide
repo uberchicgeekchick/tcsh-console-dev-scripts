@@ -132,7 +132,7 @@ artistic_canvas:
 				"--tab-with-profile=projects:gtk --title='[@/gtk] #>' --working-directory=/projects/gtk" \
 				"--tab-with-profile=projects:gtk --title='[@connectED] #>' --working-directory=/projects/gtk/connectED" \
 				"--tab-with-profile=projects:gtk --title='[@get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \
-				"--tab-with-profile=projects:gtk --title='[@alacast] #>' --working-directory=/projects/gtk/alacast" \
+				"--tab-with-profile=projects:gtk --title='[@alacast.v2] #>' --working-directory=/projects/gtk/alacast" \
 			);
 			breaksw;
 		
@@ -140,7 +140,7 @@ artistic_canvas:
 			set my_canvas=( \
 					"--tab-with-profile=projects:cli --title='[@/cli] #>' --working-directory=/projects/cli" \
 					"--tab-with-profile=projects:cli --title='[@/profile.d] #>' --working-directory=/profile.d" \
-					"--tab-with-profile=projects:cli --title='[@tcshrc] #>' --working-directory=/projects/cli/tcshrc" \
+					"--tab-with-profile=projects:cli --title='[@console.pallet] #>' --working-directory=/projects/cli/console.pallet" \
 			);
 			breaksw;
 	
@@ -170,7 +170,7 @@ artistic_canvas:
 			set my_canvas=( \
 				"--tab-with-profile=projects:games --title='[@many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
 				"--tab-with-profile=projects:cli --title='[@console.pallet] #>' --working-directory=/projects/cli/console.pallet" \
-				"--tab-with-profile=projects:cli --title='[@alacast-cli] #>' --working-directory=/projects/cli/alacast" \
+				"--tab-with-profile=projects:cli --title='[@alacast.v1] #>' --working-directory=/projects/cli/alacast" \
 				"--tab-with-profile=projects:www --title='[@a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=projects:gtk --title='[@get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \
 				"--tab-with-profile=projects:gtk --title='[@alacast-gtk] #>' --working-directory=/projects/gtk/alacast" \
@@ -183,7 +183,7 @@ artistic_canvas:
 				"--tab-with-profile=projects:games --title='[@...many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
 				"--tab-with-profile=projects:cli --title='[@cli] #>' --working-directory=/projects/cli" \
 				"--tab-with-profile=projects:cli --title='[@...console.pallet] #>' --working-directory=/projects/cli/console.pallet" \
-				"--tab-with-profile=projects:cli --title='[@...alacast-cli] #>' --working-directory=/projects/cli/alacast" \
+				"--tab-with-profile=projects:cli --title='[@...alacast.v1] #>' --working-directory=/projects/cli/alacast" \
 				"--tab-with-profile=projects:art --title='[@art] #>' --working-directory=/art" \
 				"--tab-with-profile=projects:www --title='[@www] #>' --working-directory=/art/www" \
 				"--tab-with-profile=projects:www --title='[@...a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
@@ -199,9 +199,7 @@ artistic_canvas:
 				"--tab-with-profile=projects:cli --title='[@console.pallet>] #>' --working-directory=/projects/cli/console.pallet" \
 				"--tab-with-profile=projects:www --title='[@a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=projects:media --title='[@media] #>'  --working-directory=/media" \
-				"--tab-with-profile=projects:gtk --title='[@get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \
 				"--tab-with-profile=projects:gtk --title='[@alacast.v2] #>' --working-directory=/projects/gtk/alacast" \
-				"--tab-with-profile=projects:gtk --title='[@connectED] #>' --working-directory=/projects/gtk/connectED" \
 				"--tab-with-profile=projects:games --title='[@many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
 			);
 			breaksw;
@@ -246,7 +244,7 @@ media_canvas:
 	switch ( "${canvas}" )
 		case  "Alacast":
 			set my_canvas=( \
-				"--tab-with-profile=alacast:php --title='[`alacast:php`] #>' --working-directory=/projects/cli/alacast --command=/projects/cli/alacast/bin/alacast.php --logging --titles-append-pubdate --player--strip-characters='!#' --update=detailed --interactive" \
+				"--tab-with-profile=alacast:php --title='[`alacast:php`] #>' --working-directory=/projects/cli/alacast --command=/projects/cli/alacast/bin/alacast.php --mode=update" \
 			);
 			breaksw;
 		case  "Online":
@@ -259,7 +257,7 @@ media_canvas:
 				"--tab-with-profile=uberChick --title='[@/projects/media] #>' --working-directory=/projects/media" \
 				"--tab-with-profile=uberChick --title='[@/media] #>' --working-directory=/media" \
 				"--tab-with-profile=uberChick --title='[@podcasts] #>' --working-directory=/media/podcasts" \
-				"--tab-with-profile=project --title='[@alacast] #>' --working-directory=/projects/cli/alacast" \
+				"--tab-with-profile=project --title='[@alacast.v1] #>' --working-directory=/projects/cli/alacast" \
 				"--tab-with-profile=alacast:php --title='[`alacast:php`] #>' --working-directory='/projects/cli/alacast --command=/projects/cli/alacast/bin/alacast.php --mode=update'" \
 			);
 			breaksw;

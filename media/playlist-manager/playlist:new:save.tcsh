@@ -141,7 +141,7 @@ playlist_save:
 			ex -s '+2,$s/\v^(.*\/)(.*)(\.[^.]+)$/\#EXTINF:,\2\r\1\2\3/' '+wq!' "${playlist_swap}";
 			ex -s '+2,$s/\v^(#EXTINF:,.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist_swap}";
 			while( "`grep --perl-regexp -c '^(#EXTINF:,)(.*)[:](.*)"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
-				ex  '+1,$s/\v^(#EXTINF:,)(.*)[:](.*)$/\1\2\3/' '+w' "${playlist_swap}";
+				ex  '+1,$s/\v^(#EXTINF:,)(.*)[:](.*)$/\1\2\3/' '+wq!' "${playlist_swap}";
 			end
 			breaksw;
 	endsw

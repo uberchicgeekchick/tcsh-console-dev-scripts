@@ -553,7 +553,7 @@ parse_arg:
 			case "skip-subdir":
 			case "dups-subdir":
 				set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^\///' | sed -r 's/\/"\$"//'`";
-				if( ! -d "${value}" && ! -L "${value}" ) then
+				if( ! -d "${value}" && ! -l "${value}" ) then
 					printf "--%s must specify a sub-directory of %s.\n" "${option}" "${cwd}" > /dev/stderr;
 					continue;
 				endif

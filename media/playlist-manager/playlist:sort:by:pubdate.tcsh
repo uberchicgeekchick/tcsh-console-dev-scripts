@@ -539,8 +539,6 @@ scripts_main_quit:
 	if( ${?nohup_set} ) \
 		unset nohup nohup_set;
 	
-	if( ${?being_sourced} ) \
-		unset being_sourced;
 	if( ${?supports_being_sourced} ) \
 		unset supports_being_sourced;
 	

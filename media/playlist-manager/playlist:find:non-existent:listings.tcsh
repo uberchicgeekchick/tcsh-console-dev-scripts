@@ -1,6 +1,22 @@
 #!/bin/tcsh -f
 set label_current="init";
 goto label_stack_set;
+
+
+exit_script:
+	set label_current="exit_script";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if( ! ${?0} && ${?supports_being_sourced} ) then
+		set callback="scripts_sourcing_quit";
+	else
+		set callback="scripts_main_quit";
+	endif
+	goto callback_handler;
+#exit_script:
+
+
 init:
 	set label_current="init";
 	if( "${label_current}" != "${label_previous}" ) \
@@ -12,9 +28,6 @@ init:
 	set original_owd=${owd};
 	set starting_dir=${cwd};
 	set escaped_starting_dir=${escaped_cwd};
-	
-	if(! $?0 ) \
-		set being_sourced;
 	
 	set scripts_basename="playlist:find:non-existent:listings.tcsh";
 	set script_alias="`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
@@ -146,15 +159,13 @@ if_sourced:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	if(! ${?0} ) then
-		if(! ${?supports_being_source} ) then
-			@ errno=-502;
-			goto exception_handler;
-		else
-			set callback="sourcing_init";
-		endif
-	else
+	if( ${?0} ) then
 		set callback="main";
+	else if( ${?supports_being_source} ) then
+		set callback="sourcing_init";
+	else
+		@ errno=-502;
+		goto exception_handler;
 	endif
 	
 	goto callback_handler;
@@ -199,7 +210,7 @@ sourcing_main_quit:
 	
 	# END: source scripts_basename support.
 	
-	goto script_main_quit;
+	goto scripts_main_quit;
 #sourcing_main_quit:
 
 
@@ -263,7 +274,7 @@ exec:
 	endif
 	if( ${?clean_up} ) \
 		goto format_new_playlist;
-	goto script_main_quit;
+	goto scripts_main_quit;
 #exec:
 
 filename_next:
@@ -281,27 +292,27 @@ filename_next:
 
 format_new_playlist:
 	if(! ${?clean_up} ) then
-		set callback="script_main_quit";
+		set callback="scripts_main_quit";
 		goto callback_handler;
 	endif
 	
 	if(! -e "${playlist}.new" ) then
-		set callback="script_main_quit";
+		set callback="scripts_main_quit";
 		goto callback_handler;
 	endif
 	
 	if(! ${?dead_file_count} ) then
 		rm "${playlist}.swp";
 		rm "${playlist}.new";
-		set callback="script_main_quit";
+		set callback="scripts_main_quit";
 		goto callback_handler;
 	endif
 	
 	playlist:new:save.tcsh --force "${playlist}";
 #format_new_playlist:
 
-script_main_quit:
-	set label_current="script_main_quit";
+scripts_main_quit:
+	set label_current="scripts_main_quit";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -325,8 +336,6 @@ script_main_quit:
 	if( ${?parsed_argc} ) \
 		unset parsed_argc;
 	
-	if( ${?being_sourced} ) \
-		unset being_sourced;
 	if( ${?supports_being_source} ) \
 		unset supports_being_source;
 	
@@ -434,7 +443,7 @@ script_main_quit:
 		unset errno;
 	endif
 	exit ${status}
-#script_main_quit:
+#scripts_main_quit:
 
 
 usage:
@@ -464,7 +473,7 @@ usage:
 		set usage_displayed;
 	
 	if(! ${?no_exit_on_usage} ) \
-		goto script_main_quit;
+		goto scripts_main_quit;
 	
 	if(! ${?callback} ) \
 		set callback="parse_arg";
@@ -528,7 +537,7 @@ exception_handler:
 	if( ${?callback} ) \
 		goto callback_handler;
 	
-	goto script_main_quit;
+	goto scripts_main_quit;
 #exception_handler:
 
 parse_argv:
@@ -820,14 +829,10 @@ parse_argv_quit:
 			unset arg;
 		endif
 	endif
-	if( ${?diagnostic_mode} ) then
-		set callback="diagnostic_mode";
+	if(! ${?diagnostic_mode} ) then
+		set callback="if_sourced";
 	else
-		if(! ${?being_sourced} ) then
-			set callback="main";
-		else
-			set callback="sourcing_main";
-		endif
+		set callback="diagnostic_mode";
 	endif
 	
 	goto callback_handler;
@@ -871,23 +876,23 @@ label_stack_set:
 		endif
 	endif
 	
-	#set label_previous=${label_current};
-	
 	set callback=${label_previous};
 	
 	if( ${?debug} ) \
 		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/stdout;
-	
-	#unset label_previous;
-	#unset label_current;
-	
 	goto callback_handler;
 #label_stack_set:
 
 
 callback_handler:
-	if(! ${?callback} ) \
-		goto script_main_quit;
+	if(! ${?callback} ) then
+		if(! ${?callback_stack} ) then
+			goto scripts_main_quit;
+		else
+			set callback="$callback_stack[${#callback_stack}]";
+			unset callback_stack[${#callback_stack}];
+		endif
+	endif
 	
 	if(! ${?callback_stack} ) then
 		set callback_stack=("${callback}");
@@ -900,8 +905,8 @@ callback_handler:
 			set last_callback="$callback_stack[${#callback_stack}]";
 			unset callback_stack[${#callback_stack}];
 		endif
-		unset callback;
 	endif
+	unset callback;
 	if( ${?debug} ) \
 		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
 	
@@ -938,11 +943,7 @@ diagnostic_mode:
 	set >> "${script_diagnosis_log}";
 	printf "Create %s diagnosis log:\n\t%s\n" "${scripts_basename}" "${script_diagnosis_log}";
 	@ errno=-500;
-	if(! ${?being_sourced} ) then
-		set callback="script_main_quit";
-	else
-		set callback="sourcing_main_quit";
-	endif
+	set callback="exit_script";
 	goto exception_handler;
 #diagnostic_mode:
 

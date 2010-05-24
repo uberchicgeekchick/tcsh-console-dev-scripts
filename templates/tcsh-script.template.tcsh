@@ -1192,7 +1192,6 @@ exception_handler:
 		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr};
 	printf "\n" > ${stderr};
 	
-	#if( ${?strict} || (!( ${?callback} && ${?no_exit_on_exception} )) ) \
 	if(!( ${?callback} && ${?no_exit_on_exception} )) \
 		set callback="exit_script";
 	

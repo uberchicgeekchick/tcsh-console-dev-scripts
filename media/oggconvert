@@ -11,7 +11,7 @@ setenv:
 	set supports_being_sourced;
 	
 	goto debug_check;
-#setenv:
+#goto setenv;
 
 
 exit_script:
@@ -19,13 +19,13 @@ exit_script:
 		goto sourcing_quit;
 	
 	goto scripts_main_quit;
-#exit_script:
+#goto exit_script;
 
 
 sourcing_quit:
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "oggconvert";
 	goto scripts_main_quit;
-#sourcing_quit:
+#goto sourcing_quit;
 
 
 scripts_main_quit:
@@ -106,7 +106,7 @@ scripts_main_quit:
 	
 	@ status=$errno;
 	exit ${status}
-#scripts_main_quit
+#goto scripts_main_quit;
 
 
 debug_check:
@@ -218,7 +218,7 @@ debug_check:
 				continue;
 		endsw
 	end
-#debug_check:
+#goto debug_check;
 
 
 check_dependencies:
@@ -298,7 +298,7 @@ check_dependencies:
 	unset dependency dependencies dependencies_index;
 	
 	goto parse_argv;
-#check_dependencies:
+#goto check_dependencies;
 
 
 if_sourced:
@@ -326,7 +326,7 @@ if_sourced:
 	alias	oggcombine	"${script} --combine";
 	
 	goto sourcing_quit;
-#if_sourced:
+#goto if_sourced;
 
 
 main:
@@ -365,7 +365,7 @@ main:
 	if( ${?debug} || ${?debug_filelist} ) \
 		cat "${filename_list}";
 	goto convert_filenames;
-#main
+#goto main;
 
 
 cancel_convert:
@@ -386,7 +386,7 @@ cancel_convert:
 	@ files_processed++;
 	sleep 2;
 	goto convert_filenames;
-#cancel_conver:
+#goto cancel_convert;
 
 
 convert_filenames:
@@ -399,9 +399,9 @@ convert_filenames:
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "Parsing: ${filename}.\n";
 		ex -s '+1d' '+wq!' "${filename_list}";
-		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/g'`";
+		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/g'`";
 		set original_extension="${extension}";
-		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g'`";# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`";# | sed -r 's/["\""]/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/g'`";# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`";# | sed -r 's/["\""]/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 		set save_to_filename="${filename}";
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "Looking for: ${filename}.${extension}\n";
@@ -412,16 +412,25 @@ convert_filenames:
 		endif
 		
 		if( -e "${save_to_filename}.ogg" ) then
+			if( ! ${?ltrim} && ! ${?rtrim} ) then
+				printf "Skipping [${filename}.${extension}]: no advanced conversion options specified.\n\n";
+				continue;
+			endif
+			
 			if(!( ${?force} || ${?re_encode} )) then
 				printf "\n\t${save_to_filename}.ogg: already exists\n\tRun "\`"${scripts_basename} --re-encode"\`" or "\`"${scripts_basename} --re-encode=force"\`" to over-write existing files.\n\n";
 				continue;
 			endif
 			
-			if( ${?force} ) \
-				goto oggconvert;
+			if( ${?force} ) then
+				if( ${?ltrim} ) \
+					goto oggconvert;
+				if( ${?rtrim} ) \
+					goto find_length;
+			endif
 			
 			if( ${?re_encode} ) \
-				goto confirm_over_write;
+				goto confirm_overwrite;
 		endif
 		
 		if( "${extension}" != "ogg" ) \
@@ -433,8 +442,7 @@ convert_filenames:
 		if( ${?rtrim} ) \
 			goto find_length;
 		
-		if(! ${?combine} ) \
-			printf "Skipping [${filename}.${extension}]: no advanced conversion options specified.\n\n";
+		printf "Skipping [${filename}.${extension}]: no advanced conversion options specified.\n\n";
 		@ files_processed++;
 		continue;
 	end
@@ -461,32 +469,39 @@ convert_filenames:
 	endif
 	
 	goto scripts_main_quit;
-#convert_filenames
+#goto convert_filenames;
 
 
-confirm_over_write:
+confirm_overwrite:
+	if(!( -e "${save_to_filename}.ogg" && "${original_extension}" == "ogg" )) \
+		goto oggconvert;
+	
 	printf "\n\t%s.ogg already exists.\n\tWould you like to remove it and re-encode a new ogg vorbis file? [y/N]" "${save_to_filename}";
 	set confirmation="$<";
 	printf "\n";
+	
 	switch("${confirmation}")
 		case "Y":
 		case "y":
-			if( -e "${filename}.ogg" ) \
-				rm -f "${filename}.ogg";
-			printf "\tRemoved: <%s.ogg>\n" "${filename}";
-			goto oggconvert;
+			if( -e "${save_to_filename}.ogg" ) \
+				rm -f "${save_to_filename}.ogg";
+			printf "\t**Removed:** <file://%s.ogg>\n" "${save_to_filename}";
+			if( ${?ltrim} ) \
+				goto oggconvert;
+			if( ${?rtrim} ) \
+				goto find_length;
 			breaksw;
 		
 		case "N":
 		case "n":
 		default:
-			printf "\t%s.ogg will be perserved.\n" "${filename}";
+			printf "\t**Skipping:** <file://%s.ogg>\n" "${save_to_filename}";
 			@ errno=-4;
 			@ files_processed++;
 			goto convert_filenames;
 			breaksw;
 	endsw
-#confirm_over_write:
+#goto confirm_overwrite;
 
 
 oggconvert:
@@ -598,7 +613,7 @@ oggconvert:
 	@ files_coverted++;
 	@ files_processed++;
 	goto convert_filenames;
-#oggconvert
+#goto oggconvert;
 
 
 find_length:
@@ -648,7 +663,7 @@ find_length:
 		printf "\tminutes: ${minutes}\n";
 		printf "\tseconds: ${seconds}\n";
 	endif
-#find_length
+#goto find_length;
 
 
 calculate_length:
@@ -726,7 +741,7 @@ calculate_length:
 	if( "${filename}" == "${save_to_filename}" ) \
 		goto oggconvert;
 	goto continue_combine;
-#calculate_length
+#goto calculate_length;
 
 
 init_combine:
@@ -745,7 +760,7 @@ init_combine:
 	unset old_owd;
 	
 	set add_length;
-#init_combine
+#goto init_combine;
 
 
 continue_combine:
@@ -754,7 +769,7 @@ continue_combine:
 		unset length;
 	endif
 	foreach filename ( "`cat '${filename_list}.all'`" )
-		set filename="`printf "\""%s"\"" "\""${filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g'`";
+		set filename="`printf "\""%s"\"" "\""${filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/g'`";
 		ex -s '+1d' '+wq' "${filename_list}.all";
 		if(! -e "${filename}.ogg" ) \
 			continue;
@@ -775,7 +790,7 @@ continue_combine:
 	set filename="${all_filenames}";
 	set extension="";
 	goto oggconvert;
-#continue_combine
+#goto continue_combine;
 
 
 usage:
@@ -790,7 +805,7 @@ usage:
 	
 	@ files_processed++;
 	goto convert_filenames;
-#usage
+#goto usage;
 
 
 parse_argv:
@@ -804,7 +819,7 @@ parse_argv:
 	
 	if( ${?debug} ) \
 		printf "Checking ${scripts_basename}'s argv options.  ${argc} total.\n";
-#parse_argv:
+#goto parse_argv;
 
 
 parse_arg:
@@ -1119,7 +1134,7 @@ parse_arg:
 		
 		unset argument dashes option equals value;
 	end
-#parse_arg:
+#goto parse_arg;
 
 
 parse_argv_quit:
@@ -1130,7 +1145,7 @@ parse_argv_quit:
 		goto scripts_main_quit;
 	
 	goto if_sourced;
-#parse_argv_quit
+#goto parse_argv_quit;
 
 
 filename_list_append_value:
@@ -1175,6 +1190,6 @@ filename_list_append_value:
 		find -L "$value" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${filename_list}";
 	endif
 	goto parse_arg;
-#filename_list_append_value:
+#goto filename_list_append_value;
 
 

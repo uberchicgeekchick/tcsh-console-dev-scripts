@@ -50,7 +50,7 @@ setenv:
 	
 	set label_current="init";
 	goto label_stack_set;
-#setup:
+#goto setup;
 
 
 exit_script:
@@ -64,7 +64,8 @@ exit_script:
 		set callback="scripts_main_quit";
 	endif
 	goto callback_handler;
-#exit_script:
+#set callback="exit_script";
+#goto callback_handler;
 
 
 sourcing_quit:
@@ -77,7 +78,8 @@ sourcing_quit:
 	
 	set callback="scripts_main_quit";
 	goto callback_handler;
-#sourcing_quit:
+#set callback="sourcing_quit";
+#goto callback_handler;
 
 
 scripts_main_quit:
@@ -348,7 +350,8 @@ scripts_main_quit:
 	
 	@ status=$errno;
 	exit ${errno}
-#scripts_main_quit:
+#set callback="scripts_main_quit";
+#goto callback_handler;
 
 
 init:
@@ -366,7 +369,8 @@ init:
 	set escaped_cwd="`cat "\""${directory_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
 	rm -f "${directory_file}";
 	unset directory_file;
-#init:
+#set callback="init";
+#goto callback_handler;
 
 
 debug_check:
@@ -500,7 +504,8 @@ debug_check:
 	endif
 	
 	goto callback_handler;
-#debug_check:
+#set callback="debug_check";
+#goto callback_handler;
 
 
 dependencies_check:
@@ -516,7 +521,8 @@ dependencies_check:
 	
 	set callback="dependency_check";
 	goto callback_handler;
-#dependencies_check:
+#set callback="dependencies_check";
+#goto callback_handler;
 
 
 dependency_check:
@@ -590,7 +596,8 @@ dependency_check:
 	
 	set callback="dependencies_found";
 	goto callback_handler;
-#dependency_check:
+#set callback="dependency_check";
+#goto callback_handler;
 
 
 dependencies_found:
@@ -605,7 +612,8 @@ dependencies_found:
 	
 	set callback="parse_argv_init";
 	goto callback_handler;
-#dependencies_found:
+#set callback="dependencies_found";
+#goto callback_handler;
 
 
 if_sourced:
@@ -657,7 +665,8 @@ if_sourced:
 	
 	goto callback_handler;
 	# END: disable source scripts_basename.
-#if_sourced:
+#set callback="if_sourced";
+#goto callback_handler;
 
 
 sourcing_main:
@@ -670,13 +679,14 @@ sourcing_main:
 		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 	
-	set callback="sourcing_main";
+	set callback="sourcing_exec";
 	goto callback_handler;
-#sourcing_main:
+#set callback="sourcing_init";
+#goto callback_handler;
 
 
-sourcing_main:
-	set label_current="sourcing_main";
+sourcing_exec:
+	set label_current="sourcing_exec";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -686,7 +696,8 @@ sourcing_main:
 	
 	set callback="exit_script";
 	goto callback_handler;
-#sourcing_main:
+#set callback="sourcing_exec";
+#goto callback_handler;
 
 
 main:
@@ -717,7 +728,8 @@ main:
 	
 	set callback="exec";
 	goto callback_handler;
-#main:
+#set callback="main";
+#goto callback_handler;
 
 
 read_stdin_init:
@@ -746,7 +758,8 @@ read_stdin_init:
 		set callback="exit_script";
 	endif
 	goto callback_handler;
-#read_stdin_init:
+#set callback="read_stdin_init";
+#goto callback_handler;
 
 
 read_stdin:
@@ -830,7 +843,8 @@ read_stdin:
 	
 	set callback="read_stdin_quit";
 	goto callback_handler;
-#read_stdin:
+#set callback="read_stdin";
+#goto callback_handler;
 
 
 read_stdin_quit:
@@ -860,7 +874,8 @@ read_stdin_quit:
 	
 	set callback="exit_script";
 	goto callback_handler;
-#read_stdin_quit:
+#set callback="read_stdin_quit";
+#goto callback_handler;
 
 
 exec:
@@ -892,6 +907,11 @@ exec:
 	if(! ${?original_filename} ) then
 		if(! ${?reading_stdin} ) then
 			set callback="filename_next";
+		else if(! ${?scripts_interactive} ) then
+			set callback="exit_script";
+			goto usage;
+		else if(! ${?reading_stdin} ) then
+			set callback="read_stdin_init";
 		else
 			set callback="read_stdin";
 		endif
@@ -960,7 +980,8 @@ exec:
 		set callback="read_stdin";
 	endif
 	goto callback_handler;
-#exec:
+#set callback="exec";
+#goto callback_handler;
 
 
 filename_next:
@@ -995,7 +1016,8 @@ filename_next:
 	endif
 	
 	goto callback_handler;
-#filename_next:
+#set callback="filename_next";
+#goto callback_handler;
 
 filename_list_post_process:
 	set label_current="filename_list_post_process";
@@ -1052,7 +1074,8 @@ filename_list_post_process:
 	unset filename_list;
 	
 	goto callback_handler;
-#filename_list_post_process:
+#set callback="filename_list_post_process";
+#goto callback_handler;
 
 
 usage:
@@ -1089,7 +1112,8 @@ usage:
 		set callback="exit_script";
 	
 	goto callback_handler;
-#usage:
+#set callback="$!";
+#goto usage;
 
 
 exception_handler:
@@ -1101,6 +1125,8 @@ exception_handler:
 		@ errno=-999;
 	
 	if( $errno < -400 && ${?strict} ) then
+		if(! ${?display_usage_on_exception} ) \
+			set display_usage_on_exception display_usage_on_exception_set;
 		if( ${?no_exit_on_exception} ) \
 			unset no_exit_on_exception;
 	else if( $errno > -400 && $errno < -100 ) then
@@ -1114,6 +1140,7 @@ exception_handler:
 	switch( $errno )
 		case -300:
 			printf "Cannot process: <file://%s> is an unsupported file" "${value}" > ${stderr};
+			unset value;
 			breaksw;
 		
 		case -301:
@@ -1147,6 +1174,8 @@ exception_handler:
 		
 		case -503:
 			printf "No processable file have been provide, nor could any be found" > ${stderr};
+			if(! ${?scripts_interactive} ) \
+				printf ".\n\t\tRun: "\`"%s -"\`" if you want to pipe options into this script" "${scripts_basename}" > ${stderr};
 			breaksw;
 		
 		case -504:
@@ -1185,9 +1214,10 @@ exception_handler:
 			printf "An internal script error has caused an exception.  Please see any output above" > ${stderr};
 			breaksw;
 	endsw
-	printf ".\n" > ${stderr};
+	printf ".\n\n" > ${stderr};
 	@ last_exception_handled=$errno;
-	printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
+	if(! ${?display_usage_on_exception} ) \
+		printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
 	if(! ${?debug} ) \
 		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr};
 	printf "\n" > ${stderr};
@@ -1198,8 +1228,14 @@ exception_handler:
 	if( ${?no_exit_on_exception_set} ) \
 		unset no_exit_on_exception_set no_exit_on_exception;
 	
+	if( ${?display_usage_on_exception} ) then
+		if( ${?display_usage_on_exception_set} ) \
+			unset display_usage_on_exception_set;
+		goto usage;
+	endif
+	
 	goto callback_handler;
-#exception_handler:
+#goto exception_handler;
 
 
 parse_argv_init:
@@ -1232,7 +1268,8 @@ parse_argv_init:
 	
 	set callback="parse_arg";
 	goto callback_handler;
-#parse_argv_init:
+#set callback="parse_argv_init";
+#goto callback_handler;
 
 
 parse_arg:
@@ -1513,7 +1550,8 @@ parse_arg:
 	
 	set callback="parse_argv_quit";
 	goto callback_handler;
-#parse_arg:
+#set callback="parse_arg";
+#goto callback_handler;
 
 
 parse_argv_quit:
@@ -1571,7 +1609,8 @@ parse_argv_quit:
 	endif
 	
 	goto callback_handler;
-#parse_argv_quit:
+#set callback="parse_argv_quit";
+#goto callback_handler;
 
 
 filename_list_append:
@@ -1634,7 +1673,8 @@ filename_list_append:
 	
 	set callback="parse_arg";
 	goto callback_handler;
-#filename_list_append:
+#set callback="filename_list_append";
+#goto callback_handler;
 
 
 diagnosis:
@@ -1661,7 +1701,8 @@ diagnosis:
 	printf "Create's %s diagnosis log:\n\t<file://%s>\n" "${scripts_basename}" "${scripts_diagnosis_log}" > ${stdout};
 	@ errno=-500;
 	goto exception_handler;
-#diagnosis:
+#set callback="diagnosis";
+#goto callback_handler;
 
 
 label_stack_set:
@@ -1704,7 +1745,9 @@ label_stack_set:
 		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > ${stdout};
 	
 	goto ${label_previous};
-#label_stack_set:
+#set label_current="$!";
+#if( "${label_current}" != "${label_previous}" ) \
+#	goto label_stack_set;
 
 
 callback_handler:
@@ -1730,6 +1773,6 @@ callback_handler:
 		printf "handling callback to [${last_callback}].\n" > ${stdout};
 	
 	goto $last_callback;
-#callback_handler:
+#goto callback_handler;
 
 

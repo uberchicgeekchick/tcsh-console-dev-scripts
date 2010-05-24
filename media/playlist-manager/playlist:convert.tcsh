@@ -721,16 +721,15 @@ exception_handler:
 	if( $errno > 0 && $errno < -500 ) then
 		if( ${?no_exit_on_exception} ) \
 			set no_exit_on_exception;
+	else if( ${?strict} && $errno <= -500 ) then
+		if(! ${?no_exit_on_exception} ) \
+			set no_exit_on_exception;
 	endif
 	
 	printf "\n**${scripts_basename} error("\$"errno:$errno):**\n\t";
 	switch( $errno )
 		case -498:
 			printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found" > ${stderr};
-			breaksw;
-		
-		case -499:
-			printf "${dashes}${option}${equals}${value} is an unsupported option" > /dev/stderr;
 			breaksw;
 		
 		case -500:
@@ -747,6 +746,10 @@ exception_handler:
 		
 		case -503:
 			printf "One or more required options have not been provided" > /dev/stderr;
+			breaksw;
+		
+		case -504:
+			printf "${dashes}${option}${equals}${value} is an unsupported option" > /dev/stderr;
 			breaksw;
 		
 		case -505:
@@ -767,6 +770,9 @@ exception_handler:
 		
 		case -603:
 			printf "[%s] doesn't support converting between the same playlist types.\nJust copy them" "${scripts_basename}" > /dev/stderr;
+			breaksw;
+		
+		case -604:
 			breaksw;
 		
 		case -999:
@@ -1008,6 +1014,12 @@ parse_arg:
 					
 					default:
 						printf "disabling ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
+						if( ${?no_exit_on_exception} ) \
+							unset no_exit_on_exception;
+						if(! ${?display_usage_on_exception} ) \
+							set display_usage_on_exception display_usage_on_exception_set;
+						@ errno=-601;
+						goto exception_handler;
 						breaksw;
 				endsw
 				breaksw;
@@ -1021,6 +1033,8 @@ parse_arg:
 				
 				if(! ${?playlist} ) then
 					if(! -e "${value}" ) then
+						if( ${?no_exit_on_exception} ) \
+							unset no_exit_on_exception;
 						if(! ${?display_usage_on_exception} ) \
 							set display_usage_on_exception display_usage_on_exception_set;
 						@ errno=-601;

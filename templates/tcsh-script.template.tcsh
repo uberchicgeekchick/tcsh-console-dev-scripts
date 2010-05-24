@@ -777,6 +777,7 @@ read_stdin:
 	endif
 	
 	set value="$<";
+	#set value=$<:q;
 	set value_file="${scripts_tmpdir}/.escaped.$scripts_basename.stdin.value.`date '+%s'`.arg";
 	printf "$value" >! "${value_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
@@ -786,7 +787,6 @@ read_stdin:
 	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
 	unset escaped_value;
 	
-	#set value=$<:q;
 	while( "${value}" != "" )
 		if( ${?debug} ) \
 			printf "Processing stdin value: [%s].\n" "${value}";

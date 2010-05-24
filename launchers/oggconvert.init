@@ -39,6 +39,16 @@ scripts_main_quit:
 		set nohup_set;
 	endif
 	
+	if( ${?save_to_filename} ) then
+		if( ${?original_extension} ) then
+			if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "wav" && -e "${save_to_filename}.ogg" ) \
+				rm "${save_to_filename}.wav";
+			
+			if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
+				rm "${save_to_filename}.ogg";
+			endif
+	endif
+	
 	if( ${?filename_list} ) then
 		if( -e "${filename_list}") \
 			rm "${filename_list}";
@@ -354,11 +364,12 @@ cancel_convert:
 	onintr exit_script;
 	printf "\t[cancled]\n";
 	if( ${?save_to_filename} ) then
-		if( -e "${save_to_filename}.wav" ) \
+		if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "wav" && -e "${save_to_filename}.ogg" ) \
 			rm "${save_to_filename}.wav";
 		
 		if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
 			rm "${save_to_filename}.ogg";
+		unset save_to_filename;
 	endif
 	
 	@ files_processed++;
@@ -370,9 +381,6 @@ cancel_convert:
 convert_filenames:
 	if( ${?length} ) \
 		unset length;
-	
-	if( ${?save_to_filename} ) \
-		unset save_to_filename;
 	
 	onintr cancel_convert;
 	
@@ -392,9 +400,9 @@ convert_filenames:
 			continue;
 		endif
 		
-		if( -e "${filename}.ogg" ) then
+		if( -e "${save_to_filename}.ogg" ) then
 			if(!( ${?force} || ${?re_encode} )) then
-				printf "\n\t${filename}.ogg: already exists\n\tRun "\`"${scripts_basename} --re-encode"\`" or "\`"${scripts_basename} --re-encode=force"\`" to over-write existing files.\n\n";
+				printf "\n\t${save_to_filename}.ogg: already exists\n\tRun "\`"${scripts_basename} --re-encode"\`" or "\`"${scripts_basename} --re-encode=force"\`" to over-write existing files.\n\n";
 				continue;
 			endif
 			
@@ -411,10 +419,8 @@ convert_filenames:
 		if( ${?ltrim} ) \
 			goto oggconvert;
 		
-		if( ${?rtrim} && ${?ltrim} ) then
-			set save_to_filename="${filename}";
+		if( ${?rtrim} ) \
 			goto find_length;
-		endif
 		
 		if(! ${?combine} ) \
 			printf "Skipping [${filename}.${extension}]: no advanced conversion options specified.\n\n";
@@ -436,16 +442,26 @@ convert_filenames:
 
 
 confirm_over_write:
-	if( -e "${filename}.ogg" ) then
-		printf "\n${filename}.ogg already exists.\nWould you like to remove it and re-encode a new ogg vorbis file?\n";
-		rm -iv "${filename}.ogg";
-	endif
-	if( -e "${filename}.ogg" ) then
-		printf "\n${filename}.ogg will be perserved." "${filename}";
-		@ errno=-4;
-		@ files_processed++;
-		goto convert_filenames;
-	endif
+	printf "\n%s.ogg already exists.\nWould you like to remove it and re-encode a new ogg vorbis file? [y/N]" "${save_to_filename}";
+	set confirmation="$<";
+	printf "\n";
+	switch("${confirmation}")
+		case "Y":
+		case "y":
+			if( -e "${save_to_filename}.ogg" ) \
+				rm -fv "${save_to_filename}.ogg";
+			goto oggconvert;
+			breaksw;
+		
+		case "N":
+		case "n":
+		default:
+			printf "\n%s.ogg will be perserved." "${save_to_filename}";
+			@ errno=-4;
+			@ files_processed++;
+			goto convert_filenames;
+			breaksw;
+	endsw
 #confirm_over_write:
 
 
@@ -453,37 +469,40 @@ oggconvert:
 	printf "\n\tConverting";
 	if( ${file_count} > 1 ) \
 		printf " (file ${files_processed} of ${file_count})";
-	printf ":\n\t\t[${filename}.${extension}]\n";
+	printf ":\n\t\t[${save_to_filename}.${original_extension}]\n";
 	
 	if( "${extension}" != "wav" ) then
 		set ffmpeg_input_file_options="";
 		set ffmpeg_output_file_options="";
+		
 		if( ${?length} ) then
+			printf "\n\t\tRemoving: [%s] from the end of:\n\t\t<%s.%s>\n" "${rtrim}" "${save_to_filename}" "${original_extension}";
 			set ffmpeg_input_file_options=" -t ${length}";
-		else if( ${?rtrim} && ! ${?ltrim} ) then
-			set ffmpeg_input_file_options=" -t ${rtrim}";
 		else if( ${?ltrim} ) then
+			printf "\n\t\tTrimming: [%s] from the begining of:\n\t\t<%s.%s>\n" "${ltrim}" "${save_to_filename}" "${original_extension}";
 			set ffmpeg_input_file_options=" -ss ${ltrim}";
 		endif
+		
 		if( "${extension}" == "" && ${?combine} ) then
 			set ffmpeg_output_file_options=" -ac 1 -ar 44100 -ab 64000";
 			set oggenc_output_file_options=" -q 10";
 		else if( "${extension}" == "ogg" ) then
 			set ffmpeg_input_file_options="${ffmpeg_input_file_options} -acodec vorbis";
 			set oggenc_output_file_options="";#" -q 5";
-		else
+		else if( "${extension}" != "" ) then
 			set ffmpeg_output_file_options=" -ac 1 -ab 64000";
 			set oggenc_output_file_options="";#" -q 5";
 		endif
 		
-		if( ${?debug} || ${?debug_encoding} ) then
-			printf "\n\nRunning:\n\t";
-			printf "( ${ffmpeg} -y${ffmpeg_input_file_options} -i "\""${filename}.${extension}"\""${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" > ${output} ) >& /dev/stderr";
-			printf "\n\n";
-		endif
-		
-		if( "${original_extension}" != "wav" ) then
+		if( "${original_extension}" != "wav" || "${ffmpeg_input_file_options}" != "" ) then
 			printf "\t\t\tCreating temporary WAV file.  This may take several moments...";
+			
+			if( ${?debug} || ${?debug_encoding} ) then
+				printf "\n\nRunning:\n\t";
+				printf "( ${ffmpeg} -y${ffmpeg_input_file_options} -i "\""${filename}.${extension}"\""${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\"" > ${output} ) >& /dev/stderr";
+				printf "\n\n";
+			endif
+			
 			if( "${filename}" != "${save_to_filename}" ) then
 				printf "#\!/bin/tcsh -f\nset echo;\n${ffmpeg} -y${ffmpeg_input_file_options} ${filename}.${extension}${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\""\n" >! "./ffmpeg-combined.tcsh";
 				chmod u+x "./ffmpeg-combined.tcsh";
@@ -533,7 +552,7 @@ oggconvert:
 	if( "${filename}" != "${save_to_filename}" ) \
 		goto scripts_main_quit;
 	
-	if( ${?ltrim} && ${?rtrim} && ! ${?length} ) \
+	if( ${?rtrim} && ! ${?length} ) \
 		goto find_length;
 	
 	if( ${?debug} || ${?debug_length} || ${?debug_encoding} ) then
@@ -560,9 +579,6 @@ oggconvert:
 
 
 find_length:
-	if(! ${?rtrim} ) \
-		goto convert_filenames;
-	
 	if( ! ${?debug} && ( ${?debug_length} || ${?debug_encoding} ) ) then
 		set debug;
 		set debug_set;

@@ -371,20 +371,20 @@ main:
 cancel_convert:
 	onintr exit_script;
 	printf "\t[cancled]\n";
-	if( ${?filename} ) then
+	if( ${?save_to_filename} ) then
 		if( ${?original_extension} ) then
-			if( "${original_extension}" != "wav" && -e "${filename}.wav" ) \
+			if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
 				rm "${save_to_filename}.wav";
 			
-			if( "${original_extension}" != "ogg" && -e "${filename}.ogg" ) \
-				rm "${filename}.ogg";
+			if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
+				rm "${save_to_filename}.ogg";
 			unset original_extension;
 		endif
-		unset filename;
+		unset save_to_filename;
 	endif
 	
 	@ files_processed++;
-	sleep 3;
+	sleep 2;
 	goto convert_filenames;
 #cancel_conver:
 
@@ -448,11 +448,11 @@ convert_filenames:
 	if( ${?save_to_filename} ) \
 		unset save_to_filename;
 	
-	if( ${?original_extension} ) \
-		unset original_extension;
-	
 	if( ${?extension} ) \
 		unset extension;
+	
+	if( ${?original_extension} ) \
+		unset original_extension;
 	
 	onintr exit_script;
 	

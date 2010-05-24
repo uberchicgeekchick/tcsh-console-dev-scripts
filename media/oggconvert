@@ -39,15 +39,23 @@ scripts_main_quit:
 		set nohup_set;
 	endif
 	
-	if( ${?save_to_filename} ) then
+	if( ${?filename} ) then
 		if( ${?original_extension} ) then
-			if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "wav" && -e "${save_to_filename}.ogg" ) \
-				rm "${save_to_filename}.wav";
+			if( -e "${filename}.wav" && "${original_extension}" != "wav" ) \
+				rm "${filename}.wav";
 			
-			if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
-				rm "${save_to_filename}.ogg";
-			endif
+			if( "${original_extension}" != "ogg" && -e "${filename}.ogg" ) \
+				rm "${filename}.ogg";
+			unset original_extension;
+		endif
+		unset filename;
 	endif
+	
+	if( ${?save_to_filename} ) \
+		unset save_to_filename;
+	
+	if( ${?extension} ) \
+		unset extension;
 	
 	if( ${?filename_list} ) then
 		if( -e "${filename_list}") \
@@ -363,13 +371,16 @@ main:
 cancel_convert:
 	onintr exit_script;
 	printf "\t[cancled]\n";
-	if( ${?save_to_filename} ) then
-		if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "wav" && -e "${save_to_filename}.ogg" ) \
-			rm "${save_to_filename}.wav";
-		
-		if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
-			rm "${save_to_filename}.ogg";
-		unset save_to_filename;
+	if( ${?filename} ) then
+		if( ${?original_extension} ) then
+			if( "${original_extension}" != "wav" && -e "${filename}.wav" ) \
+				rm "${save_to_filename}.wav";
+			
+			if( "${original_extension}" != "ogg" && -e "${filename}.ogg" ) \
+				rm "${filename}.ogg";
+			unset original_extension;
+		endif
+		unset filename;
 	endif
 	
 	@ files_processed++;
@@ -384,7 +395,7 @@ convert_filenames:
 	
 	onintr cancel_convert;
 	
-	foreach filename ( "`cat '${filename_list}' | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+	foreach filename( "`cat '${filename_list}' | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "Parsing: ${filename}.\n";
 		ex -s '+1d' '+wq!' "${filename_list}";
@@ -431,6 +442,18 @@ convert_filenames:
 	if( ${?combine} ) \
 		goto init_combine;
 	
+	if( ${?filename} ) \
+		unset filename;
+	
+	if( ${?save_to_filename} ) \
+		unset save_to_filename;
+	
+	if( ${?original_extension} ) \
+		unset original_extension;
+	
+	if( ${?extension} ) \
+		unset extension;
+	
 	onintr exit_script;
 	
 	if( ${?playlist} ) then
@@ -442,21 +465,22 @@ convert_filenames:
 
 
 confirm_over_write:
-	printf "\n%s.ogg already exists.\nWould you like to remove it and re-encode a new ogg vorbis file? [y/N]" "${save_to_filename}";
+	printf "\n\t%s.ogg already exists.\n\tWould you like to remove it and re-encode a new ogg vorbis file? [y/N]" "${save_to_filename}";
 	set confirmation="$<";
 	printf "\n";
 	switch("${confirmation}")
 		case "Y":
 		case "y":
-			if( -e "${save_to_filename}.ogg" ) \
-				rm -fv "${save_to_filename}.ogg";
+			if( -e "${filename}.ogg" ) \
+				rm -f "${filename}.ogg";
+			printf "\tRemoved: <%s.ogg>\n" "${filename}";
 			goto oggconvert;
 			breaksw;
 		
 		case "N":
 		case "n":
 		default:
-			printf "\n%s.ogg will be perserved." "${save_to_filename}";
+			printf "\t%s.ogg will be perserved.\n" "${filename}";
 			@ errno=-4;
 			@ files_processed++;
 			goto convert_filenames;
@@ -532,16 +556,15 @@ oggconvert:
 	${oggenc} ${oggenc_output_file_options} "${save_to_filename}.wav" >& ${output};
 	if(!( "${status}" == "0" && -e "${save_to_filename}.ogg" )) then
 		printf "\t[failed]\n\t\t\tUnable to encode file.  Encoder: [`basename ${oggenc}`]; returned: ${status}\n";
-		if( "${original_extension}" != "wav" ) then
-			if( -e "${save_to_filename}.wav" ) \
-				rm "${save_to_filename}.wav";
+		if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) then
+			rm "${save_to_filename}.wav";
 		else if( "${original_extension}" == "wav" && -e "${save_to_filename}.wav.bck" ) then
 			if( -e "${save_to_filename}.wav" ) \
 				rm "${save_to_filename}.wav";
 			mv -f "${save_to_filename}.wav.bck" "${save_to_filename}.wav";
-		endif
-		if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
+		else if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) then
 			rm "${save_to_filename}.ogg";
+		endif
 		
 		@ files_processed++;
 		goto convert_filenames;

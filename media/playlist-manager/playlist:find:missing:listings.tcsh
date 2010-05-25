@@ -245,6 +245,7 @@ find_missing_media:
 		set rm_confirmation="`rm -vf${remove} "\""${this_podcast}"\""`";
 		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
 			continue;
+		printf "%s\n" "${rm_confirmation}";
 		
 		@ removed_podcasts++;
 		if( ${?create_script} ) then
@@ -650,6 +651,7 @@ parse_arg:
 			breaksw;
 			
 			case "remove":
+			case "clean-up":
 				if(! ${?message} ) \
 					set message="";
 				

@@ -49,14 +49,17 @@ setenv:
 	alias ex "ex -E -X -n --noplugin";
 	
 	set label_current="init";
-	goto label_stack_set;
+	goto callback_stack_update;
 #goto setup;
 
 
 exit_script:
 	set label_current="exit_script";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if( ! ${?0} && ${?supports_being_sourced} ) then
 		set callback="sourcing_quit";
@@ -70,8 +73,11 @@ exit_script:
 
 sourcing_quit:
 	set label_current="sourcing_quit";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	# END: source scripts_basename support.
@@ -84,8 +90,11 @@ sourcing_quit:
 
 scripts_main_quit:
 	set label_current="scripts_main_quit";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if( ${?supports_multiple_files} ) then
 		if( ${?filename_list} ) then
@@ -344,8 +353,11 @@ scripts_main_quit:
 
 init:
 	set label_current="init";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	set starting_owd="${owd}";
 	set starting_cwd="${cwd}";
@@ -363,8 +375,11 @@ init:
 
 debug_check:
 	set label_current="debug_check";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	@ arg=0;
 	@ argc=${#argv};
@@ -486,12 +501,13 @@ debug_check:
 				continue;
 		endsw
 		
-		printf "**%s debug:**, %s mode; via "\$"argv[%d]" "${scripts_basename}" "${option}" ${arg} > ${stdout};
-		if( "${value}" != "" ) then
+		printf "**%s notice:**, via "\$"argv[%d], %s mode" "${scripts_basename}" ${arg} "${option}" > ${stdout};
+		if( "${value}" != "" ) \
 			printf " %s" "${value}" > ${stdout};
-			if( "${option}" == "debug" ) \
-				printf " debugging" > ${stdout};
-		endif
+		
+		if( "${option}" == "debug" ) \
+			printf " debugging" > ${stdout};
+		
 		printf ":\t[enabled].\n\n" > ${stdout};
 	end
 	
@@ -503,8 +519,11 @@ debug_check:
 
 dependencies_check:
 	set label_current="dependencies_check";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if( ! ${?debug} && ${?debug_dependencies} ) \
 		set debug debug_set;
@@ -520,8 +539,11 @@ dependencies_check:
 
 dependency_check:
 	set label_current="dependency_check";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	while( $dependencies_index < ${#dependencies} )
 		@ dependencies_index++;
@@ -603,8 +625,11 @@ dependency_check:
 
 dependencies_check_complete:
 	set label_current="dependencies_check_complete";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if( ${?debug_set} ) \
 		unset debug;
@@ -619,8 +644,11 @@ dependencies_check_complete:
 
 if_sourced:
 	set label_current="if_sourced";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	@ errno=0;
 	
@@ -672,8 +700,11 @@ if_sourced:
 
 sourcing_main:
 	set label_current="sourcing_main";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	# BEGIN: source scripts_basename support.
 	if(! ${?TCSH_RC_SESSION_PATH} ) \
@@ -688,8 +719,11 @@ sourcing_main:
 
 sourcing_exec:
 	set label_current="sourcing_exec";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	# START: special handler for when this file is sourced.
 	alias "${script_alias}" \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
@@ -703,8 +737,11 @@ sourcing_exec:
 
 main:
 	set label_current="main";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	printf "Executing ${scripts_basename}'s main.\n" > ${stdout};
 	
@@ -735,8 +772,11 @@ main:
 
 read_stdin_init:
 	set label_current="read_stdin_init";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if(! ${?scripts_interactive} ) then
 		set callback="exit_script";
@@ -765,8 +805,11 @@ read_stdin_init:
 
 read_stdin:
 	set label_current="read_stdin";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if( ${?find_result_file} ) then
 		foreach original_filename("`cat "\""${find_result_file}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
@@ -850,8 +893,11 @@ read_stdin:
 
 read_stdin_quit:
 	set label_current="read_stdin_quit";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if( ${?reading_stdin} ) \
 		unset reading_stdin;
@@ -881,8 +927,11 @@ read_stdin_quit:
 
 exec:
 	set label_current="exec";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if( ${?original_filename} ) \
 		printf "\t" > ${stdout};
@@ -987,8 +1036,11 @@ exec:
 
 filename_next:
 	set label_current="filename_next";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
 		@ errno=-506;
@@ -1022,8 +1074,11 @@ filename_next:
 
 filename_list_post_process:
 	set label_current="filename_list_post_process";
-	if( "${label_next}" != "${label_current}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
 		@ errno=-506;
@@ -1081,8 +1136,11 @@ filename_list_post_process:
 
 usage:
 	set label_current="usage";
-	if( "${label_next}" != "${label_current}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if( ${?errno} ) then
 		if( ${errno} != 0 ) then
@@ -1119,8 +1177,11 @@ usage:
 
 exception_handler:
 	set label_current="exception_handler";
-	if( "${label_next}" != "${label_current}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if(! ${?errno} ) \
 		@ errno=-999;
@@ -1162,7 +1223,7 @@ exception_handler:
 			breaksw;
 		
 		case -500:
-			printf "Diagnoss mode has triggered an exception.\n\tFor more information please see the above output and the diagnosis log:\n\t<file://%s>" "${scripts_diagnosis_log}" > ${stderr};
+			printf "diagnostic mode has completed.\n\tFor detailed information please see all above output and the diagnosis log:\n\t<file://%s>" "${scripts_diagnosis_log}" > ${stderr};
 			breaksw;
 		
 		case -501:
@@ -1245,8 +1306,11 @@ exception_handler:
 
 parse_argv_init:
 	set label_current="parse_argv_init";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	@ minimum_options=-1;
 	@ maximum_options=-1;
@@ -1279,8 +1343,11 @@ parse_argv_init:
 
 parse_arg:
 	set label_current="parse_arg";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	while( $arg < $argc )
 		if(! ${?arg_shifted} ) then
@@ -1561,8 +1628,11 @@ parse_arg:
 
 parse_argv_quit:
 	set label_current="parse_argv_quit";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if( ${?debug_set} ) \
 		unset debug debug_set;
@@ -1620,8 +1690,11 @@ parse_argv_quit:
 
 filename_list_append:
 	set label_current="filename_list_append";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	if(! ${?supports_multiple_files} ) then
 		@ errno=-506;
@@ -1684,8 +1757,11 @@ filename_list_append:
 
 diagnosis:
 	set label_current="diagnosis";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
 	
 	set scripts_diagnosis_log="`mktemp --tmpdir diagnosis.${scripts_basename}.log.XXXXXX";
 	
@@ -1717,17 +1793,14 @@ return:
 			goto exception_handler;
 		endif
 		
-		set label_previous=$labels_previous[${#labels_previous}];
-		unset labels_previous[${#labels_previous}];
-	else
-		set label_next=${label_current};
+		set label_current=$labels_previous[${#labels_previous}];
 	endif
 	
 	if(! ${?labels_previous} ) then
 		set labels_previous=("${label_current}");
 		set label_previous=$labels_previous[${#labels_previous}];
 	else
-		if("${label_current}" != "$labels_previous[${#labels_previous}]" ) then
+		if("${label_current}" != "$labels_previous[${#labels_previous}]") then
 			set labels_previous=($labels_previous "${label_current}");
 			set label_previous=$labels_previous[${#labels_previous}];
 		else
@@ -1743,12 +1816,18 @@ return:
 #goto return;
 
 
-label_stack_set:
-	if( ${?old_owd} ) then
-		if( "${old_owd}" != "${owd}" ) then
-			set owd="${old_owd}";
+callback_stack_update:
+	if( ${?old_owd} && ${?current_cwd} ) then
+		if( "${old_owd}" == "${owd}" && "${current_cwd}" == "${cwd}" ) then
+			goto return;
 		endif
 	endif
+	
+	if(! ${?old_owd} ) \
+		set old_owd="";
+	
+	if( "${old_owd}" != "${owd}" ) \
+		set owd="${old_owd}";
 	
 	if(! ${?current_cwd} ) \
 		set current_cwd="";
@@ -1766,8 +1845,11 @@ label_stack_set:
 	
 	goto return;
 #set label_current="$!";
-#if( "${label_current}" != "${label_previous}" ) \
-#	goto label_stack_set;
+#if(! ${?label_previous} ) then
+#	goto callback_stack_update;
+#else if("${label_current}" != "${label_previous}") then
+#	goto callback_stack_update;
+#endif
 
 
 callback_handler:

@@ -370,7 +370,13 @@ scripts_exec:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	printf "Creating sorted playlist from files listed in [%s]" "${playlist}";
+	printf "Creating sorted playlist";
+	
+	if( "${playlist}" != "${new_playlist}" ) \
+		printf ": <file://%s>" "${new_playlist}";
+	
+	printf " from files listed in <file://%s>" "${playlist}";
+	
 	playlist:new:create.tcsh "${playlist}";
 	cat "${playlist}.swp" | \
 		sed -r 's/(.*\/)(.*, released on\:? [^,]+, )([0-9]+ )(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)( [^.]+)(\.[^\.]+)/\3\4\5\ \:\ \1\2\3\4\5\6/' \
@@ -396,9 +402,6 @@ scripts_exec:
 	playlist:new:save.tcsh --force --silent "${playlist}" "${new_playlist}";
 	if( -e "${playlist}.new" ) \
 		rm "${playlist}.new";
-	
-	if( "${playlist}" != "${new_playlist}" ) \
-		printf "New, and sorted, playlist created:\t[%s]\n" "${new_playlist}";
 	
 	set callback="scripts_main_quit";
 	goto callback_handler;

@@ -308,9 +308,7 @@ format_new_playlist:
 		goto callback_handler;
 	endif
 	
-	printf "Saving & updating playlist: <file://%s>" "${playlist}";
 	playlist:new:save.tcsh --force "${playlist}";
-	printf "\t[done]\n";
 #format_new_playlist:
 
 scripts_main_quit:

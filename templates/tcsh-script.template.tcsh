@@ -98,15 +98,6 @@ scripts_main_quit:
 		goto exception_handler;
 	endif
 	
-	if( ${?label_current} ) \
-		unset label_current;
-	if( ${?label_previous} ) \
-		unset label_previous;
-	if( ${?labels_previous} ) \
-		unset labels_previous;
-	if( ${?label_next} ) \
-		unset label_next;
-	
 	if( ${?minimum_options} ) \
 		unset minimum_options;
 	if( ${?meximum_options} ) \
@@ -219,18 +210,15 @@ scripts_main_quit:
 		unset usage_displayed;
 	if( ${?no_exit_on_usage} ) \
 		unset no_exit_on_usage;
-	
-	if(! ${?no_exit_on_exception} ) \
-		set no_exit_on_exception;
 	if( ${?last_exception_handled} ) \
 		unset last_exception_handled;
 	
 	if( ${?label_current} ) \
-		unset label_previous;
+		unset label_current;
 	if( ${?label_previous} ) \
 		unset label_previous;
-	if( ${?label_next} ) \
-		unset label_next;
+	if( ${?labels_previous} ) \
+		unset labels_previous;
 	
 	if( ${?callback} ) \
 		unset callback;
@@ -366,7 +354,7 @@ init:
 	set directory_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
 	printf "${HOME}" >! "${directory_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${directory_file}";
-	set escaped_cwd="`cat "\""${directory_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
+	set escaped_home_dir="`cat "\""${directory_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
 	rm -f "${directory_file}";
 	unset directory_file;
 #set callback="init";
@@ -420,6 +408,10 @@ debug_check:
 					breaksw;
 				
 				set nodeps;
+				
+				if( "${value}" != "" ) \
+					set value="";
+				
 				breaksw;
 			
 			case "diagnosis":
@@ -431,7 +423,10 @@ debug_check:
 				set diagnosis;
 				if(! ${?debug} ) \
 					set debug;
-				continue;
+				
+				if( "${value}" != "" ) \
+					set value="";
+				
 				breaksw;
 			
 			case "debug":
@@ -491,18 +486,16 @@ debug_check:
 				continue;
 		endsw
 		
-		printf "**%s debug:**, via "\$"argv[%d], " "${scripts_basiname}" ${arg} > ${stdout};
-		if( "${value}" != "" ) \
+		printf "**%s debug:**, %s mode; via "\$"argv[%d]" "${scripts_basename}" "${option}" ${arg} > ${stdout};
+		if( "${value}" != "" ) then
 			printf " %s" "${value}" > ${stdout};
-		printf "debugging:\t[enabled].\n\n" > ${stdout};
+			if( "${option}" == "debug" ) \
+				printf " debugging" > ${stdout};
+		endif
+		printf ":\t[enabled].\n\n" > ${stdout};
 	end
-	if(! ${?nodeps} ) then
-		set callback="dependencies_check";
-	else
-		set callback="parse_argv_init";
-		unset nodeps;
-	endif
 	
+	set callback="dependencies_check";
 	goto callback_handler;
 #set callback="debug_check";
 #goto callback_handler;
@@ -532,6 +525,12 @@ dependency_check:
 	
 	while( $dependencies_index < ${#dependencies} )
 		@ dependencies_index++;
+		
+		if( ${?nodeps} && $dependencies_index > 1 ) then
+			set callback="dependencies_check_complete";
+			goto callback_handler;
+		endif
+		
 		set dependency=$dependencies[$dependencies_index];
 		if( ${?debug} ) \
 			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n" > ${stdout};
@@ -575,6 +574,8 @@ dependency_check:
 				if( ${?scripts_dirname} ) \
 					breaksw;
 				
+			if( ${?debug} ) \
+				printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n" > ${stdout};
 				set old_owd="${cwd}";
 				cd "`dirname '${program}'`";
 				set scripts_dirname="${cwd}";
@@ -594,14 +595,14 @@ dependency_check:
 		unset program;
 	end
 	
-	set callback="dependencies_found";
+	set callback="dependencies_check_complete";
 	goto callback_handler;
 #set callback="dependency_check";
 #goto callback_handler;
 
 
-dependencies_found:
-	set label_current="dependencies_found";
+dependencies_check_complete:
+	set label_current="dependencies_check_complete";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -612,7 +613,7 @@ dependencies_found:
 	
 	set callback="parse_argv_init";
 	goto callback_handler;
-#set callback="dependencies_found";
+#set callback="dependencies_check_complete";
 #goto callback_handler;
 
 
@@ -1209,6 +1210,10 @@ exception_handler:
 			printf "%s %s is not supported" "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e"\$"/\1ing/`" "${value}" "${scripts_basename}" > ${stderr};
 			breaksw;
 		
+		case -901:
+			printf "initialization was not completed correctly.  Please make sure label_starck_set is called at the beginning of the script." > ${stderr};
+			breaksw;
+		
 		case -999:
 		default:
 			printf "An internal script error has caused an exception.  Please see any output above" > ${stderr};
@@ -1705,6 +1710,39 @@ diagnosis:
 #goto callback_handler;
 
 
+return:
+	if(! ${?label_current} ) then
+		if(! ${?labels_previous} ) then
+			@ errno=-901;
+			goto exception_handler;
+		endif
+		
+		set label_previous=$labels_previous[${#labels_previous}];
+		unset labels_previous[${#labels_previous}];
+	else
+		set label_next=${label_current};
+	endif
+	
+	if(! ${?labels_previous} ) then
+		set labels_previous=("${label_current}");
+		set label_previous=$labels_previous[${#labels_previous}];
+	else
+		if("${label_current}" != "$labels_previous[${#labels_previous}]" ) then
+			set labels_previous=($labels_previous "${label_current}");
+			set label_previous=$labels_previous[${#labels_previous}];
+		else
+			set label_previous=$labels_previous[${#labels_previous}];
+			unset labels_previous[${#labels_previous}];
+		endif
+	endif
+	
+	if( ${?debug} ) \
+		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > ${stdout};
+	
+	goto ${label_previous};
+#goto return;
+
+
 label_stack_set:
 	if( ${?old_owd} ) then
 		if( "${old_owd}" != "${owd}" ) then
@@ -1726,25 +1764,7 @@ label_stack_set:
 		unset directory_file;
 	endif
 	
-	set label_next=${label_current};
-	
-	if(! ${?labels_previous} ) then
-		set labels_previous=("${label_current}");
-		set label_previous=$labels_previous[${#labels_previous}];
-	else
-		if("${label_current}" != "$labels_previous[${#labels_previous}]" ) then
-			set labels_previous=($labels_previous "${label_current}");
-			set label_previous=$labels_previous[${#labels_previous}];
-		else
-			set label_previous=$labels_previous[${#labels_previous}];
-			unset labels_previous[${#labels_previous}];
-		endif
-	endif
-	
-	if( ${?debug} ) \
-		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > ${stdout};
-	
-	goto ${label_previous};
+	goto return;
 #set label_current="$!";
 #if( "${label_current}" != "${label_previous}" ) \
 #	goto label_stack_set;

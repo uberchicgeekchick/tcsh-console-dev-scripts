@@ -39,16 +39,15 @@ scripts_main_quit:
 		set nohup_set;
 	endif
 	
-	if( ${?filename} ) then
-		if( ${?original_extension} ) then
-			if( -e "${filename}.wav" && "${original_extension}" != "wav" ) \
-				rm "${filename}.wav";
-			
-			if( "${original_extension}" != "ogg" && -e "${filename}.ogg" ) \
-				rm "${filename}.ogg";
-			unset original_extension;
-		endif
+	if( ${?filename} ) \
 		unset filename;
+	if( ${?original_extension} ) \
+		unset original_extension;
+	
+	if( ${?ogginfo_file} ) then
+		if( -e "${ogginfo_file}" ) \
+			rm -f "${ogginfo_file}";
+		unset ogginfo_file;
 	endif
 	
 	if( ${?save_to_filename} ) \
@@ -79,9 +78,6 @@ scripts_main_quit:
 	if( ${?files_processed} ) \
 		unset files_processed;
 	
-	if( ${?current_label} ) \
-		unset current_label;
-	
 	if( ${?use_old_owd} ) then
 		cd "${owd}";
 		set owd="${use_old_owd}";
@@ -110,7 +106,6 @@ scripts_main_quit:
 
 
 debug_check:
-	set current_label="debug_check";
 	@ arg=0;
 	@ argc=${#argv};
 	while( $arg < $argc )
@@ -226,6 +221,10 @@ check_dependencies:
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
+		
+		if( ${?nodeps} && $dependencies_index > 1 ) \
+			break;
+		
 		if( ${?debug} || ${?debug_dependencies} ) \
 			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
 			
@@ -376,8 +375,9 @@ cancel_convert:
 			if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
 				rm "${save_to_filename}.wav";
 			
-			if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
+			if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
 				rm "${save_to_filename}.ogg";
+			
 			unset original_extension;
 		endif
 		unset save_to_filename;
@@ -632,10 +632,18 @@ find_length:
 		set reverse_modifier="-";
 	endif
 	
+	set ogginfo_file="${scripts_tmpdir}/.escaped.ogginfo.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+	printf "${filename}" >! "${ogginfo_file}";
+	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${ogginfo_file}";
+	set escaped_filename="`cat "\""${ogginfo_file}"\""`";
+	rm -f "${ogginfo_file}";
+	unset ogginfo_file;
+	set filename="`printf "\""%s"\"" "\""${escaped_filename}"\""`";
+		
 	set rtrim_hours="`printf "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
 	set rtrim_minutes="`printf "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
 	set rtrim_seconds="`printf "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
-	set oggs_length="`${ogginfo} "\""${filename}.ogg"\"" | /bin/grep --perl-regexp 'Playback length:'`";
+	set oggs_length="`${ogginfo} "\""${escaped_filename}.ogg"\"" | /bin/grep --perl-regexp 'Playback length:'`";
 	set oggs_hours="`printf "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]+)(h:)([0-9]+)(m:)([0-9]+)\..*"\$"/\1/'`";
 	if( "${oggs_hours}" == "${oggs_length}" ) \
 		set oggs_hours="00";

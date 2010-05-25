@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 init:
-	onintr scripts_main_quit;
+	onintr exit_script;
 	
 	set scripts_basename="playlist:find:missing:listings.tcsh";
 	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
@@ -315,15 +315,13 @@ find_missing_media:
 	
 	if( ${?append} ) then
 		if( ${?new_file_count} ) then
-			if( ${?debug} ) \
-				printf "Saving new playlist.\n";
 			playlist:new:save.tcsh --force "${playlist}";
 			unset new_file_count;
 		endif
 		unset append;
 	endif
 	
-	goto scripts_main_quit;
+	goto exit_script;
 #find_missing_media:
 
 
@@ -377,19 +375,29 @@ scripts_main_quit:
 #scripts_main_quit:
 
 
+exit_script:
+	if( ! ${?0} && ${?supports_being_sourced} ) then
+		@ errno=-501;
+		goto exception_handler;
+	endif
+	
+	goto scripts_main_quit;
+#exit_script:
+
+
 usage:
 	printf "\nUsage:\n\t%s playlist [directory] [--(extension|extensions)=] [--maxdepth=] [--recursive] [--search-all] [--skip-subdir=<sub-directory>] [--check-for-duplicates-in-subdir=<sub-directory>] [--remove[=(interactive|force)]]\n\tfinds any files in [directory], or its sub-directories, up to files of --maxdepth.  If the file is not not found in playlist,\n\tThe [directory] that's searched is [./] by default unless another absolute, or relative, [directory] is specified.\n\t[--(extension|extensions)=] is optional and used to search for files with extension(s) matching the string or escaped, posix-extended, regular expression, e.g. --extensions='(mp3|ogg)' only. Otherwise all files are searched for.\n--remove is also optional.  When this option is given %s will remove podcasts which aren't in the specified playlist.  Unless --remove is set to force you'll be prompted before each file is actually deleted.  If, after the file(s) are deleted, the parent directory is empty it will also be removed.\n" "`basename '${0}'`" "`basename '${0}'`";
 	if( ${?no_exit_on_usage} ) \
 		goto next_option;
 	
-	goto scripts_main_quit;
+	goto exit_script;
 #usage:
 
 
 default_callback:
 	printf "handling callback to [%s].\n", "${last_callback}";
 	unset last_callback;
-	goto scripts_main_quit;
+	goto exit_script;
 #default_callback:
 
 
@@ -413,7 +421,7 @@ exception_handler:
 			breaksw;
 		
 		case -501:
-			printf "Sourcing is not supported and may only be executed" > /dev/stderr;
+			printf "Sourcing is not supported.  This script may only be executed" > /dev/stderr;
 			breaksw;
 		
 		case -502:
@@ -444,7 +452,7 @@ exception_handler:
 	if(! ${?exit_on_error} ) \
 		goto usage;
 	
-	goto scripts_main_quit;
+	goto exit_script;
 #exception_handler:
 
 

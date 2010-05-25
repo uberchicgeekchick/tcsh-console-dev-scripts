@@ -24,6 +24,11 @@ playlist_init:
 		@ arg++;
 	endif
 	
+	if( "$argv[$arg]" == "--silent" ) then
+		set silent;
+		@ arg++;
+	endif
+	
 	if(! -e "$argv[$arg].new" ) then
 		printf "**%s error:** cannot find: [%s.new].\nSo no new playlist can be saved.\n" "${scripts_basename}" "$argv[$arg].new" > /dev/stderr;
 		set status=-1;
@@ -93,11 +98,14 @@ playlist_setup:
 
 
 playlist_save:
-	if( "${new_playlist}" != "${playlist}" ) then
-		printf "Saving new playlist: <file://%s>" "${new_playlist}";
-	else
-		printf "Saving updated playlist: <file://%s>" "${playlist}";
+	if(! ${?silent} ) then
+		if( "${new_playlist}" != "${playlist}" ) then
+			printf "Saving new playlist: <file://%s>" "${new_playlist}";
+		else
+			printf "Saving updated playlist: <file://%s>" "${playlist}";
+		endif
 	endif
+	
 	set playlist_temp="`mktemp --tmpdir ${scripts_basename}.new.playlist.${new_playlist_type}.XXXXXXXXXX`";
 	set playlist_swap="`mktemp --tmpdir ${scripts_basename}.swp.playlist.${new_playlist_type}.XXXXXXXXXX`";
 	mv -f "${playlist}.new" "${playlist_temp}";
@@ -152,7 +160,7 @@ playlist_save:
 	endsw
 	rm "${playlist_temp}";
 	mv -f "${playlist_swap}" "${new_playlist}";
-	printf "\t[done]\n";
+	printf "\t\t[done]\n";
 	
 	unset new_playlist_to_read playlist_swap playlist_temp;
 	

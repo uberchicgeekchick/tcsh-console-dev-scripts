@@ -379,8 +379,7 @@ scripts_exec:
 		ex -s "+1,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)${strip_subdir}\/(.*\/)(.*)(\.([^\.]+)"\$"/\1\2\3\4/" '+wq' "${playlist}.new";
 	endif
 	
-	playlist:new:save.tcsh --force "${playlist}" "${new_playlist}";
-	printf "\t\t[done]\n";
+	playlist:new:save.tcsh --force --silent "${playlist}" "${new_playlist}";
 	
 	set callback="scripts_main_quit";
 	goto callback_handler;

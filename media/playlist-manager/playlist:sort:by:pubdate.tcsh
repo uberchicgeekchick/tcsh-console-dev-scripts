@@ -393,10 +393,9 @@ scripts_exec:
 		#| sed -r 's/(.*)\ \:\ (.*)/\2/' \
 		>! "${playlist}.new";
 	rm "${playlist}.swp";
-	playlist:new:save.tcsh --force ${interactive} "${playlist}" "${new_playlist}";
+	playlist:new:save.tcsh --force --silent "${playlist}" "${new_playlist}";
 	if( -e "${playlist}.new" ) \
 		rm "${playlist}.new";
-	printf "\t\t[done]\n";
 	
 	if( "${playlist}" != "${new_playlist}" ) \
 		printf "New, and sorted, playlist created:\t[%s]\n" "${new_playlist}";

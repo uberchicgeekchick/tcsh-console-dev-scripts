@@ -19,7 +19,7 @@ init:
 
 
 check_dependencies:
-	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh" "playlist:convert.tcsh" "playlist:find:missing:listings.tcsh" "playlist:copy:missing:listings.tcsh" "playlist:find:non-existent:listings.tcsh");# "`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
+	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh" "playlist:convert.tcsh" "playlist:find:missing:listings.tcsh" "playlist:copy:missing:listings.tcsh" "playlist:find:non-existent:listings.tcsh" "playlist:sort:by:pubdate.tcsh");# "`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
 		@ dependencies_index++;

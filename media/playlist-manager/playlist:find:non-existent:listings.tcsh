@@ -239,6 +239,8 @@ main:
 	if(! ${?filename_list} ) \
 		set filename_list="`mktemp --tmpdir filenames.${scripts_basename}.XXXXXX`";
 	mv -f "${playlist}.swp" "${filename_list}";
+	if(! ${?clean_up} ) \
+		rm -f "${playlist}.new";
 	set callback="exec";
 	goto callback_handler;
 #main:
@@ -291,19 +293,7 @@ filename_next:
 #filename_next:
 
 format_new_playlist:
-	if(! ${?clean_up} ) then
-		set callback="scripts_main_quit";
-		goto callback_handler;
-	endif
-	
-	if(! -e "${playlist}.new" ) then
-		set callback="scripts_main_quit";
-		goto callback_handler;
-	endif
-	
-	if(! ${?dead_file_count} ) then
-		rm "${playlist}.swp";
-		rm "${playlist}.new";
+	if(!( ${?clean_up} && ${?dead_file_count} )) then
 		set callback="scripts_main_quit";
 		goto callback_handler;
 	endif
@@ -315,6 +305,19 @@ scripts_main_quit:
 	set label_current="scripts_main_quit";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
+	
+	if( ${?playlist} ) then
+		if( -e "${playlist}.swp" ) \
+			rm "${playlist}.swp";
+		if( -e "${playlist}.new" ) \
+			rm "${playlist}.new";
+		unset playlist;
+	endif
+	
+	if( ${?clean_up} ) \
+		unset clean_up;
+	if( ${?dead_file_count} ) \
+		unset dead_file_count;
 	
 	if( ${?label_current} ) \
 		unset label_current;

@@ -21,7 +21,7 @@ init:
 
 
 check_dependencies:
-	set dependencies=("${scripts_basename}");# "`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
+	set dependencies=("${scripts_basename}" "playlist:sort:by:pubdate.tcsh");# "`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
 		@ dependencies_index++;

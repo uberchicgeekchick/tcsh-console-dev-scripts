@@ -41,6 +41,8 @@ setenv:
 
 exit_script:
 	set label_current="exit_script";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -55,6 +57,8 @@ exit_script:
 
 init:
 	set label_current="init";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -75,6 +79,8 @@ init:
 
 debug_check:
 	set label_current="debug_check";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -173,6 +179,8 @@ debug_check:
 
 check_dependencies:
 	set label_current="check_dependencies";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -255,6 +263,8 @@ check_dependencies:
 
 if_sourced:
 	set label_current="if_sourced";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -283,6 +293,8 @@ if_sourced:
 
 scripts_sourcing_main:
 	set label_current="scripts_sourcing_main";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -299,6 +311,8 @@ scripts_sourcing_main:
 
 scripts_sourcing_quit:
 	set label_current="scripts_sourcing_quit";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -312,6 +326,8 @@ scripts_sourcing_quit:
 
 scripts_main:
 	set label_current="scripts_main";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -319,7 +335,7 @@ scripts_main:
 	
 	if( ${argc} < ${required_options} ) then
 		@ errno=-503;
-		set callback="parse_argv_quit";
+		set callback="exit_script";
 		goto exception_handler;
 	endif
 	
@@ -346,7 +362,7 @@ scripts_main:
 			set rm_confirmation="`rm -vfi "\""${new_playlist}"\""`";
 			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) then
 				printf "Your playlist(s) have been left alone and %s is now exiting.\n" "${scripts_basename}";
-				set callback="scripts_main_quit";
+				set callback="exit_script";
 				goto callback_handler;
 			endif
 		endif
@@ -367,14 +383,14 @@ scripts_main:
 
 scripts_exec:
 	set label_current="scripts_exec";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
 	printf "Creating sorted playlist";
-	
 	if( "${playlist}" != "${new_playlist}" ) \
 		printf ": <file://%s>" "${new_playlist}";
-	
 	printf " from files listed in <file://%s>" "${playlist}";
 	
 	playlist:new:create.tcsh "${playlist}";
@@ -403,13 +419,15 @@ scripts_exec:
 	if( -e "${playlist}.new" ) \
 		rm "${playlist}.new";
 	
-	set callback="scripts_main_quit";
+	set callback="exit_script";
 	goto callback_handler;
 #scripts_exec:
 
 
 filename_list_process_init:
 	set label_current="filename_list_process_init";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -426,7 +444,7 @@ filename_list_process_init:
 			unset display_usage_on_exception;
 		
 		@ errno=-503;
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 		goto exception_handler;
 	endif
 	
@@ -438,6 +456,8 @@ filename_list_process_init:
 
 filename_list_process:
 	set label_current="filename_list_process";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -451,7 +471,7 @@ filename_list_process:
 		goto callback_handler;
 	end
 	if( ${files_processed} > 0 ) then
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	else
 		set callback="usage";
 	endif
@@ -461,6 +481,8 @@ filename_list_process:
 
 filename_process:
 	set label_current="filename_process";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -505,6 +527,8 @@ filename_process:
 
 scripts_main_quit:
 	set label_current="scripts_main_quit";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -681,6 +705,8 @@ scripts_main_quit:
 
 usage:
 	set label_current="usage";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_next}" != "${label_current}" ) \
 		goto label_stack_set;
 	
@@ -725,6 +751,8 @@ usage:
 
 exception_handler:
 	set label_current="exception_handler";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_next}" != "${label_current}" ) \
 		goto label_stack_set;
 	
@@ -809,6 +837,8 @@ exception_handler:
 
 parse_argv:
 	set label_current="parse_argv";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -827,6 +857,8 @@ parse_argv:
 
 parse_arg:
 	set label_current="parse_arg";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -1084,6 +1116,8 @@ parse_arg:
 
 parse_argv_quit:
 	set label_current="parse_argv_quit";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -1110,6 +1144,8 @@ parse_argv_quit:
 
 set_playlist:
 	set label_current="set_playlist";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -1145,6 +1181,8 @@ set_playlist:
 
 set_new_playlist:
 	set label_current="set_new_playlist";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -1173,6 +1211,8 @@ set_new_playlist:
 
 filename_list_append:
 	set label_current="filename_list_append";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
@@ -1232,6 +1272,8 @@ filename_list_append:
 
 diagnostic_mode:
 	set label_current="diagnostic_mode";
+	if(! ${?label_previous} ) \
+		set label_previous="";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	

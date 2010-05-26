@@ -74,12 +74,12 @@ scripts_main_quit:
 		unset playlist;
 	endif
 	
-	if( ${?files_encoded} ) \
-		unset files_encoded;
-	if( ${?files_coverted} ) \
-		unset files_coverted;
 	if( ${?files_processed} ) \
 		unset files_processed;
+	if( ${?files_coverted} ) \
+		unset files_coverted;
+	if( ${?files_combined} ) \
+		unset files_combined;
 	
 	if( ${?use_old_owd} ) then
 		cd "${owd}";
@@ -359,9 +359,8 @@ main:
 		set output="/dev/stdout";
 	endif
 	
-	@ files_encoded=0;
+	@ files_processed=0;
 	@ files_coverted=0;
-	@ files_processed=1;
 	cp "${filename_list}" "${filename_list}.all";
 	
 	if( ${?debug} || ${?debug_filelist} ) \
@@ -386,7 +385,6 @@ cancel_convert:
 		unset save_to_filename;
 	endif
 	
-	@ files_processed++;
 	sleep 2;
 	goto convert_filenames;
 #goto cancel_convert;
@@ -402,6 +400,7 @@ convert_filenames:
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "Parsing: ${filename}.\n";
 		ex -s '+1d' '+wq!' "${filename_list}";
+		@ files_processed++;
 		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/g'`";
 		set original_extension="${extension}";
 		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/g'`";# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`";# | sed -r 's/["\""]/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
@@ -411,20 +410,17 @@ convert_filenames:
 		
 		if(! -e "${filename}.${extension}" ) then
 			printf "\t**%s error:** <file://%s.%s> no longer exists\t[skipping]\n\n" "${scripts_basename}" "${filename}" "${extension}" > /dev/stderr;
-			@ files_processed++;
 			continue;
 		endif
 		
 		if( -e "${save_to_filename}.ogg" ) then
 			if( "${original_extension}" == "ogg" && ! ${?ltrim} && ! ${?rtrim} ) then
 				printf "\t**Skipping:** <file://${filename}.${extension}> no advanced conversion options specified.\n\n";
-				@ files_processed++;
 				continue;
 			endif
 			
 			if( ${?dont_re_encode} ) then
 				printf "\t**Skipping:** <file://${filename}.${extension}> re-encoding is disabled.\n\n";
-				@ files_processed++;
 				continue;
 			endif
 			
@@ -446,7 +442,6 @@ convert_filenames:
 			goto find_length;
 		
 		printf "Skipping:** <file://${filename}.${extension}>; no advanced conversion options specified.\n\n";
-		@ files_processed++;
 		continue;
 	end
 	
@@ -493,7 +488,6 @@ confirm_overwrite:
 			if( ${?rtrim} ) \
 				goto find_length;
 			printf "\t**Skipping: <file://${filename}.${extension}>; no advanced conversion options specified.\n\n";
-			@ files_processed++;
 			goto convert_filenames;
 			breaksw;
 		
@@ -504,7 +498,6 @@ confirm_overwrite:
 		default:
 			printf "\t**Skipping:** <file://%s.ogg>;\n\t\tRun "\`"%s --re-encode"\`" to over-write existing files\n\t\t\tor\n\t\t"\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
 			@ errno=-4;
-			@ files_processed++;
 			goto convert_filenames;
 			breaksw;
 	endsw
@@ -566,7 +559,6 @@ oggconvert:
 				if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
 					rm "${save_to_filename}.wav";
 				
-				@ files_processed++;
 				goto convert_filenames;
 			endif
 			printf "\t\t[success]\n";
@@ -588,7 +580,6 @@ oggconvert:
 			rm "${save_to_filename}.ogg";
 		endif
 		
-		@ files_processed++;
 		goto convert_filenames;
 	endif
 	
@@ -616,9 +607,7 @@ oggconvert:
 		rm ${transcode} "${filename}.${original_extension}";
 	endif
 	
-	@ files_encoded++;
 	@ files_coverted++;
-	@ files_processed++;
 	goto convert_filenames;
 #goto oggconvert;
 
@@ -737,7 +726,6 @@ calculate_length:
 	set length="${hours}:${minutes}:${seconds}";
 	if( "`printf "\""${length}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
 		printf "Invalid calculated length: %s, lenth must be formatted as: hh:mm:ss\n" "${length}";
-		@ files_processed++;
 		goto convert_filenames;
 	endif
 	if( ${?debug} ) then
@@ -763,7 +751,7 @@ init_combine:
 	if(! ${?combine} ) \
 		goto exit_script;
 	
-	@ files_coverted=1;
+	@ files_combined=1;
 	set extension="";
 	set output="/dev/stdout";
 	
@@ -789,7 +777,7 @@ continue_combine:
 		if(! -e "${filename}.ogg" ) \
 			continue;
 		
-		@ files_coverted++;
+		@ files_combined++;
 		if(! ${?all_filenames} ) then
 			set all_filenames="-acodec vorbis -i "\""${filename}.ogg"\""";
 			if( ${?rtrim} ) \
@@ -818,7 +806,6 @@ usage:
 		goto scripts_main_quit;
 	endif
 	
-	@ files_processed++;
 	goto convert_filenames;
 #goto usage;
 

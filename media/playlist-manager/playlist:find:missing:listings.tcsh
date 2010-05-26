@@ -245,7 +245,7 @@ find_missing_media:
 		set rm_confirmation="`rm -vf${remove} "\""${this_podcast}"\""`";
 		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
 			continue;
-		printf "%s\n\n" "${rm_confirmation}";
+		printf "\n%s\n" "${rm_confirmation}";
 		
 		@ removed_podcasts++;
 		if( ${?create_script} ) then
@@ -258,7 +258,9 @@ find_missing_media:
 			if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
 				break;
 			
+			printf "\n";
 			rm -rv "${podcast_dir}";
+			printf "\n";
 			if( ${?create_script} ) then
 				printf "rm -rv "\""${podcast_dir}"\"";\n" >> "${create_script}";
 			endif
@@ -286,7 +288,7 @@ find_missing_media:
 			set rm_confirmation="`rm -vf${remove} "\""${duplicate_podcast}"\""`";
 			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
 				continue;
-			printf "%s\n\n" "${rm_confirmation}";
+			printf "\n%s\n" "${rm_confirmation}";
 			
 			@ removed_podcasts++;
 			if( ${?create_script} ) then
@@ -299,7 +301,9 @@ find_missing_media:
 				if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
 					break;
 				
+				printf "\n";
 				rm -rv "${podcast_dir}";
+				printf "\n";
 				if( ${?create_script} ) then
 					printf "rm -rv "\""${podcast_dir}"\"";\n" >> "${create_script}";
 				endif

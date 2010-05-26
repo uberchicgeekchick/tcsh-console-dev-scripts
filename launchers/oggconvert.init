@@ -439,7 +439,6 @@ convert_filenames:
 			goto confirm_overwrite;
 		endif
 		
-		ls -l "${save_to_filename}.ogg";
 		if( "${extension}" != "ogg" || ${?ltrim} ) \
 			goto oggconvert;
 		

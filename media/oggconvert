@@ -50,6 +50,9 @@ scripts_main_quit:
 		unset ogginfo_file;
 	endif
 	
+	if( ${?dont_re_encode} ) \
+		unset dont_re_encode;
+	
 	if( ${?save_to_filename} ) \
 		unset save_to_filename;
 	
@@ -413,39 +416,37 @@ convert_filenames:
 		endif
 		
 		if( -e "${save_to_filename}.ogg" ) then
-			if( ! ${?ltrim} && ! ${?rtrim} ) then
-				printf "Skipping [${filename}.${extension}]: no advanced conversion options specified.\n\n";
+			if( "${original_extension}" == "ogg" && ! ${?ltrim} && ! ${?rtrim} ) then
+				printf "\t**Skipping:** <file://${filename}.${extension}> no advanced conversion options specified.\n\n";
 				@ files_processed++;
 				continue;
 			endif
 			
-			if(!( ${?force} || ${?re_encode} )) then
-				printf "\n\t${save_to_filename}.ogg: already exists\n\tRun "\`"${scripts_basename} --re-encode"\`" or "\`"${scripts_basename} --re-encode=force"\`" to over-write existing files.\n\n";
+			if( ${?dont_re_encode} ) then
+				printf "\t**Skipping:** <file://${filename}.${extension}> re-encoding is disabled.\n\n";
 				@ files_processed++;
 				continue;
 			endif
 			
 			if( ${?force} ) then
+				printf "Hello World\!";
 				if( ${?ltrim} ) \
 					goto oggconvert;
 				if( ${?rtrim} ) \
 					goto find_length;
 			endif
 			
-			if( ${?re_encode} ) \
-				goto confirm_overwrite;
+			goto confirm_overwrite;
 		endif
 		
-		if( "${extension}" != "ogg" ) \
-			goto oggconvert;
-		
-		if( ${?ltrim} ) \
+		ls -l "${save_to_filename}.ogg";
+		if( "${extension}" != "ogg" || ${?ltrim} ) \
 			goto oggconvert;
 		
 		if( ${?rtrim} ) \
 			goto find_length;
 		
-		printf "Skipping [${filename}.${extension}]: no advanced conversion options specified.\n\n";
+		printf "Skipping:** <file://${filename}.${extension}>; no advanced conversion options specified.\n\n";
 		@ files_processed++;
 		continue;
 	end
@@ -476,29 +477,33 @@ convert_filenames:
 
 
 confirm_overwrite:
-	if(!( -e "${save_to_filename}.ogg" && "${original_extension}" == "ogg" )) \
+	if(! -e "${save_to_filename}.ogg" ) \
 		goto oggconvert;
 	
-	printf "\n\t%s.ogg already exists.\n\tWould you like to remove it and re-encode a new ogg vorbis file? [y/N]" "${save_to_filename}";
+	printf "\n\t**Warning:** <file://%s.ogg> already exists.\n\t\tWould you like to re-convert it? [Yes/Always/Skip all/No(default)]" "${save_to_filename}";
 	set confirmation="$<";
 	printf "\n";
 	
-	switch("${confirmation}")
-		case "Y":
+	switch(`printf "${confirmation}" | sed -r 's/^(.).*$/\L\1/'`)
+		case "a":
+			if(! ${?force} ) \
+				set force;
 		case "y":
-			if( -e "${save_to_filename}.ogg" ) \
-				rm -f "${save_to_filename}.ogg";
-			printf "\t**Removed:** <file://%s.ogg>\n" "${save_to_filename}";
 			if( ${?ltrim} ) \
 				goto oggconvert;
 			if( ${?rtrim} ) \
 				goto find_length;
+			printf "\t**Skipping: <file://${filename}.${extension}>; no advanced conversion options specified.\n\n";
+			@ files_processed++;
+			goto convert_filenames;
 			breaksw;
 		
-		case "N":
+		case "s":
+			if(! ${?dont_re_encode} ) \
+				set dont_re_encode;
 		case "n":
 		default:
-			printf "\t**Skipping:** <file://%s.ogg>\n" "${save_to_filename}";
+			printf "\t**Skipping:** <file://%s.ogg>;\n\t\tRun "\`"%s --re-encode"\`" to over-write existing files\n\t\t\tor\n\t\t"\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
 			@ errno=-4;
 			@ files_processed++;
 			goto convert_filenames;
@@ -526,13 +531,13 @@ oggconvert:
 		endif
 		
 		if( "${extension}" == "" && ${?combine} ) then
-			set ffmpeg_output_file_options=" -ac 1 -ar 44100 -ab 64000";
+			set ffmpeg_output_file_options=" -ac 1";#" -ar 44100 -ab 64000";
 			set oggenc_output_file_options=" -q 10";
 		else if( "${extension}" == "ogg" ) then
 			set ffmpeg_input_file_options="${ffmpeg_input_file_options} -acodec vorbis";
 			set oggenc_output_file_options="";#" -q 5";
 		else if( "${extension}" != "" ) then
-			set ffmpeg_output_file_options=" -ac 1 -ab 64000";
+			set ffmpeg_output_file_options=" -ac 1";#" -ab 64000";
 			set oggenc_output_file_options="";#" -q 5";
 		endif
 		
@@ -1039,25 +1044,16 @@ parse_arg:
 			case "diagnostic-mode":
 				breaksw;
 			
+			case "do-not-re-encode":
+			case "don't-re-encode":
 			case "no-re-encode":
-				if( ${?re_encode} ) \
-					unset re_encode;
+				if(! ${?dont_re_encode} ) \
+					set dont_re_encode;
 				breaksw;
 			
-			case "re-encode":
-				switch("${value}")
-					case "force":
-						if(! ${?force} ) \
-							set force;
-						if(! ${?re_encode} ) \
-							set re_encode;
-						breaksw;
-					
-					default:
-						if(! ${?re_encode} ) \
-							set re_encode;
-						breaksw;
-				endsw
+			case "force":
+				if(! ${?force} ) \
+					set force;
 				breaksw;
 			
 			case "enable":
@@ -1065,12 +1061,6 @@ parse_arg:
 					case "verbose":
 						if(! ${?be_verbose} ) \
 							set be_verbose;
-						breaksw;
-					
-					case "reencode":
-					case "re-encode":
-						if(! ${?re_encode} ) \
-							set re_encode;
 						breaksw;
 					
 					case "force":
@@ -1100,8 +1090,8 @@ parse_arg:
 					
 					case "reencode":
 					case "re-encode":
-						if( ${?re_encode} ) \
-							unset re_encode;
+						if(! ${?dont_re_encode} ) \
+							set dont_re_encode;
 						breaksw;
 					
 					case "force":

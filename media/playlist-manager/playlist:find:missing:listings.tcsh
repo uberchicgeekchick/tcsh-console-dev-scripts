@@ -245,7 +245,7 @@ find_missing_media:
 		set rm_confirmation="`rm -vf${remove} "\""${this_podcast}"\""`";
 		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
 			continue;
-		printf "\n%s\n" "${rm_confirmation}";
+		printf "\t%s\n" "${rm_confirmation}";
 		
 		@ removed_podcasts++;
 		if( ${?create_script} ) then
@@ -258,17 +258,16 @@ find_missing_media:
 			if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
 				break;
 			
-			printf "\n";
 			rm -rv "${podcast_dir}";
-			printf "\n";
 			if( ${?create_script} ) then
-				printf "rm -rv "\""${podcast_dir}"\"";\n" >> "${create_script}";
+				printf "rm -rv "\""${podcast_dir_for_ls}"\"";\n" >> "${create_script}";
 			endif
 			
 			set podcast_cwd="`printf "\""${podcast_dir_for_ls}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 			set podcast_dir="`dirname "\""${podcast_cwd}"\""`";
 			set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 		end
+		printf "\n";
 		
 		if(! ${?duplicates_subdirs} ) then
 			if( ${?podcast_cwd} ) \
@@ -288,7 +287,7 @@ find_missing_media:
 			set rm_confirmation="`rm -vf${remove} "\""${duplicate_podcast}"\""`";
 			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
 				continue;
-			printf "\n%s\n" "${rm_confirmation}";
+			printf "\t%s\n" "${rm_confirmation}";
 			
 			@ removed_podcasts++;
 			if( ${?create_script} ) then
@@ -301,17 +300,16 @@ find_missing_media:
 				if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
 					break;
 				
-				printf "\n";
 				rm -rv "${podcast_dir}";
-				printf "\n";
 				if( ${?create_script} ) then
-					printf "rm -rv "\""${podcast_dir}"\"";\n" >> "${create_script}";
+					printf "rm -rv "\""${podcast_dir_for_ls}"\"";\n" >> "${create_script}";
 				endif
 				
 				set podcast_cwd="`printf "\""${podcast_dir_for_ls}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 				set podcast_dir="`dirname "\""${podcast_cwd}"\""`";
 				set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 			end
+			printf "\n";
 		end
 		
 		if(${?podcast_cwd}) \

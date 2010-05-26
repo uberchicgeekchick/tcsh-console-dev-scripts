@@ -50,7 +50,7 @@ if(!(${?program_path})) then
 endif
 
 ff_init:
-set program="${program_path}${this_program}";
+set program="${program_path}/${this_program}";
 printf "Launching:\n\t%s\n\n" "${program}";
 
 set ff_binaries=("${program}-bin" "${program}" "${program}.sh");
@@ -75,18 +75,20 @@ foreach ff_binary( ${ff_binaries} )
 	endif
 end
 
-if(!( ${?ff_found} )) then
+if(! ${?ff_found} ) then
 	if(! ${?program} ) goto noexec;
 	if(! -x "${program}" ) goto noexec;
 	goto launchers_main;
+else
+	goto exit_script;
+endif
 
 noexec:
-	printf "Unable to find %s.\n" "${this_program}" > /dev/stderr;
+	printf "Unable to find %s.\n" "${program}" > /dev/stderr;
 	set status=-1;
 	goto exit_script;
 
 launchers_main:
-	endif
 	set rm_extensions;
 	printf "Attempting load %s; attempt: %d.\n" ${this_program} ${ff_attempt};
 	if(! ${?ff_found} ) then
@@ -116,24 +118,23 @@ launchers_main:
 		goto ff_start;
 	else if( ${ff_attempt} == 0 ) then
 		if( ${?use_launcher} ) unset use_launcher;
-		set ff_attempt=`printf '%d+1\n' "${ff_attempt_max}" | bc`;
+		@ ff_attempt=${ff_attempt_max}+1;
 		goto ff_start;
 	endif
 #launchers_main
 
 exit_script:
+	if( ${?rm_extensions} ) unset rm_extensions;
+	if( ${?use_launcher} ) unset use_launcher;
+	if( ${?program} ) unset program;
+	unset this_program program_path firefox_profile_path ff_binaries ff_binary argz ff_pid ff_attempt;
 	if(! ${?ff_found} ) then
 		set status=-1;
 	else
 		unset ff_found;
 		set status=0;
 	endif
-	if( ${?rm_extensions} ) unset rm_extensions;
-	if( ${?use_launcher} ) unset use_launcher;
-	if( ${?ff_found} ) unset ff_found;
-	if( ${?program} ) unset program;
-	unset this_program program_path firefox_profile_path ff_binaries ff_binary argz ff_pid ff_attempt;
-	goto exit_script;
+	exit ${status};
 
 ff_start:
 	echo "Launching:\n\t";

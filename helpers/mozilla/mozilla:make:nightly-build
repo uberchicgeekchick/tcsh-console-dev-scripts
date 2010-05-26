@@ -29,7 +29,7 @@ init:
 	#setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MAKEFLAGS}";
 	setenv CXXFLAGS "${MAKEFLAGS}";
 	
-	if( ${?http_proxy}  ) unsetenv http_proxy
+	if( ${?http_proxy}  ) unsetenv http_proxy;
 	
 	set mozilla_top_dir="/programs/mozilla";
 	set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
@@ -64,11 +64,9 @@ parse_argv:
 				breaksw;
 			
 			case "--goto=backup":
+			case "--goto=install":
+			case "--reinstall":
 				set goto="backup";
-				breaksw;
-			
-			case "--stable":
-				set pull_stable;
 				breaksw;
 			
 			case "xulrunner":
@@ -163,6 +161,7 @@ init_make:
 	endif
 	
 	if( ${?goto} ) then
+		printf "Skipping a head to %s's [%s] step.\n" "`basename '${0}'`" "${goto}";
 		goto ${goto};
 	endif
 #init_make:
@@ -179,9 +178,6 @@ checkout:
 		set hg_reaction="update";
 		printf "Checking out: %s.\n" "${mercurial_repo}";
 		hg pull -u;
-		if( ${?pull_stable} ) then
-			hg update -C `hg branches | /bin/grep 'RELBRANCH' | head -1 | cut -d' ' -f1`;
-		endif
 	endif
 	if( "${cwd}" != "${srcdir}" ) \
 		cd "${srcdir}";
@@ -225,7 +221,7 @@ make_nss:
 	make USE_64=${USE_64};
 	make USE_64=${USE_64} install;
 	
-	setenv PATH "${PATH}:${nss_path}/bin"
+	setenv PATH "${PATH}:${nss_path}/bin";
 	
 	setenv LD_RUN_PATH "${LD_RUN_PATH}:${nss_path}/lib";
 	setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${nss_path}/lib";
@@ -279,12 +275,14 @@ backup:
 			continue;
 		endif
 		
-		#if( ${?mozilla_exec} ) rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
+		#if( ${?mozilla_exec} ) \
+		#	rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
 		rm "${tarball_backup_dir}"/${build_mozilla}-*.tar.bz2;
 		cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
 		set tarball="${tarball_backup_dir}/${backup_tarball}";
 	end
-	#if( ${?mozilla_exec} ) goto finish_exec;
+	#if( ${?mozilla_exec} ) \
+	#	goto finish_exec;
 #backup:
 
 
@@ -299,7 +297,8 @@ install:
 
 
 install_plugins:
-	if( "${build_mozilla}" != "firefox" ) goto prepare_first_run
+	if( "${build_mozilla}" != "firefox" ) \
+		goto prepare_first_run;
 	
 	printf "Installing plug-ins\n";
 	if( "${cwd}" != "${prefix}/${build_mozilla}" ) \
@@ -313,20 +312,20 @@ install_plugins:
 
 
 prepare_first_run:
-	goto stop_build
+	goto stop_build;
 #prepare_first_run:
 
 
 make_default:
-	set second_run
-	goto stop_build
+	set second_run;
+	goto stop_build;
 #make_default:
 
 
 exec_install:
 	printf "Running: [%s/x86_64/%s]\n" "${prefix}" "${build_mozilla}";
 	${prefix}/x86_64/${build_mozilla} &
-	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}" "${build_mozilla}.sh");
+	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}");
 	foreach ff_binary( ${ff_binaries} )
 		if(! ${?ff_found} ) then
 			printf "Looking for running instance of: %s.\n" ${ff_binary};
@@ -335,7 +334,8 @@ exec_install:
 				if( "${ff_pid}" != "" && $ff_pid > 0 ) then
 					renice +2 $ff_pid >& /dev/null;
 					printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
-					if(! ${?ff_found} ) set ff_found;
+					if(! ${?ff_found} ) \
+						set ff_found;
 				endif
 			end
 		endif
@@ -373,10 +373,12 @@ finish_exec:
 
 
 stop_build:
-	if( ${?exec_stopped} ) \
+	if( ${?exec_stopped} ) then
+		set second_run;
 		goto test_exec;
+	endif
 	
-	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}" "${build_mozilla}.sh");
+	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}");
 	foreach ff_binary( ${ff_binaries} )
 		printf "Looking for running instance of: %s.\n" ${ff_binary};
 		foreach pid ( `pidof -x "${ff_binary}"` )
@@ -390,12 +392,17 @@ stop_build:
 						@ still_running++;
 					else
 						@ still_running=10;
-						break;
+						set exec_stopped;
+					break;
 					endif
 				end
 			end
-			printf "Failed to quit: %s; pid: %s; sending kill -9\n" ${ff_binary} ${pid};
-			kill -9 "${pid}"
+			if(! ${?exec_stopped} ) then
+				printf "Failed to quit: %s; pid: %s; sending kill -9\n" ${ff_binary} ${pid};
+				kill -9 "${pid}";
+			else
+				unset exec_stopped;
+			endif
 		end
 	end
 	
@@ -403,10 +410,10 @@ stop_build:
 	
 	if(! ${?second_run} ) then
 		set second_run;
-		goto test_exec
+		goto test_exec;
 	endif
 	
-	goto exec_install
+	goto exec_install;
 #stop_build:
 
 exit;

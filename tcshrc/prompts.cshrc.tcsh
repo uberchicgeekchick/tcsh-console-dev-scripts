@@ -19,9 +19,10 @@ set ellipsis
 #set prompt="\n%B%{^[[105m%}(%p on %Y-%W-%D)%b\n%{^[[0m%}%{^[[35m%}%U[ %B%n@%m%b ]%u\n%{^[[37m%}<file://%$pwd>\n%{^[[0m%}%{^[[31m%}@%c9 #%{^[[0m%} "
 #
 #set prompt="\n%B%{^[[47m%}(%p on %Y-%W-%D)%b\n%{^[[107m%}%B[ %U%n@%m%u ]%b\n%{^[[37m%}<file://%$pwd>\n%{^[[0m%}%{^[[101m%}%{^[[37m%}%B@%c9 #%{^[[0m%} "
-if(! ${?pwd} ) set pwd="`pwd`";
+if(! ${?pwd} ) \
+	set pwd="`pwd`";
 set prompt='\n%B%{^[[13m%}(%p on %Y-%W-%D)%b\n%{^[[15m%}[ %n@%m ]\n%{^[[37m%}<file://%$pwd>\n%{^[[31m%}[@%c03] ';
-if( "${uid}" != "0" ) then
+if( ${uid} != 0 ) then
 	if( ${?TCSH_RC_DEBUG} ) printf "Setting user's prompt.\n";
 	set prompt="${prompt}#>";
 else
@@ -29,9 +30,22 @@ else
 	set prompt="${prompt}"\$">";
 endif
 
+# Used wherever normal csh prompts with a question mark.
+# set prompt2="%B%R?>%b "
+# set prompt2="%B%R%b%S?%s%L"
+
+
+# Used  when displaying  the  corrected command line when automatic
+# spelling correction is in effect.
+#
+# set prompt3="CORRECT>%R (y|n|e)?"
+# set prompt3="%BCORRECT%b%S>%s%R (%By%b|%Bn%b|%Be%b)%S?%s%L"
+# set prompt3="%{^[[41;33;5m%}CORRECT%S\n\t>%s%R (%By%b|%Bn%b|%Be%b)%S?%s%L\n\t(y|n|e)"
+
 # echo's the new current directory when the current working directory's changed.
 # This also detects if we're in X11 & if so than it update's the title bar of xterm, gnome-terminal, et.al..
-if( "`alias cwdcmd`" != "" ) unalias cwdcmd;
+if( "`alias cwdcmd`" != "" ) \
+	unalias cwdcmd;
 if( ${?TERM} ) then
 	set cwdcmd='set pwd="`pwd`"; printf "Directory: %s <file://%s> @ %s\n" "${cwd}" "${pwd}" "`date \+%c`"';
 	if(! -o /dev/$tty ) then
@@ -59,18 +73,6 @@ if( ${?TERM} ) then
 	endif
 	unset cwdcmd
 endif
-
-# Used wherever normal csh prompts with a question mark.
-# set prompt2="%B%R?>%b "
-# set prompt2="%B%R%b%S?%s%L"
-
-
-# Used  when displaying  the  corrected command line when automatic
-# spelling correction is in effect.
-#
-# set prompt3="CORRECT>%R (y|n|e)?"
-# set prompt3="%BCORRECT%b%S>%s%R (%By%b|%Bn%b|%Be%b)%S?%s%L"
-# set prompt3="%{^[[41;33;5m%}CORRECT%S\n\t>%s%R (%By%b|%Bn%b|%Be%b)%S?%s%L\n\t(y|n|e)"
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "prompts.cshrc.tcsh";
 

@@ -730,20 +730,22 @@ parse_arg:
 			breaksw;
 			
 			case "target-directory":
-				if( -d "${value}" ) then
-					if(! ${?target_directory} ) then
-						set target_directory="${value}";
-					endif
-				endif
-			breaksw;
+				if(! -d "${value}" ) \
+					breaksw;
+				
+				if(! ${?target_directory} ) \
+					set target_directory="${value}";
+				
+				breaksw;
 			
 			case "playlist":
-				if( -e "${value}" ) then
-					if(! ${?playlist} ) then
-						set playlist="${value}";
-					endif
-				endif
-			breaksw;
+				if(! -e "${value}" ) \
+					breaksw;
+				
+				if(! ${?playlist} ) \
+					set playlist="${value}";
+				
+				breaksw;
 			
 			case "nodeps":
 			case "debug":

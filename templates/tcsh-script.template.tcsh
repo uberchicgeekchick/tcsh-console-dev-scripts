@@ -13,7 +13,7 @@ setenv:
 	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	set usage_message="Usage: ${scripts_basename} [options] -\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n\n\t\t\t-\tTells ${scripts_basename} to read all further arguments/filenames from standard input.\n";
 	
-	if(! ${?TCSH_OUTPUT_ENABLED} ) then
+	if( ${?SSH_CONNECTION} ) then
 		set stdout=/dev/null;
 		set stderr=/dev/null;
 	else
@@ -21,7 +21,7 @@ setenv:
 		set stderr=/dev/stdout;
 	endif
 	
-	onintr exit_script;
+	onintr scripts_main_quit;
 	
 	if( "`alias cwdcmd`" != "" ) then
 		set original_cwdcmd="`alias cwdcmd`";
@@ -40,52 +40,17 @@ setenv:
 	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
-	#alias ${download_command} "${download_command_with_options}";
+	#alias	${download_command}	"${download_command_with_options}";
 	
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --continue --quiet --output-document";
-	#alias ${download_command} "${download_command_with_options}";
+	#alias	${download_command}	"${download_command_with_options}";
 	
-	alias ex "ex -E -X -n --noplugin";
+	alias	ex	"ex -E -X -n --noplugin";
 	
 	set label_current="init";
 	goto callback_stack_update;
 #goto setup;
-
-
-exit_script:
-	set label_current="exit_script";
-	if(! ${?label_previous} ) then
-		goto callback_stack_update;
-	else if("${label_current}" != "${label_previous}") then
-		goto callback_stack_update;
-	endif
-	
-	if( ! ${?0} && ${?supports_being_sourced} ) then
-		set callback="sourcing_quit";
-	else
-		set callback="scripts_main_quit";
-	endif
-	goto callback_handler;
-#set callback="exit_script";
-#goto callback_handler;
-
-
-sourcing_quit:
-	set label_current="sourcing_quit";
-	if(! ${?label_previous} ) then
-		goto callback_stack_update;
-	else if("${label_current}" != "${label_previous}") then
-		goto callback_stack_update;
-	endif
-	
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
-	# END: source scripts_basename support.
-	
-	set callback="scripts_main_quit";
-	goto callback_handler;
-#set callback="sourcing_quit";
-#goto callback_handler;
 
 
 scripts_main_quit:
@@ -148,8 +113,8 @@ scripts_main_quit:
 		unset parsed_arg;
 	if( ${?parsed_argv} ) \
 		unset parsed_argv;
-	if( ${?parsed_args} ) \
-		unset parsed_args;
+	if( ${?parsed_argc} ) \
+		unset parsed_argc;
 	
 	if( ${?reading_stdin} ) \
 		unset reading_stdin;
@@ -706,14 +671,9 @@ sourcing_main:
 		goto callback_stack_update;
 	endif
 	
-	# BEGIN: source scripts_basename support.
-	if(! ${?TCSH_RC_SESSION_PATH} ) \
-		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
-	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
-	
 	set callback="sourcing_exec";
 	goto callback_handler;
-#set callback="sourcing_init";
+#set callback="sourcing_main";
 #goto callback_handler;
 
 
@@ -726,10 +686,13 @@ sourcing_exec:
 	endif
 	
 	# START: special handler for when this file is sourced.
-	alias "${script_alias}" \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
+	if( ${?debug} ) \
+		printf "Setting up aliases so [%s]; executes: <file://%s>.\n" "${script_alias}" "${script}";
+	
+	alias	"${script_alias}"	"${script}";
 	# FINISH: special handler for when this file is sourced.
 	
-	set callback="exit_script";
+	set callback="scripts_main_quit";
 	goto callback_handler;
 #set callback="sourcing_exec";
 #goto callback_handler;
@@ -760,7 +723,7 @@ main:
 		endif
 	else if(! ${?scripts_interactive} ) then
 		@ errno=-999;
-		set callback="exit_script";
+		set callback="scripts_main_quit";
 		goto exception_handler;
 	endif
 	
@@ -779,7 +742,7 @@ read_stdin_init:
 	endif
 	
 	if(! ${?scripts_interactive} ) then
-		set callback="exit_script";
+		set callback="scripts_main_quit";
 		goto callback_handler;
 	endif
 	
@@ -796,7 +759,7 @@ read_stdin_init:
 	if(! ${?stdin_read} ) then
 		set callback="read_stdin";
 	else
-		set callback="exit_script";
+		set callback="scripts_main_quit";
 	endif
 	goto callback_handler;
 #set callback="read_stdin_init";
@@ -919,7 +882,7 @@ read_stdin_quit:
 		endif
 	endif
 	
-	set callback="exit_script";
+	set callback="scripts_main_quit";
 	goto callback_handler;
 #set callback="read_stdin_quit";
 #goto callback_handler;
@@ -946,7 +909,7 @@ exec:
 	if(! ${?filename_list} ) then
 		#A one time process
 		if(! ${?scripts_interactive} ) then
-			set callback="exit_script";
+			set callback="scripts_main_quit";
 			goto usage;
 		else if(! ${?reading_stdin} ) then
 			set callback="read_stdin_init";
@@ -958,7 +921,7 @@ exec:
 		if(! ${?reading_stdin} ) then
 			set callback="filename_next";
 		else if(! ${?scripts_interactive} ) then
-			set callback="exit_script";
+			set callback="scripts_main_quit";
 			goto usage;
 		else if(! ${?reading_stdin} ) then
 			set callback="read_stdin_init";
@@ -1105,19 +1068,18 @@ filename_list_post_process:
 	if(! ${file_count} > 0 ) then
 		printf "no files found" > ${stdout};
 		set callback="usage";
-	else if(! ${filenames_processed} > 0 ) then
-		printf "no files where processed" > ${stdout};
-		set callback="exit_script";
 	else
-		if( ${filenames_processed} != ${file_count} ) then
-			printf "[failed]]\n\t\t\t\t\t\t[only %d out %d files where" ${filenames_processed} ${file_count} > ${stdout};
+		if(! ${filenames_processed} > 0 ) then
+			printf "no files where processed" > ${stdout};
+		else if( ${filenames_processed} != ${file_count} ) then
+			printf "failed]]\n\t\t\t\t\t\t[only %d out %d files where" ${filenames_processed} ${file_count} > ${stdout};
 		else
 			# any post processing that's only to be done
 			# after the filename_list has been fully processed.
 			printf "finished" > ${stdout};
 		endif
-	
-		set callback="exit_script";
+		
+		set callback="scripts_main_quit";
 	endif
 	printf "]\n" > ${stdout};
 	
@@ -1168,7 +1130,7 @@ usage:
 		set usage_displayed;
 	
 	if(!( ${?no_exit_on_usage} && ${?callback} )) \
-		set callback="exit_script";
+		set callback="scripts_main_quit";
 	
 	goto callback_handler;
 #set callback="$!";
@@ -1289,7 +1251,7 @@ exception_handler:
 	printf "\n" > ${stderr};
 	
 	if(!( ${?callback} && ${?no_exit_on_exception} )) \
-		set callback="exit_script";
+		set callback="scripts_main_quit";
 	
 	if( ${?no_exit_on_exception_set} ) \
 		unset no_exit_on_exception_set no_exit_on_exception;
@@ -1317,7 +1279,7 @@ parse_argv_init:
 	
 	@ argc=${#argv};
 	@ arg=0;
-	@ parsed_args=0;
+	@ parsed_argc=0;
 	
 	if( ${minimum_options} > 0 && ${argc} < ${minimum_options} ) then
 		set callback="read_stdin_init";
@@ -1448,7 +1410,7 @@ parse_arg:
 			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
 		endif
 		
-		@ parsed_args++;
+		@ parsed_argc++;
 		if( "${option}" == "${value}" ) \
 			set option="";
 		set parsed_arg="${dashes}${option}${equals}${value}";
@@ -1459,11 +1421,11 @@ parse_arg:
 		endif
 		
 		if( ${?debug} ) \
-			printf "\tparsed option "\$"parsed_argv[%d]:\t%s\n\n" ${parsed_args} "${parsed_arg}" > ${stdout};
+			printf "\tparsed option "\$"parsed_argv[%d]:\t%s\n\n" ${parsed_argc} "${parsed_arg}" > ${stdout};
 		
 		switch("${option}")
 			case "numbered_option":
-				if(! ( "${value}" != "" && ${value} > 0 )) then
+				if(!( "${value}" != "" && ${value} > 0 )) then
 					@ errno=-602;
 					set callback="parse_arg";
 					goto exception_handler;
@@ -1640,15 +1602,15 @@ parse_argv_quit:
 	if( ${?arg} ) \
 		unset arg;
 	
-	#if( ${?parsed_args} && ${?parsed_argv} ) then
-	#	if( ${parsed_args} > 0 ) then
+	#if( ${?parsed_argc} && ${?parsed_argv} ) then
+	#	if( ${parsed_argc} > 0 ) then
 	# 		set parsed_argv_file="${scripts_tmpdir}/.escaped.parsed_argv.$scripts_basename.`date '+%s'`.arg";
 	#		printf "$parsed_argv" >! "${parsed_argv_file}";
 	#		ex -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${parsed_argv_file}";
 	#		set escaped_parsed_argv="`cat "\""${parsed_argv_file}"\""`";
-	#		@ parsed_args=0;
+	#		@ parsed_argc=0;
 	#		foreach parsed_arg("`cat "\""${parsed_argv_file}"\""`")
-	#			@ parsed_args++;
+	#			@ parsed_argc++;
 	#			if(! ${?parsed_argv} ) then
 	#				set parsed_argv=("`printf "\""${parsed_arg}"\""`");
 	#			else
@@ -1667,12 +1629,12 @@ parse_argv_quit:
 	if( ${?debug_set} ) \
 		unset debug debug_set;
 	
-	if( ${minimum_options} > 0 && ${parsed_args} < ${minimum_options} ) then
+	if( ${minimum_options} > 0 && ${parsed_argc} < ${minimum_options} ) then
 		@ errno=-504;
 		goto exception_handler;
 	endif
 	
-	if( ${maximum_options} > 0 && ${parsed_args} > ${maximum_options} ) then
+	if( ${maximum_options} > 0 && ${parsed_argc} > ${maximum_options} ) then
 		@ errno=-505;
 		goto exception_handler;
 	endif
@@ -1854,7 +1816,7 @@ callback_stack_update:
 
 callback_handler:
 	if(! ${?callback} ) \
-		set callback="exit_script";
+		set callback="scripts_main_quit";
 	
 	if(! ${?callback_stack} ) then
 		set callback_stack=("${callback}");

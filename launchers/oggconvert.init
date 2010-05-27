@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 setenv:
-	onintr exit_script;
+	onintr scripts_main_quit;
 	
 	set scripts_basename="oggconvert";
 	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
@@ -12,20 +12,6 @@ setenv:
 	
 	goto debug_check;
 #goto setenv;
-
-
-exit_script:
-	if( ! ${?0} && ${?supports_being_sourced} ) \
-		goto sourcing_quit;
-	
-	goto scripts_main_quit;
-#goto exit_script;
-
-
-sourcing_quit:
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "oggconvert";
-	goto scripts_main_quit;
-#goto sourcing_quit;
 
 
 scripts_main_quit:
@@ -307,32 +293,19 @@ if_sourced:
 	if( ${?0} ) \
 		goto main;
 	
-	if(! ${?TCSH_RC_SESSION_PATH} ) \
-		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
-	source "${TCSH_RC_SESSION_PATH}/argv:check" "oggconvert" ${argv};
-	if( $args_handled > 0 ) then
-		@ args_shifted=0;
-		while( $args_shifted < $args_handled )
-			@ args_shifted++;
-			shift;
-		end
-		unset args_shifted;
-	endif
-	unset args_handled;
-	
-	if( ${?TCSH_RC_DEBUG} ) \
+	if( ${?debug} ) \
 		printf "Setting up aliases for: oggconvert, oggcombine, and oggtranscode.\n";
 	
 	alias	oggconvert	"${script}";
 	alias	oggtranscode	"${script} --transcode";
 	alias	oggcombine	"${script} --combine";
 	
-	goto sourcing_quit;
+	goto scripts_main_quit;
 #goto if_sourced;
 
 
 main:
-	alias ex "ex -E -X -n --noplugin";
+	alias	ex	"ex -E -X -n --noplugin";
 	
 	if(! ${?filename_list} ) \
 		goto usage;
@@ -370,7 +343,7 @@ main:
 
 
 cancel_convert:
-	onintr exit_script;
+	onintr scripts_main_quit;
 	printf "\t[cancled]\n";
 	if( ${?save_to_filename} ) then
 		if( ${?original_extension} ) then
@@ -460,7 +433,7 @@ convert_filenames:
 	if( ${?original_extension} ) \
 		unset original_extension;
 	
-	onintr exit_script;
+	onintr scripts_main_quit;
 	
 	if( ${?playlist} ) then
 		playlist:new:save.tcsh --force "${playlist}";
@@ -749,7 +722,7 @@ calculate_length:
 
 init_combine:
 	if(! ${?combine} ) \
-		goto exit_script;
+		goto scripts_main_quit;
 	
 	@ files_combined=1;
 	set extension="";
@@ -918,7 +891,7 @@ parse_arg:
 		endif
 		
 		if( ${?debug} ) \
-			printf "\tparsed option "\$"parsed_argv[${parsed_argc}]: ${parsed_arg}\n\n" "";
+			printf "\tparsed option "\$"parsed_argv[%d]: %s\n\n" ${parsed_argc} "${parsed_arg}";
 		
 		switch("${option}")
 			case "rtrim":

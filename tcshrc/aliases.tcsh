@@ -28,8 +28,6 @@ set-alias		bc	"bc -q";
 set-alias		ps	"/bin/ps -A -c -F --forest --heading";
 set-alias		ps-g	"/bin/ps -A -c -F --forest --heading | egrep";
 
-set-alias		ln	"ln --interactive";
-
 set-alias		df	"df --human-readable";
 set-alias		du	"du --summarize --human-readable";
 set-alias		du-a	"du ./*";
@@ -50,6 +48,9 @@ set-alias		cp	"cp -vp";
 
 #set-alias		mv	"mv -iv";
 set-alias		mv	"mv --interactive --verbose";
+
+#set-alias		ln	"ln -iv";
+set-alias		ln	"ln --interactive --verbose";
 
 set-alias		mkdir	"mkdir -p";
 set-alias		md	"mkdir";

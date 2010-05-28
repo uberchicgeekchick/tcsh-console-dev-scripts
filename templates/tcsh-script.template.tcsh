@@ -1082,9 +1082,9 @@ filename_list_post_process:
 	
 	#if(! ${?file_count} ) then
 		if( -e "${filename_list}.all" ) then
-			set file_count=`wc -l "${filename_list}.all" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+			set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 		else if( -e "${filename_list}" ) then
-			set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+			set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 		else
 			@ file_count=0;
 		endif

@@ -312,19 +312,21 @@ main:
 
 cancel_convert:
 	onintr scripts_main_quit;
-	printf "\t[cancelled]\n";
-	if( ${?save_to_filename} ) then
-		if( ${?original_extension} ) then
-			if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
-				rm "${save_to_filename}.wav";
-			
-			if( -e "${save_to_filename}.${original_extension}" && "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
-				rm "${save_to_filename}.ogg";
-			
-			unset original_extension;
-		endif
-		unset save_to_filename;
+	
+	if(!( ${?save_to_filename} && ${?original_extension} )) then
+		sleep 2;
+		goto convert_filename_list;
 	endif
+	
+	printf "\t[cancelled]\n";
+	
+	if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
+		rm "${save_to_filename}.wav";
+	
+	if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
+		rm "${save_to_filename}.ogg";
+	
+	unset save_to_filename original_extension;
 	
 	sleep 2;
 	goto convert_filenames;
@@ -335,10 +337,10 @@ convert_filename_list:
 	if(! ${?filename_list} ) \
 		goto usage;
 	
-	onintr cancel_convert;
-	
 	if( ${?length} ) \
 		unset length;
+	
+	onintr cancel_convert;
 	
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
 	mv -f "${filename_list}.swp" "${filename_list}";
@@ -353,19 +355,18 @@ convert_filename_list:
 	if(! -e "${filename_list}.all" ) then
 		cp "${filename_list}" "${filename_list}.all";
 	else
-		foreach filename_new( "`cat "\""${filename_list}.all"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+		foreach filename_prev( "`cat "\""${filename_list}.all"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 			@ line=0;
-			foreach filename_old( "`cat "\""${filename_list}"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+			foreach filename_next( "`cat "\""${filename_list}"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 				@ line++;
-				if( "${filename_new}" == "${filename_old}" ) then
-					printf "\t**Skipping:** <file://%s> its already been converted.\n\n" "${filename_new}";
+				if( "${filename_prev}" == "${filename_next}" ) then
+					printf "\t**Skipping:** <file://%s> its already been converted.\n\n" "${filename_next}";
 					ex -s "+${line}d" '+wq!' "${filename_list}";
-					unset filename_old;
-					break;
+					@ line--;
 				endif
-				unset filename_old;
+				unset filename_next;
 			end
-			unset line filename_new;
+			unset line filename_prev;
 		end
 		set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 		if(! ${file_count} > 0 ) \
@@ -380,6 +381,8 @@ convert_filename_list:
 
 	
 convert_filenames:
+	onintr cancel_convert;
+	
 	foreach filename( "`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "\tParsing: ${filename}.\n";
@@ -443,6 +446,8 @@ convert_filenames:
 		goto parse_arg;
 	endif
 	
+	onintr scripts_main_quit;
+	
 	if( ${?combine} ) then
 		if( ${file_count} <= 1 ) then
 			printf "--combine reqires at least two input files.\n";
@@ -464,8 +469,6 @@ convert_filenames:
 	
 	if( ${?original_extension} ) \
 		unset original_extension;
-	
-	onintr scripts_main_quit;
 	
 	goto scripts_main_quit;
 #goto convert_filenames;

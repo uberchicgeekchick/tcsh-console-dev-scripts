@@ -135,6 +135,9 @@ fetch_podcast:
 	if( ${?logging} ) \
 		printf "Finding feed's title.\n" >> "${download_log}";
 	
+	#ex -s '+set ff=unix' '+1,$s/\v\r\_$//' '+1,$s/\v\n[ \t]*//' '+1s/\v\>\</\>\r\</g' '+1,$s/\v\<(title|description|pubDate|enclosure)@'\!'.*\>.*\>\n//' '+1,$s/\v^\<[^>]+\>\n//' '+wq!' "${my_feed_xml}";
+	ex -s '+set ff=unix' '+1,$s/\v\<\!\-\-.*\-\-\>//' '+1,$s/\v\<\!\[CDATA\[//g' '+1,$s/\v\]\]\>//g' '+1,$s/\v\>[ \t]*\</\>\r\</g' '+1,$s/\v\r\_$//g' '+1,$s/\n//g' '+wq!' "${my_feed_xml}";
+	
 	if( "`/bin/grep --no-messages --perl-regexp '\r\n\"\$"' "\""${my_feed_xml}"\""`" != "" ) then	
 		if(! ${?silent} ) \
 			printf "Reformatting Dos feed to Unix format.\n";
@@ -148,8 +151,6 @@ fetch_podcast:
 			printf "Reformatting Mac OS feed to Unix format.\n" >> "${download_log}";
 		dos2unix --convmode Mac "${my_feed_xml}" >& ${output};
 	endif
-	
-	ex -s '+set ff=unix' "+0r ${my_feed_xml}" '+1,$s/\v\<\!\-\-.*\-\-\>//' '+1,$s/\v\<\!\[CDATA\[//g' '+1,$s/\v\]\]\>//g' '+1,$s/\v\>[\ \t]*\</\>\r\</g' '+1,$s/\v\r\n?\_$//g' '+1,$s/\n//g' "+w! ${my_feed_xml}" '+q';
 	
 	set title="`cat "\""${my_feed_xml}"\"" | sed -r 's/(\<item\>)/\1\n/g' | head -1 | /bin/grep --no-messages --perl-regexp '\<title[^\>]*\>' | sed -r 's/.*<title[^>]*>([^<]+)<\/title>.*/\1/g' | sed 's/\//\ \-\ /g' | sed -r 's/[\ \t]*\&[^;]+;[\ \t]*/\ /ig' | sed -r 's/^[\ \t]*//g' | sed -r 's/[\ \t]*"\$"//g'`";
 	

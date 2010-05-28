@@ -915,6 +915,27 @@ read_stdin_quit:
 #goto callback_handler;
 
 
+exec_interupted:
+	set label_current="exec";
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
+	
+	onintr exit_script;
+	
+	if( ${?original_filename} ) then
+		printf "\n\tProcessing: <file://%s>\t[cancelled]\n\n" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
+	endif
+
+	sleep 2;
+	
+	onintr exec_interupted;
+	set callback="filename_next";
+	goto callback_handler;
+#exec_interupted;
+
 exec:
 	set label_current="exec";
 	if(! ${?label_previous} ) then
@@ -922,6 +943,8 @@ exec:
 	else if("${label_current}" != "${label_previous}") then
 		goto callback_stack_update;
 	endif
+	
+	onintr exec_interupted;
 	
 	if( ${?original_filename} ) \
 		printf "\t" > ${stdout};
@@ -975,7 +998,6 @@ exec:
 	set original_extension="${extension}";
 	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
-		printf "\tProcessing: <file://%s>\t[skipped]\n" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
 		@ errno=-301;
 		set callback="filename_next";
 		goto exception_handler;
@@ -1204,15 +1226,18 @@ exception_handler:
 			breaksw;
 		
 		case -301:
-			printf "a previously specified or found file cannot be processed.\n\t<file://%s%s> no longer exists\t[skipped]\n\n" "${scripts_basename}" "${filename}" "${extension}" > ${stderr};
+			printf "Skipping:\n\t\t<file://%s%s>\n\t\t\tit no longer exists\t[skipped]" "${scripts_basename}" "${filename}" "${extension}" > ${stderr};
+			unset filename extension;
 			breaksw;
 		
 		case -302:
-			printf "Cannot process:\n\t<file://%s>\n\tit no longer exists\t[skipped]\n\n" "${original_filename}" > ${stderr};
+			printf "Cannot process:\n\t\t<file://%s>\n\t\t\tit no longer exists\t[skipped]" "${original_filename}" > ${stderr};
+			unset original_filename;
 			breaksw;
 		
 		case -498:
 			printf "The value/file specified: <%s> is invalid and cannot be processed\t[stdin failed]" "${value}" > ${stderr};
+			unset file;
 			breaksw;
 		
 		case -499:

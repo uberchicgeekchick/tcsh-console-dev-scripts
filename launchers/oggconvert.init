@@ -345,7 +345,7 @@ convert_filename_list:
 	
 	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 	if(!( ${file_count} > 0 )) then
-		printf "\t**Skipping:** ${dashes}${option}${equals}${value} no convertable files could be found.\n\n" > /dev/stderr;
+		printf "\t**Skipping:** ${dashes}${option}${equals}${value} no convertable files were found.\n\n" > /dev/stderr;
 		@ errno=-610;
 		goto parse_arg;
 	endif
@@ -353,16 +353,23 @@ convert_filename_list:
 	if(! -e "${filename_list}.all" ) then
 		cp "${filename_list}" "${filename_list}.all";
 	else
-		foreach filename_old( "`cat "\""${filename_list}.all"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
-			foreach filename_new( "`cat "\""${filename_list}"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+		foreach filename_new( "`cat "\""${filename_list}.all"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+			@ line=0;
+			foreach filename_old( "`cat "\""${filename_list}"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+				@ line++;
 				if( "${filename_new}" == "${filename_old}" ) then
-					printf "\t**Skipping:** <file://${filename_new}> it has already been converted.\n\n";
-					goto parse_arg;
+					printf "\t**Skipping:** <file://%s> its already been converted.\n\n" "${filename_new}";
+					ex -s "+${line}d" '+wq!' "${filename_list}";
+					unset filename_old;
+					break;
 				endif
-				unset filename_new;
+				unset filename_old;
 			end
-			unset filename_old;
+			unset line filename_new;
 		end
+		set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+		if(! ${file_count} > 0 ) \
+			goto parse_arg;
 		cat "${filename_list}" >> "${filename_list}.all";
 		set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 	endif
@@ -391,24 +398,33 @@ convert_filenames:
 		endif
 		
 		if( -e "${save_to_filename}.ogg" ) then
-			if( "${original_extension}" == "ogg" && ! ${?ltrim} && ! ${?rtrim} ) then
-				printf "\t**Skipping:** <file://${filename}.${extension}> no advanced conversion options specified.\n\n";
+			if( ! ${?ltrim} && ! ${?rtrim} ) then
+				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
+				if( "${original_extension}" != "ogg" ) \
+					printf ", <file://%s.ogg> already exists, " "${filename}";
+				printf "no advanced conversion options specified.\n\n";
 				continue;
 			endif
 			
 			if( ${?dont_re_encode} ) then
-				printf "\t**Skipping:** <file://${filename}.${extension}> re-encoding is disabled.\n\n";
+				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
+				if( "${original_extension}" != "ogg" ) \
+					printf ", <file://%s.ogg> already exists, " "${filename}";
+				printf "re-encoding is disabled.\n\n";
 				continue;
 			endif
 			
-			if( ${?force} ) then
-				if( ${?ltrim} ) \
-					goto oggconvert;
-				if( ${?rtrim} ) \
-					goto find_length;
-			endif
+			if(! ${?force} ) \
+				goto confirm_overwrite;
 			
-			goto confirm_overwrite;
+			if( ${?ltrim} ) \
+				goto oggconvert;
+			
+			if( ${?rtrim} ) \
+				goto find_length;
+			
+			printf "\t**Skipping:** <file://${filename}.${extension}>; no advanced conversion options specified.\n\n";
+			continue;
 		endif
 		
 		if( "${extension}" != "ogg" || ${?ltrim} ) \

@@ -684,9 +684,9 @@ if_sourced:
 	mv -f "${filename_list}.swp" "${filename_list}";
 	#ex -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${filename_list}";
 	if(! -e "${filename_list}.all" ) then
-		cp -f "${filename_list}" "${filename_list}.all";
+		#cp -f "${filename_list}" "${filename_list}.all";
 	else
-		cat "${filename_list}" >> "${filename_list}.all";
+		#cat "${filename_list}" >> "${filename_list}.all";
 	endif
 	
 	goto callback_handler;
@@ -789,9 +789,6 @@ read_stdin_init:
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
 	
-	if(! -e "${filename_list}.all" ) \
-		touch "${filename_list}.all";
-	
 	set reading_stdin;
 	
 	if(! ${?stdin_read} ) then
@@ -825,7 +822,6 @@ read_stdin:
 			endif
 			
 			set file_count="`printf "\""${file_count}+1\n"\"" | bc`";
-			printf "${original_filename}\n" >> "${filename_list}.all";
 			set callback="exec";
 			goto callback_handler;
 		end
@@ -908,15 +904,8 @@ read_stdin_quit:
 		unset debug debug_set;
 	
 	if( ${?filename_list} ) then
-		if( -e "${filename_list}" ) then
-			if(! -e "${filename_list}.all" ) then
-				cp "${filename_list}" "${filename_list}.all";
-			else
-				cat "${filename_list}" >> "${filename_list}.all";
-			endif
-			#if(! ${?file_count} ) then
-				set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
-			#endif
+		if( -e "${filename_list}.all" ) then
+			set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 		endif
 	endif
 	
@@ -950,6 +939,21 @@ exec:
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
 	
+	if( -e "${filename_list}.all" && ${?original_filename} ) then
+		@ line=0;
+		foreach filename_old( "`cat "\""${filename_list}.all"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+			@ line++;
+			if( "${original_filename}" == "${filename_old}" ) then
+				printf "\n\t**Skipping:** <file://%s> its already been processed.\n\n" "${filename_old}";
+				ex -s "+${line}d" '+wq!' "${filename_list}";
+				unset original_filename;
+				break;
+			endif
+			unset filename_old;
+		end
+		unset line;
+	endif
+	
 	if(! ${?original_filename} ) then
 		set callback="filename_next";
 		goto callback_handler;
@@ -959,12 +963,12 @@ exec:
 		@ filenames_processed=0;
 	
 	@ filenames_processed++;
-	printf "\tProcessing: <file://%s>\t[started]\n" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
+	printf "\tProcessing: <file://%s>" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
 	if( ${?file_count} ) then
 		if( ${file_count} > 1 ) \
 			printf " ( file #${filenames_processed} of ${file_count} )" > ${stdout};
 	endif
-	printf "\n" > ${stdout};
+	printf "\t[started]\n" > ${stdout};
 	set extension="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
 	if( "${extension}" == "`printf "\""${original_filename}"\""`" ) \
 		set extension="";
@@ -976,6 +980,10 @@ exec:
 		set callback="filename_next";
 		goto exception_handler;
 	endif
+	
+	if(! -e "${filename_list}.all" ) \
+		touch "${filename_list}.all";
+	printf "%s%s\n" "${filename}" "${extension}" >> "${filename_list}.all";
 	
 	set filename_for_exec="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/([\ \\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";

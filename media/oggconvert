@@ -345,7 +345,7 @@ convert_filename_list:
 	
 	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 	if(!( ${file_count} > 0 )) then
-		printf "**Skipping:** ${dashes}${option}${equals}${value} no convertable files could be found.\n\n" > /dev/stderr;
+		printf "\t**Skipping:** ${dashes}${option}${equals}${value} no convertable files could be found.\n\n" > /dev/stderr;
 		@ errno=-610;
 		goto parse_arg;
 	endif
@@ -417,7 +417,7 @@ convert_filenames:
 		if( ${?rtrim} ) \
 			goto find_length;
 		
-		printf "Skipping:** <file://${filename}.${extension}>; no advanced conversion options specified.\n\n";
+		printf "\t**Skipping:** <file://${filename}.${extension}>; no advanced conversion options specified.\n\n";
 		continue;
 	end
 	

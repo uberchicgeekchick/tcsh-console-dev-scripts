@@ -7,6 +7,8 @@ init:
 		goto usage;
 	endif
 	
+	onintr exit_script;
+	
 	set scripts_basename="`basename '${0}'`";
 	
 	set argc=${#argv};
@@ -112,8 +114,27 @@ main:
 
 
 fetch_podcasts:
+	if( ${?feed} ) then
+		printf "Cancelled downloading %s\n" "${feed}";
+		
+		if(! ${?diagnostic_mode} ) then
+			if( -e './00-titles.lst' ) \
+				/bin/rm -f './00-titles.lst';
+			if( -e './00-enclosures.lst' ) \
+				/bin/rm -f './00-enclosures.lst';
+			if( -e './00-pubDates.lst' ) \
+				/bin/rm -f './00-pubDates.lst';
+			if( -e './00-feed.xml' ) \
+				/bin/rm -f './00-feed.xml';
+		endif
+		
+		onintr exit_script;
+		sleep 2;
+	endif
+	
 	foreach feed ("`cat "\""${alacasts_download_log}"\""`")
 		ex -s '+1d' '+wq!' "${alacasts_download_log}";
+		onintr fetch_podcasts;
 		set my_feed_xml="`mktemp --tmpdir alacasts.feed.xml.XXXXXX`";
 		if(! ${?silent} ) \
 			printf "Downloading podcast's feed.\n\t<%s>\n" "${feed}";
@@ -125,6 +146,25 @@ fetch_podcasts:
 #fetch_podcasts:
 
 fetch_podcast:
+	if( ${?title} ) then
+		printf "Cancelled downloading %s\n" "${title}";
+		
+		if(! ${?diagnostic_mode} ) then
+			if( -e './00-titles.lst' ) \
+				/bin/rm -f './00-titles.lst';
+			if( -e './00-enclosures.lst' ) \
+				/bin/rm -f './00-enclosures.lst';
+			if( -e './00-pubDates.lst' ) \
+				/bin/rm -f './00-pubDates.lst';
+			if( -e './00-feed.xml' ) \
+				/bin/rm -f './00-feed.xml';
+		endif
+		
+		onintr fetch_podcasts;
+		sleep 2;
+	endif
+	onintr fetch_podcast;
+	
 	if( ! ${?list_episodes} && ! ${?downloading} && ! ${?save_script} ) \
 		set downloading;
 	
@@ -161,7 +201,7 @@ fetch_podcast:
 			printf "**error** failed to find feed's title\n" >> "${download_log}";
 		
 		set status=-1;
-		goto exit_script;	
+		goto fetch_podcasts;
 	endif
 	
 	if( "`printf "\""${title}"\"" | sed -r 's/^(The)(.*)"\$"/\1/g'`" == "The" ) \
@@ -174,8 +214,9 @@ fetch_podcast:
 		unalias cwdcmd;
 	cd "./${title}";
 	
-	if( ${?playlist} && ${?playlist_ext} ) then
-		set playlist="${title}.${playlist_ext}";
+	if( ${?playlist} && ${?playlist_type} ) then
+		set playlist="${title}.${playlist_type}";
+		playlist:new:create.tcsh "${playlist}";
 	endif
 	
 	if(! ${?silent} ) \
@@ -327,6 +368,8 @@ fetch_podcast:
 	if( ${?logging} ) \
 		printf "\n\tDownloading %s out of %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${#total_episodes}" "${title}" >> "${download_log}";
 	
+	@ episodes_downloaded=0;
+	@ episodes_number=0;
 	goto fetch_episodes;
 #fetch_podcast:
 
@@ -338,11 +381,21 @@ continue_download:
 		printf "\n\tFinishing downloading %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${title}";
 	if( ${?logging} ) \
 		printf "\n\tFinishing downloading %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${title}" >> "${download_log}";
+	@ episodes_downloaded=0;
+	@ episodes_number=0;
 #continue_download:
 
 fetch_episodes:
-	@ episodes_downloaded=0;
-	@ episodes_number=0;
+	if( ${?episodes_filename} ) then
+		printf "Cancelled downloading %s\n" "${episodes_filename}";
+		if( -e "${episodes_filename}" ) then
+			rm "${episodes_filename}";
+		endif
+		onintr fetch_podcast;
+		sleep 2;
+	endif
+	onintr fetch_episodes;
+	
 	foreach episode ( "`cat './00-enclosures.lst'`" )
 		@ episodes_number++;
 		if( ${episodes_number} > 1 ) then
@@ -452,39 +505,15 @@ fetch_episodes:
 				if( ${?logging} ) \
 					printf "\t\t\t[*w00t\!*, FTW\!]" >> "${download_log}";
 				if( ${?playlist} ) then
-					if(! -e "${playlist}" ) then
-						touch "${playlist}";
-						switch("${playlist_ext}")
-							case "tox":
-							case "toxine":
-								printf "#toxine playlist\n" >! "${playlist}";
-								breaksw;
-						endsw
-					endif
-					
-					switch("${playlist_ext}")
-						case "pls":
-							printf "File%d=%s\nTitle%d=%s\n", $episodes_downloaded, "${episodes_filename}", $episodes_downloaded, "${episodes_title}" >> "${playlist}";
-							breaksw;
-						
-						case "tox":
-						case "toxine":
-							printf "\nentry {\n\tidentifier = %s;\n\tmrl = %s;\n};", "${episodes_title}", "${episodes_filename}" >> "${playlist}";
-							breaksw;
-						
-						case "m3u":
-						default:
-							if( $episodes_downloaded > 1 ) \
-								printf "\n" >> "${playlist}";
-							
-							printf "%s/%s" "${cwd}" "${episodes_filename}" >> "${playlist}";
-							breaksw;
-					endsw
+					printf "%s/%s\n" "${cwd}" "${episodes_filename}" >> "${playlist}";
 				endif
 			endif
 		endif
 	end
-	
+#goto fetch_episodes;
+
+
+finish_fetching:
 	if(! ${?diagnostic_mode} ) then
 		if( -e './00-titles.lst' ) \
 			/bin/rm -f './00-titles.lst';
@@ -502,18 +531,7 @@ fetch_episodes:
 		printf "\n\n*w00t\!*, I'm done; enjoy online media at its best!\n" >> "${download_log}";
 	
 	if( ${?playlist} ) then
-		switch("${playlist_ext}")
-			case "pls":
-				printf "[playlist]\nnumberofentries=%d\n", $episodes_downloaded >> "${playlist}.swp";
-				cat "${playlist}" "${playlist}.swp";
-				printf "Version=2" >> "${playlist}";
-				breaksw;
-			
-			case "tox":
-			case "toxine":
-				printf "\n#END" >> "${playlist}";
-				breaksw;
-		endsw
+		playlist:new:save.tcsh "${playlist}";
 	endif
 	
 	if( ${?old_owd} ) then
@@ -522,9 +540,20 @@ fetch_episodes:
 		unset old_owd;
 	endif
 	goto fetch_podcasts;
-#fetch_episodes:
+finish_fetching:
 
 exit_script:
+	if(! ${?diagnostic_mode} ) then
+		if( -e './00-titles.lst' ) \
+			/bin/rm -f './00-titles.lst';
+		if( -e './00-enclosures.lst' ) \
+			/bin/rm -f './00-enclosures.lst';
+		if( -e './00-pubDates.lst' ) \
+			/bin/rm -f './00-pubDates.lst';
+		if( -e './00-feed.xml' ) \
+			/bin/rm -f './00-feed.xml';
+	endif
+	
 	if( -e "${alacasts_download_log}" ) \
 		/bin/rm -f "${alacasts_download_log}";
 	
@@ -783,17 +812,13 @@ parse_arg:
 				set playlist;
 				switch("${value}")
 					case "pls":
-						set playlist_ext="pls";
-						breaksw;
-					
 					case "tox":
-					case "toxine":
-						set playlist_ext="tox";
+					case "m3u":
+						set playlist_type="${value}";
 						breaksw;
 					
-					case "m3u":
 					default:
-						set playlist_ext="m3u";
+						set playlist_type="m3u";
 						breaksw;
 				endsw
 				breaksw;

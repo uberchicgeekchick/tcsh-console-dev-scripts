@@ -27,7 +27,7 @@ set_perl_modules:
 
 set_gtk_path:
 	setenv ALACAST_GTK_PATH "/projects/gtk/alacast";
-	set alacast_gtk_paths=("bin" "scripts" "auto-updaters" "playlist-manager" "validators");
+	set alacast_gtk_paths=("bin" "scripts" "scripts/auto-updaters" "scripts/playlist-manager" "scripts/validators");
 	foreach alacast_gtk_path(${alacast_gtk_paths})
 		if( ${?TCSH_RC_DEBUG} )	\
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_gtk_path}";

@@ -245,7 +245,7 @@ find_missing_media:
 		set rm_confirmation="`rm -vf${remove} "\""${this_podcast}"\""`";
 		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
 			continue;
-		printf "\t%s\n" "${rm_confirmation}";
+		printf "%s\n" "${rm_confirmation}";
 		
 		@ removed_podcasts++;
 		if( ${?create_script} ) then
@@ -287,7 +287,7 @@ find_missing_media:
 			set rm_confirmation="`rm -vf${remove} "\""${duplicate_podcast}"\""`";
 			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
 				continue;
-			printf "\t%s\n" "${rm_confirmation}";
+			printf "%s\n" "${rm_confirmation}";
 			
 			@ removed_podcasts++;
 			if( ${?create_script} ) then

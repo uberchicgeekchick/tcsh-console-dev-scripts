@@ -82,10 +82,10 @@ while( $arg < $argc )
 	set owd="${old_owd}";
 	
 	if( ${?TCSH_RC_DEBUG} ) \
-		printf "\nRecusively looking for possible paths in: <${search_dir}> using:\n\tfind ${follow_symlinks} "\""${search_dir}"\"" -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \! -iregex '.*\/\..*'${no_other_fs}\n";
+		printf "\nRecusively looking for possible paths in: <${search_dir}> using:\n\tfind ${follow_symlinks} "\""${search_dir}"\""${no_other_fs} -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \\\! -iregex '.*\/\..*'\n";
 	
 	set escaped_recusive_dir="`printf "\""%s"\"" "\""${search_dir}"\"" | sed -r 's/\//\\\//g'`";
-	foreach dir ( "`find ${follow_symlinks} "\""${search_dir}"\"" -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \! -iregex '.*\/\..*'${no_other_fs}`" )
+	foreach dir ( "`find ${follow_symlinks} "\""${search_dir}"\""${no_other_fs} -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \! -iregex '.*\/\..*'`" )
 		if( "${dir}" == "" ) continue;
 		if( "`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/${escaped_recusive_dir}(\.).*/\1/'`" == "." ) continue;
 		set escaped_dir="`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/.*\/([^\/]+)/\1/'`";

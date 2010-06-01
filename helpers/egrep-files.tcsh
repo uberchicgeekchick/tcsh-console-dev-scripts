@@ -176,7 +176,7 @@ main:
 		goto exception_handler;
 	endif
 	
-	alias	ex	"ex -E -n -X --noplugin";
+	alias ex "ex -E -n -X --noplugin";
 #main:
 
 

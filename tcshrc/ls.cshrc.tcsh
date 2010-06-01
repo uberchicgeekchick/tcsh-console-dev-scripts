@@ -26,19 +26,19 @@ if( ${?listflags} ) unset listflags;
 #set listflags="xA";
 
 
-alias	ls	"ls-F ${LS_OPTIONS}";
-#alias	ls	"ls $LS_OPTIONS";
-alias	ll	"ls -l";
-alias	l	"ll";
-alias	lc	"ls --width=1";
-alias	lt	"lc -t";
-alias	la	"ls --all";
-alias	lA	"ls --almost-all";
-alias	lD	"ls -l --directory";
-alias	lDa	"lD --all";
-alias	lDA	"lD --almost-all";
-alias	dir	'ls --format=vertical';
-alias	vdir	'ls --format=long';
-alias	d	dir;
-alias	v	vdir;
+alias ls "ls-F ${LS_OPTIONS}";
+#alias ls "ls $LS_OPTIONS";
+alias ll "ls -l";
+alias l "ll";
+alias lc "ls --width=1";
+alias lt "lc -t";
+alias la "ls --all";
+alias lA "ls --almost-all";
+alias lD "ls -l --directory";
+alias lDa "lD --all";
+alias lDA "lD --almost-all";
+alias dir 'ls --format=vertical';
+alias vdir 'ls --format=long';
+alias d dir;
+alias v vdir;
 

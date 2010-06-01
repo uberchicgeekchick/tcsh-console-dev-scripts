@@ -66,7 +66,7 @@ foreach launcher ( "`find -L '${TCSH_WEBSITE_LAUNCHER_PATH}' -ignore_readdir_rac
 	if( ${?TCSH_RC_DEBUG} ) printf "Setting up website alias for [%s] to [%s/%s].\n" "${website}" "${TCSH_WEBSITE_LAUNCHER_PATH}" "${launcher}";
 	if( "`alias '${website}'`" != "" ) \
 		unalias "${website}";
-	alias	"${website}"	\$"{TCSH_WEBSITE_LAUNCHER_PATH}/${launcher}";
+	alias "${website}" \$"{TCSH_WEBSITE_LAUNCHER_PATH}/${launcher}";
 	unset	website	launcher;
 end
 unset launcher;

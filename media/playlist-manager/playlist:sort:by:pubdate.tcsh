@@ -272,11 +272,11 @@ if_sourced:
 	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
-	#alias	"curl"	"${download_command_with_options}";
+	#alias "curl" "${download_command_with_options}";
 	
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
-	#alias	"wget"	"${download_command_with_options}";
+	#alias "wget" "${download_command_with_options}";
 	
 	if( ${?0} ) then
 		set callback="scripts_main";

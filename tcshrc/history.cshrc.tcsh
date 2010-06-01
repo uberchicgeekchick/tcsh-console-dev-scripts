@@ -37,7 +37,7 @@ if( ${?loginsh} ) \
 unalias logout;
 unalias exit;
 
-alias	logout	'source "${TCSH_RC_SESSION_PATH}/etc-csh.logout"; \
+alias logout 'source "${TCSH_RC_SESSION_PATH}/etc-csh.logout"; \
 		if( ${status} == 0 ) exit;';
 
 exit_script:

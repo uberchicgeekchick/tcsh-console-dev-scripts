@@ -61,7 +61,7 @@ exit_script:
 		setenv JAVA_HOME /usr/lib/jvm/java-openjdk
 	endif
 	
-	alias	thunderbird	'/programs/mozilla/Thunderbird3/x86_64/thunderbird-bin -compose %s'
+	alias thunderbird '/programs/mozilla/Thunderbird3/x86_64/thunderbird-bin -compose %s'
 	
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "paths:programs.cshrc.tcsh";

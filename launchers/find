@@ -102,7 +102,7 @@ main:
 	set follow_symlinks="L";
 	set regextype="posix-extended"
 	
-	alias	ex	"ex -E -n -X --noplugin";
+	alias ex "ex -E -n -X --noplugin";
 	
 	goto parse_argv; # exit's via 'usage:' or 'main:'.
 #main:

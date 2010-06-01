@@ -43,12 +43,12 @@ foreach playlist( ${playlists_files} )
 	
 	if(! ${?initial_alias} ) then
 		if( ${?TCSH_RC_DEBUG} ) printf "Aliasing:\n\t[%s]\n\t\tto\n\t[%s].\n" "${this_program}" "${alias_target}";
-		alias	"${this_program}"	"${alias_target}";
+		alias "${this_program}" "${alias_target}";
 		set initial_alias;
 	endif
 	
 	if( ${?TCSH_RC_DEBUG} ) printf "Aliasing:\n\t[%s-%s]\n\t\tto\n\t[%s].\n" "${this_program}" "${alias_suffix}" "${alias_target}";
-	alias "${this_program}"'-'"${alias_suffix}"	"${alias_target}"; 
+	alias "${this_program}"'-'"${alias_suffix}" "${alias_target}"; 
 end
 
 unset playlists_path playlist_path initial_alias audio_playlist video_playlist program this_program;

@@ -26,12 +26,12 @@ foreach dir( ${dirs} )
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "Setting sudo service alias for %s/%s @ %s\n" "${dir}" "${service}" "`date '+%I:%M:%S%P'`";
 		if( "`alias "\""${service}"\""`" != "sudo ${dir}/${service}" ) then
-			alias		${service}			"sudo ${dir}/${service}";
-			complete	${service}			p/1/"(start stop restart reload unload status --help)"/;
+			alias ${service} "sudo ${dir}/${service}";
+			complete ${service} p/1/"(start stop restart reload unload status --help)"/;
 		endif
 		
-		alias		${dir}/${service}		sudo ${dir}/${service};
-		complete	${dir}/${service}		p/1/"(start stop restart reload unload status --help)"/;
+		alias ${dir}/${service} sudo ${dir}/${service};
+		complete ${dir}/${service} p/1/"(start stop restart reload unload status --help)"/;
 		unset service;
 	end
 	unset dir;

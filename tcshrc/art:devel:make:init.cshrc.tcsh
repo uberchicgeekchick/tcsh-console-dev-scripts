@@ -20,9 +20,9 @@ if(! ${?TCSH_CANVAS_PATH} ) \
 	setenv TCSH_CANVAS_PATH "${TCSH_RC_SESSION_PATH}/../devel/make";
 source "${TCSH_CANVAS_PATH}/canvas.init.tcsh" ${argv};
 
-alias	"make:init:artistic:canvas"		"if(! ${?OSS_ARTISTIC_CANVAS} ) setenv OSS_ARTISTIC_CANVAS; source "\$"{TCSH_CANVAS_PATH}/init.canvas"
+alias "make:init:artistic:canvas" "if(! ${?OSS_ARTISTIC_CANVAS} ) setenv OSS_ARTISTIC_CANVAS; source "\$"{TCSH_CANVAS_PATH}/init.canvas"
 
-alias	"make:init:build:canvas"		"if(! ${?OSS_BUILD_CANVAS} ) setenv OSS_BUILD_CANVAS; source "\$"{TCSH_CANVAS_PATH}/init.canvas"
+alias "make:init:build:canvas" "if(! ${?OSS_BUILD_CANVAS} ) setenv OSS_BUILD_CANVAS; source "\$"{TCSH_CANVAS_PATH}/init.canvas"
 
 find_canvas:
 	while( ! ${?canvas_to_load} && "${cwd}" != "/" )

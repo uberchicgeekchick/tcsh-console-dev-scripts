@@ -47,10 +47,10 @@ set rmstar
 
 # special alias which it ran when 'M-h' or 'M-H' is pressed at the command line
 # this command is ran with the current buffer command as its only agument.
-#alias	helpcommand	"whatis"
-#alias	helpcommand	"info"
-#alias helpcommand	links http://google.com/search\?q=
-alias	helpcommand	"man"
+#alias helpcommand "whatis"
+#alias helpcommand "info"
+#alias helpcommand links http://google.com/search\?q=
+alias helpcommand "man"
 
 unset autologout
 unset ignoreeof

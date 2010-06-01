@@ -46,15 +46,15 @@ init:
 	#set argz="";
 	#set script_supported_extensions="mp3|ogg|m4a";
 	
-	alias	ex	"ex -E -X -n --noplugin";
+	alias ex "ex -E -X -n --noplugin";
 	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
-	#alias	"curl"	"${download_command_with_options}";
+	#alias "curl" "${download_command_with_options}";
 	
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
-	#alias	"wget"	"${download_command_with_options}";
+	#alias "wget" "${download_command_with_options}";
 #init:
 
 dependencies_check:

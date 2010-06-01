@@ -42,7 +42,7 @@ init:
 	set download_command="wget";
 	set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
 	
-	alias	${download_command}	"${download_command_with_options}";
+	alias ${download_command} "${download_command_with_options}";
 	
 	set status=0;
 	set logging;

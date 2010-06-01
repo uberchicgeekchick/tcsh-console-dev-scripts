@@ -45,13 +45,13 @@ setenv:
 	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
-	#alias	${download_command}	"${download_command_with_options}";
+	#alias ${download_command} "${download_command_with_options}";
 	
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --continue --quiet --output-document";
-	#alias	${download_command}	"${download_command_with_options}";
+	#alias ${download_command} "${download_command_with_options}";
 	
-	alias	ex	"ex -E -X -n --noplugin";
+	alias ex "ex -E -X -n --noplugin";
 	
 	set label_current="init";
 	goto callback_stack_update;
@@ -757,7 +757,7 @@ sourcing_exec:
 	if( ${?debug} ) \
 		printf "Setting up aliases so [%s]; executes: <file://%s>.\n" "${script_alias}" "${script}";
 	
-	alias	"${script_alias}"	"${script}";
+	alias "${script_alias}" "${script}";
 	# FINISH: special handler for when this file is sourced.
 	
 	set callback="scripts_main_quit";

@@ -17,13 +17,13 @@ if( ${?CSHEDIT} ) then
 endif
 if(! ${?CSHEDIT} ) setenv CSHEDIT "vi";
 
-#alias	vim-enhanced	"vim-enhanced --noplugin -X -p";
-alias	vim-enhanced	"vim-enhanced -X -p";
-alias	vim-deamon	"vim-enhanced --servername='`hostname --fqdn`'";
-alias	vim		"vim-enhanced";
-alias	lvim		"vim-enhanced -c 'normal '\''0'"
-alias	vi		"vim-enhanced";
-alias	ex		"ex -E -n --noplugin -X";
+#alias vim-enhanced "vim-enhanced --noplugin -X -p";
+alias vim-enhanced "vim-enhanced -X -p";
+alias vim-deamon "vim-enhanced --servername='`hostname --fqdn`'";
+alias vim "vim-enhanced";
+alias lvim "vim-enhanced -c 'normal '\''0'"
+alias vi "vim-enhanced";
+alias ex "ex -E -n --noplugin -X";
 setenv	EDITOR		"vim-enhanced";
 bindkey	"^Z"		run-fg-editor;
 

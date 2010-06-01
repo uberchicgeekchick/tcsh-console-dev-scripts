@@ -27,15 +27,15 @@ init:
 	#set supports_being_source;
 	#set argz="";
 	
-	alias	ex	"ex -E -n -X --noplugin";
+	alias ex "ex -E -n -X --noplugin";
 	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
-	#alias	"curl"	"${download_command_with_options}";
+	#alias "curl" "${download_command_with_options}";
 	
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
-	#alias	"wget"	"${download_command_with_options}";
+	#alias "wget" "${download_command_with_options}";
 	
 	set mozilla_profiles_directory="/programs/mozilla/settings";
 	
@@ -211,7 +211,7 @@ main:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	alias	ex	"ex -E -n -X --noplugin";
+	alias ex "ex -E -n -X --noplugin";
 #main:
 
 

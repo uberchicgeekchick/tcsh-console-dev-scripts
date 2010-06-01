@@ -299,16 +299,16 @@ if_sourced:
 	if( ${?debug} ) \
 		printf "Setting up aliases for: oggconvert, oggcombine, and oggtranscode.\n";
 	
-	alias	oggconvert	"${script}";
-	alias	oggtranscode	"${script} --transcode";
-	alias	oggcombine	"${script} --combine";
+	alias oggconvert "${script}";
+	alias oggtranscode "${script} --transcode";
+	alias oggcombine "${script} --combine";
 	
 	goto scripts_main_quit;
 #goto if_sourced;
 
 
 main:
-	alias	ex	"ex -E -X -n --noplugin";
+	alias ex "ex -E -X -n --noplugin";
 	
 	if( ! ${?debug} && ! ${?debug_encoding} ) then
 		set output="/dev/null";

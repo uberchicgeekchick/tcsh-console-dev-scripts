@@ -32,7 +32,7 @@ set ssh_path="/home/dreams";
 
 set ssh_mount_point="/art/ssh";
 
-alias	"mount:sshfs:${ssh_user}"	"sshfs '${ssh_user}@${ssh_server}:${ssh_path}' '${ssh_mount_point}'";
+alias "mount:sshfs:${ssh_user}" "sshfs '${ssh_user}@${ssh_server}:${ssh_path}' '${ssh_mount_point}'";
 
 if( "`mount | grep '$ssh_mount_point'`" != "" ) then
 	if(${?TCSH_RC_DEBUG}) \

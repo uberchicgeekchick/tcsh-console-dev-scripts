@@ -80,9 +80,10 @@ while( $arg < $argc )
 		if( "${dir}" == "" ) continue;
 		if( "`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/${escaped_recusive_dir}(\.).*/\1/'`" == "." ) continue;
 		set escaped_dir="`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/.*\/([^\/]+)/\1/'`";
-		switch( "${dir}" )
+		switch( "`basename "\""${dir}"\""`" )
 			case "tmp":
 			case "lost+found":
+			case "${USER}":
 			#case "reference":
 			#case "templates":
 				if( ${?TCSH_RC_DEBUG} ) \

@@ -128,6 +128,7 @@ fetch_podcasts:
 				/bin/rm -f './00-feed.xml';
 		endif
 		
+		unset feed;
 		onintr exit_script;
 		sleep 2;
 	endif
@@ -160,10 +161,13 @@ fetch_podcast:
 				/bin/rm -f './00-feed.xml';
 		endif
 		
-		onintr fetch_podcasts;
+		unset feed title;
+		if( ${?episodes_filename} ) \
+			unset episodes_filename;
 		sleep 2;
+		goto fetch_podcasts;
 	endif
-	onintr fetch_podcast;
+	onintr fetch_podcasts;
 	
 	if( ! ${?list_episodes} && ! ${?downloading} && ! ${?save_script} ) \
 		set downloading;
@@ -201,6 +205,7 @@ fetch_podcast:
 			printf "**error** failed to find feed's title\n" >> "${download_log}";
 		
 		set status=-1;
+		unset feed title;
 		goto fetch_podcasts;
 	endif
 	
@@ -391,12 +396,13 @@ fetch_episodes:
 		if( -e "${episodes_filename}" ) then
 			rm "${episodes_filename}";
 		endif
-		onintr fetch_podcast;
+		unset episode episodes_filename;
+		onintr finish_fetching;
 		sleep 2;
 	endif
-	onintr fetch_episodes;
 	
 	foreach episode ( "`cat './00-enclosures.lst'`" )
+		ex -s '+1d' '+wq!' "./00-enclosures.lst";
 		@ episodes_number++;
 		if( ${episodes_number} > 1 ) then
 			if(! ${?silent} ) \
@@ -404,113 +410,129 @@ fetch_episodes:
 			if( ${?logging} ) \
 				printf "\n\n" >> "${download_log}";
 		endif
-		
-		set episodes_file="`printf '%s' '${episode}' | sed -r 's/.*\/([^\/\?]+)\??.*"\$"/\1/'`";
-		set episodes_extension=`printf '%s' "${episodes_file}" | sed -r 's/.*\.([^\.\?]+)\??.*$/\1/'`;
-		
-		set episodes_pubdate="`cat './00-pubDates.lst' | head -${episodes_number} | tail -1 | sed 's/\?//g'`";
-		
-		#set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/\?//g' | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\!\?\*\+\-])/\\\1/g'`";
-		set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/\?//g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
-		set episodes_title_escaped="`cat './00-titles.lst' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
-		
-		if( "${episodes_title}" == "" ) \
-			set episodes_title="`printf "\""%s"\"" "\""${episodes_file}"\"" | sed -r 's/(.*)\/([^\/]+)\.([^.]+)"\$"/\1/'`";
-		
-		if( "${episodes_pubdate}" != "" ) then
-			set episodes_filename="${episodes_title}, released on: ${episodes_pubdate}.${episodes_extension}";
-		else
-			set episodes_filename="${episodes_title}.${episodes_extension}";
-		endif
-		
-		if(! ${?silent} ) \
-			printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}";
-		if( ${?logging} ) \
-			printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}" >> "${download_log}";
-		
-		# Skipping existing files.
-		if( ${?fetch_all} ) then
-			${download_command_with_options} "./${episodes_filename}" "${episode}"
-			continue;
-		endif
-		
-		if( -e "./${episodes_filename}" ) then
-			if(! ${?silent} ) \
-				printf "\t\t\t[skipped existing file]";
-			if( ${?logging} ) \
-				printf "\t\t\t[skipping existing file]" >> "${download_log}";
-			continue;
-		endif
-		
-		switch ( "`basename '${episodes_file}'`" )
-			case "theend.mp3":
-			case "caughtup.mp3":
-			case "caught_up_1.mp3":
-				if(! ${?silent} ) \
-					printf "\t\t\t[skipping podiobook.com notice]";
-				if( ${?logging} ) \
-					printf "\t\t\t[skipping podiobook.com notice]" >> "${download_log}";
-				continue;
-				breaksw;
-		endsw
-		
-		if( "`printf "\""%s"\"" "\""${episodes_file}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_file}" ) then
-			if(! ${?silent} ) \
-				printf "\t\t\t[skipping commentary track]";
-			if( ${?logging} ) \
-				printf "\t\t\t[skipping commentary track]" >> "${download_log}";
-			continue;
-		endif
-		
-		#if(! ${?download_extras} ) then
-		#	if( "`printf "\""%s"\"" "\""${episodes_title_escaped}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_title_escaped}" ) then
-		#		if(! ${?silent} ) \
-		#			printf "\t\t\t[skipping commentary track]";
-		#		if( ${?logging} ) \
-		#			printf "\t\t\t[skipping commentary track]" >> "${download_log}";
-		#		continue;
-		#	endif
-		#endif
-		
-		if( ${?regex_match_titles} ) then
-			if( "`printf '%s' "\""${episodes_title_escaped}"\"" | sed -r s/.*\(${regex_match_titles}\).*/\1/ig'`" )!="${episodes_title}" ) then
-				printf "\t\t\t[skipping regexp matched episode]";
-				continue;
-			endif
-		endif
-		
-		if( ${?list_episodes} ) then
-			printf "%s <%s>\n" "${episodes_filename}" "${episode}";
-			continue;
-		endif
-		
-		if( ${?save_script} ) then
-			printf 'Saving %s; episode: <%s> download to: <file://%s>\n' "${title}" "${episodes_title}" "${save_script}";
-			printf '%s %s %s\n' "${download_command_with_options}" "./${episodes_filename}" "${episode}" >> "${save_script}";
-			continue;
-		endif
-		
-		if( ${?downloading} ) then
-			${download_command_with_options} "./${episodes_filename}" "${episode}";
-			
-			if(! -e "./${episodes_filename}" ) then
-				if(! ${?silent} ) \
-					printf "\t\t\t[*epic fail* :(]";
-				if( ${?logging} ) \
-					printf "\t\t\t[*pout* :(]" >> "${download_log}";
-			else
-				@ episodes_downloaded++;
-				if(! ${?silent} ) \
-					printf "\t\t\t[*w00t\!*, FTW\!]";
-				if( ${?logging} ) \
-					printf "\t\t\t[*w00t\!*, FTW\!]" >> "${download_log}";
-				if( ${?playlist} ) then
-					printf "%s/%s\n" "${cwd}" "${episodes_filename}" >> "${playlist}";
-				endif
-			endif
-		endif
+		goto fetch_episode;
 	end
-#goto fetch_episodes;
+	goto finish_fetching;
+#goto fetch_episodes:
+
+fetch_episode:
+	onintr fetch_episodes;
+	
+	set episodes_file="`printf '%s' '${episode}' | sed -r 's/.*\/([^\/\?]+)\??.*"\$"/\1/'`";
+	set episodes_extension=`printf '%s' "${episodes_file}" | sed -r 's/.*\.([^\.\?]+)\??.*$/\1/'`;
+	
+	set episodes_pubdate="`cat './00-pubDates.lst' | head -${episodes_number} | tail -1 | sed 's/\?//g'`";
+	
+	#set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/\?//g' | sed -r 's/(["\""'\''\ \<\>\(\)\&\|\!\?\*\+\-])/\\\1/g'`";
+	set episodes_title="`cat './00-titles.lst' | head -${episodes_number} | tail -1 | sed 's/\?//g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
+	set episodes_title_escaped="`cat './00-titles.lst' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
+	
+	if( "${episodes_title}" == "" ) \
+		set episodes_title="`printf "\""%s"\"" "\""${episodes_file}"\"" | sed -r 's/(.*)\/([^\/]+)\.([^.]+)"\$"/\1/'`";
+	
+	if( "${episodes_pubdate}" != "" ) then
+		set episodes_filename="${episodes_title}, released on: ${episodes_pubdate}.${episodes_extension}";
+	else
+		set episodes_filename="${episodes_title}.${episodes_extension}";
+	endif
+	
+	if(! ${?silent} ) \
+		printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}";
+	if( ${?logging} ) \
+		printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}" >> "${download_log}";
+	
+	# Skipping existing files.
+	if( ${?fetch_all} ) then
+		${download_command_with_options} "./${episodes_filename}" "${episode}"
+		unset episodes_filename;
+		goto fetch_episodes;
+	endif
+	
+	if( -e "./${episodes_filename}" ) then
+		if(! ${?silent} ) \
+			printf "\t\t\t[skipped existing file]";
+		if( ${?logging} ) \
+			printf "\t\t\t[skipping existing file]" >> "${download_log}";
+		unset episodes_filename;
+		goto fetch_episodes;
+	endif
+	
+	switch ( "`basename '${episodes_file}'`" )
+		case "theend.mp3":
+		case "caughtup.mp3":
+		case "caught_up_1.mp3":
+			if(! ${?silent} ) \
+				printf "\t\t\t[skipping podiobook.com notice]";
+			if( ${?logging} ) \
+				printf "\t\t\t[skipping podiobook.com notice]" >> "${download_log}";
+			unset episodes_filename;
+			goto fetch_episodes;
+			breaksw;
+	endsw
+	
+	if( "`printf "\""%s"\"" "\""${episodes_file}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_file}" ) then
+		if(! ${?silent} ) \
+			printf "\t\t\t[skipping commentary track]";
+		if( ${?logging} ) \
+			printf "\t\t\t[skipping commentary track]" >> "${download_log}";
+		unset episodes_filename;
+		goto fetch_episodes;
+	endif
+	
+	#if(! ${?download_extras} ) then
+	#	if( "`printf "\""%s"\"" "\""${episodes_title_escaped}"\"" | sed -r 's/.*(commentary).*/\1/ig'`" != "${episodes_title_escaped}" ) then
+	#		if(! ${?silent} ) \
+	#			printf "\t\t\t[skipping commentary track]";
+	#		if( ${?logging} ) \
+	#			printf "\t\t\t[skipping commentary track]" >> "${download_log}";
+	#		unset episodes_filenames;
+	#		goto fetch_episode;
+	#	endif
+	#endif
+	
+	if( ${?regex_match_titles} ) then
+		if( "`printf '%s' "\""${episodes_title_escaped}"\"" | sed -r s/.*\(${regex_match_titles}\).*/\1/ig'`" )!="${episodes_title}" ) then
+			printf "\t\t\t[skipping regexp matched episode]";
+			unset episodes_filename;
+			goto fetch_episodes;
+		endif
+	endif
+	
+	if( ${?list_episodes} ) then
+		printf "%s <%s>\n" "${episodes_filename}" "${episode}";
+		unset episodes_filename;
+		goto fetch_episodes;
+	endif
+	
+	if( ${?save_script} ) then
+		printf 'Saving %s; episode: <%s> download to: <file://%s>\n' "${title}" "${episodes_title}" "${save_script}";
+		printf '%s %s %s\n' "${download_command_with_options}" "./${episodes_filename}" "${episode}" >> "${save_script}";
+		unset episodes_filename;
+		goto fetch_episodes;
+	endif
+	
+	if( ${?downloading} ) then
+		${download_command_with_options} "./${episodes_filename}" "${episode}";
+		
+		if(! -e "./${episodes_filename}" ) then
+			if(! ${?silent} ) \
+				printf "\t\t\t[*epic fail* :(]";
+			if( ${?logging} ) \
+				printf "\t\t\t[*pout* :(]" >> "${download_log}";
+		else
+			@ episodes_downloaded++;
+			if(! ${?silent} ) \
+				printf "\t\t\t[*w00t\!*, FTW\!]";
+			if( ${?logging} ) \
+				printf "\t\t\t[*w00t\!*, FTW\!]" >> "${download_log}";
+			if( ${?playlist} ) then
+				printf "%s/%s\n" "${cwd}" "${episodes_filename}" >> "${playlist}";
+			endif
+		endif
+	endif
+	unset episodes_filename;
+	goto fetch_episodes;
+#goto fetch_episode;
 
 
 finish_fetching:
@@ -539,6 +561,7 @@ finish_fetching:
 		set owd="${old_owd}";
 		unset old_owd;
 	endif
+	unset feed title episodes_filename;
 	goto fetch_podcasts;
 finish_fetching:
 

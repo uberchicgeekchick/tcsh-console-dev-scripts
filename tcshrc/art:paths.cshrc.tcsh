@@ -12,7 +12,7 @@ endif
 unset args_handled;
 
 
-source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" "${TCSH_RC_SESSION_PATH}/../" -f=bin "/art/games/engines/raydium/bin" -f=bin "/art/games/tools/servers/opensim/bin" --no-follow -f=bin "${HOME}";
+source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" "${TCSH_RC_SESSION_PATH}/../" -f=bin "/art/games/engines/raydium/bin" -f=bin "/art/games/tools/servers/opensim/bin" --no-follow --skip-subdir=nfs -f=bin "${HOME}";
 
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "art:paths.cshrc.tcsh";

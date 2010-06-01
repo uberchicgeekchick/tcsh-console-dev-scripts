@@ -14,10 +14,11 @@ endif
 @ argc=${#argv};
 unset args_handled;
 
-set maxdepth="";
-set mindepth="";
-set find_name_argv="";
+set maxdepth;
+set mindepth;
+set find_name_argv;
 set follow_symlinks="-L";
+set skip_subdir;
 next_argv:
 while( $arg < $argc )
 	@ arg++;
@@ -48,6 +49,10 @@ while( $arg < $argc )
 			set mindepth=" -mindepth ${value}";
 			continue;
 		
+		case "skip-subdir":
+			set skip_subdir=" \! -iregex '.*\/${value}\/.*'";
+			continue;
+		
 		case "h":
 		case "help":
 			goto usage;
@@ -73,10 +78,10 @@ while( $arg < $argc )
 	set owd="${old_owd}";
 	
 	if( ${?TCSH_RC_DEBUG} ) \
-		printf "\nRecusively looking for possible paths in: <${search_dir}> using:\n\tfind ${follow_symlinks} "\""${search_dir}"\"" -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \! -iregex '.*\/\..*'\n";
+		printf "\nRecusively looking for possible paths in: <${search_dir}> using:\n\tfind ${follow_symlinks} "\""${search_dir}"\"" -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \! -iregex '.*\/\..*'${skip_subdir}\n";
 	
 	set escaped_recusive_dir="`printf "\""%s"\"" "\""${search_dir}"\"" | sed -r 's/\//\\\//g'`";
-	foreach dir ( "`find ${follow_symlinks} "\""${search_dir}"\"" -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \! -iregex '.*\/\..*'`" )
+	foreach dir ( "`find ${follow_symlinks} "\""${search_dir}"\"" -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \! -iregex '.*\/\..*'${skip_subdir}`" )
 		if( "${dir}" == "" ) continue;
 		if( "`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/${escaped_recusive_dir}(\.).*/\1/'`" == "." ) continue;
 		set escaped_dir="`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/.*\/([^\/]+)/\1/'`";

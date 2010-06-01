@@ -35,13 +35,13 @@ rm "${podcasts_download_path}/.New ${music_library} Songs.lst";
 if( "`find -L Genres/ -regextype posix-extended -iregex '.*\.(mp3|m4a)"\$"'`" != "" ) \
 	oggconvert --transcode Genres/;
 
-foreach title ( "`find -L Genres -iregex '.*, released on.*'`" )
-	set pubdate="`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\4/g'`";
+foreach title ( "`find -L Genres -iregex '.*; released on.*'`" )
+	set pubdate="`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(; released on[^\.]*)\.([^\.]+)"\$"/\4/g'`";
 	if( "${pubdate}" == "" || "${pubdate}" == "${title}" ) \
 		continue;
-	set genre = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\1/g'`";
-	set song = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\2/g'`";
-	set artist = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\3/g'`";
+	set genre = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(; released on[^\.]*)\.([^\.]+)"\$"/\1/g'`";
+	set song = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(; released on[^\.]*)\.([^\.]+)"\$"/\2/g'`";
+	set artist = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(; released on[^\.]*)\.([^\.]+)"\$"/\3/g'`";
 	set extension = "`printf "\""${title}"\"" | sed -r 's/.*\.([^\.]+)"\$"/\1/g'`";
 	mv "${title}" "Genres/${genre}/${song} by ${artist}.${extension}";
 end

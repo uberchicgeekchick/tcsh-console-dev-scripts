@@ -14,8 +14,11 @@ setenv:
 	
 	set scripts_basename="tcsh-script.template.tcsh";
 	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
-	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
-	set usage_message="Usage: ${scripts_basename} [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n\n\t\t\t-\tTells ${scripts_basename} to read all further arguments/filenames from standard input.\n";
+	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
+	set usage_message="Usage: ${scripts_basename} [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n\n\t\t\t-\tTells ${scripts_basename} to read all further arguments/filenames from standard input (-! disables this).\n\n\t\t\t--\tThis will cause the script to process any further filenames as they're reached(--! disables this).\n";
+	
+	@ minimum_options=-1;
+	@ maximum_options=-1;
 	
 	if( ${?SSH_CONNECTION} ) then
 		set stdout=/dev/null;
@@ -362,7 +365,7 @@ init:
 	set escaped_starting_cwd="${escaped_cwd}";
 	
 	set directory_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-	printf "${HOME}" >! "${directory_file}";
+	printf "%s" "${HOME}" >! "${directory_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${directory_file}";
 	set escaped_home_dir="`cat "\""${directory_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
 	rm -f "${directory_file}";
@@ -381,6 +384,21 @@ debug_check:
 	
 	@ arg=0;
 	@ argc=${#argv};
+	
+	if( ${?minimum_options} ) then
+		if( ${minimum_options} > 0 && ${argc} < ${minimum_options} ) then
+			@ errno=-503;
+			goto exception_handler;
+		endif
+	endif
+	
+	if( ${?maximum_options} ) then
+		if( ${maximum_options} > 0 && ${argc} > ${maximum_options} ) then
+			@ errno=-504;
+			goto exception_handler;
+		endif
+	endif
+	
 	while( $arg < $argc )
 		@ arg++;
 		
@@ -390,22 +408,40 @@ debug_check:
 			continue;
 		endif
 		
+		if( "$argv[$arg]" == "-!" ) then
+			if( ${?scripts_interactive} ) \
+				unset scripts_interactive;
+			continue;
+		endif
+		
+		if( "$argv[$arg]" == "--" ) then
+			if(! ${?process_each_filename} ) \
+				set process_each_filename;
+			continue;
+		endif
+		
+		if( "$argv[$arg]" == "--!" ) then
+			if( ${?process_each_filename} ) \
+				unset process_each_filename;
+			continue;
+		endif
+		
 		if( -e "$argv[$arg]" ) \
 			continue;
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "$argv[$arg]" >! "${argument_file}";
+		printf "%s" "$argv[$arg]" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set escaped_argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
 		unset argument_file;
 		set argument="`printf "\""%s"\"" "\""${escaped_argument}"\""`";
 		
-		set option="`printf "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+		set option="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
 		if( "${option}" == "${argument}" ) \
 			set option="";
 		
-		set value="`printf "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+		set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 		if( -e "${value}" ) \
 			continue;
 		
@@ -821,7 +857,7 @@ read_stdin:
 				goto exception_handler;
 			endif
 			
-			set file_count="`printf "\""${file_count}+1\n"\"" | bc`";
+			set file_count="`printf "\""%d+1\n"\"" $file_count | bc`";
 			set callback="exec";
 			goto callback_handler;
 		end
@@ -832,7 +868,7 @@ read_stdin:
 	set value="$<";
 	#set value=$<:q;
 	set value_file="${scripts_tmpdir}/.escaped.$scripts_basename.stdin.value.`date '+%s'`.arg";
-	printf "$value" >! "${value_file}";
+	printf "%s" "$value" >! "${value_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
 	set escaped_value="`cat "\""${value_file}"\""`";
 	rm -f "${value_file}";
@@ -992,11 +1028,11 @@ exec:
 			printf " ( file #${filenames_processed} of ${file_count} )" > ${stdout};
 	endif
 	printf "\t[started]\n" > ${stdout};
-	set extension="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
+	set extension="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
 	if( "${extension}" == "`printf "\""${original_filename}"\""`" ) \
 		set extension="";
 	set original_extension="${extension}";
-	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
+	set filename="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
 		@ errno=-301;
 		set callback="filename_next";
@@ -1007,9 +1043,9 @@ exec:
 		touch "${filename_list}.all";
 	printf "%s%s\n" "${filename}" "${extension}" >> "${filename_list}.all";
 	
-	set filename_for_exec="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/([\ \\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	set filename_for_editor="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"'\''\[\(\)\ \<\>])/\\\1/g'`";
+	set filename_for_exec="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	set filename_for_regexp="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/([\ \\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	set filename_for_editor="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"'\''\[\]\(\)\ \<\>])/\\\1/g'`";
 	if( ${?edit_all_files} ) \
 		${EDITOR} "+0r ${filename_for_editor}";
 	
@@ -1074,7 +1110,7 @@ filename_next:
 	if(! ${?reading_stdin} ) then
 		if( ${?arg} && ${?process_each_filename} ) then
 			if( $arg < $argc ) then
-				set callback="parse_arg";
+				set callback="parse_argv";
 			else
 				set callback="parse_argv_quit";
 			endif
@@ -1335,22 +1371,9 @@ parse_argv_init:
 		goto callback_stack_update;
 	endif
 	
-	@ minimum_options=-1;
-	@ maximum_options=-1;
-	
 	@ argc=${#argv};
 	@ arg=0;
 	@ parsed_argc=0;
-	
-	if( ${minimum_options} > 0 && ${argc} < ${minimum_options} ) then
-		set callback="read_stdin_init";
-		goto callback_handler;
-	endif
-	
-	if( ${maximum_options} > 0 && ${argc} > ${maximum_options} ) then
-		set callback="read_stdin_init";
-		goto callback_handler;
-	endif
 	
 	if( ( ${?debug_options} || ${?debug_arguments} ) && ! ${?debug} ) \
 		set debug debug_set;
@@ -1358,14 +1381,14 @@ parse_argv_init:
 	if( ${?debug} ) \
 		printf "**${scripts_basename} debug:** checking argv.  ${argc} total arguments.\n\n" > ${stdout};
 	
-	set callback="parse_arg";
+	set callback="parse_argv";
 	goto callback_handler;
 #set callback="parse_argv_init";
 #goto callback_handler;
 
 
-parse_arg:
-	set label_current="parse_arg";
+parse_argv:
+	set label_current="parse_argv";
 	if(! ${?label_previous} ) then
 		goto callback_stack_update;
 	else if("${label_current}" != "${label_previous}") then
@@ -1385,7 +1408,7 @@ parse_arg:
 			unset value_used;
 		
 		if( ${?debug} ) \
-			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]" > ${stdout};
+			printf "**%s parse_argv:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]" > ${stdout};
 		
 		if( "$argv[$arg]" == "-" ) then
 			if(! ${?scripts_interactive} ) \
@@ -1393,27 +1416,45 @@ parse_arg:
 			continue;
 		endif
 		
+		if( "$argv[$arg]" == "-!" ) then
+			if( ${?scripts_interactive} ) \
+				unset scripts_interactive;
+			continue;
+		endif
+		
+		if( "$argv[$arg]" == "--" ) then
+			if(! ${?process_each_filename} ) \
+				set process_each_filename;
+			continue;
+		endif
+		
+		if( "$argv[$arg]" == "--!" ) then
+			if( ${?process_each_filename} ) \
+				unset process_each_filename;
+			continue;
+		endif
+		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "$argv[$arg]" >! "${argument_file}";
+		printf "%s" "$argv[$arg]" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set escaped_argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
 		unset argument_file;
 		set argument="`printf "\""%s"\"" "\""${escaped_argument}"\""`";
 		
-		set dashes="`printf "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
+		set dashes="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
 		if( "${dashes}" == "${argument}" ) \
 			set dashes="";
 		
-		set option="`printf "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+		set option="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
 		if( "${option}" == "${argument}" ) \
 			set option="";
 		
-		set equals="`printf "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
+		set equals="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
 		if( "${equals}" == "${argument}" ) \
 			set equals="";
 		
-		set value="`printf "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+		set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 		
 		if( ${?debug} ) \
 			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[$arg]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
@@ -1427,26 +1468,26 @@ parse_arg:
 					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]" > ${stdout};
 				
 				set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-				printf "$argv[$arg]" >! "${argument_file}";
+				printf "%s" "$argv[$arg]" >! "${argument_file}";
 				ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 				set escaped_test_argument="`cat "\""${argument_file}"\""`";
 				rm -f "${argument_file}";
 				unset argument_file;
 				set test_argument="`printf "\""%s"\"" "\""${escaped_test_argument}"\""`";
 				
-				set test_dashes="`printf "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
+				set test_dashes="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
 				if( "${test_dashes}" == "${test_argument}" ) \
 					set test_dashes="";
 				
-				set test_option="`printf "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+				set test_option="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
 				if( "${test_option}" == "${test_argument}" ) \
 					set test_option="";
 				
-				set test_equals="`printf "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
+				set test_equals="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
 				if( "${test_equals}" == "${test_argument}" ) \
 					set test_equals="";
 				
-				set test_value="`printf "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+				set test_value="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 				
 				if( ${?debug} ) \
 					printf "\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[$arg]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}" > ${stdout};
@@ -1463,7 +1504,7 @@ parse_arg:
 		
 		if( "${value}" != "" ) then
 			set value_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-			printf "${value}" >! "${value_file}";
+			printf "%s" "${value}" >! "${value_file}";
 			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
 			set escaped_value="`cat "\""${value_file}"\""`";
 			rm -f "${value_file}";
@@ -1488,7 +1529,7 @@ parse_arg:
 			case "numbered_option":
 				if(!( "${value}" != "" && ${value} > 0 )) then
 					@ errno=-602;
-					set callback="parse_arg";
+					set callback="parse_argv";
 					goto exception_handler;
 					breaksw;
 				endif
@@ -1508,7 +1549,7 @@ parse_arg:
 			case "length_option":
 				if( "`printf "\""${escaped_value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
 					@ errno=-603;
-					set callback="parse_arg";
+					set callback="parse_argv";
 					goto exception_handler;
 					breaksw;
 				endif
@@ -1576,7 +1617,7 @@ parse_arg:
 					
 					default:
 						@ errno=-604;
-						set callback="parse_arg";
+						set callback="parse_argv";
 						goto exception_handler;
 					breaksw;
 				endsw
@@ -1603,30 +1644,34 @@ parse_arg:
 					
 					default:
 						@ errno=-604;
-						set callback="parse_arg";
+						set callback="parse_argv";
 						goto exception_handler;
 					breaksw;
 				endsw
 			breaksw;
 			
-			case "-";
 			case "":
-			default:
 				if( -e "${value}" && ${?supports_multiple_files} ) then
 					set value_used;
-					set callback="filename_list_append";
-					goto callback_handler;
+					goto filename_list_append_value;
+					breaksw;
 				endif
+			
+			default:
+				if( -e "${value}") then
+					set value="";
+				endif
+				
 				if(! ${?strict} ) then
 					if(! ${?no_exit_on_exception} ) \
 						set no_exit_on_exception_set no_exit_on_exception;
-					set callback="parse_arg";
+					set callback="parse_argv";
 				else if( ${?no_exit_on_exception} ) then
 					unset no_exit_on_exception;
 				endif
 				
 				@ errno=-499;
-				set callback="parse_arg";
+				set callback="parse_argv";
 				goto exception_handler;
 			breaksw;
 		endsw
@@ -1645,7 +1690,7 @@ parse_arg:
 	
 	set callback="parse_argv_quit";
 	goto callback_handler;
-#set callback="parse_arg";
+#set callback="parse_argv";
 #goto callback_handler;
 
 
@@ -1669,7 +1714,7 @@ parse_argv_quit:
 	#if( ${?parsed_argc} && ${?parsed_argv} ) then
 	#	if( ${parsed_argc} > 0 ) then
 	# 		set parsed_argv_file="${scripts_tmpdir}/.escaped.parsed_argv.$scripts_basename.`date '+%s'`.arg";
-	#		printf "$parsed_argv" >! "${parsed_argv_file}";
+	#		printf "%s" "$parsed_argv" >! "${parsed_argv_file}";
 	#		ex -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${parsed_argv_file}";
 	#		set escaped_parsed_argv="`cat "\""${parsed_argv_file}"\""`";
 	#		@ parsed_argc=0;
@@ -1693,16 +1738,6 @@ parse_argv_quit:
 	if( ${?debug_set} ) \
 		unset debug debug_set;
 	
-	if( ${minimum_options} > 0 && ${parsed_argc} < ${minimum_options} ) then
-		@ errno=-503;
-		goto exception_handler;
-	endif
-	
-	if( ${maximum_options} > 0 && ${parsed_argc} > ${maximum_options} ) then
-		@ errno=-504;
-		goto exception_handler;
-	endif
-	
 	set callback="if_sourced";
 	goto callback_handler;
 #set callback="parse_argv_quit";
@@ -1723,7 +1758,7 @@ filename_list_append:
 	endif
 	
 	if( ! ${?0} && "${value}" == "${scripts_basename}" ) then
-		set callback="parse_arg";
+		set callback="parse_argv";
 		goto callback_handler;
 	endif
 	
@@ -1746,7 +1781,7 @@ filename_list_append:
 			find -L "$value" | sort >> "${filename_list}";
 		endif
 		
-		set callback="parse_arg";
+		set callback="parse_argv";
 		goto callback_handler;
 	endif
 	
@@ -1772,7 +1807,7 @@ filename_list_append:
 	endif
 	
 	if(! ${?process_each_filename} ) then
-		set callback="parse_arg";
+		set callback="parse_argv";
 	else
 		set callback="if_sourced";
 	endif
@@ -1863,7 +1898,7 @@ callback_stack_update:
 		set old_owd="${owd}";
 		set current_cwd="${cwd}";
 		set directory_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-		printf "${cwd}" >! "${directory_file}";
+		printf "%s" "${cwd}" >! "${directory_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${directory_file}";
 		set escaped_cwd="`cat "\""${directory_file}"\""`";
 		rm -f "${directory_file}";

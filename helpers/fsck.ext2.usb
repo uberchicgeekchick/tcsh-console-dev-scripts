@@ -131,7 +131,7 @@ check_dependency:
 if_sourced:
 	set current_label="if_sourced";
 	
-	if(! ${?being_sourced} ) \
+	if( ${?0} ) \
 		goto main;
 	
 	if(! ${?supports_being_source} ) \
@@ -182,38 +182,58 @@ sourcing_main_quit:
 main:
 	set current_label="main";
 	
-	set argc=${#argv};
-	@ required_arguments=0;
-	if( ${argc} < ${required_arguments} ) then
-		@ errno=-503;
-		goto exception_handler;
+	printf "Executing %s's main.\n" "${scripts_basename}";
+	if(! ${?devices} ) \
+		set devices=/dev/sdc[12356];
+	
+	if(! ${?check} ) \
+		set check;
+	
+	if(! ${?use_sudo} ) then
+		if( ${uid} != 0 ) then
+			set use_sudo="sudo ";
+		else
+			set use_sudo;
+		endif
 	endif
+	
+	if(! ${?device_index} ) \
+		@ device_index=0;
+	
+	while( $device_index < ${#devices} )
+		@ device_index++;
+		set usb=$devices[$device_index];
+		goto exec;
+	end
+	
+	goto scripts_main_quit;
 #main:
 
 
 exec:
 	set current_label="exec";
 	
-	printf "Executing %s's main.\n" "${scripts_basename}";
-	if(! ${?devices} ) \
-		set devices=/dev/sdc[12356];
-	if( ${uid} != 0 ) then
-		set use_sudo="sudo ";
-	else
-		set use_sudo="";
-	endif
+	printf "Executing %s's exec.\n" "${scripts_basename}";
+	printf "\n-----------------** fsck'ing <${usb}> **-----------------\n\tRunning: ${use_sudo}fsck.ext2 -y${check} ${usb}\n";
+	${use_sudo}fsck.ext2 -y${check} "${usb}";
+	printf "\n\n";
+	if( ${status} != 0 ) \
+		goto exec;
 	
-	foreach usb( ${devices} )
-		printf "\n\n----------------- fsck'ing <${usb}>**-----------------\n\tRunning: ${use_sudo}fsck.ext2 -c -y ${usb}\n";
-		${use_sudo}fsck.ext2 -c -y "${usb}";
-	end
-	unset devices usb;
-	goto scripts_main_quit;
+	unset usb;
+	goto main;
 #exec:
 
 
 scripts_main_quit:
 	set current_label="scripts_main_quit";
+	
+	if( ${?devices} ) \
+		unset devices;
+	if( ${?use_sudo} ) \
+		unset use_sudo;
+	if( ${?check} ) \
+		unset check;
 	
 	if( ${?argc} ) \
 		unset argc;
@@ -364,11 +384,7 @@ parse_argv:
 	@ argc=${#argv};
 	
 	if( ${argc} == 0 ) then
-		if(! ${?being_sourced} ) then
-			set callback="exec";
-		else
-			set callback="sourcing_main";
-		endif
+		set callback="if_sourced";
 		goto callback_handler;
 	endif
 	
@@ -477,6 +493,11 @@ parse_arg:
 				set devices=${value};
 				breaksw;
 			
+			case "c":
+			case "check":
+				set check="c";
+				breaksw;
+			
 			case "diagnosis":
 			case "diagnostic-mode":
 				if(! ${?diagnostic_mode} ) set diagnostic_mode;
@@ -551,7 +572,7 @@ parse_arg:
 	endif
 	if( ${?diagnostic_mode} ) then
 		set callback="diagnostic_mode";
-	else if(! ${?callback} ) then
+	else
 		set callback="if_sourced";
 	endif
 	

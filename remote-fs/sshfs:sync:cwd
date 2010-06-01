@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
 set project_name = "`basename '${cwd}'`"
 
-set sshfs_path = "/projects/ssh"
+set sshfs_path = "/art/ssh"
 
 set ssh_user = "dreams"
 set ssh_server = "sky.ocssolutions.com"

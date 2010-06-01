@@ -9,6 +9,7 @@ setenv:
 	set escaped_home_dir=`printf ${HOME} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 	set escaped_starting_cwd=`printf ${cwd} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 	set supports_being_sourced;
+	#set process_each_filename;
 	
 	goto debug_check;
 #goto setenv;
@@ -92,15 +93,27 @@ debug_check:
 		if( -e "$argv[$arg]" ) \
 			continue;
 		
+		if( "$argv[$arg]" == "--" ) then
+			if(! ${?process_each_filename} ) \
+				set process_each_filename;
+			continue;
+		endif
+		
+		if( "$argv[$arg]" == "--!" ) then
+			if( ${?process_each_filename} ) \
+				unset process_each_filename;
+			continue;
+		endif
+		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "$argv[$arg]" >! "${argument_file}";
+		printf "%s" "$argv[$arg]" >! "${argument_file}";
 		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
 		unset argument_file;
 		
-		set option="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
-		set value="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+		set option="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+		set value="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 		if( -e "${value}" ) \
 			continue;
 		
@@ -349,7 +362,11 @@ convert_filename_list:
 	if(!( ${file_count} > 0 )) then
 		printf "\t**Skipping:** ${dashes}${option}${equals}${value} no convertable files were found.\n\n" > /dev/stderr;
 		@ errno=-610;
-		goto parse_arg;
+		if(! ${?process_each_filename} ) then
+			goto scripts_main_quit;
+		else
+			goto parse_arg;
+		endif
 	endif
 	
 	if(! -e "${filename_list}.all" ) then
@@ -369,8 +386,13 @@ convert_filename_list:
 			unset line filename_prev;
 		end
 		set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
-		if(! ${file_count} > 0 ) \
-			goto parse_arg;
+		if(! ${file_count} > 0 ) then	
+			if(! ${?process_each_filename} ) then
+				goto scripts_main_quit;
+			else
+				goto parse_arg;
+			endif
+		endif
 		cat "${filename_list}" >> "${filename_list}.all";
 		set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 	endif
@@ -388,9 +410,9 @@ convert_filenames:
 			printf "\tParsing: ${filename}.\n";
 		ex -s '+1d' '+wq!' "${filename_list}";
 		@ files_processed++;
-		set extension="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/g'`";
+		set extension="`printf "\""%s"\"" "\""${filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/g'`";
 		set original_extension="${extension}";
-		set filename="`printf "\""${filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/g'`";# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`";# | sed -r 's/["\""]/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+		set filename="`printf "\""%s"\"" "\""${filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/g'`";# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`";# | sed -r 's/["\""]/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 		set save_to_filename="${filename}";
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "\tLooking for: ${filename}.${extension}\n";
@@ -401,14 +423,6 @@ convert_filenames:
 		endif
 		
 		if( -e "${save_to_filename}.ogg" ) then
-			if( ! ${?ltrim} && ! ${?rtrim} ) then
-				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
-				if( "${original_extension}" != "ogg" ) \
-					printf ", <file://%s.ogg> already exists, " "${filename}";
-				printf "no advanced conversion options specified.\n\n";
-				continue;
-			endif
-			
 			if( ${?dont_re_encode} ) then
 				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
 				if( "${original_extension}" != "ogg" ) \
@@ -417,17 +431,16 @@ convert_filenames:
 				continue;
 			endif
 			
+			if( "${original_extension}" == "ogg" && ! ${?force} && ! ${?ltrim} && ! ${?rtrim} ) then
+				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
+				if( "${original_extension}" != "ogg" ) \
+					printf ", <file://%s.ogg> already exists, " "${filename}";
+				printf "and no advanced conversion options specified.\n\n";
+				continue;
+			endif
+			
 			if(! ${?force} ) \
 				goto confirm_overwrite;
-			
-			if( ${?ltrim} ) \
-				goto oggconvert;
-			
-			if( ${?rtrim} ) \
-				goto find_length;
-			
-			printf "\t**Skipping:** <file://${filename}.${extension}>; no advanced conversion options specified.\n\n";
-			continue;
 		endif
 		
 		if( "${extension}" != "ogg" || ${?ltrim} ) \
@@ -484,13 +497,15 @@ confirm_overwrite:
 	
 	switch(`printf "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
 		case "a":
+			printf "\tNOTE:\n\t\tYou can run "\`"%s --re-encode=force"\`" to skip this prompt in the future.\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
 			if(! ${?force} ) \
 				set force;
 		case "y":
-			if( ${?ltrim} ) \
+			if( ${?ltrim} || "${original_extension}" != "ogg" ) \
 				goto oggconvert;
 			if( ${?rtrim} ) \
 				goto find_length;
+			
 			printf "\t**Skipping: <file://${filename}.${extension}>; no advanced conversion options specified.\n\n";
 			goto convert_filenames;
 			breaksw;
@@ -500,7 +515,7 @@ confirm_overwrite:
 				set dont_re_encode;
 		case "n":
 		default:
-			printf "\t**Skipping:** <file://%s.ogg>;\n\t\tRun "\`"%s --re-encode"\`" to over-write existing files\n\t\t\tor\n\t\t"\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
+			printf "\t**Skipping:** <file://%s.ogg>;\n\t\tRun "\`"%s --re-encode=force"\`" to over-write existing files\n\t\t\tor\n\t\t"\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
 			@ errno=-4;
 			goto convert_filenames;
 			breaksw;
@@ -528,13 +543,10 @@ oggconvert:
 		
 		if( "${extension}" == "" && ${?combine} ) then
 			set ffmpeg_output_file_options=" -ac 1";#" -ar 44100 -ab 64000";
-			set oggenc_output_file_options=" -q 10";
 		else if( "${extension}" == "ogg" ) then
 			set ffmpeg_input_file_options="${ffmpeg_input_file_options} -acodec vorbis";
-			set oggenc_output_file_options="";#" -q 5";
-		else if( "${extension}" != "" ) then
+		else# if( "${extension}" != "" ) then
 			set ffmpeg_output_file_options=" -ac 1";#" -ab 64000";
-			set oggenc_output_file_options="";#" -q 5";
 		endif
 		
 		if( "${original_extension}" != "wav" || "${ffmpeg_input_file_options}" != "" ) then
@@ -546,7 +558,7 @@ oggconvert:
 				printf "\n\n";
 			endif
 			
-			if( "${filename}" != "${save_to_filename}" ) then
+			if( ${?combine} && "${filename}" != "${save_to_filename}" ) then
 				printf "#\!/bin/tcsh -f\nset echo;\n${ffmpeg} -y${ffmpeg_input_file_options} ${filename}.${extension}${ffmpeg_output_file_options} "\""${save_to_filename}.wav"\""\n" >! "./ffmpeg-combined.tcsh";
 				chmod u+x "./ffmpeg-combined.tcsh";
 				"./ffmpeg-combined.tcsh";
@@ -569,6 +581,14 @@ oggconvert:
 		endif
 	endif
 	
+	if( "${extension}" == "" && ${?combine} ) then
+		set oggenc_output_file_options=" -q 10";
+	else if( "${extension}" == "ogg" ) then
+		set oggenc_output_file_options="";#" -q 5";
+	else if( "${extension}" != "" ) then
+		set oggenc_output_file_options="";#" -q 5";
+	endif
+		
 	printf "\t\t\tEncoding OGG Vorbis file.  Please wait several moments...";
 	
 	${oggenc} ${oggenc_output_file_options} "${save_to_filename}.wav" >& ${output};
@@ -588,8 +608,10 @@ oggconvert:
 	endif
 	
 	printf "\t\t[success]\n";
-	rm "${save_to_filename}.wav";
-	if( "${filename}" != "${save_to_filename}" ) \
+	if( "${original_extension}" != "wav" ) \
+		rm "${save_to_filename}.wav";
+	
+	if( ${?combine} && "${filename}" != "${save_to_filename}" ) \
 		goto scripts_main_quit;
 	
 	if( ${?rtrim} && ! ${?length} ) \
@@ -613,7 +635,7 @@ oggconvert:
 	
 	printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[completed]\n\n";
 	
-	if( ${?transcode} && "${original_extension}" != "ogg") then
+	if( ${?transcode} && "${original_extension}" != "ogg" ) then
 		rm ${transcode} "${filename}.${original_extension}";
 	endif
 	
@@ -639,24 +661,24 @@ find_length:
 	endif
 	
 	set ogginfo_file="${scripts_tmpdir}/.escaped.ogginfo.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-	printf "${filename}" >! "${ogginfo_file}";
+	printf "%s" "${filename}" >! "${ogginfo_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${ogginfo_file}";
 	set escaped_filename="`cat "\""${ogginfo_file}"\""`";
 	rm -f "${ogginfo_file}";
 	unset ogginfo_file;
 	set filename="`printf "\""%s"\"" "\""${escaped_filename}"\""`";
 		
-	set rtrim_hours="`printf "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
-	set rtrim_minutes="`printf "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
-	set rtrim_seconds="`printf "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
+	set rtrim_hours="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
+	set rtrim_minutes="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
+	set rtrim_seconds="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
 	set oggs_length="`${ogginfo} "\""${escaped_filename}.ogg"\"" | /bin/grep --perl-regexp 'Playback length:'`";
-	set oggs_hours="`printf "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]+)(h:)([0-9]+)(m:)([0-9]+)\..*"\$"/\1/'`";
+	set oggs_hours="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]+)(h:)([0-9]+)(m:)([0-9]+)\..*"\$"/\1/'`";
 	if( "${oggs_hours}" == "${oggs_length}" ) \
 		set oggs_hours="00";
-	set oggs_minutes="`printf "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\1/'`";
+	set oggs_minutes="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\1/'`";
 	if( "${oggs_minutes}" == "${oggs_length}" ) \
 		set oggs_minutes="00";
-	set oggs_seconds="`printf "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\3/'`";
+	set oggs_seconds="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\3/'`";
 	if( "${oggs_seconds}" == "${oggs_length}" ) \
 		set oggs_seconds="00";
 	
@@ -847,26 +869,38 @@ parse_arg:
 		if( ${?debug} || ${?debug_arguments} ) \
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 		
+		if( "$argv[$arg]" == "--" ) then
+			if(! ${?process_each_filename} ) \
+				set process_each_filename;
+			continue;
+		endif
+		
+		if( "$argv[$arg]" == "--!" ) then
+			if( ${?process_each_filename} ) \
+				unset process_each_filename;
+			continue;
+		endif
+		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "$argv[$arg]" >! "${argument_file}";
+		printf "%s" "$argv[$arg]" >! "${argument_file}";
 		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
 		unset argument_file;
 		
-		set dashes="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
+		set dashes="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
 		if( "${dashes}" == "${argument}" ) \
 			set dashes="";
 		
-		set option="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+		set option="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
 		if( "${option}" == "${argument}" ) \
 			set option="";
 		
-		set equals="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
+		set equals="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
 		if( "${equals}" == "${argument}" ) \
 			set equals="";
 		
-		set value="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+		set value="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 		
 		
 		if( ${?debug} || ${?debug_arguments} ) \
@@ -881,27 +915,27 @@ parse_arg:
 					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 				
 				set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-				printf "$argv[$arg]" >! "${argument_file}";
+				printf "%s" "$argv[$arg]" >! "${argument_file}";
 				ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 				set test_argument="`cat "\""${argument_file}"\""`";
 				rm -f "${argument_file}";
 				unset argument_file;
 				
-				set test_dashes="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
+				set test_dashes="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
 				if( "${test_dashes}" == "${test_argument}" ) \
 					set test_dashes="";
 				
-				set test_option="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+				set test_option="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
 				if( "${test_option}" == "${test_argument}" ) \
 					set test_option="";
 				
-				set test_equals="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
+				set test_equals="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
 				if( "${test_equals}" == "${test_argument}" ) \
 					set test_equals="";
 				
-				set test_value="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+				set test_value="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 				
-				if( "${test_dashes}" != "" && "${test_option}" != "" && "${test_equals}" != "" && ( "${test_value}" == "" || "${test_value}" == "${test_argument}" ) ) then
+				if(!( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" )) then
 					@ arg--;
 				else
 					if( ${?debug} || ${?debug_arguments} ) \
@@ -981,7 +1015,7 @@ parse_arg:
 			
 			case "playlist":
 				if( "${value}" != "" ) then
-					set playlist_type="`printf "\""${value}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/'`";
+					set playlist_type="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/'`";
 				else
 					set playlist_type="m3u";
 				endif
@@ -1064,6 +1098,22 @@ parse_arg:
 			case "no-re-encode":
 				if(! ${?dont_re_encode} ) \
 					set dont_re_encode;
+				if( ${?re_encode} ) \
+					unset re_encode;
+				breaksw;
+			
+			case "re-encode":
+				switch("${value}")
+					case "force":
+						set value_used;
+						if(! ${?force} ) \
+							set force;
+					default:
+						if(! ${?re_encode} ) \
+							set re_encode;
+						if( ${?dont_re_encode} ) \
+							unset dont_re_encode;
+				endsw
 				breaksw;
 			
 			case "force":
@@ -1077,6 +1127,15 @@ parse_arg:
 						if(! ${?be_verbose} ) \
 							set be_verbose;
 						breaksw;
+					
+					case "reencode":
+					case "re-encode":
+						if(! ${?re_encode} ) \
+							set re_encode;
+						if( ${?dont_re_encode} ) \
+							unset dont_re_encode;
+						breaksw;
+					
 					
 					case "force":
 						if(! ${?force} ) \
@@ -1105,6 +1164,8 @@ parse_arg:
 					
 					case "reencode":
 					case "re-encode":
+						if( ${?re_encode} ) \
+							unset re_encode;
 						if(! ${?dont_re_encode} ) \
 							set dont_re_encode;
 						breaksw;
@@ -1127,10 +1188,16 @@ parse_arg:
 				endsw
 				breaksw;
 			
-			default:
+			case "":
 				if( -e "${value}" ) then
 					set value_used;
 					goto filename_list_append_value;
+					breaksw;
+				endif
+			
+			default:
+				if( -e "${value}") then
+					set value="";
 				endif
 				
 				printf "**${scripts_basename} error:** ${dashes}${option}${equals}${value} is an unsupported option.\n\nSee "\`"${scripts_basename} -h|--help"\`" for more information.\n" > /dev/stderr;
@@ -1162,6 +1229,9 @@ parse_argv_quit:
 	if( ${?debug_arguments} ) \
 		goto scripts_main_quit;
 	
+	if(! ${?process_each_filename} ) \
+		goto convert_filename_list;
+	
 	goto scripts_main_quit;
 #goto parse_argv_quit;
 
@@ -1191,7 +1261,12 @@ filename_list_append_value:
 		else
 			find -L "${value}" | sort >> "${filename_list}";
 		endif
-		goto convert_filename_list;
+		
+		if(! ${?process_each_filename} ) then
+			goto parse_arg;
+		else
+			goto convert_filename_list;
+		endif
 	endif
 	
 	if( ${?debug} || ${?debug_filelist} ) then
@@ -1211,7 +1286,12 @@ filename_list_append_value:
 	else
 		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${filename_list}";
 	endif
-	goto convert_filename_list;
+	
+	if(! ${?process_each_filename} ) then
+		goto parse_arg;
+	else
+		goto convert_filename_list;
+	endif
 #goto filename_list_append_value;
 
 

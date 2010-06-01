@@ -418,7 +418,7 @@ fetch_episodes:
 			set episodes_title="`printf "\""%s"\"" "\""${episodes_file}"\"" | sed -r 's/(.*)\/([^\/]+)\.([^.]+)"\$"/\1/'`";
 		
 		if( "${episodes_pubdate}" != "" ) then
-			set episodes_filename="${episodes_title}, released on: ${episodes_pubdate}.${episodes_extension}";
+			set episodes_filename="${episodes_title}; released on: ${episodes_pubdate}.${episodes_extension}";
 		else
 			set episodes_filename="${episodes_title}.${episodes_extension}";
 		endif

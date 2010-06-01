@@ -141,6 +141,7 @@ artistic_canvas:
 					"--tab-with-profile=projects:cli --title='[@/cli] #>' --working-directory=/projects/cli" \
 					"--tab-with-profile=projects:cli --title='[@/profile.d] #>' --working-directory=/profile.d" \
 					"--tab-with-profile=projects:cli --title='[@console.pallet] #>' --working-directory=/projects/cli/console.pallet" \
+					"--tab-with-profile=projects:cli --title='[@most] #>' --working-directory=/projects/cli/most" \
 			);
 			breaksw;
 	
@@ -169,8 +170,7 @@ artistic_canvas:
 		case  "Projects":
 			set my_canvas=( \
 				"--tab-with-profile=projects:games --title='[@many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
-				"--tab-with-profile=projects:cli --title='[@console.pallet] #>' --working-directory=/projects/cli/console.pallet" \
-				"--tab-with-profile=projects:cli --title='[@alacast.v1] #>' --working-directory=/projects/cli/alacast" \
+				"--tab-with-profile=projects:cli --title='[@cli] #>' --working-directory=/projects/cli" \
 				"--tab-with-profile=projects:www --title='[@a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=projects:gtk --title='[@get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \
 				"--tab-with-profile=projects:gtk --title='[@alacast-gtk] #>' --working-directory=/projects/gtk/alacast" \
@@ -183,6 +183,7 @@ artistic_canvas:
 				"--tab-with-profile=projects:games --title='[@...many-worlds] #>' --working-directory=/art/games/my-games/many-worlds" \
 				"--tab-with-profile=projects:cli --title='[@cli] #>' --working-directory=/projects/cli" \
 				"--tab-with-profile=projects:cli --title='[@...console.pallet] #>' --working-directory=/projects/cli/console.pallet" \
+				"--tab-with-profile=projects:cli --title='[@...most] #>' --working-directory=/projects/cli/most" \
 				"--tab-with-profile=projects:cli --title='[@...alacast.v1] #>' --working-directory=/projects/cli/alacast" \
 				"--tab-with-profile=projects:art --title='[@art] #>' --working-directory=/art" \
 				"--tab-with-profile=projects:www --title='[@www] #>' --working-directory=/art/www" \
@@ -196,7 +197,7 @@ artistic_canvas:
 		case "Artistic":
 		default:
 			set my_canvas=( \
-				"--tab-with-profile=projects:cli --title='[@console.pallet>] #>' --working-directory=/projects/cli/console.pallet" \
+				"--tab-with-profile=projects:cli --title='[@cli] #>' --working-directory=/projects/cli" \
 				"--tab-with-profile=projects:www --title='[@a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=projects:media --title='[@media] #>'  --working-directory=/media" \
 				"--tab-with-profile=projects:gtk --title='[@alacast.v2] #>' --working-directory=/projects/gtk/alacast" \

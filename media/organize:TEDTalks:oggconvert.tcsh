@@ -16,15 +16,15 @@ cd "${video_path}";
 foreach video("`/usr/bin/find . -regextype posix-extended -iregex '(mp4|m4v)' -type f`")
 	set video="`echo "\""${video}"\"" | sed 's/\(\!\)/\\\1/g'`";
 	${oggconvert} "${video}";
-	#set tedtalk_video_with_extension="`echo '${video}' | sed 's/\(.*\)\(, released on[^\.]\+\)\?\.\([^\.]\+$\)/\1\.\3/g'`";
-	set new_ogg="`echo "\""${video}"\"" | sed -r 's/(.*)(, released on[^\.]+)?\.([^\.]+)"\$"/\1\2\.ogg/g'`";
-	set tedtalk="`echo "\""${video}"\"" | sed -r 's/(.*)(, released on[^\.]+)?\.([^\.]+)"\$"/\1/g'`";
+	#set tedtalk_video_with_extension="`echo '${video}' | sed 's/\(.*\)\(; released on[^\.]\+\)\?\.\([^\.]\+$\)/\1\.\3/g'`";
+	set new_ogg="`echo "\""${video}"\"" | sed -r 's/(.*)(; released on[^\.]+)?\.([^\.]+)"\$"/\1\2\.ogg/g'`";
+	set tedtalk="`echo "\""${video}"\"" | sed -r 's/(.*)(; released on[^\.]+)?\.([^\.]+)"\$"/\1/g'`";
 	if( "`/usr/bin/find "\""${ogg_path}"\"" -name "\""${tedtalk}*.ogg"\""`" != "" ) then
 		printf "Skipping existing OGG Vorbis:\n\t%s\n" "${tedtalk}";
 		continue;
 	endif
 	
-	#set pubDate="`echo '${video}' | sed -r 's/(.*)(, released on[^\.]+)?\.([^\.]+)"\$"/\2/g'`";
-	#set extension="`echo '${video}' | sed -r 's/(.*)(, released on[^\.]+)?\.([^\.]+)"\$"/\3/g'`";
+	#set pubDate="`echo '${video}' | sed -r 's/(.*)(; released on[^\.]+)?\.([^\.]+)"\$"/\2/g'`";
+	#set extension="`echo '${video}' | sed -r 's/(.*)(; released on[^\.]+)?\.([^\.]+)"\$"/\3/g'`";
 	mv "${new_ogg}" "${ogg_path}/${tedtalk}.ogg"
 end

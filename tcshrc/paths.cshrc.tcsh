@@ -24,6 +24,7 @@ if( "${cwd}" != "${TCSH_RC_SESSION_PATH}" ) then
 	endif
 	cd "${TCSH_RC_SESSION_PATH}";
 endif
+
 source "${TCSH_RC_SESSION_PATH}/source:argv" art:alacast.cshrc.tcsh art:paths.cshrc.tcsh paths:programs.cshrc.tcsh;
 
 #source "paths:lib.cshrc.tcsh";

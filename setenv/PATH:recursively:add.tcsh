@@ -10,70 +10,83 @@ if( $args_handled > 0 ) then
 	end
 	unset args_shifted;
 endif
+@ arg=$args_handled;
+@ argc=${#argv};
 unset args_handled;
 
 set maxdepth="";
 set mindepth="";
 set find_name_argv="";
+set follow_symlinks="-L";
 next_argv:
-while("${1}" != "" )
+while( $arg < $argc )
+	@ arg++;
 	set status=0;
-	set option="`printf "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
-	set value="`printf "\""${1}"\"" | sed -r 's/[\-]{1,2}([^=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
+	set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/[\-]{1,2}([^=]+)=?(.*)/\1/'`";
+	set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/[\-]{1,2}([^=]+)=?(.*)/\2/'`";
 	switch("${option}")
 		case "sub-directory-name-restriction":
 		case "filter":
 		case "f":
 			set find_name_argv=" -name '${value}'";
-			shift;
-			breaksw;
+			continue;
+		
+		case "follow":
+		case "follow-symlinks":
+			set follow_symlinks="-L";
+			continue;
+		
+		case "no-follow":
+			set follow_symlinks="-H";
+			continue;
 		
 		case "maxdepth":
 			set maxdepth=" -maxdepth ${value}";
-			shift;
-			breaksw;
+			continue;
 		
 		case "mindepth":
 			set mindepth=" -mindepth ${value}";
-			shift;
-			breaksw;
+			continue;
 		
 		case "h":
 		case "help":
 			goto usage;
-			breaksw;
+			continue;
+		
 		default:
 			breaksw;
 	endsw
-	unset option value;
 	
-	if(!( "${1}" != "" && -d "${1}" )) then
-		if( "${2}" != "" ) then
-			shift;
-			goto next_argv;
-		endif
+	if(!( "${value}" != "" && -d "${value}" )) then
 		set status=-1;
 		if( ${?TCSH_OUTPUT_ENABLED} ) \
-			printf "[%s] is not an existing directory.\n\n" "${1}" > /dev/stderr;
-		shift;
+			printf "[%s] is not an existing directory.\n\n" "${value}" > /dev/stderr;
 		continue;
 	endif
 	
 	set new_path="";
-	set search_dir="`echo '${1}' | sed -r 's/(.*)\/?"\$"/\1/'`";
-	shift;
-	if( ${?TCSH_RC_DEBUG} ) echo "\nRecusively looking for possible paths is: <${search_dir}> using:\n\tfind -L '${search_dir}' -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d\n";
 	
-	set escaped_recusive_dir="`echo '${search_dir}' | sed -r 's/\//\\\//g'`";
-	foreach dir ( "`find -L '${search_dir}' -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d`" )
+	set old_owd="${owd}";
+	cd "${value}";
+	set search_dir="${cwd}";
+	cd "${owd}";
+	set owd="${old_owd}";
+	
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "\nRecusively looking for possible paths in: <${search_dir}> using:\n\tfind ${follow_symlinks} "\""${search_dir}"\"" -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \! -iregex '.*\/\..*'\n";
+	
+	set escaped_recusive_dir="`printf "\""%s"\"" "\""${search_dir}"\"" | sed -r 's/\//\\\//g'`";
+	foreach dir ( "`find ${follow_symlinks} "\""${search_dir}"\"" -ignore_readdir_race${maxdepth}${mindepth}${find_name_argv} -type d \! -iregex '.*\/\..*'`" )
 		if( "${dir}" == "" ) continue;
-		if( "`echo '${dir}' | sed -r 's/${escaped_recusive_dir}(\.).*/\1/'`" == "." ) continue;
-		set escaped_dir="`echo '${dir}' | sed -r 's/.*\/([^\/]+)/\1/'`";
-		switch( "${escaped_dir}" )
+		if( "`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/${escaped_recusive_dir}(\.).*/\1/'`" == "." ) continue;
+		set escaped_dir="`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/.*\/([^\/]+)/\1/'`";
+		switch( "${dir}" )
 			case "tmp":
 			case "lost+found":
 			#case "reference":
 			#case "templates":
+				if( ${?TCSH_RC_DEBUG} ) \
+					printf "Skipping <file://%s/%s>\n" "${search_dir}" "${dir}"
 				continue;
 				breaksw;
 			
@@ -105,14 +118,17 @@ while("${1}" != "" )
 	unset dir escaped_dir new_path find_name_argv;
 end
 
-	if( ${status} != 0 ) goto usage;
+	if( ${status} != 0 ) \
+		goto usage;
 
 main_quit:
+	unset option value;
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "PATH:recursively:add.tcsh";
 	
 	exit ${status};
 
 usage:
 	printf "Usage: PATH:recursively:add.tcsh directory_to_recursively search and add sub-directory.\n";
-	if( ${?option} ) goto next_argv:
+	if( ${?option} ) \
+		goto next_argv:
 	goto main_quit;

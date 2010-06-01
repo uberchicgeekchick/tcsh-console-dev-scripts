@@ -83,7 +83,6 @@ while( $arg < $argc )
 		switch( "`basename "\""${dir}"\""`" )
 			case "tmp":
 			case "lost+found":
-			case "${USER}":
 			#case "reference":
 			#case "templates":
 				if( ${?TCSH_RC_DEBUG} ) \

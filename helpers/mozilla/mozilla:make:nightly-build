@@ -51,10 +51,14 @@ parse_argv:
 		#	goto configure;
 			
 		switch( "${1}" )
-			case "--non-optimize":
-			case "0":
+			case "-O=0":
+			case "-O=none":
+			case "--optimize=no":
+			case "--non-optimized":
+			case "--optimization=none":
 				setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
 				breaksw;
+			
 			case "--disable=exec":
 				set no_exec;
 				breaksw;
@@ -89,6 +93,12 @@ parse_argv:
 				printf "					\
 	Supported options are:							\
 		--help			Displays this screen.			\
+										\
+		-O=0								\
+		-O=none								\
+		--optimize=no							\
+		--non-optimized							\
+		--optimization=none	These disable GCC optimization.		\
 										\
 		--disable=exec		Only valid for when building		\
 					firefox or thunderbird and stops	\

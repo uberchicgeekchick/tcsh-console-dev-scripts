@@ -1,5 +1,13 @@
 #!/bin/tcsh -f
 init:
+	if( ${?SSH_CONNECTION} ) then
+		set stdout=/dev/null;
+		set stderr=/dev/null;
+	else
+		set stdout=/dev/stdout;
+		set stderr=/dev/stdout;
+	endif
+	
 	set supports_being_source;
 	set scripts_basename="find";
 	
@@ -10,29 +18,55 @@ init:
 
 check_dependencies:
 	set dependencies=("${scripts_basename}");
+	@ dependencies_index=0;
 	
-	foreach dependency(${dependencies})
-		foreach dependency("`where '${dependency}'`")
-			if(! -x "${dependency}" ) continue;
+	while( $dependencies_index < ${#dependencies} )
+		@ dependencies_index++;
+		set dependency=$dependencies[$dependencies_index];
+		#if( ${?debug} ) \
+			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}; "\$"dependencies[%d].\n\n" $dependencies_index > ${stdout};
 			
-			switch("${dependency}")
-				case "${scripts_basename}":
-				case "./${dependency}":
-				case "${TCSH_LAUNCHER_PATH}/${dependency}":
-					continue;
+		foreach exec("`where '${dependency}'`")
+			if(! -x "${exec}" ) then
+				unset exec;
+				continue;
+			endif
+			
+			#if( ${?debug} ) \
+				printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}, "\$"dependencies[%d], against: %s.\n\n" $dependencies_index "${exec}" > ${stdout};
+			switch("${exec}")
+				case "./${scripts_basename}":
+				case "${TCSH_LAUNCHER_PATH}/${scripts_basename}":
+					if( ${?scripts_dirname} ) \
+						breaksw;
+						
+					set old_owd="${cwd}";
+					cd "`dirname '${exec}'`";
+					set scripts_dirname="${cwd}";
+					cd "${owd}";
+					set owd="${old_owd}";
+					unset old_owd;
+					set script="${scripts_dirname}/${scripts_basename}";
+					unset exec;
+					breaksw;
+				
+				default:
+					switch("`basename "\""${exec}"\""`")
+						case "find":
+							set program="${exec}";
+							breaksw;
+					endsw
 					breaksw;
 			endsw
-			break;
 		end
-		
-		if(! ${?program} ) \
-			set program="${dependency}";
-		
-		if(!( -x ${dependency} && -x ${program} )) \
-			goto missing_dependency;
-		
-		unset dependency;
 	end
+	
+	if(! ${?program} ) \
+		set program="";
+	
+	if(! -x "${program}" ) \
+		goto missing_dependency;
+		
 	
 	unset dependency dependencies;
 #check_dependencies:
@@ -53,12 +87,6 @@ if_sourced:
 	# END: disable source scripts_basename.
 	
 	# BEGIN: source scripts_basename support.
-	if(! ${?TCSH_RC_SESSION_PATH} ) \
-		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-	
-	if(! ${?TCSH_LAUNCHER_PATH} ) \
-		setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
-	
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 	if( $args_handled > 0 ) then
 		@ args_shifted=0;
@@ -71,7 +99,7 @@ if_sourced:
 	unset args_handled;
 	
 	# START: special handler for when this file is sourced.
-	alias ${scripts_basename} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
+	alias ${scripts_basename} "${script}";
 	# FINISH: special handler for when this file is sourced.
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
@@ -89,15 +117,7 @@ main:
 		goto usage;
 	endif
 	
-	set old_owd="${cwd}";
-	cd "`dirname '${0}'`";
-	set scripts_path="${cwd}";
-	cd "${owd}";
 	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
-	set owd="${old_owd}";
-	unset old_owd;
-	
-	set script="${scripts_path}/${scripts_basename}";
 	
 	set follow_symlinks="L";
 	set regextype="posix-extended"
@@ -112,12 +132,12 @@ exec:
 	set status=0;
 	if(! ${?SURPRESS_STDERR} ) then
 		if( ${?debug} ) \
-			printf "( %s -%s %s -regextype %s $argv > /dev/tty ) >& /dev/stderr;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
-		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} $argv > /dev/tty ) >& /dev/stderr;
+			printf "( %s -%s %s -regextype %s "\""${argz}"\"" > /dev/tty ) >& /dev/stderr;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
+		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} "${argz}" > /dev/tty ) >& /dev/stderr;
 	else
 		if( ${?debug} ) \
-			printf "( %s -%s %s -regextype %s $argv > /dev/tty ) >& /dev/null;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
-		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} $argv > /dev/tty ) >& /dev/null;
+			printf "( %s -%s %s -regextype %s "\""${argz}"\"" > /dev/tty ) >& /dev/null;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
+		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} "${argz}" > /dev/tty ) >& /dev/null;
 	endif
 	goto script_main_quit;
 #exec:
@@ -252,7 +272,7 @@ parse_arg:
 					@ arg--;
 				else
 					set equals="=";
-					set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+					set value="${test_value}";#"`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 					set arg_shifted;
 				endif
 				unset test_dashes test_option test_equals test_value;
@@ -339,9 +359,9 @@ parse_arg:
 				endif
 				
 				if( "${argz}" == "" ) then
-					set argz="$argv[$arg]";
+					set argz="${parsed_arg}";
 				else
-					set argz="${argz} $argv[$arg]";
+					set argz=("${argz}" "\n" "${parsed_arg}");
 				endif
 				breaksw;
 		endsw

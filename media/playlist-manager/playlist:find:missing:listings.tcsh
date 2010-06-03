@@ -253,6 +253,14 @@ find_missing_media:
 		endif
 		
 		set podcast_dir="`dirname "\""${this_podcast}"\""`";
+		
+		if(! ${?last_checked_directory} ) then
+			set last_checked_directory="${podcast_dir}";
+		else if( "${last_checked_directory}" != "${podcast_dir}" ) then
+			set last_checked_directory="${podcast_dir}";
+			printf "\n";
+		endif
+		
 		set podcast_dir_for_ls="`dirname "\""${this_podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 		while( "${podcast_dir}" != "/" )
 			if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
@@ -267,7 +275,6 @@ find_missing_media:
 			set podcast_dir="`dirname "\""${podcast_cwd}"\""`";
 			set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 		end
-		printf "\n";
 		
 		if(! ${?duplicates_subdirs} ) then
 			if( ${?podcast_cwd} ) \
@@ -309,7 +316,6 @@ find_missing_media:
 				set podcast_dir="`dirname "\""${podcast_cwd}"\""`";
 				set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 			end
-			printf "\n";
 		end
 		
 		if(${?podcast_cwd}) \

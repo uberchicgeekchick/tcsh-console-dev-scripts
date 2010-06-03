@@ -198,7 +198,7 @@ delete:
 playlists:
 	set playlist_dir="/media/podcasts/playlists/m3u";
 	foreach playlist("`/bin/ls --width=1 -t "\""${playlist_dir}"\""`")
-		set playlist_escaped="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/([.])/\\\1/g'`";
+		set playlist_escaped="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/([\/.])/\\\1/g'`";
 		if(! ${?playlist_count} ) then
 			@ playlist_count=1;
 		else

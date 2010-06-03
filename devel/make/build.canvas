@@ -34,7 +34,12 @@ if( `alias grep` != "" ) then
 endif
 
 #setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3";
-setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
+
+if( "${1}" == "--disable=optimize" || "${1}" == "--no-optimization" || "${1}" == "--do-not-optimize" ) then
+	setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
+else
+	setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3 -g3 -ggdb -ffast-math";
+endif
 
 #setenv MAKEFLAGS "-Wall -Wextra -Werror -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
 setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";

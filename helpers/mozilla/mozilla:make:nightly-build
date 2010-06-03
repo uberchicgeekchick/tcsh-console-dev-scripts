@@ -17,7 +17,7 @@ init:
 	
 	
 	#setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3";
-	setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
+	setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3 -g3 -ggdb -ffast-math";
 	
 	#setenv MAKEFLAGS "-Wall -Wextra -Werror -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
 	setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -Wall -Wextra -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
@@ -51,6 +51,10 @@ parse_argv:
 		#	goto configure;
 			
 		switch( "${1}" )
+			case "--non-optimize":
+			case "0":
+				setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
+				breaksw;
 			case "--disable=exec":
 				set no_exec;
 				breaksw;

@@ -76,9 +76,9 @@ clean_up:
 move:
 	set podiobooks=( \
 	"\n" \
-"/media/podcasts/StarShipSofa/Aural Delights No 139 Philip K. Dick Juliette Wade, released on: Wed, 02 Jun 2010 03:11:13 GMT.mp3" \
+"/media/podiobooks/Latest/Prince of Hazel and Oak, The/06. Hazelandoak 06 - The Prince of Hazel and Oak, released on: Thu, 03 Jun 2010 07:01:23 GMT.ogg" \
 	"\n" \
-"/media/podcasts/PodCastle/PodCastle 106: Little Gods, released on: Wed, 02 Jun 2010 03:17:38 GMT.mp3" \
+"/media/podiobooks/Latest/Time Crystal 02/17. TimeCrystalVol2-17 - Time Crystal 02, released on: Wed, 02 Jun 2010 07:01:40 GMT.ogg" \
 	"\n" \
 	);
 	
@@ -127,15 +127,7 @@ move:
 
 back_up:
 	set slashdot=( \
-"/media/podcasts/slash./Intelligence Density and the Creative Class, released on: Sat, 29 May 2010 15:57:00 GMT.ogg" \
 	"\n" \
-"/media/podcasts/slash./Design Contest Highlights Video Games With a Purpose, released on: Sun, 30 May 2010 16:36:00 GMT.ogg" \
-	"\n" \
-"/media/podcasts/slash./Physics Platformer Gish Goes Open Source, released on: Sun, 30 May 2010 15:15:00 GMT.ogg" \
-	"\n" \
-"/media/podcasts/slash./Smokescreen, a JavaScript-Based Flash Player, released on: Tue, 01 Jun 2010 18:17:00 GMT.ogg" \
-	"\n" \
-"/media/podcasts/slash./Tetris Clones Pulled From Android Market, released on: Fri, 28 May 2010 10:48:00 GMT.ogg" \
 	"\n" \
 	);
 	
@@ -161,9 +153,6 @@ back_up:
 delete:
 	set to_be_deleted=( \
 	"\n" \
-"/media/podcasts/TEDTalks (video)/Brian Skerry reveals ocean's glory -- and horror - Brian Skerry (2010), released on: Wed, 02 Jun 2010 02:36:00 GMT.mp4" \
-	"\n" \
-"/media/podcasts/APM: Future Tense/Where are books going?, released on: Wed, 02 Jun 2010 15:27:28 GMT.mp3" \
 	"\n" \
 	);
 	
@@ -177,18 +166,18 @@ delete:
 					rm -v \
 						"${podcast}";
 				endif
+			endif
 			unset podcast;
 		end
 		unset to_be_deleted;
 	endif
 	
-	set dirs_to_delete=( \
-	"\n" \
+	set directories_to_delete=( \
 	"\n" \
 	);
 	
-	if( ${?dirs_to_delete} ) then
-		foreach podcast( "`printf "\""${dirs_to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+	if( ${?directories_to_delete} ) then
+		foreach podcast( "`printf "\""${directories_to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" ) then
 				set podcast_dir="`dirname "\""${podcast}"\""`";
 				if( "${podcast_dir}" != "/media/podcasts" && -d "${podcast_dir}" ) \
@@ -197,7 +186,7 @@ delete:
 			endif
 			unset podcast_dir podcast;
 		end
-		unset dirs_to_delete;
+		unset directories_to_delete;
 	endif
 	
 	if( -d "/media/podcasts/Slashdot" ) \

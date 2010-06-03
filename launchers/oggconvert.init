@@ -5,7 +5,7 @@ setenv:
 	set scripts_basename="oggconvert";
 	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
-	set scripts_supported_extensions="ogg|mp3|m4a|wav";
+	set scripts_supported_extensions="ogg|mp3|m4a|wma|wav";
 	set escaped_home_dir=`printf ${HOME} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 	set escaped_starting_cwd=`printf ${cwd} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 	set supports_being_sourced;
@@ -350,8 +350,17 @@ convert_filename_list:
 	if(! ${?filename_list} ) \
 		goto usage;
 	
-	if( ${?length} ) \
+	if( ${?length} && ! ${?length_set} ) then
 		unset length;
+	else if( ${?length_set} && ${?rtrim} ) then
+		printf "\t**Error:** both --length and --rtrim cannot be specified at the same time.\n\n" > /dev/stderr;
+		@ errno=-610;
+		if(! ${?process_each_filename} ) then
+			goto scripts_main_quit;
+		else
+			goto parse_arg;
+		endif
+	endif
 	
 	onintr cancel_convert;
 	
@@ -360,11 +369,12 @@ convert_filename_list:
 	
 	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 	if(!( ${file_count} > 0 )) then
-		printf "\t**Skipping:** ${dashes}${option}${equals}${value} no convertable files were found.\n\n" > /dev/stderr;
 		@ errno=-610;
 		if(! ${?process_each_filename} ) then
+			printf "\tNo convertable files were found.\n\n" > /dev/stderr;
 			goto scripts_main_quit;
 		else
+			printf "\t**Skipping:** ${dashes}${option}${equals}${value} no convertable files were found.\n\n" > /dev/stderr;
 			goto parse_arg;
 		endif
 	endif
@@ -431,7 +441,7 @@ convert_filenames:
 				continue;
 			endif
 			
-			if( "${original_extension}" == "ogg" && ! ${?force} && ! ${?ltrim} && ! ${?rtrim} ) then
+			if( "${original_extension}" == "ogg" && ! ${?force} && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
 				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
 				if( "${original_extension}" != "ogg" ) \
 					printf ", <file://%s.ogg> already exists, " "${filename}";
@@ -443,7 +453,7 @@ convert_filenames:
 				goto confirm_overwrite;
 		endif
 		
-		if( "${extension}" != "ogg" || ${?ltrim} ) \
+		if( "${extension}" != "ogg" || ${?ltrim} || ${?length} ) \
 			goto oggconvert;
 		
 		if( ${?rtrim} ) \
@@ -501,7 +511,7 @@ confirm_overwrite:
 			if(! ${?force} ) \
 				set force;
 		case "y":
-			if( ${?ltrim} || "${original_extension}" != "ogg" ) \
+			if( ${?ltrim} || ${?length} || "${original_extension}" != "ogg" ) \
 				goto oggconvert;
 			if( ${?rtrim} ) \
 				goto find_length;
@@ -533,9 +543,17 @@ oggconvert:
 		set ffmpeg_input_file_options="";
 		set ffmpeg_output_file_options="";
 		
-		if( ${?length} ) then
-			printf "\n\t\tRemoving: [%s] from the end of:\n\t\t<%s.%s>\n" "${rtrim}" "${save_to_filename}" "${original_extension}";
+		if( ${?length} && ( ${?rtrim} || ! ${?ltrim} ) ) then
+			if( ${?rtrim} ) then
+				printf "\n\t\tRemoving: [%s] from the end of:\n\t\t<%s.%s>\n" "${rtrim}" "${save_to_filename}" "${original_extension}";
+			else
+				printf "\n\t\tLimiting: [%s] as the maximum length of:\n\t\t<%s.%s>\n" "${length}" "${save_to_filename}" "${original_extension}";
+			endif
 			set ffmpeg_input_file_options=" -t ${length}";
+		else if( ${?ltrim} && ${?length} ) then
+			printf "\n\t\tTrimming: [%s] from the begining of:\n\t\t<%s.%s>\n" "${ltrim}" "${save_to_filename}" "${original_extension}";
+			printf "\n\t\t\tand limiting its maximum length to: [%s].\n" "${length}";
+			set ffmpeg_input_file_options=" -t ${length} -ss ${ltrim}";
 		else if( ${?ltrim} ) then
 			printf "\n\t\tTrimming: [%s] from the begining of:\n\t\t<%s.%s>\n" "${ltrim}" "${save_to_filename}" "${original_extension}";
 			set ffmpeg_input_file_options=" -ss ${ltrim}";
@@ -783,6 +801,9 @@ init_combine:
 	if(! ${?combine} ) \
 		goto scripts_main_quit;
 	
+	if( ${?length} ) \
+		unset length;
+	
 	@ files_combined=1;
 	set extension="";
 	set output="/dev/stdout";
@@ -962,32 +983,19 @@ parse_arg:
 			printf "\tparsed option "\$"parsed_argv[%d]: %s\n\n" ${parsed_argc} "${parsed_arg}";
 		
 		switch("${option}")
-			case "no-rtrim":
-				if( ${?rtrim} ) \
-					unset rtrim;
-				breaksw;
-				
 			case "no-ltrim":
 				if( ${?ltrim} ) \
 					unset ltrim;
 				breaksw;
-				
-			case "rtrim":
-				if( "${value}" == "" ) then
-					if( ${?rtrim} ) \
-						unset rtrim;
-					breaksw;
-				endif
-				
-				if( "`printf "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
-					printf "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
-					@ errno=-601;
-					goto scripts_main_quit;
-					breaksw;
-				endif
-				
-				set rtrim="${value}";
-				set value_used;
+			
+			case "no-lenth":
+				if( ${?lenth} ) \
+					unset lenth;
+				breaksw;
+			
+			case "no-rtrim":
+				if( ${?rtrim} ) \
+					unset rtrim;
 				breaksw;
 			
 			case "ltrim":
@@ -1005,6 +1013,45 @@ parse_arg:
 				endif
 				
 				set ltrim="${value}";
+				set value_used;
+				breaksw;
+			
+			case "length":
+				if( "${value}" == "" ) then
+					if( ${?length} ) \
+						unset length;
+					if( ${?lengt_set} ) \
+						unset length_set;
+					breaksw;
+				endif
+				
+				if( "`printf "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
+					printf "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
+					@ errno=-602;
+					goto scripts_main_quit;
+					breaksw;
+				endif
+				
+				set length="${value}";
+				set length_set;
+				set value_used;
+				breaksw;
+			
+			case "rtrim":
+				if( "${value}" == "" ) then
+					if( ${?rtrim} ) \
+						unset rtrim;
+					breaksw;
+				endif
+				
+				if( "`printf "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
+					printf "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
+					@ errno=-601;
+					goto scripts_main_quit;
+					breaksw;
+				endif
+				
+				set rtrim="${value}";
 				set value_used;
 				breaksw;
 			
@@ -1243,10 +1290,10 @@ filename_list_append_value:
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
 	
-	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|wav" && ! ${?ltrim} && ! ${?rtrim} ) then
-		set scripts_supported_extensions="mp3|m4a|wav";
-	else if( "${scripts_supported_extensions}" == "mp3|m4a|wav" && ( ${?ltrim} || ${?rtrim} ) ) then
-		set scripts_supported_extensions="ogg|mp3|m4a|wav";
+	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|wma|wav" && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
+		set scripts_supported_extensions="mp3|m4a|wma|wav";
+	else if( "${scripts_supported_extensions}" == "mp3|m4a|wma|wav" && ( ${?ltrim} || ${?rtrim} || ${?length} ) ) then
+		set scripts_supported_extensions="ogg|mp3|m4a|wma|wav";
 	endif
 	
 	if(! ${?scripts_supported_extensions} ) then

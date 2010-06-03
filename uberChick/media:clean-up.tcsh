@@ -203,11 +203,15 @@ playlists:
 			@ playlist_count=1;
 		else
 			@ playlist_count++;
-			if( "`find "\""${playlist_dir}"\"" -iregex "\"".*\/\.${playlist_escaped}\.sw."\""`" != "" ) then
-				printf "<file://%s/%s> is in use and will not be deleted.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
-			else
-				rm -v "${playlist_dir}/${playlist}";
-			endif
+		endif
+		
+		if( "`find "\""${playlist_dir}"\"" -iregex "\"".*\/\.${playlist_escaped}\.sw."\""`" != "" ) then
+			printf "<file://%s/%s> is in use and will not be deleted.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
+		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 2 ) then
+			printf "<file://%s/%s> is the latest playlist and appears to still list files.\n\tWould your like to remove it:\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
+			rm -vi "${playlist_dir}/${playlist}";
+		else
+			rm -v "${playlist_dir}/${playlist}";
 		endif
 		unset playlist_escaped playlist;
 	end

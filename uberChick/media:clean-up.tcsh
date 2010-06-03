@@ -11,7 +11,7 @@ parse_argv:
 	endif
 	
 	while( $arg < $argc )
-		switch( "$argv[$arg]" )
+		switch( "$argv[${arg}]" )
 			case "--clean-up":
 				goto clean_up;
 			case "--move":

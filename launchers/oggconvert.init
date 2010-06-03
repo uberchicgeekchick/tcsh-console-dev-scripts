@@ -90,23 +90,23 @@ debug_check:
 	@ argc=${#argv};
 	while( $arg < $argc )
 		@ arg++;
-		if( -e "$argv[$arg]" ) \
+		if( -e "$argv[${arg}]" ) \
 			continue;
 		
-		if( "$argv[$arg]" == "--" ) then
-			if(! ${?process_each_filename} ) \
-				set process_each_filename;
+		switch( "$argv[${arg}]" )
+			case "--":
+				if(! ${?process_each_filename} ) \
+					set process_each_filename;
 			continue;
-		endif
-		
-		if( "$argv[$arg]" == "--!" ) then
-			if( ${?process_each_filename} ) \
-				unset process_each_filename;
+			
+			case "--!":
+				if( ${?process_each_filename} ) \
+					unset process_each_filename;
 			continue;
-		endif
+		endsw
 		
-		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "%s" "$argv[$arg]" >! "${argument_file}";
+		set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
+		printf "%s" "$argv[${arg}]" >! "${argument_file}";
 		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
@@ -133,7 +133,7 @@ debug_check:
 				if( ${?diagnostic_mode} ) \
 					breaksw;
 				
-				printf "**${scripts_basename} debug:**, via "\$"argv[$arg], diagnostic mode:\t[enabled].\n\n";
+				printf "**${scripts_basename} debug:**, via "\$"argv[%d], diagnostic mode:\t[enabled].\n\n" ${arg};
 				set diagnostic_mode;
 				if(! ${?debug} ) \
 					set debug;
@@ -145,7 +145,7 @@ debug_check:
 						if( ${?debug_length} ) \
 							breaksw;
 						
-						printf "**${scripts_basename} notice:**, via "\$"argv[${arg}], length debugging:\t[enabled]\n\n";
+						printf "**%s notice:**, via "\$"argv[%d], length debugging:\t[enabled]\n\n" "${scripts_basename}" ${arg};
 						set debug_length;
 						breaksw;
 					
@@ -660,7 +660,7 @@ find_length:
 		set reverse_modifier="-";
 	endif
 	
-	set ogginfo_file="${scripts_tmpdir}/.escaped.ogginfo.$scripts_basename.`date '+%s'`";
+	set ogginfo_file="${scripts_tmpdir}/.escaped.ogginfo.${scripts_basename}.`date '+%s'`";
 	printf "%s" "${filename}" >! "${ogginfo_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${ogginfo_file}";
 	set escaped_filename="`cat "\""${ogginfo_file}"\""`";
@@ -867,22 +867,22 @@ parse_arg:
 			unset value_used;
 		
 		if( ${?debug} || ${?debug_arguments} ) \
-			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
+			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]";
 		
-		if( "$argv[$arg]" == "--" ) then
-			if(! ${?process_each_filename} ) \
-				set process_each_filename;
+		switch( "$argv[${arg}]" )
+			case "--":
+				if(! ${?process_each_filename} ) \
+					set process_each_filename;
 			continue;
-		endif
-		
-		if( "$argv[$arg]" == "--!" ) then
-			if( ${?process_each_filename} ) \
-				unset process_each_filename;
+			
+			case "--!":
+				if( ${?process_each_filename} ) \
+					unset process_each_filename;
 			continue;
-		endif
+		endsw
 		
-		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "%s" "$argv[$arg]" >! "${argument_file}";
+		set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
+		printf "%s" "$argv[${arg}]" >! "${argument_file}";
 		ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
@@ -904,7 +904,7 @@ parse_arg:
 		
 		
 		if( ${?debug} || ${?debug_arguments} ) \
-			printf "\tparsed "\$"argument: [${argument}]; "\$"argv[${arg}] ($argv[$arg])\n\t"\$"dashes: [${dashes}];\n\t"\$"option: [${option}];\n\t"\$"equals: [${equals}];\n\t"\$"value: [${value}]\n\n";
+			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t"\$"dashes: [%s];\n\t"\$"option: [%s];\n\t"\$"equals: [%s];\n\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}";
 		
 		if( "${option}" != "" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "${argument}" ) ) then
 			@ arg++;
@@ -912,10 +912,10 @@ parse_arg:
 				@ arg--;
 			else
 				if( ${?debug} || ${?debug_arguments} ) \
-					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
+					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]";
 				
-				set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-				printf "%s" "$argv[$arg]" >! "${argument_file}";
+				set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
+				printf "%s" "$argv[${arg}]" >! "${argument_file}";
 				ex -X -n --noplugin -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 				set test_argument="`cat "\""${argument_file}"\""`";
 				rm -f "${argument_file}";
@@ -939,7 +939,7 @@ parse_arg:
 					@ arg--;
 				else
 					if( ${?debug} || ${?debug_arguments} ) \
-						printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t"\$"dashes: [%s];\n\t"\$"option: [%s];\n\t"\$"equals: [%s];\n\t"\$"value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[$arg]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}";
+						printf "\tparsed "\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t"\$"dashes: [%s];\n\t"\$"option: [%s];\n\t"\$"equals: [%s];\n\t"\$"value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}";
 					set equals="=";
 					set value="${test_value}";
 					set arg_shifted;
@@ -1148,7 +1148,7 @@ parse_arg:
 						breaksw;
 					
 					default:
-						printf "`printf ${option} | sed -r 's/^(.*)e$/\1ing/'` ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
+						printf "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e$/\1ing/'` ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
 						@ errno=-607;
 						goto scripts_main_quit;
 						breaksw;
@@ -1181,7 +1181,7 @@ parse_arg:
 						breaksw;
 					
 					default:
-						printf "`printf ${option} | sed -r 's/^(.*)e$/\1ing/'` ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
+						printf "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e$/\1ing/'` ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
 						@ errno=-608;
 						goto scripts_main_quit;
 						breaksw;

@@ -660,7 +660,7 @@ find_length:
 		set reverse_modifier="-";
 	endif
 	
-	set ogginfo_file="${scripts_tmpdir}/.escaped.ogginfo.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+	set ogginfo_file="${scripts_tmpdir}/.escaped.ogginfo.$scripts_basename.`date '+%s'`";
 	printf "%s" "${filename}" >! "${ogginfo_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${ogginfo_file}";
 	set escaped_filename="`cat "\""${ogginfo_file}"\""`";

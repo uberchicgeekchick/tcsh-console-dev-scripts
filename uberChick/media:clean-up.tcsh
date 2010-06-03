@@ -76,29 +76,25 @@ clean_up:
 move:
 	set podiobooks=( \
 	"\n" \
-"/media/podcasts/Amarna: The Adventures of Sophie Roberts/Amarna: The Adventures of Sophie Roberts Episode 11, released on: Tue, 01 Jun 2010 22:22:57 GMT.mp3"\
+"/media/podcasts/StarShipSofa/Aural Delights No 139 Philip K. Dick Juliette Wade, released on: Wed, 02 Jun 2010 03:11:13 GMT.mp3" \
 	"\n" \
-"/media/podcasts/Archers, The/Archers: 100601 Tuesday, released on: Tue, 01 Jun 2010 18:20:00 GMT.mp3"\
-	"\n" \
-"/media/podcasts/Cossmass Infinities/Cossmass Infinities 06 - How You Make The Straight, released on: Tue, 01 Jun 2010 21:15:34 GMT.mp3"\
-	"\n" \
-"/media/podcasts/Drabblecast B-Sides/Bsides 10- Growing Humans by Neil Buchanan, released on: Tue, 01 Jun 2010 18:30:07 GMT.m4a"\
-	"\n" \
-"/media/podcasts/LightningBolt Theater of the Mind/How Much Do 1 Love Thee, Let Me Count the Ways, released on: Tue, 01 Jun 2010 15:28:00 GMT.mp3"\
+"/media/podcasts/PodCastle/PodCastle 106: Little Gods, released on: Wed, 02 Jun 2010 03:17:38 GMT.mp3" \
 	"\n" \
 	);
 	
 	if( ${?podiobooks} ) then
-		if(! -d "/media/podiobooks/Latest" ) \
-			mkdir -p  "/media/podiobooks/Latest";
 		foreach podiobook_episode( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			set podiobook="`dirname "\""${podiobook_episode}"\""`";
 			set podiobook="`basename "\""${podiobook}"\""`";
 			set podiobook_episode="/media/podcasts/${podiobook}";
-			if( "${podiobook_episode}" != "" && -e "${podiobook_episode}" ) \
+			if( "${podiobook_episode}" != "" && -e "${podiobook_episode}" ) then
+				if(! -d "/media/podiobooks/Latest" ) \
+					mkdir -p  "/media/podiobooks/Latest";
+				
 				mv -v \
 					"${podiobook_episode}" \
 				"/media/podiobooks/Latest";
+			endif
 			unset podiobook podiobook_episode;
 		end
 		unset podiobooks;
@@ -111,13 +107,15 @@ move:
 	);
 	
 	if( ${?slashdot} ) then
-		if(! -d "/media/podcasts/slash." ) \
-			mkdir -p  "/media/podcasts/slash.";
 		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) \
+			if( "${podcast}" != "" && -e "${podcast}" ) then
+				if(! -d "/media/podcasts/slash." ) \
+					mkdir -p  "/media/podcasts/slash.";
+				
 				mv -v \
 					"${podcast}" \
 				"/media/podcasts/slash.";
+			endif
 			unset podcast;
 		end
 		unset slashdot;
@@ -129,17 +127,28 @@ move:
 
 back_up:
 	set slashdot=( \
+"/media/podcasts/slash./Intelligence Density and the Creative Class, released on: Sat, 29 May 2010 15:57:00 GMT.ogg" \
+	"\n" \
+"/media/podcasts/slash./Design Contest Highlights Video Games With a Purpose, released on: Sun, 30 May 2010 16:36:00 GMT.ogg" \
+	"\n" \
+"/media/podcasts/slash./Physics Platformer Gish Goes Open Source, released on: Sun, 30 May 2010 15:15:00 GMT.ogg" \
+	"\n" \
+"/media/podcasts/slash./Smokescreen, a JavaScript-Based Flash Player, released on: Tue, 01 Jun 2010 18:17:00 GMT.ogg" \
+	"\n" \
+"/media/podcasts/slash./Tetris Clones Pulled From Android Market, released on: Fri, 28 May 2010 10:48:00 GMT.ogg" \
 	"\n" \
 	);
 	
 	if( ${?slashdot} ) then
-		if(! -d "/art/media/resources/stories/Slashdot" ) \
-			mkdir -p  "/art/media/resources/stories/Slashdot";
 		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) \
+			if( "${podcast}" != "" && -e "${podcast}" ) then
+				if(! -d "/art/media/resources/stories/Slashdot" ) \
+					mkdir -p  "/art/media/resources/stories/Slashdot";
+				
 				mv -v \
 					"${podcast}" \
 				"/art/media/resources/stories/Slashdot";
+			endif
 			unset podcast;
 		end
 		unset slashdot;
@@ -152,22 +161,45 @@ back_up:
 delete:
 	set to_be_deleted=( \
 	"\n" \
-"/media/podcasts/Modern Evil Podcast" \
+"/media/podcasts/TEDTalks (video)/Brian Skerry reveals ocean's glory -- and horror - Brian Skerry (2010), released on: Wed, 02 Jun 2010 02:36:00 GMT.mp4" \
 	"\n" \
-"/media/podcasts/Imagination Backroads" \
+"/media/podcasts/APM: Future Tense/Where are books going?, released on: Wed, 02 Jun 2010 15:27:28 GMT.mp3" \
 	"\n" \
 	);
 	
 	if( ${?to_be_deleted} ) then
 		foreach podcast( "`printf "\""${to_be_deleted}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) \
-				rm -rv \
-					"${podcast}";
+			if( "${podcast}" != "" && -e "${podcast}" ) then
+				if( -d "${podcast}" ) then
+					rm -rv \
+						"${podcast}";
+				else
+					rm -v \
+						"${podcast}";
+				endif
 			unset podcast;
 		end
 		unset to_be_deleted;
 	endif
-
+	
+	set dirs_to_delete=( \
+	"\n" \
+	"\n" \
+	);
+	
+	if( ${?dirs_to_delete} ) then
+		foreach podcast( "`printf "\""${dirs_to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+			if( "${podcast}" != "" ) then
+				set podcast_dir="`dirname "\""${podcast}"\""`";
+				if( "${podcast_dir}" != "/media/podcasts" && -d "${podcast_dir}" ) \
+					rm -rv \
+						"${podcast_dir}";
+			endif
+			unset podcast_dir podcast;
+		end
+		unset dirs_to_delete;
+	endif
+	
 	if( -d "/media/podcasts/Slashdot" ) \
 		rm -rv "/media/podcasts/Slashdot";
 	

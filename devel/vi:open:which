@@ -5,8 +5,8 @@ if(${my_editor} == "editor") unset my_editor;
 set scripts=();
 
 while ( ${?1} && "${1}" != "" )
-	set attrib = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)/\1/g'`";
-	set value = "`printf "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`";
+	set attrib = "`printf "\""%s"\"" "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\?\(.*\)/\1/g'`";
+	set value = "`printf "\""%s"\"" "\""${1}"\"" | sed 's/\-\-\([^=]\+\)=\(.*\)/\2/g'`";
 	switch ( "${attrib}" )
 		case "editor":
 			foreach editor ( "`where '${value}'`" )
@@ -44,7 +44,7 @@ foreach script ( "${scripts}" )
 	endif
 	printf "Adding %s to %s" "${script}" "${session_exec}"
 	
-	printf " %s${script}%s" '"' '"' >> "${session_exec}"
+	printf " %s%s%s" '"' '"' >> "${session_exec}" "${script}"
 end
 
 if( ! ${?session_started} ) exit

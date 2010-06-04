@@ -7,7 +7,12 @@ parse_argv:
 		if( $argc == 0 ) \
 			goto clean_up;
 	else if ${?callback} then
-		goto $callback;
+		if( ${?action_preformed} ) then
+			printf "\n\n";
+			unset action_preformed;
+		endif
+		
+		goto ${callback};
 	endif
 	
 	while( $arg < $argc )
@@ -80,13 +85,14 @@ clean_up:
 move_slashdot:
 	set slashdot=( \
 	"\n" \
-	"\n" \
-	"\n" \
 	);
 	
 	if( ${?slashdot} ) then
-		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+		foreach podcast( "`printf "\""%s"\"" "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && -e "${podcast}" ) then
+				if(! ${?action_preformed} ) \
+					set action_preformed;
+				
 				if(! -d "/media/podcasts/slash." ) \
 					mkdir -p  "/media/podcasts/slash.";
 				
@@ -106,19 +112,20 @@ move_slashdot:
 move_podiobooks:
 	set podiobooks=( \
 	"\n" \
-	"\n" \
-	"\n" \
 	);
 	
 	if( ${?podiobooks} ) then
-		foreach podiobook_episode( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+		foreach podiobook_episode( "`printf "\""%s"\"" "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podiobook_episode}" != "" && -e "${podiobook_episode}" ) then
+				if(! ${?action_preformed} ) \
+					set action_preformed;
+				
 				if(! -d "/media/podiobooks/Latest" ) \
 					mkdir -p  "/media/podiobooks/Latest";
 				
-				set podiobook="`dirname "\""${podiobook_episode}"\""`";
-				set podiobook="`basename "\""${podiobook}"\""`";
-				set podiobook_episode="/media/podcasts/${podiobook}";
+				if(! -d "${podiobook_episode}" ) then
+					set podiobook_episode="`dirname "\""${podiobook_episode}"\""`";
+				endif
 				
 				mv -v \
 					"${podiobook_episode}" \
@@ -133,16 +140,77 @@ move_podiobooks:
 #goto move_podiobooks;
 
 
+delete:
+	set to_be_deleted=( \
+	"\n" \
+	);
+	
+	if( ${?to_be_deleted} ) then
+		foreach podcast( "`printf "\""%s"\"" "\""${to_be_deleted}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+			if( "${podcast}" != "" && -e "${podcast}" ) then
+				if(! ${?action_preformed} ) \
+					set action_preformed;
+				
+				if( -d "${podcast}" ) then
+					rm -rv "${podcast}";
+					continue;
+				endif
+				
+				rm -v "${podcast}";
+				
+				set podcast_dir="`dirname "\""${podcast}"\""`";
+				if( `/bin/ls -A "${podcast_dir}"` == "" ) \
+					rmdir -v "${podcast_dir}";
+				unset podcast_dir;
+			endif
+			unset podcast;
+		end
+		unset to_be_deleted;
+	endif
+	
+	set directories_to_delete=( \
+	"\n" \
+	);
+	
+	if( ${?directories_to_delete} ) then
+		foreach podcast( "`printf "\""%s"\"" "\""${directories_to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+			if( "${podcast}" != "" && -e "${podcast}" ) then
+				set podcast_dir="`dirname "\""${podcast}"\""`";
+				if( "${podcast_dir}" != "/media/podcasts" && -d "${podcast_dir}" ) then
+					if(! ${?action_preformed} ) \
+						set action_preformed;
+					
+					rm -rv \
+						"${podcast_dir}";
+				endif
+			endif
+			unset podcast_dir podcast;
+		end
+		unset directories_to_delete;
+	endif
+	
+	if( -d "/media/podcasts/Slashdot" ) then
+		if(! ${?action_preformed} ) \
+			set action_preformed;
+				
+		rm -rv "/media/podcasts/Slashdot";
+	endif
+	
+	goto parse_argv;
+#goto delete;
+
+
 back_up:
 	set slashdot=( \
-	"\n" \
-	"\n" \
 	"\n" \
 	);
 	
 	if( ${?slashdot} ) then
-		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+		foreach podcast( "`printf "\""%s"\"" "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && -e "${podcast}" ) then
+				if(! ${?action_preformed} ) \
+					set action_preformed;
+				
 				if(! -d "/art/media/resources/stories/Slashdot" ) \
 					mkdir -p  "/art/media/resources/stories/Slashdot";
 				
@@ -150,6 +218,8 @@ back_up:
 					"${podcast}" \
 				"/art/media/resources/stories/Slashdot";
 			endif
+			if( `/bin/ls -A "/media/podcasts/slash."` == "" ) \
+				rmdir -v "/media/podcasts/slash.";
 			unset podcast;
 		end
 		unset slashdot;
@@ -159,58 +229,10 @@ back_up:
 #goto back_up;
 
 
-delete:
-	set to_be_deleted=( \
-	"\n" \
-	"\n" \
-	"\n" \
-	);
-	
-	if( ${?to_be_deleted} ) then
-		foreach podcast( "`printf "\""${to_be_deleted}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) then
-				if( -d "${podcast}" ) then
-					rm -rv \
-						"${podcast}";
-				else
-					rm -v \
-						"${podcast}";
-				endif
-			endif
-			unset podcast;
-		end
-		unset to_be_deleted;
-	endif
-	
-	set directories_to_delete=( \
-	"\n" \
-	"\n" \
-	"\n" \
-	);
-	
-	if( ${?directories_to_delete} ) then
-		foreach podcast( "`printf "\""${directories_to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) then
-				set podcast_dir="`dirname "\""${podcast}"\""`";
-				if( "${podcast_dir}" != "/media/podcasts" && -d "${podcast_dir}" ) \
-					rm -rv \
-						"${podcast_dir}";
-			endif
-			unset podcast_dir podcast;
-		end
-		unset directories_to_delete;
-	endif
-	
-	if( -d "/media/podcasts/Slashdot" ) \
-		rm -rv "/media/podcasts/Slashdot";
-	
-	goto parse_argv;
-#goto delete;
-
 playlists:
 	set playlist_dir="/media/podcasts/playlists/m3u";
 	foreach playlist("`/bin/ls --width=1 -t "\""${playlist_dir}"\""`")
-		set playlist_escaped="`printf "\""${playlist}"\"" | sed -r 's/([\/.])/\\\1/g'`";
+		set playlist_escaped="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/([\/.])/\\\1/g'`";
 		if(! ${?playlist_count} ) then
 			@ playlist_count=1;
 		else
@@ -222,7 +244,14 @@ playlists:
 		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 1 ) then
 			printf "<file://%s/%s> still lists files.\n\tWould you still it removed:\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
 			rm -vi "${playlist_dir}/${playlist}";
+			if(! -e "${playlist_dir}/${playlist}" ) then
+				if(! ${?action_preformed} ) \
+					set action_preformed;
+			endif
 		else
+			if(! ${?action_preformed} ) \
+				set action_preformed;
+			
 			rm -v "${playlist_dir}/${playlist}";
 		endif
 		unset playlist_escaped playlist;
@@ -242,9 +271,15 @@ logs:
 	if( ${current_hour} < 10 ) \
 		set current_hour="0${current_hour}";
 	
-	( rm -v "`find /media/podcasts/ -regextype posix-extended -iregex '.*alacast'\''s log for .*' \! -iregex '.*alacast'\''s log for ${current_year}-${current_month}-${current_day} from ${current_hour}.*'`" > /dev/tty ) >& /dev/null;
+	if( "`find /media/podcasts/ -regextype posix-extended -iregex '.*alacast'\''s log for .*' \! -iregex '.*alacast'\''s log for ${current_year}-${current_month}-${current_day} from ${current_hour}.*'`" != "" ) then
+		if(! ${?action_preformed} ) \
+			set action_preformed;
+		
+		( rm -v "`find /media/podcasts/ -regextype posix-extended -iregex '.*alacast'\''s log for .*' \! -iregex '.*alacast'\''s log for ${current_year}-${current_month}-${current_day} from ${current_hour}.*'`" > /dev/tty ) >& /dev/null;
+	endif
 	
 	goto parse_argv;
 #goto logs;
+
 
 

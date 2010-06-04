@@ -95,7 +95,7 @@ while( $my_arg < $my_argc )
 			endif
 			
 			if(! ${?source_file} ) then
-				if( ${?TCSH_RC_DEBUG} || ${?debug} ) printf "**ERROR:** cannot source $argv[$my_arg] could not be found.\n";
+				if( ${?TCSH_RC_DEBUG} || ${?debug} ) printf "**ERROR:** cannot source %s[%s] could not be found.\n" "$argv" "$my_arg";
 				continue;
 			endif
 			
@@ -103,7 +103,7 @@ while( $my_arg < $my_argc )
 				if( ${?usage_message} ) then
 					printf "%s @ %s\n" "${usage_message}" `date "+%I:%M:%S%P"`;
 				else
-					printf "Sourcing ${source_file} @ %s.\n" `date "+%I:%M:%S%P"`;
+					printf "Sourcing %s @ %s.\n" `date "+%I:%M:%S%P" "${source_file}"`;
 				endif
 			endif
 			if( ${?usage_message} ) unset usage_massage;
@@ -113,7 +113,7 @@ while( $my_arg < $my_argc )
 				if( ${?usage_message} ) then
 					printf "Finished %s @ %s\n" "${usage_message}" `date "+%I:%M:%S%P"`;
 				else
-					printf "Finished sourcing: <${source_file}> @ %s.\n" `date "+%I:%M:%S%P"`;
+					printf "Finished sourcing: <%s> @ %s.\n" `date "+%I:%M:%S%P" "${source_file}"`;
 					unset usage_message;
 				endif
 			endif

@@ -24,7 +24,7 @@ check_dependencies:
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
 		if( ${?debug} || ${?debug_dependencies} ) \
-			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
+			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
 			
 		foreach program("`where '${dependency}'`")
 			if( -x "${program}" ) \
@@ -34,7 +34,7 @@ check_dependencies:
 		
 		if(! ${?program} ) then
 			@ errno=-501;
-			printf "One or more required dependencies couldn't be found.\n\t[${dependency}] couldn't be found.\n\t${scripts_basename} requires: ${dependencies}\n";
+			printf "One or more required dependencies couldn't be found.\n\t[%s] couldn't be found.\n\t%s requires: %s\n" "${dependency}" "${scripts_basename}" "${dependencies}";
 			goto exit_script;
 		endif
 		
@@ -57,7 +57,7 @@ check_dependencies:
 					breaksw;
 			endsw
 			
-			printf "**${scripts_basename} debug:** found ${dependencies_index}${suffix} dependency: ${dependency}.\n";
+			printf "**%s debug:** found %s%s dependency: %s.\n" "${scripts_basename}" "${dependencies_index}" "${suffix}" "${dependency}";
 			unset suffix;
 		endif
 		
@@ -225,7 +225,7 @@ main:
 		goto exit_script;
 	endif
 	
-	set playlist_type="`printf "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
+	set playlist_type="`printf "\""%s"\"" "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
 	switch( "${playlist_type}" )
 		case "m3u":
 		case "tox":
@@ -256,7 +256,7 @@ import:
 		goto export;
 	endif
 	
-	set import_type="`printf "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
+	set import_type="`printf "\""%s"\"" "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
 	switch( "${import_type}" )
 		case "m3u":
 		case "tox":
@@ -296,7 +296,7 @@ export:
 		goto clean_up;
 	endif
 	
-	set export_type="`printf "\""${export_to}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
+	set export_type="`printf "\""%s"\"" "\""${export_to}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
 	switch( "${export_type}" )
 		case "m3u":
 		case "tox":

@@ -214,7 +214,7 @@ exec:
 	set current_label="exec";
 	
 	printf "Executing %s's exec.\n" "${scripts_basename}";
-	printf "\n-----------------** fsck'ing <${usb}> **-----------------\n\tRunning: ${use_sudo}fsck.ext2 -y${check} ${usb}\n";
+	printf "\n-----------------** fsck'ing <%s> **-----------------\n\tRunning: %s.ext2 -y%s %s\n" "${usb}" "${use_sudo}fsck" "${check}" "${usb}";
 	${use_sudo}fsck.ext2 -y${check} "${usb}";
 	printf "\n\n";
 	if( ${status} != 0 ) \
@@ -449,12 +449,12 @@ parse_arg:
 			endif
 		endif
 		
-		if( "`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\""`";
+		if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
+			set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\""`";
 		endif
 		
-		if( "`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_cwd}\2/"\""`";
+		if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
+			set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_cwd}\2/"\""`";
 		endif
 		
 		@ parsed_argc++;

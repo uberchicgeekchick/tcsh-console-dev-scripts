@@ -36,20 +36,20 @@ if( "`find -L Genres/ -regextype posix-extended -iregex '.*\.(mp3|m4a)"\$"'`" !=
 	oggconvert --transcode Genres/;
 
 foreach title ( "`find -L Genres -iregex '.*, released on.*'`" )
-	set pubdate="`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\4/g'`";
+	set pubdate="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\4/g'`";
 	if( "${pubdate}" == "" || "${pubdate}" == "${title}" ) \
 		continue;
-	set genre = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\1/g'`";
-	set song = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\3/g'`";
-	set artist = "`printf "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\2/g'`";
-	set extension = "`printf "\""${title}"\"" | sed -r 's/.*\.([^\.]+)/\1/g'`";
+	set genre = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\1/g'`";
+	set song = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\3/g'`";
+	set artist = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\2/g'`";
+	set extension = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\.([^\.]+)/\1/g'`";
 	mv "${title}" "Genres/${genre}/${artist} - ${song}.${extension}";
 end
 
 foreach title ( "`find -L Genres -type f`" )
-	set song = "`printf "\""${title}"\"" | sed -r 's/.*\/(.*)\ \-\ (.*)\.([^\.]+)"\$"/\2/g'`";
-	set artist = "`printf "\""${title}"\"" | sed -r 's/.*\/(.*)\ \-\ (.*)\.([^\.]+)"\$"/\1/g'`";
-	set extension = "`printf "\""${title}"\"" | sed -r 's/.*\.([^\.]+)"\$"/\1/g'`";
+	set song = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\/(.*)\ \-\ (.*)\.([^\.]+)"\$"/\2/g'`";
+	set artist = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\/(.*)\ \-\ (.*)\.([^\.]+)"\$"/\1/g'`";
+	set extension = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\.([^\.]+)"\$"/\1/g'`";
 	
 	if( -e "Artists/${artist}/${song}.${extension}" ) \
 		continue;
@@ -58,5 +58,5 @@ foreach title ( "`find -L Genres -type f`" )
 	if( ! -d "Artists/${artist}" ) mkdir -p "Artists/${artist}";
 	ln "${title}" "Artists/${artist}/${song}.${extension}";
 	if( ! -e "Artists/${artist}/${song}.${extension}" ) \
-		printf "\tERROR: I was unable to link %s to Artists/%s/%s.${extension}\n" "${title}" "${artist}" "${song}";
+		printf "\tERROR: I was unable to link %s to Artists/%s/%s.%s\n" "${title}" "${artist}" "${song}" "${extension}";
 end

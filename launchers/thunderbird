@@ -100,15 +100,15 @@ launchers_main:
 		if( ${ff_attempt} > 1 ) then
 			if( ${?rm_extensions} ) then
 				if( -e "${firefox_profile_path}/${ff_profile}/extensions.cache" ) then
-					printf "Removing extensions cache files @\n\t<${firefox_profile_path}/${ff_profile}/extensions.cache>\n";
+					printf "Removing extensions cache files @\n\t<%s/%s/extensions.cache>\n" "${firefox_profile_path}" "${ff_profile}";
 					rm "${firefox_profile_path}/${ff_profile}/extensions.cache";
 				endif
 				if( -e "${firefox_profile_path}/${ff_profile}/extensions.rdf" ) then
-					printf "Removing extensions cache files @\n\t<${firefox_profile_path}/${ff_profile}/extensions.rdf>\n";
+					printf "Removing extensions cache files @\n\t<%s/%s/extensions.rdf>\n" "${firefox_profile_path}" "${ff_profile}";
 					rm "${firefox_profile_path}/${ff_profile}/extensions.rdf";
 				endif
 				if( -e "${firefox_profile_path}/${ff_profile}/extensions.ini" ) then
-					printf "Removing extensions cache files @\n\t<${firefox_profile_path}/${ff_profile}/extensions.ini>\n";
+					printf "Removing extensions cache files @\n\t<%s/%s/extensions.ini>\n" "${firefox_profile_path}" "${ff_profile}";
 					rm "${firefox_profile_path}/${ff_profile}/extensions.ini";
 				endif
 				unset rm_extensions;

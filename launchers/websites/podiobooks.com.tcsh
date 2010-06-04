@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
 while( ${?1} && "${1}" != "" )
 	set option="`printf '%s' '${1}' | sed -r 's/[\-]{2}(.*)/\1/'`";
-	set value="`printf "\""${1}"\"" | sed -r 's/^([\-]{2})([^\=]+)(\=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/'`";
+	set value="`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/^([\-]{2})([^\=]+)(\=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/'`";
 	if( "${value}" == "" && "${2}" != "" ) \
 		set value="${2}";
 	
@@ -50,7 +50,7 @@ launchers_main:
 	set website="http://www.podiobooks.com/";
 	if( ${?search_phrase} ) then
 		set podiobooks_book_feed="`mktemp --tmpdir -u podiobooks.com.book.feed.XXXXXX`";
-		set title="`printf "\""${search_phrase}"\"" | sed -r 's/([^ ]+)/\L\1/g' | sed -r 's/\ /\-/g'`";
+		set title="`printf "\""%s"\"" "\""${search_phrase}"\"" | sed -r 's/([^ ]+)/\L\1/g' | sed -r 's/\ /\-/g'`";
 		curl --location --fail --show-error --silent --output "${podiobooks_book_feed}" "${website}title/${title}/feed/";
 		if( -e "${podiobooks_book_feed}" ) then
 			rm -f "${podiobooks_book_feed}";
@@ -58,7 +58,7 @@ launchers_main:
 			${browser} "${website}title/${title}/";
 		else
 			unset podiobooks_book_feed;
-			${browser} "${website}podiobooks/search.php?keyword=`printf "\""${search_phrase}"\"" | sed -r 's/\ /%20/g'`&includeAdult=1";
+			${browser} "${website}podiobooks/search.php?keyword=`printf "\""%s"\"" "\""${search_phrase}"\"" | sed -r 's/\ /%20/g'`&includeAdult=1";
 		endif
 		unset title;
 	else

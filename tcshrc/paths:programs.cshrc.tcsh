@@ -74,10 +74,10 @@ add_program:
 	if(! ${?check_for_paths_in} ) \
 		set check_for_paths_in="/programs";
 	
-	if( "`printf "\""${check_for_paths_in}"\"" | sed -r 's/^(.)(.*)"\$"/\1/'`" != "/" ) \
+	if( "`printf "\""%s"\"" "\""${check_for_paths_in}"\"" | sed -r 's/^(.)(.*)"\$"/\1/'`" != "/" ) \
 		set check_for_paths_in="/${check_for_paths_in}";
-	if( "`printf "\""${check_for_paths_in}"\"" | sed -r 's/^(.*)(\/)"\$"/\2/'`" == "/" ) \
-		set check_for_paths_in="`printf "\""${check_for_paths_in}"\"" | sed -r 's/^(.*)(\/)"\$"/\1/'`";
+	if( "`printf "\""%s"\"" "\""${check_for_paths_in}"\"" | sed -r 's/^(.*)(\/)"\$"/\2/'`" == "/" ) \
+		set check_for_paths_in="`printf "\""%s"\"" "\""${check_for_paths_in}"\"" | sed -r 's/^(.*)(\/)"\$"/\1/'`";
 	
 	if(! -d "${check_for_paths_in}" ) then
 		if( ${?check_for_subdir} ) \

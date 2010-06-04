@@ -82,7 +82,7 @@ next_argv:
 		set owd="${old_owd}";
 		
 		if( ${?TCSH_RC_DEBUG} ) \
-			printf "\nRecusively looking for possible paths in: <${search_dir}> using:\n\tfind ${follow_symlinks} "\""${search_dir}"\""${no_other_fs} -ignore_readdir_race${maxdepth}${mindepth}${find_subdirs} -type d \\\! -iregex '.*\/\..*'\n";
+			printf "\nRecusively looking for possible paths in: <%s> using:\n\tfind %s "\""${search_dir}"\""${no_other_fs} -ignore_readdir_race${maxdepth}${mindepth}${find_subdirs} -type d \\\! -iregex '.*\/\..*'\n" "${search_dir}" "${follow_symlinks}";
 		
 		set escaped_search_dir="`printf "\""%s"\"" "\""${search_dir}"\"" | sed -r 's/\//\\\//g'`";
 		foreach dir ( "`find ${follow_symlinks} "\""${search_dir}"\""${no_other_fs} -ignore_readdir_race${maxdepth}${mindepth}${find_subdirs} -type d \! -iregex '.*\/\..*'`" )

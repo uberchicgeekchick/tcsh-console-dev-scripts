@@ -53,7 +53,7 @@ playlist_init:
 		#set rconfirmation=$<:q;
 		printf "\n";
 		
-		switch(`printf "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+		switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
 			case "y":
 				rm -vf "${new_playlist}";
 				breaksw;
@@ -146,7 +146,7 @@ playlist_save:
 				@ line_number++;
 				ex -s "+${line_number}s/\v^(Title${line}\=.*)(,\ released\ on.*)"\$"/\1/" '+wq!' "${playlist_temp}";
 			end
-			printf "[playlist]\nnumberofentries=${lines}\n" >! "${playlist_swap}";
+			printf "[playlist]\nnumberofentries=%s\n" >! "${playlist_swap}" "${lines}";
 			ex -s "+2r ${new_playlist_to_read}" '+wq!' "${playlist_swap}";
 			#ex -s '+3,$s/\v^(Title[0-9]+\=.*)(,\ released\ on.*)$/\1/' '+wq!' "${playlist_temp}";
 			printf "Version=2" >> "${playlist_swap}";

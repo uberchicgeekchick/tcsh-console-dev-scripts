@@ -260,7 +260,7 @@ make:
 	setenv	MOZCONFIG	"${srcdir}/.mozconfig";
 	
 	printf "Creating: [%s]\n" "${MOZCONFIG}";
-	printf "ac_add_options --enable-application=${mozilla_project} ${enable_mozilla} --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=${objdir} MOZ_CO_PROJECT=${mozilla_project} AUTOCONF=autoconf-2.13\n" >! "${MOZCONFIG}";
+	printf "ac_add_options --enable-application=%s %s --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=%s MOZ_CO_PROJECT=%s AUTOCONF=autoconf-2.13\n" >! "${MOZCONFIG}" "${mozilla_project}" "${enable_mozilla}" "${objdir}" "${mozilla_project}";
 	#" --enable-default-toolkit=gtk2"
 	
 	make -f client.mk;

@@ -118,7 +118,7 @@ debug_check:
 			continue;
 		
 		if( ${?debug} || ${?debug_arguments} ) \
-			printf "**${scripts_basename} [debug_check:]**"\$"option: [${option}]; "\$"value: [${value}].\n";
+			printf "**%s [debug_check:]**"\$"option: [${option}]; "\$"value: [${value}].\n" "${scripts_basename}";
 		
 		switch("${option}")
 			case "nodeps":
@@ -133,7 +133,7 @@ debug_check:
 				if( ${?diagnostic_mode} ) \
 					breaksw;
 				
-				printf "**${scripts_basename} debug:**, via "\$"argv[%d], diagnostic mode:\t[enabled].\n\n" ${arg};
+				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode:\t[enabled].\n\n" "${scripts_basename}" ${arg};
 				set diagnostic_mode;
 				if(! ${?debug} ) \
 					set debug;
@@ -153,7 +153,7 @@ debug_check:
 						if( ${?debug_encoding} ) \
 							breaksw;
 						
-						printf "**${scripts_basename} notice:**, via "\$"argv[${arg}], encoding debugging:\t[enabled]\n\n";
+						printf "**%s notice:**, via "\$"argv[${arg}], encoding debugging:\t[enabled]\n\n" "${scripts_basename}";
 						set debug_encoding;
 						breaksw;
 					
@@ -161,7 +161,7 @@ debug_check:
 						if( ${?debug_dependencies} ) \
 							breaksw;
 						
-						printf "**${scripts_basename} notice:**, via "\$"argv[${arg}], debugging dependencies:\t[enabled]\n\n";
+						printf "**%s notice:**, via "\$"argv[${arg}], debugging dependencies:\t[enabled]\n\n" "${scripts_basename}";
 						set debug_dependencies;
 						breaksw;
 					
@@ -171,7 +171,7 @@ debug_check:
 						if( ${?debug_arguments} ) \
 							breaksw;
 						
-						printf "**${scripts_basename}**, via "\$"argv[${arg}], debugging arguments:\t[enabled].\n\n";
+						printf "**%s**, via "\$"argv[${arg}], debugging arguments:\t[enabled].\n\n" "${scripts_basename}";
 						set debug_arguments;
 						breaksw;
 					
@@ -179,7 +179,7 @@ debug_check:
 						if( ${?debug_filelist} ) \
 							breaksw;
 						
-						printf "**${scripts_basename}**, via "\$"argv[${arg}], filelist debugging:\t[enabled].\n\n";
+						printf "**%s**, via "\$"argv[${arg}], filelist debugging:\t[enabled].\n\n" "${scripts_basename}";
 						set debug_filelist;
 						breaksw;
 					
@@ -187,7 +187,7 @@ debug_check:
 						if( ${?logging} ) \
 							breaksw;
 						
-						printf "**${scripts_basename}**, via "\$"argv[${arg}], debug logging:\t[enabled].\n\n";
+						printf "**%s**, via "\$"argv[${arg}], debug logging:\t[enabled].\n\n" "${scripts_basename}";
 						set debug_logging;
 						breaksw;
 					
@@ -195,7 +195,7 @@ debug_check:
 						if( ${?debug} ) \
 							breaksw;
 						
-						printf "**${scripts_basename} notice:**, via "\$"argv[${arg}], debug mode:\t[enabled]\n\n";
+						printf "**%s notice:**, via "\$"argv[${arg}], debug mode:\t[enabled]\n\n" "${scripts_basename}";
 						set debug;
 						breaksw;
 				endsw
@@ -218,7 +218,7 @@ check_dependencies:
 			break;
 		
 		if( ${?debug} || ${?debug_dependencies} ) \
-			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
+			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
 			
 		foreach program("`where '${dependency}'`")
 			if( -x "${program}" ) \
@@ -228,7 +228,7 @@ check_dependencies:
 		
 		if(! ${?program} ) then
 			@ errno=-501;
-			printf "One or more required dependencies couldn't be found.\n\t[${dependency}] couldn't be found.\n\t${scripts_basename} requires: ${dependencies}\n";
+			printf "One or more required dependencies couldn't be found.\n\t[%s] couldn't be found.\n\t%s requires: %s\n" "${dependency}" "${scripts_basename}" "${dependencies}";
 			goto scripts_main_quit;
 		endif
 		
@@ -251,7 +251,7 @@ check_dependencies:
 					breaksw;
 			endsw
 			
-			printf "**${scripts_basename} debug:** found ${dependencies_index}${suffix} dependency: ${dependency}.\n";
+			printf "**%s debug:** found %s%s dependency: %s.\n" "${scripts_basename}" "${dependencies_index}" "${suffix}" "${dependency}";
 			unset suffix;
 		endif
 		
@@ -380,7 +380,7 @@ convert_filename_list:
 			printf "\tNo convertable files were found.\n\n" > /dev/stderr;
 			goto scripts_main_quit;
 		else
-			printf "\t**Skipping:** ${dashes}${option}${equals}${value} no convertable files were found.\n\n" > /dev/stderr;
+			printf "\t**Skipping:** %s%s%s%s no convertable files were found.\n\n" "${dashes}" "${option}" "${equals}" "${value}" > /dev/stderr;
 			goto parse_arg;
 		endif
 	endif
@@ -545,7 +545,7 @@ confirm_overwrite:
 oggconvert:
 	printf "\n\tConverting";
 	if( ${file_count} > 1 ) \
-		printf " (file ${files_processed} of ${file_count})";
+		printf " (file %s of %s)" "${files_processed}" "${file_count}";
 	printf ":\n\t\t[%s.%s]\n" "${save_to_filename}" "${original_extension}";
 	
 	if( "${extension}" != "wav" ) then
@@ -598,7 +598,7 @@ oggconvert:
 			unset ffmpeg_input_file_options ffmpeg_output_file_options;
 			
 			if(!( "${status}" == "0" && -e "${save_to_filename}.wav" )) then
-				printf "\t[failed]\n\t\t\tUnable to create temorary WAV  file.\n\t\t\tffmpeg returned: ${status}\n";
+				printf "\t[failed]\n\t\t\tUnable to create temorary WAV  file.\n\t\t\tffmpeg returned: %s\n" "${status}";
 				if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
 					rm "${save_to_filename}.wav";
 				
@@ -620,7 +620,7 @@ oggconvert:
 	
 	${oggenc} ${oggenc_output_file_options} "${save_to_filename}.wav" >& ${output};
 	if(!( "${status}" == "0" && -e "${save_to_filename}.ogg" )) then
-		printf "\t[failed]\n\t\t\tUnable to encode file.  Encoder: [`basename ${oggenc}`]; returned: ${status}\n";
+		printf "\t[failed]\n\t\t\tUnable to encode file.  Encoder: [`basename %s`]; returned: %s\n" "${oggenc}" "${status}";
 		if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) then
 			rm "${save_to_filename}.wav";
 		else if( "${original_extension}" == "wav" && -e "${save_to_filename}.wav.bck" ) then
@@ -710,21 +710,21 @@ find_length:
 		set oggs_seconds="00";
 	
 	if( ${?debug} ) then
-		printf "${oggs_length}\n";
-		printf "\t${oggs_hours}${modifier}${rtrim_hours}\n";
-		printf "\t${oggs_minutes}${modifier}${rtrim_minutes}\n";
-		printf "\t${oggs_seconds}${modifier}${rtrim_seconds}\n";
+		printf "%s\n" "${oggs_length}";
+		printf "\t%s%s%s\n" "${oggs_hours}" "${modifier}" "${rtrim_hours}";
+		printf "\t%s%s%s\n" "${oggs_minutes}" "${modifier}" "${rtrim_minutes}";
+		printf "\t%s%s%s\n" "${oggs_seconds}" "${modifier}" "${rtrim_seconds}";
 	endif
 	unset oggs_length;
 	
-	set hours="`printf "\""${oggs_hours}${modifier}${rtrim_hours}\n"\"" | bc`";
-	set minutes="`printf "\""${oggs_minutes}${modifier}${rtrim_minutes}\n"\"" | bc`";
-	set seconds="`printf "\""${oggs_seconds}${modifier}${rtrim_seconds}\n"\"" | bc`";
+	set hours="`printf "\""%s%s%s\n"\"" "\""${rtrim_hours}"\"" "\""${modifier}"\"" "\""${oggs_hours}"\"" | bc`";
+	set minutes="`printf "\""%s%s%s\n"\"" "\""${rtrim_minutes}"\"" "\""${modifier}"\"" "\""${oggs_minutes}"\"" | bc`";
+	set seconds="`printf "\""%s%s%s\n"\"" "\""${rtrim_seconds}"\"" "\""${modifier}"\"" "\""${oggs_seconds}"\"" | bc`";
 	if( ${?debug} ) then
-		printf "After ${function}ing rtrim length from the ogg file's length:\n";
-		printf "\thours: ${hours}\n";
-		printf "\tminutes: ${minutes}\n";
-		printf "\tseconds: ${seconds}\n";
+		printf "After %s rtrim length from the ogg file's length:\n" "${function}ing";
+		printf "\thours: %s\n" "${hours}";
+		printf "\tminutes: %s\n" "${minutes}";
+		printf "\tseconds: %s\n" "${seconds}";
 	endif
 #goto find_length;
 
@@ -733,62 +733,62 @@ calculate_length:
 	if( "${hours}" == "" ) then
 		set hours="00";
 	endif
-	if( "`printf "\""${minutes}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
-		set hours="`printf "\""${hours}${modifier}1\n"\"" | bc`";
-		set minutes="`printf "\""(${oggs_minutes}${reverse_modifier}60)${modifier}${rtrim_minutes}\n"\"" | bc`";
+	if( "`printf "\""%s"\"" "\""${minutes}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
+		set hours="`printf "\""%s%s1\n"\"" "\""${modifier}"\"" "\""${hours}"\"" | bc`";
+		set minutes="`printf "\""(%s%s60)%s%s\n"\"" "\""${rtrim_minutes}"\"" "\""${modifier}"\"" "\""${reverse_modifier}"\"" "\""${oggs_minutes}"\"" | bc`";
 	endif
 	if( ${minutes} > 60 ) then
-		set hours="`printf "\""${hours}+1\n"\"" | bc`";
-		set minutes="`printf "\""${minutes}-60\n"\"" | bc`";
+		set hours="`printf "\""%s+1\n"\"" "\""${hours}"\"" | bc`";
+		set minutes="`printf "\""%s-60\n"\"" "\""${minutes}"\"" | bc`";
 	endif
 	if( "${minutes}" == "" ) then
 		set minutes="00";
 	endif
 	
-	if( "`printf "\""${seconds}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
-		set minutes="`printf "\""${minutes}${modifier}1\n"\"" | bc`";
-		set seconds="`printf "\""(${oggs_seconds}${reverse_modifier}60)${modifier}${rtrim_seconds}\n"\"" | bc`";
+	if( "`printf "\""%s"\"" "\""${seconds}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
+		set minutes="`printf "\""%s%s1\n"\"" "\""${modifier}"\"" "\""${minutes}"\"" | bc`";
+		set seconds="`printf "\""(%s%s60)%s%s\n"\"" "\""${rtrim_seconds}"\"" "\""${modifier}"\"" "\""${reverse_modifier}"\"" "\""${oggs_seconds}"\"" | bc`";
 	endif
 	if( ${seconds} > 60 ) then
-		set minutes="`printf "\""${minutes}+1\n"\"" | bc`";
-		set seconds="`printf "\""${seconds}-60\n"\"" | bc`";
+		set minutes="`printf "\""%s+1\n"\"" "\""${minutes}"\"" | bc`";
+		set seconds="`printf "\""%s-60\n"\"" "\""${seconds}"\"" | bc`";
 	endif
 	if( "${seconds}" == "" ) then
 		set seconds="00";
 	endif
 	if( ${?debug} ) then
 		printf "After calculating correct length:\n";
-		printf "\thours: ${hours}\n";
-		printf "\tminutes: ${minutes}\n";
-		printf "\tseconds: ${seconds}\n";
+		printf "\thours: %s\n" "${hours}";
+		printf "\tminutes: %s\n" "${minutes}";
+		printf "\tseconds: %s\n" "${seconds}";
 	endif
 	
-	if( "${hours}" == "" || "`printf "\""${hours}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
+	if( "${hours}" == "" || "`printf "\""%s"\"" "\""${hours}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
 		set hours="00";
 	endif
-	if( "`printf "\""${hours}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${hours}" ) then
+	if( "`printf "\""%s"\"" "\""${hours}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${hours}" ) then
 		set hours="0${hours}";
 	endif
-	if( "`printf "\""${minutes}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${minutes}" ) then
+	if( "`printf "\""%s"\"" "\""${minutes}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${minutes}" ) then
 		set minutes="0${minutes}";
 	endif
-	if( "`printf "\""${seconds}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${seconds}" ) then
+	if( "`printf "\""%s"\"" "\""${seconds}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${seconds}" ) then
 		set seconds="0${seconds}";
 	endif
 	if( ${?debug} ) then
 		printf "After checkingfor any needed '0' padding:\n";
-		printf "\thours: ${hours}\n";
-		printf "\tminutes: ${minutes}\n";
-		printf "\tseconds: ${seconds}\n";
+		printf "\thours: %s\n" "${hours}";
+		printf "\tminutes: %s\n" "${minutes}";
+		printf "\tseconds: %s\n" "${seconds}";
 	endif
 	
 	set length="${hours}:${minutes}:${seconds}";
-	if( "`printf "\""${length}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
+	if( "`printf "\""%s"\"" "\""${length}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
 		printf "Invalid calculated length: %s, lenth must be formatted as: hh:mm:ss\n" "${length}";
 		goto convert_filenames;
 	endif
 	if( ${?debug} ) then
-		printf "Calcucated Length: ${length}\n";
+		printf "Calcucated Length: %s\n" "${length}";
 		if( "${extension}" == "ogg" ) \
 			goto scripts_main_quit;
 	endif
@@ -891,7 +891,7 @@ parse_argv:
 	@ arg=0;
 	
 	if( ${?debug} ) \
-		printf "Checking ${scripts_basename}'s argv options.  ${argc} total.\n";
+		printf "Checking %s's argv options.  %s total.\n" "${scripts_basename}" "${argc}";
 #goto parse_argv;
 
 
@@ -1040,7 +1040,7 @@ parse_arg:
 				endif
 				
 				if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
-					printf "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
+					printf "Invalid %s%s: %s specified, lenth must be formatted as: hh:mm:ss\n" "${dashes}" "${option}" "${value}" > /dev/stderr;
 					@ errno=-602;
 					goto scripts_main_quit;
 					breaksw;
@@ -1060,7 +1060,7 @@ parse_arg:
 				endif
 				
 				if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
-					printf "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
+					printf "Invalid %s%s: %s specified, lenth must be formatted as: hh:mm:ss\n" "${dashes}" "${option}" "${value}" > /dev/stderr;
 					@ errno=-602;
 					goto scripts_main_quit;
 					breaksw;
@@ -1079,7 +1079,7 @@ parse_arg:
 				endif
 				
 				if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
-					printf "Invalid ${dashes}${option}: ${value} specified, lenth must be formatted as: hh:mm:ss\n" > /dev/stderr;
+					printf "Invalid %s%s: %s specified, lenth must be formatted as: hh:mm:ss\n" "${dashes}" "${option}" "${value}" > /dev/stderr;
 					@ errno=-601;
 					goto scripts_main_quit;
 					breaksw;
@@ -1108,7 +1108,7 @@ parse_arg:
 						breaksw;
 					
 					default:
-						printf "**${scripts_basename} error:** [${value}] is an unsupported playlist with an an unsupported playlist type: [${playlist_type}].\n\nRun: "\`"${scripts_basename} --help"\`" for more information.\n" > /dev/stderr;
+						printf "**%s error:** [%s] is an unsupported playlist with an an unsupported playlist type: [%s].\n\nRun: "\`"${scripts_basename} --help"\`" for more information.\n" "${scripts_basename}" "${value}" "${playlist_type}" > /dev/stderr;
 						@ errno=-606;
 						goto scripts_main_quit;
 						breaksw;
@@ -1289,7 +1289,7 @@ parse_arg:
 					set value="";
 				endif
 				
-				printf "**${scripts_basename} error:** ${dashes}${option}${equals}${value} is an unsupported option.\n\nSee "\`"${scripts_basename} -h|--help"\`" for more information.\n" > /dev/stderr;
+				printf "**%s error:** %s%s%s%s is an unsupported option.\n\nSee "\`"${scripts_basename} -h|--help"\`" for more information.\n" "${scripts_basename}" "${dashes}" "${option}" "${equals}" "${value}" > /dev/stderr;
 				@ errno=-609;
 				goto scripts_main_quit;
 				breaksw;

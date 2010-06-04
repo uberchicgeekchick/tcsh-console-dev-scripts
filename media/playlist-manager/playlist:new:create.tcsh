@@ -31,7 +31,7 @@ playlist_init:
 			breaksw;
 		
 		default:
-			printf "**${scripts_basename} error:** [${playlist}] is an unsupported playlist with an an unsupported playlist type: [${playlist_type}].\n\nRun: "\`"${scripts_basename} --help"\`" for more information.\n" > /dev/stderr;
+			printf "**%s error:** [%s] is an unsupported playlist with an an unsupported playlist type: [%s].\n\nRun: "\`"${scripts_basename} --help"\`" for more information.\n" "${scripts_basename}" "${playlist}" "${playlist_type}" > /dev/stderr;
 			@ errno=-606;
 			goto scripts_main_quit;
 			breaksw;

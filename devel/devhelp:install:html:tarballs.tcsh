@@ -7,8 +7,8 @@ cd "${gtk_doc_tgz}"
 if( ${?1} && "${1}" != "" && -d "${1}" ) cd "${1}"
 
 foreach manual ( *html*.tar.gz )
-	set extracted_to=`printf "${manual}" | sed 's/\(.*\)\.tar\.gz/\1/g'`;
-	set book=`printf "${manual}" | sed 's/\(.*\)\-html\-[0-9\.]\+\.tar\.gz/\1/g'`;
+	set extracted_to=`printf "%s" "${manual}" | sed 's/\(.*\)\.tar\.gz/\1/g'`;
+	set book=`printf "%s" "${manual}" | sed 's/\(.*\)\-html\-[0-9\.]\+\.tar\.gz/\1/g'`;
 	if( -d "${extracted_to}" ) continue;
 	printf "================ Extracting and installing ================\n\t%s" ${book};
 	tar -C .. -xzf ${manual};

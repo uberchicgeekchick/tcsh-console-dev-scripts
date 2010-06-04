@@ -209,8 +209,8 @@ fetch_podcast:
 		goto fetch_podcasts;
 	endif
 	
-	if( "`printf "\""${title}"\"" | sed -r 's/^(The)(.*)"\$"/\1/g'`" == "The" ) \
-		set title="`printf "\""${title}"\"" | sed -r 's/^(The)\ (.*)"\$"/\2,\ \1/g'`";
+	if( "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^(The)(.*)"\$"/\1/g'`" == "The" ) \
+		set title="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^(The)\ (.*)"\$"/\2,\ \1/g'`";
 	
 	if(! -d "${title}" ) \
 		mkdir -p "./${title}";
@@ -242,9 +242,9 @@ fetch_podcast:
 	
 	# Grabs the titles of the podcast and all episodes.
 	if(! ${?silent} ) \
-		printf "Finding titles${please_wait_phrase}\t";
+		printf "Finding titles%s\t" "${please_wait_phrase}";
 	if( ${?logging} ) \
-		printf "Finding titles${please_wait_phrase}\t" >> "${download_log}";
+		printf "Finding titles%s\t" >> "${download_log}" "${please_wait_phrase}";
 	
 	# Puts each item, or entry, on its own line:
 	ex -s '+1,$s/[\n][\ \t]*//' '+wq!' './00-feed.xml';
@@ -263,9 +263,9 @@ fetch_podcast:
 	# This will be my last update to any part of Alacast v1
 	# This fixes episode & chapter titles so that they will sort correctly
 	if(! ${?silent} ) \
-		printf "Formating titles${please_wait_phrase}";
+		printf "Formating titles%s" "${please_wait_phrase}";
 	if( ${?logging} ) \
-		printf "Formating titles${please_wait_phrase}" >> "${download_log}";
+		printf "Formating titles%s" >> "${download_log}" "${please_wait_phrase}";
 	ex -s '+1,$s/^\(Zero\)/0/gi' '+1,$s/^\(One\)/1/gi' '+1,$s/^\(Two\)/2/gi' '+1,$s/^\(Three\)/3/gi' '+1,$s/^\(Four\)/4/gi' '+1,$s/^\(Five\)/5/gi' '+wq!' './00-titles.lst';
 	ex -s '+1,$s/^\(Six\)/6/gi' '+1,$s/^\(Seven\)/7/gi' '+1,$s/^\(Eight\)/8/gi' '+1,$s/^\(Nine\)/9/gi' '+1,$s/^\(Ten\)/10/gi' '+wq!' './00-titles.lst';
 	
@@ -299,7 +299,7 @@ fetch_podcast:
 	if(! ${?silent} ) \
 		printf "Finding release dates...please be patient, I may need several moments\t\t";
 	if( ${?logging} ) \
-		printf "Finding release dates${please_wait_phrase}\t\t" >> "${download_log}";
+		printf "Finding release dates%s\t\t" >> "${download_log}" "${please_wait_phrase}";
 	/bin/cp './00-feed.xml' './00-pubDates.lst';
 	
 	# Concatinates all data into one single string:
@@ -682,12 +682,12 @@ parse_arg:
 			endif
 		endif
 		
-		if( "`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\""`";
+		if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
+			set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\""`";
 		endif
 		
-		if( "`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_cwd}\2/"\""`";
+		if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
+			set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_cwd}\2/"\""`";
 		endif
 		
 		@ parsed_argc++;

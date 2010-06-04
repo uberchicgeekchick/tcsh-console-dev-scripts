@@ -8,7 +8,7 @@ while ( ${?1} && "${1}" != "" )
 	set option = "`printf '${1}' | sed 's/^\([^=]*\)=\?\(.*\)$/\1/'`"
 	set value = "`printf '${1}' | sed 's/^\([^=]*\)=\?\(.*\)$/\2/'`"
 	if( "${option}" != "" && "${value}" == "" ) set value = "${option}"
-	if( `printf "${value}" | sed 's/\(\/\)/\1/g'` != "/" ) shift ; continue
+	if( `printf "%s" | sed 's/\(\/\)/\1/g'` != "/" "${value}" ) shift ; continue
 
 	set arguments_path = "${value}"
 	switch ( "${exec}" )

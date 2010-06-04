@@ -47,7 +47,7 @@ reniceall:
 		foreach pid( `/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ [^\ ]*$program_to_renice" | sed -r 's/^[0-9]+[\\ ]+([0-9]+).*[\r\n]*/\1/'` )
 			printf "Renicing %s(pid: %s) to %s.\n" "${program_to_renice}" "${pid}" "${priority}";
 			if( ${?debug} ) \
-				printf "${program} ${priority} ${pid}\n";
+				printf "%s %s %s\n" "${program}" "${priority}" "${pid}";
 			${program} ${priority} ${pid};
 		end
 	end
@@ -61,7 +61,7 @@ main_quit:
 #main_quit
 
 usage:
-	printf "${program} priority command_to_renice...";
+	printf "%s priority command_to_renice..." "${program}";
 	goto main_quit;
 #usage:
 

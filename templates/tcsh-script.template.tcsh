@@ -468,7 +468,7 @@ debug_check:
 			continue;
 		
 		if( ${?debug} || ${?debug_arguments} ) \
-			printf "**${scripts_basename} debug_check:**"\$"option: [${option}]; "\$"value: [${value}].\n" > ${stdout};
+			printf "**%s debug_check:**"\$"option: [${option}]; "\$"value: [${value}].\n" "${scripts_basename}" > ${stdout};
 		
 		switch("${option}")
 			case "h":
@@ -614,7 +614,7 @@ dependency_check:
 		
 		set dependency=$dependencies[$dependencies_index];
 		if( ${?debug} ) \
-			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n" > ${stdout};
+			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}" > ${stdout};
 			
 		foreach program("`where '${dependency}'`")
 			if( -x "${program}" ) \
@@ -656,7 +656,7 @@ dependency_check:
 					breaksw;
 				
 			if( ${?debug} ) \
-				printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n" > ${stdout};
+				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}" > ${stdout};
 				set old_owd="${cwd}";
 				cd "`dirname '${program}'`";
 				set scripts_dirname="${cwd}";
@@ -801,7 +801,7 @@ main:
 		goto callback_stack_update;
 	endif
 	
-	printf "Executing ${scripts_basename}'s main.\n" > ${stdout};
+	printf "Executing %s's main.\n" "${scripts_basename}" > ${stdout};
 	
 	onintr exec_interupted;
 	
@@ -1003,7 +1003,7 @@ exec:
 	if( ${?original_filename} ) \
 		printf "\t" > ${stdout};
 	
-	printf "Executing ${scripts_basename}'s exec.\n" > ${stdout};
+	printf "Executing %s's exec.\n" "${scripts_basename}" > ${stdout};
 	
 	if( ${?filename_list} && ! ${?supports_multiple_files} ) then
 		@ errno=-505;
@@ -1082,9 +1082,9 @@ exec:
 	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
 	printf "\tgrep " > ${stdout};
 	if( "${grep_test}" != "" ) then
-		printf "found:\n\t\t${grep_test}\n" > ${stdout};
+		printf "found:\n\t\t%s\n" "${grep_test}" > ${stdout};
 	else
-		printf "couldn't find:\n\t\t${filename}${extension}.\n" > ${stdout};
+		printf "couldn't find:\n\t\t%s%s.\n" "${filename}" "${extension}" > ${stdout};
 	endif
 	printf "\n" > ${stdout};
 	
@@ -1244,12 +1244,12 @@ usage:
 	endif
 	
 	if(!( ${?script} && ${?program} )) then
-		printf "${usage_message}\n" > ${stdout};
+		printf "%s\n" "${usage_message}" > ${stdout};
 	else
 		if( "${program}" != "${script}" ) then
 			${program} --help;
 		else
-			printf "${usage_message}\n" > ${stdout};
+			printf "%s\n" "${usage_message}" > ${stdout};
 		endif
 	endif
 	
@@ -1321,7 +1321,7 @@ exception_handler:
 			breaksw;
 		
 		case -499:
-			printf "${dashes}${option}${equals}${value} is an unsupported option" > ${stderr};
+			printf "%s%s%s%s is an unsupported option" "${dashes}" "${option}" "${equals}" "${value}" > ${stderr};
 			unset dashes option equals value;
 			breaksw;
 		
@@ -1334,7 +1334,7 @@ exception_handler:
 			breaksw;
 		
 		case -502:
-			printf "Sourcing is not supported. ${scripts_basename} may only be executed" > ${stderr};
+			printf "Sourcing is not supported. %s may only be executed" "${scripts_basename}" > ${stderr};
 			breaksw;
 		
 		case -503:
@@ -1375,11 +1375,11 @@ exception_handler:
 			breaksw;
 		
 		case -602:
-			printf "${dashes}${option} must be followed by a valid number greater than zero" > ${stderr};
+			printf "%s%s must be followed by a valid number greater than zero" "${dashes}" "${option}" > ${stderr};
 			breaksw;
 		
 		case -603:
-			printf "Invalid length specified for: [${dashes}${option}]: ${value} must be formatted as: 'hh:mm:ss'" > ${stderr};
+			printf "Invalid length specified for: [%s%s]: %s must be formatted as: 'hh:mm:ss'" "${dashes}" "${option}" "${value}" > ${stderr};
 			breaksw;
 		
 		case -604:
@@ -1430,7 +1430,7 @@ parse_argv_init:
 		set debug debug_set;
 	
 	if( ${?debug} ) \
-		printf "**${scripts_basename} debug:** checking argv.  ${argc} total arguments.\n\n" > ${stdout};
+		printf "**%s debug:** checking argv.  %s total arguments.\n\n" "${scripts_basename}" "${argc}" > ${stdout};
 	
 	set callback="parse_argv";
 	goto callback_handler;
@@ -1652,7 +1652,7 @@ parse_argv:
 				endsw
 				
 				if( ${?debug} ) \
-					printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${option}:\t[enabled].\n\n" > ${stdout};
+					printf "**%s debug:**, via "\$"argv[${arg}], ${option}:\t[enabled].\n\n" "${scripts_basename}" > ${stdout};
 			breaksw;
 			
 			case "enable":
@@ -1662,7 +1662,7 @@ parse_argv:
 							breaksw;
 						
 						if( ${?debug} ) \
-							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" > ${stdout};
+							printf "**%s debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" "${scripts_basename}" > ${stdout};
 						set switch_option;
 					breaksw;
 					
@@ -1670,7 +1670,7 @@ parse_argv:
 						if(! ${?be_verbose} ) \
 							breaksw;
 						
-						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" > ${stdout};
+						printf "**%s debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" "${scripts_basename}" > ${stdout};
 						set be_verbose;
 					breaksw;
 					
@@ -1689,7 +1689,7 @@ parse_argv:
 							breaksw;
 						
 						if( ${?debug} ) \
-							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" > ${stdout};
+							printf "**%s debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" "${scripts_basename}" > ${stdout};
 						unset switch_option;
 					breaksw;
 					
@@ -1697,7 +1697,7 @@ parse_argv:
 						if(! ${?be_verbose} ) \
 							breaksw;
 						
-						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" > ${stdout};
+						printf "**%s debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" "${scripts_basename}" > ${stdout};
 						unset be_verbose;
 					breaksw;
 					
@@ -1831,7 +1831,7 @@ filename_list_append_value:
 	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} || ${?debug_filenames} ) then
-			printf "Adding [${value}] to [${filename_list}].\nBy running:\n\tfind -L "\""${value}"\""" > ${stdout};
+			printf "Adding [%s] to [%s].\nBy running:\n\tfind -L "\""${value}"\""" "${value}" "${filename_list}" > ${stdout};
 			if(! ${?supports_hidden_files} ) \
 				printf  \! -iregex '.*\/\..*' > ${stdout};
 			printf "| sort >> "\""${filename_list}"\""\n\n";
@@ -1861,9 +1861,9 @@ filename_list_append_value:
 	
 	if( ${?debug}  || ${?debug_filenames} ) then
 		if(! -d "$value" ) then
-			printf "Adding [${value}] to [${filename_list}] if its a supported file type.\nSupported extensions are:\n\t`printf '${scripts_supported_extensions}' | sed -r 's/\|/,\ /g'`.\n" > ${stdout};
+			printf "Adding [%s] to [%s] if its a supported file type.\nSupported extensions are:\n\t`printf '%s' | sed -r 's/\|/,\ /g'`.\n" "${value}" "${filename_list}" "${scripts_supported_extensions}" > ${stdout};
 		else
-			printf "Adding any supported files found under [${value}] to [${filename_list}].\nSupported extensions are:\n\t`printf '${scripts_supported_extensions}' | sed -r 's/\|/,\ /g'`.\n" > ${stdout};
+			printf "Adding any supported files found under [%s] to [%s].\nSupported extensions are:\n\t`printf '%s' | sed -r 's/\|/,\ /g'`.\n" "${value}" "${filename_list}" "${scripts_supported_extensions}" > ${stdout};
 		endif
 		printf "By running:\n\tfind -L "\""${value}"\"" -regextype posix-extended -iregex "\"".*\.(${scripts_supported_extensions})"\"""\$"" > ${stdout};
 		if(! ${?supports_hidden_files} ) \
@@ -1903,7 +1903,7 @@ diagnosis:
 	
 	set scripts_diagnosis_log="`mktemp --tmpdir diagnosis.${scripts_basename}.log.XXXXXX";
 	
-	printf "----------------${scripts_basename} debug.log-----------------\n" >> "${scripts_diagnosis_log}";
+	printf "----------------%s debug.log-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
 	printf \$"argv:\n\t${argv}\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"parsed_argv:\n\t${parsed_argv}\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"{0} == [${0}]\n" >> "${scripts_diagnosis_log}";
@@ -1913,9 +1913,9 @@ diagnosis:
 		printf \$"{${arg}} == ${1}\n" >> "${scripts_diagnosis_log}";
 		shift;
 	end
-	printf "\n\n----------------<${scripts_basename}> environment-----------------\n" >> "${scripts_diagnosis_log}";
+	printf "\n\n----------------<%s> environment-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
 	env >> "${scripts_diagnosis_log}";
-	printf "\n\n----------------<${scripts_basename}> variables-----------------\n" >> "${scripts_diagnosis_log}";
+	printf "\n\n----------------<%s> variables-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
 	set >> "${scripts_diagnosis_log}";
 	printf "Create's %s diagnosis log:\n\t<file://%s>\n" "${scripts_basename}" "${scripts_diagnosis_log}" > ${stdout};
 	unset diagnosis;
@@ -2011,7 +2011,7 @@ callback_handler:
 	unset callback;
 	
 	if( ${?debug} ) \
-		printf "handling callback to [${last_callback}].\n" > ${stdout};
+		printf "handling callback to [%s].\n" "${last_callback}" > ${stdout};
 	
 	goto $last_callback;
 #goto callback_handler;

@@ -184,7 +184,7 @@ exec:
 	set current_label="exec";
 	
 	if( ${?debug} ) \
-		printf "Running:\n\t/bin/grep --binary-files=without-match --color --with-filename --line-number --initial-tab --no-messages --perl-regexp ${argz} | sed -r 's/(.*):[\\ \\t]+.*/\\1/' | sort | uniq\n";
+		printf "Running:\n\t/bin/grep --binary-files=without-match --color --with-filename --line-number --initial-tab --no-messages --perl-regexp %s | sed -r 's/(.*):[\\ \\t]+.*/\\1/' | sort | uniq\n" "${argz}";
 	/bin/grep --binary-files=without-match --color --with-filename --line-number --initial-tab --no-messages --perl-regexp ${argz} | sed -r 's/(.*):[\ \t]+.*/\1/' | sort | uniq
 	goto scripts_main_quit;
 #exec:
@@ -444,12 +444,12 @@ parse_arg:
 			endif
 		endif
 		
-		if( "`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\""`";
+		if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
+			set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\""`";
 		endif
 		
-		if( "`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
-			set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_cwd}\2/"\""`";
+		if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
+			set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_cwd}\2/"\""`";
 		endif
 		
 		@ parsed_argc++;

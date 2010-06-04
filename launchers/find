@@ -24,7 +24,7 @@ check_dependencies:
 		@ dependencies_index++;
 		set dependency=$dependencies[$dependencies_index];
 		#if( ${?debug} ) \
-			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}; "\$"dependencies[%d].\n\n" $dependencies_index > ${stdout};
+			printf "\n**%s debug:** looking for dependency: %s; "\$"dependencies[%d].\n\n" "${scripts_basename}" "${dependency}" $dependencies_index > ${stdout};
 			
 		foreach exec("`where '${dependency}'`")
 			if(! -x "${exec}" ) then
@@ -33,7 +33,7 @@ check_dependencies:
 			endif
 			
 			#if( ${?debug} ) \
-				printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}, "\$"dependencies[%d], against: %s.\n\n" $dependencies_index "${exec}" > ${stdout};
+				printf "\n**%s debug:** looking for dependency: %s, "\$"dependencies[%d], against: %s.\n\n" $dependencies_index "${exec}" "${scripts_basename}" "${dependency}" > ${stdout};
 			switch("${exec}")
 				case "./${scripts_basename}":
 				case "${TCSH_LAUNCHER_PATH}/${scripts_basename}":
@@ -279,16 +279,16 @@ parse_arg:
 			endif
 		endif
 		
-		#if( "`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
-		#	set value="`printf "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+		#if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
+		#	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 		#endif
 		
-		#if( "`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
-		#	set value="`printf "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_dir}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+		#if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
+		#	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_dir}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 		#endif
 		
-		#if( "`printf "\""${value}"\"" | sed -r "\""s/^(.*)(\*)"\$"/\2/"\""`" == "*" ) then
-		#	set dir="`printf "\""${value}"\"" | sed -r "\""s/^(.*)\*"\$"/\2/"\""`";
+		#if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(.*)(\*)"\$"/\2/"\""`" == "*" ) then
+		#	set dir="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(.*)\*"\$"/\2/"\""`";
 		#	set value="`/bin/ls --width=1 "\""${dir}"\""*`";
 		#endif
 		

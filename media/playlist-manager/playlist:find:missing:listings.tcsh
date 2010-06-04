@@ -242,15 +242,6 @@ find_missing_media:
 		endif
 		
 		set status=0;
-		set rm_confirmation="`rm -vf${remove} "\""${this_podcast}"\""`";
-		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
-			continue;
-		printf "%s\n" "${rm_confirmation}";
-		
-		@ removed_podcasts++;
-		if( ${?create_script} ) then
-			printf "rm -vf${remove} "\""${this_podcast}"\"";\n" >> "${create_script}";
-		endif
 		
 		set podcast_dir="`dirname "\""${this_podcast}"\""`";
 		
@@ -259,6 +250,16 @@ find_missing_media:
 		else if( "${last_checked_directory}" != "${podcast_dir}" ) then
 			set last_checked_directory="${podcast_dir}";
 			printf "\n";
+		endif
+		
+		set rm_confirmation="`rm -vf${remove} "\""${this_podcast}"\""`";
+		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
+			continue;
+		printf "%s\n" "${rm_confirmation}";
+		
+		@ removed_podcasts++;
+		if( ${?create_script} ) then
+			printf "rm -vf${remove} "\""${this_podcast}"\"";\n" >> "${create_script}";
 		endif
 		
 		set podcast_dir_for_ls="`dirname "\""${this_podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";

@@ -24,7 +24,7 @@ scripts_main_quit:
 			if( -e "${playlist}.new" ) \
 				rm "${playlist}.new";
 		else
-			playlist:new:save.tcsh --force "${playlist}";
+			playlist:new:save.tcsh "${playlist}";
 		endif
 		unset playlist;
 	endif
@@ -324,7 +324,14 @@ main:
 
 
 cancel_convert:
-	onintr scripts_main_quit;
+	if( ${?length} && ! ${?length_set} ) \
+		unset length;
+	
+	if(! ${?process_each_filename} ) then
+		onintr scripts_main_quit;
+	else
+		onintr parse_arg;
+	endif
 	
 	if(!( ${?save_to_filename} && ${?original_extension} )) then
 		sleep 2;
@@ -350,9 +357,10 @@ convert_filename_list:
 	if(! ${?filename_list} ) \
 		goto usage;
 	
-	if( ${?length} && ! ${?length_set} ) then
+	if( ${?length} && ! ${?length_set} ) \
 		unset length;
-	else if( ${?length_set} && ${?rtrim} ) then
+	
+	if( ${?length_set} && ${?rtrim} ) then
 		printf "\t**Error:** both --length and --rtrim cannot be specified at the same time.\n\n" > /dev/stderr;
 		@ errno=-610;
 		if(! ${?process_each_filename} ) then
@@ -361,8 +369,6 @@ convert_filename_list:
 			goto parse_arg;
 		endif
 	endif
-	
-	onintr cancel_convert;
 	
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
 	mv -f "${filename_list}.swp" "${filename_list}";
@@ -414,6 +420,9 @@ convert_filename_list:
 	
 convert_filenames:
 	onintr cancel_convert;
+	
+	if( ${?length} && ! ${?length_set} ) \
+		unset length;
 	
 	foreach filename( "`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 		if( ${?debug} || ${?debug_filelist} ) \
@@ -803,6 +812,8 @@ init_combine:
 	
 	if( ${?length} ) \
 		unset length;
+	if( ${?length_set} ) \
+		unset length_set;
 	
 	@ files_combined=1;
 	set extension="";
@@ -851,11 +862,19 @@ continue_combine:
 
 usage:
 	if(! ${?usage_displayed} ) then
-		printf "Usage:\n\t${scripts_basename} [options] filename\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n";
+		printf "Usage: %s [-h|help] [--|--"\!"] [--transcode] [--re-encode...] [--ltrim] [--rtrim] [--length] directory|directories|file(s)... [options]...\
+	\
+	%s converts any multimedia file into an OGG Vorbis audio file.\
+	\
+	Possible options are:\
+		[-h|--help]	Displays this screen.\
+		" "${scripts_basename}" "${scripts_basename}";
 		set usage_displayed;
 	endif
+	
 	if(! ${?no_exit_on_usage} ) then
-		@ errno=-1;
+		if(! ${?errno} ) \
+			@ errno=0;
 		goto scripts_main_quit;
 	endif
 	
@@ -864,6 +883,8 @@ usage:
 
 
 parse_argv:
+	onintr parse_argv_quit;
+	
 	if( ${#argv} == 0 ) \
 		goto if_sourced;
 	@ argc=${#argv};
@@ -875,6 +896,8 @@ parse_argv:
 
 
 parse_arg:
+	onintr parse_arg;
+	
 	while( $arg < $argc )
 		if(! ${?arg_shifted} ) then
 			@ arg++;
@@ -961,7 +984,7 @@ parse_arg:
 				else
 					if( ${?debug} || ${?debug_arguments} ) \
 						printf "\tparsed "\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t"\$"dashes: [%s];\n\t"\$"option: [%s];\n\t"\$"equals: [%s];\n\t"\$"value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}";
-					set equals="=";
+					set equals=" ";
 					set value="${test_value}";
 					set arg_shifted;
 				endif
@@ -983,6 +1006,17 @@ parse_arg:
 			printf "\tparsed option "\$"parsed_argv[%d]: %s\n\n" ${parsed_argc} "${parsed_arg}";
 		
 		switch("${option}")
+			case "any-file":
+			case "all-files":
+				if( ${?scripts_supported_extensions} ) \
+					unset scripts_supported_extensions;
+				breaksw;
+			
+			case "default-files":
+				if( ${?scripts_supported_extensions} ) \
+					set scripts_supported_extensions="${scripts_supported_extensions_defaults}";
+				breaksw;
+			
 			case "no-ltrim":
 				if( ${?ltrim} ) \
 					unset ltrim;
@@ -1090,6 +1124,14 @@ parse_arg:
 				playlist:new:create.tcsh "${playlist}";
 				unset playlist_type;
 				set value_used;
+				breaksw;
+			
+			case "no-playlist":
+				if(! ${?playlist} ) \
+					breaksw;
+				
+				playlist:new:save.tcsh "${playlist}";
+				unset playlist;
 				breaksw;
 			
 			case "transcode":
@@ -1268,6 +1310,8 @@ parse_arg:
 
 
 parse_argv_quit:
+	onintr scripts_main_quit;
+	
 	unset arg;
 	
 	if( ${?debug_set} ) \
@@ -1290,12 +1334,6 @@ filename_list_append_value:
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
 	
-	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|wma|wav" && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
-		set scripts_supported_extensions="mp3|m4a|wma|wav";
-	else if( "${scripts_supported_extensions}" == "mp3|m4a|wma|wav" && ( ${?ltrim} || ${?rtrim} || ${?length} ) ) then
-		set scripts_supported_extensions="ogg|mp3|m4a|wma|wav";
-	endif
-	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} || ${?debug_filelist} ) then
 			printf "Adding [${value}] to [${filename_list}].\nBy running:\n\tfind -L "\""${value}"\""";
@@ -1314,6 +1352,12 @@ filename_list_append_value:
 		else
 			goto convert_filename_list;
 		endif
+	endif
+	
+	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|wma|wav" && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
+		set scripts_supported_extensions="mp3|m4a|wma|wav";
+	else if( "${scripts_supported_extensions}" == "mp3|m4a|wma|wav" && ( ${?ltrim} || ${?rtrim} || ${?length} ) ) then
+		set scripts_supported_extensions="ogg|mp3|m4a|wma|wav";
 	endif
 	
 	if( ${?debug} || ${?debug_filelist} ) then

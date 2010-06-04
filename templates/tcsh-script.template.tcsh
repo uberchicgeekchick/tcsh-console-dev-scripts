@@ -95,6 +95,11 @@ scripts_main_quit:
 		goto callback_stack_update;
 	endif
 	
+	if( ${?confirmation} ) \
+		unset confirmation;
+	if( ${?disable_interupt_prompt} ) \
+		unset disable_interupt_prompt;
+	
 	if( ${?supports_multiple_files} ) then
 		if( ${?filename_list} ) then
 			set callback="filename_list_post_process";
@@ -105,6 +110,14 @@ scripts_main_quit:
 		@ errno=-505;
 		goto exception_handler;
 	endif
+	
+	if( ${?file_count_all} ) \
+		unset file_count_all;
+	if( ${?filenames_processed} ) \
+		unset filenames_processed;
+	if( ${?file_count} ) \
+		unset file_count;
+
 	
 	if( ${?diagnosis} ) then
 		set callback="diagnosis";
@@ -707,9 +720,6 @@ if_sourced:
 		goto exception_handler;
 	endif
 	
-	if( ${?file_count} ) \
-		unset file_count;
-	
 	if(! ${?filenames_processed} ) then
 		if(! ${?filename_list} ) \
 			set filename_list="${scripts_tmpdir}/.filenames.${scripts_basename}.@`date '+%s'`";
@@ -772,12 +782,12 @@ sourcing_exec:
 	
 	# START: special handler for when this file is sourced.
 	if( ${?debug} ) \
-		printf "Setting up aliases so [%s]; executes: <file://%s>.\n" "${script_alias}" "${script}";
+		printf "Setting up aliases so [%s]; executes: <file://%s>.\n" "${scripts_alias}" "${script}";
 	
-	alias "${script_alias}" "${script}";
+	alias "${scripts_alias}" "${script}";
 	# FINISH: special handler for when this file is sourced.
 	
-	set callback="scripts_main_quit";
+	set callback="exit_script";
 	goto callback_handler;
 #set callback="sourcing_exec";
 #goto callback_handler;
@@ -793,6 +803,8 @@ main:
 	
 	printf "Executing ${scripts_basename}'s main.\n" > ${stdout};
 	
+	onintr exec_interupted;
+	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
 		set callback="exec";
 	else if( ${?filename_list} && ! ${?supports_multiple_files} ) then
@@ -803,14 +815,25 @@ main:
 			set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 		else if( -e "${filename_list}" ) then
 			set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+		else if( ${?original_filename} ) then
+			if( -e "`printf "\""%s"\"" "\""${original_filename}"\""`" ) then
+				if(! ${?file_count} ) then
+					@ file_count=1;
+				else
+					set file_count="`printf "\""%d+1\n"\"" ${file_count} | bc`";
+				endif
+			endif
 		endif
-		if(!( ${file_count} > 0 || ${?filenames_processed} )) then
+		if(! ${?file_count} ) \
+			@ file_count=0;
+		
+		if(!( ${file_count} > 0 )) then
 			@ errno=-506;
 			goto exception_handler;
 		endif
 	else if(!( ${?scripts_interactive} || ${?auto_read_stdin} )) then
 		@ errno=-999;
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 		goto exception_handler;
 	endif
 	
@@ -829,7 +852,7 @@ read_stdin_init:
 	endif
 	
 	if(!( ${?scripts_interactive} || ${?auto_read_stdin} )) then
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 		goto callback_handler;
 	endif
 	
@@ -847,7 +870,7 @@ read_stdin_init:
 	if(! ${?stdin_read} ) then
 		set callback="read_stdin";
 	else
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	endif
 	goto callback_handler;
 #set callback="read_stdin_init";
@@ -927,7 +950,7 @@ read_stdin_quit:
 
 
 exec_interupted:
-	set label_current="exec";
+	set label_current="exec_interupted";
 	if(! ${?label_previous} ) then
 		goto callback_stack_update;
 	else if("${label_current}" != "${label_previous}") then
@@ -935,14 +958,34 @@ exec_interupted:
 	endif
 	
 	onintr exit_script;
-	
 	if( ${?original_filename} ) then
 		printf "\n\tProcessing: <file://%s>\t[cancelled]\n\n" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
 	endif
-
-	sleep 2;
 	
-	onintr exec_interupted;
+	if( ! ${?reading_stdin} && ! ${?disable_interupt_prompt} ) then
+		printf "\tWould you like %s to continue? [Yes/No/Always]" "${scripts_basename}" > ${stdout};
+		set confirmation="$<";
+		#set rconfirmation=$<:q;
+		printf "\n";
+		
+		switch(`printf "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+			case "n":
+				printf "\t[%s] will now exit\n" "${scripts_basename}" > ${stdout};
+				set callback="exit_script";
+				goto callback_handler;
+				breaksw;
+			
+			case "a":
+				set disable_interupt_prompt;
+			case "y":
+			default:
+				unset confirmation;
+				breaksw;
+		endsw
+	else
+		sleep 2;
+	endif
+	
 	set callback="filename_next";
 	goto callback_handler;
 #exec_interupted;
@@ -1002,7 +1045,7 @@ exec:
 	printf "\tProcessing: <file://%s>" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
 	if( ${?file_count} ) then
 		if( ${file_count} > 1 ) \
-			printf " ( file #${filenames_processed} of ${file_count} )" > ${stdout};
+			printf " ( file #%d out of %d )" ${filenames_processed} ${file_count} > ${stdout};
 	endif
 	printf "\t[started]\n" > ${stdout};
 	set extension="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
@@ -1069,6 +1112,9 @@ filename_next:
 		goto exception_handler;
 	endif
 	
+	if(! -e "${filename_list}.all" ) \
+		cp "${filename_list}" "${filename_list}.all";
+	
 	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
 		ex -s '+1d' '+wq!' "${filename_list}";
 		if( "${original_filename}" == "" ) \
@@ -1105,7 +1151,7 @@ filename_next:
 	else if(! ${?stdin_read} ) then
 		set callback="read_stdin_quit";
 	else
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	endif
 	goto callback_handler;
 #set callback="filename_next";
@@ -1124,25 +1170,34 @@ filename_list_post_process:
 		goto exception_handler;
 	endif
 	
-	#if(! ${?file_count} ) then
-		if( -e "${filename_list}.all" ) then
-			set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
-		else if( -e "${filename_list}" ) then
-			set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
-		else
-			@ file_count=0;
+	#unset supports_multiple_files;
+	
+	if( -e "${filename_list}.all" ) \
+		set file_count_all="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+	if( -e "${filename_list}" ) \
+		set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+	if( ${?file_count_all} && ${?file_count} ) then
+		if( ${?file_count_all} != ${?file_count} ) then
+			cat "${filename_list}.all" >> "${filename_list}";
+			#set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+			set file_count="`printf "\""%d+%d\n"\"" ${file_count_all} ${file_count}`";
 		endif
-	#endif
+	else if(! ${?file_count} ) then
+		@ file_count=0;
+	endif
+	
+	if( ${?file_count_all} ) \
+		unset file_count_all;
 	
 	if(! ${?filenames_processed} ) \
 		@ filenames_processed=0;
 	
-	if(!( ${file_count} > 0 && ${filenames_processed} > 0  )) then
-		@ errno=-506;
+	if(!( ${file_count} > 0 && ${filenames_processed} > 0 )) then
+		@ errno=-497;
 		goto exception_handler;
 	endif
 	
-	printf "Post-Processing %s's processed files:\t[" "${scripts_basename}" > ${stdout};
+	printf "Post-Processing %s's processed %d out of %d files\t[" "${scripts_basename}" ${filenames_processed} ${file_count} > ${stdout};
 	
 	if( ${filenames_processed} != ${file_count} ) then
 		printf "failed]]\n\t\t\t\t\t\t[only %d out %d files where" ${filenames_processed} ${file_count} > ${stdout};
@@ -1162,7 +1217,7 @@ filename_list_post_process:
 		rm -f "${filename_list}.all";
 	unset filename_list;
 	
-	set callback="scripts_main_quit";
+	set callback="exit_script";
 	goto callback_handler;
 #set callback="filename_list_post_process";
 #goto callback_handler;
@@ -1202,7 +1257,7 @@ usage:
 		set usage_displayed;
 	
 	if(!( ${?no_exit_on_usage} && ${?callback} )) \
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	
 	goto callback_handler;
 #set callback="$!";
@@ -1221,13 +1276,13 @@ exception_handler:
 		@ errno=-999;
 	
 	if( $errno < -400 && ${?strict} ) then
-		if(! ${?display_usage_on_exception} ) \
-			set display_usage_on_exception display_usage_on_exception_set;
-		if( ${?no_exit_on_exception} ) \
-			unset no_exit_on_exception;
+		if( ${?exit_on_exception} ) \
+			set exit_on_exception;
 	else if( $errno > -400 && $errno < -100 ) then
-		if(! ${?no_exit_on_exception} ) \
-			set no_exit_on_exception_set no_exit_on_exception;
+		if( ${?exit_on_exception} ) then
+			set exit_on_exception_unset;
+			unset exit_on_exception;
+		endif
 	endif
 	
 	if( $errno > -400 ) \
@@ -1247,6 +1302,17 @@ exception_handler:
 		case -302:
 			printf "Cannot process:\n\t\t<file://%s>\n\t\t\tit no longer exists\t[skipped]" "${original_filename}" > ${stderr};
 			unset original_filename;
+			breaksw;
+		
+		case -497:
+			printf "No files have been processed" > ${stderr};
+			if( ${?filename_list} ) then
+				if( -e "${filename_list}" ) \
+					rm -f "${filename_list}";
+				if( -e "${filename_list}.all" ) \
+					rm -f "${filename_list}.all";
+				unset filename_list;
+			endif
 			breaksw;
 		
 		case -498:
@@ -1292,8 +1358,20 @@ exception_handler:
 		
 		case -506:
 			printf "No processable file have been provide, nor could any be found" > ${stderr};
-			if(!( ${?scripts_interactive} || ${?auto_read_stdin} )) \
+			if(!( ${?scripts_interactive} || ${?auto_read_stdin} )) then
 				printf ".\n\t\tRun: "\`"%s -"\`" or "\`"%s "\""<"\"\`" if you want to pipe options into this script" "${scripts_basename}" "${scripts_basename}" > ${stderr};
+			else
+				set callback="filename_next";
+				if( ${?exit_on_exception} ) \
+					unset exit_on_exception;
+			endif
+			if( ${?filename_list} ) then
+				if( -e "${filename_list}" ) \
+					rm -f "${filename_list}";
+				if( -e "${filename_list}.all" ) \
+					rm -f "${filename_list}.all";
+				unset filename_list;
+			endif
 			breaksw;
 		
 		case -602:
@@ -1319,22 +1397,17 @@ exception_handler:
 	endsw
 	printf ".\n\n" > ${stderr};
 	@ last_exception_handled=$errno;
-	if(! ${?display_usage_on_exception} ) \
-		printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
+	printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr};
 	if(! ${?debug} ) \
 		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr};
 	printf "\n" > ${stderr};
 	
-	if(!( ${?callback} && ${?no_exit_on_exception} )) \
-		set callback="scripts_main_quit";
+	if( ! ${?callback} || ${?exit_on_exception} ) \
+		set callback="exit_script";
 	
-	if( ${?no_exit_on_exception_set} ) \
-		unset no_exit_on_exception_set no_exit_on_exception;
-	
-	if( ${?display_usage_on_exception} ) then
-		if( ${?display_usage_on_exception_set} ) \
-			unset display_usage_on_exception_set;
-		goto usage;
+	if( ${?exit_on_exception_unset} ) then
+		unset exit_on_exception_unset;
+		set exit_on_exception;
 	endif
 	
 	goto callback_handler;
@@ -1480,7 +1553,7 @@ parse_argv:
 				if(!( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" )) then
 					@ arg--;
 				else
-					set equals="=";
+					set equals=" ";
 					set value="${test_value}";
 					set arg_shifted;
 				endif
@@ -1646,11 +1719,12 @@ parse_argv:
 				endif
 				
 				if(! ${?strict} ) then
-					if(! ${?no_exit_on_exception} ) \
-						set no_exit_on_exception_set no_exit_on_exception;
+					if(! ${?exit_on_exception} ) \
+						set exit_on_exception;
 					set callback="parse_argv";
-				else if( ${?no_exit_on_exception} ) then
-					unset no_exit_on_exception;
+				else if( ${?exit_on_exception} ) then
+					unset exit_on_exception;
+					set exit_on_exception_unset;
 				endif
 				
 				@ errno=-499;
@@ -1919,7 +1993,7 @@ callback_stack_update:
 
 callback_handler:
 	if(! ${?callback} ) \
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	
 	if(! ${?callback_stack} ) then
 		set callback_stack=("${callback}");

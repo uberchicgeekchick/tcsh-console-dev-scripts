@@ -271,7 +271,7 @@ parse_arg:
 				if(!("${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]")) then
 					@ arg--;
 				else
-					set equals="=";
+					set equals=" ";
 					set value="${test_value}";#"`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
 					set arg_shifted;
 				endif

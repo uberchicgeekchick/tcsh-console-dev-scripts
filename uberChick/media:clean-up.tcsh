@@ -46,25 +46,29 @@ clean_up:
 	endif
 	switch( $goto_index )
 		case 0:
-			goto move;
+			goto move_slashdot;
 			breaksw;
-			
+		
 		case 1:
+			goto move_podiobooks;
+			breaksw;
+		
+		case 2:
 			goto back_up;
 			breaksw;
-			
-		case 2:
+		
+		case 3:
 			goto delete;
 			breaksw;
-			
-		case 3:
+		
+		case 4:
 			goto playlists;
 			breaksw;
-			
-		case 4:
+		
+		case 5:
 			goto logs;
 			breaksw;
-			
+		
 		default:
 			unset goto_index callback;
 			breaksw;
@@ -73,12 +77,37 @@ clean_up:
 #goto clean_up;
 
 
-move:
+move_slashdot:
+	set slashdot=( \
+	"\n" \
+"/media/podcasts/Slashdot/Frank Zappa's Influence On Linux and FOSS Development, released on: Thu, 03 Jun 2010 20:11:00 GMT.mp3" \
+	"\n" \
+	"\n" \
+	);
+	
+	if( ${?slashdot} ) then
+		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+			if( "${podcast}" != "" && -e "${podcast}" ) then
+				if(! -d "/media/podcasts/slash." ) \
+					mkdir -p  "/media/podcasts/slash.";
+				
+				mv -v \
+					"${podcast}" \
+				"/media/podcasts/slash.";
+			endif
+			unset podcast;
+		end
+		unset slashdot;
+	endif
+	
+	goto parse_argv;
+#goto move_slashdot;
+
+
+move_podiobooks:
 	set podiobooks=( \
 	"\n" \
-"/media/podiobooks/Latest/Prince of Hazel and Oak, The/06. Hazelandoak 06 - The Prince of Hazel and Oak, released on: Thu, 03 Jun 2010 07:01:23 GMT.ogg" \
 	"\n" \
-"/media/podiobooks/Latest/Time Crystal 02/17. TimeCrystalVol2-17 - Time Crystal 02, released on: Wed, 02 Jun 2010 07:01:40 GMT.ogg" \
 	"\n" \
 	);
 	
@@ -100,33 +129,13 @@ move:
 		unset podiobooks;
 	endif
 	
-	set slashdot=( \
-	"\n" \
-"/media/podcasts/Slashdot/Smokescreen, a JavaScript-Based Flash Player, released on: Tue, 01 Jun 2010 18:17:00 GMT.mp3" \
-	"\n" \
-	);
-	
-	if( ${?slashdot} ) then
-		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) then
-				if(! -d "/media/podcasts/slash." ) \
-					mkdir -p  "/media/podcasts/slash.";
-				
-				mv -v \
-					"${podcast}" \
-				"/media/podcasts/slash.";
-			endif
-			unset podcast;
-		end
-		unset slashdot;
-	endif
-	
 	goto parse_argv;
-#goto move;
+#goto move_podiobooks;
 
 
 back_up:
 	set slashdot=( \
+	"\n" \
 	"\n" \
 	"\n" \
 	);
@@ -154,6 +163,7 @@ delete:
 	set to_be_deleted=( \
 	"\n" \
 	"\n" \
+	"\n" \
 	);
 	
 	if( ${?to_be_deleted} ) then
@@ -173,6 +183,8 @@ delete:
 	endif
 	
 	set directories_to_delete=( \
+	"\n" \
+	"\n" \
 	"\n" \
 	);
 	
@@ -207,8 +219,8 @@ playlists:
 		
 		if( "`find "\""${playlist_dir}"\"" -iregex "\"".*\/\.${playlist_escaped}\.sw."\""`" != "" ) then
 			printf "<file://%s/%s> is in use and will not be deleted.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
-		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 2 ) then
-			printf "<file://%s/%s> is the latest playlist and appears to still list files.\n\tWould your like to remove it:\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
+		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 1 ) then
+			printf "<file://%s/%s> still lists files.\n\tWould you still it removed:\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
 			rm -vi "${playlist_dir}/${playlist}";
 		else
 			rm -v "${playlist_dir}/${playlist}";

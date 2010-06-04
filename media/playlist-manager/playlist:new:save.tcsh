@@ -47,15 +47,23 @@ playlist_init:
 		set new_playlist_type="${playlist_type}";
 	endif
 	
-	if( "${new_playlist}" != "${playlist}" && -e "${new_playlist}" ) then
-		if(! ${?force} ) then
-			printf "You've specified that you want to over-write an existing playlist with the newly sorted playlist\nIn order to do this the existing playlist must first be removed.\nAre you sure you want to proceed?\n" > /dev/stderr;
-			set rm_confirmation="`rm -vfi "\""${new_playlist}"\""`";
-			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) then
+	if( ! ${?force} && "${new_playlist}" != "${playlist}" && -e "${new_playlist}" ) then
+		printf "You've specified that you want to over-write an existing playlist with the newly sorted playlist\nIn order to do this the existing playlist must first be removed.\nAre you sure you want to proceed? [y/N]\n" > /dev/stderr;
+		set confirmation="$<";
+		#set rconfirmation=$<:q;
+		printf "\n";
+		
+		switch(`printf "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+			case "y":
+				rm -vf "${new_playlist}";
+				breaksw;
+			
+			case "n":
+			default:
 				printf "Your playlist(s), [%s] and [%s], will be left alone.\n\t%s is now exiting\n\t[%s.new] will now be deleted.\n" "${playlist}" "${new_playlist}" "${scripts_basename}" "${playlist}" > /dev/stderr;
 				goto scripts_main_quit;
-			endif
-		endif
+				breaksw;
+		endsw
 	endif
 	
 	if(! -e "${playlist}.new" ) \

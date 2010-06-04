@@ -968,7 +968,7 @@ exec_interupted:
 		#set rconfirmation=$<:q;
 		printf "\n";
 		
-		switch(`printf "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+		switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
 			case "n":
 				printf "\t[%s] will now exit\n" "${scripts_basename}" > ${stdout};
 				set callback="exit_script";
@@ -1049,7 +1049,7 @@ exec:
 	endif
 	printf "\t[started]\n" > ${stdout};
 	set extension="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
-	if( "${extension}" == "`printf "\""${original_filename}"\""`" ) \
+	if( "${extension}" == "`printf "\""%s"\"" "\""${original_filename}"\""`" ) \
 		set extension="";
 	set original_extension="${extension}";
 	set filename="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
@@ -1606,7 +1606,7 @@ parse_argv:
 			breaksw;
 			
 			case "length_option":
-				if( "`printf "\""${escaped_value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
+				if( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
 					@ errno=-603;
 					set callback="parse_argv";
 					goto exception_handler;
@@ -1778,9 +1778,9 @@ parse_argv_quit:
 	#		foreach parsed_arg("`cat "\""${parsed_argv_file}"\""`")
 	#			@ parsed_argc++;
 	#			if(! ${?parsed_argv} ) then
-	#				set parsed_argv=("`printf "\""${parsed_arg}"\""`");
+	#				set parsed_argv=("`printf "\""%s"\"" "\""${parsed_arg}"\""`");
 	#			else
-	#				set parsed_argv=("${parsed_argv}" "`printf "\""${parsed_arg}"\""`");
+	#				set parsed_argv=("${parsed_argv}" "`printf "\""%s"\"" "\""${parsed_arg}"\""`");
 	#			endif
 	#		end
 	#		rm -f "${parsed_argv_file}";

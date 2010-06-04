@@ -112,12 +112,13 @@ move_podiobooks:
 	
 	if( ${?podiobooks} ) then
 		foreach podiobook_episode( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			set podiobook="`dirname "\""${podiobook_episode}"\""`";
-			set podiobook="`basename "\""${podiobook}"\""`";
-			set podiobook_episode="/media/podcasts/${podiobook}";
 			if( "${podiobook_episode}" != "" && -e "${podiobook_episode}" ) then
 				if(! -d "/media/podiobooks/Latest" ) \
 					mkdir -p  "/media/podiobooks/Latest";
+				
+				set podiobook="`dirname "\""${podiobook_episode}"\""`";
+				set podiobook="`basename "\""${podiobook}"\""`";
+				set podiobook_episode="/media/podcasts/${podiobook}";
 				
 				mv -v \
 					"${podiobook_episode}" \
@@ -189,7 +190,7 @@ delete:
 	
 	if( ${?directories_to_delete} ) then
 		foreach podcast( "`printf "\""${directories_to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" ) then
+			if( "${podcast}" != "" && -e "${podcast}" ) then
 				set podcast_dir="`dirname "\""${podcast}"\""`";
 				if( "${podcast_dir}" != "/media/podcasts" && -d "${podcast_dir}" ) \
 					rm -rv \
@@ -209,7 +210,7 @@ delete:
 playlists:
 	set playlist_dir="/media/podcasts/playlists/m3u";
 	foreach playlist("`/bin/ls --width=1 -t "\""${playlist_dir}"\""`")
-		set playlist_escaped="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/([\/.])/\\\1/g'`";
+		set playlist_escaped="`printf "\""${playlist}"\"" | sed -r 's/([\/.])/\\\1/g'`";
 		if(! ${?playlist_count} ) then
 			@ playlist_count=1;
 		else

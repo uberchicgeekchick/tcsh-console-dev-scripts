@@ -200,6 +200,11 @@ find_missing_media:
 			endif
 			printf "%s\n" "${this_podcast}";
 			printf "%s\n" "${this_podcast}" >> "${playlist}.new";
+			
+			if( ${?create_script} ) then
+				printf "%s\n" "${this_podcast}" >> "${create_script}";
+			endif
+			
 			continue;
 		endif
 		
@@ -208,7 +213,7 @@ find_missing_media:
 			if(! -e "${this_podcast}" ) \
 				continue;
 			
-			printf "${this_podcast}\n";
+			printf "%s" "${this_podcast}";
 			
 			if( ${?create_script} ) then
 				printf "%s\n" "${this_podcast}" >> "${create_script}";

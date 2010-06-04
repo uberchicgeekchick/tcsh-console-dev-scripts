@@ -80,7 +80,6 @@ clean_up:
 move_slashdot:
 	set slashdot=( \
 	"\n" \
-"/media/podcasts/Slashdot/Frank Zappa's Influence On Linux and FOSS Development, released on: Thu, 03 Jun 2010 20:11:00 GMT.mp3" \
 	"\n" \
 	"\n" \
 	);

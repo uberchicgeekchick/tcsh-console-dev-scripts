@@ -58,7 +58,7 @@ launchers_main:
 			${browser} "${website}title/${title}/";
 		else
 			unset podiobooks_book_feed;
-			${browser} "${website}podiobooks/search.php?keyword=`printf "\""${search_phrase}"\"" | sed -r 's/\ /%20/g'`";
+			${browser} "${website}podiobooks/search.php?keyword=`printf "\""${search_phrase}"\"" | sed -r 's/\ /%20/g'`&includeAdult=1";
 		endif
 		unset title;
 	else

@@ -349,7 +349,7 @@ fetch_podcast:
 	if( ${?logging} ) \
 		printf "Beginning to download: %s\n" "${title}" >> "${download_log}";
 	set episodes=();
-	set total_episodes="`cat './00-enclosures.lst'`";
+	set total_episodes="`wc -l './00-enclosures.lst' | sed -r 's/^([0-9]+).*"\$"/\1/'`";
 	if( ${?start_with} ) then
 		if( ${start_with} > 1 ) then
 			set start_with="`printf '%s-1\n' '${start_with}'`";
@@ -369,9 +369,9 @@ fetch_podcast:
 	
 	set episodes="`cat './00-enclosures.lst'`";
 	if(! ${?silent} ) \
-		printf "\n\tDownloading %s out of %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${#total_episodes}" "${title}";
+		printf "\n\tDownloading %s out of %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${total_episodes}" "${title}";
 	if( ${?logging} ) \
-		printf "\n\tDownloading %s out of %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${#total_episodes}" "${title}" >> "${download_log}";
+		printf "\n\tDownloading %s out of %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${total_episodes}" "${title}" >> "${download_log}";
 	
 	@ episodes_downloaded=0;
 	@ episodes_number=0;
@@ -437,9 +437,9 @@ fetch_episode:
 	endif
 	
 	if(! ${?silent} ) \
-		printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}";
+		printf "\n\n\t\tDownloading episode: %s(episodes_number) out of %s\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${total_episodes}" "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}";
 	if( ${?logging} ) \
-		printf "\n\n\t\tDownloading episode: %s(episodes_number)\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}" >> "${download_log}";
+		printf "\n\n\t\tDownloading episode: %s(episodes_number) out of %s\n\t\tTitle: %s (episodes_title)\n\t\tReleased on: %s (episodes_pubDate)\n\t\tFilename: %s (episodes_filename)\n\t\tRemote file: %s (episodes_file)\n\t\tURI: %s (episode)\n" ${episodes_number} "${total_episodes}" "${episodes_title}" "${episodes_pubdate}" "${episodes_filename}" "${episodes_file}" "${episode}" >> "${download_log}";
 	
 	# Skipping existing files.
 	if( ${?fetch_all} ) then
@@ -449,10 +449,11 @@ fetch_episode:
 	endif
 	
 	if( -e "./${episodes_filename}" ) then
+		${download_command_with_options} "./${episodes_filename}" "${episode}";
 		if(! ${?silent} ) \
-			printf "\t\t\t[skipped existing file]";
+			printf "\t\t\t[finished download of existing file]";
 		if( ${?logging} ) \
-			printf "\t\t\t[skipping existing file]" >> "${download_log}";
+			printf "\t\t\t[sfinished download of existing file]" >> "${download_log}";
 		unset episodes_filename;
 		goto fetch_episodes;
 	endif

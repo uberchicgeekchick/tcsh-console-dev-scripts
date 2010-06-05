@@ -7,11 +7,6 @@ parse_argv:
 		if( $argc == 0 ) \
 			goto clean_up;
 	else if ${?callback} then
-		if( ${?action_preformed} ) then
-			printf "\n\n";
-			unset action_preformed;
-		endif
-		
 		goto ${callback};
 	endif
 	
@@ -48,6 +43,10 @@ clean_up:
 		@ goto_index=0;
 	else
 		@ goto_index++;
+		if( ${?action_preformed} && $goto_index < 6 ) then
+			printf "\n\n";
+			unset action_preformed;
+		endif
 	endif
 	switch( $goto_index )
 		case 0:
@@ -59,11 +58,11 @@ clean_up:
 			breaksw;
 		
 		case 2:
-			goto back_up;
+			goto delete;
 			breaksw;
 		
 		case 3:
-			goto delete;
+			goto back_up;
 			breaksw;
 		
 		case 4:
@@ -88,7 +87,7 @@ move_slashdot:
 	);
 	
 	if( ${?slashdot} ) then
-		foreach podcast( "`printf "\""%s"\"" "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && -e "${podcast}" ) then
 				if(! ${?action_preformed} ) \
 					set action_preformed;
@@ -112,10 +111,12 @@ move_slashdot:
 move_podiobooks:
 	set podiobooks=( \
 	"\n" \
+"/media/podcasts/PodCastle/PodCastle Review 02: The City and the City, released on: Sat, 05 Jun 2010 02:04:57 GMT.mp3" \
+	"\n" \
 	);
 	
 	if( ${?podiobooks} ) then
-		foreach podiobook_episode( "`printf "\""%s"\"" "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+		foreach podiobook_episode( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podiobook_episode}" != "" && -e "${podiobook_episode}" ) then
 				if(! ${?action_preformed} ) \
 					set action_preformed;
@@ -146,7 +147,7 @@ delete:
 	);
 	
 	if( ${?to_be_deleted} ) then
-		foreach podcast( "`printf "\""%s"\"" "\""${to_be_deleted}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+		foreach podcast( "`printf "\""${to_be_deleted}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && -e "${podcast}" ) then
 				if(! ${?action_preformed} ) \
 					set action_preformed;
@@ -173,7 +174,7 @@ delete:
 	);
 	
 	if( ${?directories_to_delete} ) then
-		foreach podcast( "`printf "\""%s"\"" "\""${directories_to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+		foreach podcast( "`printf "\""${directories_to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && -e "${podcast}" ) then
 				set podcast_dir="`dirname "\""${podcast}"\""`";
 				if( "${podcast_dir}" != "/media/podcasts" && -d "${podcast_dir}" ) then
@@ -206,7 +207,7 @@ back_up:
 	);
 	
 	if( ${?slashdot} ) then
-		foreach podcast( "`printf "\""%s"\"" "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && -e "${podcast}" ) then
 				if(! ${?action_preformed} ) \
 					set action_preformed;

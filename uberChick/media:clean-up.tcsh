@@ -84,11 +84,13 @@ clean_up:
 move_slashdot:
 	set slashdot=( \
 	"\n" \
+"/media/podcasts/Slashdot/Why Some Supermassive Black Holes Have Big Jets, released on: Sun, 06 Jun 2010 15:49:00 GMT.mp3" \
+	"\n" \
 	);
 	
 	if( ${?slashdot} ) then
 		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) then
+			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
 				if(! ${?action_preformed} ) \
 					set action_preformed;
 				
@@ -111,28 +113,33 @@ move_slashdot:
 move_podiobooks:
 	set podiobooks=( \
 	"\n" \
-"/media/podcasts/PodCastle/PodCastle Review 02: The City and the City, released on: Sat, 05 Jun 2010 02:04:57 GMT.mp3" \
-	"\n" \
 	);
 	
 	if( ${?podiobooks} ) then
-		foreach podiobook_episode( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podiobook_episode}" != "" && -e "${podiobook_episode}" ) then
+		foreach podiobook( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+			if( "${podiobook}" != "" && "${podiobook}" != "/" && -e "${podiobook}" ) then
 				if(! ${?action_preformed} ) \
 					set action_preformed;
 				
 				if(! -d "/media/podiobooks/Latest" ) \
 					mkdir -p  "/media/podiobooks/Latest";
 				
-				if(! -d "${podiobook_episode}" ) then
-					set podiobook_episode="`dirname "\""${podiobook_episode}"\""`";
+				if(! -d "${podiobook}" ) then
+					set podiobook="`dirname "\""${podiobook}"\""`";
 				endif
 				
-				mv -v \
-					"${podiobook_episode}" \
-				"/media/podiobooks/Latest";
+				if(! -d "/media/podiobooks/Latest/`basename "\""${podiobook}"\""`" ) then
+					mv -v \
+						"${podiobook}" \
+					"/media/podiobooks/Latest";
+				else
+					mv -v \
+						"${podiobook}/"* \
+					"/media/podiobooks/Latest/`basename "\""${podiobook}"\""`";
+					rmdir -v "${podiobook}";
+				endif
 			endif
-			unset podiobook podiobook_episode;
+			unset podiobook;
 		end
 		unset podiobooks;
 	endif
@@ -148,7 +155,7 @@ delete:
 	
 	if( ${?to_be_deleted} ) then
 		foreach podcast( "`printf "\""${to_be_deleted}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) then
+			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
 				if(! ${?action_preformed} ) \
 					set action_preformed;
 				
@@ -175,7 +182,7 @@ delete:
 	
 	if( ${?directories_to_delete} ) then
 		foreach podcast( "`printf "\""${directories_to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) then
+			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
 				set podcast_dir="`dirname "\""${podcast}"\""`";
 				if( "${podcast_dir}" != "/media/podcasts" && -d "${podcast_dir}" ) then
 					if(! ${?action_preformed} ) \
@@ -208,7 +215,7 @@ back_up:
 	
 	if( ${?slashdot} ) then
 		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && -e "${podcast}" ) then
+			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
 				if(! ${?action_preformed} ) \
 					set action_preformed;
 				
@@ -243,7 +250,7 @@ playlists:
 		if( "`find "\""${playlist_dir}"\"" -iregex "\"".*\/\.${playlist_escaped}\.sw."\""`" != "" ) then
 			printf "<file://%s/%s> is in use and will not be deleted.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
 		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 1 ) then
-			printf "<file://%s/%s> still lists files.\n\tWould you still it removed:\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
+			printf "<file://%s/%s> still lists files.\n\tWould you like to remove it:\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
 			rm -vi "${playlist_dir}/${playlist}";
 			if(! -e "${playlist_dir}/${playlist}" ) then
 				if(! ${?action_preformed} ) \

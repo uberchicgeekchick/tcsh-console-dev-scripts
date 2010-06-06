@@ -14,7 +14,7 @@ setenv:
 	
 	set scripts_basename="playlist:copy:missing:listings.tcsh";
 	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
-	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
+	set scripts_alias="`printf "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	
 	set strict;
 	#set supports_being_sourced;
@@ -50,7 +50,7 @@ init:
 	set escaped_starting_cwd=${escaped_cwd};
 	
 	set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-	printf "%s" >! "${argument_file}" "${HOME}";
+	printf "${HOME}" >! "${argument_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 	set escaped_cwd="`cat "\""${argument_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
 	rm -f "${argument_file}";
@@ -69,24 +69,24 @@ debug_check:
 		@ arg++;
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "%s[%s]" >! "${argument_file}" "$argv" "$arg";
+		printf "$argv[$arg]" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
 		unset argument_file;
 		
-		set option="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
-		set value="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+		set option="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+		set value="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 		if( -e "${value}" ) \
 			continue;
 		
 		if( ${?debug} || ${?debug_arguments} ) \
-			printf "**%s [debug_check:]**"\$"option: [${option}]; "\$"value: [${value}].\n" "${scripts_basename}";
+			printf "**${scripts_basename} [debug_check:]**"\$"option: [${option}]; "\$"value: [${value}].\n";
 		
 		switch("${option}")
 			case "diagnosis":
 			case "diagnostic-mode":
-				printf "**%s debug:**, via "\$"argv[$arg], diagnostic mode:\t[enabled].\n\n" "${scripts_basename}";
+				printf "**${scripts_basename} debug:**, via "\$"argv[$arg], diagnostic mode:\t[enabled].\n\n";
 				set diagnostic_mode;
 				if(! ${?debug} ) \
 					set debug;
@@ -98,7 +98,7 @@ debug_check:
 						if( ${?logging} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[${arg}], debug logging:\t[enabled].\n\n" "${scripts_basename}";
+						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], debug logging:\t[enabled].\n\n";
 						set debug_logging;
 						breaksw;
 					
@@ -108,21 +108,21 @@ debug_check:
 						if( ${?debug_arguments} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[${arg}], debugging arguments:\t[enabled].\n\n" "${scripts_basename}";
+						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], debugging arguments:\t[enabled].\n\n";
 						set debug_arguments;
 						breaksw;
 					
 					case "filenames":
 						if(! ${?supports_multiple_files} ) then
-							printf "**%s debug:**, via "\$"argv[${arg}], debugging ${value}:\t[unsupported].\n" "${scripts_basename}" > /dev/stderr;
-							printf "**%s debug:** does not support handling or processing multiple files.\n" "${scripts_basename}" > /dev/stderr;
+							printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], debugging ${value}:\t[unsupported].\n" > /dev/stderr;
+							printf "**${scripts_basename} debug:** does not support handling or processing multiple files.\n" > /dev/stderr;
 							breaksw;
 						endif
 						
 						if( ${?debug_filenames} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[${arg}], debugging ${value}:\t[enabled].\n\n" "${scripts_basename}";
+						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], debugging ${value}:\t[enabled].\n\n";
 						set debug_filenames;
 						breaksw;
 					
@@ -130,7 +130,7 @@ debug_check:
 						if( ${?debug} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[${arg}], debug mode:\t[enabled].\n\n" "${scripts_basename}";
+						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], debug mode:\t[enabled].\n\n";
 						set debug="${value}";
 						breaksw;
 				endsw
@@ -155,7 +155,7 @@ check_dependencies:
 		@ dependencies_index++;
 		unset dependencies[$dependencies_index];
 		if( ${?debug} ) \
-			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
+			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
 			
 		foreach program("`where '${dependency}'`")
 			if( -x "${program}" ) \
@@ -169,7 +169,7 @@ check_dependencies:
 		endif
 		
 		if( ${?debug} ) then
-			switch( "`printf "\""%s"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([1-3])"\$"/\1/'`" )
+			switch( "`printf "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([1-3])"\$"/\1/'`" )
 				case "1":
 					set suffix="st";
 					breaksw;
@@ -187,7 +187,7 @@ check_dependencies:
 					breaksw;
 			endsw
 			
-			printf "**%s debug:** found %s%s dependency: %s.\n" "${scripts_basename}" "${dependencies_index}" "${suffix}" "${dependency}";
+			printf "**${scripts_basename} debug:** found ${dependencies_index}${suffix} dependency: ${dependency}.\n";
 			unset suffix;
 		endif
 		
@@ -335,7 +335,7 @@ scripts_exec:
 	/bin/rm "${playlist}.new";
 	
 	ex -s '+3,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tcsh_copy_script}";
-	ex -s '+3,$s/\v^(\/[^/]+\/[^/]+\/)(.*)\/(.*)(\.[^.]+)$/if\(\! -e "\1\2\/\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\/\3\4" \) then\r\t\tprintf "**error coping:** remote file\\n\\t\<\1nfs\/\2\/\3\4\> doesn'\''t exists.\\n" \> \/dev\/stderr;\r\telse\r\t\tif\(\!  -d "\1\2" \) mkdir -p "\1\2";\r\t\tif\( "${old_podcast}" \!\=   "\2" \) then\r\t\t\tset old_podcast\="\2";\r\t\t\tprintf "\\nCopying: %s'\''s content(s):";\r\t\tendif\r\t\tprintf "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\/\3\4" "\1\2\/\3\4";\r\t\tprintf "\\t\\t[done]\\n";\r\tendif\rendif\r/' '+wq' "${tcsh_copy_script}" "${old_podcast}";
+	ex -s '+3,$s/\v^(\/[^/]+\/[^/]+\/)(.*)(\.[^.]+)$/if\(\! -e "\1\2\3" \) then\r\tif\(\! -e "\1nfs\/\2\3" \) then\r\t\tprintf "**error coping:** remote file\\n\\t\<\1nfs\/\2\3\> doesn'\''t exists.\\n" \> \/dev\/stderr;\r\telse\r\t\tset current_podcast="`dirname "\\""\1\2\3"\\""`";\r\t\tif\(\! -d "${current_podcast}" \) \\\r\t\t\tmkdir -p "${current_podcast}";\r\t\t\r\t\tif\( "${old_podcast}" \!\= "`basename "\\""${current_podcast}"\\""`" \) then\r\t\t\tset old_podcast\="`basename "\\""${current_podcast}"\\""`";\r\t\t\tprintf "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\tprintf "\\n\\tCopying: \1\2\3";\r\t\tcp "\1nfs\/\2\3" "\1\2\3";\r\t\tprintf "\\t\\t[done]\\n";\r\tendif\rendif\r/' '+wq!' "${tcsh_copy_script}";
 	
 	printf "\t\t[done]\n\nChecking for any missing files and copying them from the nfs share to local fs.\n";
 	"${tcsh_copy_script}";
@@ -371,6 +371,8 @@ filename_list_process_init:
 	@ files_processed=0;
 	#ex -X -n --noplugin -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${filename_list}";
 	cp "${filename_list}" "${filename_list}.all";
+	set callback="scripts_exec";
+	goto callback_handler;
 #filename_list_process_init:
 
 
@@ -384,7 +386,7 @@ filename_list_process:
 		ex -s '+1d' '+wq!' "${filename_list}";
 		@ files_processed++;
 		if( ${?debug} ) \
-			printf "Attempting to filename_process: [%s] (file: #%s of %s)\n" "${original_filename}" "${files_processed}" "${file_count}";
+			printf "Attempting to filename_process: [${original_filename}] (file: #${files_processed} of ${file_count})\n";
 		set callback="filename_process";
 		goto callback_handler;
 	end
@@ -403,11 +405,11 @@ filename_process:
 		goto label_stack_set;
 	
 	set callback="filename_list_process";
-	set extension="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
+	set extension="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
 	if( "${extension}" == "${original_filename}" ) \
 		set extension="";
 	set original_extension="${extension}";
-	set filename="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
+	set filename="`printf "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
 	if(! -e "${filename}${extension}" ) then
 		if(! ${?no_exit_on_exception} ) \
 			set no_exit_on_exception_set no_exit_on_exception;
@@ -416,11 +418,11 @@ filename_process:
 		goto exception_handler;
 	endif
 	
-	set filename_for_regexp="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/([\\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	set filename_for_editor="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"\[\(\)\ \<\>])/\\\1/g'`";
+	set filename_for_regexp="`printf "\""${original_filename}"\"" | sed -r 's/([\\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	set filename_for_editor="`printf "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"\[\(\)\ \<\>])/\\\1/g'`";
 	if( ${?edit_all_files} ) \
 		${EDITOR} "+0r ${filename_for_editor}";
-	printf "\nFile info for:\n\t<file://%s%s>\n" "${filename}" "${extension}";
+	printf "\nFile info for:\n\t<file://${filename}${extension}>\n";
 	
 	if( -d "${filename}${extension}" ) \
 		/bin/ls -d -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
@@ -430,9 +432,9 @@ filename_process:
 	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
 	printf "grep ";
 	if( "${grep_test}" != "" ) then
-		printf "found:\n\t%s\n" "${grep_test}";
+		printf "found:\n\t${grep_test}\n";
 	else
-		printf "couldn't find:\n\t%s.\n" "${filename_for_regexp}";
+		printf "couldn't find:\n\t${filename_for_regexp}.\n";
 	endif
 	
 	goto callback_handler;
@@ -650,12 +652,12 @@ usage:
 	endif
 	
 	if(!( ${?script} && ${?program} )) then
-		printf "%s\n" "${usage_message}";
+		printf "${usage_message}\n";
 	else
 		if( "${program}" != "${script}" ) then
 			${program} --help;
 		else
-			printf "%s\n" "${usage_message}";
+			printf "${usage_message}\n";
 		endif
 	endif
 	
@@ -689,14 +691,14 @@ exception_handler:
 			set no_exit_on_exception;
 	endif
 	
-	printf "\n**%s error("\$"errno:$errno):**\n\t" "${scripts_basename}";
+	printf "\n**${scripts_basename} error("\$"errno:$errno):**\n\t";
 	switch( $errno )
 		case -498:
-			printf "**%s error:** filename: %s%s can no longer be found" "${scripts_basename}" "${filename}" "${extension}" > ${stderr};
+			printf "**${scripts_basename} error:** filename: ${filename}${extension} can no longer be found" > ${stderr};
 			breaksw;
 		
 		case -499:
-			printf "%s%s%s%s is an unsupported option" "${dashes}" "${option}" "${equals}" "${value}" > /dev/stderr;
+			printf "${dashes}${option}${equals}${value} is an unsupported option" > /dev/stderr;
 			breaksw;
 		
 		case -500:
@@ -704,11 +706,11 @@ exception_handler:
 			breaksw;
 		
 		case -501:
-			printf "One or more required dependencies couldn't be found.\n\t[%s] couldn't be found.\n\t%s requires: %s" "${dependency}" "${scripts_basename}" "${dependencies}" > /dev/stderr;
+			printf "One or more required dependencies couldn't be found.\n\t[${dependency}] couldn't be found.\n\t${scripts_basename} requires: ${dependencies}" > /dev/stderr;
 			breaksw;
 		
 		case -502:
-			printf "Sourcing is not supported. %s may only be executed" "${scripts_basename}" > /dev/stderr;
+			printf "Sourcing is not supported. ${scripts_basename} may only be executed" > /dev/stderr;
 			breaksw;
 		
 		case -503:
@@ -789,7 +791,7 @@ parse_argv:
 		set debug debug_set;
 	
 	if( ${?debug} ) \
-		printf "**%s debug:** checking argv.  %s total arguments.\n\n" "${scripts_basename}" "${argc}";
+		printf "**${scripts_basename} debug:** checking argv.  ${argc} total arguments.\n\n";
 #parse_argv:
 
 parse_arg:
@@ -812,25 +814,25 @@ parse_arg:
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "%s[%s]" >! "${argument_file}" "$argv" "$arg";
+		printf "$argv[$arg]" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
 		unset argument_file;
 		
-		set dashes="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
+		set dashes="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
 		if( "${dashes}" == "${argument}" ) \
 			set dashes="";
 		
-		set option="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+		set option="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
 		if( "${option}" == "${argument}" ) \
 			set option="";
 		
-		set equals="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
+		set equals="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
 		if( "${equals}" == "${argument}" ) \
 			set equals="";
 		
-		set value="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+		set value="`printf "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 		
 		if( ${?debug} ) \
 			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t"\$"dashes: [%s];\n\t"\$"option: [%s];\n\t"\$"equals: [%s];\n\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[$arg]" "${dashes}" "${option}" "${equals}" "${value}";
@@ -844,25 +846,25 @@ parse_arg:
 					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 				
 				set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-				printf "%s[%s]" >! "${argument_file}" "$argv" "$arg";
+				printf "$argv[$arg]" >! "${argument_file}";
 				ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 				set test_argument="`cat "\""${argument_file}"\""`";
 				rm -f "${argument_file}";
 				unset argument_file;
 				
-				set test_dashes="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
+				set test_dashes="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
 				if( "${test_dashes}" == "${test_argument}" ) \
 					set test_dashes="";
 				
-				set test_option="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+				set test_option="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
 				if( "${test_option}" == "${test_argument}" ) \
 					set test_option="";
 				
-				set test_equals="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
+				set test_equals="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
 				if( "${test_equals}" == "${test_argument}" ) \
 					set test_equals="";
 				
-				set test_value="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+				set test_value="`printf "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
 				
 				if( "${test_dashes}" != "" && "${test_option}" != "" && "${test_equals}" != "" && ( "${test_value}" == "" || "${test_value}" == "${test_argument}" ) ) then
 					@ arg--;
@@ -917,12 +919,12 @@ parse_arg:
 						if(! ${?be_verbose} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" "${scripts_basename}";
+						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n";
 						set be_verbose;
 						breaksw;
 					
 					default:
-						printf "enabling %s is not supported.  See "\`"${scripts_basename} --help"\`"\n" "${value}";
+						printf "enabling ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
 						breaksw;
 				endsw
 				breaksw;
@@ -933,12 +935,12 @@ parse_arg:
 						if(! ${?be_verbose} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" "${scripts_basename}";
+						printf "**${scripts_basename} debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n";
 						unset be_verbose;
 						breaksw;
 					
 					default:
-						printf "disabling %s is not supported.  See "\`"${scripts_basename} --help"\`"\n" "${value}";
+						printf "disabling ${value} is not supported.  See "\`"${scripts_basename} --help"\`"\n";
 						breaksw;
 				endsw
 				breaksw;
@@ -958,7 +960,7 @@ parse_arg:
 						goto exception_handler;
 					endif
 					
-					set playlist_type="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+					set playlist_type="`printf "\""${value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
 					switch("${playlist_type}")
 						case "m3u":
 						case "pls":
@@ -1053,7 +1055,7 @@ filename_list_append:
 	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} || ${?debug_filenames} ) then
-			printf "Adding [%s] to [%s].\nBy running:\n\tfind -L "\""$value"\""" "${value}" "${filename_list}";
+			printf "Adding [${value}] to [${filename_list}].\nBy running:\n\tfind -L "\""$value"\""";
 			if(! ${?supports_hidden_files} ) \
 				printf  \! -iregex '.*\/\..*';
 			printf "| sort >> "\""${filename_list}"\""\n\n";
@@ -1073,9 +1075,9 @@ filename_list_append:
 	
 	if( ${?debug}  || ${?debug_filenames} ) then
 		if(! -d "$value" ) then
-			printf "Adding [%s] to [%s] if its a supported file type.\nSupported extensions are:\n\t`printf '%s' | sed -r 's/\|/,\ /g'`.\n" "${value}" "${filename_list}" "${scripts_supported_extensions}";
+			printf "Adding [${value}] to [${filename_list}] if its a supported file type.\nSupported extensions are:\n\t`printf '${scripts_supported_extensions}' | sed -r 's/\|/,\ /g'`.\n";
 		else
-			printf "Adding any supported files found under [%s] to [%s].\nSupported extensions are:\n\t`printf '%s' | sed -r 's/\|/,\ /g'`.\n" "${value}" "${filename_list}" "${scripts_supported_extensions}";
+			printf "Adding any supported files found under [${value}] to [${filename_list}].\nSupported extensions are:\n\t`printf '${scripts_supported_extensions}' | sed -r 's/\|/,\ /g'`.\n";
 		endif
 		printf "By running:\n\tfind -L "\""$value"\"" -regextype posix-extended -iregex "\"".*\.(${scripts_supported_extensions})"\"""\$"";
 		if(! ${?supports_hidden_files} ) \
@@ -1107,7 +1109,7 @@ diagnostic_mode:
 	if( -e "${scripts_diagnosis_log}" ) \
 		rm -v "${scripts_diagnosis_log}";
 	touch "${scripts_diagnosis_log}";
-	printf "----------------%s debug.log-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "----------------${scripts_basename} debug.log-----------------\n" >> "${scripts_diagnosis_log}";
 	printf \$"argv:\n\t${argv}\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"parsed_argv:\n\t$parsed_argv\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"{0} == [${0}]\n" >> "${scripts_diagnosis_log}";
@@ -1117,11 +1119,11 @@ diagnostic_mode:
 		printf \$"{${arg}} == ${1}\n" >> "${scripts_diagnosis_log}";
 		shift;
 	end
-	printf "\n\n----------------<%s> environment-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "\n\n----------------<${scripts_basename}> environment-----------------\n" >> "${scripts_diagnosis_log}";
 	env >> "${scripts_diagnosis_log}";
-	printf "\n\n----------------<%s> variables-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "\n\n----------------<${scripts_basename}> variables-----------------\n" >> "${scripts_diagnosis_log}";
 	set >> "${scripts_diagnosis_log}";
-	printf "Create %s diagnosis log:\n\t%s\n" "${scripts_basename}" "${scripts_diagnosis_log}";
+	printf "Create ${scripts_basename} diagnosis log:\n\t${scripts_diagnosis_log}\n";
 	@ errno=-500;
 	if( ${?callback} ) \
 		unset callback;
@@ -1149,7 +1151,7 @@ label_stack_set:
 		set old_owd="${owd}";
 		set current_cwd="${cwd}";
 		set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-		printf "%s" >! "${argument_file}" "${cwd}";
+		printf "${cwd}" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set escaped_cwd="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
@@ -1198,7 +1200,7 @@ callback_handler:
 		unset callback;
 	endif
 	if( ${?debug} ) \
-		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
+		printf "handling callback to [${last_callback}].\n" > /dev/stdout;
 	
 	goto $last_callback;
 #callback_handler:

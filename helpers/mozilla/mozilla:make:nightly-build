@@ -29,7 +29,8 @@ init:
 	#setenv CXXFLAGS "-std=gnu++0x ${CPPFLAGS} ${MAKEFLAGS}";
 	setenv CXXFLAGS "${MAKEFLAGS}";
 	
-	if( ${?http_proxy}  ) unsetenv http_proxy;
+	if( ${?http_proxy}  ) \
+		unsetenv http_proxy;
 	
 	set mozilla_top_dir="/programs/mozilla";
 	set tarball_backup_dir="/uberChick/Downloads/Mozilla/Nightly-Builds";
@@ -88,7 +89,7 @@ parse_argv:
 				printf "Usage: %s [options...] (firefox|thunderbird)\n\t%s checks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"` `basename "${0}"`;
 				
 				if( "${1}" != "" && "${1}" != "--help" ) \
-					printf "Unsupported option: %s\n" "${1}";
+					printf "%s is an unsupported option.\n" "${1}"
 				
 				printf "					\
 	Supported options are:							\
@@ -113,7 +114,7 @@ parse_argv:
 		--make=package-only	%s will only recreate the project's 	\
 					tarball based off of a previous build.	\
 					No new files will be checked out	\
-			" "`basename '${0}'`" '`' '`' "`basename '${0}'`";
+			" `basename "${0}"` '`' '`' `basename "${0}"`;
 			exit -1;
 			breaksw;
 		endsw
@@ -175,7 +176,7 @@ init_make:
 	endif
 	
 	if( ${?goto} ) then
-		printf "Skipping a head to %s's [%s] step.\n" "`basename '${0}'`" "${goto}";
+		printf "Skipping a head to %s's: [%s] label.\n" "`basename "\""${0}"\""`" "${goto}";
 		goto ${goto};
 	endif
 #init_make:
@@ -260,7 +261,7 @@ make:
 	setenv	MOZCONFIG	"${srcdir}/.mozconfig";
 	
 	printf "Creating: [%s]\n" "${MOZCONFIG}";
-	printf "ac_add_options --enable-application=%s %s --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=%s MOZ_CO_PROJECT=%s AUTOCONF=autoconf-2.13\n" >! "${MOZCONFIG}" "${mozilla_project}" "${enable_mozilla}" "${objdir}" "${mozilla_project}";
+	printf "ac_add_options --enable-application=%s %s --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=%s MOZ_CO_PROJECT=%s AUTOCONF=autoconf-2.13\n" "${mozilla_project}" "${objdir}" "${enable_mozilla}" "${mozilla_project}" >! "${MOZCONFIG}";
 	#" --enable-default-toolkit=gtk2"
 	
 	make -f client.mk;
@@ -280,7 +281,8 @@ backup:
 	if( "${cwd}" != "${objdir}" ) \
 		cd "${objdir}";
 	set today=`date '+%Y-%m-%d'`;
-	if( "${build_mozilla}" == "thunderbird" ) cd mozilla;
+	if( "${build_mozilla}" == "thunderbird" ) \
+		cd mozilla;
 	foreach tarball ( dist/*.tar.bz2 )
 		set backup_tarball="`basename ${tarball} | sed 's/\(.*\)\(\.tar\.bz2\)/\1\.${today}\2/g'`";
 		cp ${tarball} "${tarball_backup_dir}/${backup_tarball}";
@@ -306,7 +308,8 @@ install:
 		cd "${objdir}";
 	printf "Installing %s to %s\n" "${tarball}" "${prefix}";
 	tar -C "${prefix}" -xjf "${tarball}";
-	if( "${build_mozilla}" == "xulrunner" ) exit 0;
+	if( "${build_mozilla}" == "xulrunner" ) \
+		exit 0;
 #install:
 
 

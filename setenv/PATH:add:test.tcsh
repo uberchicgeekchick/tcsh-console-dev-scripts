@@ -19,7 +19,7 @@ if(!( "${1}" != "" && -d "${1}" )) then
 endif
 
 	set dir="${1}";
-	switch("`basename '${dir}'`")
+	switch("`basename "\""${dir}"\""`")
 		case "tmp":
 		case "lost+found":
 			set okay_to_add_dir_to_path=-1;
@@ -30,9 +30,9 @@ endif
 if( "`printf "\""%s"\""  "\""${dir}"\"" | sed -r 's/^(\/).*"\$"/\1/'`" != "/" ) \
 	set dir="${cwd}/${dir}";
 
-if( "`/bin/ls '${dir}'`" == "" ) then
+if( "`/bin/ls "\""${dir}"\""`" == "" ) then
 	if( ${?TCSH_RC_DEBUG} ) \
-		printf "<file://%s> is empty.\nOnly non-empty directories may be added to your path.\n" "${dir}" >> /dev/stderr;
+		printf "<file://%s> is empty.\nOnly non-empty directories may be added to your path.\n" "${dir}" > /dev/stderr;
 	set okay_to_add_dir_to_path=-1;
 	goto exit_script;
 endif

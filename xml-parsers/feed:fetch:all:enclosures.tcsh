@@ -91,7 +91,7 @@ main:
 	
 	set noglob;
 	
-	set please_wait_phrase="...please be patient, I may need several moments.\t\t";
+	set please_wait_phrase="...please be patient, I may need several moments.";
 	
 	if(! ${?logging} ) then
 		set download_log=/dev/null;
@@ -242,9 +242,9 @@ fetch_podcast:
 	
 	# Grabs the titles of the podcast and all episodes.
 	if(! ${?silent} ) \
-		printf "Finding titles%s\t" "${please_wait_phrase}";
+		printf "Finding titles%s" "${please_wait_phrase}";
 	if( ${?logging} ) \
-		printf "Finding titles%s\t" >> "${download_log}" "${please_wait_phrase}";
+		printf "Finding titles%s" "${please_wait_phrase}" >> "${download_log}";
 	
 	# Puts each item, or entry, on its own line:
 	ex -s '+1,$s/[\n][\ \t]*//' '+wq!' './00-feed.xml';
@@ -265,7 +265,7 @@ fetch_podcast:
 	if(! ${?silent} ) \
 		printf "Formating titles%s" "${please_wait_phrase}";
 	if( ${?logging} ) \
-		printf "Formating titles%s" >> "${download_log}" "${please_wait_phrase}";
+		printf "Formating titles%s" "${please_wait_phrase}" >> "${download_log}";
 	ex -s '+1,$s/^\(Zero\)/0/gi' '+1,$s/^\(One\)/1/gi' '+1,$s/^\(Two\)/2/gi' '+1,$s/^\(Three\)/3/gi' '+1,$s/^\(Four\)/4/gi' '+1,$s/^\(Five\)/5/gi' '+wq!' './00-titles.lst';
 	ex -s '+1,$s/^\(Six\)/6/gi' '+1,$s/^\(Seven\)/7/gi' '+1,$s/^\(Eight\)/8/gi' '+1,$s/^\(Nine\)/9/gi' '+1,$s/^\(Ten\)/10/gi' '+wq!' './00-titles.lst';
 	
@@ -297,9 +297,9 @@ fetch_podcast:
 	
 	# Grabs the release dates of the podcast and all episodes.
 	if(! ${?silent} ) \
-		printf "Finding release dates...please be patient, I may need several moments\t\t";
+		printf "Finding release dates%s" "${please_wait_phrase}";
 	if( ${?logging} ) \
-		printf "Finding release dates%s\t\t" >> "${download_log}" "${please_wait_phrase}";
+		printf "Finding release dates%s" "${please_wait_phrase}" >> "${download_log}";
 	/bin/cp './00-feed.xml' './00-pubDates.lst';
 	
 	# Concatinates all data into one single string:
@@ -382,6 +382,7 @@ continue_download:
 	if( -e "${my_feed_xml}" ) \
 		/bin/rm -f "${my_feed_xml}";
 	set episodes="`cat './00-enclosures.lst'`";
+	set total_episodes=${#episodes};;
 	if(! ${?silent} ) \
 		printf "\n\tFinishing downloading %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${title}";
 	if( ${?logging} ) \

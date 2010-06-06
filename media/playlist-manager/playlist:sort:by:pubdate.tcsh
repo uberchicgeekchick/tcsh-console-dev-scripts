@@ -69,7 +69,7 @@ init:
 	set escaped_starting_cwd=${escaped_cwd};
 	
 	set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-	printf "%s" >! "${argument_file}" "${HOME}";
+	printf "%s" "${HOME}" >! "${argument_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 	set escaped_cwd="`cat "\""${argument_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
 	rm -f "${argument_file}";
@@ -90,7 +90,7 @@ debug_check:
 		@ arg++;
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "%s[%s]" >! "${argument_file}" "$argv" "$arg";
+		printf "$argv[$arg]" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
@@ -877,7 +877,7 @@ parse_arg:
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "%s[%s]" >! "${argument_file}" "$argv" "$arg";
+		printf "$argv[$arg]" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
@@ -909,7 +909,7 @@ parse_arg:
 					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 				
 				set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-				printf "%s[%s]" >! "${argument_file}" "$argv" "$arg";
+				printf "$argv[$arg]" >! "${argument_file}";
 				ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 				set test_argument="`cat "\""${argument_file}"\""`";
 				rm -f "${argument_file}";
@@ -1285,7 +1285,7 @@ diagnostic_mode:
 	if( -e "${scripts_diagnosis_log}" ) \
 		rm -v "${scripts_diagnosis_log}";
 	touch "${scripts_diagnosis_log}";
-	printf "----------------%s debug.log-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "----------------%s debug.log-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
 	printf \$"argv:\n\t${argv}\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"parsed_argv:\n\t$parsed_argv\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"{0} == [${0}]\n" >> "${scripts_diagnosis_log}";
@@ -1295,9 +1295,9 @@ diagnostic_mode:
 		printf \$"{${arg}} == ${1}\n" >> "${scripts_diagnosis_log}";
 		shift;
 	end
-	printf "\n\n----------------<%s> environment-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "\n\n----------------<%s> environment-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
 	env >> "${scripts_diagnosis_log}";
-	printf "\n\n----------------<%s> variables-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "\n\n----------------<%s> variables-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
 	set >> "${scripts_diagnosis_log}";
 	printf "Create %s diagnosis log:\n\t%s\n" "${scripts_basename}" "${scripts_diagnosis_log}";
 	@ errno=-500;
@@ -1327,7 +1327,7 @@ label_stack_set:
 		set old_owd="${owd}";
 		set current_cwd="${cwd}";
 		set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-		printf "%s" >! "${argument_file}" "${cwd}";
+		printf "%s" "${cwd}" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set escaped_cwd="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";

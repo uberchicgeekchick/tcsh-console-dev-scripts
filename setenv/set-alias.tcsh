@@ -31,7 +31,7 @@ if( ${?this_program} ) \
 if( ${?program} ) \
 	unset program;
 
-set this_program="`printf '%s' '${2}' | sed -r 's/^([^\ ]+)\ .*/\1/'`";
+set this_program="`printf "\""%s"\"" "\""${2}"\"" | sed -r 's/^([^\ ]+)\ .*/\1/'`";
 
 if( "`alias "\""${1}"\""`" != "" ) \
 	unalias "${1}";
@@ -39,7 +39,7 @@ if( "`alias "\""${1}"\""`" != "" ) \
 if( -x "${this_program}" ) then
 	set program="${this_program}";
 else
-	foreach program( "`where '${this_program}'`" )
+	foreach program( "`where "\""${this_program}"\""`" )
 		if( -x "${program}" ) then
 			break;
 		endif

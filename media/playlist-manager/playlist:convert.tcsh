@@ -63,7 +63,7 @@ init:
 	set escaped_starting_cwd=${escaped_cwd};
 	
 	set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-	printf "%s" >! "${argument_file}" "${HOME}";
+	printf "%s" "${HOME}" >! "${argument_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 	set escaped_cwd="`cat "\""${argument_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
 	rm -f "${argument_file}";
@@ -82,7 +82,7 @@ debug_check:
 		@ arg++;
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "%s[%s]" >! "${argument_file}" "$argv" "$arg";
+		printf "$argv[$arg]" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
@@ -143,7 +143,7 @@ debug_check:
 						if( ${?debug} ) \
 							breaksw;
 						
-						printf "**%s debug:**, via "\$"argv[${arg}], debug mode:\t[enabled].\n\n" "${scripts_basename}";
+						printf "**%s debug:**, via "\$"argv[%s], debug mode:\t[enabled].\n\n" "${arg}" "${scripts_basename}";
 						set debug="${value}";
 						breaksw;
 				endsw
@@ -315,22 +315,16 @@ scripts_main:
 	endif
 	
 	if(! -e "${playlist}" ) then
-		if(! ${?display_usage_on_exception} ) \
-			set display_usage_on_exception;
 		@ errno=-601;
 		goto exception_handler;
 	endif
 	
 	if(!( ${?new_playlist} && ${?new_playlist_type} )) then
-		if(! ${?display_usage_on_exception} ) \
-			set display_usage_on_exception;
 		@ errno=-602;
 		goto exception_handler;
 	endif
 	
 	if( "${new_playlist}" == "${playlist}" ) then
-		if(! ${?display_usage_on_exception} ) \
-			set display_usage_on_exception;
 		@ errno=-603;
 		goto exception_handler;
 	endif
@@ -399,8 +393,6 @@ filename_list_process_init:
 	if(! ${file_count} > 0 ) then
 		if( ${?no_exit_on_exception} ) \
 			unset no_exit_on_exception;
-		if(! ${?display_usage_on_exception} ) \
-			set display_usage_on_exception;
 		@ errno=-503;
 		set callback="scripts_main_quit";
 		goto exception_handler;
@@ -548,8 +540,6 @@ scripts_main_quit:
 	
 	if(! ${?no_exit_on_exception} ) \
 		set no_exit_on_exception;
-	if( ${?display_usage_on_exception} ) \
-		unset display_usage_on_exception;
 	if( ${?last_exception_handled} ) \
 		unset last_exception_handled;
 	
@@ -683,12 +673,12 @@ usage:
 	endif
 	
 	if(!( ${?script} && ${?program} )) then
-		printf "%s\n" "${usage_message}";
+		printf "${usage_message}\n";
 	else
 		if( "${program}" != "${script}" ) then
 			${program} --help;
 		else
-			printf "%s\n" "${usage_message}";
+			printf "${usage_message}\n";
 		endif
 	endif
 	
@@ -756,15 +746,11 @@ exception_handler:
 			breaksw;
 		
 		case -601:
-			printf "An existing playlist to sort by release date must be specified" > /dev/stderr;
+			printf "An existing playlist must be specified" > /dev/stderr;
 			breaksw;
 		
 		case -602:
 			printf "An existing and supported playlist type must be specified.\n[%s] either doesn't exist or isn't supported.\n%s supports m3u, tox, and pls playlists" "${value}" "${scripts_basename}" > /dev/stderr;
-			breaksw;
-		
-		case -602:
-			printf "[%s] isn't a supported playlist type.\n%s supports m3u, tox, and pls playlists" "${value}" "${scripts_basename}" > /dev/stderr;
 			breaksw;
 		
 		case -603:
@@ -772,6 +758,7 @@ exception_handler:
 			breaksw;
 		
 		case -604:
+			printf "%s %s is not supported" "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e"\$"/\1ing/`" "${value}" "${scripts_basename}" > ${stderr};
 			breaksw;
 		
 		case -999:
@@ -785,21 +772,7 @@ exception_handler:
 		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > /dev/stderr;
 	printf "\n";
 	
-	if(! ${?callback} ) then
-		if(! ${?0} && ${?supports_being_sourced} ) then
-			set callback="scripts_sourcing_quit";
-		else
-			set callback="scripts_main_quit";
-		endif
-	endif
-	
-	if( ${?display_usage_on_exception} ) then
-		if( ${?display_usage_on_exception_set} ) \
-			unset display_usage_on_exception display_usage_on_exception_set;
-		goto usage;
-	endif
-	
-	if(! ${?no_exit_on_exception} ) then
+	if(!( ${?callback} && ${no_exit_on_exception}} )) then
 		if(! ${?0} && ${?supports_being_sourced} ) then
 			set callback="scripts_sourcing_quit";
 		else
@@ -851,7 +824,7 @@ parse_arg:
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-		printf "%s[%s]" >! "${argument_file}" "$argv" "$arg";
+		printf "$argv[$arg]" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set argument="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";
@@ -883,7 +856,7 @@ parse_arg:
 					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
 				
 				set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
-				printf "%s[%s]" >! "${argument_file}" "$argv" "$arg";
+				printf "$argv[$arg]" >! "${argument_file}";
 				ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 				set test_argument="`cat "\""${argument_file}"\""`";
 				rm -f "${argument_file}";
@@ -987,7 +960,10 @@ parse_arg:
 						breaksw;
 					
 					default:
-						printf "enabling %s is not supported.  See "\`"${scripts_basename} --help"\`"\n" "${value}";
+						if( ${?no_exit_on_exception} ) \
+							unset no_exit_on_exception;
+						@ errno=-604;
+						goto exception_handler;
 						breaksw;
 				endsw
 				breaksw;
@@ -1012,12 +988,9 @@ parse_arg:
 						breaksw;
 					
 					default:
-						printf "disabling %s is not supported.  See "\`"${scripts_basename} --help"\`"\n" "${value}";
 						if( ${?no_exit_on_exception} ) \
 							unset no_exit_on_exception;
-						if(! ${?display_usage_on_exception} ) \
-							set display_usage_on_exception display_usage_on_exception_set;
-						@ errno=-601;
+						@ errno=-604;
 						goto exception_handler;
 						breaksw;
 				endsw
@@ -1034,8 +1007,6 @@ parse_arg:
 					if(! -e "${value}" ) then
 						if( ${?no_exit_on_exception} ) \
 							unset no_exit_on_exception;
-						if(! ${?display_usage_on_exception} ) \
-							set display_usage_on_exception display_usage_on_exception_set;
 						@ errno=-601;
 						goto exception_handler;
 					endif
@@ -1052,8 +1023,7 @@ parse_arg:
 						default:
 							if( ${?no_exit_on_exception} ) \
 								unset no_exit_on_exception;
-							if(! ${?display_usage_on_exception} ) \
-								set display_usage_on_exception;
+							set unsupported_playlist_type="${playlist_type}";
 							unset playlist_type;
 							@ errno=-602;
 							goto exception_handler;
@@ -1064,9 +1034,7 @@ parse_arg:
 					if( "${new_playlist_type}" == "${playlist_type}" ) then
 							if( ${?no_exit_on_exception} ) \
 								unset no_exit_on_exception;
-							if(! ${?display_usage_on_exception} ) \
-								set display_usage_on_exception;
-							set unsupported_playlist_type="${playlist_type}";
+							set unsupported_playlist_type="${new_playlist_type}";
 							unset new_playlist_type;
 							@ errno=-602;
 							goto exception_handler;
@@ -1082,8 +1050,6 @@ parse_arg:
 						default:
 							if( ${?no_exit_on_exception} ) \
 								unset no_exit_on_exception;
-							if(! ${?display_usage_on_exception} ) \
-								set display_usage_on_exception;
 							unset new_playlist_type;
 							set unsupported_playlist_type="${new_playlist_type}";
 							@ errno=-602;
@@ -1220,7 +1186,7 @@ diagnostic_mode:
 	if( -e "${scripts_diagnosis_log}" ) \
 		rm -v "${scripts_diagnosis_log}";
 	touch "${scripts_diagnosis_log}";
-	printf "----------------%s debug.log-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "----------------%s debug.log-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
 	printf \$"argv:\n\t${argv}\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"parsed_argv:\n\t$parsed_argv\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"{0} == [${0}]\n" >> "${scripts_diagnosis_log}";
@@ -1230,9 +1196,9 @@ diagnostic_mode:
 		printf \$"{${arg}} == ${1}\n" >> "${scripts_diagnosis_log}";
 		shift;
 	end
-	printf "\n\n----------------<%s> environment-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "\n\n----------------<%s> environment-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
 	env >> "${scripts_diagnosis_log}";
-	printf "\n\n----------------<%s> variables-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "\n\n----------------<%s> variables-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
 	set >> "${scripts_diagnosis_log}";
 	printf "Create %s diagnosis log:\n\t%s\n" "${scripts_basename}" "${scripts_diagnosis_log}";
 	@ errno=-500;
@@ -1262,7 +1228,7 @@ label_stack_set:
 		set old_owd="${owd}";
 		set current_cwd="${cwd}";
 		set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
-		printf "%s" >! "${argument_file}" "${cwd}";
+		printf "%s" "${cwd}" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
 		set escaped_cwd="`cat "\""${argument_file}"\""`";
 		rm -f "${argument_file}";

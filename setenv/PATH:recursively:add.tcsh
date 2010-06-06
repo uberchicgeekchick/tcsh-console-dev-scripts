@@ -29,7 +29,7 @@ next_argv:
 			case "sub-directory-name-restriction":
 			case "filter":
 			case "f":
-				set find_subdirs=" -name '${value}'";
+				set find_subdirs=" -name "\""${value}"\""";
 				continue;
 			
 			case "follow":
@@ -122,7 +122,7 @@ next_argv:
 		end
 		
 		if( "${new_path}" != "" ) then
-			set new_path="`printf '%s' '${new_path}' | sed -r 's/::/:/g' | sed -r 's/^://' | sed -r 's/:"\$"//'`";
+			set new_path="`printf "\""%s"\"" "\""${new_path}"\"" | sed -r 's/::/:/g' | sed -r 's/^://' | sed -r 's/:"\$"//'`";
 			setenv PATH "${PATH}:${new_path}";
 		endif
 	end

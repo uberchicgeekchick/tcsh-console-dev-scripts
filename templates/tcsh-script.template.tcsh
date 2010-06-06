@@ -616,7 +616,7 @@ dependency_check:
 		if( ${?debug} ) \
 			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}" > ${stdout};
 			
-		foreach program("`where '${dependency}'`")
+		foreach program("`where "\""${dependency}"\""`")
 			if( -x "${program}" ) \
 				break;
 			unset program;
@@ -658,7 +658,7 @@ dependency_check:
 			if( ${?debug} ) \
 				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}" > ${stdout};
 				set old_owd="${cwd}";
-				cd "`dirname '${program}'`";
+				cd "`dirname "\""${program}"\""`";
 				set scripts_dirname="${cwd}";
 				cd "${owd}";
 				set owd="${old_owd}";
@@ -1903,7 +1903,7 @@ diagnosis:
 	
 	set scripts_diagnosis_log="`mktemp --tmpdir diagnosis.${scripts_basename}.log.XXXXXX";
 	
-	printf "----------------%s debug.log-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "----------------%s debug.log-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
 	printf \$"argv:\n\t${argv}\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"parsed_argv:\n\t${parsed_argv}\n\n" >> "${scripts_diagnosis_log}";
 	printf \$"{0} == [${0}]\n" >> "${scripts_diagnosis_log}";
@@ -1913,9 +1913,9 @@ diagnosis:
 		printf \$"{${arg}} == ${1}\n" >> "${scripts_diagnosis_log}";
 		shift;
 	end
-	printf "\n\n----------------<%s> environment-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "\n\n----------------<%s> environment-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
 	env >> "${scripts_diagnosis_log}";
-	printf "\n\n----------------<%s> variables-----------------\n" >> "${scripts_diagnosis_log}" "${scripts_basename}";
+	printf "\n\n----------------<%s> variables-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
 	set >> "${scripts_diagnosis_log}";
 	printf "Create's %s diagnosis log:\n\t<file://%s>\n" "${scripts_basename}" "${scripts_diagnosis_log}" > ${stdout};
 	unset diagnosis;

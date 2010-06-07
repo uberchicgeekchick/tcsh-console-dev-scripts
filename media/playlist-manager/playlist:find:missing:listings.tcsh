@@ -241,6 +241,7 @@ find_missing_media:
 		if(! -e "${this_podcast}" ) \
 			continue;
 		
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 		if( ${?message} && ! ${?message_displayed} ) then
 			printf "\t**Files found in\n\t\t[%s]\n\twhich are not in the playlist\n\t\t[%s]\n\twill %s.**\n" "${cwd}" "${playlist}" "${message}";
 			set message_displayed;
@@ -290,11 +291,11 @@ find_missing_media:
 		endif
 		
 		foreach duplicates_subdir("`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 			if(! -e "${duplicate_podcast}" ) \
 				continue;
 			
-			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 			
 			set status=0;
 			set rm_confirmation="`rm -vf${remove} "\""${duplicate_podcast}"\""`";

@@ -84,8 +84,6 @@ clean_up:
 move_slashdot:
 	set slashdot=( \
 	"\n" \
-"/media/podcasts/Slashdot/Why Some Supermassive Black Holes Have Big Jets, released on: Sun, 06 Jun 2010 15:49:00 GMT.mp3" \
-	"\n" \
 	);
 	
 	if( ${?slashdot} ) then

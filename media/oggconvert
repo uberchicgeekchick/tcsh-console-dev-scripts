@@ -699,9 +699,7 @@ find_length:
 	set rtrim_minutes="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
 	set rtrim_seconds="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
 	set oggs_length="`${ogginfo} "\""${escaped_filename}.ogg"\"" | /bin/grep --perl-regexp 'Playback length:'`";
-	set oggs_hours="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]+)(h:)([0-9]+)(m:)([0-9]+)\..*"\$"/\1/'`";
-	if( "${oggs_hours}" == "${oggs_length}" ) \
-		set oggs_hours="00";
+	set oggs_hours="00";
 	set oggs_minutes="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\1/'`";
 	if( "${oggs_minutes}" == "${oggs_length}" ) \
 		set oggs_minutes="00";
@@ -717,9 +715,9 @@ find_length:
 	endif
 	unset oggs_length;
 	
-	set hours="`printf "\""%s%s%s\n"\"" "\""${rtrim_hours}"\"" "\""${modifier}"\"" "\""${oggs_hours}"\"" | bc`";
-	set minutes="`printf "\""%s%s%s\n"\"" "\""${rtrim_minutes}"\"" "\""${modifier}"\"" "\""${oggs_minutes}"\"" | bc`";
-	set seconds="`printf "\""%s%s%s\n"\"" "\""${rtrim_seconds}"\"" "\""${modifier}"\"" "\""${oggs_seconds}"\"" | bc`";
+	set hours="`printf "\""%s%s%s\n"\"" "\""${oggs_hours}"\"" "\""${modifier}"\"" "\""${rtrim_hours}"\"" | bc`";
+	set minutes="`printf "\""%s%s%s\n"\"" "\""${oggs_minutes}"\"" "\""${modifier}"\"" "\""${rtrim_minutes}"\"" | bc`";
+	set seconds="`printf "\""%s%s%s\n"\"" "\""${oggs_seconds}"\"" "\""${modifier}"\"" "\""${rtrim_seconds}"\"" | bc`";
 	if( ${?debug} ) then
 		printf "After %s rtrim length from the ogg file's length:\n" "${function}ing";
 		printf "\thours: %s\n" "${hours}";
@@ -734,8 +732,8 @@ calculate_length:
 		set hours="00";
 	endif
 	if( "`printf "\""%s"\"" "\""${minutes}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
-		set hours="`printf "\""%s%s1\n"\"" "\""${modifier}"\"" "\""${hours}"\"" | bc`";
-		set minutes="`printf "\""(%s%s60)%s%s\n"\"" "\""${rtrim_minutes}"\"" "\""${modifier}"\"" "\""${reverse_modifier}"\"" "\""${oggs_minutes}"\"" | bc`";
+		set hours="`printf "\""%s%s1\n"\"" "\""${hours}"\"" "\""${modifier}"\"" | bc`";
+		set minutes="`printf "\""(%s%s60)%s%s\n"\"" "\""${oggs_minutes}"\"" "\""${reverse_modifier}"\"" "\""${modifier}"\"" "\""${rtrim_minutes}"\"" | bc`";
 	endif
 	if( ${minutes} > 60 ) then
 		set hours="`printf "\""%s+1\n"\"" "\""${hours}"\"" | bc`";
@@ -746,8 +744,8 @@ calculate_length:
 	endif
 	
 	if( "`printf "\""%s"\"" "\""${seconds}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
-		set minutes="`printf "\""%s%s1\n"\"" "\""${modifier}"\"" "\""${minutes}"\"" | bc`";
-		set seconds="`printf "\""(%s%s60)%s%s\n"\"" "\""${rtrim_seconds}"\"" "\""${modifier}"\"" "\""${reverse_modifier}"\"" "\""${oggs_seconds}"\"" | bc`";
+		set minutes="`printf "\""%s%s1\n"\"" "\""${minutes}"\"" "\""${modifier}"\"" | bc`";
+		set seconds="`printf "\""(%s%s60)%s%s\n"\"" "\""${oggs_seconds}"\"" "\""${reverse_modifier}"\"" "\""${modifier}"\"" "\""${rtrim_seconds}"\"" | bc`";
 	endif
 	if( ${seconds} > 60 ) then
 		set minutes="`printf "\""%s+1\n"\"" "\""${minutes}"\"" | bc`";

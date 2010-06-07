@@ -53,7 +53,7 @@ set-alias mv "mv --interactive --verbose";
 set-alias ln "ln --interactive --verbose";
 
 set-alias mkdir "mkdir -p";
-set-alias md "mkdir";
+set-alias md "mkdir -v";
 
 set-alias nautilus "nautilus --geometry=800x700 --no-desktop --browser";
 

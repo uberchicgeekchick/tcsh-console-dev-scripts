@@ -156,11 +156,11 @@ find_missing_media:
 	set escaped_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g'`";
 	if( ${?debug} ) then
 		printf "Searching for missing multimedia files using:\n\t";
-		printf "find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sort | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\\\\1/g' | sed -r 's/(\[)/\\\\\\1/g' | sed -r 's/([*])/\\\\\\1/g'\n";
+		printf "find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sort | sed -r 's/(\\)/\\\\/g'  | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\\\\1/g' | sed -r 's/(\[)/\\\\\\1/g' | sed -r 's/([*])/\\\\\\1/g'\n";
 	endif
 	@ errno=0;
 	@ removed_podcasts=0;
-	foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
+	foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
 		#printf "-->%s\n" "${podcast}";
 		#continue;
 		if( ${?skip_subdirs} ) then
@@ -191,7 +191,7 @@ find_missing_media:
 		endif
 		
 		if( ${?append} ) then
-			set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+			set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 			if(! ${?new_file_count} ) then
 				printf "**%s notice:** The following fills will be added to\n\t<file://%s>\n" "${scripts_basename}" "${playlist}";
 				@ new_file_count=1;
@@ -209,11 +209,11 @@ find_missing_media:
 		endif
 		
 		if(! ${?remove} ) then
-			set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+			set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 			if(! -e "${this_podcast}" ) \
 				continue;
 			
-			printf "%s" "${this_podcast}";
+			printf "%s\n" "${this_podcast}";
 			
 			if( ${?create_script} ) then
 				printf "%s\n" "${this_podcast}" >> "${create_script}";
@@ -223,7 +223,7 @@ find_missing_media:
 				continue;
 			
 			foreach duplicates_subdir("`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-				set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+				set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 				
 				if(! -e "${duplicate_podcast}" ) \
 					continue;
@@ -237,8 +237,8 @@ find_missing_media:
 			continue;
 		endif
 		
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-		if(! -e "`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`" ) \
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		if(! -e "${this_podcast}" ) \
 			continue;
 		
 		if( ${?message} && ! ${?message_displayed} ) then

@@ -150,6 +150,8 @@ move_slashdot:
 delete:
 	set to_be_deleted=( \
 	"\n" \
+"/media/podcasts/TEDTalks (video)/Debate: Does the world need nuclear energy? - Mark Z. Jacobson - Stewart Brand (2010), released on: Thu, 10 Jun 2010 14:25:00 GMT.mp4" \
+	"\n" \
 	);
 	
 	if( ${?to_be_deleted} ) then

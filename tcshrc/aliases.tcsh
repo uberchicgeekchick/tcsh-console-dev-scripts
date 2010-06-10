@@ -32,7 +32,7 @@ set-alias df "df --human-readable";
 set-alias du "du --summarize --human-readable";
 set-alias du-a "du ./*";
 
-set-alias rd rmdir;
+set-alias rd "rmdir -v";
 
 set-alias rm "rm --verbose";
 set-alias rr "rm --recursive";
@@ -52,8 +52,8 @@ set-alias mv "mv --interactive --verbose";
 #set-alias ln "ln -iv";
 set-alias ln "ln --interactive --verbose";
 
-set-alias mkdir "mkdir -pv";
-set-alias md "mkdir";
+set-alias mkdir "mkdir -v";
+set-alias md "mkdir -p";
 
 set-alias nautilus "nautilus --geometry=800x700 --no-desktop --browser";
 

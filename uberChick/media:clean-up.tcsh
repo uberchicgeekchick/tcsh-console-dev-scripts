@@ -50,11 +50,11 @@ clean_up:
 	endif
 	switch( $goto_index )
 		case 0:
-			goto move_slashdot;
+			goto move_podiobooks;
 			breaksw;
 		
 		case 1:
-			goto move_podiobooks;
+			goto move_slashdot;
 			breaksw;
 		
 		case 2:
@@ -81,33 +81,6 @@ clean_up:
 #goto clean_up;
 
 
-move_slashdot:
-	set slashdot=( \
-	"\n" \
-	);
-	
-	if( ${?slashdot} ) then
-		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
-				if(! ${?action_preformed} ) \
-					set action_preformed;
-				
-				if(! -d "/media/podcasts/slash." ) \
-					mkdir -p  "/media/podcasts/slash.";
-				
-				mv -v \
-					"${podcast}" \
-				"/media/podcasts/slash.";
-			endif
-			unset podcast;
-		end
-		unset slashdot;
-	endif
-	
-	goto parse_argv;
-#goto move_slashdot;
-
-
 move_podiobooks:
 	set podiobooks=( \
 	"\n" \
@@ -127,14 +100,15 @@ move_podiobooks:
 				endif
 				
 				if(! -d "/media/podiobooks/Latest/`basename "\""${podiobook}"\""`" ) then
-					mv -v \
+					mv -vi \
 						"${podiobook}" \
 					"/media/podiobooks/Latest";
 				else
-					mv -v \
+					mv -vi \
 						"${podiobook}/"* \
 					"/media/podiobooks/Latest/`basename "\""${podiobook}"\""`";
-					rmdir -v "${podiobook}";
+					if( `/bin/ls -A "${podiobook}"` == "" ) \
+						rmdir -v "${podiobook}";
 				endif
 			endif
 			unset podiobook;
@@ -144,6 +118,33 @@ move_podiobooks:
 	
 	goto parse_argv;
 #goto move_podiobooks;
+
+
+move_slashdot:
+	set slashdot=( \
+	"\n" \
+	);
+	
+	if( ${?slashdot} ) then
+		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
+				if(! ${?action_preformed} ) \
+					set action_preformed;
+				
+				if(! -d "/media/podcasts/slash." ) \
+					mkdir -p  "/media/podcasts/slash.";
+				
+				mv -vi \
+					"${podcast}" \
+				"/media/podcasts/slash.";
+			endif
+			unset podcast;
+		end
+		unset slashdot;
+	endif
+	
+	goto parse_argv;
+#goto move_slashdot;
 
 
 delete:
@@ -220,7 +221,7 @@ back_up:
 				if(! -d "/art/media/resources/stories/Slashdot" ) \
 					mkdir -p  "/art/media/resources/stories/Slashdot";
 				
-				mv -v \
+				mv -vi \
 					"${podcast}" \
 				"/art/media/resources/stories/Slashdot";
 			endif

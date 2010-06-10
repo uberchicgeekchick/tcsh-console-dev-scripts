@@ -9,6 +9,6 @@
 		exit -1;
 	}
 	
-	printf( "%s", html_entity_decode($_SERVER['argv'][1]));
+	printf( "%s", html_entity_decode($_SERVER['argv'][1]) );
 ?>
 

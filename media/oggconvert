@@ -5,7 +5,7 @@ setenv:
 	set scripts_basename="oggconvert";
 	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
-	set scripts_supported_extensions="ogg|mp3|m4a|wma|wav";
+	set scripts_supported_extensions="ogg|mp3|m4a|rm|wma|wav";
 	set escaped_home_dir=`printf ${HOME} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 	set escaped_starting_cwd=`printf ${cwd} | sed -r 's/([\!\$\"])/"\\\1"/g' | sed -r 's/([\[\/])/\\\1/g'`;
 	set supports_being_sourced;
@@ -550,7 +550,7 @@ oggconvert:
 	
 	if( "${extension}" != "wav" ) then
 		set ffmpeg_input_file_options="";
-		set ffmpeg_output_file_options="";
+		set ffmpeg_output_file_options=" -vol 512";
 		
 		if( ${?length} && ( ${?rtrim} || ! ${?ltrim} ) ) then
 			if( ${?rtrim} ) then
@@ -1352,10 +1352,10 @@ filename_list_append_value:
 		endif
 	endif
 	
-	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|wma|wav" && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
-		set scripts_supported_extensions="mp3|m4a|wma|wav";
-	else if( "${scripts_supported_extensions}" == "mp3|m4a|wma|wav" && ( ${?ltrim} || ${?rtrim} || ${?length} ) ) then
-		set scripts_supported_extensions="ogg|mp3|m4a|wma|wav";
+	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|rm|wma|wav" && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
+		set scripts_supported_extensions="mp3|m4a|rm|wma|wav";
+	else if( "${scripts_supported_extensions}" == "mp3|m4a|rm|wma|wav" && ( ${?ltrim} || ${?rtrim} || ${?length} ) ) then
+		set scripts_supported_extensions="ogg|mp3|m4a|rm|wma|wav";
 	endif
 	
 	if( ${?debug} || ${?debug_filelist} ) then

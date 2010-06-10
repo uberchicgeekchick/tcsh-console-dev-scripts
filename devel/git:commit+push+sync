@@ -6,7 +6,9 @@ if(! ${?0} ) then
 endif
 
 set status=0;
-
+	
+	onintr exit_script;
+	
 set git_commit_setting_files=( "sync.default" "no.pushing" "no.logging" "artistic.canvas" "build.canvas" "custom.canvas" );
 
 if(! -e "./.sync.default" ) then
@@ -202,6 +204,7 @@ else
 endif
 
 if(!(${?commit_log} && "${commit_log}" != "" && -e "${commit_log}")) then
+	printf "Missing regired commit message.\n\n" > /dev/stderr;
 	set status=-1;
 	goto usage;
 endif
@@ -299,11 +302,19 @@ git_commit:
 		endif
 	endif
 	
+	set git_commit_message="${log_dir}/branch:${branch}:git-commit.message";
+	if( "${commit_log}" != "${git_commit_message}" ) then
+		mv -f "${commit_log}" "${git_commit_message}";
+		set commit_log="${git_commit_message}";
+	endif
+	unset git_commit_message;
+	
 	git commit -a -F "${commit_log}" --cleanup=verbatim;
 	
 	if(! ${?logging} ) then
 		rm "${commit_log}";
-		if( ${?log_dir_is_new} ) rmdir "${log_dir}";
+		if( ${?log_dir_is_new} ) \
+			rmdir "${log_dir}";
 	endif
 	
 	if( ${?branch} ) then
@@ -320,6 +331,7 @@ restore_symlinks:
 	printf "Restoring symlinks.\n";
 	
 	foreach project_symlink("`cat '${symlink_log}'`")
+		ex -s '+1d' '+wq!' "${symlink_log}";
 		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
 		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
 		
@@ -372,6 +384,9 @@ git_push:
 goto check_sync;
 
 exit_script:
+	if( ${?symlink_log} ) \
+		goto restore_symlinks;
+	
 	if( ${?top_git_dir} ) then
 		cd "${original_cwd}";
 		set owd="${original_owd}";

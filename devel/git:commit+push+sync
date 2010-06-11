@@ -17,8 +17,10 @@ else
 	set sync_method=`cat ./.sync.default`;
 endif
 
-if(! -e ./.no.pushing ) set push;
-if(! -e ./.no.logging ) set logging;
+if(! -e ./.no.pushing ) \
+	set push;
+if(! -e ./.no.logging ) \
+	set logging;
 
 set original_owd="${owd}";
 set original_cwd="${cwd}";
@@ -57,7 +59,8 @@ set push_to=();
 while ( "${1}" != "" )
 	set option="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?"\$"/\1/'`";
 	set value="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?"\$"/\2/'`";
-	if( ${?debug_commit} ) printf 'Parsing Option:\n\t--%s=%s\n' "${option}" "${value}";
+	if( ${?debug_commit} ) \
+		printf 'Parsing Option:\n\t--%s=%s\n' "${option}" "${value}";
 	switch ( "${option}" )
 		case "help":
 			goto usage;
@@ -69,7 +72,8 @@ while ( "${1}" != "" )
 		
 		case "no-push":
 		case "no-pushing":
-			if( ${?push} ) unset push;
+			if( ${?push} ) \
+				unset push;
 			breaksw;
 		
 		case "push-to":
@@ -106,7 +110,8 @@ while ( "${1}" != "" )
 			breaksw;
 		
 		case "no-follow":
-			if( ${?follow_symlinks} ) unset follow_symlinks;
+			if( ${?follow_symlinks} ) \
+				unset follow_symlinks;
 			breaksw;
 		
 		case "append":
@@ -129,37 +134,45 @@ while ( "${1}" != "" )
 		case "follow-sysmlinks":
 			switch("${value}")
 				case "disable":
-					if( ${?follow_symlinks} ) unset follow_symlinks;
+					if( ${?follow_symlinks} ) \
+						unset follow_symlinks;
 					breaksw;
 				case "enable":
 				default:
-					if(! ${?follow_symlinks} ) set follow_symlinks;
+					if(! ${?follow_symlinks} ) \
+						set follow_symlinks;
 					breaksw;
 			endsw
 			breaksw;
 		case "enable":
 			switch("${value}")
 				case "follow-sysmlinks":
-					if(! ${?follow_symlinks} ) set follow_symlinks;
+					if(! ${?follow_symlinks} ) \
+						set follow_symlinks;
 					breaksw;
 				case "push":
-					if(! ${?push} ) set push;
+					if(! ${?push} ) \
+						set push;
 					breaksw;
 				case "logging":
-					if(! ${?logging} ) set logging;
+					if(! ${?logging} ) \
+						set logging;
 					breaksw;
 			endsw
 			breaksw;
 		case "disable":
 			switch("${value}")
 				case "follow-sysmlinks":
-					if( ${?follow_symlinks} ) unset follow_symlinks;
+					if( ${?follow_symlinks} ) \
+						unset follow_symlinks;
 					breaksw;
 				case "push":
-					if( ${?push} ) unset push;
+					if( ${?push} ) \
+						unset push;
 					breaksw;
 				case "logging":
-					if( ${?logging} ) unset logging;
+					if( ${?logging} ) \
+						unset logging;
 					breaksw;
 			endsw
 			breaksw;
@@ -198,9 +211,11 @@ if(! ${?commit_log} ) then
 		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
 		set commit_log="${log_dir}/${commit_log}";
 	endif
-	if(! ${?commit_action} ) set commit_action="Commit Appended";
+	if(! ${?commit_action} ) \
+		set commit_action="Commit Appended";
 else
-	if(! ${?commit_action} ) set commit_action="Committed";
+	if(! ${?commit_action} ) \
+		set commit_action="Committed";
 endif
 
 if(!(${?commit_log} && "${commit_log}" != "" && -e "${commit_log}")) then
@@ -243,7 +258,8 @@ follow_symlinks:
 		#printf '%s points to %s\n' "${symlink}" "${target}";
 		cd `dirname "${symlink}"`;
 		rm -r ./`basename "${symlink}"`;
-		if(! -e ./`basename "${symlink}"` ) cp -r "${target}" ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) \
+			cp -r "${target}" ./`basename "${symlink}"`;
 		
 		cd "${owd}";
 		
@@ -325,8 +341,10 @@ git_commit:
 
 
 restore_symlinks:
-	if(! ${?symlink_log} ) goto git_push;
-	if(! -e "${symlink_log}" ) goto git_push;
+	if(! ${?symlink_log} ) \
+		goto git_push;
+	if(! -e "${symlink_log}" ) \
+		goto git_push;
 	
 	printf "Restoring symlinks.\n";
 	
@@ -343,7 +361,8 @@ restore_symlinks:
 		
 		cd `dirname "${symlink}"`;
 		rm -rf ./`basename "${symlink}"`;
-		if(! -e ./`basename "${symlink}"` ) ln -sf "${target}" ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) \
+			ln -sf "${target}" ./`basename "${symlink}"`;
 		
 		cd "${owd}";
 		
@@ -356,9 +375,11 @@ restore_symlinks:
 
 
 git_push:
-	if(! ${?push} ) goto check_sync;
+	if(! ${?push} ) \
+		goto check_sync;
 	foreach git_repo("`git remote`")
-		if( "${push}" != "" && "${push}" != "${git_repo}" ) continue;
+		if( "${push}" != "" && "${push}" != "${git_repo}" ) \
+			continue;
 		
 		if(! ${?push_to} ) then
 			if( ${?branch} ) then
@@ -404,36 +425,38 @@ sync:
 	set ssh_server="sky.ocssolutions.com";
 
 	switch( "${sync_method}" )
-	case "rsync":
-		if(! ${?skip_remote_clean_up} ) set skip_remote_clean_up;
-		rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
-		breaksw;
-	
-	case "scp":
-		if(! ${?skip_remote_clean_up} ) set skip_remote_clean_up;
-		scp -rv ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
-		breaksw;
-	
-	case "sshfs":
-		if( `mount | grep "${sshfs_path}"` == "" ) then
-			sshfs "${ssh_user}@${ssh_server}:/home/${ssh_user}" "${sshfs_path}";
-		endif
-	case "cp":
-		if( ! -d "${sshfs_path}/${project_name}" ) then
-			printf "I couldn't find your project: '%s' in your sshfs path: '%s'\nEither your project doesn't exist on your sshfs or ssh isn't mounted\n", ${project_name}, ${sshfs_path};
-			set status=-3;
-			goto exit_script;
-		endif
+		case "rsync":
+			if(! ${?skip_remote_clean_up} ) \
+				set skip_remote_clean_up;
+			rsync -r --verbose ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
+			breaksw;
 		
-		printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n";
-		cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}";
-		printf "\t\t[done]";
-	
-		# cleaning up swp files that may have been copied to the remote location
-		printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
-		foreach swp("`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`")
-			rm --verbose "${swp}";
-		end
+		case "scp":
+			if(! ${?skip_remote_clean_up} ) \
+				set skip_remote_clean_up;
+			scp -rv ./* "${ssh_user}@${ssh_server}:/home/${ssh_user}/${project_name}";
+			breaksw;
+		
+		case "sshfs":
+			if( `mount | grep "${sshfs_path}"` == "" ) then
+				sshfs "${ssh_user}@${ssh_server}:/home/${ssh_user}" "${sshfs_path}";
+			endif
+		case "cp":
+			if( ! -d "${sshfs_path}/${project_name}" ) then
+				printf "I couldn't find your project: '%s' in your sshfs path: '%s'\nEither your project doesn't exist on your sshfs or ssh isn't mounted\n", ${project_name}, ${sshfs_path};
+				set status=-3;
+				goto exit_script;
+			endif
+			
+			printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n";
+			cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}";
+			printf "\t\t[done]";
+		
+			# cleaning up swp files that may have been copied to the remote location
+			printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
+			foreach swp("`find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`")
+				rm --verbose "${swp}";
+			end
 		printf "\t\t[done]";
 		breaksw;
 	endsw
@@ -441,34 +464,33 @@ sync:
 
 remote_clean_up:
 	goto exit_script;
-	if( ${?skip_remote_clean_up} ) goto exit_script;
+	if( ${?skip_remote_clean_up} ) \
+		goto exit_script;
 		
 	# compare "${sshfs_path}/${project_name}/" against ./;
 	# and remove remote files that no longer exist locally.;
 	printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n";
 	set remove_remote_regexp="`printf "\""%s/%s/"\"" "\""${project_name}"\"" "\""${sshfs_path}"\"" | sed 's/\//\\\//g'`";
-	foreach remote_file("`find "\""${sshfs_path}/${project_name}/"\""*`")
+	foreach remote_file("`find "\""${sshfs_path}/${project_name}/"\""* \! -iregex '.*\/\..*'`")
 		# escape special characters to keep them from being expanded by the terminal;
 		# set remote_file="`printf '${remote_file}' | sed 's/\([\.\*\[\]()]\)/\\\1/g' | sed 's/\('\''\)/\1\\\1\1/g'`";
 		
-		set git_test="`printf "\""%s"\"" "\""${remote_file}"\"" | sed 's/.*\(\/\.git\).*/\1/g'`";
-		if( "${git_test}" == "/.git" ) continue;
-		
 		set local_file="`printf "\""%s"\"" "\""${remote_file}"\"" | sed 's/^${remove_remote_regexp}/\.\//'`";
 		
-		if( -d "${local_file}" || -e "${local_file}" ) continue;
+		if( -d "${local_file}" || -e "${local_file}" ) \
+			continue;
 		
 		printf "\t[remote] '%s' appears to be a stale " "${remote_file}";
 		
 		if( -d "${remote_file}" ) then
 			printf "directory";
 			rm -r "${remote_file}";
-			else if( -e "${remote_file}" ) then
-				printf "file";
-				rm "${remote_file}";
-			endif
-			printf "\t[removed]\n";
-		end
+		else if( -e "${remote_file}" ) then
+			printf "file";
+			rm "${remote_file}";
+		endif
+		printf "\t[removed]\n";
+	end
 	
 	printf "\nRemoving stale remote files\t\t[done]";
 #remote_clean_up
@@ -489,7 +511,7 @@ check_sync:
 			set status=-2;
 			goto exit_script;
 			breaksw;
-		endsw
+	endsw
 #check_sync
 
 usage:

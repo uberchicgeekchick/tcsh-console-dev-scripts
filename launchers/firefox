@@ -138,11 +138,11 @@ exit_script:
 ff_start:
 	echo "Launching:\n\t";
 	if( ${?use_launcher} ) then
-		echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${program}${argz}" \>\& /dev/null \&;
-		/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='[terminal]tcsh -f' --command="${program} ${argz}" >& /dev/null &;
+		echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program}${argz}" \&;
+		/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} ${argz}" &;
 	else
-		echo ${program} "${argz}" \>\& /dev/null \&;
-		${program} "${argz}" >& /dev/null &;
+		echo ${program} "${argz}" \&;
+		${program} "${argz}" &;
 	endif
 	if( ${ff_attempt} > ${ff_attempt_max} ) then
 		printf "Finished attempting load %s after %d attempts.\n" ${program} ${ff_attempt};

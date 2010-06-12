@@ -17,7 +17,8 @@ init:
 	
 	
 	#setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3";
-	setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3 -g3 -ggdb -ffast-math";
+	#setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -O3 -g3 -ggdb -ffast-math";
+	setenv CPPFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS}";
 	
 	#setenv MAKEFLAGS "-Wall -Wextra -Werror -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
 	setenv MAKEFLAGS "${INCLUDE_AND_LIB_FLAGS_AND_PATHS} -Wall -Wextra -Wformat=2 -Wno-unused-parameter -Wno-parentheses";
@@ -150,7 +151,7 @@ configure:
 			breaksw;
 	
 		default:
-			printf "%s is an unsupport mozilla build target.\n\tSupported build targets are: xulrunner, firefox, or thunderbird.\n" ${1};
+			printf "%s is an unsupport mozilla build target.\n\tSupported build targets are: xulrunner, firefox, or thunderbird.\n" "${build_mozilla}";
 			exit -1;
 			breaksw;
 	endsw
@@ -171,7 +172,7 @@ init_make:
 		mkdir -p "${objdir}";
 	
 	if( -e "${srcdir}/.make.lock" ) then
-		printf "Another instance of %s is using the current source.  Please wait a few seconds than try again." "`basename ${0}`";
+		printf "Another instance of %s is using the current source.  Please wait a few seconds than try again." "`basename "\""${0}"\""`";
 		exit -2;
 	endif
 	
@@ -261,7 +262,7 @@ make:
 	setenv	MOZCONFIG	"${srcdir}/.mozconfig";
 	
 	printf "Creating: [%s]\n" "${MOZCONFIG}";
-	printf "ac_add_options --enable-application=%s %s --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=%s MOZ_CO_PROJECT=%s AUTOCONF=autoconf-2.13\n" "${mozilla_project}" "${objdir}" "${enable_mozilla}" "${mozilla_project}" >! "${MOZCONFIG}";
+	printf "ac_add_options --enable-application=%s %s --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=%s MOZ_CO_PROJECT=%s AUTOCONF=autoconf-2.13\n" "${mozilla_project}" "${enable_mozilla}" "${objdir}" "${mozilla_project}" >! "${MOZCONFIG}";
 	#" --enable-default-toolkit=gtk2"
 	
 	make -f client.mk;
@@ -320,7 +321,10 @@ install_plugins:
 	printf "Installing plug-ins\n";
 	if( "${cwd}" != "${prefix}/${build_mozilla}" ) \
 		cd "${prefix}/${build_mozilla}";
-	rm -r searchplugins plugins;
+	if( -e "searchplugins" ) \
+		rm -r searchplugins;
+	if( -e "plugins" ) \
+		rm -r plugins;
 	ln -s ../searchplugins .;
 	ln -s ../plugins .;
 	cd ..;
@@ -373,7 +377,7 @@ test_exec:
 	endif
 	
 	if(! -e ${mozilla_exec} ) then
-		printf "\n\n********************* FATAL ERROR ************************\n\t\t\tInstallation of %s failed\n\t\t\tBinary is not executable: [%s]\n\n" ${build_mozilla} ${mozilla_exec};
+		printf "\n\n********************* FATAL ERROR ************************\n\t\t\tInstallation of %s failed\n\t\t\tBinary is not executable: [%s]\n\n" "${build_mozilla}" "${mozilla_exec}";
 		exit -1;
 	endif
 #test_exec:
@@ -401,7 +405,7 @@ stop_build:
 		foreach pid ( `pidof -x "${ff_binary}"` )
 			@ still_running=0;
 			while ( ${still_running} < 10 )
-				printf "Found running instance of: %s; pid: %s; attempt: #%s\n" ${ff_binary} ${pid} ${still_running};
+				printf "Found running instance of: %s; pid: %s; attempt: #%s\n" "${ff_binary}" "${pid}" "${still_running}";
 				kill -QUIT "${pid}";
 				sleep 2;
 				foreach test ( `pidof -x "${ff_binary}"` )
@@ -415,7 +419,7 @@ stop_build:
 				end
 			end
 			if(! ${?exec_stopped} ) then
-				printf "Failed to quit: %s; pid: %s; sending kill -9\n" ${ff_binary} ${pid};
+				printf "Failed to quit: %s; pid: %s; sending kill -9\n" "${ff_binary}" "${pid}";
 				kill -9 "${pid}";
 			else
 				unset exec_stopped;

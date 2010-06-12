@@ -43,9 +43,18 @@ clean_up:
 		@ goto_index=0;
 	else
 		@ goto_index++;
-		if( ${?action_preformed} && $goto_index < 6 ) then
-			printf "\n\n";
-			unset action_preformed;
+		if( $goto_index < 6 ) then
+			if( ${?action_preformed} ) then
+				if( ${?print_new_lines} ) \
+					printf "\n\n";
+				set print_new_lines;
+				unset action_preformed;
+			endif
+		else
+			if( ${?print_new_lines} ) \
+				unset print_new_lines;
+			if( ${?action_preformed} ) \
+				unset action_preformed;
 		endif
 	endif
 	switch( $goto_index )

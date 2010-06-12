@@ -15,7 +15,7 @@ if(! -d "${ogg_path}" ) \
 cd "${video_path}";
 foreach video("`/usr/bin/find . -regextype posix-extended -iregex '(mp4|m4v)' -type f`")
 	set video="`echo "\""${video}"\"" | sed 's/\(\!\)/\\\1/g'`";
-	${oggconvert} "${video}";
+	${oggconvert} --any-file "${video}";
 	#set tedtalk_video_with_extension="`echo '${video}' | sed 's/\(.*\)\(, released on[^\.]\+\)\?\.\([^\.]\+$\)/\1\.\3/g'`";
 	set new_ogg="`echo "\""${video}"\"" | sed -r 's/(.*)(, released on[^\.]+)?\.([^\.]+)"\$"/\1\2\.ogg/g'`";
 	set tedtalk="`echo "\""${video}"\"" | sed -r 's/(.*)(, released on[^\.]+)?\.([^\.]+)"\$"/\1/g'`";

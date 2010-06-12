@@ -32,8 +32,7 @@ foreach genre ( "`cat '${podcasts_download_path}/.New ${music_library} Songs.lst
 end
 
 rm "${podcasts_download_path}/.New ${music_library} Songs.lst";
-if( "`find -L Genres/ -regextype posix-extended -iregex '.*\.(mp3|m4a)"\$"'`" != "" ) \
-	oggconvert --transcode Genres/;
+oggconvert --transcode Genres/;
 
 foreach title ( "`find -L Genres -iregex '.*, released on.*'`" )
 	set pubdate="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ \-\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\4/g'`";

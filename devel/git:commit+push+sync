@@ -371,6 +371,9 @@ restore_symlinks:
 	
 	rm -f "${symlink_log}" > /dev/null;
 	unset project_symlink follow_symlinks symlink_log;
+	
+	if( ${?commit_cancelled} ) \
+		goto exit_script;
 #restore_symlinks:
 
 
@@ -405,8 +408,12 @@ git_push:
 goto check_sync;
 
 exit_script:
-	if( ${?symlink_log} ) \
+	if( ${?symlink_log} ) then
+		set commit_cancelled;
 		goto restore_symlinks;
+	else if( ${?commit_cancelled} ) then
+		unset commit_cancelled;
+	endif
 	
 	if( ${?top_git_dir} ) then
 		cd "${original_cwd}";

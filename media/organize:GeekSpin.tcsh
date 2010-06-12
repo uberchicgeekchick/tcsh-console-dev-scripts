@@ -9,8 +9,7 @@ if( -d "${podcasts_dir}/${cc_artist}, The" ) then
 	rmdir "${podcasts_dir}/${cc_artist}, The";
 endif
 
-if( "`find -L -regextype posix-extended -iregex '.*\.(mp3|m4a)"\$"'`" != "" ) \
-	oggconvert --transcode "${media_dir}/${cc_artist}";
+oggconvert --transcode "${media_dir}/${cc_artist}";
 
 foreach title ("`find -L '${media_dir}/${cc_artist}' -regextype posix-extended -iregex '.*, released on[^\.]*\.[^\.]+'`" )
 	set song = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/(.*)(, released on[^\.]*)\.([^\.]+"\$")/\1\.\3/g'`";

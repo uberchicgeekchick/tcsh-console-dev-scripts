@@ -1,13 +1,15 @@
 #!/bin/tcsh -f
 init:
-	if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 	set script_name="source:argv";
 	goto parse_argv; # exit's via 'usage:' or 'main:'.
 #init:
 
 
 exit_script:
-	if( ${?debug} ) unset debug;
+	if( ${?debug} ) \
+		unset debug;
 	if( ${?use_old_owd} ) then
 		cd "${owd}";
 		set owd="${use_old_owd}";
@@ -18,7 +20,8 @@ exit_script:
 
 
 usage:
-	if( ${?debug} ) unset debug;
+	if( ${?debug} ) \
+		unset debug;
 	if(! ${?usage_displayed} ) then
 		printf "Usage:\n\t%s [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n" "${script_name}";
 		set usage_displayed;
@@ -34,12 +37,14 @@ usage:
 parse_argv:
 	@ my_argc=${#argv};
 	
-	if( ${my_argc} == 0 ) goto main;
+	if( ${my_argc} == 0 ) \
+		goto main;
 	
 	@ my_arg=0;
 	while( $my_arg < $my_argc )
 		@ my_arg++;
-		if( "$argv[$my_arg]" != "--debug" ) continue;
+		if( "$argv[$my_arg]" != "--debug" ) \
+			continue;
 		set argv[$my_arg]="";
 		printf "Enabling debug mode (via "\$"argv[%d]\n" $my_arg;
 		set debug;
@@ -48,13 +53,15 @@ parse_argv:
 	if( ${my_arg} > 1 ) \
 		@ my_arg=0;
 	
-	if( ${?debug} ) printf "Checking %s's argv options.  %d total.\n" "${script_name}" "${my_argc}";
+	if( ${?debug} ) \
+		printf "Checking %s's argv options.  %d total.\n" "${script_name}" "${my_argc}";
 #parse_argv:
 
 parse_arg:
 while( $my_arg < $my_argc )
 	@ my_arg++;
-	if( ${?TCSH_RC_DEBUG} || ${?debug} ) printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${my_arg}" "${my_argc}" "$argv[$my_arg]";
+	if( ${?TCSH_RC_DEBUG} || ${?debug} ) \
+		printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${my_arg}" "${my_argc}" "$argv[$my_arg]";
 	
 	set equals="";
 	set value="`printf "\""$argv[$my_arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\3/'`";
@@ -65,10 +72,12 @@ while( $my_arg < $my_argc )
 	endif
 	
 	set dashes="`printf "\""$argv[$my_arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
-	if( "${dashes}" == "$argv[$my_arg]" ) set dashes="";
+	if( "${dashes}" == "$argv[$my_arg]" ) \
+		set dashes="";
 	
 	set option="`printf "\""$argv[$my_arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
-	if( "${option}" == "$argv[$my_arg]" ) set option="";
+	if( "${option}" == "$argv[$my_arg]" ) \
+		set option="";
 	
 	if( ${?debug} ) \
 		printf "Checking argv #%d (%s).\n\tParsed option: %s%s%s%s\n" "${my_arg}" "$argv[$my_arg]" "${dashes}" "${option}" "${equals}" "${value}";
@@ -80,7 +89,8 @@ while( $my_arg < $my_argc )
 		case "usage":
 			if( "${value}" == "" ) then
 				@ my_arg++;
-				if( $my_arg > $my_argc ) continue;
+				if( $my_arg > $my_argc ) \
+					continue;
 				set usage_message="$argv[$my_arg]";
 			else
 				set usage_message="${value}";
@@ -95,7 +105,8 @@ while( $my_arg < $my_argc )
 			endif
 			
 			if(! ${?source_file} ) then
-				if( ${?TCSH_RC_DEBUG} || ${?debug} ) printf "**ERROR:** cannot source %s[%s] could not be found.\n" "$argv" "$my_arg";
+				if( ${?TCSH_RC_DEBUG} || ${?debug} ) \
+					printf "**ERROR:** cannot source %s[%s] could not be found.\n" "$argv" "$my_arg";
 				continue;
 			endif
 			
@@ -106,7 +117,8 @@ while( $my_arg < $my_argc )
 					printf "Sourcing %s @ %s.\n" `date "+%I:%M:%S%P" "${source_file}"`;
 				endif
 			endif
-			if( ${?usage_message} ) unset usage_massage;
+			if( ${?usage_message} ) \
+				unset usage_massage;
 			source "${source_file}";
 			
 			if( ${?TCSH_RC_DEBUG} || ${?debug} ) then

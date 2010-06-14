@@ -145,23 +145,27 @@ static void my_gobject_finalize(MyGObject *my_gobject){
  *             - signal handlers as defined in my GtkBuildable UI.              *
  ********************************************************************************/
 void my_gobject_null_and_void_catch_all_method(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return;
 }/*my_gobject_null_and_void_catch_all_method(my_gobject);*/
 
 static void my_gobject_setup(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 }/*uberChick_sexy_entry_completion_setup(uberChick_sexy_entry_completion);*/
 
 
 void my_gobject_set_int_property(MyGObject *my_gobject, gint value){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return;
 	GET_PRIVATE(my_gobject)->value=value;
 }/*my_gobject_set_page(my_gobject, 0);*/
 
 gint my_gobject_get_int_property(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return -1;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return -1;
 	return GET_PRIVATE(my_gobject)->value;
 }/*my_gobject_get_page(my_gobject);*/
 

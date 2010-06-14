@@ -54,7 +54,8 @@ foreach title ( "`find -L Genres -type f`" )
 		continue;
 	
 	printf "Linking Artists/%s/%s.%s to %s\n" "${artist}" "${song}" "${extension}" "${title}";
-	if( ! -d "Artists/${artist}" ) mkdir -p "Artists/${artist}";
+	if( ! -d "Artists/${artist}" ) \
+		mkdir -p "Artists/${artist}";
 	ln "${title}" "Artists/${artist}/${song}.${extension}";
 	if( ! -e "Artists/${artist}/${song}.${extension}" ) \
 		printf "\tERROR: I was unable to link %s to Artists/%s/%s.%s\n" "${title}" "${artist}" "${song}" "${extension}";

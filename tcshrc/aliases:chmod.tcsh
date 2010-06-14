@@ -28,7 +28,8 @@ foreach change ( $changes )
 			set owners_so_far=(${owners_so_far}${owner});
 			alias "${owner}${opt}" "chmod ${owner}${opt}";
 			alias "${owner}${change}${permissions_so_far}" "chmod ${owner}${change}${permissions_so_far}"
-			if( ${owners_so_far} != ${owner} ) alias "${owners_so_far}${opt}" "chmod ${owners_so_far}${opt}";
+			if( ${owners_so_far} != ${owner} ) \
+				alias "${owners_so_far}${opt}" "chmod ${owners_so_far}${opt}";
 		end
 	end
 end

@@ -12,8 +12,10 @@ endif
 	set symlink_log="${1}";
 	
 restore_symlinks:
-	if(! ${?symlink_log} ) goto exit_script;
-	if(! -e "${symlink_log}" ) goto exit_script;
+	if(! ${?symlink_log} ) \
+		goto exit_script;
+	if(! -e "${symlink_log}" ) \
+		goto exit_script;
 	
 	printf "Restoring symlinks.\n";
 	
@@ -29,7 +31,8 @@ restore_symlinks:
 		
 		cd `dirname "${symlink}"`;
 		rm -rf ./`basename "${symlink}"`;
-		if(! -e ./`basename "${symlink}"` ) ln -sf "${target}" ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) \
+			ln -sf "${target}" ./`basename "${symlink}"`;
 		
 		cd "${owd}";
 		

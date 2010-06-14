@@ -22,7 +22,8 @@ if( ${?OSS_BUILD_CANVAS} ) \
 	unsetenv OSS_BUILD_CANVAS;
 setenv OSS_ARTISTIC_CANVAS;
 
-if( ${?TCSH_OUTPUT_ENABLED} ) printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
+if( ${?TCSH_OUTPUT_ENABLED} ) \
+	printf "Setting up artistic canvas @ %s.\n" `date "+%I:%M:%S%P"`;
 
 #autoconf, automake, & etc settings
 setenv AC_CONFIG_MACRO_DIR "/usr/share/autoconf/autoconf";

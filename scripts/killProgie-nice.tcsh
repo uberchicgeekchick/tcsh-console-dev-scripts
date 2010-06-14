@@ -8,7 +8,8 @@ foreach progiesName ( `echo "${1}-bin\n${1}-run\n${1}"` )
 		if( ${?progiesPID} ) then
 			if( ${progiesPID} ) then
 				
-				if( "${killedProgies}" == "false" ) set killedProgies = "true";
+				if( "${killedProgies}" == "false" ) \
+					set killedProgies = "true";
 
 				if( "${lastKilledProgie}" != "${progiesName}" ) then
 					echo "Please wait while all instances of ${progiesName} are stopped:"

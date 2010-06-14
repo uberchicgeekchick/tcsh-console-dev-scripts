@@ -8,12 +8,15 @@ endif
 set this_program="`basename '${0}'`";
 
 foreach program ( "`which '${this_program}'`" )
-	if( "${program}" != "${0}" && -x "${program}" ) break;
+	if( "${program}" != "${0}" && -x "${program}" ) \
+		break;
 	unset program;
 end
 
-if(! ${?program} ) goto noexec;
-if(! -x "${program}" ) goto noexec;
+if(! ${?program} ) \
+	goto noexec;
+if(! -x "${program}" ) \
+	goto noexec;
 goto launchers_main;
 
 noexec:
@@ -24,8 +27,10 @@ noexec:
 main_quit:
 	unset dependencies;
 	unset this_program;
-	if( ${?dependency} ) unset dependency;
-	if( ${?program} ) unset program;
+	if( ${?dependency} ) \
+		unset dependency;
+	if( ${?program} ) \
+		unset program;
 	exit ${status};
 #main_quit
 

@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "prompts.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -23,10 +24,12 @@ if(! ${?pwd} ) \
 	set pwd="`pwd`";
 set prompt='\n%B%{^[[13m%}(%p on %Y-%W-%D)%b\n%{^[[15m%}[ %n@%m ]\n%{^[[37m%}<file://%$pwd>\n%{^[[31m%}[@%c03] ';
 if( ${uid} != 0 ) then
-	if( ${?TCSH_RC_DEBUG} ) printf "Setting user's prompt.\n";
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Setting user's prompt.\n";
 	set prompt="${prompt}#>";
 else
-	if( ${?TCSH_RC_DEBUG} ) printf "Setting super user's prompt.\n";
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Setting super user's prompt.\n";
 	set prompt="${prompt}"\$">";
 endif
 
@@ -49,24 +52,29 @@ if( "`alias cwdcmd`" != "" ) \
 if( ${?TERM} ) then
 	set cwdcmd='set pwd="`pwd`"; printf "Directory: %s <file://%s> @ %s\n" "${cwd}" "${pwd}" "`date \+%c`"';
 	if(! -o /dev/$tty ) then
-		if( ${?TCSH_RC_DEBUG} ) printf "Setting cwdcmd alias.\n";
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Setting cwdcmd alias.\n";
 		alias cwdcmd "${cwdcmd}";
 		cd .;
 	else
-		if( -x /usr/bin/biff ) /usr/bin/biff y;
+		if( -x /usr/bin/biff ) \
+			/usr/bin/biff y;
 		# If we're running under X11
 		if( ${?DISPLAY} ) then
 			if( ${?TERM} && ${?EMACS} == 0 ) then
 				if( ${TERM} == "xterm" ) then
-					if( ${?TCSH_RC_DEBUG} ) printf "Setting cwdcmd alias for X11 terminal.\n";
+					if( ${?TCSH_RC_DEBUG} ) \
+						printf "Setting cwdcmd alias for X11 terminal.\n";
 					alias cwdcmd 'printf "\033]2;<%s@%s> %s[file://%s] #>\007\033]1;%s\007" "${USER}" "${HOST}" "${cwd}" "`pwd`" "${HOST}" > /dev/$tty; '"${cwdcmd}"' > /dev/$tty;';
 					cd .;
 				endif
 			endif
-			if( -x /usr/bin/biff ) /usr/bin/biff n;
+			if( -x /usr/bin/biff ) \
+				/usr/bin/biff n;
 		endif
 		if( "`alias cwdcmd`" == "" ) then
-			if( ${?TCSH_RC_DEBUG} ) printf "Setting cwdcmd alias.\n";
+			if( ${?TCSH_RC_DEBUG} ) \
+				printf "Setting cwdcmd alias.\n";
 			alias cwdcmd ''"${cwdcmd}"' > /dev/$tty';
 			cd .;
 		endif

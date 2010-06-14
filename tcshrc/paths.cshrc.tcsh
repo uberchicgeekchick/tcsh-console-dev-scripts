@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "paths.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -11,9 +12,11 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if( ${?TCSH_RC_DEBUG} ) printf "Setting up PATH environmental variable.\n";
+if( ${?TCSH_RC_DEBUG} ) \
+	printf "Setting up PATH environmental variable.\n";
 
-if( ${?PATH} ) unsetenv PATH;
+if( ${?PATH} ) \
+	unsetenv PATH;
 
 setenv PATH "/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/rc.d:/etc/init.d:.";
 if( "${cwd}" != "${TCSH_RC_SESSION_PATH}" ) then

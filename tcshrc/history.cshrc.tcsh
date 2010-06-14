@@ -13,21 +13,20 @@ endif
 unset args_handled;
 
 if( ${?histfile} && ${?my_history} ) then
-	if( "${histfile}" != "${my_history}" ) then
-		source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
-	else
+	if( "${histfile}" == "${my_history}" ) then
 		goto exit_script;
 	endif
-else
-	source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
 endif
 
+set my_history="/profile.d/history";
 set highlight;
 set histlit;
 set histdup=erase;
 set histfile="${my_history}";
-if( -e "${histfile}.jobs" ) /bin/rm -f "${histfile}.jobs";
-if( -e "${histfile}.lock" ) /bin/rm -f "${histfile}.lock";
+if( -e "${histfile}.jobs" ) \
+	/bin/rm -f "${histfile}.jobs";
+if( -e "${histfile}.lock" ) \
+	/bin/rm -f "${histfile}.lock";
 set history=6000;
 set savehist=( $history "merge" );
 
@@ -39,8 +38,8 @@ if( ${?loginsh} ) \
 unalias logout;
 unalias exit;
 
-alias logout 'source "${TCSH_RC_SESSION_PATH}/etc-csh.logout"; \
-		if( ${status} == 0 ) exit;';
+alias logout 'source "${TCSH_RC_SESSION_PATH}/etc-csh.logout" \
+		if( $status == 0 ) exit;';
 
 exit_script:
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "history.cshrc.tcsh";

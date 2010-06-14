@@ -212,11 +212,15 @@ static void my_gobject_finalize(MyGObject *my_gobject){
 	
 	program_timeout_remove(&this->timeout_id, g_strrstr(this->string, "/"));
 	
-	if(this->uri) uber_free(this->uri);
-	if(this->title) uber_free(this->title);
+	if(this->uri) \
+		uber_free(this->uri);
+	if(this->title) \
+		uber_free(this->title);
 
-	if(this->widget) gtk_widget_destroy(GTK_WIDGET(this->widget));
-	if(this->tree_model_sort) g_object_unref(this->tree_model_sort);
+	if(this->widget) \
+		gtk_widget_destroy(GTK_WIDGET(this->widget));
+	if(this->tree_model_sort) \
+		g_object_unref(this->tree_model_sort);
 	
 	G_OBJECT_CLASS(my_gobject_parent_class)->finalize(G_OBJECT(my_object));
 }/* my_gobject_finalized */
@@ -230,37 +234,44 @@ static void my_gobject_finalize(MyGObject *my_gobject){
  *             - signal handlers as defined in my GtkBuildable UI.              *
  ********************************************************************************/
 void my_gobject_null_and_void_catch_all_method(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return;
 }/*my_gobject_null_and_void_catch_all_method(my_gobject);*/
 
 
 GtkWidget *my_gobject_get_widget(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return NULL;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return NULL;
 	return GTK_WIDGET( GET_PRIVATE(my_gobject)->widget );
 }/*my_gobject_get_child(my_gobject);*/
 
 const gchar *my_gobject_get_uri(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return NULL;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return NULL;
 	return GET_PRIVATE(my_gobject)->uri;
 }/*my_gobject_get_uri(my_gobject);*/
 
 const gchar *my_gobject_get_title(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return NULL;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return NULL;
 	return GET_PRIVATE(my_gobject)->title;
 }/*my_gobject_get_uri(my_gobject);*/
 
 gint my_gobject_get_page(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return -1;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return -1;
 	return GET_PRIVATE(my_gobject)->page;
 }/*my_gobject_get_page(my_gobject);*/
 
 void my_gobject_set_page(MyGObject *my_gobject, gint page){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return;
 	GET_PRIVATE(my_gobject)->page=page;
 }/*my_gobject_set_page(my_gobject, 0);*/
 
 void my_gobject_start(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	debug("Creating timeout to reload %s.", this->timeline_menu_label);
@@ -269,26 +280,30 @@ void my_gobject_start(MyGObject *my_gobject){
 }/*my_gobject_start(MyGObject *my_gobject);*/
 
 void my_gobject_stop(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	program_timeout_remove(&this->timeout_id, g_strrstr(this->timeline, "/"));
 }/*my_gobject_stop(my_gobject);*/
 
 gboolean my_gobject_refresh(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return FALSE;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return FALSE;
 	my_gobject_stop(my_gobject);
 	my_gobject_start(my_gobject);
 	return FALSE;
 }/*my_gobject_refresh(my_gobject);*/
 
 static void my_gobject_sort(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return;
 	gtk_tree_model_foreach(GTK_TREE_MODEL(( GET_PRIVATE(my_gobject)->tree_model )), (GtkTreeModelForeachFunc)my_gobject_update, my_gobject);
 }/*my_gobject_sort(my_gobject);*/
 
 static gboolean my_gobject_update(GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter, MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return FALSE;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return FALSE;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	gulong 		created_seconds_ago=0;
@@ -300,7 +315,8 @@ static gboolean my_gobject_update(GtkTreeModel *model, GtkTreePath *path, GtkTre
 				-1
 	);
 	if(!gtk_list_store_iter_is_valid(this->list_store, iter)){
-		if(created_at_str) uber_free(created_at_str);
+		if(created_at_str) \
+			uber_free(created_at_str);
 		return FALSE;
 	}
 	created_how_long_ago=parser_convert_time(created_at_str, &created_seconds_ago);
@@ -316,7 +332,8 @@ static gboolean my_gobject_update(GtkTreeModel *model, GtkTreePath *path, GtkTre
 }/*static gboolean my_gobject_update(model, path, iter, my_gobject);*/
 
 static void my_gobject_set_uri_title(MyGObject *my_gobject, const gchar *uri){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	MyGObjectTitles *titles=MyGObjectTitlesList;
@@ -375,7 +392,8 @@ static GtkBuilder *my_gobject_gtk_builder_ui_load(const gchar *filename, const g
 }/*my_gobject_gtkbuilder_ui_load(GtkBuilderUI, "my_gobject_widget", &this->widget, NULL*/
 
 static void my_gobject_setup(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) ))	return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) \
+		))	return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	GtkBuilder *my_gobject_ui=my_gobject_gtkbuilder_ui_load(
@@ -414,8 +432,10 @@ static void my_gobject_setup(MyGObject *my_gobject){
 }/*my_gobject_setup(my_gobject);*/
 
 static void my_gobject_key_pressed(GtkWidget *widget, GdkEventKey *event, MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
-	if(event->keyval!=GDK_Return && event->keyval!=GDK_KP_Enter) return my_gobject_move(widget, event, my_gobject);
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
+	if(event->keyval!=GDK_Return && event->keyval!=GDK_KP_Enter) \
+		return my_gobject_move(widget, event, my_gobject);
 	
 	switch(event->state){
 		case GDK_CONTROL_MASK:
@@ -430,7 +450,8 @@ static void my_gobject_key_pressed(GtkWidget *widget, GdkEventKey *event, MyGObj
 }/*my_gobject_key_pressed(widget, event);*/
 
 static void my_gobject_move(GtkWidget *widget, GdkEventKey *event, MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	switch(event->keyval){
@@ -460,7 +481,8 @@ static void my_gobject_move(GtkWidget *widget, GdkEventKey *event, MyGObject *my
 }/* my_gobject_move */
 
 static void my_gobject_goto_index(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	if(this->index<0) {
@@ -478,7 +500,8 @@ static void my_gobject_goto_index(MyGObject *my_gobject){
 }/*my_gobject_goto_index();*/
 
 static void my_gobject_scroll_to_top(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 		
 	if(!(GTK_TREE_VIEW(this->tree_view))){
@@ -492,7 +515,8 @@ static void my_gobject_scroll_to_top(MyGObject *my_gobject){
 }/* my_gobject_scroll_to_top */
 
 static void my_gobject_clear(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	debug("Re-setting my_gobject_index.");
@@ -502,12 +526,14 @@ static void my_gobject_clear(MyGObject *my_gobject){
 }/*my_gobject_clear(my_gobject);*/
 
 static void my_gobject_grab_focus_cb(GtkWidget *widget, MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	my_gobject_mark_as_read(my_gobject);
 }/*my_gobject_grab_focus_cb(widget, event, my_gobject);*/
 
 void my_gobject_mark_as_read(MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	gtk_entry_set_text(this->uri_entry, this->uri);
@@ -515,7 +541,8 @@ void my_gobject_mark_as_read(MyGObject *my_gobject){
 }/*my_gobject_mark_as_read(my_gobject);*/
 
 void my_gobject_append(MyGObject *my_gobject, gulong id, gulong age, gchar *title, const gchar *image_filename, gpointer *pointer){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	GtkTreeIter *iter=g_new0(GtkTreeIter, 1);
@@ -539,7 +566,8 @@ void my_gobject_append(MyGObject *my_gobject, gulong id, gulong age, gchar *titl
 }/*void my_gobject_append(my_gobject, gulong id, gulong age, title, pixbuf, pointer);*/
 
 static void my_gobject_pixbuf_get(MyGObject *my_gobject, const gchar *image_filename){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	GError *error=NULL;
@@ -548,12 +576,14 @@ static void my_gobject_pixbuf_get(MyGObject *my_gobject, const gchar *image_file
 		return my_gobject_pixbuf_scale(my_gobject, pixbuf);
 	
 	debug("Image error: %s: %s", image_filename, error->message);
-	if(error) g_error_free(error);
+	if(error) \
+		g_error_free(error);
 	return NULL;
 }/*my_gobject_get_pixbuf(image_filename);*/
 
 static void my_gobject_pixbuf_scale(MyGObject *my_gobject, GdkPixbuf *pixbuf){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	gint size=0;
@@ -571,7 +601,8 @@ static void my_gobject_pixbuf_scale(MyGObject *my_gobject, GdkPixbuf *pixbuf){
 }/*my_gobject_pixbuf_scale(my_gobject, pixbuf);*/
 
 static void my_gobject_changed_cb(GtkTreeView *my_gobject_tree_view, MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	GtkTreeSelection	*sel;
@@ -604,13 +635,16 @@ static void my_gobject_changed_cb(GtkTreeView *my_gobject_tree_view, MyGObject *
 	
 	debug("Finished doing something with: #%lu from '%s'.", id, this->title);
 	pointer=NULL;
-	if(title) g_free(title);
-	if(pixbuf) g_object_unref(pixbuf);
+	if(title) \
+		g_free(title);
+	if(pixbuf) \
+		g_object_unref(pixbuf);
 	g_free(iter);
 }/*my_gobject_changed_cb(my_gobject_tree_view, my_gobject);*/
 
 static void my_gobject_size_cb(GtkWidget *widget, GtkAllocation *allocation, MyGObject *my_gobject){
-	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) return;
+	if(!( my_gobject && IS_MY_GOBJECT(my_gobject) )) \
+		return;
 	MyGObjectPrivate *this=GET_PRIVATE(my_gobject);
 	
 	g_object_set(this->string_cell_renderer_text, "wrap-width", ((gtk_tree_view_column_get_width(this->string_tree_view_column))-10), NULL);

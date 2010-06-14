@@ -9,7 +9,8 @@ set music_path = "/media/music";
 set music_library = "`basename '${0}' | sed -r 's/.*organize:(.*)\.tcsh"\$"/\1/g'`";
 set podcasts_download_path = "/media/podcasts";
 
-if( ! -d "${music_path}/${music_library}" ) then;
+if( ! -d "${music_path}/${music_library}" ) \
+	then;
 	printf "The music library's path is not a valid directory. so I'm unable to continue.\nI attempted to organize music using the following path:\n\t%s/%s\n" "${music_path}" "${music_library}";
 	exit -1;
 endif

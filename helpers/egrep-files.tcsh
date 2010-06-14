@@ -42,7 +42,8 @@ check_dependencies:
 			if( ${?debug} ) \
 				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
 			
-			if(! -x "${dependency}" ) continue;
+			if(! -x "${dependency}" ) \
+				continue;
 			
 			if(! ${?scripts_dirname} ) then
 				if("`basename '${dependency}'`" == "${scripts_basename}" ) then
@@ -409,13 +410,16 @@ parse_arg:
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
 		
 		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\1/'`";
-		if( "${dashes}" == "$argv[$arg]" ) set dashes="";
+		if( "${dashes}" == "$argv[$arg]" ) \
+			set dashes="";
 		
 		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\2/'`";
-		if( "${option}" == "$argv[$arg]" ) set option="";
+		if( "${option}" == "$argv[$arg]" ) \
+			set option="";
 		
 		set equals="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\3/'`";
-		if( "${equals}" == "$argv[$arg]" || "${equals}" == "" ) set equals="";
+		if( "${equals}" == "$argv[$arg]" || "${equals}" == "" ) \
+			set equals="";
 		
 		set equals="";
 		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)['\''"\""]?(.*)['\''"\""]?"\$"/\4/'`";
@@ -477,31 +481,37 @@ parse_arg:
 				breaksw;
 			
 			case "verbose":
-				if(! ${?be_verbose} ) set be_verbose;
+				if(! ${?be_verbose} ) \
+					set be_verbose;
 				breaksw;
 			
 			case "debug":
-				if(! ${?debug} ) set debug;
+				if(! ${?debug} ) \
+					set debug;
 				breaksw;
 			
 			case "diagnosis":
 			case "diagnostic-mode":
-				if(! ${?diagnostic_mode} ) set diagnostic_mode;
+				if(! ${?diagnostic_mode} ) \
+					set diagnostic_mode;
 				breaksw;
 			
 			case "enable":
 				switch("${value}")
 					case "verbose":
-						if(! ${?be_verbose} ) set be_verbose;
+						if(! ${?be_verbose} ) \
+							set be_verbose;
 						breaksw;
 					
 					case "debug":
-						if(! ${?debug} ) set debug;
+						if(! ${?debug} ) \
+							set debug;
 						breaksw;
 					
 					case "diagnosis":
 					case "diagnostic-mode":
-						if(! ${?diagnostic_mode} ) set diagnostic_mode;
+						if(! ${?diagnostic_mode} ) \
+							set diagnostic_mode;
 						breaksw;
 					
 					default:
@@ -514,16 +524,19 @@ parse_arg:
 			case "disable":
 				switch("${value}")
 					case "verbose":
-						if( ${?be_verbose} ) unset be_verbose;
+						if( ${?be_verbose} ) \
+							unset be_verbose;
 						breaksw;
 					
 					case "debug":
-						if( ${?debug} ) unset debug;
+						if( ${?debug} ) \
+							unset debug;
 						breaksw;
 					
 					case "diagnosis":
 					case "diagnostic-mode":
-						if( ${?diagnostic_mode} ) unset diagnostic_mode;
+						if( ${?diagnostic_mode} ) \
+							unset diagnostic_mode;
 						breaksw;
 					
 					default:
@@ -602,7 +615,8 @@ callback_handler:
 diagnostic_mode:
 	set current_label="diagnostic_mode";
 	
-	if( -e "/tmp/${scripts_basename}-debug.log" ) rm -v "/tmp/${scripts_basename}-debug.log";
+	if( -e "/tmp/${scripts_basename}-debug.log" ) \
+		rm -v "/tmp/${scripts_basename}-debug.log";
 	touch "/tmp/${scripts_basename}-debug.log";
 	printf "----------------%s debug.log-----------------\n" "${scripts_basename}" >> "/tmp/${scripts_basename}-debug.log";
 	printf \$"argv:\n\t%s\n\n" "$argv" >> "/tmp/${scripts_basename}-debug.log";

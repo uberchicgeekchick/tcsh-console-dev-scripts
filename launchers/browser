@@ -11,13 +11,15 @@ while( ${?1} && "${1}" != "" )
 			if( ! ${?browser} && "`echo -n '${1}' | sed -r 's/[\-]{2}(browser)=(.*)/\1/'`" == "browser" ) then
 				set exec_test="`echo -n '${1}' | sed -r 's/[\-]{2}browser=(.*)/\1/'`";
 				foreach browser("`where '${exec_test}'`")
-					if( ${?exec_test} ) unset exec_test;
+					if( ${?exec_test} ) \
+						unset exec_test;
 					if( -x "${browser}" ) then
 						shift;
 						breaksw
 					endif
 				end
-				if( ${?browser} ) unset browser;
+				if( ${?browser} ) \
+					unset browser;
 			endif
 			
 			if( ${?url} ) then
@@ -42,18 +44,22 @@ if( -x "${browser}" ) then
 	set program="${browser}";
 else
 	foreach program ( "`which '${browser}'`" )
-		if( "${program}" != "${0}" && -x "${program}" ) break;
+		if( "${program}" != "${0}" && -x "${program}" ) \
+			break;
 		unset program;
 	end
 endif
 
-if(! ${?program} ) goto noexec;
-if(! -x "${program}" ) goto noexec;
+if(! ${?program} ) \
+	goto noexec;
+if(! -x "${program}" ) \
+	goto noexec;
 goto launchers_main;
 
 noexec:
 	printf "Unable to find %s.\n" "${browser}";
-	if( ${?program} ) unset program;
+	if( ${?program} ) \
+		unset program;
 	unset browser;
 	exit -1;
 

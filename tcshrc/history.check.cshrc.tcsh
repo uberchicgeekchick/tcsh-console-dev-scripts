@@ -13,11 +13,10 @@ endif
 unset args_handled;
 
 main:
-	set my_history="/profile.d/history";
-	if(! ${?histfile} ) then
-		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
+	if(!( ${?histfile} && ${?my_histfile} )) then
+		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh" $argv;
 	else if( "${histfile}" != "${my_history}" ) then
-		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
+		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh" $argv;
 	endif
 	
 	if(! -e "${histfile}" ) then

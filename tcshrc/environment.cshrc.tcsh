@@ -1,5 +1,6 @@
 #!/tcsh/bin -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "environment.cshrc.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -55,7 +56,8 @@ alias helpcommand "man"
 unset autologout
 unset ignoreeof
 
-if( ${?TCSH_RC_DEBUG} ) printf "Setting up TCSH's history @ %s.\n" `date "+%I:%M:%S%P"`;
+if( ${?TCSH_RC_DEBUG} ) \
+	printf "Setting up TCSH's history @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "environment.cshrc.tcsh";

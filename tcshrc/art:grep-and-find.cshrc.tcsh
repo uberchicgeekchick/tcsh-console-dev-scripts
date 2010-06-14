@@ -8,7 +8,7 @@
 	
 	if(! ${?TCSH_RC_SESSION_PATH} ) \
 		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-		source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_name}" "${argv}";
+		source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_name}" ${argv};
 		if( $args_handled > 0 ) then
 			@ args_shifted=0;
 			while( $args_shifted < $args_handled )
@@ -19,7 +19,8 @@
 		endif
 		unset args_handled;
 
-if( ${?TCSH_RC_DEBUG} ) printf "Setting up grep, egrep, and find.\n";
+if( ${?TCSH_RC_DEBUG} ) \
+	printf "Setting up grep, egrep, and find.\n";
 
 #setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --initial-tab --no-messages --context=6 --perl-regexp --ignore-case";
 setenv	GREP_OPTIONS	"--binary-files=without-match --color --with-filename --line-number --no-messages";

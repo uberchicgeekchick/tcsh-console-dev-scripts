@@ -14,14 +14,10 @@ endif
 @ argc=${#argv};
 unset args_handled;
 
-set maxdepth;
-set mindepth;
-set find_subdirs;
-set follow_symlinks="-L";
-set no_other_fs;
 next_argv:
 	while( $arg < $argc )
 		@ arg++;
+		
 		set status=0;
 		set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/[\-]{1,2}([^=]+)=?(.*)/\1/'`";
 		set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/[\-]{1,2}([^=]+)=?(.*)/\2/'`";
@@ -70,7 +66,7 @@ next_argv:
 			set status=-1;
 			if( ${?TCSH_RC_DEBUG} ) \
 				printf "**Skipping:** <file://%s> is not an existing directory.\n\n" "${value}" > /dev/stderr;
-			continue;
+			goto unset_argv;
 		endif
 		
 		set new_path="";
@@ -81,12 +77,24 @@ next_argv:
 		cd "${owd}";
 		set owd="${old_owd}";
 		
+		if(! ${?maxdepth} ) \
+			set maxdepth;
+		if(! ${?mindepth} ) \
+			set mindepth;
+		if(! ${?find_subdirs} ) \
+			set find_subdirs;
+		if(! ${?follow_symlinks} ) \
+			set follow_symlinks="-L";
+		if(! ${?no_other_fs} ) \
+			set no_other_fs;
+		
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "\nRecusively looking for possible paths in: <%s> using:\n\tfind %s "\""${search_dir}"\""${no_other_fs} -ignore_readdir_race${maxdepth}${mindepth}${find_subdirs} -type d \\\! -iregex '.*\/\..*'\n" "${search_dir}" "${follow_symlinks}";
 		
 		set escaped_search_dir="`printf "\""%s"\"" "\""${search_dir}"\"" | sed -r 's/\//\\\//g'`";
 		foreach dir ( "`find ${follow_symlinks} "\""${search_dir}"\""${no_other_fs} -ignore_readdir_race${maxdepth}${mindepth}${find_subdirs} -type d \! -iregex '.*\/\..*'`" )
-			if( "${dir}" == "" ) continue;
+			if( "${dir}" == "" ) \
+				continue;
 			if( "`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/${escaped_search_dir}(\.).*/\1/'`" == "." ) \
 				continue;
 			set escaped_dir="`printf "\""%s"\"" "\""${dir}"\"" | sed -r 's/.*\/([^\/]+)/\1/'`";
@@ -125,20 +133,58 @@ next_argv:
 			set new_path="`printf "\""%s"\"" "\""${new_path}"\"" | sed -r 's/::/:/g' | sed -r 's/^://' | sed -r 's/:"\$"//'`";
 			setenv PATH "${PATH}:${new_path}";
 		endif
+		
+		goto unset_argv;
 	end
 #next_argv:
 
+
 main_quit:
-	unset option value arg argc;
-	unset dir escaped_dir new_path escaped_search_dir;
-	unset follow_symlinks search_dir no_other_fs maxdepth mindepth find_subdirs;
+	if( ${?arg} )\
+		unset arg;
+	if( ${?argc} )\
+		unset argc;
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "PATH:recursively:add.tcsh";
 	
 	exit ${status};
+#goto main_quit;
+
 
 usage:
 	printf "Usage: PATH:recursively:add.tcsh directory_to_recursively search and add sub-directory.\n";
 	if( ${?option} ) \
 		goto next_argv:
 	goto main_quit;
+#goto usage;
+
+unset_argv:
+	if( ${?option} )\
+		unset option;
+	if( ${?value} )\
+		unset value;
+	if( ${?dir} )\
+		unset dir;
+	if( ${?escaped_dir} )\
+		unset escaped_dir;
+	if( ${?new_path} )\
+		unset new_path;
+	if( ${?escaped_search_dir} )\
+		unset escaped_search_dir;
+	if( ${?follow_symlinks} )\
+		unset follow_symlinks;
+	if( ${?search_dir} )\
+		unset search_dir;
+	if( ${?no_other_fs} )\
+		unset no_other_fs;
+	if( ${?maxdepth} )\
+		unset maxdepth;
+	if( ${?mindepth} )\
+		unset mindepth;
+	if( ${?find_subdirs} )\
+		unset find_subdirs;
+	
+	goto next_argv;
+#goto unset_argv;
+
+

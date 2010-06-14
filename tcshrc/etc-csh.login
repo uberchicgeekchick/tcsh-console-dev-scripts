@@ -7,11 +7,13 @@
 # will be lost during system upgrades. Instead use /etc/csh.login.local for
 # your local environment settings.
 #
-if( ${?TCSH_RC_DEBUG} ) unsetenv TCSH_RC_DEBUG;
+if( ${?TCSH_RC_DEBUG} ) \
+	unsetenv TCSH_RC_DEBUG;
 if( ${?TCSH_RC_SOURCE_FILE} ) then
 	unsetenv TCSH_RC_SOURCE_FILE;
 endif
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 
 source "${TCSH_RC_SESSION_PATH}/argv:check" "etc-csh.login" ${argv};
 

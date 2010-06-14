@@ -5,13 +5,16 @@ launcher_init:
 		if( "${browser}" != "${0}" && -x "${browser}" ) break
 	end
 	
-	if(! ${?browser} ) goto noexec;
-	if(! -x "${browser}" ) goto noexec;
+	if(! ${?browser} ) \
+		goto noexec;
+	if(! -x "${browser}" ) \
+		goto noexec;
 	goto launcher_main;
 
 noexec:
 	printf "Unable to find %s.\n" "${browser}";
-	if( ${?browser} ) unset browser;
+	if( ${?browser} ) \
+		unset browser;
 	unset browser;
 	exit -1;
 
@@ -29,7 +32,8 @@ next_uri:
 
 shorten_uri:
 	if(! ${?uri_to_shorten} ) then
-		if(! ${?uri_shortener_data} ) set status=-1;
+		if(! ${?uri_shortener_data} ) \
+			set status=-1;
 		goto exit_script;
 	endif
 	
@@ -40,5 +44,6 @@ shorten_uri:
 	goto next_uri;
 
 exit_script:
-	if( ${status} != 0 ) printf "%s uri://address.to/shorten" "`basename '${0}'`";
+	if( ${status} != 0 ) \
+		printf "%s uri://address.to/shorten" "`basename '${0}'`";
 	exit ${status};

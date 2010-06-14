@@ -35,7 +35,8 @@ fix_symlinks:
 		#printf '%s points to %s\n' "${symlink}" "${target}";
 		cd `dirname "${symlink}"`;
 		rm -rvi ./`basename "${symlink}"`;
-		if(! -e ./`basename "${symlink}"` ) cp -rv "${target}" ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) \
+			cp -rv "${target}" ./`basename "${symlink}"`;
 		
 		cd "${owd}";
 		
@@ -59,7 +60,8 @@ revert_symlinks:
 		
 		cd `dirname "${symlink}"`;
 		rm -rvf ./`basename "${symlink}"`;
-		if(! -e ./`basename "${symlink}"` ) ln -sv "${target}" ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) \
+			ln -sv "${target}" ./`basename "${symlink}"`;
 		
 		cd "${owd}";
 		

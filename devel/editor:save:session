@@ -1,7 +1,8 @@
 #!/bin/tcsh -f
 set search_dir = "./"
 set my_editor = "`printf '${0}' | sed 's/.*\/\([^:]\+\).*/\1/g'`"
-if(${my_editor} == "editor") unset my_editor;
+if(${my_editor} == "editor") \
+	unset my_editor;
 
 while ( ${?1} && "${1}" != "" )
 	switch ( "${1}" )

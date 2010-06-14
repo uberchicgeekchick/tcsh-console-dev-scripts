@@ -144,17 +144,28 @@ exec:
 
 
 script_main_quit:
-	if( ${?supports_being_source} ) unset supports_being_source;
-	if( ${?scripts_basename} ) unset scripts_basename;
-	if( ${?scripts_path} ) unset scripts_path;
-	if( ${?script} ) unset script;
-	if( ${?escaped_cwd} ) unset escaped_cwd;
-	if( ${?dependency} ) unset dependency;
-	if( ${?dependencies} ) unset dependencies;
-	if( ${?argz} ) unset argz;
-	if( ${?debug} ) unset debug;
-	if( ${?usage_displayed} ) unset usage_displayed;
-	if( ${?no_exit_on_usage} ) unset no_exit_on_usage;
+	if( ${?supports_being_source} ) \
+		unset supports_being_source;
+	if( ${?scripts_basename} ) \
+		unset scripts_basename;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
+	if( ${?script} ) \
+		unset script;
+	if( ${?escaped_cwd} ) \
+		unset escaped_cwd;
+	if( ${?dependency} ) \
+		unset dependency;
+	if( ${?dependencies} ) \
+		unset dependencies;
+	if( ${?argz} ) \
+		unset argz;
+	if( ${?debug} ) \
+		unset debug;
+	if( ${?usage_displayed} ) \
+		unset usage_displayed;
+	if( ${?no_exit_on_usage} ) \
+		unset no_exit_on_usage;
 	if( ${?use_old_owd} ) then
 		cd "${owd}";
 		set owd="${use_old_owd}";
@@ -187,7 +198,8 @@ usage:
 		printf "Usage:\t%s [-h|--help]...\n\t[-h|--help]\tDisplays this screen.\n" "${scripts_basename}";
 	endif
 	
-	if(! ${?usage_displayed} ) set usage_displayed;
+	if(! ${?usage_displayed} ) \
+		set usage_displayed;
 	if(! ${?no_exit_on_usage} ) then
 		goto script_main_quit;
 	endif

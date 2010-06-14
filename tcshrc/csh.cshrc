@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "csh.cshrc" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -11,12 +12,16 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-if( ${?TCSH_RC_DEBUG} ) printf "Loading csh.cshrc @ %s.\n" `date "+%I:%M:%S%P"`;
+if( ${?TCSH_RC_DEBUG} ) \
+	printf "Loading csh.cshrc @ %s.\n" `date "+%I:%M:%S%P"`;
 
-if(! ${?prompt} ) source "${TCSH_RC_SESSION_PATH}/prompts.cshrc.tcsh";
-if( ${?echo} ) unset echo;
+if(! ${?prompt} ) \
+	source "${TCSH_RC_SESSION_PATH}/prompts.cshrc.tcsh";
+if( ${?echo} ) \
+	unset echo;
 
-if( ${?http_proxy} ) unsetenv http_proxy;
+if( ${?http_proxy} ) \
+	unsetenv http_proxy;
 
 set logout=normal;
 
@@ -35,15 +40,20 @@ complete killall 'p/*/c/';
 complete ln 'p/*/f/';
 
 if( ${?1} && "${1}" != "" && "${1}" == "--disable=session:source" ) then
-	if( ${?TCSRC_DEBUG} ) printf "[csh.cshrc]: by-passing loading of session:source @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSRC_DEBUG} ) \
+		printf "[csh.cshrc]: by-passing loading of session:source @ %s.\n" `date "+%I:%M:%S%P"`;
 	setenv TCSH_RC_SESSION_SOURCE_SKIPPED;
-	if( ${?2} ) shift;
+	if( ${?2} ) \
+		shift;
 else
-	if( ${?TCSH_RC_DEBUG} ) printf "Initalizing tcsh session @ %s.\n" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Initalizing tcsh session @ %s.\n" `date "+%I:%M:%S%P"`;
 	source "${TCSH_RC_SESSION_PATH}/session:source";
-	if( ${?TCSH_RC_SESSION_SOURCE_SKIPPED} ) unsetenv TCSH_RC_SESSION_SOURCE_SKIPPED;
+	if( ${?TCSH_RC_SESSION_SOURCE_SKIPPED} ) \
+		unsetenv TCSH_RC_SESSION_SOURCE_SKIPPED;
 endif
 
-if( ${?http_proxy} ) unsetenv http_proxy;
+if( ${?http_proxy} ) \
+	unsetenv http_proxy;
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "csh.cshrc";

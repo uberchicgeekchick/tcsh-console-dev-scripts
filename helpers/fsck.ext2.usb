@@ -482,11 +482,13 @@ parse_arg:
 				breaksw;
 			
 			case "verbose":
-				if(! ${?be_verbose} ) set be_verbose;
+				if(! ${?be_verbose} ) \
+					set be_verbose;
 				breaksw;
 			
 			case "debug":
-				if(! ${?debug} ) set debug;
+				if(! ${?debug} ) \
+					set debug;
 				breaksw;
 			
 			case "devices":
@@ -500,22 +502,26 @@ parse_arg:
 			
 			case "diagnosis":
 			case "diagnostic-mode":
-				if(! ${?diagnostic_mode} ) set diagnostic_mode;
+				if(! ${?diagnostic_mode} ) \
+					set diagnostic_mode;
 				breaksw;
 			
 			case "enable":
 				switch("${value}")
 					case "verbose":
-						if(! ${?be_verbose} ) set be_verbose;
+						if(! ${?be_verbose} ) \
+							set be_verbose;
 						breaksw;
 					
 					case "debug":
-						if(! ${?debug} ) set debug;
+						if(! ${?debug} ) \
+							set debug;
 						breaksw;
 					
 					case "diagnosis":
 					case "diagnostic-mode":
-						if(! ${?diagnostic_mode} ) set diagnostic_mode;
+						if(! ${?diagnostic_mode} ) \
+							set diagnostic_mode;
 						breaksw;
 					
 					default:
@@ -528,16 +534,19 @@ parse_arg:
 			case "disable":
 				switch("${value}")
 					case "verbose":
-						if( ${?be_verbose} ) unset be_verbose;
+						if( ${?be_verbose} ) \
+							unset be_verbose;
 						breaksw;
 					
 					case "debug":
-						if( ${?debug} ) unset debug;
+						if( ${?debug} ) \
+							unset debug;
 						breaksw;
 					
 					case "diagnosis":
 					case "diagnostic-mode":
-						if( ${?diagnostic_mode} ) unset diagnostic_mode;
+						if( ${?diagnostic_mode} ) \
+							unset diagnostic_mode;
 						breaksw;
 					
 					default:
@@ -608,7 +617,8 @@ callback_handler:
 diagnostic_mode:
 	set current_label="diagnostic_mode";
 	
-	if( -e "/tmp/${scripts_basename}-debug.log" ) rm -v "/tmp/${scripts_basename}-debug.log";
+	if( -e "/tmp/${scripts_basename}-debug.log" ) \
+		rm -v "/tmp/${scripts_basename}-debug.log";
 	touch "/tmp/${scripts_basename}-debug.log";
 	printf "----------------%s debug.log-----------------\n" "${scripts_basename}" >> "/tmp/${scripts_basename}-debug.log";
 	printf \$"argv:\n\t%s\n\n" "$argv" >> "/tmp/${scripts_basename}-debug.log";

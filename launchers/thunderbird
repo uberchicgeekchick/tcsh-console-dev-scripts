@@ -69,15 +69,18 @@ foreach ff_binary( ${ff_binaries} )
 			if( "${ff_pid}" != "" && $ff_pid > 0 ) then
 				renice +$ff_renice_priority $ff_pid >& /dev/null;
 				printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
-				if(! ${?ff_found} ) set ff_found;
+				if(! ${?ff_found} ) \
+					set ff_found;
 			endif
 		end
 	endif
 end
 
 if(! ${?ff_found} ) then
-	if(! ${?program} ) goto noexec;
-	if(! -x "${program}" ) goto noexec;
+	if(! ${?program} ) \
+		goto noexec;
+	if(! -x "${program}" ) \
+		goto noexec;
 	goto launchers_main;
 else
 	goto exit_script;
@@ -93,7 +96,8 @@ launchers_main:
 	printf "Attempting load %s; attempt: %d.\n" ${this_program} ${ff_attempt};
 	if(! ${?ff_found} ) then
 		if( ${ff_attempt} == 0 ) then
-			if(! ${?ff_profile} ) set ff_profile="uberChicGeekChick";
+			if(! ${?ff_profile} ) \
+				set ff_profile="uberChicGeekChick";
 			set argz="-P '${ff_profile}' ${argz}";
 		endif
 		@ ff_attempt++;
@@ -117,16 +121,20 @@ launchers_main:
 		endif
 		goto ff_start;
 	else if( ${ff_attempt} == 0 ) then
-		if( ${?use_launcher} ) unset use_launcher;
+		if( ${?use_launcher} ) \
+			unset use_launcher;
 		@ ff_attempt=${ff_attempt_max}+1;
 		goto ff_start;
 	endif
 #launchers_main
 
 exit_script:
-	if( ${?rm_extensions} ) unset rm_extensions;
-	if( ${?use_launcher} ) unset use_launcher;
-	if( ${?program} ) unset program;
+	if( ${?rm_extensions} ) \
+		unset rm_extensions;
+	if( ${?use_launcher} ) \
+		unset use_launcher;
+	if( ${?program} ) \
+		unset program;
 	unset this_program program_path firefox_profile_path ff_binaries ff_binary argz ff_pid ff_attempt;
 	if(! ${?ff_found} ) then
 		set status=-1;

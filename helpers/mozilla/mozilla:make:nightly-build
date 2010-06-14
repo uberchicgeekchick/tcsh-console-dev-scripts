@@ -90,7 +90,7 @@ parse_argv:
 				printf "Usage: %s [options...] (firefox|thunderbird)\n\t%s checks out the latest source code for the mozilla project, builds it, makes its package(tarball), and back-ups the built tarball using the build day.\n" `basename "${0}"` `basename "${0}"`;
 				
 				if( "${1}" != "" && "${1}" != "--help" ) \
-					printf "%s is an unsupported option.\n" "${1}"
+					printf "%s is an unsupported option.\n" "${1}";
 				
 				printf "					\
 	Supported options are:							\
@@ -263,7 +263,7 @@ make:
 	
 	printf "Creating: [%s]\n" "${MOZCONFIG}";
 	printf "ac_add_options --enable-application=%s %s --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=%s MOZ_CO_PROJECT=%s AUTOCONF=autoconf-2.13\n" "${mozilla_project}" "${enable_mozilla}" "${objdir}" "${mozilla_project}" >! "${MOZCONFIG}";
-	#" --enable-default-toolkit=gtk2"
+	#" --enable-default-toolkit=gtk2";
 	
 	make -f client.mk;
 	if( ${status} != 0 ) \
@@ -345,7 +345,7 @@ make_default:
 
 exec_install:
 	printf "Running: [%s/x86_64/%s]\n" "${prefix}" "${build_mozilla}";
-	${prefix}/x86_64/${build_mozilla} &
+	${prefix}/x86_64/${build_mozilla} &;
 	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}");
 	foreach ff_binary( ${ff_binaries} )
 		if(! ${?ff_found} ) then
@@ -360,6 +360,44 @@ exec_install:
 				endif
 			end
 		endif
+	end
+	
+	set program="${program_path}/plugin-container";
+	if(! -x "${program}" ) \
+		goto scripts_main_quit;
+	
+	unset ff_found;
+	printf "Renicing:\n\t%s\n\n" "${program}";
+	
+	set ff_binaries=("${program}");
+	
+	@ ff_attempt_max=10;
+	@ ff_attempt_sleep=20;
+	@ ff_attempt=0;
+	@ ff_renice_priority=10;
+	
+	foreach ff_binary( ${ff_binaries} )
+		@ ff_attempt++;
+		if( $ff_attempt > $ff_attempt_max ) \
+			break;
+		
+		if(! ${?ff_found} ) then
+			printf "Looking for running instance of: %s.\n" ${ff_binary};
+			foreach ff_pid(`/bin/pidof ${ff_binary}`)
+				printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
+				if( "${ff_pid}" != "" && $ff_pid > 0 ) then
+					renice +$ff_renice_priority $ff_pid >& /dev/null;
+					printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
+					if(! ${?ff_found} ) \
+						set ff_found;
+				endif
+			end
+		endif
+		
+		if( ${?ff_found} ) \
+			break;
+		
+		sleep $ff_attempt_sleep;
 	end
 #exec_install:
 
@@ -400,19 +438,27 @@ stop_build:
 	endif
 	
 	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}");
+	
+	@ ff_attempt_max=10;
+	@ ff_attempt_sleep=10;
+	@ ff_attempt=0;
+	@ ff_renice_priority=5;
+	
 	foreach ff_binary( ${ff_binaries} )
 		printf "Looking for running instance of: %s.\n" ${ff_binary};
 		foreach pid ( `pidof -x "${ff_binary}"` )
-			@ still_running=0;
-			while ( ${still_running} < 10 )
-				printf "Found running instance of: %s; pid: %s; attempt: #%s\n" "${ff_binary}" "${pid}" "${still_running}";
+			@ ff_attempt=0;
+			while ( ${ff_attempt} < $ff_attempt_max )
+				printf "Found running instance of: %s; pid: %s; attempt: #%s\n" "${ff_binary}" "${pid}" "${ff_attempt}";
 				kill -QUIT "${pid}";
-				sleep 2;
+				
+				sleep $ff_attempt_sleep;
+				
 				foreach test ( `pidof -x "${ff_binary}"` )
 					if( "${pid}" == "${test}" ) then
-						@ still_running++;
+						@ ff_attempt++;
 					else
-						@ still_running=10;
+						@ ff_attempt=$ff_attempt_max;
 						set exec_stopped;
 					break;
 					endif

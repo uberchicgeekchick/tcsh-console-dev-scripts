@@ -1,19 +1,25 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_LAUNCHER_PATH} ) set TCSH_LAUNCHER_PATH="/projects/cli/console.pallet/launchers";
-if(! ${?this_program} ) set this_program="xfmedia";
+if(! ${?TCSH_LAUNCHER_PATH} ) \
+	set TCSH_LAUNCHER_PATH="/projects/cli/console.pallet/launchers";
+if(! ${?this_program} ) \
+	set this_program="xfmedia";
 
 foreach program ( "`where '${this_program}'`" )
-	if( "${program}" != "${0}" && "${program}" != "./${this_program}" && "${program}" != "${TCSH_LAUNCHER_PATH}/${this_program}" && -x "${program}" ) break;
+	if( "${program}" != "${0}" && "${program}" != "./${this_program}" && "${program}" != "${TCSH_LAUNCHER_PATH}/${this_program}" && -x "${program}" ) \
+		break;
 	unset program;
 end
 
-if(! ${?program} ) goto noexec;
-if(! -x "${program}" ) goto noexec;
+if(! ${?program} ) \
+	goto noexec;
+if(! -x "${program}" ) \
+	goto noexec;
 goto launchers_main;
 
 noexec:
 	printf "Unable to find %s.\n" "${this_program}";
-	if( ${?program} ) unset program;
+	if( ${?program} ) \
+		unset program;
 	unset this_program;
 	exit -1;
 
@@ -32,7 +38,8 @@ if(! ${?resolution} ) then
 	endif
 endif
 
-if(! ${?output} ) set output=">& /dev/null &";
+if(! ${?output} ) \
+	set output=">& /dev/null &";
 
 if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
 	set set_alias;
@@ -46,7 +53,8 @@ if( ${?set_alias} ) then
 	else
 		set new_alias="${this_program}-${alias_suffix}";
 	endif
-	if( ${?TCSH_RC_DEBUG} ) printf "Aliasing [%s] to [%s].\n" $new_alias $program;
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Aliasing [%s] to [%s].\n" $new_alias $program;
 	
 	# alias to target this launcher:
 	#alias "${new_alias}" "${TCSH_LAUNCHER_PATH}/${new_alias}";
@@ -61,7 +69,8 @@ endif
 goto set_exec_target;
 launcher_exec:
 echo -n ${exec_target} ${argv};
-if( ${?output} ) echo "${output}";
+if( ${?output} ) \
+	echo "${output}";
 printf "\n";
 
 if(!( ${?1} && "${1}" != "" && "${1}" != "--debug" )) \
@@ -81,18 +90,27 @@ set_exec_target:
 		set exec_target="${exec_target} --audio-out='${audio_driver}'";
 	endif
 	set exec_target="${exec_target} --vwin-geometry='${resolution}'";
-	if( ${?set_alias} ) goto launcher_alias;
+	if( ${?set_alias} ) \
+		goto launcher_alias;
 	goto launcher_exec;
 
 launcher_unset:
-	if( ${?video_driver} ) unset video_driver;
-	if( ${?audio_driver} ) unset audio_driver;
-	if( ${?resolution} ) unset resolution;
-	if( ${?set_alias} ) unset set_alias;
-	if( ${?new_alias} ) unset new_alias;
-	if( ${?exec_target} ) unset exec_target;
-	if( ${?alias_suffix} ) unset alias_suffix;
-	if( ${?output} ) unset output;
+	if( ${?video_driver} ) \
+		unset video_driver;
+	if( ${?audio_driver} ) \
+		unset audio_driver;
+	if( ${?resolution} ) \
+		unset resolution;
+	if( ${?set_alias} ) \
+		unset set_alias;
+	if( ${?new_alias} ) \
+		unset new_alias;
+	if( ${?exec_target} ) \
+		unset exec_target;
+	if( ${?alias_suffix} ) \
+		unset alias_suffix;
+	if( ${?output} ) \
+		unset output;
 	unset resolution this_program program;
 	goto launcher_exit;
 

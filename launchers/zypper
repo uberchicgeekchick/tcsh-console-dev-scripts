@@ -1,14 +1,18 @@
 #!/bin/tcsh -f
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
+if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) \
+	exit;
 set this_program="`basename '${0}'`";
 
 foreach program ( "`which '${this_program}'`" )
-	if( "${program}" != "${0}" && -x "${program}" ) break;
+	if( "${program}" != "${0}" && -x "${program}" ) \
+		break;
 	unset program;
 end
 
-if(! ${?program} ) goto noexec;
-if(! -x "${program}" ) goto noexec;
+if(! ${?program} ) \
+	goto noexec;
+if(! -x "${program}" ) \
+	goto noexec;
 goto launchers_main;
 
 noexec:
@@ -39,8 +43,10 @@ while( ${?1} && "${1}" != "" )
 	endsw
 	
 	set my_args="${my_args} ${prefix}${1}${suffix}";
-	if( "${prefix}" != "" ) set prefix="";
-	if( "${suffix}" != "" ) set suffix="";
+	if( "${prefix}" != "" ) \
+		set prefix="";
+	if( "${suffix}" != "" ) \
+		set suffix="";
 	shift;
 end
 

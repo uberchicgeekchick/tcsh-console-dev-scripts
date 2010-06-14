@@ -1,7 +1,8 @@
 #!/bin/tcsh -f
 set search_dir = "./"
 set my_editor = "`printf '${0}' | sed 's/.*\/\([^:]\+\).*/\1/g'`"
-if(${my_editor} == "editor") unset my_editor;
+if(${my_editor} == "editor") \
+	unset my_editor;
 set scripts=();
 
 while ( ${?1} && "${1}" != "" )
@@ -19,7 +20,8 @@ while ( ${?1} && "${1}" != "" )
 		
 		default:
 			foreach script ( "`where '${attrib}'`" )
-				if( -e "${script}" ) set scripts=( ${scripts} "${script}" );
+				if( -e "${script}" ) \
+					set scripts=( ${scripts} "${script}" );
 			end
 		breaksw
 	endsw

@@ -316,7 +316,8 @@ static gboolean ipc_read(G_GNUC_UNUSED GIOChannel *source, GIOCondition conditio
 		return FALSE;
 	}
 	
-	if(got_zero) ipc_commit(input);
+	if(got_zero) \
+		ipc_commit(input);
 	return TRUE;
 }
 
@@ -368,7 +369,8 @@ static void ipc_main(void){
 
 
 void ipc_deinit(void){
-	if(!input) return;
+	if(!input) \
+		return;
 	
 	if(input->io_watch){
 		g_source_remove(input->io_watch);

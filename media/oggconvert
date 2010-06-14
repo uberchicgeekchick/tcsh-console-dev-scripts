@@ -393,7 +393,7 @@ convert_filename_list:
 			foreach filename_next( "`cat "\""${filename_list}"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
 				@ line++;
 				if( "${filename_prev}" == "${filename_next}" ) then
-					printf "\t**Skipping:** <file://%s> its already been converted.\n\n" "${filename_next}";
+					#printf "\t**Skipping:** <file://%s> its already been converted.\n\n" "${filename_next}";
 					ex -s "+${line}d" '+wq!' "${filename_list}";
 					@ line--;
 				endif

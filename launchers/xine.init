@@ -1,20 +1,26 @@
 #!/bin/tcsh -f
 set launcher="xine";
-if(! ${?TCSH_LAUNCHER_PATH} ) set TCSH_LAUNCHER_PATH="/projects/cli/console.pallet/launchers";
-if(!(${?this_program})) set this_program="xine";
+if(! ${?TCSH_LAUNCHER_PATH} ) \
+	set TCSH_LAUNCHER_PATH="/projects/cli/console.pallet/launchers";
+if(!(${?this_program})) \
+	set this_program="xine";
 
 foreach program ( "`where '${this_program}'`" )
-	if( "${program}" != "${0}" && "${program}" != "./${this_program}" && "${program}" != "${TCSH_LAUNCHER_PATH}/${this_program}" && -x "${program}" ) break;
+	if( "${program}" != "${0}" && "${program}" != "./${this_program}" && "${program}" != "${TCSH_LAUNCHER_PATH}/${this_program}" && -x "${program}" ) \
+		break;
 	unset program;
 end
 
-if(! ${?program} ) goto noexec;
-if(! -x "${program}" ) goto noexec;
+if(! ${?program} ) \
+	goto noexec;
+if(! -x "${program}" ) \
+	goto noexec;
 goto launchers_main;
 
 noexec:
 	printf "Unable to find %s.\n" "${this_program}";
-	if( ${?program} ) unset program;
+	if( ${?program} ) \
+		unset program;
 	unset this_program;
 	exit -1;
 
@@ -28,7 +34,8 @@ set resolution="`cat /projects/cli/console.pallet/resolutions/video/hd.rc`";
 #alias ${launcher} "${TCSH_LAUNCHER_PATH}/${launcher} ${resolution}";
 
 # alias to target the system binary:
-if( ${?TCSH_RC_DEBUG} ) printf "Sourcing: %s\n" "${TCSH_LAUNCHER_PATH}/${launcher}";
+if( ${?TCSH_RC_DEBUG} ) \
+	printf "Sourcing: %s\n" "${TCSH_LAUNCHER_PATH}/${launcher}";
 source "${TCSH_LAUNCHER_PATH}/${launcher}";
 
 foreach resolution_source ( /projects/cli/console.pallet/resolutions/video/* )
@@ -40,16 +47,23 @@ foreach resolution_source ( /projects/cli/console.pallet/resolutions/video/* )
 	#alias ${launcher}-${alias_suffix} "${TCSH_LAUNCHER_PATH}/${launcher} ${resolution}";
 	
 	# alias to target the system binary:
-	if( ${?TCSH_RC_DEBUG} ) printf "Sourcing: %s\n" "${TCSH_LAUNCHER_PATH}/${launcher}";
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Sourcing: %s\n" "${TCSH_LAUNCHER_PATH}/${launcher}";
 	source "${TCSH_LAUNCHER_PATH}/${launcher}";
 	unset alias_suffix
 end
 
-if( ${?alias_suffix} ) unset alias_suffix;
-if( ${?audio_driver} ) unset audio_driver;
-if( ${?video_driver} ) unset video_driver;
-if( ${?resolution} ) unset resolution;
-if( ${?resolution_source} ) unset resolution_source;
-if( ${?program} ) unset program;
+if( ${?alias_suffix} ) \
+	unset alias_suffix;
+if( ${?audio_driver} ) \
+	unset audio_driver;
+if( ${?video_driver} ) \
+	unset video_driver;
+if( ${?resolution} ) \
+	unset resolution;
+if( ${?resolution_source} ) \
+	unset resolution_source;
+if( ${?program} ) \
+	unset program;
 
 

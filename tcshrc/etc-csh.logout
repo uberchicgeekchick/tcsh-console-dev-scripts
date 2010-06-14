@@ -6,7 +6,7 @@ if( ${?TCSH_RC_SOURCE_FILE} ) \
 
 if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "etc-csh.logout" "${argv}";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "etc-csh.logout" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -17,8 +17,7 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
-@ errno=0;
+	@ errno=0;
 	
 	if( -e "${histfile}.lock" ) then
 		@ errno=-1;
@@ -42,8 +41,6 @@ source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
 	jobs >! "${histfile}.jobs";
 	if( "`cat '${histfile}.jobs'`" == "" ) then
 		@ errrno=0;
-		/bin/rm -fv "${histfile}.jobs";
-		/bin/rm -fv "${histfile}.lock";
 		goto exit_script;
 	endif
 	
@@ -51,23 +48,22 @@ source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
 	printf "There background jobs are currently running:\n";
 	cat "${histfile}.jobs";
 	printf "\nset logout_force to skip this test.\n";
-	/bin/rm -fv "${histfile}.jobs";
-	/bin/rm -fv "${histfile}.lock";
-	goto exit_script;
-endif
-
-if( -e "${histfile}.lock" ) \
-	rm -fv "${histfile}.lock";
-
-if( -e "${histfile}.jobs" ) \
-	rm -fv "${histfile}.jobs";
-
-source "${TCSH_RC_SESSION_PATH}/logout.cshrc.tcsh";
 
 exit_script:
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "etc-csh.cshrc";
 	if(! ${?errno} ) \
 		@ errno=0;
+	
+	if( $errno == 0 ) \
+		source "${TCSH_RC_SESSION_PATH}/logout.cshrc.tcsh" $argv;
+	
+	if( -e "${histfile}.lock" ) \
+		/bin/rm -fv "${histfile}.lock";
+	
+	if( -e "${histfile}.jobs" ) \
+		/bin/rm -fv "${histfile}.jobs";
+	
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "etc-csh.logout";
+	
 	set status=$errno;
 	exit ${status};
 #exit_script:

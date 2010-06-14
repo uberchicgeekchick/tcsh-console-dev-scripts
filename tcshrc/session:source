@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "session:source" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -16,15 +17,19 @@ source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh";
 
 if( ${uid} != 0 ) then
 	if( -e "${TCSH_RC_SESSION_PATH}/aliases:sudo:services.cshrc.tcsh" ) then
-		if( ${?TCSH_RC_DEBUG} ) printf "Setting up sudo services aliases @ %s.\n" `date "+%I:%M:%S%P"`;
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Setting up sudo services aliases @ %s.\n" `date "+%I:%M:%S%P"`;
 		source "${TCSH_RC_SESSION_PATH}/aliases:sudo:services.cshrc.tcsh";
-		if( ${?TCSH_RC_DEBUG} ) printf "sudo services aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "sudo services aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
 	
 	if( -e "${TCSH_RC_SESSION_PATH}/aliases:sudo:binaries.cshrc.tcsh" ) then
-		if( ${?TCSH_RC_DEBUG} ) printf "Setting up sudo command aliases @ %s.\n" `date "+%I:%M:%S%P"`;
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Setting up sudo command aliases @ %s.\n" `date "+%I:%M:%S%P"`;
 		source "${TCSH_RC_SESSION_PATH}/aliases:sudo:binaries.cshrc.tcsh";
-		if( ${?TCSH_RC_DEBUG} ) printf "sudo command aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "sudo command aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
 endif
 
@@ -36,16 +41,21 @@ foreach rc_file ( "${TCSH_RC_SESSION_PATH}/"*.tcsh )
 		"`printf '%s' '${rc_file}' | sed --regexp-extended 's/(etc\-).*/\1/g'`" == "etc-" \
 	) continue;
 	
-	if( ${?TCSH_RC_DEBUG} ) printf "Sourcing: %s @ %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Sourcing: %s @ %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
 	source "${TCSH_RC_SESSION_PATH}/${rc_file}";
-	if( ${?TCSH_RC_DEBUG} ) printf "%s finished loading %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
-	if( ${?http_proxy} ) unsetenv http_proxy;
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "%s finished loading %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
+	if( ${?http_proxy} ) \
+		unsetenv http_proxy;
 end
 
-if( ${?TCSH_RC_DEBUG} ) printf "Setting up artistic programming canvas @ %s.\n" `date "+%I:%M:%S%P"`;
+if( ${?TCSH_RC_DEBUG} ) \
+	printf "Setting up artistic programming canvas @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_RC_SESSION_PATH}/art.cshrc.tcsh";
 
-if( ${?TCSH_RC_DEBUG} ) printf "\nSession set up completed @ %s\n" `date "+%I:%M:%S%P"`;
+if( ${?TCSH_RC_DEBUG} ) \
+	printf "\nSession set up completed @ %s\n" `date "+%I:%M:%S%P"`;
 
 unset rc_file;
 

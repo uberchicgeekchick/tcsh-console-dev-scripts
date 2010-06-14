@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "launchers/websites/init.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
@@ -63,7 +64,8 @@ foreach launcher ( "`find -L '${TCSH_WEBSITE_LAUNCHER_PATH}' -ignore_readdir_rac
 	endsw
 	
 	set website="`printf '%s' '${launcher}' | sed -r 's/(.*)\.tcsh"\$"/\1/'`";
-	if( ${?TCSH_RC_DEBUG} ) printf "Setting up website alias for [%s] to [%s/%s].\n" "${website}" "${TCSH_WEBSITE_LAUNCHER_PATH}" "${launcher}";
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Setting up website alias for [%s] to [%s/%s].\n" "${website}" "${TCSH_WEBSITE_LAUNCHER_PATH}" "${launcher}";
 	if( "`alias '${website}'`" != "" ) \
 		unalias "${website}";
 	alias "${website}" \$"{TCSH_WEBSITE_LAUNCHER_PATH}/${launcher}";

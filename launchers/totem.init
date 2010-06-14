@@ -7,19 +7,23 @@ foreach program ( "`which '${this_program}'`" )
 	if( "${program}" != "${0}" && -x "${program}" ) break
 end
 
-if(! ${?program} ) goto noexec;
-if(! -x "${program}" ) goto noexec;
+if(! ${?program} ) \
+	goto noexec;
+if(! -x "${program}" ) \
+	goto noexec;
 goto launchers_main;
 
 noexec:
 	printf "Unable to find %s.\n" "${this_program}";
-	if( ${?program} ) unset program;
+	if( ${?program} ) \
+		unset program;
 	unset this_program;
 	exit -1;
 
 launchers_main:
 
-if(! ${?TCSH_RC_SESSION_PATH} ) setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+if(! ${?TCSH_RC_SESSION_PATH} ) \
+	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 set skip_cwd_test;
 source "${TCSH_RC_SESSION_PATH}/argv:check" "totem.init" ${argv};
 if( $args_handled > 0 ) then
@@ -36,18 +40,21 @@ set playlists_path="/media/library/playlists/m3u";
 set playlists_files=( "podcasts.local.m3u" "${this_program}-audio.m3u" "${this_program}-video.m3u" );
 foreach playlist( ${playlists_files} )
 	set alias_suffix="`printf '%s' '${playlist}' | sed -r 's/^[^\-]+\-([^\.]+)\..*"\$"/\1/'`";
-	if(!( "${alias_suffix}" != "" && "${alias_suffix}" != "${playlist}" )) set alias_suffix="`printf '%s' '${playlist}' | sed -r 's/^([^\.]+)\..*"\$"/\1/'`";
+	if(!( "${alias_suffix}" != "" && "${alias_suffix}" != "${playlist}" )) \
+		set alias_suffix="`printf '%s' '${playlist}' | sed -r 's/^([^\.]+)\..*"\$"/\1/'`";
 	set playlist="${playlists_path}/${playlist}";
 	set playlist_path="`dirname '${playlist}'`";
 	set alias_target="if(! -d '${playlist_path}' ) mkdir -p '${playlist_path}'; if( ! -e '${playlists_path}/${playlist}' ) touch '${playlists_path}/${playlist}' ; ${program} --class='${this_program}-${alias_suffix}' '${playlists_path}/${playlist}'";
 	
 	if(! ${?initial_alias} ) then
-		if( ${?TCSH_RC_DEBUG} ) printf "Aliasing:\n\t[%s]\n\t\tto\n\t[%s].\n" "${this_program}" "${alias_target}";
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Aliasing:\n\t[%s]\n\t\tto\n\t[%s].\n" "${this_program}" "${alias_target}";
 		alias "${this_program}" "${alias_target}";
 		set initial_alias;
 	endif
 	
-	if( ${?TCSH_RC_DEBUG} ) printf "Aliasing:\n\t[%s-%s]\n\t\tto\n\t[%s].\n" "${this_program}" "${alias_suffix}" "${alias_target}";
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Aliasing:\n\t[%s-%s]\n\t\tto\n\t[%s].\n" "${this_program}" "${alias_suffix}" "${alias_target}";
 	alias "${this_program}"'-'"${alias_suffix}" "${alias_target}"; 
 end
 

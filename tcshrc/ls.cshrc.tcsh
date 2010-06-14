@@ -8,7 +8,8 @@ if( -x /usr/bin/dircolors ) then
 endif
 setenv LS_OPTIONS '--color=always';
 if( ${?LS_COLORS} ) then
-    if( "${LS_COLORS}" == "" ) setenv LS_OPTIONS '--color=always';
+	if( "${LS_COLORS}" == "" ) \
+		setenv LS_OPTIONS '--color=always';
 endif
 unalias ls;
 if( "$uid" == "0" ) then
@@ -22,7 +23,8 @@ setenv	LS_OPTIONS	"${LS_OPTIONS} --human-readable --quoting-style=c --classify  
 #set fignore=(.o \~)
 set listlinks
 set listmaxrows=23
-if( ${?listflags} ) unset listflags;
+if( ${?listflags} ) \
+	unset listflags;
 #set listflags="xA";
 
 

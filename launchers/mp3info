@@ -6,7 +6,8 @@ endif
 
 set this_program="id3v2";
 foreach program ("`which ${this_program}`")
-	if( "${program}" != "" && -x "${program}" ) break;
+	if( "${program}" != "" && -x "${program}" ) \
+		break;
 	unset program;
 end
 if(! ${?program} ) \

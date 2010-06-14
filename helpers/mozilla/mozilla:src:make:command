@@ -37,7 +37,8 @@ end
 
 set mozilla_src_path="/programs/mozilla/src";
 foreach m ( "${mozilla_src_path}/${project}"*-srcdir )
-	if(!( -d "${m}" && -e "${m}/client.mk" )) continue;
+	if(!( -d "${m}" && -e "${m}/client.mk" )) \
+		continue;
 	printf '\n\n\t\t********running <make -f client.mk %s> in %s************\n' "${make_action}" "`basename '${m}' | sed -r 's/^([^\-]+)\-.*"\$"/\1/'`";
 	cd "${m}";
 	make -f client.mk ${make_action};

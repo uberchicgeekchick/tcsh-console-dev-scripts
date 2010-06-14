@@ -132,12 +132,12 @@ exec:
 	set status=0;
 	if(! ${?SURPRESS_STDERR} ) then
 		if( ${?debug} ) \
-			printf "( %s -%s %s -regextype %s "\""${argz}"\"" > /dev/tty ) >& /dev/stderr;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
-		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} "${argz}" > /dev/tty ) >& /dev/stderr;
+			printf "( %s -%s %s -ignore_readdir_race -regextype %s "\""${argz}"\"" > /dev/tty ) >& /dev/stderr;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
+		( ${program} -${follow_symlinks} ${find_target} -ignore_readdir_race -regextype ${regextype} "${argz}" > /dev/tty ) >& /dev/stderr;
 	else
 		if( ${?debug} ) \
-			printf "( %s -%s %s -regextype %s "\""${argz}"\"" > /dev/tty ) >& /dev/null;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
-		( ${program} -${follow_symlinks} ${find_target} -regextype ${regextype} "${argz}" > /dev/tty ) >& /dev/null;
+			printf "( %s -%s %s -ignore_readdir_race -regextype %s "\""${argz}"\"" > /dev/tty ) >& /dev/null;" "${program}" "${follow_symlinks}" "${find_target}" "${regextype}";
+		( ${program} -${follow_symlinks} ${find_target} -ignore_readdir_race -regextype ${regextype} "${argz}" > /dev/tty ) >& /dev/null;
 	endif
 	goto script_main_quit;
 #exec:

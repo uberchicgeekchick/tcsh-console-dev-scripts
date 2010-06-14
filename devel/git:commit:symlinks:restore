@@ -18,8 +18,8 @@ restore_symlinks:
 	printf "Restoring symlinks.\n";
 	
 	foreach project_symlink("`cat '${symlink_log}'`")
-		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
 		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
+		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
 		
 		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
 			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";

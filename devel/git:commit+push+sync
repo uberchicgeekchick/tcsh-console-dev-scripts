@@ -234,37 +234,69 @@ follow_symlinks:
 		goto git_commit;
 	
 	set symlink_log="./.symlink.`date '+%s'`.lst";
-	find . -type l -printf '%p\t=\t%l\n' > "${symlink_log}";
+	touch "${symlink_log}";
 	
-	set symlink_count="`cat '${symlink_log}'`";
-	if(!( ${#symlink_count} > 0 )) then
-		rm "${symlink_log}";
-		unset symlink_log follow_symlinks;
-		goto git_commit;
+	set this_symlink_log="`mktemp --tmpdir .symlink.lst.XXXXXXXXX`";
+	set extensions="bz2\|gz\|tgz\|zip|art\|dev\|ref\|new\|old\|symlink[s]?";
+	( find . -ignore_readdir_race \! -iregex ".*\.\(${extensions}\)"\$ -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+	#( find . -ignore_readdir_race -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+	set symlink_count="`cat "\""${this_symlink_log}"\""`";
+	while( ${#symlink_count} > 0 )
+		cat "${this_symlink_log}" >! "${symlink_log}.swp";
+		cat "${symlink_log}" >> "${symlink_log}.swp";
+		mv -f "${symlink_log}.swp" "${symlink_log}";
+		#rm -f "${this_symlink_log}";
+		
+		foreach project_symlink("`cat "\""${this_symlink_log}"\""`")
+			set symlink="`printf "\""%s"\"" "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
+			set target="`printf "\""%s"\"" "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
+			
+			if(! -l "${symlink}" ) \
+				continue;
+			
+			if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+				printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+				unset target symlink;
+				continue;
+			endif
+			
+			if(! ${?symlink_total} ) then
+				printf "Following symlinks.\n";
+				@ symlink_total=0;
+			endif
+			@ symlink_total++;
+			
+			#printf "following: %s\n\t%s points to %s\n" "${project_symlink}" "${symlink}" "${target}";
+			cd `dirname "${symlink}"`;
+			rm -r ./`basename "${symlink}"`;
+			if(! -e ./`basename "${symlink}"` ) \
+				cp -r "${target}" ./`basename "${symlink}"`;
+			
+			cd "${owd}";
+			
+			unset target symlink project_symlink;
+		end
+		( find . -ignore_readdir_race \! -iregex ".*\.\(${extensions}\)"\$ -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+		#( find . -ignore_readdir_race -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+		set symlink_count="`cat "\""${this_symlink_log}"\""`";
+	end
+	
+	if(! ${?symlink_total} ) then
+		if( ${?symlink_log} ) then
+			if( -e "${symlink_log}" ) \
+				rm -f "${symlink_log}";
+			unset symlink_log;
+		endif
 	endif
 	
-	printf "Following symlinks.\n";
+	if( ${?this_symlink_log} ) then
+		if( -e "${this_symlink_log}" ) \
+			rm -f "${this_symlink_log}";
+		unset this_symlink_log;
+	endif
 	
-	foreach project_symlink("`cat '${symlink_log}'`")
-		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
-		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
-		
-		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
-			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
-			unset target symlink;
-			continue;
-		endif
-		
-		#printf '%s points to %s\n' "${symlink}" "${target}";
-		cd `dirname "${symlink}"`;
-		rm -r ./`basename "${symlink}"`;
-		if(! -e ./`basename "${symlink}"` ) \
-			cp -r "${target}" ./`basename "${symlink}"`;
-		
-		cd "${owd}";
-		
-		unset target symlink project_symlink;
-	end
+	if( ${?symlink_count} ) \
+		unset symlink_count;
 #follow_symlinks:
 
 
@@ -348,10 +380,10 @@ restore_symlinks:
 	
 	printf "Restoring symlinks.\n";
 	
-	foreach project_symlink("`cat '${symlink_log}'`")
+	foreach project_symlink("`cat "\""${symlink_log}"\""`")
 		ex -s '+1d' '+wq!' "${symlink_log}";
-		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
 		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
+		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
 		
 		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
 			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
@@ -359,12 +391,13 @@ restore_symlinks:
 			continue;
 		endif
 		
+		#set echo;
 		cd `dirname "${symlink}"`;
 		rm -rf ./`basename "${symlink}"`;
 		if(! -e ./`basename "${symlink}"` ) \
 			ln -sf "${target}" ./`basename "${symlink}"`;
-		
 		cd "${owd}";
+		#unset echo;
 		
 		unset target symlink;
 	end

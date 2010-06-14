@@ -13,7 +13,9 @@ endif
 unset args_handled;
 
 if( ${?histfile} && ${?my_history} ) then
-	if( "${histfile}" == "${my_history}" ) then
+	if( "${histfile}" != "${my_history}" ) then
+		source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
+	else
 		goto exit_script;
 	endif
 else

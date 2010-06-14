@@ -12,29 +12,27 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-set my_history="/profile.d/history";
-if(! ${?histfile} ) \
-	goto exit_script;
-
 main:
-	if( "${histfile}" != "${my_history}" ) \
+	set my_history="/profile.d/history";
+	if(! ${?histfile} ) then
 		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
-		history -M;
-		history -S;
-		cp -u -v "${histfile}" "${histfile}.bckcp";
-		goto exit_script;
+	else if( "${histfile}" != "${my_history}" ) then
+		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh";
 	endif
-
+	
 	if(! -e "${histfile}" ) then
 		if( -e "${histfile}.bckcp" ) then
-			cp -u -v "${histfile}.bckcp" "${histfile}";
+			/bin/cp -ufv "${histfile}.bckcp" "${histfile}";
 			history -L;
+		else
+			history -S;
 		endif
-	else
-		history -M;
-		history -S;
-		cp -u -v "${histfile}" "${histfile}.bckcp";
+		goto exit_script;
 	endif
+	
+	history -M;
+	history -S;
+	/bin/cp -ufv "${histfile}" "${histfile}.bckcp";
 #main:
 
 exit_script:

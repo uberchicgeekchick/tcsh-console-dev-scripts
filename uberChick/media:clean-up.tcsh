@@ -11,21 +11,44 @@ parse_argv:
 	endif
 	
 	while( $arg < $argc )
+		@ arg++;
 		switch( "$argv[${arg}]" )
 			case "--clean-up":
 				goto clean_up;
-			case "--move":
-				goto move;
-			case "--back-up":
-				goto back_up;
-			case "--delete":
-				goto delete;
+				breaksw;
+				
 			case "--playlists":
 				goto playlists;
+				breaksw;
+				
+			case "--move":
+				goto move;
+				breaksw;
+				
+			case "--back-up":
+				goto back_up;
+				breaksw;
+				
+			case "--delete":
+				goto delete;
+				breaksw;
+				
 			case "--logs":
 				goto logs;
+				breaksw;
+				
+			case "--clean-playlists":
+				goto alacasts_playlists;
+				breaksw;
+				
+			case "--validate-playlists":
+				goto validate_playlists;
+				breaksw;
+				
 			default:
 				goto clean_up;
+				breaksw;
+				
 		endsw
 	end
 	goto exit_script;
@@ -33,6 +56,8 @@ parse_argv:
 
 
 exit_script:
+	if( ${?action_preformed} ) \
+		unset action_preformed;
 	exit 0;
 #goto exit_script;
 
@@ -41,22 +66,30 @@ clean_up:
 	set callback="clean_up";
 	if(! ${?goto_index} ) then
 		@ goto_index=0;
+		printf "\tWould you like to validate existing playlists? [Yes/No(default)]" > /dev/stdout;
+		set confirmation="$<";
+		#set rconfirmation=$<:q;
+		printf "\n";
+		
+		switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+			case "y":
+				unset confirmation;
+				set validate_playlists;
+				breaksw;
+			
+			case "n":
+			default:
+				unset confirmation;
+			breaksw;
+		endsw
 	else
 		@ goto_index++;
-		if( $goto_index < 6 ) then
-			if( ${?action_preformed} ) then
-				if( ${?print_new_lines} ) \
-					printf "\n\n";
-				set print_new_lines;
-				unset action_preformed;
-			endif
-		else
-			if( ${?print_new_lines} ) \
-				unset print_new_lines;
-			if( ${?action_preformed} ) \
-				unset action_preformed;
+		if( ${?action_preformed} ) then
+			printf "\n\n";
+			unset action_preformed;
 		endif
 	endif
+	
 	switch( $goto_index )
 		case 0:
 			goto move_podiobooks;
@@ -75,10 +108,47 @@ clean_up:
 			breaksw;
 		
 		case 4:
-			goto playlists;
+			goto alacasts_playlists;
 			breaksw;
 		
 		case 5:
+			goto logs;
+			breaksw;
+		
+		case 6:
+			if( ${?validate_playlists} ) \
+				goto validate_playlists;
+			
+		default:
+			unset goto_index callback;
+			breaksw;
+	endsw
+	goto parse_argv;
+#goto clean_up;
+
+
+playlists:
+	set callback="playlists";
+	if(! ${?goto_index} ) then
+		@ goto_index=0;
+	else
+		@ goto_index++;
+		if( ${?action_preformed} ) then
+			printf "\n\n";
+			unset action_preformed;
+		endif
+	endif
+	
+	switch( $goto_index )
+		case 0:
+			goto alacasts_playlists;
+			breaksw;
+		
+		case 1:
+			goto validate_playlists;
+			breaksw;
+		
+		case 2:
 			goto logs;
 			breaksw;
 		
@@ -87,7 +157,7 @@ clean_up:
 			breaksw;
 	endsw
 	goto parse_argv;
-#goto clean_up;
+#goto playlists;
 
 
 move_podiobooks:
@@ -98,8 +168,11 @@ move_podiobooks:
 	if( ${?podiobooks} ) then
 		foreach podiobook( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podiobook}" != "" && "${podiobook}" != "/" && -e "${podiobook}" ) then
-				if(! ${?action_preformed} ) \
+				if(! ${?action_preformed} ) then
 					set action_preformed;
+				else if( ${?action_preformed} ) then
+					printf "\n\n";
+				endif
 				
 				if(! -d "/media/podiobooks/Latest" ) \
 					mkdir -p  "/media/podiobooks/Latest";
@@ -137,8 +210,11 @@ move_slashdot:
 	if( ${?slashdot} ) then
 		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
-				if(! ${?action_preformed} ) \
+				if(! ${?action_preformed} ) then
 					set action_preformed;
+				else if( ${?action_preformed} ) then
+					printf "\n\n";
+				endif
 				
 				if(! -d "/media/podcasts/slash." ) \
 					mkdir -p  "/media/podcasts/slash.";
@@ -169,8 +245,11 @@ delete:
 	if( ${?to_be_deleted} ) then
 		foreach podcast( "`printf "\""${to_be_deleted}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
-				if(! ${?action_preformed} ) \
+				if(! ${?action_preformed} ) then
 					set action_preformed;
+				else if( ${?action_preformed} ) then
+					printf "\n\n";
+				endif
 				
 				if( -d "${podcast}" ) then
 					rm -rv "${podcast}";
@@ -198,8 +277,11 @@ delete:
 			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
 				set podcast_dir="`dirname "\""${podcast}"\""`";
 				if( "${podcast_dir}" != "/media/podcasts" && -d "${podcast_dir}" ) then
-					if(! ${?action_preformed} ) \
+					if(! ${?action_preformed} ) then
 						set action_preformed;
+					else if( ${?action_preformed} ) then
+						printf "\n\n";
+					endif
 					
 					rm -rv \
 						"${podcast_dir}";
@@ -211,9 +293,12 @@ delete:
 	endif
 	
 	if( -d "/media/podcasts/Slashdot" ) then
-		if(! ${?action_preformed} ) \
+		if(! ${?action_preformed} ) then
 			set action_preformed;
-				
+		else if( ${?action_preformed} ) then
+			printf "\n\n";
+		endif
+		
 		rm -rv "/media/podcasts/Slashdot";
 	endif
 	
@@ -229,8 +314,11 @@ back_up:
 	if( ${?slashdot} ) then
 		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
-				if(! ${?action_preformed} ) \
+				if(! ${?action_preformed} ) then
 					set action_preformed;
+				else if( ${?action_preformed} ) then
+					printf "\n\n";
+				endif
 				
 				if(! -d "/art/media/resources/stories/Slashdot" ) \
 					mkdir -p  "/art/media/resources/stories/Slashdot";
@@ -250,7 +338,7 @@ back_up:
 #goto back_up;
 
 
-playlists:
+alacasts_playlists:
 	set playlist_dir="/media/podcasts/playlists/m3u";
 	foreach playlist("`/bin/ls --width=1 -t "\""${playlist_dir}"\""`")
 		set playlist_escaped="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/([\/.])/\\\1/g'`";
@@ -266,12 +354,18 @@ playlists:
 			printf "<file://%s/%s> still lists files.\n\tWould you like to remove it:\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
 			rm -vi "${playlist_dir}/${playlist}";
 			if(! -e "${playlist_dir}/${playlist}" ) then
-				if(! ${?action_preformed} ) \
+				if(! ${?action_preformed} ) then
 					set action_preformed;
+				else if( ${?action_preformed} ) then
+					printf "\n\n";
+				endif
 			endif
-		else
-			if(! ${?action_preformed} ) \
+		else	
+			if(! ${?action_preformed} ) then
 				set action_preformed;
+			else if( ${?action_preformed} ) then
+				printf "\n\n";
+			endif
 			
 			rm -v "${playlist_dir}/${playlist}";
 		endif
@@ -279,7 +373,7 @@ playlists:
 	end
 	unset playlist_count playlist_dir;
 	goto parse_argv;
-#goto playlists;
+#goto alacasts_playlists;
 
 
 logs:
@@ -293,8 +387,11 @@ logs:
 		set current_hour="0${current_hour}";
 	
 	if( "`find /media/podcasts/ -regextype posix-extended -iregex '.*alacast'\''s log for .*' \! -iregex '.*alacast'\''s log for ${current_year}-${current_month}-${current_day} from ${current_hour}.*'`" != "" ) then
-		if(! ${?action_preformed} ) \
+		if(! ${?action_preformed} ) then
 			set action_preformed;
+		else if( ${?action_preformed} ) then
+			printf "\n\n";
+		endif
 		
 		( rm -v "`find /media/podcasts/ -regextype posix-extended -iregex '.*alacast'\''s log for .*' \! -iregex '.*alacast'\''s log for ${current_year}-${current_month}-${current_day} from ${current_hour}.*'`" > /dev/tty ) >& /dev/null;
 	endif
@@ -303,4 +400,56 @@ logs:
 #goto logs;
 
 
+validate_playlists:
+	set playlist_data=( "/media/library/playlists/m3u/local.podcasts.m3u" "/media/podcasts" "/media/library/playlists/m3u/local.podiobooks.m3u" "/media/podiobooks/Latest" "/media/library/playlists/m3u/local.podiobooks.m3u" "/media/podiobooks/erotica/Literotica" "/media/library/playlists/m3u/eee.podcasts.m3u" "/media/podcasts" );
+	@ playlist_index=0;
+	while( $playlist_index < ${#playlist_data} )
+		@ playlist_index++;
+		set playlist=$playlist_data[$playlist_index];
+		@ playlist_index++;
+		set playlist_dir=$playlist_data[$playlist_index];
+		@ playlist_check=-1;
+		while( $playlist_check < 1 )
+			@ playlist_check++;
+			switch( $playlist_check )
+				case 0:
+					printf "\tWould you like to make sure that all files found under <file://%s> are listed in <file://%s>? [Yes/No(default)]" "${playlist_dir}" "${playlist}" > /dev/stdout;
+					breaksw;
+				
+				case 1:
+					printf "\tWould you like to make sure that all files in <file://%s> exist? [Yes/No(default)]" "${playlist}" > /dev/stdout;
+					breaksw;
+			endsw
+			
+			set confirmation="$<";
+			#set rconfirmation=$<:q;
+			printf "\n";
+			
+			switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+				case "y":
+					switch( $playlist_check )
+						case 0:
+							if("`playlist:find:missing:listings.tcsh ${playlist} ${playlist_dir} --extensions='(mp3|ogg|m4a|wma)' --remove=interactive`" != "" ) \
+								printf "\n\n";
+							breaksw;
+						
+						case 1:
+							if("`playlist:find:non-existent:listings.tcsh --clean-up /media/library/playlists/m3u/local.podcasts.m3u`" != "" ) \
+								printf "\n\n";
+							breaksw;
+					endsw
+					breaksw;
+				
+				case "n":
+				default:
+					breaksw;
+			endsw
+			unset confirmation;
+		end
+		unset playlist_check playlist_dir playlist;
+	end
+	unset playlist_data playlist_index;
+	
+	goto parse_argv;
+#goto validate_playlists;
 

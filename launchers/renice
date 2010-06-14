@@ -1,10 +1,15 @@
 #!/bin/tcsh -f
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
+if(! ${?0} ) then
+	alias "renice"	\$"{TCSH_LAUNCHER_PATH}/renice";
+	complete renice 'p/1/(-19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 +1 +2 +3 +4 +5 +6 +7 +8 +9 +10 +11 +12 +13 +14 +15 +16 +17 +18 +19 +20)/' 'p/2-/c/'
+	goto main_quit;
+endif
+
 set this_program="`basename '${0}'`";
 
 foreach program ( "`which '${this_program}'`" )
-	if( "${program}" != "${0}" && -x "${program}" ) break
-	unset program
+	if( "${program}" != "${0}" && -x "${program}" ) break;
+	unset program;
 end
 
 if(! ${?program} ) goto noexec;
@@ -13,14 +18,46 @@ goto launchers_main;
 
 noexec:
 	printf "Unable to find %s.\n" "${this_program}";
-	exit -1;
+	goto main_quit;
+noexec:
+
+main_quit:
+	unset dependencies;
+	unset this_program;
+	if( ${?dependency} ) unset dependency;
+	if( ${?program} ) unset program;
+	exit ${status};
+#main_quit
+
+usage:
+	printf "%s priority pid" "${this_program}";
+	goto main_quit;
+#usage:
 
 launchers_main:
+	while( "${1}" != "" )
+		if( "${1}" == "--help" || "${1}" == "-h" ) then
+			goto usage;
+		else if(! ${?priority} ) then
+			if( `printf "${1}" | sed -r 's/^[\+\-]?[0-9]+$//'` == "" ) \
+				set priority="${1}";
+		else if(! ${?pid} ) then
+			if( `printf "${1}" | sed -r 's/^[0-9]+$//'` == "" ) \
+				set pid="${1}";
+		endif
+		
+		shift;
+	end
+	
+	if(!( ${?priority} && ${?pid} )) \
+		goto usage;
+	
+	if( $uid != 0 && `printf "${priority}" | sed -r 's/^(.).*$/\1/'` == "-" ) \
+		set program="sudo ${program}";
+	
+	${program} ${priority} ${pid};
 
-if( $uid != 0 && `echo "${1}" | sed s/^\(.\)/\1/` == "-" ) set program="sudo ${program}";
-
-echo ${program} ${argv};
-${program} ${argv};
-
-unset this_program program;
+	unset this_program program;
+	goto main_quit;
+#goto launchers_main;
 

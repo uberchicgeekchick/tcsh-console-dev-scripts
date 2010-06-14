@@ -509,6 +509,7 @@ complete cxx 'p/*/f:*.{c++,cxx,c,cc,C,cpp}/'
 complete detex 'p/*/f:*.tex/'
 complete edquota 'n/*/u/'
 complete exec 'p/1/c/'
+complete renice 'p/1/{-,+}/' 'p/1/[0-20]/' 'p/2/c/'
 complete ghostview 'p/*/f:*.{eps,EPS,ps,PS,pdf,PDF,ps.gz}/'
 complete gv 'p/*/f:*.{eps,EPS,ps,PS,pdf,PDF,ps.gz}/'
 complete ifconfig 'p@1@`ifconfig -l`@' 'n/*/(range phase link netmask \

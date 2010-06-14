@@ -1,27 +1,32 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_LAUNCHER_PATH} ) setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
+if(! ${?TCSH_LAUNCHER_PATH} ) \
+	setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
 
+set this_program="reniceall";
 set dependencies=( "renice" );
 
 foreach dependency(${dependencies})
 	foreach dependency( "`where '${dependency}'`" )
 		if(! -x "${dependency}" ) then
 			unset dependency;
-		else
-			switch("${dependency}")
-				case "${0}":
-				case "./${dependency}":
-				case "${TCSH_LAUNCHER_PATH}/${dependency}":
-					unset dependency;
-					breaksw;
-			endsw
+			continue;
 		endif
+		
+		switch("${dependency}")
+			case "${0}":
+			case "./${dependency}":
+			case "${TCSH_LAUNCHER_PATH}/${dependency}":
+				unset dependency;
+				breaksw;
+		endsw
 	end
-	if(! ${?dependency} ) goto missing_dependency;
+	if(! ${?dependency} ) \
+		goto missing_dependency;
 end
 
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
-	alias "reniceall"	"${TCSH_LAUNCHER_PATH}/reniceall.init";
+if(! ${?0} ) then
+	alias "${this_program}"	\$"{TCSH_LAUNCHER_PATH}/${this_program}.init";
+	complete "${this_program}" 'p/1/(-19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 +1 +2 +3 +4 +5 +6 +7 +8 +9 +10 +11 +12 +13 +14 +15 +16 +17 +18 +19 +20)/' 'p/2-/c/'
 	set status=-1;
 	goto main_quit;
 endif
@@ -38,30 +43,41 @@ reniceall:
 		goto usage;
 	
 	set status=0;
-	set program="sudo ${program}";
+	if( $uid != 0 && `printf "${priority}" | sed -r 's/^(.).*$/\1/'` == "-" ) \
+		set program="sudo ${program}";
 	foreach program_to_renice(${programs_to_renice})
+		if( "${program_to_renice}" == "" ) \
+			continue;
+		
 		if( ${?debug} ) then
 			printf "Looking for all PIDs belonging to %s\n" "${program_to_renice}";
-			echo "/bin/ps -A -c -F | /bin/grep --perl-regexp "\""^[0-9]+[\\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ [^\ ]*$program_to_renice"\"" | sed -r 's/^[0-9]+[\\ ]+([0-9]+).*[\\r\\n]*/\\1/'";
+			echo "/bin/ps -A -c -F | /bin/grep --perl-regexp "\""^[0-9]+[\\t ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2} [^ ]*$program_to_renice"\"" | sed -r 's/^[0-9]+[ ]+([0-9]+).*[\\r\\n]*/\\1/'";
 		endif
-		foreach pid( `/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ [^\ ]*$program_to_renice" | sed -r 's/^[0-9]+[\\ ]+([0-9]+).*[\r\n]*/\1/'` )
+		foreach pid( `/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2} [^ ]*$program_to_renice" | sed -r 's/^[0-9]+[ ]+([0-9]+).*[\r\n]*/\1/'` )
+			if( "${pid}" == "" ) \
+				continue;
+			
 			printf "Renicing %s(pid: %s) to %s.\n" "${program_to_renice}" "${pid}" "${priority}";
 			if( ${?debug} ) \
 				printf "%s %s %s\n" "${program}" "${priority}" "${pid}";
+			echo ${program} ${priority} ${pid};
 			${program} ${priority} ${pid};
 		end
 	end
+	goto main_quit;
 #reniceall
 
 main_quit:
 	unset dependencies;
-	if( ${?dependency} ) unset dependency;
-	if( ${?program} ) unset program;
+	if( ${?dependency} ) \
+		unset dependency;
+	if( ${?program} ) \
+		unset program;
 	exit ${status};
 #main_quit
 
 usage:
-	printf "%s priority command_to_renice..." "${program}";
+	printf "%s priority program_to_renice..." "${this_program}";
 	goto main_quit;
 #usage:
 
@@ -85,7 +101,7 @@ parse_argv:
 				breaksw;
 			
 			default:
-				if( `echo "${1}" | sed -r 's/^[\+\-][0-9]+$//'` == "" ) then
+				if( `echo "${1}" | sed -r 's/^[\+\-]?[0-9]+$//'` == "" ) then
 					set priority="${1}";
 					echo "New priority will be: '${priority}'\n";
 					breaksw;

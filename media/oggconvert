@@ -450,12 +450,18 @@ convert_filenames:
 				continue;
 			endif
 			
-			if( "${original_extension}" == "ogg" && ! ${?force} && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
-				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
-				if( "${original_extension}" != "ogg" ) \
-					printf ", <file://%s.ogg> already exists, " "${filename}";
-				printf "and no advanced conversion options specified.\n\n";
-				continue;
+			if( "${original_extension}" == "ogg" ) then
+				if( ${?force} ) then
+					if( ${?rtrim} ) \
+						goto find_length;
+					goto oggconvert;
+				else if( ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
+					printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
+					if( "${original_extension}" != "ogg" ) \
+						printf ", <file://%s.ogg> already exists, " "${filename}";
+					printf "and no advanced conversion options specified.\n\n";
+					continue;
+				endif
 			endif
 			
 			if(! ${?force} ) \
@@ -1370,9 +1376,9 @@ filename_list_append_value:
 		endif
 	endif
 	
-	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|rm|wma|wav" && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
+	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|rm|wma|wav" && ! ${?re_encode} && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
 		set scripts_supported_extensions="mp3|m4a|rm|wma|wav";
-	else if( "${scripts_supported_extensions}" == "mp3|m4a|rm|wma|wav" && ( ${?ltrim} || ${?rtrim} || ${?length} ) ) then
+	else if( "${scripts_supported_extensions}" == "mp3|m4a|rm|wma|wav" && ( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length} ) ) then
 		set scripts_supported_extensions="ogg|mp3|m4a|rm|wma|wav";
 	endif
 	

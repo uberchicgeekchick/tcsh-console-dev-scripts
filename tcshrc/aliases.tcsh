@@ -25,7 +25,7 @@ set-alias most "most -w";
 
 set-alias bc "bc -q";
 
-set-alias ps "/bin/ps -A -c -F --forest --heading";
+set-alias ps "/bin/ps -A -c -F --forest";
 set-alias ps-g "/bin/ps -A -c -F --forest --heading | egrep";
 
 set-alias df "df --human-readable";

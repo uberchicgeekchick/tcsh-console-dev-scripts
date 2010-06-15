@@ -14,36 +14,51 @@ parse_argv:
 	
 	while( $arg < $argc )
 		@ arg++;
-		switch( "$argv[${arg}]" )
-			case "--clean-up":
+		set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
+		set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
+		switch( "${option}" )
+			case "no-validation":
+				set option="disable";
+				set value="playlist-validation";
+				
+			case "disable":
+				switch("${value}")
+					case "playlist-validation":
+						set confirmation;
+						set confirmations=( "r" "r" "r" );
+						set playlists_validated;
+						breaksw;
+					endsw
+				
+			case "clean-up":
 				goto clean_up;
 				breaksw;
 				
-			case "--playlists":
+			case "playlists":
 				goto playlists;
 				breaksw;
 				
-			case "--move":
+			case "move":
 				goto move;
 				breaksw;
 				
-			case "--back-up":
+			case "back-up":
 				goto back_up;
 				breaksw;
 				
-			case "--delete":
+			case "delete":
 				goto delete;
 				breaksw;
 				
-			case "--logs":
+			case "logs":
 				goto logs;
 				breaksw;
 				
-			case "--clean-playlists":
+			case "clean-playlists":
 				goto alacasts_playlists;
 				breaksw;
 				
-			case "--validate-playlists":
+			case "validate-playlists":
 				goto validate_playlists;
 				breaksw;
 				

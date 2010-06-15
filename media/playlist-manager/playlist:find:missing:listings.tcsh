@@ -131,6 +131,9 @@ main:
 	
 	if(! ${?regextype} ) \
 		set regextype="posix-extended";
+	
+	if( ${?edit_playlist} ) \
+		${EDITOR} "${playlist}";
 #main:
 
 
@@ -356,6 +359,8 @@ scripts_main_quit:
 		unset old_owd;
 	endif
 	
+	if( ${?edit_playlist} ) \
+		unset edit_playlist;
 	if( ${?nodeps} ) \
 		unset nodeps;
 	if( ${?duplicates_subdir} ) \
@@ -584,6 +589,12 @@ parse_arg:
 				endif
 				
 				switch("${option}")
+					case "edit":
+					case "edit-playlist":
+						if(! ${?edit_playlist} ) \
+							set edit_playlist;
+						breaksw;
+					
 					case "skip-files-in-subdir":
 					case "skip-subdir":
 						#set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/\//\\\//g'`";

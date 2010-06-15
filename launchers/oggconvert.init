@@ -548,6 +548,9 @@ oggconvert:
 		printf " (file %s of %s)" "${files_processed}" "${file_count}";
 	printf ":\n\t\t[%s.%s]\n" "${save_to_filename}" "${original_extension}";
 	
+	if(! -e "${save_to_filename}.${original_extension}.bck" ) \
+		cp -f "${save_to_filename}.${original_extension}" "${save_to_filename}.${original_extension}.bck";
+	
 	if( "${extension}" != "wav" ) then
 		set ffmpeg_input_file_options="";
 		set ffmpeg_output_file_options=" -vol 512";
@@ -598,9 +601,17 @@ oggconvert:
 			unset ffmpeg_input_file_options ffmpeg_output_file_options;
 			
 			if(!( "${status}" == "0" && -e "${save_to_filename}.wav" )) then
-				printf "\t[failed]\n\t\t\tUnable to create temorary WAV  file.\n\t\t\tffmpeg returned: %s\n" "${status}";
+				printf "\t[failed]\n\t\t\tUnable to create temorary WAV  file.\n\t\t\tffmpeg returned: %s\n\n" "${status}";
 				if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
 					rm "${save_to_filename}.wav";
+				
+				if( -e "${save_to_filename}.${original_extension}.bck" ) then
+					if( "${original_extension}" == "wav" ) then
+						mv -f "${save_to_filename}.${original_extension}.bck" "${save_to_filename}.${original_extension}";
+					else
+						rm -f "${save_to_filename}.${original_extension}.bck";
+					endif
+				endif
 				
 				goto convert_filenames;
 			endif
@@ -620,15 +631,19 @@ oggconvert:
 	
 	${oggenc} ${oggenc_output_file_options} "${save_to_filename}.wav" >& ${output};
 	if(!( "${status}" == "0" && -e "${save_to_filename}.ogg" )) then
-		printf "\t[failed]\n\t\t\tUnable to encode file.  Encoder: [`basename %s`]; returned: %s\n" "${oggenc}" "${status}";
+		printf "\t[failed]\n\t\t\tUnable to encode file.  Encoder: [`basename %s`]; returned: %s\n\n" "${oggenc}" "${status}";
 		if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) then
 			rm "${save_to_filename}.wav";
-		else if( "${original_extension}" == "wav" && -e "${save_to_filename}.wav.bck" ) then
-			if( -e "${save_to_filename}.wav" ) \
-				rm "${save_to_filename}.wav";
-			mv -f "${save_to_filename}.wav.bck" "${save_to_filename}.wav";
 		else if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) then
 			rm "${save_to_filename}.ogg";
+		endif
+		
+		if( -e "${save_to_filename}.${original_extension}.bck" ) then
+			if( "${original_extension}" == "ogg" ) then
+				mv -f "${save_to_filename}.${original_extension}.bck" "${save_to_filename}.${original_extension}";
+			else
+				rm -f "${save_to_filename}.${original_extension}.bck";
+			endif
 		endif
 		
 		goto convert_filenames;
@@ -636,7 +651,10 @@ oggconvert:
 	
 	printf "\t\t[success]\n";
 	if( "${original_extension}" != "wav" ) \
-		rm "${save_to_filename}.wav";
+		rm -f "${save_to_filename}.wav";
+	
+	if( -e "${save_to_filename}.${original_extension}.bck" ) \
+		rm -f "${save_to_filename}.${original_extension}.bck";
 	
 	if( ${?combine} && "${filename}" != "${save_to_filename}" ) \
 		goto scripts_main_quit;

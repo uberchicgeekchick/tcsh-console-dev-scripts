@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_LAUNCHER_PATH} ) \
-	setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
+	setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
 
 set this_program="reniceall";
 set dependencies=( "renice" );

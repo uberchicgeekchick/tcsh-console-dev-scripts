@@ -1,4 +1,7 @@
 #!/bin/tcsh -f
+if(! ${?TCSH_LAUNCHER_PATH} ) \
+	setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
+
 if(! ${?0} ) then
 	alias "renice"	\$"{TCSH_LAUNCHER_PATH}/renice";
 	complete renice 'p/1/(-19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 +1 +2 +3 +4 +5 +6 +7 +8 +9 +10 +11 +12 +13 +14 +15 +16 +17 +18 +19 +20)/' 'p/2-/c/'
@@ -60,6 +63,7 @@ launchers_main:
 	if( $uid != 0 && `printf "${priority}" | sed -r 's/^(.).*$/\1/'` == "-" ) \
 		set program="sudo ${program}";
 	
+	echo ${program} ${priority} ${pid};
 	${program} ${priority} ${pid};
 
 	unset this_program program;

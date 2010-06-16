@@ -5,13 +5,15 @@
 # 	${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh
 # are sourced from this file.
 #
-if( ${?TCSH_RC_SOURCE_FILE} ) then
-	unsetenv TCSH_RC_SOURCE_FILE;
-endif
-if( ${?TCSH_RC_DEBUG} ) \
-	unsetenv TCSH_RC_DEBUG;
-#if(! ${?TCSH_RC_SESSION_PATH} )
-setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+	if( ${?TCSH_RC_SOURCE_FILE} ) \
+		unsetenv TCSH_RC_SOURCE_FILE;
+	
+	if( ${?TCSH_RC_DEBUG} ) \
+		unsetenv TCSH_RC_DEBUG;
+	
+	setenv TCSH_RC_PATH "/projects/cli/console.pallet";
+	setenv TCSH_RC_SESSION_PATH "${TCSH_RC_PATH}/tcshrc";
+	
 source "${TCSH_RC_SESSION_PATH}/argv:check" "etc-csh.cshrc" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;

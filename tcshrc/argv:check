@@ -1,24 +1,51 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SOURCE_FILE} ) \
-	setenv TCSH_RC_SOURCE_FILE "$argv[1]";
+setenv:
+	if(! ${?TCSH_RC_PATH} ) \
+		setenv TCSH_RC_PATH "/projects/cli/console.pallet";
+	
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "${TCSH_RC_PATH}/tcshrc";
+	
+	if(! ${?TCSH_RC_SOURCE_FILE} ) \
+		setenv TCSH_RC_SOURCE_FILE "$argv[1]";
+	
+	#if( ! ${?TCSH_OUTPUT_ENABLED} && ! ${?TCSH_OUTPUT_DISABLED} ) then
+		if( ! ${?SSH_CONNECTION} && -o /dev/$tty ) then
+			if( ${?TCSH_OUTPUT_DISABLED} ) \
+				unsetenv TCSH_OUTPUT_DISABLED;
+			setenv TCSH_OUTPUT_ENABLED;
+			
+			set stdout=/dev/stdout;
+			set stderr=/dev/stderr;
+			setenv TTY /dev/$tty;
+		else
+			if( ${?TCSH_OUTPUT_ENABLED} ) \
+				unsetenv TCSH_OUTPUT_ENABLED;
+			setenv TCSH_OUTPUT_DISABLED;
+			
+			set stdout=/dev/null;
+			set stderr=/dev/null;
+			setenv TTY /dev/null;
+		endif
+		
+		setenv stdout ${stdout};
+		setenv stderr ${stderr};
+	#endif
+#goto setenv;
 
-if( ! ${?TCSH_OUTPUT_ENABLED} && ! ${?TCSH_OUTPUT_DISABLED} ) then
-	#if( ${?TTY} && ! ${?SSH_CONNECTION} ) then
-	if( ! ${?SSH_CONNECTION} ) then
-		if( ${?TCSH_OUTPUT_DISABLED} ) \
-			unsetenv TCSH_OUTPUT_DISABLED;
-		setenv TCSH_OUTPUT_ENABLED;
-	else
-		if( ${?TCSH_OUTPUT_ENABLED} ) \
-			unsetenv TCSH_OUTPUT_ENABLED;
-		setenv TCSH_OUTPUT_DISABLED;
-	endif
-endif
-
-@ args_handled=0;
-@ argc=${#argv};
-@ arg=0;
-if(! ${?TCSH_RC_DEBUG} ) then
+parse_argv:
+	@ argc=${#argv};
+	@ arg=1;
+	@ args_handled=0;
+	
+	if( $argc < 1 ) \
+		goto usage;
+	if( $argc == 1 ) \
+		goto set_source_file;
+	
+	if( ${?TCSH_RC_DEBUG} ) \
+		goto set_source_file;
+	
 	while( $arg < $argc )
 		@ arg++;
 		switch( "$argv[$arg]" )
@@ -32,91 +59,123 @@ if(! ${?TCSH_RC_DEBUG} ) then
 						breaksw;
 				endif
 				
-				set argv[$arg]="";
-				printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date "+%I:%M:%S%P"`;
+				printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date "+%I:%M:%S%P"` > ${stdout};
 				setenv TCSH_RC_DEBUG "$argv[1]";
 				break;
 			breaksw;
 		endsw
 	end
+	
+	if( ${?TCSH_RC_DEBUG} && $argc == 2 ) \
+		goto set_source_file;
+	
 	if( ! ${?TCSH_RC_DEBUG} || $arg > 1 ) \
 		@ arg=0;
-endif
-
-if( ${?TCSH_RC_DEBUG} ) then
-	printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
-else if( "`alias cwdcmd`" != "" ) then
-	if( ${?TCSH_RC_DEBUG} ) \
-		printf "Saving cwdcmd until TCSH finishes loading.\n";
-	setenv oldcwdcmd "`alias cwdcmd`";
-	unalias cwdcmd;
-endif
-
-while( $arg < $argc )
-	@ arg++;
-	if( ${?TCSH_RC_DEBUG} ) \
-		printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]";
 	
-	set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
-	if( "${dashes}" == "$argv[$arg]" ) \
-		set dashes="";
-	
-	set option="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
-	if( "${option}" == "$argv[$arg]" ) \
-		set option="";
-	
-	set value="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\3/'`";
-	if( "${value}" == "$argv[$arg]" || "${value}" == "" ) then
-		if( "${option}" != "" ) then
-			set value="";
-		else
-			set value="$argv[$arg]";
-		endif
+	if( ${?TCSH_RC_DEBUG} ) then
+		printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}" > ${stdout};
+	else if( "`alias cwdcmd`" != "" ) then
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Saving cwdcmd until TCSH finishes loading.\n" > ${stdout};
+		setenv oldcwdcmd "`alias cwdcmd`";
+		unalias cwdcmd;
 	endif
 	
-	switch( "${option}" )
-		case "cd":
-		case "root":
-		case "use-root":
-		case "working-dir":
-		case "working-directory":
-			@ args_handled++;
-			if(!( "${value}" != "" && -d "${value}" )) then
-				@ arg++;
-				if( $arg > $argc ) then
-					if( ${?TCSH_OUTPUT_ENABLED} ) then
-						printf "Using [%s] as TCSH's working directory.\t" "${value}";
-						printf "[failed]\n\tNo valid directory was specified with %s.\n" "${option}";
-					endif
-					breaksw;
-				endif
-				@ args_handled++;
+	while( $arg < $argc )
+		@ arg++;
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]" > ${stdout};
+		
+		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
+		if( "${dashes}" == "$argv[$arg]" ) \
+			set dashes="";
+		
+		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
+		if( "${option}" == "$argv[$arg]" ) \
+			set option="";
+		
+		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\3/'`";
+		if( "${value}" == "$argv[$arg]" || "${value}" == "" ) then
+			if( "${option}" != "" ) then
+				set value="";
+			else
 				set value="$argv[$arg]";
-				if(!( "${value}" != "" && -d "${value}" )) then
-					if( ${?TCSH_OUTPUT_ENABLED} ) then
-						printf "Using [%s] as TCSH's working directory.\t" "${value}";
-						printf "[failed]\n\tNo valid directory was specified with %s.\n" "${option}";
-					endif
-					breaksw;
-				endif
 			endif
-			
-			setenv TCSH_WORKING_DIR "`printf "\""%s"\"" "\""$value"\"" | sed -r 's/\/"\$"//'`";
-			
-			if( ${?TCSH_OUTPUT_ENABLED} ) \
-				printf "Using [%s] as TCSH's working directory.\t" "${TCSH_WORKING_DIR}";
-			if( ${?TCSH_OUTPUT_ENABLED} ) \
-				printf "[success]\n";
-			
-			if( ${?skip_cwd_test} ) \
-				breaksw;
-			
-			if( "${cwd}" != "${value}" ) \
-				cd "${value}";
-		breaksw
-	endsw
-end
-setenv TCSH_RC_CURRENT_SOURCE_FILE "$argv[1]";
-if( ${?TCSH_RC_DEBUG} ) \
-	printf "Started loading %s @ %s.\n\n" "$argv[1]" `date "+%I:%M:%S%P"`;
-exit $args_handled;
+		endif
+		
+		switch( "${option}" )
+			case "cd":
+			case "root":
+			case "use-root":
+			case "working-dir":
+			case "working-directory":
+				@ args_handled++;
+				if(!( "${value}" != "" && -d "${value}" )) then
+					@ arg++;
+					if( $arg <= $argc ) then
+						if(!( "$argv[$arg]" != "" && -d "$argv[$arg]" )) then
+							if( ${?TCSH_OUTPUT_ENABLED} ) then
+								printf "Using [%s] as TCSH's working directory.\t[failed]\n\tNo valid directory was specified with %s.\n<file://%s> will be used instead.\n" "${value}" "${option}" "${HOME}" > ${stderr};
+							endif
+							set value="${HOME}";
+						else
+							@ args_handled++;
+							set value="$argv[$arg]";
+						endif
+					endif
+				endif
+				
+				setenv TCSH_WORKING_DIR "`printf "\""%s"\"" "\""$value"\"" | sed -r 's/\/"\$"//'`";
+				
+				if( ${?TCSH_OUTPUT_ENABLED} ) \
+					printf "Using [%s] as TCSH's working directory.\t" "${TCSH_WORKING_DIR}" > ${stdout};
+				if( ${?TCSH_OUTPUT_ENABLED} ) \
+					printf "[success]\n" > ${stdout};
+				
+				if( ${?skip_cwd_test} ) \
+					breaksw;
+				
+				if( "${cwd}" != "${value}" ) \
+					cd "${value}";
+			breaksw
+		endsw
+	end
+#goto parse_argv;
+
+
+set_source_file:
+	setenv TCSH_RC_CURRENT_SOURCE_FILE "$argv[1]";
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Started loading %s @ %s.\n\n" "$argv[1]" `date "+%I:%M:%S%P"` > ${stdout};
+	goto exit_script;
+#goto set_source_file;
+
+
+exit_script:
+	if( ${?arg} )\
+		unset arg;
+	if( ${?argc} )\
+		unset argc;
+	if( ${?dashes} )\
+		unset dashes;
+	if( ${?option} )\
+		unset option;
+	if( ${?value} )\
+		unset value;
+	
+	if( ${?errno} ) then
+		set status=$errno;
+	else
+		set status=0;
+	endif
+	exit $args_handled;
+#goto exit_script;
+
+usage:
+	printf "argv:check [source_file] (--debug) (--cd /tcsh/working/directory)\n" > ${stderr};
+	@ errno=-1;
+	goto exit_script;
+#goto usage;
+
+
+

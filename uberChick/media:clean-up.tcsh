@@ -210,6 +210,8 @@ move_lifestyle_podcasts:
 move_podiobooks:
 	set podiobooks=( \
 	"\n" \
+"/media/podcasts/StarShipSofa/Aural Delights No 141 David Barr Kirtley  plus Jeff Carlson, released on: Wed, 16 Jun 2010 10:49:13 GMT.mp3" \
+	"\n" \
 	);
 	
 	if( ${?podiobooks} ) then

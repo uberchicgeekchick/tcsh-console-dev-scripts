@@ -1565,9 +1565,10 @@ parse_argv:
 			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
 		endif
 		
-		@ parsed_argc++;
 		if( "${option}" == "${value}" ) \
 			set option="";
+		
+		@ parsed_argc++;
 		set parsed_arg="${dashes}${option}${equals}${value}";
 		if(! ${?parsed_argv} ) then
 			set parsed_argv=("${value}");

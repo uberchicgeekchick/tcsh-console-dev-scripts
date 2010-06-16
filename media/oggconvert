@@ -54,9 +54,10 @@ scripts_main_quit:
 	
 	if( ${?filename_list} ) then
 		if( -e "${filename_list}") \
-			rm "${filename_list}";
+			rm -f "${filename_list}";
 		if( -e "${filename_list}.all") \
-			rm "${filename_list}.all";
+			rm -f "${filename_list}.all";
+		unset filename_list;
 	endif
 	
 	if( ${?files_processed} ) \
@@ -391,9 +392,9 @@ convert_filename_list:
 	if(! -e "${filename_list}.all" ) then
 		cp "${filename_list}" "${filename_list}.all";
 	else
-		foreach filename_prev( "`cat "\""${filename_list}.all"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+		foreach filename_prev( "`cat "\""${filename_list}.all"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")# | sed -r 's/(["\""])/"\""\\"\"""\""/g'`")
 			@ line=0;
-			foreach filename_next( "`cat "\""${filename_list}"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+			foreach filename_next( "`cat "\""${filename_list}"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )
 				@ line++;
 				if( "${filename_prev}" == "${filename_next}" ) then
 					#printf "\t**Skipping:** <file://%s> its already been converted.\n\n" "${filename_next}";
@@ -409,6 +410,7 @@ convert_filename_list:
 			if(! ${?process_each_filename} ) then
 				goto scripts_main_quit;
 			else
+				printf "\t**Skipping:** %s%s%s%s no convertable files have been processed.\n\n" "${dashes}" "${option}" "${equals}" "${value}" > /dev/stderr;
 				goto parse_arg;
 			endif
 		endif
@@ -427,7 +429,7 @@ convert_filenames:
 	if( ${?length} && ! ${?length_set} ) \
 		unset length;
 	
-	foreach filename( "`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+	foreach filename( "`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )
 		if( ${?debug} || ${?debug_filelist} ) \
 			printf "\tParsing: %s.\n" "${filename}";
 		ex -s '+1d' '+wq!' "${filename_list}";
@@ -483,7 +485,7 @@ convert_filenames:
 		continue;
 	end
 	
-	rm "${filename_list}";
+	rm -f "${filename_list}";
 	
 	if( ${?arg} ) then
 		goto parse_arg;
@@ -626,7 +628,7 @@ oggconvert:
 			unset ffmpeg_input_file_options ffmpeg_output_file_options;
 			
 			if(!( "${status}" == "0" && -e "${save_to_filename}.wav" )) then
-				printf "\t[failed]\n\t\t\tUnable to create temorary WAV  file.\n\t\t\tffmpeg returned: %s\n\n" "${status}";
+				printf "\t[failed]\n\t\t\tUnable to create temorary WAV file.\n\t\t\tffmpeg returned: %s\n\n" "${status}";
 				if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
 					rm "${save_to_filename}.wav";
 				

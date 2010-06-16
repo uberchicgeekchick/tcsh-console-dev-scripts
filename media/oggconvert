@@ -43,6 +43,9 @@ scripts_main_quit:
 	if( ${?dont_re_encode} ) \
 		unset dont_re_encode;
 	
+	if( ${?skip_message_shown} ) \
+		unset skip_message_shown;
+	
 	if( ${?save_to_filename} ) \
 		unset save_to_filename;
 	
@@ -450,29 +453,31 @@ convert_filenames:
 				continue;
 			endif
 			
-			if( "${original_extension}" == "ogg" ) then
-				if( ${?force} ) then
-					if( ${?rtrim} ) \
-						goto find_length;
-					goto oggconvert;
-				else if( ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
-					printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
-					if( "${original_extension}" != "ogg" ) \
-						printf ", <file://%s.ogg> already exists, " "${filename}";
-					printf "and no advanced conversion options specified.\n\n";
-					continue;
-				endif
+			if( "${original_extension}" == "ogg" && (!( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length} )) ) then
+				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
+				if( "${original_extension}" != "ogg" ) \
+					printf ", <file://%s.ogg> already exists, " "${filename}";
+				if(! ${?re_encode} ) \
+					printf "re-encoding is disabled"
+				if( ! ${?re_encode} && (!( ${?ltrim} || ${?rtrim} || ${?length} )) ) \
+					printf "and ";
+				if(!( ${?ltrim} || ${?rtrim} || ${?length} )) \
+					printf "no advanced conversion options specified";
+				printf ".\n\n";
+				continue;
 			endif
-			
-			if(! ${?force} ) \
-				goto confirm_overwrite;
 		endif
 		
-		if( "${extension}" != "ogg" || ${?ltrim} || ${?length} ) \
+		if( "${extension}" != "ogg" ) \
 			goto oggconvert;
+		
+		if(! ${?force} ) \
+			goto confirm_overwrite;
 		
 		if( ${?rtrim} ) \
 			goto find_length;
+		
+		goto oggconvert;
 		
 		printf "\t**Skipping:** <file://%s.%s>; no advanced conversion options specified.\n\n" "${filename}" "${extension}";
 		continue;
@@ -522,25 +527,39 @@ confirm_overwrite:
 	
 	switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
 		case "a":
-			printf "\tNOTE:\n\t\tYou can run "\`"%s --re-encode=force"\`" to skip this prompt in the future.\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
+			printf "\tTip: you can run "\`"%s --re-encode=force"\`" to skip this prompt in the future.\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
 			if(! ${?force} ) \
 				set force;
+			if(! ${?re_encode} ) \
+				set re_encode;
+			if( ${?dont_re_encode} ) \
+				unset dont_re_encode;
 		case "y":
 			if( ${?ltrim} || ${?length} || "${original_extension}" != "ogg" ) \
 				goto oggconvert;
+			
 			if( ${?rtrim} ) \
 				goto find_length;
 			
-			printf "\t**Skipping:** <file://%s.%s>; no advanced conversion options specified.\n\n" "${filename}" "${extension}";
-			goto convert_filenames;
+			goto oggconvert;
 			breaksw;
 		
 		case "s":
+			printf "\t**Skipping:** <file://%s.ogg>,\n\t\tTip: you can run "\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n\n" "${save_to_filename}" "${scripts_basename}";
+			set skip_message_shown;
+			if( ${?force} ) \
+				unset force;
+			if( ${?re_encode} ) \
+				unset re_encode;
 			if(! ${?dont_re_encode} ) \
 				set dont_re_encode;
 		case "n":
 		default:
-			printf "\t**Skipping:** <file://%s.ogg>;\n\t\tRun "\`"%s --re-encode=force"\`" to over-write existing files\n\t\t\tor\n\t\t"\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
+			if(! ${?skip_message_shown} ) then
+				printf "\t**Skipping:** <file://%s.ogg>." "${save_to_filename}";
+			else
+				unset skip_message_shown;
+			endif
 			@ errno=-4;
 			goto convert_filenames;
 			breaksw;
@@ -1211,6 +1230,8 @@ parse_arg:
 					set dont_re_encode;
 				if( ${?re_encode} ) \
 					unset re_encode;
+				if( ${?force} ) \
+					unset force;
 				breaksw;
 			
 			case "re-encode":
@@ -1230,6 +1251,10 @@ parse_arg:
 			case "force":
 				if(! ${?force} ) \
 					set force;
+				if(! ${?re_encode} ) \
+					set re_encode;
+				if( ${?dont_re_encode} ) \
+					unset dont_re_encode;
 				breaksw;
 			
 			case "enable":
@@ -1239,18 +1264,15 @@ parse_arg:
 							set be_verbose;
 						breaksw;
 					
+					case "force":
+						if(! ${?force} ) \
+							set force;
 					case "reencode":
 					case "re-encode":
 						if(! ${?re_encode} ) \
 							set re_encode;
 						if( ${?dont_re_encode} ) \
 							unset dont_re_encode;
-						breaksw;
-					
-					
-					case "force":
-						if(! ${?force} ) \
-							set force;
 						breaksw;
 					
 					case "transcode":
@@ -1264,6 +1286,7 @@ parse_arg:
 						goto scripts_main_quit;
 						breaksw;
 				endsw
+				set value_used;
 				breaksw;
 			
 			case "disable":
@@ -1273,17 +1296,15 @@ parse_arg:
 							unset be_verbose;
 						breaksw;
 					
+					case "force":
+						if( ${?force} ) \
+							unset force;
 					case "reencode":
 					case "re-encode":
 						if( ${?re_encode} ) \
 							unset re_encode;
 						if(! ${?dont_re_encode} ) \
 							set dont_re_encode;
-						breaksw;
-					
-					case "force":
-						if(! ${?force} ) \
-							set force;
 						breaksw;
 					
 					case "transcode":
@@ -1297,6 +1318,7 @@ parse_arg:
 						goto scripts_main_quit;
 						breaksw;
 				endsw
+				set value_used;
 				breaksw;
 			
 			case "":

@@ -471,12 +471,6 @@ debug_check:
 			printf "**%s debug_check:**"\$"option: [${option}]; "\$"value: [${value}].\n" "${scripts_basename}" > ${stdout};
 		
 		switch("${option}")
-			case "h":
-			case "help":
-				set callback="usage";
-				goto callback_handler;
-				breaksw;
-			
 			case "nodeps":
 				if( ${?nodeps} ) \
 					breaksw;
@@ -1585,6 +1579,12 @@ parse_argv:
 			printf "\tparsed option "\$"parsed_argv[%d]:\t%s\n\n" ${parsed_argc} "${parsed_arg}" > ${stdout};
 		
 		switch("${option}")
+			case "h":
+			case "help":
+				set callback="usage";
+				goto callback_handler;
+				breaksw;
+			
 			case "numbered_option":
 				if(!( "${value}" != "" && ${value} > 0 )) then
 					@ errno=-602;

@@ -32,7 +32,7 @@ check_dependencies:
 				continue;
 			endif
 			
-			#if( ${?debug} ) \
+			if( ${?debug} ) \
 				printf "\n**%s debug:** looking for dependency: %s, "\$"dependencies[%d], against: %s.\n\n" $dependencies_index "${exec}" "${scripts_basename}" "${dependency}" > ${stdout};
 			switch("${exec}")
 				case "./${scripts_basename}":
@@ -261,11 +261,7 @@ parse_arg:
 		if( "${quotes}" == "$argv[$arg]" ) \
 			set quotes="";
 		
-		#set equals="";
 		set value="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\5/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
-		#if( "${value}" != "" && "${value}" != "$argv[$arg]" ) then
-		#	set equals="=";
-		#else if( "${option}" != "" ) then
 		if( "${option}" != "$argv[$arg]" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "$argv[$arg]" ) ) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
@@ -290,19 +286,6 @@ parse_arg:
 				unset test_dashes test_option test_equals test_value;
 			endif
 		endif
-		
-		#if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
-		#	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
-		#endif
-		
-		#if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
-		#	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_dir}\2/"\"" | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
-		#endif
-		
-		#if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(.*)(\*)"\$"/\2/"\""`" == "*" ) then
-		#	set dir="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(.*)\*"\$"/\2/"\""`";
-		#	set value="`/bin/ls --width=1 "\""${dir}"\""*`";
-		#endif
 		
 		@ parsed_argc++;
 		set parsed_arg="${dashes}${option}${equals}${quotes}${value}${quotes}";

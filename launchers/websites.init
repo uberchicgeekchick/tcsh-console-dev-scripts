@@ -1,0 +1,172 @@
+#!/bin/tcsh -f
+if(! ${?0} ) then
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "launchers/websites.init" ${argv};
+	if( $args_handled > 0 ) then
+		@ args_shifted=0;
+		while( $args_shifted < $args_handled )
+			@ args_shifted++;
+			shift;
+		end
+		unset args_shifted;
+	endif
+	unset args_handled;
+	
+	set browsers=("browser" "links" "lynx" "firefox");
+	foreach value(${browsers})
+		foreach browser("`where '${value}'`")
+			if( -x "${browser}" ) \
+				break;
+			unset browser;
+		end
+		unset value;
+	end
+	if(! ${?browser} ) \
+		goto no_exec;
+	if(! -x "${browser}" ) \
+		goto noexec;
+	
+	set websites=('google' 'google.com' 'search?q=' 'slashdot.org' 'slashdot.org' 'index2.pl?fhfilter=' 'podiobooks.com' 'www.podiobooks.com' 'podiobooks/search.php?keyword=' 'technologyreview.com' 'technologyreview.com' 'search.aspx?s=' 'dictionary.com' 'dictionary.reference.com' 'browse/' 'archive.org' 'www.archive.org' 'search.php?query=' );
+	@ site=0;
+	while( $site < ${#websites} )
+		@ site++;
+		set alias="$websites[$site]";
+		@ site++;
+		set website="$websites[$site]";
+		@ site++;
+		set index="$websites[$site]";
+		if( ${?TCSH_OUTPUT_ENABLED} && ${?TCSH_RC_DEBUG} ) \
+			printf "Setting up %s website launcher alias.\n" "${alias}";
+		alias "${alias}" "${TCSH_LAUNCHER_PATH}/websites.init --website='${website}' --index='${index}'";
+		alias "${website}" "${TCSH_LAUNCHER_PATH}/websites.init --website='${website}' --index='${index}'";
+	end
+	
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "launchers/websites.init";
+	goto exit_script;
+endif
+
+while( ${?1} && "${1}" != "" )
+	set option="`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/^([-]{2})([^=]+)(=)?(.*)"\$"/\2/'`";
+	set value="`printf "\""%s"\"" "\""${1}"\"" | sed -r 's/^([-]{2})([^=]+)(=)?(.*)"\$"/\4/'`";
+	if( "${value}" == "" && "${2}" != "" ) \
+		set value="${2}";
+	
+	switch("${option}")
+		case "h":
+		case "help":
+			goto usage;
+			breaksw;
+		
+		case "firefox":
+		case "links":
+		case "lynx":
+			set which_browser=" --${option}";
+			breaksw;
+		
+		case "browser":
+			foreach browser("`where '${value}'`")
+				if( -x "${browser}" ) \
+					break;
+				unset browser;
+			end
+			breaksw;
+		
+		case "website":
+			if(! ${?website} ) \
+				set website="${value}";
+			breaksw;
+		
+		case "index":
+			if(! ${?index} ) \
+				set index="${value}";
+			breaksw;
+		
+		default:
+			if(! ${?search_phrase} ) then
+				set search_phrase="${1}";
+			else
+				set search_phrase="${search_phrase} ${1}";
+			endif
+			breaksw;
+	endsw
+	shift;
+end
+
+if(! ${?website} ) \
+	goto usage;
+
+if(! ${?browser} ) then
+	if(! ${?TCSH_LAUNCHER_PATH} ) \
+		setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
+	
+	if(! ${?which_browser} ) \
+		set which_browser;
+	
+	set browser="${TCSH_LAUNCHER_PATH}/browser${which_browser}";
+endif
+
+launchers_main:
+	switch("${website}")
+		case "www.podiobooks.com":
+			if( ${?search_phrase} ) then
+				set podiobooks_book_feed="`mktemp --tmpdir -u podiobooks.com.book.feed.XXXXXX`";
+				set title="`printf "\""%s"\"" "\""${search_phrase}"\"" | sed -r 's/([^ ]+)/\L\1/g' | sed -r 's/\ /\-/g'`";
+				curl --location --fail --show-error --silent --output "${podiobooks_book_feed}" "http://${website}/title/${title}/feed/";
+				if( -e "${podiobooks_book_feed}" ) then
+					rm -f "${podiobooks_book_feed}";
+					unset podiobooks_book_feed;
+					set index="title/${title}/";
+				else
+					unset podiobooks_book_feed;
+					set index="${index}`printf "\""%s"\"" "\""${search_phrase}"\"" | sed -r 's/ /%20/g'`&includeAdult=1";
+				endif
+				breaksw;
+			endif
+		
+		default:
+			if(! ${?search_phrase} ) then
+				set index="";
+			else
+				set index="${index}`printf "\""%s"\"" "\""${search_phrase}"\"" | sed -r 's/ /%20/g'`";
+			endif
+			breaksw;
+	endsw
+	
+	${browser} "http://${website}/${index}";
+#launchers_main
+
+
+exit_script:
+	if( ${?option} ) \
+		unset option;
+	if( ${?value} ) \
+		unset value;
+	if( ${?alias} ) \
+		unset alias;
+	if( ${?browsers} ) \
+		unset browsers;
+	if( ${?browser} ) \
+		unset browser;
+	if( ${?websites} ) \
+		unset websites;
+	if( ${?website} ) \
+		unset website;
+	if( ${?index} ) \
+		unset index;
+	if( ${?search_phrase} ) \
+		unset search_phrase;
+	exit ${status};
+#exit_script
+
+
+noexec:
+	printf "Unable to find any executable %s.\n" "${browsers}";
+	goto exit_script;
+#noexec;
+
+
+usage:
+	printf "%s [website=] (search_index=) "\""(search_phrase)"\""\n" "`basename "\""${0}"\""";
+	goto exit_script;
+#usage

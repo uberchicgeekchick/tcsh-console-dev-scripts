@@ -55,10 +55,10 @@ foreach launcher ( "`/usr/bin/find -L ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f 
 			breaksw;
 	endsw
 	
-	if( "`echo ${launcher} | sed -r 's/.*(\.init)"\$"/\1/g'`" == ".init" ) then
+	if( "`printf "\""%s"\"" "\""${launcher}"\"" | sed -r 's/.*(\.init)"\$"/\1/g'`" == ".init" ) then
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "Setting up alias(es) for: %s.\n\tSourcing %s/%s @ %s.\n" ${launcher} ${TCSH_LAUNCHER_PATH} ${launcher} `date "+%I:%M:%S%P"`;
-		source ${TCSH_LAUNCHER_PATH}/${launcher};
+		source "${TCSH_LAUNCHER_PATH}/${launcher}" ${argv};
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "[done]\n";
 		continue;
@@ -90,8 +90,5 @@ foreach launcher ( "`/usr/bin/find -L ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f 
 end
 
 unsetenv output
-
-source "${TCSH_LAUNCHER_PATH}/websites/init.tcsh";
-
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "launchers/init.tcsh";

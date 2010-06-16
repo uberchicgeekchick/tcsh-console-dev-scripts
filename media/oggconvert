@@ -407,8 +407,8 @@ convert_filename_list:
 			unset line filename_prev;
 		end
 		set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
-		printf "\t**Skipping:** <file://%s> all convertable files have been processed.\n\n" "${filename_list_value}" > /dev/stderr;
-		if(! ${file_count} > 0 ) then	
+		if(!( ${file_count} > 0 )) then	
+			printf "\t**Skipping:** <file://%s> all convertable files have been processed.\n\n" "${filename_list_value}" > /dev/stderr;
 			if(! ${?process_each_filename} ) then
 				goto scripts_main_quit;
 			else

@@ -381,7 +381,7 @@ convert_filename_list:
 	
 	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 	if(!( ${file_count} > 0 )) then
-		@ errno=-610;
+		@ errno=0;
 		printf "\t**Skipping:** <file://%s> no convertable files were found.\n\n" "${filename_list_value}" > /dev/stderr;
 		if(! ${?process_each_filename} ) then
 			goto scripts_main_quit;
@@ -408,6 +408,7 @@ convert_filename_list:
 		end
 		set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 		if(!( ${file_count} > 0 )) then	
+			@ errno=0;
 			printf "\t**Skipping:** <file://%s> all convertable files have been processed.\n\n" "${filename_list_value}" > /dev/stderr;
 			if(! ${?process_each_filename} ) then
 				goto scripts_main_quit;

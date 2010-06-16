@@ -374,17 +374,18 @@ convert_filename_list:
 		endif
 	endif
 	
+	set filename_list_value="`head -1 "\""${filename_list}"\""`";
+	ex -s '+1d' '+wq!' "${filename_list}";
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
 	mv -f "${filename_list}.swp" "${filename_list}";
 	
 	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 	if(!( ${file_count} > 0 )) then
 		@ errno=-610;
+		printf "\t**Skipping:** <file://%s> no convertable files were found.\n\n" "${filename_list_value}" > /dev/stderr;
 		if(! ${?process_each_filename} ) then
-			printf "\tNo convertable files were found.\n\n" > /dev/stderr;
 			goto scripts_main_quit;
 		else
-			printf "\t**Skipping:** %s%s%s%s no convertable files were found.\n\n" "${dashes}" "${option}" "${equals}" "${value}" > /dev/stderr;
 			goto parse_arg;
 		endif
 	endif
@@ -406,11 +407,11 @@ convert_filename_list:
 			unset line filename_prev;
 		end
 		set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+		printf "\t**Skipping:** <file://%s> all convertable files have been processed.\n\n" "${filename_list_value}" > /dev/stderr;
 		if(! ${file_count} > 0 ) then	
 			if(! ${?process_each_filename} ) then
 				goto scripts_main_quit;
 			else
-				printf "\t**Skipping:** %s%s%s%s no convertable files have been processed.\n\n" "${dashes}" "${option}" "${equals}" "${value}" > /dev/stderr;
 				goto parse_arg;
 			endif
 		endif
@@ -1379,6 +1380,8 @@ filename_list_append_value:
 	
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
+	
+	printf "%s\n" "${value}" >> "${filename_list}";
 	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} || ${?debug_filelist} ) then

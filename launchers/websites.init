@@ -27,7 +27,7 @@ if(! ${?0} ) then
 	if(! -x "${browser}" ) \
 		goto noexec;
 	
-	set websites=('google' 'google.com' 'search?q=' 'slashdot.org' 'slashdot.org' 'index2.pl?fhfilter=' 'podiobooks.com' 'www.podiobooks.com' 'podiobooks/search.php?keyword=' 'technologyreview.com' 'technologyreview.com' 'search.aspx?s=' 'dictionary.com' 'dictionary.reference.com' 'browse/' 'archive.org' 'www.archive.org' 'search.php?query=' );
+	set websites=( 'google' 'google.com' 'search?q=' 'slashdot' 'slashdot.org' 'index2.pl?fhfilter=' 'podiobooks.com' 'www.podiobooks.com' 'podiobooks/search.php?keyword=' 'technologyreview' 'technologyreview.com' 'search.aspx?s=' 'dictionary.com' 'dictionary.reference.com' 'browse/' 'archive.org' 'www.archive.org' 'search.php?query=' );
 	@ site=0;
 	while( $site < ${#websites} )
 		@ site++;

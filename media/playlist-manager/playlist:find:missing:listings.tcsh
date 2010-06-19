@@ -605,7 +605,7 @@ parse_arg:
 				switch("${option}")
 					case "skip-files-in-dir":
 					case "skip-dir":
-						#set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/\//\\\//g'`";
+						set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^\///g'`";
 						if(! ${?skip_subdirs} ) then
 							set skip_subdirs=("${value}");
 						else

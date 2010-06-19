@@ -340,13 +340,17 @@ clean_up:
 	cd "${target_directory}";
 	while( "${cwd}" != "/" )
 		if( -d "${cwd}/nfs" ) then
-			set duplicate_directory=" --check-for-duplicates-in-dir=${cwd}/nfs";
 			set skip_directory=" --skip-dir=${cwd}/nfs";
+			set duplicate_directory=" --check-for-duplicates-in-dir=${cwd}/nfs";
 			break;
 		else
 			cd "..";
 		endif
 	end
+	if(! ${?skip_directory} ) \
+		set skip_directory;
+	if(! ${?duplicate_directory} ) \
+		set duplicate_directory;
 	cd "${old_cwd}";
 	set owd="${old_owd}";
 	unset old_owd old_cwd;

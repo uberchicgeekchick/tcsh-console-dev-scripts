@@ -1194,7 +1194,7 @@ filename_list_post_process:
 	printf "Post-Processing %s's processed %d out of %d files\t[" "${scripts_basename}" ${filenames_processed} ${file_count} > ${stdout};
 	
 	if( ${filenames_processed} != ${file_count} ) then
-		printf "failed]]\n\t\t\t\t\t\t[only %d out %d files where" ${filenames_processed} ${file_count} > ${stdout};
+		printf "failed]]\n\t\t\t\t\t\t[only %d out of %d files where" ${filenames_processed} ${file_count} > ${stdout};
 	else
 		# any post processing that's only to be done
 		# after the filename_list has been fully processed.

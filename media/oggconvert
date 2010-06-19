@@ -59,6 +59,8 @@ scripts_main_quit:
 			rm -f "${filename_list}.all";
 		unset filename_list;
 	endif
+	if( ${?filename_list_value} ) \
+		unset filename_list_value;
 	
 	if( ${?files_processed} ) \
 		unset files_processed;
@@ -364,6 +366,9 @@ convert_filename_list:
 	if( ${?length} && ! ${?length_set} ) \
 		unset length;
 	
+	set filename_list_value="`head -1 "\""${filename_list}"\""`";
+	ex -s '+1d' '+wq!' "${filename_list}";
+	
 	if( ${?length_set} && ${?rtrim} ) then
 		printf "\t**Error:** both --length and --rtrim cannot be specified at the same time.\n\n" > /dev/stderr;
 		@ errno=-610;
@@ -374,8 +379,6 @@ convert_filename_list:
 		endif
 	endif
 	
-	set filename_list_value="`head -1 "\""${filename_list}"\""`";
-	ex -s '+1d' '+wq!' "${filename_list}";
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
 	mv -f "${filename_list}.swp" "${filename_list}";
 	
@@ -1382,7 +1385,10 @@ filename_list_append_value:
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
 	
-	printf "%s\n" "${value}" >> "${filename_list}";
+	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+	if(!( ${file_count} > 0 )) then
+		printf "%s\n" "${value}" >> "${filename_list}";
+	endif
 	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} || ${?debug_filelist} ) then

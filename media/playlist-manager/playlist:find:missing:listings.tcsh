@@ -166,11 +166,12 @@ find_missing_media:
 	foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
 		#printf "-->%s\n" "${podcast}";
 		#continue;
-		if( ${?skip_subdirs} ) then
-			foreach skip_subdir("`printf "\""${skip_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-				if( "`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\/(${skip_subdir})\/.*/\1/"\""`" == "${skip_subdir}" ) \
+		if( ${?skip_dirs} ) then
+			foreach skip_dir("`printf "\""${skip_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
+				set escaped_sub_dir="`printf "\""%s"\"" "\""${skip_dir}"\"" | sed -r 's/\//\\\//g'`";
+				if( "`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^(${escaped_skip_dir})\/.*/\1/"\""`" == "${skip_dir}" ) \
 					break;
-				unset skip_subdir;
+				unset escaped_skip_dir skip_dir;
 			end
 			if( ${?skip_subdir} ) \
 				continue;
@@ -606,10 +607,10 @@ parse_arg:
 					case "skip-files-in-dir":
 					case "skip-dir":
 						set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^\///g'`";
-						if(! ${?skip_subdirs} ) then
-							set skip_subdirs=("${value}");
+						if(! ${?skip_dirs} ) then
+							set skip_dirs=("${value}");
 						else
-							set skip_subdirs=( "${skip_subdirs}" "\n" "${value}" );
+							set skip_dirs=( "${skip_dirs}" "\n" "${value}" );
 						endif
 					breaksw;
 					

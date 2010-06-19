@@ -337,12 +337,20 @@ clean_up:
 	printf "Checking for any files found under: [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
 	if( -d "${target_directory}/nfs" ) then
 		set duplicate_directory=" --check-for-duplicates-in-dir=${target_directory}/nfs";
+		set skip_directory=" --skip-dir=${target_directory}/nfs";
 	else if( -d "${target_directory}/../nfs" ) then
-		set duplicate_directory=" --check-for-duplicates-in-dir=${target_directory}/../nfs";
+		set old_owd="${owd}";
+		cd "${target_directory}/../nfs";
+		set duplicate_directory=" --check-for-duplicates-in-dir=${cwd}";
+		set skip_directory=" --skip-dir=${cwd}";
+		cd "${owd}";
+		set owd="${old_owd}";
+		unset old_owd;
 	else
 		set duplicate_directory;
+		set skip_directory;
 	endif
-	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth} --skip-subdir=nfs${duplicate_directory} --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
+	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
 	
 	unset target_directory maxdepth clean_up;
 #clean_up:

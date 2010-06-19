@@ -176,8 +176,11 @@ parse_argv:
 					if( ${value} > 2 ) \
 						set maxdepth="--maxdepth=${value}";
 				endif
-				if(! ${?maxdepth} ) \
+				if(! ${?maxdepth} ) then
+					@ errno=-501;
 					printf "--maxdepth must be an integer value that is gretter than 2" > /dev/stderr;
+					goto exit_script;
+				endif
 				breaksw;
 			
 			case "playlist":
@@ -189,8 +192,11 @@ parse_argv:
 				breaksw;
 			
 			default:
-				if( ! ${?playlist} && "${2}" == "" && -e "${value}" ) \
+				if( ! ${?playlist} && ( -e "${value}" || ${?import} ) ) then
 					set playlist="${value}";
+				else if( ${?target_dir} && -d "${value}" ) then
+					set target_dir="${value}";
+				endif
 				breaksw;
 		endsw
 	end
@@ -211,16 +217,14 @@ main:
 		goto exit_script;
 	endif
 	
-	if( ${?export_to} || ! ${?import} ) then
-		if(! -e "${playlist}" )	then
-			printf "**error:** an existing playlist must be specified.\n" > /dev/stderr;
-			@ errno=-2;
-			goto exit_script;
-		endif	
-	endif
-	
 	if( ${?export_to} && ${?import} ) then
 		printf "**error:** you cannot import and export a playlist at the same time.\nPlease choose to either import or export a playlist and than export or import the playlist created by your initial playlist import or export.\n" > /dev/stderr;
+		@ errno=-2;
+		goto exit_script;
+	endif
+	
+	if( ! -e "${playlist}" && ! ${?import} ) then
+		printf "**error:** an existing playlist must be specified.\n" > /dev/stderr;
 		@ errno=-3;
 		goto exit_script;
 	endif
@@ -235,7 +239,7 @@ main:
 		default:
 			printf "**error:** [%s] is an unsupported playlist type: [%s].\n" "${playlist}" "${playlist_type}" > /dev/stderr;
 			unset playlist playlist_type;
-			@ errno=-2;
+			@ errno=-4;
 			goto exit_script;
 			breaksw;
 	endsw
@@ -331,7 +335,14 @@ clean_up:
 		set target_directory="${cwd}";
 	
 	printf "Checking for any files found under: [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
-	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth} --skip-subdir=nfs --check-for-duplicates-in-subdir=nfs --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
+	if( -d "${target_directory}/nfs" ) then
+		set duplicate_directory=" --check-for-duplicates-in-dir=${target_directory}/nfs";
+	else if( -d "${target_directory}/../nfs" ) then
+		set duplicate_directory=" --check-for-duplicates-in-dir=${target_directory}/../nfs";
+	else
+		set duplicate_directory;
+	endif
+	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth} --skip-subdir=nfs${duplicate_directory} --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
 	
 	unset target_directory maxdepth clean_up;
 #clean_up:

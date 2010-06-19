@@ -193,50 +193,54 @@ find_missing_media:
 			printf "grep's output:\n\t%s\n\n" "${grep_test}";
 		endif
 		
-		if( ${?append} ) then
-			set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-			if(! ${?new_file_count} ) then
-				printf "**%s notice:** The following fills will be added to\n\t<file://%s>\n" "${scripts_basename}" "${playlist}";
-				@ new_file_count=1;
-			else
-				@ new_file_count++;
-			endif
-			printf "%s\n" "${this_podcast}";
-			printf "%s\n" "${this_podcast}" >> "${playlist}.new";
-			
-			if( ${?create_script} ) then
-				printf "%s\n" "${this_podcast}" >> "${create_script}";
-			endif
-			
-			continue;
-		endif
-		
 		if(! ${?remove} ) then
 			set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 			if(! -e "${this_podcast}" ) \
 				continue;
 			
 			printf "%s\n" "${this_podcast}";
+			if( ${?append} ) then
+				if(! ${?new_file_count} ) then
+					printf "**%s notice:** The following fills will be added to\n\t<file://%s>\n" "${scripts_basename}" "${playlist}";
+					@ new_file_count=1;
+				else
+					@ new_file_count++;
+				endif
+				printf "%s\n" "${this_podcast}" >> "${playlist}.new";
+			endif
 			
 			if( ${?create_script} ) then
 				printf "%s\n" "${this_podcast}" >> "${create_script}";
 			endif
 			
-			if(! ${?duplicates_subdirs} ) \
+			if(! ${?duplicates_dirs} ) \
 				continue;
 			
-			foreach duplicates_subdir("`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-				set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+			foreach duplicate_dir("`printf "\""${duplicates_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
+				set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/\//\\\//g'`";
+				set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+				unset escaped_duplicate_dir;
 				
 				if(! -e "${duplicate_podcast}" ) \
 					continue;
 				
 				printf "%s\n" "${duplicate_podcast}";
+				if( ${?append} ) then
+					if(! ${?new_file_count} ) then
+						printf "**%s notice:** The following fills will be added to\n\t<file://%s>\n" "${scripts_basename}" "${playlist}";
+						@ new_file_count=1;
+					else
+						@ new_file_count++;
+					endif
+					printf "%s\n" "${this_podcast}" >> "${playlist}.new";
+				endif
+				
 				if( ${?create_script} ) then
 					printf "%s\n" "${duplicate_podcast}\n" >> "${create_script}";
 				endif
 			end
 			unset duplicate_podcast;
+			
 			continue;
 		endif
 		
@@ -262,8 +266,10 @@ find_missing_media:
 		endif
 		
 		set rm_confirmation="`rm -vf${remove} "\""${this_podcast}"\""`";
-		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
+		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) then
+			unset rm_confirmation podcast_dir;
 			continue;
+		endif
 		printf "%s\n" "${rm_confirmation}";
 		
 		@ removed_podcasts++;
@@ -286,19 +292,21 @@ find_missing_media:
 			set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 		end
 		
-		if(! ${?duplicates_subdirs} ) then
+		if(! ${?duplicates_dirs} ) then
 			if( ${?podcast_cwd} ) \
 				unset podcast_cwd;
 			unset rm_confirmation podcast_dir podcast_dir_for_ls duplicate_podcast;
 			continue;
 		endif
 		
-		foreach duplicates_subdir("`printf "\""${duplicates_subdirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		foreach duplicate_dir("`printf "\""${duplicates_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
+			set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/\//\\\//g'`";
+			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+			
 			if(! -e "${duplicate_podcast}" ) \
 				continue;
 			
-			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_cwd}\/${duplicates_subdir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_cwd}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 			
 			set status=0;
 			set rm_confirmation="`rm -vf${remove} "\""${duplicate_podcast}"\""`";
@@ -408,7 +416,7 @@ exit_script:
 
 
 usage:
-	printf "\nUsage:\n\t%s playlist [directory] [--(extension|extensions)=] [--maxdepth=] [--recursive] [--search-all] [--skip-subdir=<sub-directory>] [--check-for-duplicates-in-subdir=<sub-directory>] [--remove[=(interactive|force)]]\n\tfinds any files in [directory], or its sub-directories, up to files of --maxdepth.  If the file is not not found in playlist,\n\tThe [directory] that's searched is [./] by default unless another absolute, or relative, [directory] is specified.\n\t[--(extension|extensions)=] is optional and used to search for files with extension(s) matching the string or escaped, posix-extended, regular expression, e.g. --extensions='(mp3|ogg)' only. Otherwise all files are searched for.\n--remove is also optional.  When this option is given %s will remove podcasts which aren't in the specified playlist.  Unless --remove is set to force you'll be prompted before each file is actually deleted.  If, after the file(s) are deleted, the parent directory is empty it will also be removed.\n" "`basename '${0}'`" "`basename '${0}'`";
+	printf "\nUsage:\n\t%s playlist [directory] [--(extension|extensions)=] [--maxdepth=] [--recursive] [--search-all] [--skip-subdir=<sub-directory>] [--check-for-duplicates-in-dir=<directory>] [--remove[=(interactive|force)]]\n\tfinds any files in [directory], or its sub-directories, up to files of --maxdepth.  If the file is not not found in playlist,\n\tThe [directory] that's searched is [./] by default unless another absolute, or relative, [directory] is specified.\n\t[--(extension|extensions)=] is optional and used to search for files with extension(s) matching the string or escaped, posix-extended, regular expression, e.g. --extensions='(mp3|ogg)' only. Otherwise all files are searched for.\n--remove is also optional.  When this option is given %s will remove podcasts which aren't in the specified playlist.  Unless --remove is set to force you'll be prompted before each file is actually deleted.  If, after the file(s) are deleted, the parent directory is empty it will also be removed.\n" "`basename '${0}'`" "`basename '${0}'`";
 	if( ${?no_exit_on_usage} ) \
 		goto next_option;
 	
@@ -578,10 +586,16 @@ parse_arg:
 				goto usage;
 			breaksw;
 			
-			case "check-for-duplicates-in-subdir":
-			case "skip-files-in-subdir":
-			case "skip-subdir":
-			case "dups-subdir":
+			case "edit":
+			case "edit-playlist":
+				if(! ${?edit_playlist} ) \
+					set edit_playlist;
+				breaksw;
+			
+			case "check-for-duplicates-in-dir":
+			case "skip-files-in-dir":
+			case "skip-dir":
+			case "dups-dir":
 				set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^\///' | sed -r 's/\/"\$"//'`";
 				if( ! -d "${value}" && ! -l "${value}" ) then
 					printf "--%s must specify a sub-directory of %s.\n" "${option}" "${cwd}" > /dev/stderr;
@@ -589,14 +603,8 @@ parse_arg:
 				endif
 				
 				switch("${option}")
-					case "edit":
-					case "edit-playlist":
-						if(! ${?edit_playlist} ) \
-							set edit_playlist;
-						breaksw;
-					
-					case "skip-files-in-subdir":
-					case "skip-subdir":
+					case "skip-files-in-dir":
+					case "skip-dir":
 						#set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/\//\\\//g'`";
 						if(! ${?skip_subdirs} ) then
 							set skip_subdirs=("${value}");
@@ -605,12 +613,12 @@ parse_arg:
 						endif
 					breaksw;
 					
-					case "dups-subdir":
-					case "check-for-duplicates-in-subdir":
-						if(! ${?duplicates_subdirs} ) then
-							set duplicates_subdirs=("${value}");
+					case "dups-dir":
+					case "check-for-duplicates-in-dir":
+						if(! ${?duplicates_dirs} ) then
+							set duplicates_dirs=("${value}");
 						else
-							set duplicates_subdirs=( "${duplicates_subdirs}" "\n" "${value}");
+							set duplicates_dirs=( "${duplicates_dirs}" "\n" "${value}");
 						endif
 					breaksw;
 				endsw

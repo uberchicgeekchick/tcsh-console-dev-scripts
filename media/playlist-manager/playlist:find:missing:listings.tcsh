@@ -596,9 +596,9 @@ parse_arg:
 			case "skip-files-in-dir":
 			case "skip-dir":
 			case "dups-dir":
-				set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^\///' | sed -r 's/\/"\$"//'`";
+				set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/\/"\$"//'`";
 				if( ! -d "${value}" && ! -l "${value}" ) then
-					printf "--%s must specify a sub-directory of %s.\n" "${option}" "${cwd}" > /dev/stderr;
+					printf "--%s must specify a directory of <file://%s> does not exist.\n" "${option}" "${value}" > /dev/stderr;
 					continue;
 				endif
 				

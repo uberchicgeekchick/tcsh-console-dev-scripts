@@ -268,7 +268,7 @@ find_missing_media:
 		
 		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 		if( ${?message} && ! ${?message_displayed} ) then
-			printf "\t**Files found in\n\t\t[%s]\n\twhich are not in the playlist\n\t\t[%s]\n\twill %s.**\n" "${cwd}" "${playlist}" "${message}";
+			printf "\t**Files found under [%s] which are not in [%s] will be\n\t\t%s.**\n" "${cwd}" "${playlist}" "${message}";
 			set message_displayed;
 		endif
 		
@@ -283,12 +283,13 @@ find_missing_media:
 			printf "\n";
 		endif
 		
-		set rm_confirmation="`rm -vf${remove} "\""${this_podcast}"\""`";
+		set rm_confirmation="`rm -v${remove} "\""${this_podcast}"\""`";
 		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) then
 			unset rm_confirmation podcast_dir;
 			continue;
 		endif
-		printf "%s\n" "${rm_confirmation}";
+		if( ${?verbose_removal} ) \
+			printf "%s\n" "${rm_confirmation}";
 		
 		@ removed_podcasts++;
 		if( ${?create_script} ) then
@@ -327,10 +328,11 @@ find_missing_media:
 			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 			
 			set status=0;
-			set rm_confirmation="`rm -vf${remove} "\""${duplicate_podcast}"\""`";
+			set rm_confirmation="`rm -v${remove} "\""${duplicate_podcast}"\""`";
 			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
 				continue;
-			printf "%s\n" "${rm_confirmation}";
+			if( ${?verbose_removal} ) \
+				printf "%s\n" "${rm_confirmation}";
 			
 			@ removed_podcasts++;
 			if( ${?create_script} ) then
@@ -716,7 +718,7 @@ parse_arg:
 				
 				switch("${value}")
 					case "verbose":
-						set remove="${remove}v";
+						set verbose_removal;
 						set message="${message}have they deletion reported";
 					breaksw;
 					

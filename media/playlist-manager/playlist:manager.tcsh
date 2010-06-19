@@ -334,7 +334,7 @@ clean_up:
 	if(! ${?target_directory} ) \
 		set target_directory="${cwd}";
 	
-	printf "Checking for any files found under: [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
+	printf "Checking for any files found under [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
 	set old_owd="${owd}";
 	set old_cwd="${cwd}";
 	cd "${target_directory}";

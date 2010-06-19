@@ -168,7 +168,7 @@ find_missing_media:
 		#continue;
 		if( ${?skip_dirs} ) then
 			foreach skip_dir("`printf "\""${skip_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-				set escaped_sub_dir="`printf "\""%s"\"" "\""${skip_dir}"\"" | sed -r 's/\//\\\//g'`";
+				set escaped_skip_dir="`printf "\""%s"\"" "\""${skip_dir}"\"" | sed -r 's/\//\\\//g'`";
 				if( "`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^(${escaped_skip_dir})\/.*/\1/"\""`" == "${skip_dir}" ) \
 					break;
 				unset escaped_skip_dir skip_dir;

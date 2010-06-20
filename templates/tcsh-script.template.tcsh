@@ -1,5 +1,5 @@
 #!/bin/tcsh -f
-setenv:
+setup:
 	onintr exit_script;
 	
 	set strict;
@@ -18,10 +18,13 @@ setenv:
 	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	set usage_message="Usage: ${scripts_basename} [options]\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n\n\t\t\t-\tTells ${scripts_basename} to read all further arguments/filenames from standard input (-! disables this).\n\n\t\t\t--\tThis will cause the script to process any further filenames as they're reached(--! disables this).\n";
 	
+	set starting_owd="${owd}";
+	set starting_cwd="${cwd}";
+	
 	@ minimum_options=-1;
 	@ maximum_options=-1;
 	
-	if( ${?SSH_CONNECTION} ) then
+	if(! -o /dev/$tty ) then
 		set stdout=/dev/null;
 		set stderr=/dev/null;
 	else
@@ -273,17 +276,14 @@ scripts_main_quit:
 		unset starting_cwd;
 	endif
 	
-	if( ${?old_owd} ) then
-		if( "${old_owd}" != "${owd}" ) \
-			set owd="${old_owd}";
-		unset old_owd;
-	endif
-	
 	if( ${?starting_owd} ) then
 		if( "${starting_owd}" != "${owd}" ) \
 			set owd="${starting_owd}";
 		unset starting_owd;
 	endif
+	
+	if( ${?old_owd} ) \
+		unset old_owd;
 	
 	if( ${?original_cwdcmd} ) then
 		alias cwdcmd "${original_cwdcmd}";
@@ -374,8 +374,6 @@ init:
 		goto callback_stack_update;
 	endif
 	
-	set starting_owd="${owd}";
-	set starting_cwd="${cwd}";
 	set escaped_starting_cwd="${escaped_cwd}";
 	
 	set directory_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
@@ -646,11 +644,9 @@ dependency_check:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?scripts_dirname} ) \
+				if( ${?script} ) \
 					breaksw;
 				
-			if( ${?debug} ) \
-				printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}" > ${stdout};
 				set old_owd="${cwd}";
 				cd "`dirname "\""${program}"\""`";
 				set scripts_dirname="${cwd}";
@@ -781,9 +777,23 @@ sourcing_exec:
 	alias "${scripts_alias}" "${script}";
 	# FINISH: special handler for when this file is sourced.
 	
-	set callback="exit_script";
+	set callback="sourcing_quit";
 	goto callback_handler;
 #set callback="sourcing_exec";
+#goto callback_handler;
+
+
+sourcing_quit:
+	set label_current="sourcing_quit";
+	if(! ${?label_previous} ) then
+		goto callback_stack_update;
+	else if("${label_current}" != "${label_previous}") then
+		goto callback_stack_update;
+	endif
+	
+	set callback="scripts_main_quit";
+	goto callback_handler;
+#set callback="sourcing_quit";
 #goto callback_handler;
 
 
@@ -1577,7 +1587,7 @@ parse_argv:
 		endif
 		
 		if( ${?debug} ) \
-			printf "\tparsed option "\$"parsed_argv[%d]:\t%s\n\n" ${parsed_argc} "${parsed_arg}" > ${stdout};
+			printf "\t**debug:** parsed "\$"argv[%d]: %s%s%s%s\n" $arg "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
 		
 		switch("${option}")
 			case "h":

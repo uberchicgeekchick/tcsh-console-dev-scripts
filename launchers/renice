@@ -2,15 +2,10 @@
 if(! ${?TCSH_LAUNCHER_PATH} ) \
 	setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
 
-if(! ${?0} ) then
-	alias "renice"	\$"{TCSH_LAUNCHER_PATH}/renice";
-	complete renice 'p/1/(-19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 +1 +2 +3 +4 +5 +6 +7 +8 +9 +10 +11 +12 +13 +14 +15 +16 +17 +18 +19 +20)/' 'p/2-/c/'
-	goto main_quit;
-endif
 
-set this_program="`basename '${0}'`";
+set this_program="renice";
 
-foreach program ( "`which '${this_program}'`" )
+foreach program ( "`which "\""${this_program"\""'`" )
 	if( "${program}" != "${0}" && -x "${program}" ) \
 		break;
 	unset program;
@@ -20,6 +15,13 @@ if(! ${?program} ) \
 	goto noexec;
 if(! -x "${program}" ) \
 	goto noexec;
+
+if(! ${?0} ) then
+	alias "${this_program}"	\$"{TCSH_LAUNCHER_PATH}/${this_program}";
+	complete ${this_program} 'p/1/(-19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 +1 +2 +3 +4 +5 +6 +7 +8 +9 +10 +11 +12 +13 +14 +15 +16 +17 +18 +19 +20)/' 'p/2-/c/'
+	goto main_quit;
+endif
+
 goto launchers_main;
 
 noexec:
@@ -34,6 +36,8 @@ main_quit:
 		unset dependency;
 	if( ${?program} ) \
 		unset program;
+	if( ${?this_program} ) \
+		unset this_program;
 	exit ${status};
 #main_quit
 

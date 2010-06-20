@@ -10,7 +10,7 @@ setenv:
 		setenv TCSH_RC_SOURCE_FILE "$argv[1]";
 	
 	#if( ! ${?TCSH_OUTPUT_ENABLED} && ! ${?TCSH_OUTPUT_DISABLED} ) then
-		if( ! ${?SSH_CONNECTION} && -o /dev/$tty ) then
+		if( -o /dev/$tty ) then
 			if( ${?TCSH_OUTPUT_DISABLED} ) \
 				unsetenv TCSH_OUTPUT_DISABLED;
 			setenv TCSH_OUTPUT_ENABLED;

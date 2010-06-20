@@ -268,7 +268,7 @@ find_missing_media:
 		
 		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 		if( ${?message} && ! ${?message_displayed} ) then
-			printf "\t**Files found under [%s] which are not in [%s] will be\n\t\t%s.**\n" "${cwd}" "${playlist}" "${message}";
+			printf "\t**Files found under [%s] which are not in [%s] will be %s removed.**\n\n" "${cwd}" "${playlist}" "`printf "\""%s"\"" "\""${message}"\"" | sed -r 's/^(.*), ([^,]*)"\$"/\1 and \2/'`";
 			set message_displayed;
 		endif
 		
@@ -288,7 +288,7 @@ find_missing_media:
 			unset rm_confirmation podcast_dir;
 			continue;
 		endif
-		if( ${?verbose_removal} ) \
+		if( ${?removal_verbose} ) \
 			printf "%s\n" "${rm_confirmation}";
 		
 		@ removed_podcasts++;
@@ -331,7 +331,7 @@ find_missing_media:
 			set rm_confirmation="`rm -v${remove} "\""${duplicate_podcast}"\""`";
 			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
 				continue;
-			if( ${?verbose_removal} ) \
+			if( ${?removal_verbose} ) \
 				printf "%s\n" "${rm_confirmation}";
 			
 			@ removed_podcasts++;
@@ -708,30 +708,47 @@ parse_arg:
 			case "remove":
 			case "clean-up":
 				if(! ${?message} ) \
-					set message="";
+					set message;
 				
 				if(! ${?remove} ) \
 					set remove;
 				
-				if( "${message}" != "" ) \
-					set message="${message} and ";
-				
 				switch("${value}")
 					case "verbose":
-						set verbose_removal;
-						set message="${message}have they deletion reported";
-					breaksw;
+						if( ${?removal_verbose} ) \
+							breaksw;
+						
+						if( "${message}" != "" ) \
+							set message="${message}, ";
+						
+						set removal_verbose;
+						set message="${message}verbosely";
+						breaksw;
 					
 					case "force":
+						if( ${?removal_forced} ) \
+							breaksw;
+						
+						if( "${message}" != "" ) \
+							set message="${message}, ";
+						
+						set removal_forced;
 						set remove="${remove}f";
-						set message="${message}be removed";
-					breaksw;
+						set message="${message}forcefully";
+						breaksw;
 					
 					case "interactive":
 					default:
+						if( ${?removal_interactive} ) \
+							breaksw;
+						
+						if( "${message}" != "" ) \
+							set message=", ${message}";
+						
+						set removal_interactive;
 						set remove="${remove}i";
-						set message="${message}be prompted for removal";
-					breaksw;
+						set message="interactively${message}";
+						breaksw;
 				endsw
 			breaksw;
 			

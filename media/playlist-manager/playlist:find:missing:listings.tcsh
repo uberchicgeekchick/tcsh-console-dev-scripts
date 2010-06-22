@@ -216,16 +216,16 @@ find_missing_media:
 			if(! -e "${this_podcast}" ) \
 				continue;
 			
-			printf "%s\n" "${this_podcast}";
 			if( ${?append} ) then
 				if(! ${?new_file_count} ) then
-					printf "**%s notice:** The following fills will be added to\n\t<file://%s>\n" "${scripts_basename}" "${playlist}";
+					printf "\n\t**%s notice:** The following fills will be added to\n\t\t<file://%s>\n\n" "${scripts_basename}" "${playlist}";
 					@ new_file_count=1;
 				else
 					@ new_file_count++;
 				endif
 				printf "%s\n" "${this_podcast}" >> "${playlist}.new";
 			endif
+			printf "%s\n" "${this_podcast}";
 			
 			if( ${?create_script} ) then
 				printf "%s\n" "${this_podcast}" >> "${create_script}";
@@ -242,16 +242,10 @@ find_missing_media:
 				if(! -e "${duplicate_podcast}" ) \
 					continue;
 				
-				printf "%s\n" "${duplicate_podcast}";
 				if( ${?append} ) then
-					if(! ${?new_file_count} ) then
-						printf "**%s notice:** The following fills will be added to\n\t<file://%s>\n" "${scripts_basename}" "${playlist}";
-						@ new_file_count=1;
-					else
-						@ new_file_count++;
-					endif
-					printf "%s\n" "${this_podcast}" >> "${playlist}.new";
+					printf "%s\n" "${duplicate_podcast}" >> "${playlist}.new";
 				endif
+				printf "%s\n" "${duplicate_podcast}";
 				
 				if( ${?create_script} ) then
 					printf "%s\n" "${duplicate_podcast}\n" >> "${create_script}";

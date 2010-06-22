@@ -2,6 +2,14 @@
 setup:
 	onintr exit_script;
 	
+	if(! -o /dev/$tty ) then
+		set stdout=/dev/null;
+		set stderr=/dev/null;
+	else
+		set stdout=/dev/stdout;
+		set stderr=/dev/stdout;
+	endif
+	
 	set strict;
 	set supports_being_sourced;
 	
@@ -23,14 +31,6 @@ setup:
 	
 	@ minimum_options=-1;
 	@ maximum_options=-1;
-	
-	if(! -o /dev/$tty ) then
-		set stdout=/dev/null;
-		set stderr=/dev/null;
-	else
-		set stdout=/dev/stdout;
-		set stderr=/dev/stdout;
-	endif
 	
 	if( "`alias cwdcmd`" != "" ) then
 		set original_cwdcmd="`alias cwdcmd`";
@@ -328,8 +328,8 @@ scripts_main_quit:
 		unset extension;
 	if( ${?filename_for_exec} ) \
 		unset filename_for_exec;
-	if( ${?filename_for_regexp} ) \
-		unset filename_for_regexp;
+	if( ${?filename_for_grep} ) \
+		unset filename_for_grep;
 	if( ${?filename_for_editor} ) \
 		unset filename_for_editor;
 	if( ${?grep_test} ) \
@@ -446,9 +446,6 @@ debug_check:
 			continue;
 		endsw
 		
-		if( -e "$argv[${arg}]" ) \
-			continue;
-		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
 		printf "%s" "$argv[${arg}]" >! "${argument_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
@@ -462,8 +459,6 @@ debug_check:
 			set option="";
 		
 		set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
-		if( -e "${value}" ) \
-			continue;
 		
 		if( ${?debug} || ${?debug_arguments} ) \
 			printf "**%s debug_check:**"\$"option: [${option}]; "\$"value: [${value}].\n" "${scripts_basename}" > ${stdout};
@@ -1068,7 +1063,7 @@ exec:
 	printf "%s%s\n" "${filename}" "${extension}" >> "${filename_list}.all";
 	
 	set filename_for_exec="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	set filename_for_regexp="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/([\ \\\*\[\/.])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	set filename_for_grep="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/([\ \\\*\[\/.])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	set filename_for_editor="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"'\''\[\]\(\)\ \<\>])/\\\1/g'`";
 	if( ${?edit_all_files} ) \
 		${EDITOR} "+0r ${filename_for_editor}";
@@ -1083,7 +1078,7 @@ exec:
 	endif
 	printf " data of: <file://%s%s>\n\t\t%s\n" "${filename}" "${extension}" "`/bin/ls -d -l "\""${filename_for_exec}"\"" | grep -v --perl-regexp '^[\s\ \t\r\n]+"\$"'`" > ${stdout};
 	
-	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
+	set grep_test="`grep "\""^${filename_for_grep}"\"\$" "\""${filename_list}.all"\""`";
 	printf "\tgrep " > ${stdout};
 	if( "${grep_test}" != "" ) then
 		printf "found:\n\t\t%s\n" "${grep_test}" > ${stdout};
@@ -1094,7 +1089,7 @@ exec:
 	
 	printf "\tProcessing: <file://%s>\t[finished]\n" "`printf "\""%s"\"" "\""${original_filename}"\""`" > ${stdout};
 	unset original_filename filename extension;
-	unset filename_for_exec filename_for_regexp filename_for_editor;
+	unset filename_for_exec filename_for_grep filename_for_editor;
 	unset grep_test;
 	
 	set callback="filename_next";

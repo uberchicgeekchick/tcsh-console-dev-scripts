@@ -42,17 +42,116 @@ setup:
 	alias ex "ex -E -X -n --noplugin";
 	
 	set scripts_basename="tcsh-script.template.raw.tcsh";
-	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	
-	goto parse_argv;
+	goto init;
 #goto setup;
+
+
+debug_check:
+	@ arg=0;
+	@ argc=${#argv};
+	
+	while( $arg < $argc )
+		@ arg++;
+		
+		set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+		printf "%s" "$argv[${arg}]" >! "${tmp_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
+		set escaped_argument="`cat "\""${tmp_file}"\""`";
+		rm -f "${tmp_file}";
+		unset tmp_file;
+		set argument="`printf "\""%s"\"" "\""${escaped_argument}"\""`";
+		
+		set option="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
+		if( "${option}" == "${argument}" ) \
+			set option="";
+		
+		set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
+		
+		if( ${?debug} || ${?debug_arguments} ) \
+			printf "**%s debug_check:**"\$"option: [${option}]; "\$"value: [${value}].\n" "${scripts_basename}" > ${stdout};
+		
+		switch("${option}")
+			case "nodeps":
+				if( ${?nodeps} ) \
+					breaksw;
+				set nodeps;
+				breaksw;
+			
+			case "diagnosis":
+			case "diagnostic-mode":
+				if( ${?diagnosis} ) \
+					continue;
+				
+				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode:\t[enabled].\n\n" "${scripts_basename}" ${arg} > ${stdout};
+				set diagnosis;
+				if(! ${?debug} ) \
+					set debug;
+				breaksw;
+			
+			case "debug":
+				switch("${value}")
+					case "logged":
+						if( ${?debug_logged} ) \
+							continue;
+						set debug_logged;
+						breaksw;
+					
+					case "dependencies":
+						if( ${?debug_dependencies} ) \
+							continue;
+						set debug_dependencies;
+						breaksw;
+					
+					case "arguments":
+						if( ${?debug_arguments} ) \
+							continue;
+						set debug_arguments;
+						breaksw;
+					
+					case "stdin":
+						if( ${?debug_stdin} ) \
+							continue;
+						set debug_stdin;
+						breaksw;
+					
+					case "filenames":
+						if( ${?debug_filenames} ) \
+							continue;
+						set debug_filenames;
+						breaksw;
+					
+					default:
+						if( ${?debug} ) \
+							continue;
+						set debug;
+						breaksw;
+				endsw
+			default:
+				continue;
+		endsw
+		
+		printf "**%s notice:**, via "\$"argv[%d], %s mode" "${scripts_basename}" ${arg} "${option}" > ${stdout};
+		if( "${value}" != "" ) \
+			printf " %s" "${value}" > ${stdout};
+		
+		if( "${option}" == "debug" ) \
+			printf " debugging" > ${stdout};
+		
+		printf ":\t[enabled].\n\n" > ${stdout};
+	end
+	
+	set callback="dependencies_check";
+	goto callback_handler;
+#set callback="debug_check";
 
 
 init:
 	set dependencies=("${scripts_basename}" "find" "sed" "ex");# "${scripts_alias}");
 	@ dependencies_index=0;
 	
+dependencies_check:
 	while( $dependencies_index < ${#dependencies} )
 		@ dependencies_index++;
 		
@@ -70,30 +169,12 @@ init:
 		end
 		
 		if(! ${?program} ) then
-			@ errno=-501;
-			goto exception_handler;
+			printf "One or more of [%s] dependencies couldn't be found.\n\t%s requires: [%s] and [%s] couldn't be found." "${scripts_basename}" "${dependencies}" "${scripts_basename}" "${dependency}" > ${stderr};
+			goto exit_script;
 		endif
 		
 		if( ${?debug} ) then
-			switch(`printf "%d" "${dependencies_index}" | sed -r 's/^[0-9]*[^1]?([0-9])$/\1/'` )
-				case "1":
-					set suffix="st";
-					breaksw;
-				
-				case "2":
-					set suffix="nd";
-					breaksw;
-				
-				case "3":
-					set suffix="rd";
-					breaksw;
-				
-				default:
-					set suffix="th";
-					breaksw;
-			endsw
-			
-			printf "**%s debug:** %d%s dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${program}" > ${stdout};
+			printf "**%s debug:** dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" "${dependency}" "${program}" > ${stdout};
 			unset suffix;
 		endif
 		
@@ -119,6 +200,7 @@ init:
 		endsw
 		unset program;
 	end
+#goto dependencies_check;
 	goto finalize;
 #goto init:
 
@@ -208,12 +290,12 @@ parse_arg:
 		if(! ${?arg_shifted} ) \
 			@ arg++;
 		
-		set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
-		printf "%s" "$argv[${arg}]" >! "${argument_file}";
-		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
-		set escaped_argument="`cat "\""${argument_file}"\""`";
-		rm -f "${argument_file}";
-		unset argument_file;
+		set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+		printf "%s" "$argv[${arg}]" >! "${tmp_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
+		set escaped_argument="`cat "\""${tmp_file}"\""`";
+		rm -f "${tmp_file}";
+		unset tmp_file;
 		set argument="`printf "\""%s"\"" "\""${escaped_argument}"\""`";
 		
 		set dashes="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
@@ -241,12 +323,12 @@ parse_arg:
 				if( ${?debug} ) \
 					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]" > ${stdout};
 				
-				set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
-				printf "%s" "$argv[${arg}]" >! "${argument_file}";
-				ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
-				set escaped_test_argument="`cat "\""${argument_file}"\""`";
-				rm -f "${argument_file}";
-				unset argument_file;
+				set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+				printf "%s" "$argv[${arg}]" >! "${tmp_file}";
+				ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
+				set escaped_test_argument="`cat "\""${tmp_file}"\""`";
+				rm -f "${tmp_file}";
+				unset tmp_file;
 				set test_argument="`printf "\""%s"\"" "\""${escaped_test_argument}"\""`";
 				
 				set test_dashes="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
@@ -277,12 +359,12 @@ parse_arg:
 		endif
 		
 		if( "${value}" != "" ) then
-			set value_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
-			printf "%s" "${value}" >! "${value_file}";
-			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
-			set escaped_value="`cat "\""${value_file}"\""`";
-			rm -f "${value_file}";
-			unset value_file;
+			set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+			printf "%s" "${value}" >! "${tmp_file}";
+			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
+			set escaped_value="`cat "\""${tmp_file}"\""`";
+			rm -f "${tmp_file}";
+			unset tmp_file;
 			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
 		endif
 		

@@ -210,10 +210,6 @@ move_lifestyle_podcasts:
 move_podiobooks:
 	set podiobooks=( \
 	"\n" \
-"/media/podcasts/Into the Woods/09. Into the Woods 09 - Into the Woods, released on: Tue, 22 Jun 2010 12:32:31 GMT.mp3" \
-	"\n" \
-"/media/podcasts/Into the Woods/10. Into the Woods 10 - Into the Woods, released on: Wed, 23 Jun 2010 12:32:31 GMT.mp3" \
-	"\n" \
 	);
 	
 	if( ${?podiobooks} ) then
@@ -253,8 +249,6 @@ move_podiobooks:
 
 move_slashdot:
 	set slashdot=( \
-	"\n" \
-"/media/podcasts/Slashdot/New Wii Menu Update Targets Homebrew Again, released on: Wed, 23 Jun 2010 10:29:00 GMT.mp3" \
 	"\n" \
 	);
 	

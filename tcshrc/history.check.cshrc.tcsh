@@ -34,7 +34,7 @@ main:
 	
 	printf "Merging this terminal's history with existing "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 	history -M;
-	printf "\t[done]\nSaving merged and complete history: "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
+	printf "\t[done]\nSaving merged and complete history's "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 	history -S;
 	printf "\t[done]\n" > ${stdout};
 	/bin/cp -fLpv "${histfile}" "${histfile}.bckcp";

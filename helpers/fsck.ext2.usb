@@ -216,9 +216,11 @@ exec:
 	printf "Executing %s's exec.\n" "${scripts_basename}";
 	printf "\n-----------------** fsck'ing <%s> **-----------------\n\tRunning: %s.ext2 -yf%s %s\n" "${usb}" "${use_sudo}fsck" "${check}" "${usb}";
 	${use_sudo}fsck.ext2 -yf${check} "${usb}";
-	printf "\n\n";
-	if( ${status} != 0 ) \
+	if(!( $status == 0 )) then
+		printf "\n\n";
 		goto exec;
+	endif
+	printf "\n\n";
 	
 	unset usb;
 	goto main;
@@ -459,12 +461,12 @@ parse_arg:
 		
 		@ parsed_argc++;
 		if(! ${?parsed_argv} ) then
-			set parsed_argv=("${dashes}${option}${equals}${value}");
+			set parsed_argv=( "${dashes}${option}${equals}${value}" );
 		else
-			set parsed_argv=($parsed_argv "${dashes}${option}${equals}${value}");
+			set parsed_argv=( ${parsed_argv} "${dashes}${option}${equals}${value}" );
 		endif
 		if( ${?debug} || ${?diagnostic_mode} ) \
-			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "$parsed_argv[$parsed_argc]";
+			printf "\tparsed option %sparsed_argv[%d]: %s\n" \$ "$parsed_argc" "$parsed_argv[${#parsed_argv}]";
 		
 		switch("${option}")
 			case "numbered_option":
@@ -556,6 +558,15 @@ parse_arg:
 				breaksw;
 			
 			default:
+				if( -b ${value} ) then
+					if(! ${?devices} ) then
+						set devices=( $value );
+					else
+						set devices=( $devices $value );
+					endif
+					breaksw;
+				endif
+				
 				if(! ${?argz} ) then
 					@ errno=-504;
 					set callback="parse_arg";
@@ -564,9 +575,9 @@ parse_arg:
 				endif
 				
 				if( "${argz}" == "" ) then
-					set argz="$parsed_argv[$parsed_argc]";
+					set argz="$parsed_argv[${#parsed_argv}]";
 				else
-					set argz="${argz} $parsed_argv[$parsed_argc]";
+					set argz="${argz} $parsed_argv[${#parsed_argv}]";
 				endif
 				breaksw;
 		endsw

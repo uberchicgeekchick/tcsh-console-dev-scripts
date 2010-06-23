@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc"
-source "${TCSH_RC_SESSION_PATH}/argv:check" "mount:sshfs:dreams.tcsh" ${argv};
+source "${TCSH_RC_SESSION_PATH}/argv:check" "mount:sshfs:uberchick.tcsh" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -26,8 +26,8 @@ if(! ${?program} ) then
 	goto exit_script;
 endif
 
-set ssh_user="dreams";
-set ssh_server="sky.ocssolutions.com";
+set ssh_user="uberchick";
+set ssh_server="aquarius.ocssolutions.com";
 set ssh_path="/home/${ssh_user}";
 
 set ssh_mount_point="/art/www/ssh/${ssh_user}@${ssh_server}";
@@ -90,7 +90,7 @@ endif
 
 exit_script:
 	unset ssh_user ssh_server ssh_mount_point ssh_path sshfs_mount_count sshfs_mount_test;
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "mount:sshfs:dreams.tcsh";
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "mount:sshfs:uberchick.tcsh";
 	exit;
 #goto exit_script;
 

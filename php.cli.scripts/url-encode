@@ -16,14 +16,14 @@
 	
 	if( "{$_SERVER['argv'][1]}" != "-" ){
 		$data=$_SERVER['argv'][1];
-		printf( "%s", urldecode($data) ));
+		printf( "%s", urlencode($data) );
 		exit(0);
 	}
 	
 	$data="";
 	while(!feof(STDIN))
 		while( $data=fread(STDIN, 1024)){
-			printf( "%s", urldecode($data) ));
+			printf( "%s", urlencode($data) );
 			$data="";
 		}
 	

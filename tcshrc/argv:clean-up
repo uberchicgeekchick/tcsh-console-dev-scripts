@@ -1,58 +1,99 @@
 #!/bin/tcsh -f
-if( ${?TCSH_RC_CURRENT_SOURCE_FILE} ) then
-	if( "${TCSH_RC_CURRENT_SOURCE_FILE}" == "$argv[1]" ) then
-		unsetenv TCSH_RC_CURRENT_SOURCE_FILE;
-	endif
-endif
 
-if( ${?TCSH_RC_SOURCE_FILE} ) then
+check_tcsh_rc_current_source_file:
+	if(! ${?TCSH_RC_CURRENT_SOURCE_FILE} ) \
+		goto check_tcsh_rc_source_file;
+	
+	if( "${TCSH_RC_CURRENT_SOURCE_FILE}" == "$argv[1]" ) \
+		unsetenv TCSH_RC_CURRENT_SOURCE_FILE;
+#goto check_tcsh_rc_current_source_file;
+
+
+check_tcsh_rc_source_file:
+	if(! ${?TCSH_RC_SOURCE_FILE} ) \
+		goto sourcing_finished;
+	
 	if( "${TCSH_RC_SOURCE_FILE}" != "$argv[1]" ) then
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "%s%s != %s%s\n" \$ "${TCSH_RC_SOURCE_FILE}" \$ "$argv[1]";
-		exit 0;
+		goto exit_script;
 	endif
-endif
+#goto check_tcsh_rc_source_file;
 
-if( ${?TCSH_RC_DEBUG} && ! ${?sourcing_finished_message_displayed} ) then
+
+sourcing_finished:
+	if(! ${?TCSH_RC_DEBUG} ) \
+		goto finished_sourcing_tcsh_rc_source_file;
+	
 	if(! ${?usage_message} ) then
 		printf "\nTCSH's finished sourcing %s @ %s.\n" "$argv[1]" "`date '+%I:%M:%S%P'`";
 	else
 		printf "\nTCSH's finished %s @ %s.\n" "${usage_message}" "`date '+%I:%M:%S%P'`";
 	endif
-endif
+#goto sourcing_finished;
 
-if( ${?TCSH_RC_SOURCE_FILE} ) then
-	if( "${TCSH_RC_SOURCE_FILE}" == "$argv[1]" ) then
-		unsetenv TCSH_RC_SOURCE_FILE;
-		if( ${?oldcwdcmd} ) then
-			if( ${?TCSH_RC_DEBUG} ) \
-				printf "Resetting cwdcmd.\n";
-			alias cwdcmd "${oldcwdcmd}";
-			unsetenv oldcwdcmd;
-		endif
+
+finished_sourcing_tcsh_rc_source_file:
+	if(! ${?TCSH_RC_SOURCE_FILE} ) \
+		goto check_cwd;
+	
+	if( "${TCSH_RC_SOURCE_FILE}" != "$argv[1]" ) \
+		goto check_cwd;
+	
+	if( ${?TCSH_OUTPUT_DISABLED} ) then
+		unsetenv TCSH_OUTPUT_DISABLED;
+		setenv TCSH_OUTPUT_ENABLED;
 		
-		if( ${?TCSH_RC_DEBUG} ) then
-			if(! ${?usage_message} ) then
-				printf "TCSH's setup finished @ %s.\n*smile*, enjoy yourself, & follow your passions :-)\n" "`date '+%I:%M:%S%P'`";
-			else
-				printf "TCSH's setup finished:  %s @ %s.\n" "${usage_message}" "`date '+%I:%M:%S%P'`";
-			endif
-		endif
+		set stdout=/dev/stdout;
+		setenv stdout ${stdout};
+		
+		set stderr=/dev/stderr;
+		setenv stderr ${stderr};
+		
+		if( -o /dev/$tty ) \
+			setenv TTY /dev/$tty;
 	endif
-endif
+	
+	unsetenv TCSH_RC_SOURCE_FILE;
+	if( ${?oldcwdcmd} ) then
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Resetting cwdcmd.\n";
+		alias cwdcmd "${oldcwdcmd}";
+		unsetenv oldcwdcmd;
+	endif
+	
+	if(! ${?TCSH_RC_DEBUG} ) \
+		goto check_cwd;
+	
+	if(! ${?usage_message} ) then
+		printf "TCSH's setup finished @ %s.\n*smile*, enjoy yourself, & follow your passions :-)\n" "`date '+%I:%M:%S%P'`";
+	else
+		printf "TCSH's setup finished:  %s @ %s.\n" "${usage_message}" "`date '+%I:%M:%S%P'`";
+	endif
+#goto finished_sourcing_tcsh_rc_source_file;
 
-if(! ${?skip_cwd_test} ) then
+
+check_cwd:
+	if( ${?skip_cwd_test} ) \
+		goto check_debug;
+	
 	if(! ${?TCSH_WORKING_DIR} ) then
 		if( "${cwd}" != "/" ) then
 			setenv TCSH_WORKING_DIR "${cwd}";
 		else
 			setenv TCSH_WORKING_DIR "${HOME}";
 		endif
+	endif
+	
 	if( "${cwd}" != "${TCSH_WORKING_DIR}" ) \
 		cd "${TCSH_WORKING_DIR}";
-endif
+#goto check_cwd;
 
-if( ${?TCSH_RC_DEBUG} ) then
+
+check_debug:
+	if(! ${?TCSH_RC_DEBUG} ) \
+		goto exit_script;
+	
 	if(! ${?usage_message} ) then
 		printf "TCSH finished processing source files, starting from: <%s>, debug mode is being disabled.\n" "$argv[1]";
 	else
@@ -60,5 +101,9 @@ if( ${?TCSH_RC_DEBUG} ) then
 	endif
 	if( "${TCSH_RC_DEBUG}" == "$argv[1]" ) \
 		unsetenv TCSH_RC_DEBUG;
-endif
+#goto check_debug;
 
+
+exit_script:
+	exit 0;
+#goto exit_script;

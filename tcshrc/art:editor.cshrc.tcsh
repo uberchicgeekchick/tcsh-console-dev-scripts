@@ -27,6 +27,7 @@ alias vim-deamon "vim-enhanced --servername='`hostname --fqdn`'";
 alias vim "vim-enhanced";
 alias lvim "vim-enhanced -c 'normal '\''0'"
 alias vi "vim-enhanced";
+alias v "vi";
 alias ex "ex -E -n --noplugin -X";
 setenv	EDITOR		"vim-enhanced";
 bindkey	"^Z"		run-fg-editor;

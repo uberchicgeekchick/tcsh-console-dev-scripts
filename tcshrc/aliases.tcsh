@@ -14,7 +14,13 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-alias set-alias "source "\$"{TCSH_RC_SESSION_PATH}/../setenv/set-alias.tcsh";
+if(! ${?TCSH_RC_DEBUG} ) then
+	set set_alias_args;
+else
+	set set_alias_args=" --debug";
+endif
+
+alias set-alias "source "\$"{TCSH_RC_SESSION_PATH}/../setenv/set-alias.tcsh${set_alias_args}";
 
 
 complete alias 'p/1/c/' 'p/2,/c,f/';
@@ -44,7 +50,9 @@ complete pidof 'p/*/c/';
 #set-alias cp "cp -iPprv";
 #set-alias cp "cp --interactive --no-dereference --preserve=all --recursive --verbose";
 #set-alias cp "cp -iPpv";
-set-alias cp "cp --interactive --no-dereference --preserve=all --verbose";
+#set-alias cp "cp --interactive --no-dereference --preserve=all --verbose";
+#set-alias cp 'cp --dereference --perserve=mode,ownership,timestamps --verbose';
+set-alias cp 'cp -Lpv';
 
 #set-alias mv "mv -iv";
 set-alias mv "mv --interactive --verbose";
@@ -67,6 +75,10 @@ set-alias unzip "unzip -o -q";
 set-alias ispell "aspell -a --sug-mode=normal";
 
 set-alias alsamixer "alsamixer -V all";
+
+if( "${set_alias_args}" != "" ) \
+	alias set-alias "source "\$"{TCSH_RC_SESSION_PATH}/../setenv/set-alias.tcsh";
+unset set_alias_args;
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "aliases.tcsh";
 

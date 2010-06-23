@@ -59,7 +59,7 @@ parse_argv:
 						breaksw;
 				endif
 				
-				printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date "+%I:%M:%S%P"` > ${stdout};
+				printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date '+%I:%M:%S%P'` > ${stdout};
 				setenv TCSH_RC_DEBUG "$argv[1]";
 				break;
 			breaksw;
@@ -146,7 +146,7 @@ parse_argv:
 set_source_file:
 	setenv TCSH_RC_CURRENT_SOURCE_FILE "$argv[1]";
 	if( ${?TCSH_RC_DEBUG} ) \
-		printf "Started loading %s @ %s.\n\n" "$argv[1]" `date "+%I:%M:%S%P"` > ${stdout};
+		printf "Started loading %s @ %s.\n\n" "$argv[1]" `date '+%I:%M:%S%P'` > ${stdout};
 	goto exit_script;
 #goto set_source_file;
 

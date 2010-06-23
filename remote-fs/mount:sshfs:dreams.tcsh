@@ -1,18 +1,4 @@
 #!/bin/tcsh -f
-set this_program="sshfs";
-foreach program ( "`which '${this_program}'`" )
-	if( -x "${program}" ) \
-		break
-	unset program;
-end
-
-if(! ${?program} ) then
-	if( ${?TCSH_OUTPUT_ENABLED} ) \
-		printf "Unable to find %s.\n" "${this_program}";
-	set status=-1;
-	exit ${status};
-endif
-
 if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc"
 source "${TCSH_RC_SESSION_PATH}/argv:check" "mount:sshfs:dreams.tcsh" ${argv};
@@ -26,6 +12,20 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
+set this_program="sshfs";
+foreach program ( "`which "\""${this_program}"\""`" )
+	if( -x "${program}" ) \
+		break
+	unset program;
+end
+
+if(! ${?program} ) then
+	if( ${?TCSH_OUTPUT_ENABLED} ) \
+		printf "Unable to find %s.\n" "${this_program}";
+	set status=-1;
+	goto exit_script;
+endif
+
 set ssh_user="dreams";
 set ssh_server="sky.ocssolutions.com";
 set ssh_path="/home/dreams";
@@ -38,7 +38,7 @@ if( "`mount | grep '$ssh_mount_point'`" != "" ) then
 	if(${?TCSH_RC_DEBUG}) \
 		printf "%s's is already connected to %s\n" "${ssh_user}" "${ssh_server}";
 	set status=-1;
-	exit ${status};
+	goto exit_script;
 endif
 
 if(! -d ${ssh_mount_point} ) then
@@ -87,11 +87,12 @@ if( ${?TCSH_RC_DEBUG} ) then
 		printf "[success]\n";
 	endif
 endif
-unset ssh_user ssh_server ssh_mount_point ssh_path sshfs_mount_count sshfs_mount_test;
 
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "mount:sshfs:dreams.tcsh";
-
-exit;
+exit_script:
+	unset ssh_user ssh_server ssh_mount_point ssh_path sshfs_mount_count sshfs_mount_test;
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "mount:sshfs:dreams.tcsh";
+	exit;
+#goto exit_script;
 
 sshfs_connect:
 sshfs "${ssh_user}@${ssh_server}:${ssh_path}" "${ssh_mount_point}";

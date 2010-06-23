@@ -61,7 +61,7 @@ parse_arg:
 while( $my_arg < $my_argc )
 	@ my_arg++;
 	if( ${?TCSH_RC_DEBUG} || ${?debug} ) \
-		printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${my_arg}" "${my_argc}" "$argv[$my_arg]";
+		printf "Checking "\$"argv["\$"arg], %d of %d's value: %s\n" "${my_arg}" "${my_argc}" "$argv[$my_arg]";
 	
 	set equals="";
 	set value="`printf "\""$argv[$my_arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\3/'`";
@@ -106,7 +106,7 @@ while( $my_arg < $my_argc )
 			
 			if(! ${?source_file} ) then
 				if( ${?TCSH_RC_DEBUG} || ${?debug} ) \
-					printf "**ERROR:** cannot source %s[%s] could not be found.\n" "$argv" "$my_arg";
+					printf "**ERROR:** cannot source %s could not be found.\n" "$argv[$my_arg]";
 				continue;
 			endif
 			
@@ -114,7 +114,7 @@ while( $my_arg < $my_argc )
 				if( ${?usage_message} ) then
 					printf "%s @ %s\n" "${usage_message}" `date "+%I:%M:%S%P"`;
 				else
-					printf "Sourcing %s @ %s.\n" `date "+%I:%M:%S%P" "${source_file}"`;
+					printf "Sourcing %s @ %s.\n" "${source_file}" `date '+%I:%M:%S%P'`;
 				endif
 			endif
 			if( ${?usage_message} ) \
@@ -125,7 +125,7 @@ while( $my_arg < $my_argc )
 				if( ${?usage_message} ) then
 					printf "Finished %s @ %s\n" "${usage_message}" `date "+%I:%M:%S%P"`;
 				else
-					printf "Finished sourcing: <%s> @ %s.\n" `date "+%I:%M:%S%P" "${source_file}"`;
+					printf "Finished sourcing: <%s> @ %s.\n" "${source_file}" `date '+%I:%M:%S%P'`;
 					unset usage_message;
 				endif
 			endif

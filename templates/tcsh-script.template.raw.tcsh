@@ -282,36 +282,52 @@ parse_argv_init:
 	if( ${?debug} ) \
 		printf "**debug:** parsing "\$"argv's %d options.\n" "${scripts_basename}" "${argc}";
 	
-	goto parse_arg;
+	goto parse_argv;
 #goto parse_argv_init;
 
+
 parse_arg:
+	set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+	printf "%s" "$argv[${arg}]" >! "${tmp_file}";
+	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
+	set escaped_argument="`cat "\""${tmp_file}"\""`";
+	rm -f "${tmp_file}";
+	unset tmp_file;
+	set argument="`printf "\""%s"\"" "\""${escaped_argument}"\""`";
+	
+	set dashes="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
+	if( "${dashes}" == "${argument}" ) \
+		set dashes="";
+	
+	set option="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
+	if( "${option}" == "${argument}" ) \
+		set option="";
+	
+	set equals="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\3/'`";
+	if( "${equals}" == "${argument}" ) \
+		set equals="";
+	
+	set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
+	if(! ${?callback} ) \
+		goto check_arg;
+	goto $callback;
+#goto parse_arg;
+
+
+parse_argv:
 	while ( $arg < $argc )
 		if(! ${?arg_shifted} ) \
 			@ arg++;
 		
-		set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
-		printf "%s" "$argv[${arg}]" >! "${tmp_file}";
-		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
-		set escaped_argument="`cat "\""${tmp_file}"\""`";
-		rm -f "${tmp_file}";
-		unset tmp_file;
-		set argument="`printf "\""%s"\"" "\""${escaped_argument}"\""`";
+		if( ${?debug} ) \
+			printf "\t**debug:** parsing "\$"argv[%d] (%s).\n" $arg "$argv[$arg]";
 		
-		set dashes="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
-		if( "${dashes}" == "${argument}" ) \
-			set dashes="";
+		if(!( ${argument} && ${?dashes} && ${?option} && ${?equals} && ${?value} )) then
+			set callback="check_arg";
+			goto parse_arg;
+		endif
 		
-		set option="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
-		if( "${option}" == "${argument}" ) \
-			set option="";
-		
-		set equals="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\3/'`";
-		if( "${equals}" == "${argument}" ) \
-			set equals="";
-		
-		set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
-		
+check_arg:
 		if( ${?debug} ) \
 			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
 		
@@ -346,7 +362,7 @@ parse_arg:
 				set test_value="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
 				
 				if( ${?debug} ) \
-					printf "\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}" > ${stdout};
+					printf "\n\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}" > ${stdout};
 				if(!( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" )) then
 					@ arg--;
 				else
@@ -371,10 +387,7 @@ parse_arg:
 		if( "${option}" == "${value}" ) \
 			set option="";
 		
-		if( ${?debug} || ${?diagnostic_mode} ) \
-			printf "\t**debug:** parsing "\$"argv[%d] (%s).\n" $arg "$argv[$arg]";
-		
-		if( ${?debug} || ${?diagnostic_mode} ) \
+		if( ${?debug} ) \
 			printf "\t**debug:** parsed "\$"argv[%d]: %s%s%s%s\n" $arg "${dashes}" "${option}" "${equals}" "${value}";
 		
 		switch ( "${option}" )
@@ -387,6 +400,7 @@ parse_arg:
 			case "diagnostic-mode":
 				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
 				set diagnostic_mode;
+				set debug;
 				breaksw;
 			
 			case "debug":

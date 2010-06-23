@@ -37,7 +37,7 @@ main:
 	printf "\t[done]\nSaving merged and complete history: "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 	history -S;
 	printf "\t[done]\n" > ${stdout};
-	/bin/cp -ufv "${histfile}" "${histfile}.bckcp";
+	/bin/cp -fLpv "${histfile}" "${histfile}.bckcp";
 #main:
 
 exit_script:

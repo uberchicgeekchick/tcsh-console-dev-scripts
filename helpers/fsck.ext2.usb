@@ -214,8 +214,8 @@ exec:
 	set current_label="exec";
 	
 	printf "Executing %s's exec.\n" "${scripts_basename}";
-	printf "\n-----------------** fsck'ing <%s> **-----------------\n\tRunning: %s.ext2 -y%s %s\n" "${usb}" "${use_sudo}fsck" "${check}" "${usb}";
-	${use_sudo}fsck.ext2 -y${check} "${usb}";
+	printf "\n-----------------** fsck'ing <%s> **-----------------\n\tRunning: %s.ext2 -yf%s %s\n" "${usb}" "${use_sudo}fsck" "${check}" "${usb}";
+	${use_sudo}fsck.ext2 -yf${check} "${usb}";
 	printf "\n\n";
 	if( ${status} != 0 ) \
 		goto exec;

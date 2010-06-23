@@ -1063,8 +1063,8 @@ exec:
 	printf "%s%s\n" "${filename}" "${extension}" >> "${filename_list}.all";
 	
 	set filename_for_exec="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	set filename_for_grep="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/([\ \\\*\[\/.])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	set filename_for_editor="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"'\''\[\]\(\)\ \<\>])/\\\1/g'`";
+	set filename_for_grep="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/([ \\*+[/.()])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	set filename_for_editor="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"'\''[\]() <>\\])/\\\1/g'`";
 	if( ${?edit_all_files} ) \
 		${EDITOR} "+0r ${filename_for_editor}";
 	

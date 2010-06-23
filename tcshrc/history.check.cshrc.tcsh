@@ -22,15 +22,21 @@ main:
 	if(! -e "${histfile}" ) then
 		if( -e "${histfile}.bckcp" ) then
 			/bin/cp -ufv "${histfile}.bckcp" "${histfile}";
+			printf "Loading history from back-up" > ${stdout};
 			history -L;
 		else
+			printf "Saving initial history to create "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 			history -S;
 		endif
+		printf "\t[done]\n" > ${stdout};
 		goto exit_script;
 	endif
 	
+	printf "Merging this terminal's history with existing "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 	history -M;
+	printf "\t[done]\nSaving merged and complete history: "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 	history -S;
+	printf "\t[done]\n" > ${stdout};
 	/bin/cp -ufv "${histfile}" "${histfile}.bckcp";
 #main:
 

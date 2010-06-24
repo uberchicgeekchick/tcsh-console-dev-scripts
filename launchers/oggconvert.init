@@ -263,16 +263,16 @@ check_dependencies:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?scripts_dirname} ) \
+				if( ${?script} ) \
 					breaksw;
 				
 				set old_owd="${cwd}";
 				cd "`dirname "\""${program}"\""`";
-				set scripts_dirname="${cwd}";
+				set scripts_path="${cwd}";
 				cd "${owd}";
 				set owd="${old_owd}";
 				unset old_owd;
-				set script="${scripts_dirname}/${scripts_basename}";
+				set script="${scripts_path}/${scripts_basename}";
 				breaksw;
 			
 			case "ffmpeg":
@@ -302,12 +302,20 @@ if_sourced:
 	if( ${?0} ) \
 		goto main;
 	
+	# START: special handler for when this file is sourced.
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
+	
 	if( ${?debug} ) \
 		printf "Setting up aliases for: oggconvert, oggcombine, and oggtranscode.\n";
 	
 	alias oggconvert "${script}";
 	alias oggtranscode "${script} --transcode";
 	alias oggcombine "${script} --combine";
+	
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
+	# FINISH: special handler for when this file is sourced.
 	
 	goto scripts_main_quit;
 #goto if_sourced;

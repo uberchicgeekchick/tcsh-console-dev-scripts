@@ -89,7 +89,7 @@ add_program:
 	if(! ${?check_for_subdir} ) \
 		set check_for_subdir="bin";
 	
-	foreach program ( ${check_for_paths_in}/* )
+	foreach program( ${check_for_paths_in}/* )
 		if(! -d "${program}" ) then
 			unset program;
 			continue;

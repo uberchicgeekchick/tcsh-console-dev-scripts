@@ -304,7 +304,7 @@ git_commit:
 	git add .;
 
 	# Keep extremely large files from being committed;
-	set extensions="bz2\|gz\|tgz\|zip";
+	set extensions="bz2\|gz\|tgz\|zip\|deb\|rpm";
 	foreach file("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
 		git rm -r --cached --quiet "${file}";
 	end

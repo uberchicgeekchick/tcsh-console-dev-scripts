@@ -213,8 +213,8 @@ scripts_main_quit:
 		unset scripts_alias;
 	if( ${?scripts_basename} ) \
 		unset scripts_basename;
-	if( ${?scripts_dirname} ) \
-		unset scripts_dirname;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
 	
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) \
@@ -577,65 +577,44 @@ dependencies_check:
 	set dependencies=("${scripts_basename}" "find" "sed" "ex");# "${scripts_alias}");
 	@ dependencies_index=0;
 	
-	set callback="dependency_check";
-	goto callback_handler;
-#set callback="dependencies_check";
-#goto callback_handler;
-
-
-dependency_check:
-	set label_current="dependency_check";
-	if(! ${?label_previous} ) then
-		goto callback_stack_update;
-	else if("${label_current}" != "${label_previous}") then
-		goto callback_stack_update;
-	endif
-	
 	while( $dependencies_index < ${#dependencies} )
 		@ dependencies_index++;
 		
 		if( ${?nodeps} && $dependencies_index > 1 ) then
-			set callback="dependencies_check_complete";
-			goto callback_handler;
+			break;
 		endif
 		
 		set dependency=$dependencies[$dependencies_index];
+		
+		set which_dependency=`printf "%d" "${dependencies_index}" | sed -r 's/^[0-9]*[^1]?([0-9])$/\1/'`;
+		if( $which_dependency == 1 ) then
+			set suffix="st";
+		else if( $which_dependency == 2 ) then
+			set suffix="nd";
+		else if( $which_dependency == 3 ) then
+			set suffix="rd";
+		else
+			set suffix="th";
+		endif
+		unset which_dependency;
+		
 		if( ${?debug} ) \
-			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}" > ${stdout};
-			
+			printf "\n**dependencies:** looking for <%s>'s %d%s dependency: %s.\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" > ${stdout};
+		
 		foreach program("`where "\""${dependency}"\""`")
 			if( -x "${program}" ) \
 				break;
 			unset program;
 		end
-		
 		if(! ${?program} ) then
 			@ errno=-501;
 			goto exception_handler;
 		endif
 		
-		if( ${?debug} ) then
-			switch(`printf "%d" "${dependencies_index}" | sed -r 's/^[0-9]*[^1]?([0-9])$/\1/'` )
-				case "1":
-					set suffix="st";
-					breaksw;
-				
-				case "2":
-					set suffix="nd";
-					breaksw;
-				
-				case "3":
-					set suffix="rd";
-					breaksw;
-				
-				default:
-					set suffix="th";
-					breaksw;
-			endsw
-			
-			printf "**%s debug:** %d%s dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${program}" > ${stdout};
-			unset suffix;
-		endif
+		if( ${?debug} ) \
+			printf "\n**dependencies:** <%s>'s %d%s dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${program}" > ${stdout};
+		
+		unset suffix;
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
@@ -644,11 +623,11 @@ dependency_check:
 				
 				set old_owd="${cwd}";
 				cd "`dirname "\""${program}"\""`";
-				set scripts_dirname="${cwd}";
+				set scripts_path="${cwd}";
 				cd "${owd}";
 				set owd="${old_owd}";
 				unset old_owd;
-				set script="${scripts_dirname}/${scripts_basename}";
+				set script="${scripts_path}/${scripts_basename}";
 				breaksw;
 			
 			default:
@@ -658,31 +637,17 @@ dependency_check:
 				breaksw;
 		endsw
 		
-		unset program;
+		unset program dependency;
 	end
-	
-	set callback="dependencies_check_complete";
-	goto callback_handler;
-#set callback="dependency_check";
-#goto callback_handler;
-
-
-dependencies_check_complete:
-	set label_current="dependencies_check_complete";
-	if(! ${?label_previous} ) then
-		goto callback_stack_update;
-	else if("${label_current}" != "${label_previous}") then
-		goto callback_stack_update;
-	endif
 	
 	if( ${?debug_set} ) \
 		unset debug;
 	
-	unset dependency dependencies dependencies_index;
+	unset dependencies dependencies_index;
 	
 	set callback="parse_argv_init";
 	goto callback_handler;
-#set callback="dependencies_check_complete";
+#set callback="dependencies_check";
 #goto callback_handler;
 
 
@@ -699,7 +664,7 @@ if_sourced:
 	if( ${?0} ) then
 		set callback="main";
 	else if( ${?supports_being_sourced} ) then
-		set callback="sourcing_main";
+		set callback="sourced";
 	else
 		@ errno=-502;
 		goto exception_handler;
@@ -743,22 +708,8 @@ if_sourced:
 #goto callback_handler;
 
 
-sourcing_main:
-	set label_current="sourcing_main";
-	if(! ${?label_previous} ) then
-		goto callback_stack_update;
-	else if("${label_current}" != "${label_previous}") then
-		goto callback_stack_update;
-	endif
-	
-	set callback="sourcing_exec";
-	goto callback_handler;
-#set callback="sourcing_main";
-#goto callback_handler;
-
-
-sourcing_exec:
-	set label_current="sourcing_exec";
+sourced:
+	set label_current="sourced";
 	if(! ${?label_previous} ) then
 		goto callback_stack_update;
 	else if("${label_current}" != "${label_previous}") then
@@ -766,29 +717,21 @@ sourcing_exec:
 	endif
 	
 	# START: special handler for when this file is sourced.
+	if(! ${?TCSH_RC_SESSION_PATH} ) then
+		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
+	
 	if( ${?debug} ) \
 		printf "Setting up aliases so [%s]; executes: <file://%s>.\n" "${scripts_alias}" "${script}";
 	
 	alias "${scripts_alias}" "${script}";
-	# FINISH: special handler for when this file is sourced.
 	
-	set callback="sourcing_quit";
-	goto callback_handler;
-#set callback="sourcing_exec";
-#goto callback_handler;
-
-
-sourcing_quit:
-	set label_current="sourcing_quit";
-	if(! ${?label_previous} ) then
-		goto callback_stack_update;
-	else if("${label_current}" != "${label_previous}") then
-		goto callback_stack_update;
-	endif
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
+	# FINISH: special handler for when this file is sourced.
 	
 	set callback="scripts_main_quit";
 	goto callback_handler;
-#set callback="sourcing_quit";
+#set callback="sourced";
 #goto callback_handler;
 
 
@@ -1274,8 +1217,11 @@ exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-999;
 	
-	if( $errno < -400 && ${?strict} ) then
-		if( ${?exit_on_exception} ) \
+	if( $errno <= -500 ) then
+		if(! ${?exit_on_exception} ) \
+			set exit_on_exception;
+	else if( $errno < -400 && ${?strict} ) then
+		if(! ${?exit_on_exception} ) \
 			set exit_on_exception;
 	else if( $errno > -400 && $errno < -100 ) then
 		if( ${?exit_on_exception} ) then
@@ -1329,7 +1275,8 @@ exception_handler:
 			breaksw;
 		
 		case -501:
-			printf "One or more of [%s] dependencies couldn't be found.\n\t%s requires: [%s] and [%s] couldn't be found." "${scripts_basename}" "${dependencies}" "${scripts_basename}" "${dependency}" > ${stderr};
+			printf "<%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s]." "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
+			unset suffix dependency dependencies dependencies_index;
 			breaksw;
 		
 		case -502:
@@ -1446,14 +1393,11 @@ parse_argv:
 	endif
 	
 	while( $arg < $argc )
-		if(! ${?arg_shifted} ) then
+		if( ! ${?arg_shifted}  || ${?value_used} ) \
 			@ arg++;
-		else
-			if( ${?value_used} ) \
-				@ arg++;
-			unset arg_shifted;
-		endif
 		
+		if( ${?arg_shifted} ) \
+			unset arg_shifted;
 		if( ${?value_used} ) \
 			unset value_used;
 		

@@ -44,7 +44,7 @@ setup:
 	set scripts_basename="tcsh-script.template.raw.tcsh";
 	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	
-	goto init;
+	goto debug_check;
 #goto setup;
 
 
@@ -55,7 +55,7 @@ debug_check:
 	while( $arg < $argc )
 		@ arg++;
 		
-		set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+		set tmp_file="`mktemp --tmpdir -u "\"".escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
 		printf "%s" "$argv[${arg}]" >! "${tmp_file}";
 		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
 		set escaped_argument="`cat "\""${tmp_file}"\""`";
@@ -75,92 +75,67 @@ debug_check:
 		switch("${option}")
 			case "nodeps":
 				if( ${?nodeps} ) \
-					breaksw;
+					continue;
+				
 				set nodeps;
 				breaksw;
 			
 			case "diagnosis":
 			case "diagnostic-mode":
-				if( ${?diagnosis} ) \
+				if( ${?diagnosis} && ${?debug} ) \
 					continue;
 				
-				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode:\t[enabled].\n\n" "${scripts_basename}" ${arg} > ${stdout};
 				set diagnosis;
 				if(! ${?debug} ) \
 					set debug;
 				breaksw;
 			
 			case "debug":
-				switch("${value}")
-					case "logged":
-						if( ${?debug_logged} ) \
-							continue;
-						set debug_logged;
-						breaksw;
-					
-					case "dependencies":
-						if( ${?debug_dependencies} ) \
-							continue;
-						set debug_dependencies;
-						breaksw;
-					
-					case "arguments":
-						if( ${?debug_arguments} ) \
-							continue;
-						set debug_arguments;
-						breaksw;
-					
-					case "stdin":
-						if( ${?debug_stdin} ) \
-							continue;
-						set debug_stdin;
-						breaksw;
-					
-					case "filenames":
-						if( ${?debug_filenames} ) \
-							continue;
-						set debug_filenames;
-						breaksw;
-					
-					default:
-						if( ${?debug} ) \
-							continue;
-						set debug;
-						breaksw;
-				endsw
+				if( ${?debug} ) \
+					continue;
+				
+				set debug;
+				breaksw;
+			
 			default:
 				continue;
+				breaksw;
+			endsw
 		endsw
 		
-		printf "**%s notice:**, via "\$"argv[%d], %s mode" "${scripts_basename}" ${arg} "${option}" > ${stdout};
-		if( "${value}" != "" ) \
-			printf " %s" "${value}" > ${stdout};
-		
-		if( "${option}" == "debug" ) \
-			printf " debugging" > ${stdout};
-		
-		printf ":\t[enabled].\n\n" > ${stdout};
+		printf "**%s notice:** "\$"argv[%d] enabled:\t[%s mode]\n" "${scripts_basename}" ${arg} "${option}" > ${stdout};
 	end
 	
-	set callback="dependencies_check";
-	goto callback_handler;
-#set callback="debug_check";
+	goto dependencies_check;
+#goto debug_check;
 
 
-init:
+dependencies_check:
 	set dependencies=("${scripts_basename}" "find" "sed" "ex");# "${scripts_alias}");
 	@ dependencies_index=0;
 	
-dependencies_check:
 	while( $dependencies_index < ${#dependencies} )
 		@ dependencies_index++;
 		
 		if( ${?nodeps} && $dependencies_index > 1 ) \
-			goto finalize;
+			break;
 		
 		set dependency=$dependencies[$dependencies_index];
+		
+		set which_dependency=`printf "%d" "${dependencies_index}" | sed -r 's/^[0-9]*[^1]?([0-9])$/\1/'`;
+		if( $which_dependency == 1 ) then
+			set suffix="st";
+		else if( $which_dependency == 2 ) then
+			set suffix="nd";
+		else if( $which_dependency == 3 ) then
+			set suffix="rd";
+		else
+			set suffix="th";
+		endif
+		unset which_dependency;
+		
 		if( ${?debug} ) \
-			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}" > ${stdout};
+			printf "\n**dependencies:** looking for <%s>'s %d%s dependency: %s.\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" > ${stdout};
 			
 		foreach program("`where "\""${dependency}"\""`")
 			if( -x "${program}" ) \
@@ -169,14 +144,13 @@ dependencies_check:
 		end
 		
 		if(! ${?program} ) then
-			printf "One or more of [%s] dependencies couldn't be found.\n\t%s requires: [%s] and [%s] couldn't be found." "${scripts_basename}" "${dependencies}" "${scripts_basename}" "${dependency}" > ${stderr};
+			printf "**dependencies:** <%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s]." "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
+			unset suffix dependency dependencies dependencies_index;
 			goto exit_script;
 		endif
 		
-		if( ${?debug} ) then
-			printf "**%s debug:** dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" "${dependency}" "${program}" > ${stdout};
-			unset suffix;
-		endif
+		if( ${?debug} ) \
+			printf "**dependencies:** <%s>'s %d%s dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${program}" > ${stdout};
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
@@ -185,11 +159,11 @@ dependencies_check:
 				
 				set old_owd="${cwd}";
 				cd "`dirname "\""${program}"\""`";
-				set scripts_dirname="${cwd}";
+				set scripts_path="${cwd}";
 				cd "${owd}";
 				set owd="${old_owd}";
 				unset old_owd;
-				set script="${scripts_dirname}/${scripts_basename}";
+				set script="${scripts_path}/${scripts_basename}";
 				breaksw;
 			
 			default:
@@ -198,20 +172,16 @@ dependencies_check:
 				set execs=(${execs} "${program}");
 				breaksw;
 		endsw
-		unset program;
+		unset program dependency;
 	end
-#goto dependencies_check;
-	goto finalize;
-#goto init:
-
-finalize:
+	
 	if( ${?debug_set} ) \
 		unset debug;
 	
-	unset dependency dependencies dependencies_index;
+	unset dependencies dependencies_index;
 	
-	goto main;
-#goto finalize;
+	goto parse_argv;
+#goto dependencies_check;
 
 
 exit_script:
@@ -264,12 +234,17 @@ main:
 
 sourced:
 	# START: special handler for when this file is sourced.
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
+	
 	if( ${?debug} ) \
 		printf "Setting up [%s]'s aliases so [%s]; executes: <file://%s>.\n" "${scripts_alias}" "${script}";
 	
 	alias "${scripts_alias}" "${script}";
-	# FINISH: special handler for when this file is sourced.
 	
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
+	# FINISH: special handler for when this file is sourced.
 	goto scripts_main_quit;
 #goto sourced;
 
@@ -287,7 +262,7 @@ parse_argv_init:
 
 
 parse_arg:
-	set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+	set tmp_file="`mktemp --tmpdir -u "\"".escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
 	printf "%s" "$argv[${arg}]" >! "${tmp_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
 	set escaped_argument="`cat "\""${tmp_file}"\""`";
@@ -308,114 +283,117 @@ parse_arg:
 		set equals="";
 	
 	set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
-	if(! ${?callback} ) \
-		goto check_arg;
-	goto $callback;
+	
+	if( ${?debug} ) \
+		printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
+	
+	if(!( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
+		@ arg++;
+		if( ${arg} > ${argc} ) then
+			@ arg--;
+		else
+			if( ${?debug} ) \
+				printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]" > ${stdout};
+			
+			set tmp_file="`mktemp --tmpdir -u "\"".escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+			printf "%s" "$argv[${arg}]" >! "${tmp_file}";
+			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
+			set escaped_test_argument="`cat "\""${tmp_file}"\""`";
+			rm -f "${tmp_file}";
+			unset tmp_file;
+			set test_argument="`printf "\""%s"\"" "\""${escaped_test_argument}"\""`";
+			
+			set test_dashes="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
+			if( "${test_dashes}" == "${test_argument}" ) \
+				set test_dashes="";
+			
+			set test_option="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
+			if( "${test_option}" == "${test_argument}" ) \
+				set test_option="";
+			
+			set test_equals="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\3/'`";
+			if( "${test_equals}" == "${test_argument}" ) \
+				set test_equals="";
+			
+			set test_value="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
+			
+			if( ${?debug} ) \
+				printf "\n\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}" > ${stdout};
+			if(!( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" )) then
+				@ arg--;
+			else
+				set equals=" ";
+				set value="${test_value}";
+				set escaped_value="${escaped_test_argument}";
+				set arg_shifted;
+			endif
+			unset escaped_test_argument test_argument test_dashes test_option test_equals test_value;
+		endif
+	endif
+	
+	if( "${value}" != "" && ! ${?escaped_value} ) then
+		set tmp_file="`mktemp --tmpdir -u "\"".escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+		printf "%s" "${value}" >! "${tmp_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
+		set escaped_value="`cat "\""${tmp_file}"\""`";
+		rm -f "${tmp_file}";
+		unset tmp_file;
+	endif
+	
+	if( "${option}" == "${value}" ) \
+		set option="";
+	
+	if( ${?debug} ) \
+		printf "\t**debug:** parsed "\$"argv[%d]: %s%s%s%s\n" $arg "${dashes}" "${option}" "${equals}" "${value}";
+	
+	goto check_arg;
 #goto parse_arg;
 
 
 parse_argv:
 	while ( $arg < $argc )
-		if(! ${?arg_shifted} ) \
+		if(! ${?arg_shifted} ) then
 			@ arg++;
+		else
+			unset arg_shifted;
+		endif
 		
 		if( ${?debug} ) \
 			printf "\t**debug:** parsing "\$"argv[%d] (%s).\n" $arg "$argv[$arg]";
 		
-		if(!( ${argument} && ${?dashes} && ${?option} && ${?equals} && ${?value} )) then
-			set callback="check_arg";
-			goto parse_arg;
-		endif
+		goto parse_arg;
+	end
+	goto parse_argv_quit;
+#goto parse_argv;
 		
 check_arg:
-		if( ${?debug} ) \
-			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
+	switch ( "${option}" )
+		case "h":
+		case "help":
+			goto usage;
+			breaksw;
 		
-		if(!( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
-			@ arg++;
-			if( ${arg} > ${argc} ) then
-				@ arg--;
-			else
-				if( ${?debug} ) \
-					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]" > ${stdout};
-				
-				set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
-				printf "%s" "$argv[${arg}]" >! "${tmp_file}";
-				ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
-				set escaped_test_argument="`cat "\""${tmp_file}"\""`";
-				rm -f "${tmp_file}";
-				unset tmp_file;
-				set test_argument="`printf "\""%s"\"" "\""${escaped_test_argument}"\""`";
-				
-				set test_dashes="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
-				if( "${test_dashes}" == "${test_argument}" ) \
-					set test_dashes="";
-				
-				set test_option="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
-				if( "${test_option}" == "${test_argument}" ) \
-					set test_option="";
-				
-				set test_equals="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\3/'`";
-				if( "${test_equals}" == "${test_argument}" ) \
-					set test_equals="";
-				
-				set test_value="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
-				
-				if( ${?debug} ) \
-					printf "\n\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}" > ${stdout};
-				if(!( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" )) then
-					@ arg--;
-				else
-					set equals=" ";
-					set value="${test_value}";
-					set arg_shifted;
-				endif
-				unset escaped_test_argument test_argument test_dashes test_option test_equals test_value;
-			endif
-		endif
+		case "diagnosis":
+		case "diagnostic-mode":
+			printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
+			set diagnostic_mode;
+			set debug;
+			breaksw;
 		
-		if( "${value}" != "" ) then
-			set tmp_file="`mktemp --tmpdir -u "\""escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
-			printf "%s" "${value}" >! "${tmp_file}";
-			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
-			set escaped_value="`cat "\""${tmp_file}"\""`";
-			rm -f "${tmp_file}";
-			unset tmp_file;
-			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-		endif
+		case "debug":
+			printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${scripts_basename}" $arg;
+			set debug;
+			breaksw;
 		
-		if( "${option}" == "${value}" ) \
-			set option="";
+		case "":
+			breaksw;
 		
-		if( ${?debug} ) \
-			printf "\t**debug:** parsed "\$"argv[%d]: %s%s%s%s\n" $arg "${dashes}" "${option}" "${equals}" "${value}";
-		
-		switch ( "${option}" )
-			case "h":
-			case "help":
-				goto usage;
-				breaksw;
-			
-			case "diagnosis":
-			case "diagnostic-mode":
-				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
-				set diagnostic_mode;
-				set debug;
-				breaksw;
-			
-			case "debug":
-				printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${scripts_basename}" $arg;
-				set debug;
-				breaksw;
-			
-			case "":
-				breaksw;
-			
-			default:
-				breaksw;
-		endsw
-	end
-#goto parse_arg;
+		default:
+			breaksw;
+	endsw
+	unset argument dashes option equals value escaped_value;
+	goto parse_argv;
+#goto check_arg;
 
 
 parse_argv_quit:

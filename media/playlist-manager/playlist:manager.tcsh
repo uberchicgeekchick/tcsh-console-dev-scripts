@@ -63,16 +63,16 @@ check_dependencies:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?scripts_dirname} ) \
+				if( ${?script} ) \
 					breaksw;
 				
 				set old_owd="${cwd}";
 				cd "`dirname '${program}'`";
-				set scripts_dirname="${cwd}";
+				set scripts_path="${cwd}";
 				cd "${owd}";
 				set owd="${old_owd}";
 				unset old_owd;
-				set script="${scripts_dirname}/${scripts_basename}";
+				set script="${scripts_path}/${scripts_basename}";
 				breaksw;
 			
 			default:
@@ -424,6 +424,12 @@ exit_script:
 	
 	if( ${?scripts_basename} ) \
 		unset scripts_basename;
+	if( ${?scripts_alias} ) \
+		unset scripts_alias;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
+	if( ${?script} ) \
+		unset script;
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) \
 			rm -rf "${scripts_tmpdir}";

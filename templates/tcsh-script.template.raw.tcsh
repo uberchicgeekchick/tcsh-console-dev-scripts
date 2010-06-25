@@ -13,9 +13,6 @@ setup:
 		set stderr=/dev/stdout;
 	endif
 	
-	set starting_owd="${owd}";
-	set starting_cwd="${cwd}";
-	
 	if( "`alias cwdcmd`" != "" ) then
 		set original_cwdcmd="`alias cwdcmd`";
 		unalias cwdcmd;
@@ -31,6 +28,9 @@ setup:
 		unalias grep;
 	endif
 	
+	set starting_owd="${owd}";
+	set starting_cwd="${cwd}";
+	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
 	#alias ${download_command} "${download_command_with_options}";
@@ -44,69 +44,80 @@ setup:
 	set scripts_basename="tcsh-script.template.raw.tcsh";
 	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	
-	goto debug_check;
+	goto debug_check_init;
 #goto setup;
 
 
-debug_check:
-	@ arg=0;
+debug_check_init:
+	if( ${#argv} == 0 ) \
+		goto usage;
+	
 	@ argc=${#argv};
+	@ arg=0;
+	if( ${?debug} ) \
+		printf "**debug:** parsing "\$"argv's %d options.\n" "${scripts_basename}" "${argc}";
 	
-	while( $arg < $argc )
-		@ arg++;
-		
-		set tmp_file="`mktemp --tmpdir -u "\"".escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
-		printf "%s" "$argv[${arg}]" >! "${tmp_file}";
-		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
-		set escaped_argument="`cat "\""${tmp_file}"\""`";
-		rm -f "${tmp_file}";
-		unset tmp_file;
-		set argument="`printf "\""%s"\"" "\""${escaped_argument}"\""`";
-		
-		set option="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
-		if( "${option}" == "${argument}" ) \
-			set option="";
-		
-		set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
-		
-		if( ${?debug} || ${?debug_arguments} ) \
-			printf "**%s debug_check:**"\$"option: [${option}]; "\$"value: [${value}].\n" "${scripts_basename}" > ${stdout};
-		
-		switch("${option}")
-			case "nodeps":
-				if( ${?nodeps} ) \
-					continue;
-				
-				set nodeps;
-				breaksw;
-			
-			case "diagnosis":
-			case "diagnostic-mode":
-				if( ${?diagnosis} && ${?debug} ) \
-					continue;
-				
-				set diagnosis;
-				if(! ${?debug} ) \
-					set debug;
-				breaksw;
-			
-			case "debug":
-				if( ${?debug} ) \
-					continue;
-				
-				set debug;
-				breaksw;
-			
-			default:
+	set arg_handler="check_argv";
+	set arg_parse_complete="debug_check_quit";
+	
+	goto parse_argv;
+#goto debug_check_init;
+
+
+debug_check_quit:
+	if( ${?arg_handler} ) \
+		unset arg_handler;
+	if( ${?arg_parse_complete} ) \
+		unset arg_parse_complete;
+	
+	if( ${?debug_set} ) \
+		unset debug debug_set;
+	
+	if( ${?arg} ) then
+		if( $arg >= $argc ) \
+			set argv_parsed;
+		unset arg;
+	endif
+	
+	goto main;
+#goto debug_check_quit;
+
+
+debug_check:
+	switch("${option}")
+		case "nodeps":
+			if( ${?nodeps} ) \
 				continue;
-				breaksw;
-			endsw
-		endsw
 		
-		printf "**%s notice:** "\$"argv[%d] enabled:\t[%s mode]\n" "${scripts_basename}" ${arg} "${option}" > ${stdout};
-	end
+			set nodeps;
+			breaksw;
+		
+		case "diagnosis":
+		case "diagnostic-mode":
+			if( ${?diagnosis} && ${?debug} ) \
+				continue;
+			
+			set diagnosis;
+			if(! ${?debug} ) \
+				set debug;
+			breaksw;
+		
+		case "debug":
+			if( ${?debug} ) \
+				continue;
+			
+			set debug;
+			breaksw;
+		
+		default:
+			continue;
+			breaksw;
+		endsw
+	endsw
 	
-	goto dependencies_check;
+	printf "**%s notice:**, via "\$"argv[%d], %s:\t[enabled]\n" "${scripts_basename}" $arg "${option}" > ${stdout};
+	
+	goto parse_argv;
 #goto debug_check;
 
 
@@ -248,6 +259,7 @@ sourced:
 	goto scripts_main_quit;
 #goto sourced;
 
+
 parse_argv_init:
 	if( ${#argv} == 0 ) \
 		goto usage;
@@ -257,8 +269,42 @@ parse_argv_init:
 	if( ${?debug} ) \
 		printf "**debug:** parsing "\$"argv's %d options.\n" "${scripts_basename}" "${argc}";
 	
+	set arg_handler="check_argv";
+	set arg_parse_complete="parse_argv_quit";
+	
 	goto parse_argv;
 #goto parse_argv_init;
+
+
+parse_argv_quit:
+	if( ${?debug_set} ) \
+		unset debug debug_set;
+	
+	if( ${?arg} ) then
+		if( $arg >= $argc ) \
+			set argv_parsed;
+		unset arg;
+	endif
+	
+	goto main;
+#goto parse_argv_quit;
+
+
+parse_argv:
+	while ( $arg < $argc )
+		if(! ${?arg_shifted} ) then
+			@ arg++;
+		else
+			unset arg_shifted;
+		endif
+		
+		if( ${?debug} ) \
+			printf "\t**debug:** parsing "\$"argv[%d] (%s).\n" $arg "$argv[$arg]";
+		
+		goto parse_arg;
+	end
+	goto $arg_parse_complete;
+#goto parse_argv;
 
 
 parse_arg:
@@ -346,26 +392,10 @@ parse_arg:
 	if( ${?debug} ) \
 		printf "\t**debug:** parsed "\$"argv[%d]: %s%s%s%s\n" $arg "${dashes}" "${option}" "${equals}" "${value}";
 	
-	goto check_arg;
+	goto $arg_handler;
 #goto parse_arg;
 
 
-parse_argv:
-	while ( $arg < $argc )
-		if(! ${?arg_shifted} ) then
-			@ arg++;
-		else
-			unset arg_shifted;
-		endif
-		
-		if( ${?debug} ) \
-			printf "\t**debug:** parsing "\$"argv[%d] (%s).\n" $arg "$argv[$arg]";
-		
-		goto parse_arg;
-	end
-	goto parse_argv_quit;
-#goto parse_argv;
-		
 check_arg:
 	switch ( "${option}" )
 		case "h":
@@ -394,19 +424,5 @@ check_arg:
 	unset argument dashes option equals value escaped_value;
 	goto parse_argv;
 #goto check_arg;
-
-
-parse_argv_quit:
-	if( ${?debug_set} ) \
-		unset debug debug_set;
-	
-	if( ${?arg} ) then
-		if( $arg >= $argc ) \
-			set argv_parsed;
-		unset arg;
-	endif
-	
-	goto main;
-#goto parse_argv_quit;
 
 

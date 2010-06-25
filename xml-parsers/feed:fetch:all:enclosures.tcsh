@@ -507,18 +507,19 @@ fetch_episode:
 	endif
 	
 	if( ${?save_script} ) then
-		printf 'Saving %s; episode: <%s> download to: <file://%s>\n' "${title}" "${episodes_title}" "${save_script}";
+		printf "Saving %s; episode: <%s> download command to:\n\t<file://%s>\n" "${title}" "${episodes_title}" "${save_script}";
 		printf '%s %s %s\n' "${download_command_with_options}" "./${episodes_filename}" "${episode}" >> "${save_script}";
 		unset episodes_filename;
 		goto fetch_episodes;
 	endif
 	
 	if( ${?downloading} ) then
+		printf "\t\tSaving %s; episode: <%s> to:\n\t\t\t<file://%s/%s>\n" "${title}" "${episodes_title}" "${cwd}" "${episodes_filename}";
 		${download_command_with_options} "./${episodes_filename}" "${episode}";
 		
 		if(! -e "./${episodes_filename}" ) then
 			if(! ${?silent} ) \
-				printf "\t\t\t[*epic fail* :(]";
+				printf "\t\t\t[*pout* :(]";
 			if( ${?logging} ) \
 				printf "\t\t\t[*pout* :(]" >> "${download_log}";
 		else

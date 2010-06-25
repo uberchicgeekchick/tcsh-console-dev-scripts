@@ -65,16 +65,16 @@ check_dependencies:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?scripts_dirname} ) \
+				if( ${?script} ) \
 					breaksw;
 				
 				set old_owd="${cwd}";
 				cd "`dirname '${program}'`";
-				set scripts_dirname="${cwd}";
+				set scripts_path="${cwd}";
 				cd "${owd}";
 				set owd="${old_owd}";
 				unset old_owd;
-				set script="${scripts_dirname}/${scripts_basename}";
+				set script="${scripts_path}/${scripts_basename}";
 				breaksw;
 			
 			default:
@@ -142,8 +142,12 @@ main:
 
 
 setup_playlist_new:
-	if( ${?append} ) \
-		playlist:new:create.tcsh "$playlists[1]";
+	if( ${?append} ) then
+		foreach playlist( $playlists )
+			playlist:new:create.tcsh "$playlist";
+			unset playlist;
+		end
+	endif
 #setup_playlist_new:
 
 
@@ -221,13 +225,47 @@ find_missing_media:
 				continue;
 			
 			if( ${?append} ) then
-				if(! ${?new_file_count} ) then
-					printf "\n\t**%s notice:** The following fills will be added to\n\t\t<file://%s>\n\n" "${scripts_basename}" "$playlists[1]";
-					@ new_file_count=1;
+				if( ${#playlists} == 1 ) then
+					if(! ${?new_file_count} ) then
+						printf "\n\t**%s notice:** The following fills will be added to\n\t\t<file://%s>\n\n" "${scripts_basename}" "$playlists[1]";
+						@ new_file_count=1;
+					else
+						@ new_file_count++;
+					endif
+					printf "%s\n" "${this_podcast}" >> "$playlists[1].new";
 				else
-					@ new_file_count++;
+					set prompt_for_playlist;
+					while( ${?prompt_for_playlist} )
+						printf "\n\tWhich playlist would you like <file://%s> added to:\n" "${this_podcast}";
+						@ playlist_index=0;
+						while( $playlist_index < ${#playlists} )
+							@ playlist_index++;
+							printf "\t\t%d] %s\n" $playlist_index "$playlists[$playlist_index]";
+						end
+						printf "\tPlease select which playlist to append to [1-%d] or (c) to cancel: " $playlist_index;
+						set which_playlist="$<";
+						printf "\n";
+						if( `printf "%s" "${which_playlist}" | sed -r 's/^(c)$/\l\1/i'` == "c" ) then
+							printf "\n\t<file://%s> will not be appended to any playlist.\n" "${this_podcast}";
+							unset prompt_for_playlist;
+						else if( `printf "%s" "${which_playlist}" | sed -r 's/^[0-9]+$//'` != "" ) then
+							printf "\n\t%s is an invalid playlist selection.  Please select again?\n" "${which_playlist}";
+						else if( $which_playlist < 1 || $which_playlist > $playlist_index ) then
+							printf "\n\t%s is an invalid playlist selection.  Please select again?\n" "${which_playlist}";
+						else
+							if(! ${?new_file_count} ) then
+								@ new_file_count=1;
+							else
+								@ new_file_count++;
+							endif
+							printf "\n\tAdding <file//%s> to <file://%s>\n" "${this_podcast}" "$playlists[$which_playlist]";
+							printf "%s\n" "${this_podcast}" >> "$playlists[$which_playlist].new";
+							unset prompt_for_playlist;
+						endif
+						unset which_playlist;
+					end
 				endif
-				printf "%s\n" "${this_podcast}" >> "$playlists[1].new";
+				unset playlist_index;
 			endif
 			printf "%s\n" "${this_podcast}";
 			
@@ -361,7 +399,12 @@ find_missing_media:
 	
 	if( ${?append} ) then
 		if( ${?new_file_count} ) then
-			playlist:new:save.tcsh --force "$playlists[1]";
+			if( ${?append} ) then
+				foreach playlist( $playlists )
+					playlist:new:save.tcsh "$playlist";
+					unset playlist;
+				end
+			endif
 			unset new_file_count;
 		endif
 		unset append;
@@ -397,17 +440,20 @@ scripts_main_quit:
 		unset podcast_dir;
 	if( ${?podcast} ) \
 		unset podcast;
-	if( ${?playlist} ) then
+	if( ${?playlists} ) then
 		if( ${?append} ) then
+			foreach playlist( $playlists )
+				if( -e "${playlist}.new" ) \
+					rm "${playlist}.new";
+				if( -e "${playlist}.swp" ) \
+					rm "${playlist}.swp";
+				unset playlist;
+			end
 			if( ${?new_file_count} ) \
 				unset new_file_count;
-			if( -e "${playlist}.new" ) \
-				rm "${playlist}.new";
-			if( -e "${playlist}.swp" ) \
-				rm "${playlist}.swp";
 			unset append;
 		endif
-		unset playlist;
+		unset playlists;
 	endif
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) \
@@ -424,6 +470,12 @@ scripts_main_quit:
 
 
 exit_script:
+	if( ${?scripts_basname} ) \
+		unset scripts_basname;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
+	if( ${?script} ) \
+		unset script;
 	if( ! ${?0} && ${?supports_being_sourced} ) then
 		@ errno=-501;
 		goto exception_handler;

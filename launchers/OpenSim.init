@@ -12,7 +12,8 @@ foreach dependency(${dependencies})
 		switch("${dependency}")
 			case "${scripts_basename}":
 				cd "`dirname '${dependency}'`";
-				set scripts_dirname="${cwd}";
+				set scripts_path="${cwd}";
+				set script="${scripts_path}/${dependency}";
 				cd "${owd}";
 				breaksw;
 			
@@ -37,7 +38,7 @@ scripts_sourcing_init:
 		setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
 	
 	if(! ${?TCSH_RC_SESSION_PATH} ) \
-		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 	
@@ -55,6 +56,8 @@ main:
 #main:
 
 exit_script:
+	if( ${?script} ) \
+		unset script;
 	if( ${?scripts_basename} ) \
 		unset scripts_basename;
 	if( ${?dependency} ) \
@@ -63,8 +66,8 @@ exit_script:
 		unset program;
 	if( ${?dependencies} ) \
 		unset dependencies;
-	if( ${?scripts_dirname} ) \
-		unset scripts_dirname;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
 	if( ${?scripts_working_dir} ) \
 		unset scripts_working_dir;
 	exit ${status};

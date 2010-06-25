@@ -173,16 +173,16 @@ check_dependencies:
 			switch("${exec}")
 				case "./${scripts_basename}":
 				case "${TCSH_LAUNCHER_PATH}/${scripts_basename}":
-					if( ${?scripts_dirname} ) \
+					if( ${?script} ) \
 						breaksw;
 						
 					set old_owd="${cwd}";
 					cd "`dirname '${exec}'`";
-					set scripts_dirname="${cwd}";
+					set scripts_path="${cwd}";
 					cd "${owd}";
 					set owd="${old_owd}";
 					unset old_owd;
-					set script="${scripts_dirname}/${scripts_basename}";
+					set script="${scripts_path}/${scripts_basename}";
 					unset exec;
 					breaksw;
 				

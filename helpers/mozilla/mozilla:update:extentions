@@ -74,17 +74,17 @@ check_dependencies:
 			if(! -x "${dependency}" ) \
 				continue;
 			
-			if(! ${?scripts_dirname} ) then
+			if(! ${?script} ) then
 				if("`basename '${dependency}'`" == "${scripts_basename}" ) then
 					set old_owd="${cwd}";
 					cd "`dirname '${dependency}'`";
-					set scripts_dirname="${cwd}";
+					set scripts_path="${cwd}";
 					cd "${owd}";
 					set owd="${old_owd}";
 					unset old_owd;
-					set script="${scripts_dirname}/${scripts_basename}";
+					set script="${scripts_path}/${scripts_basename}";
 					if(! ${?TCSH_RC_SESSION_PATH} ) \
-						setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+						setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
 					
 					if(! ${?TCSH_LAUNCHER_PATH} ) \
 						setenv TCSH_LAUNCHER_PATH \$"{TCSH_RC_SESSION_PATH}/../launchers";
@@ -297,8 +297,8 @@ scripts_main_quit:
 		unset scripts_alias;
 	if( ${?scripts_basename} ) \
 		unset scripts_basename;
-	if( ${?scripts_dirname} ) \
-		unset scripts_dirname;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
 	
 	if( ${?debug} ) \
 		unset debug;

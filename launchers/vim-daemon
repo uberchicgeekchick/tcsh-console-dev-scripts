@@ -1,0 +1,30 @@
+#!/bin/tcsh
+setup:
+	set scripts_basename="vim-daemon";
+	
+	goto debug_check;
+#goto setup;
+
+debug_check:
+	if( $#argv < 1 ) \
+		goto dependencies_check;
+	@ argc=$#argv;
+	@ i=0;
+	while( $i < $argc && ! ${?debug} )
+		@ i++;
+		set option=`echo $argv[$i] | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)$/\2/'`;
+		if( "${option}" == "$argv[$arg]" ) \
+			set option="";
+		set value=`echo $argv[$i] | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)$/\2/'`;
+		switch( "${option}" )
+			case "debug":
+				breaksw;
+			
+			default:
+				continue;
+		endsw
+		printf "**%s notice:** "\$"argv[%d] enabled:\t[%s mode]\n" "${scripts_basename}" ${arg} "${option}" > ${stdout};
+		set debug;
+		break;
+	end
+	goto dependencies_check;

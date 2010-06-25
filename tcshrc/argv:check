@@ -59,7 +59,7 @@ parse_argv:
 						breaksw;
 				endif
 				
-				printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date '+%I:%M:%S%P'` > ${stdout};
+				printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date '+%I:%M:%S%P'`;
 				setenv TCSH_RC_DEBUG "$argv[1]";
 				break;
 			breaksw;
@@ -73,10 +73,10 @@ parse_argv:
 		@ arg=0;
 	
 	if( ${?TCSH_RC_DEBUG} ) then
-		printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}" > ${stdout};
+		printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
 	else if( "`alias cwdcmd`" != "" ) then
 		if( ${?TCSH_RC_DEBUG} ) \
-			printf "Saving cwdcmd until TCSH finishes loading.\n" > ${stdout};
+			printf "Saving cwdcmd until TCSH finishes loading.\n";
 		setenv oldcwdcmd "`alias cwdcmd`";
 		unalias cwdcmd;
 	endif
@@ -84,7 +84,7 @@ parse_argv:
 	while( $arg < $argc )
 		@ arg++;
 		if( ${?TCSH_RC_DEBUG} ) \
-			printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]" > ${stdout};
+			printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]";
 		
 		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
 		if( "${dashes}" == "$argv[$arg]" ) \
@@ -115,7 +115,7 @@ parse_argv:
 					if( $arg <= $argc ) then
 						if(!( "$argv[$arg]" != "" && -d "$argv[$arg]" )) then
 							if( ${?TCSH_OUTPUT_ENABLED} ) then
-								printf "Using [%s] as TCSH's working directory.\t[failed]\n\tNo valid directory was specified with %s.\n<file://%s> will be used instead.\n" "${value}" "${option}" "${HOME}" > ${stderr};
+								printf "Using [%s] as TCSH's working directory.\t[failed]\n\tNo valid directory was specified with %s.\n<file://%s> will be used instead.\n" "${value}" "${option}" "${HOME}";
 							endif
 							set value="${HOME}";
 						else
@@ -128,9 +128,9 @@ parse_argv:
 				setenv TCSH_WORKING_DIR "`printf "\""%s"\"" "\""$value"\"" | sed -r 's/\/"\$"//'`";
 				
 				if( ${?TCSH_OUTPUT_ENABLED} ) \
-					printf "Using [%s] as TCSH's working directory.\t" "${TCSH_WORKING_DIR}" > ${stdout};
+					printf "Using [%s] as TCSH's working directory.\t" "${TCSH_WORKING_DIR}";
 				if( ${?TCSH_OUTPUT_ENABLED} ) \
-					printf "[success]\n" > ${stdout};
+					printf "[success]\n";
 				
 				if( ${?skip_cwd_test} ) \
 					breaksw;
@@ -146,7 +146,7 @@ parse_argv:
 set_source_file:
 	setenv TCSH_RC_CURRENT_SOURCE_FILE "$argv[1]";
 	if( ${?TCSH_RC_DEBUG} ) \
-		printf "Started loading %s @ %s.\n\n" "$argv[1]" `date '+%I:%M:%S%P'` > ${stdout};
+		printf "Started loading %s @ %s.\n\n" "$argv[1]" `date '+%I:%M:%S%P'`;
 	goto exit_script;
 #goto set_source_file;
 
@@ -172,7 +172,7 @@ exit_script:
 #goto exit_script;
 
 usage:
-	printf "argv:check [source_file] (--debug) (--cd /tcsh/working/directory)\n" > ${stderr};
+	printf "argv:check [source_file] (--debug) (--cd /tcsh/working/directory)\n";
 	@ errno=-1;
 	goto exit_script;
 #goto usage;

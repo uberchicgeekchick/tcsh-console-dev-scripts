@@ -37,7 +37,11 @@ playlist_init:
 			breaksw;
 	endsw
 	
+	if( -e "${playlist}.new" ) \
+		rm -f "${playlist}.new";
+	
 	touch "${playlist}.new";
+	
 	if(! -e "${playlist}" ) then
 		touch "${playlist}";
 		goto scripts_main_quit;

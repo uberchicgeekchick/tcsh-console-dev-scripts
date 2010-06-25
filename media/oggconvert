@@ -81,6 +81,68 @@ scripts_main_quit:
 		unset scripts_tmpdir;
 	endif
 	
+	if( ${?add_length} ) \
+		unset add_length;
+	if( ${?all_filenames} ) \
+		unset all_filenames;
+	if( ${?argc} ) \
+		unset argc;
+	if( ${?combine} ) \
+		unset combine;
+	if( ${?confirmation} ) \
+		unset confirmation;
+	if( ${?debug_arguments} ) \
+		unset debug_arguments;
+	if( ${?debug_dependencies} ) \
+		unset debug_dependencies;
+	if( ${?debug_encoding} ) \
+		unset debug_encoding;
+	if( ${?debug_filelist} ) \
+		unset debug_filelist;
+	if( ${?debug_length} ) \
+		unset debug_length;
+	if( ${?debug_logging} ) \
+		unset debug_logging;
+	if( ${?diagnostic_mode} ) \
+		unset diagnostic_mode;
+	if( ${?escaped_filename} ) \
+		unset escaped_filename;
+	if( ${?escaped_home_dir} ) \
+		unset escaped_home_dir;
+	if( ${?escaped_starting_cwd} ) \
+		unset escaped_starting_cwd;
+	if( ${?file_count} ) \
+		unset file_count;
+	if( ${?function} ) \
+		unset function;
+	if( ${?itsoffset} ) \
+		unset itsoffset;
+	if( ${?modifier} ) \
+		unset modifier;
+	if( ${?oggenc} ) \
+		unset oggenc;
+	if( ${?oggenc_output_file_options} ) \
+		unset oggenc_output_file_options;
+	if( ${?output} ) \
+		unset output;
+	if( ${?parsed_arg} ) \
+		unset parsed_arg;
+	if( ${?parsed_argc} ) \
+		unset parsed_argc;
+	if( ${?parsed_argv} ) \
+		unset parsed_argv;
+	if( ${?playlists_new_files} ) \
+		unset playlists_new_files;
+	if( ${?reverse_modifier} ) \
+		unset reverse_modifier;
+	if( ${?scripts_basename} ) \
+		unset scripts_basename;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
+	if( ${?supports_being_sourced} ) \
+		unset supports_being_sourced;
+	if( ${?usage_displayed} ) \
+		unset usage_displayed;
 	if( ${?nodeps} ) \
 		unset nodeps;
 	if(! ${?errno} ) \

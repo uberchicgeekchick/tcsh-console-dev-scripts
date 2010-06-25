@@ -479,8 +479,7 @@ debug_check:
 			case "diagnostic-mode":
 				if( ${?diagnosis} ) \
 					continue;
-				
-				printf "**%s debug:**, via "\$"argv[%d], diagnostic mode:\t[enabled].\n\n" "${scripts_basename}" ${arg} > ${stdout};
+			
 				set diagnosis;
 				if(! ${?debug} ) \
 					set debug;
@@ -521,37 +520,28 @@ debug_check:
 						breaksw;
 					
 					case "filenames":
-						if(! ${?supports_multiple_files} ) then
-							printf "**%s notice:** does not support handling or processing multiple files.\n" "${scripts_basename}" > ${stderr};
-							printf "**%s notice:**, via "\$"argv[%d], debugging %s:\t[unsupported].\n" "${scripts_basename}" ${arg} "${value}" > ${stderr};
-							continue;
-						endif
-						
 						if( ${?debug_filenames} ) \
 							continue;
-						
 						set debug_filenames;
 						breaksw;
 					
 					default:
 						if( ${?debug} ) \
 							continue;
-						
 						if( "${value}" != "" ) \
 							set value="";
-						
 						set debug;
 						breaksw;
 				endsw
+			
 			default:
 				continue;
 		endsw
 		
-		printf "**%s notice:**, via "\$"argv[%d], %s mode" "${scripts_basename}" ${arg} "${option}" > ${stdout};
+		printf "**%s notice:**, via "\$"argv[%d], " "$scripts_basename" $arg > ${stdout};
+		if( "${option}" != "debug" ) \
+			printf " %s" "${option}" > ${stdout};
 		if( "${value}" != "" ) \
-			printf " %s" "${value}" > ${stdout};
-		
-		if( "${option}" == "debug" ) \
 			printf " debugging" > ${stdout};
 		
 		printf ":\t[enabled].\n\n" > ${stdout};

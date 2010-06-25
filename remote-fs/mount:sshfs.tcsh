@@ -50,8 +50,8 @@ dependencies_check:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				#if( ${?script} ) \
-				#	breaksw;
+				if( ${?script} ) \
+					breaksw;
 				
 				set old_owd="${cwd}";
 				cd "`dirname "\""${program}"\""`";

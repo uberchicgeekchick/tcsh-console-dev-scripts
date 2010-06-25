@@ -193,16 +193,16 @@ check_dependencies:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?scripts_dirname} ) \
+				if( ${?script} ) \
 					breaksw;
 				
 				set old_owd="${cwd}";
 				cd "`dirname '${program}'`";
-				set scripts_dirname="${cwd}";
+				set scripts_path="${cwd}";
 				cd "${owd}";
 				set owd="${old_owd}";
 				unset old_owd;
-				set script="${scripts_dirname}/${scripts_basename}";
+				set script="${scripts_path}/${scripts_basename}";
 				breaksw;
 			
 				if(! ${?execs} ) \
@@ -262,7 +262,7 @@ scripts_sourcing_main:
 	
 	# BEGIN: source scripts_basename support.
 	if(! ${?TCSH_RC_SESSION_PATH} ) \
-		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 	
 	# START: special handler for when this file is sourced.
@@ -490,8 +490,8 @@ scripts_main_quit:
 		unset scripts_alias;
 	if( ${?scripts_basename} ) \
 		unset scripts_basename;
-	if( ${?scripts_dirname} ) \
-		unset scripts_dirname;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) \
 			rm -rf "${scripts_tmpdir}";

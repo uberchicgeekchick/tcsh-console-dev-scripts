@@ -114,16 +114,16 @@ dependency_check:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?scripts_dirname} ) \
+				if( ${?script} ) \
 					breaksw;
 				
 				set old_owd="${cwd}";
 				cd "`dirname '${program}'`";
-				set scripts_dirname="${cwd}";
+				set scripts_path="${cwd}";
 				cd "${owd}";
 				set owd="${old_owd}";
 				unset old_owd;
-				set script="${scripts_dirname}/${scripts_basename}";
+				set script="${scripts_path}/${scripts_basename}";
 				breaksw;
 			
 			default:
@@ -179,7 +179,7 @@ sourcing_init:
 	
 	# BEGIN: source scripts_basename support.
 	if(! ${?TCSH_RC_SESSION_PATH} ) \
-		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 	
 	# START: special handler for when this file is sourced.
@@ -193,7 +193,7 @@ sourcing_main:
 		goto label_stack_set;
 	
 	if(! ${?TCSH_RC_SESSION_PATH} ) \
-		setenv TCSH_RC_SESSION_PATH "${scripts_dirname}/../tcshrc";
+		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
 	
 	# START: special handler for when this file is sourced.
 	alias "${script_alias}" \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
@@ -342,14 +342,14 @@ scripts_main_quit:
 	if( ${?supports_being_source} ) \
 		unset supports_being_source;
 	
-	if( ${?script} ) \
-		unset script;
 	if( ${?script_alias} ) \
 		unset script_alias;
 	if( ${?scripts_basename} ) \
 		unset scripts_basename;
-	if( ${?script_dirname} ) \
-		unset script_dirname;
+	if( ${?scripts_pathe} ) \
+		unset scripts_pathe;
+	if( ${?script} ) \
+		unset script;
 	
 	if( ${?nodeps} ) \
 		unset nodeps;

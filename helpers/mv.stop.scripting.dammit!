@@ -9,8 +9,8 @@ init:
 	endif
 	
 	set supports_being_source;
-	set scripts_basename="touch";
-	set scripts_tmpdir="/tmp";
+	set scripts_basename="mv";
+	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
 	set escaped_starting_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
@@ -153,7 +153,7 @@ debug_check:
 
 
 check_dependencies:
-	set dependencies=("${scripts_basename}");
+	set dependencies=("${scripts_basename}" "mv");
 	@ dependencies_index=0;
 	
 	while( $dependencies_index < ${#dependencies} )
@@ -162,17 +162,16 @@ check_dependencies:
 		if( ${?debug} ) \
 			printf "\n**%s debug:** looking for dependency: %s; "\$"dependencies[%d].\n\n" "${scripts_basename}" "${dependency}" $dependencies_index > ${stdout};
 			
-		foreach exec("`where '${dependency}'`")
+		foreach exec("`where "\""${dependency}"\""`")
 			if(! -x "${exec}" ) then
 				unset exec;
 				continue;
 			endif
 			
 			if( ${?debug} ) \
-				printf "\n**%s debug:** looking for dependency: %s, "\$"dependencies[%d], against: %s.\n\n" $dependencies_index "${exec}" "${scripts_basename}" "${dependency}" > ${stdout};
-			switch("${exec}")
-				case "./${scripts_basename}":
-				case "${TCSH_LAUNCHER_PATH}/${scripts_basename}":
+				printf "\n**%s debug:** looking for dependency: %s, "\$"dependencies[%d], against: %s.\n\n" "${scripts_basename}" "${dependency}" $dependencies_index "${exec}" > ${stdout};
+			switch(${dependencies_index})
+				case 1:
 					if( ${?script} ) \
 						breaksw;
 						
@@ -186,10 +185,7 @@ check_dependencies:
 					unset exec;
 					breaksw;
 				
-				case "/bin/${scripts_basename}":
-				case "/usr/bin/${scripts_basename}":
-				case "/usr/share/bin/${scripts_basename}":
-				case "/usr/local/bin/${scripts_basename}":
+				case 2:
 					set program="${exec}";
 					breaksw;
 				
@@ -239,8 +235,8 @@ if_sourced:
 
 
 main:
-	set argc=${#argv};
-	if( ${argc} != 1 ) then
+	@ argc=${#argv};
+	if(!( $argc >= 2 )) then
 		set status=-1;
 		goto usage;
 	endif
@@ -253,16 +249,27 @@ main:
 
 exec:
 	set status=0;
-	if(! ${?no_mk_path} ) then
-		set touch_dir=`dirname "${touch_target}"`;
-		if(! -d "${touch_dir}" ) \
-			mkdir -p "${touch_dir}";
-		unset touch_dir;
-	endif
+	onintr exec;
+	if(!( ${?target} && ${?sources} )) \
+		goto usage;
 	
-	if( ${?debug} ) \
-		printf "( %s "\""%s"\"" > %s ) >& %s;" "${program}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
-	( ${program} "${touch_target}" > ${stdout} ) >& ${stderr};
+	printf "moving %s\n" "${sources}";
+	foreach source_file("`cat "\""${sources}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
+		ex -s '+1d' '+wq!' "${sources}";
+		if(! -e "${source_file}" ) then
+			printf "\n**%s error:** moving %s no longer exists.\n";
+			unset source_file;
+			continue;
+		endif
+		
+		if(! -d "${target}" ) \
+			mkdir -p "${target}";
+		
+		if( ${?debug} ) \
+			printf "( %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;" "${program}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
+		( ${program} "${source_file}" ${target} > ${stdout} ) >& ${stderr};
+		unset source_file;
+	end
 	goto scripts_main_quit;
 #exec:
 
@@ -274,6 +281,13 @@ scripts_main_quit:
 			source "${scripts_path}/argv:clean-up" "${scripts_basename}";
 		# END: source support
 	endif
+	
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
+	
 	if( ${?supports_being_source} ) \
 		unset supports_being_source;
 	if( ${?scripts_basename} ) \
@@ -290,8 +304,14 @@ scripts_main_quit:
 		unset dependencies;
 	if( ${?debug} ) \
 		unset debug;
-	if( ${?touch_target} ) \
-		unset touch_target;
+	if( ${?target} ) \
+		unset target;
+	if( ${?source} ) \
+		unset source;
+	if( ${?sources} ) then
+		rm -f "${sources}";
+		unset sources;
+	endif
 	if( ${?usage_displayed} ) \
 		unset usage_displayed;
 	if( ${?exit_on_usage} ) \
@@ -301,8 +321,9 @@ scripts_main_quit:
 		set owd="${use_old_owd}";
 		unset use_old_owd;
 	endif
+	
 	exit ${status}
-#scripts_main_quit:
+#goto scripts_main_quit;
 
 
 missing_dependency:
@@ -313,32 +334,30 @@ missing_dependency:
 
 
 usage:
-	if( ${?script} && ${?program} ) then
-		if( "${program}" != "${script}" && -x ${?program} ) then
-			${program} --help;
-			set usage_displayed;
+	if(! ${?usage_displayed} ) then
+		if( ${?script} && ${?program} ) then
+			if( "${program}" != "${script}" ) then
+				${program} --help;
+				set usage_displayed;
+			endif
 		endif
 	endif
 	
-	if( ! ${?usage_displayed} && ${?usage_message} ) then
-		printf "%s\n" "${usage_message}";
-		set usage_displayed;
-	endif
-	
 	if(! ${?usage_displayed} ) then
-		printf "\nUsage: %s [OPTION]... FILE...\n\t\n\tUpdate the access and modification times of each FILE to the current time.\n\tA FILE argument that does not exist is created empty as are any missing parent directories.\n\n" "${scripts_basename}";
+		printf "Usage: %s SOURCE... DIRECTORY\n\tor: %s [-h|--help]\tDisplays this screen.\n\t\n\tRename SOURCE to DEST, or move SOURCE(s) to DIRECTORY.  Any non-existant parent directories of DIRECTORY are created\n\t\nMandatory arguments to long options are mandatory for short options too\n\n\t\t-p, --parent\tcreates any non-existant parent directories of DIRECTORY.\n\t\t-h, --help\tDisplays this screen.\n\n" "${scripts_basename}" "${scripts_basename}";
+		set usage_displayed;
 	endif
 	
 	if(! ${?usage_displayed} ) \
 		set usage_displayed;
-	if( ${?exit_on_usage} ) \
-		goto scripts_main_quit;
-	
-	goto parse_arg;
+	goto scripts_main_quit;
 #usage:
 
 
 parse_argv:
+	if(!( ${#argv} >= 2 )) \
+		goto usage;
+	
 	@ argc=${#argv};
 	@ arg=0;
 	@ parsed_argc=0;
@@ -444,9 +463,9 @@ parse_arg:
 		switch("${option}")
 			case "h":
 			case "help":
+				goto usage;
 				if(! ${?exit_on_usage} ) \
 					set exit_on_usage;
-				goto usage;
 				breaksw;
 			
 			case "diagnosis":
@@ -460,8 +479,14 @@ parse_arg:
 			
 			case "":
 			default:
-				if(! ${?touch_target} ) then
-					set touch_target="${value}";
+				if( $arg == $argc ) then
+					set target="${value}";
+					breaksw;
+				endif
+				if( -e "${value}" ) then
+					if(! ${?sources} ) \
+						set sources="`mktemp --tmpdir .escaped.${scripts_basename}.sources.XXXXXXXXXX`";
+					printf "${value}\n" >> "${sources}";
 					breaksw;
 				endif
 				

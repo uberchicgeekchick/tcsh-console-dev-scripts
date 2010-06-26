@@ -10,7 +10,7 @@ setup:
 		set stderr=/dev/null;
 	else
 		set stdout=/dev/stdout;
-		set stderr=/dev/stdout;
+		set stderr=/dev/stderr;
 	endif
 	
 	if( "`alias cwdcmd`" != "" ) then
@@ -43,13 +43,15 @@ setup:
 	
 	set scripts_basename="tcsh-script.template.raw.tcsh";
 	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
+	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
+	set usage_message="Usage: ${scripts_basename} [-h|--help]...\n\tA template for basic tcsh shell scripts.\n\t\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.";
 	
 	goto debug_check_init;
 #goto setup;
 
 
 debug_check_init:
-	if( ${#argv} == 0 ) \
+	if( ${#argv} < -1 ) \
 		goto usage;
 	
 	@ argc=${#argv};
@@ -57,7 +59,7 @@ debug_check_init:
 	if( ${?debug} ) \
 		printf "**debug:** parsing "\$"argv's %d options.\n" "${scripts_basename}" "${argc}";
 	
-	set arg_handler="check_argv";
+	set arg_handler="check_mode";
 	set arg_parse_complete="debug_check_quit";
 	
 	goto parse_argv;
@@ -83,7 +85,7 @@ debug_check_quit:
 #goto debug_check_quit;
 
 
-debug_check:
+check_mode:
 	switch("${option}")
 		case "nodeps":
 			if( ${?nodeps} ) \
@@ -118,7 +120,7 @@ debug_check:
 	printf "**%s notice:**, via "\$"argv[%d], %s:\t[enabled]\n" "${scripts_basename}" $arg "${option}" > ${stdout};
 	
 	goto parse_argv;
-#goto debug_check;
+#goto check_mode;
 
 
 dependencies_check:
@@ -235,6 +237,23 @@ scripts_main_quit:
 #goto scripts_main_quit;
 
 
+sourced:
+	# START: special handler for when this file is sourced.
+	if( -d "${scripts_path}/../tcshrc" && -f "${scripts_path}/../tcshrc/argv:check" ) \
+		source "${scripts_path}/argv:check" "${scripts_basename}" ${argv};
+	
+	if( ${?debug} ) \
+		printf "Setting up [%s]'s aliases so [%s]; executes: <file://%s>.\n" "${scripts_alias}" "${script}";
+	
+	alias "${scripts_alias}" "${script}";
+	
+	if( -d "${scripts_path}/../tcshrc" && -f "${scripts_path}/../tcshrc/argv:clean-up" ) \
+		source "${scripts_path}/argv:clean-up" "${scripts_basename}";
+	# FINISH: special handler for when this file is sourced.
+	goto scripts_main_quit;
+#goto sourced;
+
+
 main:
 	if(! ${?0} ) \
 		goto sourced;
@@ -243,21 +262,10 @@ main:
 #goto main;
 
 
-sourced:
-	# START: special handler for when this file is sourced.
-	if(! ${?TCSH_RC_SESSION_PATH} ) \
-		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
-	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
-	
-	if( ${?debug} ) \
-		printf "Setting up [%s]'s aliases so [%s]; executes: <file://%s>.\n" "${scripts_alias}" "${script}";
-	
-	alias "${scripts_alias}" "${script}";
-	
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
-	# FINISH: special handler for when this file is sourced.
-	goto scripts_main_quit;
-#goto sourced;
+exec:
+	printf "Hello World\!";
+	goto exit_script;
+#goto exec;
 
 
 parse_argv_init:
@@ -308,7 +316,7 @@ parse_argv:
 
 
 parse_arg:
-	set tmp_file="`mktemp --tmpdir -u "\"".escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg.XXXXXXXX"\""`";
+	set tmp_file="`mktemp --tmpdir -u "\"".escaped.argument.${scripts_basename}.argv[${arg}].XXXXXXXX"\""`";
 	printf "%s" "$argv[${arg}]" >! "${tmp_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tmp_file}";
 	set escaped_argument="`cat "\""${tmp_file}"\""`";
@@ -400,6 +408,8 @@ check_arg:
 	switch ( "${option}" )
 		case "h":
 		case "help":
+			if(! ${?exit_on_usage} ) \
+				set exit_on_usage;
 			goto usage;
 			breaksw;
 		
@@ -424,5 +434,32 @@ check_arg:
 	unset argument dashes option equals value escaped_value;
 	goto parse_argv;
 #goto check_arg;
+
+
+usage:
+	if( ${?script} && ${?program} ) then
+		if( "${program}" != "${script}" && -x ${?program} ) then
+			${program} --help;
+			set usage_displayed;
+		endif
+	endif
+	
+	if(! ${?usage_displayed} ) then
+		printf "\n";
+		if(! ${?usage_message} ) then
+			printf "Usage:\t%s [-h|--help]...\n\t[-h|--help]\tDisplays this screen." "${scripts_basename}";
+		else
+			printf "${usage_message}";
+		endif
+		printf "\n\n";
+		set usage_displayed;
+	endif
+	
+	if( ${?exit_on_usage} || ! ${?callback} ) \
+		set callback="exit_script";
+	
+	goto callback_handler;
+#set callback="$!";
+#goto usage;
 
 

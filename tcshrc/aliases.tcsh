@@ -23,8 +23,8 @@ endif
 alias set-alias "source "\$"{TCSH_RC_SESSION_PATH}/../setenv/set-alias.tcsh${set_alias_args}";
 
 
-complete alias 'p/1/c/' 'p/2,/c,f/';
-complete set-alias 'p/1/c/' 'p/2,/c,f/';
+complete alias 'p/1/c/' 'p/2-/c/';
+complete set-alias 'p/1/c/' 'p/2-/c/';
 
 set-alias "feed:fetch:all:enclosures.tcsh" "${TCSH_RC_SESSION_PATH}/../xml-parsers/feed:fetch:all:enclosures.tcsh --disable=logging"
 set-alias most "most -w";

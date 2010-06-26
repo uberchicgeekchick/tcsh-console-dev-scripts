@@ -6,8 +6,12 @@ parse_argv:
 	if(! ${?arg} ) then
 		@ arg=0;
 		@ argc=${#argv};
-		if( $argc == 0 ) \
+		if( $argc == 0 ) then
+			set confirmation;
+			set confirmations=( "r" "r" "r" );
+			set playlists_validated;
 			goto clean_up;
+		endif
 	else if ${?callback} then
 		goto ${callback};
 	endif
@@ -220,11 +224,17 @@ delete:
 				rm -v "${podcast}";
 				
 				set podcast_dir="`dirname "\""${podcast}"\""`";
-				if( `/bin/ls -A "${podcast_dir}"` == "" ) \
-					rmdir -v "${podcast_dir}";
+				unset podcast;
+				if( `/bin/ls -A "${podcast_dir}"` == "" ) then
+					if( -d "${podcast_dir}" ) then
+						rmdir -v "${podcast_dir}";
+					else if( -l "${podcast_dir}" ) then
+						unlink -v "${podcast_dir}";
+					else
+						rm -rv "${podcast_dir}";
+					endif
+				endif
 				unset podcast_dir;
-			endif
-			unset podcast;
 		end
 		unset to_delete;
 	endif
@@ -242,7 +252,7 @@ move_lifestyle_podcasts:
 		foreach lifestyle_podcast( "`printf "\""${lifestyle_podcasts}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${lifestyle_podcast}" != "" && "${lifestyle_podcast}" != "/" && -e "${lifestyle_podcast}" ) then
 				if(! ${?action_preformed} ) then
-					set action_preformed;
+				set action_preformed;
 				endif
 				
 				if(! -d "/media/podcasts/lifestyle" ) \
@@ -260,8 +270,16 @@ move_lifestyle_podcasts:
 					mv -vi \
 						"${lifestyle_podcast}/"* \
 					"/media/podcasts/lifestyle/`basename "\""${lifestyle_podcast}"\""`";
-					if( `/bin/ls -A "${lifestyle_podcast}"` == "" ) \
-						rmdir -v "${lifestyle_podcast}";
+					
+					if( `/bin/ls -A "${lifestyle_podcast}"` == "" ) then
+						if( -d "${lifestyle_podcast}" ) then
+							rmdir -v "${lifestyle_podcast}";
+						else if( -l "${lifestyle_podcast}" ) then
+							unlink -v "${lifestyle_podcast}";
+						else
+							rm -rv "${lifestyle_podcast}";
+						endif
+					endif
 				endif
 			endif
 			unset lifestyle_podcast;
@@ -275,6 +293,7 @@ move_lifestyle_podcasts:
 
 move_podiobooks:
 	set podiobooks=( \
+	"/media/podcasts/- TEKDIFF (teknikal diffikulties)-" \
 	"\n" \
 	);
 	
@@ -300,8 +319,16 @@ move_podiobooks:
 					mv -vi \
 						"${podiobook}/"* \
 					"/media/podiobooks/Latest/`basename "\""${podiobook}"\""`";
-					if( `/bin/ls -A "${podiobook}"` == "" ) \
-						rmdir -v "${podiobook}";
+					
+					if( `/bin/ls -A "${podiobook}"` == "" ) then
+						if( -d "${podiobook}" ) then
+							rmdir -v "${podiobook}";
+						else if( -l "${podiobook}" ) then
+							unlink -v "${podiobook}";
+						else
+							rm -rv "${podiobook}";
+						endif
+					endif
 				endif
 			endif
 			unset podiobook;
@@ -333,8 +360,15 @@ move_slashdot:
 				"/media/podcasts/slash.";
 				
 				set podcast_dir="`dirname "\""${podcast}"\""`";
-				if( `/bin/ls -A "${podcast_dir}"` == "" ) \
-					rmdir -v "${podcast_dir}";
+				if( `/bin/ls -A "${podcast_dir}"` == "" ) then
+					if( -d "${podcast_dir}" ) then
+						rmdir -v "${podcast_dir}";
+					else if( -l "${podcast_dir}" ) then
+						unlink -v "${podcast_dir}";
+					else
+						rm -rv "${podcast_dir}";
+					endif
+				endif
 				unset podcast_dir;
 			endif
 			unset podcast;
@@ -373,11 +407,23 @@ back_up:
 					"${podcast}" \
 				"/art/media/resources/stories/Slashdot";
 			endif
-			if( `/bin/ls -A "/media/podcasts/slash."` == "" ) \
-				rmdir -v "/media/podcasts/slash.";
 			unset podcast;
 		end
 		unset slashdot;
+		
+		set podcast_dir="/media/podcasts/slash.";
+		if( -e "${podcast_dir}" ) then
+			if( `/bin/ls -A "${podcast_dir}"` == "" ) then
+				if( -d "${podcast_dir}" ) then
+					rmdir -v "${podcast_dir}";
+				else if( -l "${podcast_dir}" ) then
+					unlink -v "${podcast_dir}";
+				else
+					rm -rv "${podcast_dir}";
+				endif
+			endif
+		endif
+		unset podcast_dir;
 	endif
 	
 	goto parse_argv;
@@ -386,6 +432,11 @@ back_up:
 
 alacasts_playlists:
 	set playlist_dir="/media/podcasts/playlists/m3u";
+	if(! ${?confirmation} ) then
+		set return_to="alacasts_playlists";
+		goto prompt_for_playlist_validation;
+	endif
+	
 	printf "Cleaning up %s...\n" "${playlist_dir}";
 	foreach playlist("`/bin/ls --width=1 -t "\""${playlist_dir}"\""`")
 		set playlist_escaped="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/([\/.])/\\\1/g'`";
@@ -404,9 +455,6 @@ alacasts_playlists:
 				if(! ${?action_preformed} ) then
 					set action_preformed;
 				endif
-			else if(! ${?confirmation} ) then
-				set return_to="alacasts_playlists";
-				goto prompt_for_playlist_validation;
 			else if( ${?validate_playlists} ) then
 				printf "\tWould you like to make sure that all files in <file://%s/%s> still exist? [Yes/No(default)]" "${playlist_dir}" "${playlist}" > /dev/stdout;
 				set confirmation="$<";

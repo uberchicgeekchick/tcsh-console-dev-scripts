@@ -129,7 +129,7 @@ parse_argv:
 						breaksw;
 					
 					default:
-						set clean_up="interactive";
+						set clean_up;
 						breaksw;
 				endsw
 				breaksw;

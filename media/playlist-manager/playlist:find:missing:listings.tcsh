@@ -101,27 +101,15 @@ main:
 	set playlists=($playlists_array);
 	unset playlists_array;
 	
-	foreach playlist(${playlists})
-		if(! -e "$playlist" ) then
-			printf "looking for %s" "${playlist}";
-			@ errno=-4;
-			goto exception_handler;
-		endif
-	end
-	
-	if(! ${?target_directory} ) then
-		set target_directory="${cwd}";
-	else
-		if(! -d "${target_directory}" ) then
-			@ errno=-5;
-			goto exception_handler;
-		endif
-		
-		if( "${target_directory}" != "${cwd}" ) then
-			set old_owd="${owd}";
-			cd "${target_directory}";
-		endif
+	if(! ${?target_directories} ) then
+		@ errno=-5;
+		goto exception_handler;
 	endif
+	
+	set target_directories_array="`cat "\""${target_directories}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";# | sed -r 's/(.*)/"\""\1"\""/'`";;
+	rm -f "${target_directories}";
+	set target_directories=($target_directories_array);
+	unset target_directories_array;
 	
 	if(! ${?remove} ) then
 		set removal_verbose;
@@ -150,7 +138,7 @@ main:
 
 
 setup_playlist_new:
-	foreach playlist( $playlists )
+	foreach playlist(${playlists})
 		playlist:new:create.tcsh "$playlist";
 		unset playlist;
 	end
@@ -160,7 +148,7 @@ setup_playlist_new:
 create_clean_up_script:
 	if( ${?create_script} ) then
 		if( "${create_script}" == "" ) \
-			set create_script="script-to:remove:missing:listings:from:`printf "\""%s"\"" "\""${target_directory}"\"" | sed -r 's/\//\-/g'`.tcsh";
+			set create_script="script-to:remove:missing:listings:found-on:`date '+%s'`.tcsh";
 		if(! -e "${create_script}" ) then
 			printf "#\!/bin/tcsh -f\n" > "${create_script}";
 			chmod u+x "${create_script}";
@@ -188,18 +176,19 @@ find_missing_media:
 	cd "${old_cwd}";
 	set owd="${old_owd}";
 	unset old_owd old_cwd;
-	if( ${?debug} ) then
-		printf "Searching for missing multimedia files using:\n\t";
-		printf "find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f\n";
-	endif
 	@ errno=0;
 	@ removed_podcasts=0;
 	
 	set missing_media_filename_list="`mktemp --tmpdir "\""filename.all.possibly.missing.${scripts_basename}.XXXXXXXX"\""`";
 	
-	#find -L "${cwd}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["$!`])/"\\\1"/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g' >! "${missing_media_filename_list}";
-	#foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`" >! "${missing_media_filename_list}";
-	find -L "${cwd}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort >! "${missing_media_filename_list}";
+	#find -L ${target_directories}${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["$!`])/"\\\1"/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g' >! "${missing_media_filename_list}";
+	foreach target_directory(${target_directories})
+		if( ${?debug} ) then
+			printf "Searching for missing multimedia files using:\n\t";
+			printf "find -L "\""${target_directory}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex "\"".*${extensions}"\$\""' -type f\n";
+		endif
+		find -L "${target_directory}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort >> "${missing_media_filename_list}";
+	end
 #goto find_missing_media;
 
 
@@ -326,7 +315,7 @@ handle_missing_media:
 			else
 				@ new_file_count++;
 			endif
-			printf "\n\tAdding <file//%s> to <file://%s>\n" "${this_podcast}" "$playlists[$which_playlist]";
+			printf "\n\tAdding <file//%s> to:\n\t\t<file://%s>" "${this_podcast}" "$playlists[$which_playlist]";
 			printf "%s\n" "${this_podcast}" >> "$playlists[$which_playlist].new";
 			unset prompt_for_playlist;
 		endif
@@ -415,14 +404,16 @@ remove_missing_media:
 
 
 finish_finding_missing_media:
-	if( ${?new_file_count} ) then
-		foreach playlist( $playlists )
+	#if( ${?new_file_count} ) then
+		foreach playlist(${playlists})
 			playlist:new:save.tcsh "$playlist";
 			unset playlist;
 		end
 		unset new_file_count;
-	endif
-	unset playlists;
+	#endif
+	
+	if( -e "${missing_media_filename_list}" ) \
+		rm -f "${missing_media_filename_list}";
 	
 	goto exit_script;
 #goto finish_finding_missing_media;
@@ -455,17 +446,17 @@ scripts_main_quit:
 	if( ${?podcast} ) \
 		unset podcast;
 	if( ${?playlists} ) then
-		foreach playlist( $playlists )
+		foreach playlist(${playlists})
 			if( -e "${playlist}.new" ) \
-				rm "${playlist}.new";
+				rm -f "${playlist}.new";
 			if( -e "${playlist}.swp" ) \
-				rm "${playlist}.swp";
+				rm -f "${playlist}.swp";
 			unset playlist;
 		end
-		if( ${?new_file_count} ) \
-			unset new_file_count;
 		unset playlists;
 	endif
+	if( ${?new_file_count} ) \
+		unset new_file_count;
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) \
 			rm -rf "${scripts_tmpdir}";
@@ -516,19 +507,23 @@ exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-599;
 	printf "\n**%s error("\$"errno:%d):**\n\t" "${scripts_basename}"  $errno;
-	if(! ${?exit_on_error} ) \
+	if( $errno < 500 && ! ${?exit_on_error} ) \
 		set exit_on_error;
 	switch( $errno )
+		case -2:
+			printf "%s is not a valid and existing playlist" "${value}" > /dev/stderr;
+			breaksw;
+		
+		case -3:
+			printf "%s is not a valid and existing directory" "${value}" > /dev/stderr;
+			breaksw;
+		
 		case -4:
-			printf "An existing playlist must be specified" > /dev/stderr;
+			printf "A playlist must be specified" > /dev/stderr;
 			breaksw;
 		
 		case -5:
 			printf "An existing directory must be specified as the location to search for missing podcasts" > /dev/stderr;
-			breaksw;
-		
-		case -6:
-			printf "--append and --remove are mutual exclusive options for the treatment of missing listings. i.e. They cannot be used together" > /dev/stderr;
 			breaksw;
 		
 		case -501:
@@ -554,14 +549,14 @@ exception_handler:
 	endsw
 	printf ".\n\nPlease see: %s%s --help%s for more information and supported options\n" \` "${scripts_basename}" \` > /dev/stderr;
 	
+	if( ${?exit_on_error} || ! ${?callback} ) \
+		goto exit_script;
+	
 	if( ${?callback} ) then
 		set last_callback=$callback;
 		unset callback;
 		goto $last_callback;
 	endif
-	
-	if(! ${?exit_on_error} ) \
-		goto usage;
 	
 	goto exit_script;
 #exception_handler:
@@ -843,20 +838,20 @@ parse_arg:
 				set maxdepth="";
 			breaksw;
 			
+			case "search":
+			case "target":
+			case "directory":
+			case "search-directory":
 			case "target-directory":
-				if(! -d "${value}" ) \
-					breaksw;
-				
-				if(! ${?target_directory} ) \
-					set target_directory="${value}";
-				
+				if( -d "${value}" ) \
+					goto append_directory;
 				breaksw;
 			
 			case "playlist":
 				if(! -f "${value}" ) \
 					breaksw;
 				
-				goto append_playlists;
+				goto append_playlist;
 				breaksw;
 			
 			case "nodeps":
@@ -864,15 +859,11 @@ parse_arg:
 			breaksw;
 			
 			default:
-				if( -d "${value}" ) then
-					if(! ${?target_directory} ) then
-						set target_directory="${value}";
-						breaksw;
-					endif
-				endif
+				if( -d "${value}" ) \
+					goto append_directory;
 				
 				if( -f "${value}" ) then
-					goto append_playlists;
+					goto append_playlist;
 					breaksw;
 				endif
 				
@@ -889,31 +880,80 @@ parse_arg:
 		unset argument dashes option equals value;
 	end
 	
+	if( ${?argument} )\
+		unset argument;
+	if( ${?dashes} )\
+		unset dashes;
+	if( ${?option} )\
+		unset option;
+	if( ${?equals} )\
+		unset equals;
+	if( ${?value} )\
+		unset value;
+	
 	goto main;
 #parse_arg:
 
-append_playlists:
+
+append_playlist:
+	if(! -f "${value}" )  then
+		if( ${?arg_shifted} ) \
+			goto parse_arg;
+		
+		set callback="parse_arg";
+		@ errno=-2;
+		goto exception_handler;
+	endif
+	
 	if(! ${?playlists} ) \
 		set playlists="`mktemp --tmpdir "\""escaped.playlists.for:${scripts_basename}.XXXXXXXX"\""`";
-	printf "${value}\n" >> "${playlists}";
-	unset argument dashes option equals value;
 	
+	set filename_list="${playlists}";
+	set callback="append_playlist";
+	goto append_to_filename_list;
+#goto append_playlist;
+
+
+append_directory:
+	if(! -d "${value}" ) then
+		if( ${?arg_shifted} ) \
+			goto parse_arg;
+		
+		set callback="parse_arg";
+		@ errno=-3;
+		goto exception_handler;
+	endif
+	
+	if(! ${?target_directories} ) \
+		set target_directories="`mktemp --tmpdir "\""escaped.target-directories.for:${scripts_basename}.XXXXXXXX"\""`";
+	
+	set filename_list="${target_directories}";
+	set callback="append_to_filename_list";
+	goto append_to_filename_list;
+#goto append_directory;
+
+
+append_to_filename_list:
+	if( ${?debug} ) \
+		printf "\nAdding <%s> to:\n\t<%s>\n" "${value}" "${filename_list}";
+	printf "${value}\n" >> "${filename_list}";
 	while( $arg < $argc )
 		@ arg++;
-		if( $arg >= $argc ) then
+		if(!( $arg < $argc )) then
 			@ arg--;
 			goto parse_arg;
 		endif
 		
-		if(! -f "$argv[$arg]" ) then
-			@ arg--;
+		set arg_shifted;
+		if(! -e "$argv[$arg]" ) then
 			goto parse_arg;
 		endif
 		
-		printf "$argv[$arg]\n" >> "${playlists}";
+		set value="$argv[$arg]";
+		goto $callback;
 	end
-
+	unset filname_list filename_test;
 	goto parse_arg;
-#goto append_playlists;
+#goto append_to_filename_list;
 
 

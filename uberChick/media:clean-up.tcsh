@@ -293,7 +293,6 @@ move_lifestyle_podcasts:
 
 move_podiobooks:
 	set podiobooks=( \
-	"/media/podcasts/- TEKDIFF (teknikal diffikulties)-" \
 	"\n" \
 	);
 	

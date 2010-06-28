@@ -211,31 +211,27 @@ delete:
 	
 	if( ${?to_delete} ) then
 		foreach podcast( "`printf "\""${to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
-				if(! ${?action_preformed} ) then
-					set action_preformed;
-				endif
-				
-				if( -d "${podcast}" ) then
-					rm -rv "${podcast}";
-					continue;
-				endif
-				
-				rm -v "${podcast}";
-				
-				set podcast_dir="`dirname "\""${podcast}"\""`";
-				unset podcast;
-				if( `/bin/ls -A "${podcast_dir}"` == "" ) then
-					if( -d "${podcast_dir}" ) then
-						rmdir -v "${podcast_dir}";
-					else if( -l "${podcast_dir}" ) then
-						unlink -v "${podcast_dir}";
-					else
-						rm -rv "${podcast_dir}";
-					endif
-				endif
-				unset podcast_dir;
+			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) \
+				continue;
+			
+			if(! ${?action_preformed} ) then
+				set action_preformed;
+			endif
+			
+			if( -d "${podcast}" ) then
+				rm -rv "${podcast}";
+				continue;
+			endif
+			
+			rm -v "${podcast}";
+			
+			set podcast_dir="`dirname "\""${podcast}"\""`";
+			if( `/bin/ls -A "${podcast_dir}"` == "" ) \
+				rm -rv "${podcast_dir}";
+			unset podcast_dir;
+			
 		end
+		unset podcast;
 		unset to_delete;
 	endif
 	
@@ -249,41 +245,30 @@ move_lifestyle_podcasts:
 	);
 	
 	if( ${?lifestyle_podcasts} ) then
-		foreach lifestyle_podcast( "`printf "\""${lifestyle_podcasts}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${lifestyle_podcast}" != "" && "${lifestyle_podcast}" != "/" && -e "${lifestyle_podcast}" ) then
-				if(! ${?action_preformed} ) then
-					set action_preformed;
-				endif
-				
-				if(! -d "/media/podcasts/lifestyle" ) \
-					mkdir -p  "/media/podcasts/lifestyle";
-				
-				if(! -d "${lifestyle_podcast}" ) then
-					set lifestyle_podcast="`dirname "\""${lifestyle_podcast}"\""`";
-				endif
-				
-				if(! -d "/media/podcasts/lifestyle/`basename "\""${lifestyle_podcast}"\""`" ) then
-					mv -vi \
-						"${lifestyle_podcast}" \
-					"/media/podcasts/lifestyle";
-				else
-					mv -vi \
-						"${lifestyle_podcast}/"* \
-					"/media/podcasts/lifestyle/`basename "\""${lifestyle_podcast}"\""`";
-					
-					if( `/bin/ls -A "${lifestyle_podcast}"` == "" ) then
-						if( -d "${lifestyle_podcast}" ) then
-							rmdir -v "${lifestyle_podcast}";
-						else if( -l "${lifestyle_podcast}" ) then
-							unlink -v "${lifestyle_podcast}";
-						else
-							rm -rv "${lifestyle_podcast}";
-						endif
-					endif
-				endif
+		foreach podcast( "`printf "\""${lifestyle_podcasts}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) \
+				continue;
+			
+			if(! ${?action_preformed} ) then
+				set action_preformed;
 			endif
-			unset lifestyle_podcast;
+			
+			if(! -d "/media/podcasts/lifestyle" ) \
+				mkdir -p  "/media/podcasts/lifestyle";
+			
+			if(! -d "/media/podcasts/lifestyle/`basename "\""${podcast}"\""`" ) \
+				mkdir -v "/media/podcasts/lifestyle/`basename "\""${podcast}"\""`";
+			
+			mv -vi \
+				"${podcast}" \
+			"/media/podcasts/lifestyle/`basename "\""${podcast}"\""`/";
+			
+			set podcast_dir="`dirname "\""${podcast}"\""`";
+			if( `/bin/ls -A "${podcast_dir}"` == "" ) \
+				rm -rv "${podcast}";
+			unset podcast_dir;
 		end
+		unset podcast;
 		unset lifestyle_podcasts;
 	endif
 	
@@ -293,6 +278,8 @@ move_lifestyle_podcasts:
 
 move_podiobooks:
 	set podiobooks=( \
+	"\n" \
+"/media/podcasts/Mustache Rangers/The Mustache Rangers Calculate: Episode 158, released on: Mon, 28 Jun 2010 09:00:16 GMT.mp3" \
 	"\n" \
 	);
 	
@@ -320,13 +307,7 @@ move_podiobooks:
 					"/media/podiobooks/Latest/`basename "\""${podiobook}"\""`";
 					
 					if( `/bin/ls -A "${podiobook}"` == "" ) then
-						if( -d "${podiobook}" ) then
-							rmdir -v "${podiobook}";
-						else if( -l "${podiobook}" ) then
-							unlink -v "${podiobook}";
-						else
-							rm -rv "${podiobook}";
-						endif
+						rm -rv "${podiobook}";
 					endif
 				endif
 			endif
@@ -360,13 +341,7 @@ move_slashdot:
 				
 				set podcast_dir="`dirname "\""${podcast}"\""`";
 				if( `/bin/ls -A "${podcast_dir}"` == "" ) then
-					if( -d "${podcast_dir}" ) then
-						rmdir -v "${podcast_dir}";
-					else if( -l "${podcast_dir}" ) then
-						unlink -v "${podcast_dir}";
-					else
-						rm -rv "${podcast_dir}";
-					endif
+					rm -rv "${podcast_dir}";
 				endif
 				unset podcast_dir;
 			endif
@@ -405,6 +380,12 @@ back_up:
 				mv -vi \
 					"${podcast}" \
 				"/art/media/resources/stories/Slashdot";
+				
+				set podcast_dir="`dirname "\""${podcast}"\""`";
+				if( `/bin/ls -A "${podcast_dir}"` == "" ) then
+					rm -rv "${podcast_dir}";
+				endif
+				unset podcast_dir;
 			endif
 			unset podcast;
 		end
@@ -413,13 +394,7 @@ back_up:
 		set podcast_dir="/media/podcasts/slash.";
 		if( -e "${podcast_dir}" ) then
 			if( `/bin/ls -A "${podcast_dir}"` == "" ) then
-				if( -d "${podcast_dir}" ) then
-					rmdir -v "${podcast_dir}";
-				else if( -l "${podcast_dir}" ) then
-					unlink -v "${podcast_dir}";
-				else
-					rm -rv "${podcast_dir}";
-				endif
+				rm -rv "${podcast_dir}";
 			endif
 		endif
 		unset podcast_dir;

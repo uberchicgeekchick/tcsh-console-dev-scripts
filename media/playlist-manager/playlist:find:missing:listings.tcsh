@@ -282,7 +282,7 @@ check_duplicate_dirs:
 handle_missing_media:
 	set prompt_for_playlist;
 	while( ${?prompt_for_playlist} )
-		printf "\n\t<file://%s> is not listed in any of the provided playlists.\n\tWhat action would you like to take:\n" "${this_podcast}";
+		printf "\n\t<file://%s> is not listed in any of the provided playlists.\n\tWhat would you like to do:\n" "${this_podcast}";
 		@ playlist_index=0;
 		while( $playlist_index < ${#playlists} )
 			@ playlist_index++;
@@ -315,7 +315,7 @@ handle_missing_media:
 			else
 				@ new_file_count++;
 			endif
-			printf "\n\tAdding <file//%s> to:\n\t\t<file://%s>" "${this_podcast}" "$playlists[$which_playlist]";
+			printf "\n\tAdding <file//%s> to:\n\t\t<file://%s>\n" "${this_podcast}" "$playlists[$which_playlist]";
 			printf "%s\n" "${this_podcast}" >> "$playlists[$which_playlist].new";
 			unset prompt_for_playlist;
 		endif

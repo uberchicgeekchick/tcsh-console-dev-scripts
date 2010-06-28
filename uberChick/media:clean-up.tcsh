@@ -279,7 +279,7 @@ move_lifestyle_podcasts:
 move_podiobooks:
 	set podiobooks=( \
 	"\n" \
-"/media/podcasts/Mustache Rangers/The Mustache Rangers Calculate: Episode 158, released on: Mon, 28 Jun 2010 09:00:16 GMT.mp3" \
+"/media/podcasts/Digital Magic » Chapters/Digital Magic – Chapter 13, released on: Mon, 28 Jun 2010 17:16:26 GMT.mp3" \
 	"\n" \
 	);
 	
@@ -321,6 +321,8 @@ move_podiobooks:
 
 move_slashdot:
 	set slashdot=( \
+	"\n" \
+"/media/podcasts/Slashdot/Tattoos For the Math and Science Geek?, released on: Mon, 28 Jun 2010 17:00:00 GMT.mp3" \
 	"\n" \
 	);
 	

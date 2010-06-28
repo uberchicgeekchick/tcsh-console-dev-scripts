@@ -279,7 +279,7 @@ move_lifestyle_podcasts:
 move_podiobooks:
 	set podiobooks=( \
 	"\n" \
-"/media/podcasts/Digital Magic » Chapters/Digital Magic – Chapter 13, released on: Mon, 28 Jun 2010 17:16:26 GMT.mp3" \
+"/media/podcasts/Archers, The/Archers: 100628 Monday, released on: Mon, 28 Jun 2010 18:20:00 GMT.mp3" \
 	"\n" \
 	);
 	
@@ -322,7 +322,9 @@ move_podiobooks:
 move_slashdot:
 	set slashdot=( \
 	"\n" \
-"/media/podcasts/Slashdot/Tattoos For the Math and Science Geek?, released on: Mon, 28 Jun 2010 17:00:00 GMT.mp3" \
+"/media/podcasts/Slashdot/Porn Industry Ready To Drop Flash, released on: Mon, 28 Jun 2010 20:28:00 GMT.mp3" \
+	"\n" \
+"/media/podcasts/Slashdot/King's Quest Fan Project The Silver Lining Is Back, released on: Mon, 28 Jun 2010 20:50:00 GMT.mp3" \
 	"\n" \
 	);
 	

@@ -364,6 +364,7 @@ scripts_exec:
 	
 	printf "Converting [%s] to [%s]" "${playlist}" "${new_playlist}";
 	playlist:new:create.tcsh "${playlist}";
+	mv -f "${playlist}.swp" "${playlist}.new";
 	
 	if( ${?insert_subdir} ) then
 		ex -s "+1,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)(.*)(\.([^\.]+)"\$"/\1${insert_subdir}\/\2\3\4/" '+wq' "${playlist}.new";

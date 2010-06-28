@@ -252,7 +252,7 @@ move_lifestyle_podcasts:
 		foreach lifestyle_podcast( "`printf "\""${lifestyle_podcasts}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${lifestyle_podcast}" != "" && "${lifestyle_podcast}" != "/" && -e "${lifestyle_podcast}" ) then
 				if(! ${?action_preformed} ) then
-				set action_preformed;
+					set action_preformed;
 				endif
 				
 				if(! -d "/media/podcasts/lifestyle" ) \

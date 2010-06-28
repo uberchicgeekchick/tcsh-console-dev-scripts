@@ -96,15 +96,18 @@ main:
 		goto exception_handler;
 	endif
 	
-	if(! -e "$playlists[1]" ) then
-		@ errno=-4;
-		goto exception_handler;
-	endif
+	set playlists_array="`cat "\""${playlists}"\""`";# | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	rm -f "${playlists}";
+	set playlists=($playlists_array);
+	unset playlists_array;
 	
-	if( ${?append} && ${?remove} ) then
-		@ errno=-6;
-		goto exception_handler;
-	endif
+	foreach playlist(${playlists})
+		if(! -e "$playlist" ) then
+			printf "looking for %s" "${playlist}";
+			@ errno=-4;
+			goto exception_handler;
+		endif
+	end
 	
 	if(! ${?target_directory} ) then
 		set target_directory="${cwd}";
@@ -113,11 +116,16 @@ main:
 			@ errno=-5;
 			goto exception_handler;
 		endif
+		
+		if( "${target_directory}" != "${cwd}" ) then
+			set old_owd="${owd}";
+			cd "${target_directory}";
+		endif
 	endif
 	
-	if( "${target_directory}" != "${cwd}" ) then
-		set old_owd="${owd}";
-		cd "${target_directory}";
+	if(! ${?remove} ) then
+		set removal_verbose;
+		set remove;
 	endif
 	
 	if(! ${?maxdepth} ) \
@@ -142,12 +150,10 @@ main:
 
 
 setup_playlist_new:
-	if( ${?append} ) then
-		foreach playlist( $playlists )
-			playlist:new:create.tcsh "$playlist";
-			unset playlist;
-		end
-	endif
+	foreach playlist( $playlists )
+		playlist:new:create.tcsh "$playlist";
+		unset playlist;
+	end
 #setup_playlist_new:
 
 
@@ -184,22 +190,40 @@ find_missing_media:
 	unset old_owd old_cwd;
 	if( ${?debug} ) then
 		printf "Searching for missing multimedia files using:\n\t";
-		printf "find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sort | sed -r 's/(\\)/\\\\/g'  | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\\\\1/g' | sed -r 's/(\[)/\\\\\\1/g' | sed -r 's/([*])/\\\\\\1/g'\n";
+		printf "find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f\n";
 	endif
 	@ errno=0;
 	@ removed_podcasts=0;
-	foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
+	
+	set missing_media_filename_list="`mktemp --tmpdir "\""filename.all.possibly.missing.${scripts_basename}.XXXXXXXX"\""`";
+	
+	#find -L "${cwd}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["$!`])/"\\\1"/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g' >! "${missing_media_filename_list}";
+	#foreach podcast("`find -L "\""${cwd}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex '.*${extensions}"\$"' -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`" >! "${missing_media_filename_list}";
+	find -L "${cwd}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort >! "${missing_media_filename_list}";
+#goto find_missing_media;
+
+
+process_missing_media:
+	foreach podcast("`cat "\""${missing_media_filename_list}"\"" | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
+		ex -s '+1d' '+wq!' "${missing_media_filename_list}";
 		#printf "-->%s\n" "${podcast}";
 		#continue;
 		if( ${?skip_dirs} ) then
 			foreach skip_dir("`printf "\""${skip_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
 				set escaped_skip_dir="`printf "\""%s"\"" "\""${skip_dir}"\"" | sed -r 's/\//\\\//g'`";
-				if( "`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^(${escaped_skip_dir})\/.*/\1/"\""`" == "${skip_dir}" ) \
+				set dir_test="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/^(${escaped_skip_dir})\/.*"\$"/\1/'`";
+				if( "${dir_test}" == "${skip_dir}" ) then
+					unset dir_test escaped_skip_dir skip_dir;
+					set skip_media;
 					break;
-				unset escaped_skip_dir skip_dir;
+				endif
+				unset dir_test escaped_skip_dir skip_dir;
 			end
-			if( ${?skip_subdir} ) \
+			
+			if( ${?skip_media} ) then
+				unset skip_media;
 				continue;
+			endif
 		endif
 		
 		set status=0;
@@ -216,202 +240,188 @@ find_missing_media:
 			endif
 			unset playlist;
 		end
+		
 		if( ${?playlist} ) \
 			continue;
-		
-		if(! ${?remove} ) then
-			set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-			if(! -e "${this_podcast}" ) \
-				continue;
-			
-			if( ${?append} ) then
-				if( ${#playlists} == 1 ) then
-					if(! ${?new_file_count} ) then
-						printf "\n\t**%s notice:** The following fills will be added to\n\t\t<file://%s>\n\n" "${scripts_basename}" "$playlists[1]";
-						@ new_file_count=1;
-					else
-						@ new_file_count++;
-					endif
-					printf "%s\n" "${this_podcast}" >> "$playlists[1].new";
-				else
-					set prompt_for_playlist;
-					while( ${?prompt_for_playlist} )
-						printf "\n\tWhich playlist would you like <file://%s> added to:\n" "${this_podcast}";
-						@ playlist_index=0;
-						while( $playlist_index < ${#playlists} )
-							@ playlist_index++;
-							printf "\t\t%d] %s\n" $playlist_index "$playlists[$playlist_index]";
-						end
-						printf "\tPlease select which playlist to append to [1-%d] or (c) to cancel: " $playlist_index;
-						set which_playlist="$<";
-						printf "\n";
-						if( `printf "%s" "${which_playlist}" | sed -r 's/^(c)$/\l\1/i'` == "c" ) then
-							printf "\n\t<file://%s> will not be appended to any playlist.\n" "${this_podcast}";
-							unset prompt_for_playlist;
-						else if( `printf "%s" "${which_playlist}" | sed -r 's/^[0-9]+$//'` != "" ) then
-							printf "\n\t%s is an invalid playlist selection.  Please select again?\n" "${which_playlist}";
-						else if( $which_playlist < 1 || $which_playlist > $playlist_index ) then
-							printf "\n\t%s is an invalid playlist selection.  Please select again?\n" "${which_playlist}";
-						else
-							if(! ${?new_file_count} ) then
-								@ new_file_count=1;
-							else
-								@ new_file_count++;
-							endif
-							printf "\n\tAdding <file//%s> to <file://%s>\n" "${this_podcast}" "$playlists[$which_playlist]";
-							printf "%s\n" "${this_podcast}" >> "$playlists[$which_playlist].new";
-							unset prompt_for_playlist;
-						endif
-						unset which_playlist;
-					end
-				endif
-				unset playlist_index;
-			endif
-			printf "%s\n" "${this_podcast}";
-			
-			if( ${?create_script} ) then
-				printf "%s\n" "${this_podcast}" >> "${create_script}";
-			endif
-			
-			if(! ${?duplicates_dirs} ) \
-				continue;
-			
-			foreach duplicate_dir("`printf "\""${duplicates_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-				set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/\//\\\//g'`";
-				set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-				unset escaped_duplicate_dir;
-				
-				if(! -e "${duplicate_podcast}" ) \
-					continue;
-				
-				if( ${?append} ) then
-					printf "%s\n" "${duplicate_podcast}" >> "$playlists[1].new";
-				endif
-				printf "%s\n" "${duplicate_podcast}";
-				
-				if( ${?create_script} ) then
-					printf "%s\n" "${duplicate_podcast}\n" >> "${create_script}";
-				endif
-			end
-			unset duplicate_podcast;
-			
-			continue;
-		endif
 		
 		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 		if(! -e "${this_podcast}" ) \
 			continue;
-		
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-		if( ${?message} && ! ${?message_displayed} ) then
-			printf "\t**Files found under [%s] which are not in [%s] will be %s removed.**\n\n" "${cwd}" "${playlists}" "`printf "\""%s"\"" "\""${message}"\"" | sed -r 's/^(.*), ([^,]*)"\$"/\1 and \2/'`";
-			set message_displayed;
-		endif
-		
-		set status=0;
-		
-		set podcast_dir="`dirname "\""${this_podcast}"\""`";
-		
-		if(! ${?last_checked_directory} ) then
-			set last_checked_directory="${podcast_dir}";
-		else if( "${last_checked_directory}" != "${podcast_dir}" ) then
-			set last_checked_directory="${podcast_dir}";
-			printf "\n";
-		endif
-		
-		set rm_confirmation="`rm -v${remove} "\""${this_podcast}"\""`";
-		if(!( ${status} == 0 && "${rm_confirmation}" != "" )) then
-			unset rm_confirmation podcast_dir;
-			continue;
-		endif
-		if( ${?removal_verbose} ) \
-			printf "%s\n" "${rm_confirmation}";
-		
-		@ removed_podcasts++;
+			
 		if( ${?create_script} ) then
-			printf "rm -vf%s "\""%s"\"";\n" "${remove}" "${this_podcast}" >> "${create_script}";
+			printf "%s\n" "${this_podcast}" >> "${create_script}";
 		endif
 		
-		set podcast_dir_for_ls="`dirname "\""${this_podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
-		while( "${podcast_dir}" != "/" )
-			if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
-				break;
-			
-			rm -rv "${podcast_dir}";
-			if( ${?create_script} ) then
-				printf "rm -rv "\""%s"\"";\n" "${podcast_dir_for_ls}" >> "${create_script}";
-			endif
-			
-			set podcast_cwd="`printf "\""%s"\"" "\""${podcast_dir_for_ls}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
-			set podcast_dir="`dirname "\""${podcast_cwd}"\""`";
-			set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
-		end
-		
-		if(! ${?duplicates_dirs} ) then
-			if( ${?podcast_cwd} ) \
-				unset podcast_cwd;
-			unset rm_confirmation podcast_dir podcast_dir_for_ls duplicate_podcast;
-			continue;
-		endif
-		
-		foreach duplicate_dir("`printf "\""${duplicates_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-			set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/\//\\\//g'`";
-			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-			
-			if(! -e "${duplicate_podcast}" ) \
-				continue;
-			
-			set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-			
-			set status=0;
-			set rm_confirmation="`rm -v${remove} "\""${duplicate_podcast}"\""`";
-			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) \
-				continue;
-			if( ${?removal_verbose} ) \
-				printf "%s\n" "${rm_confirmation}";
-			
-			@ removed_podcasts++;
-			if( ${?create_script} ) then
-				printf "rm -vf%s "\""%s"\"";\n" "${remove}" "${duplicate_podcast}";\n" >> "${create_script}";
-			endif
-			
-			set podcast_dir="`dirname "\""${duplicate_podcast}"\""`";
-			set podcast_dir_for_ls="`dirname "\""${duplicate_podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
-			while( "${podcast_dir}" != "/" )
-				if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
-					break;
-				
-				rm -rv "${podcast_dir}";
-				if( ${?create_script} ) then
-					printf "rm -rv "\""%s"\"";\n" "${podcast_dir_for_ls}" >> "${create_script}";
-				endif
-				
-				set podcast_cwd="`printf "\""%s"\"" "\""${podcast_dir_for_ls}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
-				set podcast_dir="`dirname "\""${podcast_cwd}"\""`";
-				set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
-			end
-		end
-		
-		if(${?podcast_cwd}) \
-			unset podcast_cwd;
-		unset rm_confirmation duplicates_subdir podcast_dir podcast_dir_for_ls duplicate_podcast;
+		goto handle_missing_media;
 	end
 	
-	if( ${?append} ) then
-		if( ${?new_file_count} ) then
-			if( ${?append} ) then
-				foreach playlist( $playlists )
-					playlist:new:save.tcsh "$playlist";
-					unset playlist;
-				end
-			endif
-			unset new_file_count;
-		endif
-		unset append;
+	goto finish_finding_missing_media;
+#goto process_missing_media;
+
+
+check_duplicate_dirs:
+	if( ${?duplicate_dir} ) then
+		set previous_duplicate_dir="${duplicate_dir}";
 	endif
 	
+	foreach duplicate_dir("`printf "\""${duplicates_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
+		if( ${?previous_duplicate_dir} ) then
+			if( "${previous_duplicate_dir}" == "${duplicate_dir}" ) \
+				unset previous_duplicate_dir;
+			continue;
+		else
+			set previous_duplicate_dir="${duplicate_dir}";
+		endif
+		
+		set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/\//\\\//g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		
+		if(! -e "${this_podcast}" ) \
+			continue;
+			
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+	
+		unset escaped_duplicate_dir;
+		
+		goto handle_missing_media;
+	end
+	unset previous_duplicate_dir duplicate_dir this_podcast podcast;
+	goto process_missing_media;
+#goto check_diplicate_dirs;
+
+
+handle_missing_media:
+	set prompt_for_playlist;
+	while( ${?prompt_for_playlist} )
+		printf "\n\t<file://%s> is not listed in any of the provided playlists.\n\tWhat action would you like to take:\n" "${this_podcast}";
+		@ playlist_index=0;
+		while( $playlist_index < ${#playlists} )
+			@ playlist_index++;
+			printf "\t\t%d) Append to <file://%s>\n" $playlist_index "$playlists[$playlist_index]";
+		end
+		printf "\t\tr) Remove, i.e.: delete, this file and clean-up empty directories.\n\t\tc) Cancel, i.e.: Skip this file and do nothing.\n";
+		printf "\tPlease select which action you want performed?  [1-%d], (r), or (c): " $playlist_index;
+		set which_playlist="$<";
+		printf "\n";
+		if( `printf "%s" "${which_playlist}" | sed -r 's/^([cC])$/\l\1/i'` == "c" ) then
+			printf "\n\t<file://%s> will not be procced.\n" "${this_podcast}";
+			unset prompt_for_playlist;
+		else if( `printf "%s" "${which_playlist}" | sed -r 's/^([rR])$/\l\1/i'` == "r" ) then
+			printf "\n\t<file://%s> will be removed.\n" "${this_podcast}";
+			unset prompt_for_playlist;
+			goto remove_missing_media;
+		else if( `printf "%s" "${which_playlist}" | sed -r 's/^[0-9]+$//'` != "" ) then
+			printf "\n\t%s is an invalid playlist selection.  Please select again?\n" "${which_playlist}";
+		else if( $which_playlist < 1 || $which_playlist > $playlist_index ) then
+			printf "\n\t%s is an invalid playlist selection.  Please select again?\n" "${which_playlist}";
+		else
+			if(! ${?new_file_count} ) then
+				@ new_file_count=1;
+			else
+				@ new_file_count++;
+			endif
+			printf "\n\tAdding <file//%s> to <file://%s>\n" "${this_podcast}" "$playlists[$which_playlist]";
+			printf "%s\n" "${this_podcast}" >> "$playlists[$which_playlist].new";
+			unset prompt_for_playlist;
+		endif
+		unset which_playlist playlist_index;
+	end
+	
+	if( ${?duplicates_dirs} ) \
+		goto check_duplicate_dirs;
+	
+	goto process_missing_media;
+#goto handle_missing_media;
+
+
+remove_missing_media:
+	if(! ${?duplicate_dir} ) then
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+	else
+		set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/\//\\\//g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		unset escaped_duplicate_dir;
+	endif
+	
+	if(! -e "${this_podcast}" ) \
+		continue;
+	
+	if(! ${?duplicate_dir} ) then
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+	else
+		set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/\//\\\//g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		unset escaped_duplicate_dir;
+	endif
+	
+	if( ${?message} && ! ${?message_displayed} ) then
+		printf "\t**Files found under [%s] which are not in [%s] will be %s removed.**\n\n" "${cwd}" "${playlists}" "`printf "\""%s"\"" "\""${message}"\"" | sed -r 's/^(.*), ([^,]*)"\$"/\1 and \2/'`";
+		set message_displayed;
+	endif
+		
+	set status=0;
+	
+	set podcast_dir="`dirname "\""${this_podcast}"\""`";
+	
+	if(! ${?last_checked_directory} ) then
+		set last_checked_directory="${podcast_dir}";
+	else if( "${last_checked_directory}" != "${podcast_dir}" ) then
+		set last_checked_directory="${podcast_dir}";
+		printf "\n";
+	endif
+	
+	set rm_confirmation="`rm -v${remove} "\""${this_podcast}"\""`";
+	if(!( ${status} == 0 && "${rm_confirmation}" != "" )) then
+		unset rm_confirmation podcast_dir;
+		goto process_missing_media;
+	endif
+	
+	if( ${?removal_verbose} ) \
+		printf "%s\n" "${rm_confirmation}";
+	
+	@ removed_podcasts++;
+	if( ${?create_script} ) then
+		printf "rm -vf%s "\""%s"\"";\n" "${remove}" "${this_podcast}" >> "${create_script}";
+	endif
+	
+	set podcast_dir_for_ls="`dirname "\""${this_podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+	while( "${podcast_dir}" != "/" )
+		if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
+			break;
+		
+		rm -rv "${podcast_dir}";
+		if( ${?create_script} ) then
+			printf "rm -rv "\""%s"\"";\n" "${podcast_dir_for_ls}" >> "${create_script}";
+		endif
+		
+		set podcast_cwd="`printf "\""%s"\"" "\""${podcast_dir_for_ls}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+		set podcast_dir="`dirname "\""${podcast_cwd}"\""`";
+		set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+	end
+	
+	if( ${?podcast_cwd} ) \
+		unset podcast_cwd;
+	unset rm_confirmation podcast_dir podcast_dir_for_ls this_podcast;
+	
+	if( ${?duplicates_dirs} ) \
+		goto check_duplicate_dirs;
+	
+	goto process_missing_media;
+#goto remove_missing_media:
+
+
+finish_finding_missing_media:
+	if( ${?new_file_count} ) then
+		foreach playlist( $playlists )
+			playlist:new:save.tcsh "$playlist";
+			unset playlist;
+		end
+		unset new_file_count;
+	endif
+	unset playlists;
+	
 	goto exit_script;
-#find_missing_media:
+#goto finish_finding_missing_media;
 
 
 
@@ -434,25 +444,22 @@ scripts_main_quit:
 		unset nodeps;
 	if( ${?duplicates_subdir} ) \
 		unset duplicates_subdir;
-	if( ${?duplicate_podcast} ) \
-		unset duplicate_podcast;
+	if( ${?this_podcast} ) \
+		unset this_podcast;
 	if( ${?podcast_dir} ) \
 		unset podcast_dir;
 	if( ${?podcast} ) \
 		unset podcast;
 	if( ${?playlists} ) then
-		if( ${?append} ) then
-			foreach playlist( $playlists )
-				if( -e "${playlist}.new" ) \
-					rm "${playlist}.new";
-				if( -e "${playlist}.swp" ) \
-					rm "${playlist}.swp";
-				unset playlist;
-			end
-			if( ${?new_file_count} ) \
-				unset new_file_count;
-			unset append;
-		endif
+		foreach playlist( $playlists )
+			if( -e "${playlist}.new" ) \
+				rm "${playlist}.new";
+			if( -e "${playlist}.swp" ) \
+				rm "${playlist}.swp";
+			unset playlist;
+		end
+		if( ${?new_file_count} ) \
+			unset new_file_count;
 		unset playlists;
 	endif
 	if( ${?scripts_tmpdir} ) then
@@ -675,7 +682,6 @@ parse_arg:
 				switch("${option}")
 					case "skip-files-in-dir":
 					case "skip-dir":
-						set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^\///g'`";
 						if(! ${?skip_dirs} ) then
 							set skip_dirs=("${value}");
 						else
@@ -861,24 +867,7 @@ parse_arg:
 				if(! -f "${value}" ) \
 					breaksw;
 				
-				printf "\nadding: %s\n" "$value";
-				if(! ${?playlists} ) then
-					set playlists=("${value}");
-				else
-					set playlists=( ${playlists} "$value" );
-				endif
-				while( $arg < $argc )
-					@ arg++;
-					if( $arg >= $argc ) then
-						@ arg--;
-						break;
-					endif
-					if(! -f "$argv[$arg]" ) then
-						@ arg--;
-						break;
-					endif
-					set playlists=( ${playlists} "$argv[$arg]" );
-				end
+				goto append_playlists;
 				breaksw;
 			
 			case "nodeps":
@@ -894,23 +883,7 @@ parse_arg:
 				endif
 				
 				if( -f "${value}" ) then
-					if(! ${?playlists} ) then
-						set playlists=("${value}");
-					else
-						set playlists=( ${playlists} "$value" );
-					endif
-					while( $arg < $argc )
-						@ arg++;
-						if( $arg >= $argc ) then
-							@ arg--;
-							breaksw;
-						endif
-						if(! -f "$argv[$arg]" ) then
-							@ arg--;
-							breaksw;
-						endif
-						set playlists=( ${playlists} "$argv[$arg]" );
-					end
+					goto append_playlists;
 					breaksw;
 				endif
 				
@@ -929,4 +902,29 @@ parse_arg:
 	
 	goto main;
 #parse_arg:
+
+append_playlists:
+	if(! ${?playlists} ) \
+		set playlists="`mktemp --tmpdir "\""escaped.playlists.for:${scripts_basename}.XXXXXXXX"\""`";
+	printf "${value}\n" >> "${playlists}";
+	unset argument dashes option equals value;
+	
+	while( $arg < $argc )
+		@ arg++;
+		if( $arg >= $argc ) then
+			@ arg--;
+			goto parse_arg;
+		endif
+		
+		if(! -f "$argv[$arg]" ) then
+			@ arg--;
+			goto parse_arg;
+		endif
+		
+		printf "$argv[$arg]\n" >> "${playlists}";
+	end
+
+	goto parse_arg;
+#goto append_playlists;
+
 

@@ -43,7 +43,7 @@ playlist_init:
 	touch "${playlist}.new";
 	
 	if(! -e "${playlist}" ) then
-		touch "${playlist}";
+		touch "${playlist}" "${playlist}.swp";
 		goto scripts_main_quit;
 	endif
 #playlist_check:

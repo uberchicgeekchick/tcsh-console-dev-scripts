@@ -126,7 +126,6 @@ main:
 	if(! ${?remove} ) then
 		set removal_verbose;
 		set remove;
-		set message="verbosely";
 	endif
 	
 	if(! ${?maxdepth} ) \
@@ -300,8 +299,14 @@ handle_missing_media:
 			@ playlist_index++;
 			printf "\t\t%d) Append to <file://%s>\n" $playlist_index "$playlists[$playlist_index]";
 		end
-		printf "\t\tr) Remove, i.e.: delete, this file and clean-up empty directories.\n\t\tc) Cancel, i.e.: Skip this file and do nothing.\n";
-		printf "\tPlease select which action you want performed?  [1-%d], (r), or (c): " $playlist_index;
+		printf "\t\tr) Remove, i.e.: delete, this file and clean-up any resulting empty directories.\n\t\tc) Cancel, i.e.: Skip this file and do nothing.\n";
+		printf "\n\tPlease select which action you want performed?  ";
+		if( $playlist_index > 1 ) then
+			printf "[1-%d]" $playlist_index;
+		else
+			printf "1";
+		endif
+		printf " , (r), or (c): ";
 		set which_playlist="$<";
 		printf "\n";
 		if( `printf "%s" "${which_playlist}" | sed -r 's/^([cC])$/\l\1/i'` == "c" ) then
@@ -355,11 +360,6 @@ remove_missing_media:
 		unset escaped_duplicate_dir;
 	endif
 	
-	if( ${?message} && ! ${?message_displayed} ) then
-		printf "\t**Files found under [%s] which are not in [%s] will be %s removed.**\n\n" "${cwd}" "${playlists}" "`printf "\""%s"\"" "\""${message}"\"" | sed -r 's/^(.*), ([^,]*)"\$"/\1 and \2/'`";
-		set message_displayed;
-	endif
-		
 	set status=0;
 	
 	set podcast_dir="`dirname "\""${this_podcast}"\""`";
@@ -377,8 +377,7 @@ remove_missing_media:
 		goto process_missing_media;
 	endif
 	
-	if( ${?removal_verbose} ) \
-		printf "%s\n" "${rm_confirmation}";
+	printf "\t%s\n" "${rm_confirmation}";
 	
 	@ removed_podcasts++;
 	if( ${?create_script} ) then
@@ -390,7 +389,9 @@ remove_missing_media:
 		if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
 			break;
 		
-		rm -rv "${podcast_dir}";
+		set rm_notification="`rm -rv "\""${podcast_dir_for_ls}"\""`";
+		printf "\t%s\n" "${rm_notification}";
+		unset rm_notification;
 		if( ${?create_script} ) then
 			printf "rm -rv "\""%s"\"";\n" "${podcast_dir_for_ls}" >> "${create_script}";
 		endif
@@ -399,6 +400,8 @@ remove_missing_media:
 		set podcast_dir="`dirname "\""${podcast_cwd}"\""`";
 		set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
 	end
+
+	printf "\n\n";
 	
 	if( ${?podcast_cwd} ) \
 		unset podcast_cwd;
@@ -764,9 +767,6 @@ parse_arg:
 			
 			case "remove":
 			case "clean-up":
-				if(! ${?message} ) \
-					set message;
-				
 				if(! ${?remove} ) \
 					set remove;
 				
@@ -775,23 +775,15 @@ parse_arg:
 						if( ${?removal_verbose} ) \
 							breaksw;
 						
-						if( "${message}" != "" ) \
-							set message="${message}, ";
-						
 						set removal_verbose;
-						set message="${message}verbosely";
 						breaksw;
 					
 					case "force":
 						if( ${?removal_forced} ) \
 							breaksw;
 						
-						if( "${message}" != "" ) \
-							set message="${message}, ";
-						
 						set removal_forced;
 						set remove="${remove}f";
-						set message="${message}forcefully";
 						breaksw;
 					
 					case "interactive":
@@ -799,12 +791,8 @@ parse_arg:
 						if( ${?removal_interactive} ) \
 							breaksw;
 						
-						if( "${message}" != "" ) \
-							set message=", ${message}";
-						
 						set removal_interactive;
 						set remove="${remove}i";
-						set message="interactively${message}";
 						breaksw;
 				endsw
 			breaksw;

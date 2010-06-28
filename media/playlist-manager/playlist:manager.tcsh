@@ -354,7 +354,7 @@ clean_up:
 	cd "${old_cwd}";
 	set owd="${old_owd}";
 	unset old_owd old_cwd;
-	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)';
+	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
 	
 	unset target_directory maxdepth clean_up;
 #clean_up:

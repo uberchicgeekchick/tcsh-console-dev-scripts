@@ -126,6 +126,7 @@ main:
 	if(! ${?remove} ) then
 		set removal_verbose;
 		set remove;
+		set message="verbosely";
 	endif
 	
 	if(! ${?maxdepth} ) \

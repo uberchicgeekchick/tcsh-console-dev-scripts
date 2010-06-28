@@ -306,9 +306,8 @@ move_podiobooks:
 						"${podiobook}/"* \
 					"/media/podiobooks/Latest/`basename "\""${podiobook}"\""`";
 					
-					if( `/bin/ls -A "${podiobook}"` == "" ) then
+					if( `/bin/ls -A "${podiobook}"` == "" ) \
 						rm -rv "${podiobook}";
-					endif
 				endif
 			endif
 			unset podiobook;
@@ -340,9 +339,8 @@ move_slashdot:
 				"/media/podcasts/slash.";
 				
 				set podcast_dir="`dirname "\""${podcast}"\""`";
-				if( `/bin/ls -A "${podcast_dir}"` == "" ) then
+				if( `/bin/ls -A "${podcast_dir}"` == "" ) \
 					rm -rv "${podcast_dir}";
-				endif
 				unset podcast_dir;
 			endif
 			unset podcast;
@@ -382,9 +380,8 @@ back_up:
 				"/art/media/resources/stories/Slashdot";
 				
 				set podcast_dir="`dirname "\""${podcast}"\""`";
-				if( `/bin/ls -A "${podcast_dir}"` == "" ) then
+				if( `/bin/ls -A "${podcast_dir}"` == "" ) \
 					rm -rv "${podcast_dir}";
-				endif
 				unset podcast_dir;
 			endif
 			unset podcast;
@@ -393,9 +390,8 @@ back_up:
 		
 		set podcast_dir="/media/podcasts/slash.";
 		if( -e "${podcast_dir}" ) then
-			if( `/bin/ls -A "${podcast_dir}"` == "" ) then
+			if( `/bin/ls -A "${podcast_dir}"` == "" ) \
 				rm -rv "${podcast_dir}";
-			endif
 		endif
 		unset podcast_dir;
 	endif

@@ -124,6 +124,8 @@ parse_argv:
 				
 				switch("${value}")
 					case "force":
+					case "forced":
+					case "verbose":
 					case "interactive":
 						set clean_up="${value}";
 						breaksw;

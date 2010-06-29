@@ -856,13 +856,12 @@ parse_arg:
 			
 			case "remove":
 			case "clean-up":
-				if(! ${?remove} ) \
-					set remove;
-				
 				#set value=`printf "%s" ${value}" | sed -r 's/^(.).*$/\1/'`;
 				switch("${value}")
 					case "force":
 					case "forced":
+						if(! ${?remove} ) \
+							set remove;
 						if(! ${?removal_forced} ) \
 							set removal_forced;
 						if(! ${?removal_verbose} ) \
@@ -872,11 +871,15 @@ parse_arg:
 						breaksw;
 					
 					case "verbose":
+						if(! ${?remove} ) \
+							set remove;
 						if(! ${?removal_verbose} ) \
 							set removal_verbose;
 						breaksw;
 					
 					case "interactive":
+						if(! ${?remove} ) \
+							set remove;
 						if(! ${?removal_interactive} ) \
 							set removal_interactive;
 						if( `printf "%s" "${remove}" | sed -r 's/^.*(i).*$/\1/'` != "i" ) \

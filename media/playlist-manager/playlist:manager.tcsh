@@ -116,6 +116,7 @@ parse_argv:
 				breaksw;
 			
 			case "clean-up":
+			case "remove":
 				if( ${?clean_up} ) \
 					breaksw;
 				

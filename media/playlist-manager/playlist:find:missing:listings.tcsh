@@ -871,7 +871,6 @@ parse_arg:
 						breaksw;
 					
 					case "interactive":
-					default:
 						if(! ${?removal_interactive} ) \
 							set removal_interactive;
 						if( `printf "%s" "${remove}" | sed -r 's/^.*(i).*$/\1/'` != "i" ) \

@@ -293,12 +293,14 @@ filename_next:
 #filename_next:
 
 format_new_playlist:
-	if(!( ${?clean_up} && ${?dead_file_count} )) then
-		set callback="scripts_main_quit";
-		goto callback_handler;
+	if( ${?clean_up} && ${?dead_file_count} ) then
+		playlist:new:save.tcsh --force "${playlist}";
+		unset dead_file_count;
 	endif
+	unset playlist;
 	
-	playlist:new:save.tcsh --force "${playlist}";
+	set callback="parse_arg";
+	goto callback_handler;
 #format_new_playlist:
 
 scripts_main_quit:
@@ -362,8 +364,8 @@ scripts_main_quit:
 	
 	if( ${?usage_displayed} ) \
 		unset usage_displayed;
-	if( ${?no_exit_on_usage} ) \
-		unset no_exit_on_usage;
+	if( ${?exit_on_usage} ) \
+		unset exit_on_usage;
 	if( ${?display_usage_on_error} ) \
 		unset display_usage_on_error;
 	if( ${?last_exception_handled} ) \
@@ -475,11 +477,11 @@ usage:
 	if(! ${?usage_displayed} ) \
 		set usage_displayed;
 	
-	if(! ${?no_exit_on_usage} ) \
-		goto scripts_main_quit;
-	
-	if(! ${?callback} ) \
+	if( ${?exit_on_usage} ) then
+		set callback="scripts_main_quit";
+	else if(! ${?callback} ) then
 		set callback="parse_arg";
+	endif
 	goto callback_handler;
 #usage:
 
@@ -723,7 +725,21 @@ parse_arg:
 					set debug;
 				breaksw;
 			
+			case "do-not-clean-up":
+			case "no-clean-up":
+				if(! ${?clean_up}) \
+					breaksw;
+				
+				unset clean_up;
+				
+				if( ${?debug} ) \
+					printf "**%s debug:**, via "\$"argv[%d], %s:\t[enabled].\n\n" "${scripts_basename}" $arg "${option}";
+				breaksw;
+			
 			case "clean-up":
+				if( ${?clean_up}) \
+					breaksw;
+				
 				set clean_up;
 				
 				if( ${?debug} ) \
@@ -816,6 +832,11 @@ parse_arg:
 		endif
 		
 		unset dashes option equals value parsed_arg;
+		
+		if( ${?playlist} ) then
+			set callback="if_sourced";
+			goto callback_handler;
+		endif
 	end
 #parse_arg:
 
@@ -833,7 +854,7 @@ parse_argv_quit:
 		endif
 	endif
 	if(! ${?diagnostic_mode} ) then
-		set callback="if_sourced";
+		set callback="exit_script";
 	else
 		set callback="diagnostic_mode";
 	endif

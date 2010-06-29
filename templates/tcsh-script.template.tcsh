@@ -10,7 +10,6 @@ setup:
 		set stderr=/dev/stderr;
 	endif
 	
-	set strict;
 	set supports_being_sourced;
 	
 	set supports_multiple_files;
@@ -77,7 +76,7 @@ exit_script:
 	
 	if( ${?filename_list} ) then
 		if(! ${?supports_multiple_files} ) then
-			@ errno=-505;
+			@ errno=-506;
 			goto exception_handler;
 		endif
 		
@@ -117,7 +116,7 @@ scripts_main_quit:
 		endif
 		unset supports_multiple_files;
 	else if( ${?filename_list} ) then
-		@ errno=-505;
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	
@@ -342,8 +341,6 @@ scripts_main_quit:
 	if( ${?grep_test} ) \
 		unset grep_test;
 	
-	if( ${?strict} ) \
-		unset strict;
 	if( ${?arg_shifted} ) \
 		unset arg_shifted;
 	if( ${?value_used} ) \
@@ -668,7 +665,7 @@ if_sourced:
 		
 		if(! -e "${filename_list}" ) then
 			if(!( ${?scripts_interactive} || ${?auto_read_stdin} )) then
-				@ errno=-506;
+				@ errno=-507;
 				goto exception_handler;
 			endif
 			
@@ -740,7 +737,7 @@ main:
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
 		set callback="exec";
 	else if( ${?filename_list} && ! ${?supports_multiple_files} ) then
-		@ errno=-505;
+		@ errno=-506;
 		goto exception_handler;
 	else if( ${?filename_list} && ${?supports_multiple_files} ) then
 		if( -e "${filename_list}.all" ) then
@@ -760,7 +757,7 @@ main:
 			@ file_count=0;
 		
 		if(!( ${file_count} > 0 )) then
-			@ errno=-506;
+			@ errno=-507;
 			goto exception_handler;
 		endif
 	else if(!( ${?scripts_interactive} || ${?auto_read_stdin} )) then
@@ -832,7 +829,7 @@ exec:
 	printf "Executing %s's exec.\n" "${scripts_basename}";
 	
 	if( ${?filename_list} && ! ${?supports_multiple_files} ) then
-		@ errno=-505;
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	
@@ -934,7 +931,7 @@ filename_next:
 	endif
 	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
-		@ errno=-505;
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	
@@ -970,7 +967,7 @@ filename_next:
 			set callback="read_stdin_init";
 		endif
 	else if(!( ${?scripts_interactive} || ${?auto_read_stdin} )) then
-		@ errno=-505;
+		@ errno=-506;
 		goto exception_handler;
 	else if( ${?reading_stdin} ) then
 		set callback="read_stdin";
@@ -992,7 +989,7 @@ filename_list_post_process:
 	endif
 	
 	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
-		@ errno=-505;
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	
@@ -1109,7 +1106,7 @@ exception_handler:
 	if( $errno <= -500 ) then
 		if(! ${?exit_on_exception} ) \
 			set exit_on_exception;
-	else if( $errno < -400 && ${?strict} ) then
+	else if( $errno < -400 ) then
 		if(! ${?exit_on_exception} ) \
 			set exit_on_exception;
 	else if( $errno > -400 && $errno < -100 ) then
@@ -1119,12 +1116,13 @@ exception_handler:
 		endif
 	endif
 	
+	printf "\n" > ${stderr};
 	if( $errno > -400 ) \
-		printf "\n\t" > ${stderr};
+		printf "\t" > ${stderr};
 	printf "**%s error("\$"errno:%d):**\n\t" "${scripts_basename}" ${errno} > ${stderr};
 	switch( $errno )
 		case -300:
-			printf "Cannot process: <file://%s> is an unsupported file" "${value}" > ${stderr};
+			printf "Cannot process: <file://%s> is an unsupported file." "${value}" > ${stderr};
 			unset value;
 			breaksw;
 		
@@ -1139,7 +1137,7 @@ exception_handler:
 			breaksw;
 		
 		case -497:
-			printf "No files have been processed" > ${stderr};
+			printf "No files have been processed." > ${stderr};
 			if( ${?filename_list} ) then
 				if( -e "${filename_list}" ) \
 					rm -f "${filename_list}";
@@ -1152,11 +1150,6 @@ exception_handler:
 		case -498:
 			printf "The value/file specified: <%s> is invalid and cannot be processed\t[stdin failed]" "${value}" > ${stderr};
 			unset value;
-			breaksw;
-		
-		case -499:
-			printf "%s%s%s%s is an unsupported option" "${dashes}" "${option}" "${equals}" "${value}" > ${stderr};
-			unset dashes option equals value;
 			breaksw;
 		
 		case -500:
@@ -1173,15 +1166,20 @@ exception_handler:
 			breaksw;
 		
 		case -503:
-			printf "One or more required options have not been provided" > ${stderr};
+			printf "One or more required options have not been provided." > ${stderr};
 			breaksw;
 		
 		case -504:
-			printf "To many options have been provided" > ${stderr};
+			printf "To many options have been provided." > ${stderr};
 			breaksw;
 		
 		case -505:
-			printf "handling and/or processing multiple files isn't supported" > ${stderr};
+			printf "%s%s%s%s is an unsupported option." "${dashes}" "${option}" "${equals}" "${value}" > ${stderr};
+			unset dashes option equals value;
+			breaksw;
+		
+		case -506:
+			printf "handling and/or processing multiple files isn't supported." > ${stderr};
 			if( ${?filename_list} ) then
 				if( -e "${filename_list}" ) \
 					rm -f "${filename_list}";
@@ -1191,10 +1189,10 @@ exception_handler:
 			endif
 			breaksw;
 		
-		case -506:
-			printf "No processable file have been provide, nor could any be found" > ${stderr};
+		case -507:
+			printf "No processable file have been provide, nor could any be found." > ${stderr};
 			if(!( ${?scripts_interactive} || ${?auto_read_stdin} )) then
-				printf ".\n\t\tRun: "\`"%s -"\`" or "\`"%s "\""<"\"\`" if you want to pipe options into this script" "${scripts_basename}" "${scripts_basename}" > ${stderr};
+				printf ".\n\t\tRun: "\`"%s -"\`" or "\`"%s "\""<"\"\`" if you want to pipe options into this script." "${scripts_basename}" "${scripts_basename}" > ${stderr};
 			else
 				set callback="filename_next";
 				if( ${?exit_on_exception} ) \
@@ -1210,27 +1208,27 @@ exception_handler:
 			breaksw;
 		
 		case -602:
-			printf "%s%s must be followed by a valid number greater than zero" "${dashes}" "${option}" > ${stderr};
+			printf "%s%s must be followed by a valid number greater than zero." "${dashes}" "${option}" > ${stderr};
 			breaksw;
 		
 		case -603:
-			printf "Invalid length specified for: [%s%s]: %s must be formatted as: 'hh:mm:ss'" "${dashes}" "${option}" "${value}" > ${stderr};
+			printf "Invalid length specified for: [%s%s]: %s must be formatted as: 'hh:mm:ss'." "${dashes}" "${option}" "${value}" > ${stderr};
 			breaksw;
 		
 		case -604:
-			printf "%s %s is not supported" "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e"\$"/\1ing/`" "${value}" "${scripts_basename}" > ${stderr};
+			printf "%sing %s is not supported." "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e"\$"/\1/`" "${value}" "${scripts_basename}" > ${stderr};
 			breaksw;
 		
 		case -901:
-			printf "initialization was not completed correctly.  Please make sure label_starck_set is called at the beginning of the script." > ${stderr};
+			printf "initialization was not completed correctly.  Please make sure label_stack_set is called at the beginning of the script." > ${stderr};
 			breaksw;
 		
 		case -999:
 		default:
-			printf "An internal script error has caused an exception.  Please see any output above" > ${stderr}
+			printf "An internal script error has occured." > ${stderr}
 			breaksw;
 	endsw
-	printf ".\n\n";
+	printf "\n\n";
 	@ last_exception_handled=$errno;
 	printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr}
 	if(! ${?debug} ) \
@@ -1246,6 +1244,8 @@ exception_handler:
 	endif
 	
 	goto callback_handler;
+#@ errno=-101;
+#set callback="$!";
 #goto exception_handler;
 
 
@@ -1660,16 +1660,7 @@ check_arg:
 				breaksw;
 			endif
 			
-			if(! ${?strict} ) then
-				if(! ${?exit_on_exception} ) \
-					set exit_on_exception;
-				set callback="parse_argv";
-			else if( ${?exit_on_exception} ) then
-				unset exit_on_exception;
-				set exit_on_exception_unset;
-			endif
-			
-			@ errno=-499;
+			@ errno=-505;
 			set callback="parse_argv";
 			goto exception_handler;
 			breaksw;
@@ -1807,7 +1798,7 @@ filename_list_append_value:
 	endif
 	
 	if(! ${?supports_multiple_files} ) then
-		@ errno=-505;
+		@ errno=-506;
 		goto exception_handler;
 	endif
 	

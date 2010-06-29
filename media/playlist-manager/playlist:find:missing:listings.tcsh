@@ -342,9 +342,7 @@ check_duplicate_dirs:
 		endif
 		
 		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-	
-		unset duplicate_podcast escaped_duplicate_dir this_podcast;
-		
+		unset duplicate_podcast escaped_duplicate_dir;
 		goto handle_missing_media;
 	end
 	unset previous_duplicate_dir duplicate_dir this_podcast podcast;
@@ -441,8 +439,10 @@ remove_missing_media:
 	if(! -e "${this_podcast}" ) then
 		if( ${?duplicate_dir} ) then
 			unset escaped_duplicate_dir;
+			unset this_podcast podcast;
 			goto check_duplicate_dirs;
 		endif
+		unset this_podcast podcast;
 		goto process_missing_media;
 	endif
 	

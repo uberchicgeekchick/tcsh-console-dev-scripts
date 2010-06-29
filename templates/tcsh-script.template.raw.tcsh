@@ -4,6 +4,8 @@ setup:
 	
 	@ minimum_options=-1;
 	@ maximum_options=-1;
+	# optional
+	set supports_being_sourced;
 	
 	if(! -o /dev/$tty ) then
 		set stdout=/dev/null;
@@ -51,8 +53,10 @@ setup:
 
 
 debug_check_init:
-	if( ${#argv} < -1 ) \
-		goto usage;
+	if( ${#argv} < 0 ) then
+		@ errno=-503;
+		goto exception_handler;
+	endif
 	
 	@ argc=${#argv};
 	@ arg=0;
@@ -135,17 +139,20 @@ dependencies_check:
 		
 		set dependency=$dependencies[$dependencies_index];
 		
-		set which_dependency=`printf "%d" "${dependencies_index}" | sed -r 's/^[0-9]*[^1]?([0-9])$/\1/'`;
-		if( $which_dependency == 1 ) then
-			set suffix="st";
-		else if( $which_dependency == 2 ) then
-			set suffix="nd";
-		else if( $which_dependency == 3 ) then
-			set suffix="rd";
-		else
-			set suffix="th";
-		endif
-		unset which_dependency;
+		switch( `printf "%d" "${dependencies_index}" | sed -r 's/^.*([0-9])$/\1/'`)
+			case 1:
+				set suffix="st";
+				breaksw;
+			case 2:
+				set suffix="nd";
+				breaksw;
+			case 3:
+				set suffix="rd";
+				breaksw;
+			default:
+				set suffix="th";
+				breaksw;
+		endsw
 		
 		if( ${?debug} ) \
 			printf "\n**dependencies:** looking for <%s>'s %d%s dependency: %s.\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" > ${stdout};
@@ -157,9 +164,8 @@ dependencies_check:
 		end
 		
 		if(! ${?program} ) then
-			printf "**dependencies:** <%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s]." "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
-			unset suffix dependency dependencies dependencies_index;
-			goto exit_script;
+			@ errno=-501;
+			goto exception_handler;
 		endif
 		
 		if( ${?debug} ) \
@@ -198,11 +204,13 @@ dependencies_check:
 
 
 exit_script:
-	onintr scripts_main_quit;
+	onintr exit_script;
 	goto scripts_main_quit;
 #goto exit_script;
 
+
 scripts_main_quit:
+	onintr exit_script;
 	if( ${?starting_cwd} ) then
 		if( "${starting_cwd}" != "${cwd}" ) \
 			cd "${starting_cwd}";
@@ -238,6 +246,11 @@ scripts_main_quit:
 
 
 sourced:
+	if(! ${?supports_being_sourced} ) then
+		@ errno=-502;
+		goto exception_handler;
+	endif
+	
 	# START: special handler for when this file is sourced.
 	if( -d "${scripts_path}/../tcshrc" && -f "${scripts_path}/../tcshrc/argv:check" ) \
 		source "${scripts_path}/argv:check" "${scripts_basename}" ${argv};
@@ -250,7 +263,7 @@ sourced:
 	if( -d "${scripts_path}/../tcshrc" && -f "${scripts_path}/../tcshrc/argv:clean-up" ) \
 		source "${scripts_path}/argv:clean-up" "${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.
-	goto scripts_main_quit;
+	goto exit_script;
 #goto sourced;
 
 
@@ -427,9 +440,10 @@ check_arg:
 			breaksw;
 		
 		case "":
-			breaksw;
-		
 		default:
+			@ errno=-505;
+			set callback="parse_argv";
+			goto exception_handler;
 			breaksw;
 	endsw
 	unset argument dashes option equals value escaped_value;
@@ -462,5 +476,79 @@ usage:
 	goto callback_handler;
 #set callback="$!";
 #goto usage;
+
+
+exception_handler:
+	if(! ${?errno} ) \
+		@ errno=-999;
+	
+	if( $errno <= -500 ) then
+		if(! ${?exit_on_exception} ) \
+			set exit_on_exception;
+	else if( $errno < -400 ) then
+		if(! ${?exit_on_exception} ) \
+			set exit_on_exception;
+	else if( $errno > -400 && $errno < -100 ) then
+		if( ${?exit_on_exception} ) then
+			set exit_on_exception_unset;
+			unset exit_on_exception;
+		endif
+	endif
+	
+	printf "\n" > ${stderr};
+	if( $errno > -400 ) \
+		printf "\t" > ${stderr};
+	printf "**%s error("\$"errno:%d):**\n\t" "${scripts_basename}" ${errno} > ${stderr};
+	switch( $errno )
+		case -501:
+			printf "<%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s]." "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
+			unset suffix dependency dependencies dependencies_index;
+			breaksw;
+		
+		case -502:
+			printf "Sourcing is not supported. %s may only be executed." "${scripts_basename}" > ${stderr};
+			breaksw;
+		
+		case -503:
+			printf "One or more required options have not been provided." > ${stderr};
+			breaksw;
+		
+		case -504:
+			printf "To many options have been provided." > ${stderr};
+			breaksw;
+		
+		case -505:
+			printf "%s%s%s%s is an unsupported option." "${dashes}" "${option}" "${equals}" "${value}" > ${stderr};
+			unset dashes option equals value;
+			breaksw;
+		
+		case -604:
+			printf "%sing %s is not supported." "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e"\$"/\1/`" "${value}" "${scripts_basename}" > ${stderr};
+			breaksw;
+		
+		case -999:
+		default:
+			printf "An internal script error has occured." > ${stderr}
+			breaksw;
+	endsw
+	printf "\n\n";
+	@ last_exception_handled=$errno;
+	printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr}
+	if(! ${?debug} ) \
+		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr}
+	printf "\n" > ${stderr}
+	
+	if( ! ${?callback} || ${?exit_on_exception} ) \
+		set callback="exit_script";
+	
+	if( ${?exit_on_exception_unset} ) then
+		unset exit_on_exception_unset;
+		set exit_on_exception;
+	endif
+	
+	goto callback_handler;
+#@ errno=-101;
+#set callback="$!";
+#goto exception_handler;
 
 

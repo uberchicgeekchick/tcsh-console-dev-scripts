@@ -5,15 +5,14 @@ init:
 	onintr exit_script;
 	
 	if(! ${?0} ) then
-		printf "This script does not support being sourced and can only be exectuted.\n" > /dev/stderr;
-		@ errno=-501;
-		goto exit_script;
+		@ errno=-502;
+		goto exception_handler;
 	endif
 	
 	if( "${1}" == "" ) then
 		printf "One or more required options are missing.\n" > /dev/stderr;
-		@ errno=-502;
-		goto exit_script;
+		@ errno=-503;
+		goto exception_handler;
 	endif
 #init:
 
@@ -32,34 +31,32 @@ check_dependencies:
 			unset program;
 		end
 		
+		switch( `printf "%d" "${dependencies_index}" | sed -r 's/^.*([0-9])$/\1/'` )
+			case 1:
+				set suffix="st";
+				breaksw;
+			
+			case "2":
+				set suffix="nd";
+				breaksw;
+			
+			case "3":
+				set suffix="rd";
+				breaksw;
+			
+			default:
+				set suffix="th";
+				breaksw;
+		endsw
+		
 		if(! ${?program} ) then
 			@ errno=-501;
-			printf "One or more required dependencies couldn't be found.\n\t[%s] couldn't be found.\n\t%s requires: %s\n" "${dependency}" "${scripts_basename}" "${dependencies}";
-			goto exit_script;
+			goto exception_handler;
 		endif
-		
-		if( ${?debug} || ${?debug_dependencies} ) then
-			switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([1-3])"\$"/\1/'`" )
-				case "1":
-					set suffix="st";
-					breaksw;
-				
-				case "2":
-					set suffix="nd";
-					breaksw;
-				
-				case "3":
-					set suffix="rd";
-					breaksw;
-				
-				default:
-					set suffix="th";
-					breaksw;
-			endsw
 			
+		if(! ${?debug} ) \
 			printf "**%s debug:** found %s%s dependency: %s.\n" "${scripts_basename}" "${dependencies_index}" "${suffix}" "${dependency}";
-			unset suffix;
-		endif
+		unset suffix;
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
@@ -147,8 +144,11 @@ parse_argv:
 				breaksw;
 			
 			case "import":
-				if( -e "${value}" ) \
-					set import="${value}";
+				if(! -e "${value}" ) then
+					@ errno=-601;
+					goto exception_handler;
+				endif
+				set import="${value}";
 				breaksw;
 			
 			case "export":
@@ -498,5 +498,83 @@ usage:
 	
 	goto exit_script;
 #usage:
+
+
+exception_handler:
+	if(! ${?errno} ) \
+		@ errno=-999;
+	
+	if( $errno <= -500 ) then
+		if(! ${?exit_on_exception} ) \
+			set exit_on_exception;
+	else if( $errno < -400 ) then
+		if(! ${?exit_on_exception} ) \
+			set exit_on_exception;
+	else if( $errno > -400 && $errno < -100 ) then
+		if( ${?exit_on_exception} ) then
+			set exit_on_exception_unset;
+			unset exit_on_exception;
+		endif
+	endif
+	
+	printf "\n" > ${stderr};
+	if( $errno > -400 ) \
+		printf "\t" > ${stderr};
+	printf "**%s error("\$"errno:%d):**\n\t" "${scripts_basename}" ${errno} > ${stderr};
+	switch( $errno )
+		case -501:
+			printf "<%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s]." "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
+			unset suffix dependency dependencies dependencies_index;
+			breaksw;
+		
+		case -502:
+			printf "Sourcing is not supported. %s may only be executed." "${scripts_basename}" > ${stderr};
+			breaksw;
+		
+		case -503:
+			printf "One or more required options have not been provided." > ${stderr};
+			breaksw;
+		
+		case -504:
+			printf "To many options have been provided." > ${stderr};
+			breaksw;
+		
+		case -505:
+			printf "%s%s%s%s is an unsupported option." "${dashes}" "${option}" "${equals}" "${value}" > ${stderr};
+			unset dashes option equals value;
+			breaksw;
+		
+		case -601:
+			printf "fatal import error:\n\t<file://%s> does not exist." "${value}";
+			breaksw;
+		
+		case -604:
+			printf "%sing %s is not supported." "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e"\$"/\1/`" "${value}" "${scripts_basename}" > ${stderr};
+			breaksw;
+		
+		case -999:
+		default:
+			printf "An internal script error has occured." > ${stderr}
+			breaksw;
+	endsw
+	printf "\n\n";
+	@ last_exception_handled=$errno;
+	printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr}
+	if(! ${?debug} ) \
+		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr}
+	printf "\n" > ${stderr}
+	
+	if( ! ${?callback} || ${?exit_on_exception} ) \
+		set callback="exit_script";
+	
+	if( ${?exit_on_exception_unset} ) then
+		unset exit_on_exception_unset;
+		set exit_on_exception;
+	endif
+	
+	goto callback_handler;
+#@ errno=-101;
+#set callback="$!";
+#goto exception_handler;
 
 

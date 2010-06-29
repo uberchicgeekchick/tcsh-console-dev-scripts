@@ -330,7 +330,7 @@ check_duplicate_dirs:
 		#printf "Looking for: <file://%s>" "${duplicate_podcast}";
 		if(!( "${duplicate_podcast}" != "${this_podcast}" && -e "${duplicate_podcast}" )) then
 			unset base_dir escaped_base_dir duplicate_podcast escaped_duplicate_dir this_podcast;
-			goto check_diplicate_dirs;
+			goto check_duplicate_dirs;
 		endif
 		
 		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
@@ -341,7 +341,7 @@ check_duplicate_dirs:
 	end
 	unset previous_duplicate_dir duplicate_dir this_podcast podcast;
 	goto process_missing_media;
-#goto check_diplicate_dirs;
+#goto check_duplicate_dirs;
 
 
 handle_missing_media:

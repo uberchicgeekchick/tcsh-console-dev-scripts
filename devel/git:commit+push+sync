@@ -378,6 +378,10 @@ restore_symlinks:
 	if(! -e "${symlink_log}" ) \
 		goto git_push;
 	
+	printf "Symlinks saved to: <file://%s>\n" "${symlink_log}";
+	unset symlink_log;
+	goto exit_script;
+	
 	printf "Restoring symlinks.\n";
 	
 	foreach project_symlink("`cat "\""${symlink_log}"\""`")

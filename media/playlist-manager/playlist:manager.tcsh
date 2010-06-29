@@ -115,21 +115,23 @@ parse_argv:
 					set debug;
 				breaksw;
 			
-			case "clean-up":
 			case "remove":
-				if( ${?clean_up} ) \
-					breaksw;
-				
+			case "clean-up":
 				switch("${value}")
+					case "silent":
 					case "force":
 					case "forced":
-					case "verbose":
 					case "interactive":
-						set clean_up="${value}";
+						if(! ${?clean_up} ) then
+							set clean_up="${value}";
+						else
+							set clean_up="${clean_up} --clean-up=${value}";
+						endif
 						breaksw;
 					
 					default:
-						set clean_up;
+						if(! ${?clean_up} ) \
+							set clean_up;
 						breaksw;
 				endsw
 				breaksw;

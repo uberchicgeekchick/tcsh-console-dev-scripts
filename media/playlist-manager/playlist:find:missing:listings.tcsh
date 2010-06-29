@@ -109,7 +109,6 @@ main:
 	unset target_directories_filename_list;
 	
 	if(! ${?remove} ) then
-		set removal_verbose;
 		set remove;
 	endif
 	
@@ -471,7 +470,7 @@ remove_missing_media:
 		goto process_missing_media;
 	endif
 	
-	if( ${?removal_verbose} ) \
+	if(! ${?removal_silent} ) \
 		printf "\t%s\n" "${rm_notification}";
 	
 	@ removed_podcasts++;
@@ -485,7 +484,7 @@ remove_missing_media:
 			break;
 		
 		set rm_notification="`rm -rv "\""${podcast_dir_for_ls}"\""`";
-		if( ${?removal_verbose} ) \
+		if(! ${?removal_silent} ) \
 			printf "\t%s\n" "${rm_notification}"
 		unset rm_notification;
 		if( ${?create_script} ) then
@@ -860,30 +859,26 @@ parse_arg:
 				switch("${value}")
 					case "force":
 					case "forced":
-						if(! ${?remove} ) \
-							set remove;
 						if(! ${?removal_forced} ) \
 							set removal_forced;
-						if(! ${?removal_verbose} ) \
-							set removal_verbose;
-						if( `printf "%s" "${remove}" | sed -r 's/^.*(f).*$/\1/'` != "f" ) \
+						if(! ${?remove} ) then
+							set remove="f";
+						else if( `printf "%s" "${remove}" | sed -r 's/^.*(f).*$/\1/'` != "f" ) then
 							set remove="${remove}f";
+						endif
 						breaksw;
 					
-					case "verbose":
-						if(! ${?remove} ) \
-							set remove;
-						if(! ${?removal_verbose} ) \
-							set removal_verbose;
+					case "silent":
+						if(! ${?removal_silent} ) \
+							set removal_silent;
 						breaksw;
 					
 					case "interactive":
-						if(! ${?remove} ) \
-							set remove;
-						if(! ${?removal_interactive} ) \
-							set removal_interactive;
-						if( `printf "%s" "${remove}" | sed -r 's/^.*(i).*$/\1/'` != "i" ) \
+						if(! ${?remove} ) then
+							set remove="i";
+						else if( `printf "%s" "${remove}" | sed -r 's/^.*(i).*$/\1/'` != "i" ) then
 							set remove="${remove}i";
+						endif
 						breaksw;
 				endsw
 				breaksw;

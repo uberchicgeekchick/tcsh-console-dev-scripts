@@ -198,6 +198,12 @@ find_missing_media:
 		unset target_directory;
 		goto find_missing_media;
 	end
+	while( "`/bin/grep --perl-regex -c '^"\$"' "\""${missing_media_filename_list}"\""`" != 0 )
+		set line_numbers=`/bin/grep --perl-regex --line-number '^$' "${missing_media_filename_list}" | sed -r 's/^([0-9]+).*$/\1/' | grep --perl-regexp '^[0-9]+'`;
+		set line_numbers=`printf "%s\n" "${line_numbers}" | sed 's/ /,/g'`;
+	 	ex -s "+${line_numbers}d" '+1,$s/\v^\n//g' '+wq!' "${missing_media_filename_list}";
+		unset line_numbers;
+	end
 	printf "\t[done]\n";
 	
 	unset previous_target_directory;

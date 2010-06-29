@@ -170,18 +170,17 @@ find_missing_media:
 	if(! ${?previous_target_directory} ) \
 		printf "\nSearching";
 	foreach target_directory(${target_directories})
-		if(! ${?previous_target_directory} ) then
-			set previous_target_directory="${target_directory}";
-		else
-			if( "${previous_target_directory}" == "${target_directory}" ) \
-				unset previous_target_directory;
-			printf ".";
-			continue;
-		endif
+		#if(! ${?previous_target_directory} ) then
+		#	set previous_target_directory="${target_directory}";
+		#else
+		#	if( "${previous_target_directory}" == "${target_directory}" ) \
+		#		unset previous_target_directory;
+		#	printf ".";
+		#	continue;
+		#endif
 		
-		if( ${?debug} ) then
+		if( ${?debug} ) \
 			printf "\nRunning:\n\tfind -L "\""${target_directory}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex "\"".*${extensions}"\$\""' \! -iregex '.*\/\..*' -type f\n";
-		endif
 		
 		printf ".";
 		find -L "${target_directory}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ \! -iregex '.*\/\..*' -type f | sort >> "${missing_media_filename_list}";
@@ -194,7 +193,7 @@ find_missing_media:
 		printf ".";
 		
 		unset target_directory;
-		goto find_missing_media;
+		#goto find_missing_media;
 	end
 	while( "`/bin/grep --perl-regex -c '^"\$"' "\""${missing_media_filename_list}"\""`" != 0 )
 		set line_numbers=`/bin/grep --perl-regex --line-number '^$' "${missing_media_filename_list}" | sed -r 's/^([0-9]+).*$/\1/' | grep --perl-regexp '^[0-9]+'`;
@@ -293,26 +292,35 @@ process_missing_media:
 check_duplicate_dirs:
 	onintr process_missing_media;
 	
-	set old_owd="${owd}";
-	set old_cwd="${cwd}";
-	set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\(\\|\[|\*)/\1/g'`";
-	set podcast_dir="`dirname "\""${this_podcast}"\""`";
-	while( "${podcast_dir}" != "/" && ! -d "${podcast_dir}" )
-		set podcast_dir="`dirname "\""${podcast_dir}"\""`";
-	end
-	cd "${podcast_dir}";
-	while( "${cwd}" != "/" )
-		if( -d "${cwd}/nfs" ) then
-			set base_dir="${cwd}";
-			set escaped_base_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g'`";
-			break;
-		else
-			cd "..";
-		endif
-	end
-	cd "${old_cwd}";
-	set owd="${old_owd}";
-	unset old_owd old_cwd this_podcast;
+	if(! ${?base_dir} ) \
+		set base_dir="";
+	
+	if(! ${?escaped_base_dir} ) \
+		set escaped_base_dir="";
+	
+	if(!( "${escaped_base_dir}" != "" && "${base_dir}" != "" && "`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/^(${escaped_base_dir}).*"\$"/\1/'`" == "${base_dir}" )) then
+		set old_owd="${owd}";
+		set old_cwd="${cwd}";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\(\\|\[|\*)/\1/g'`";
+		set podcast_dir="`dirname "\""${this_podcast}"\""`";
+		while( "${podcast_dir}" != "/" && ! -d "${podcast_dir}" )
+			set podcast_dir="`dirname "\""${podcast_dir}"\""`";
+		end
+		cd "${podcast_dir}";
+		unset podcast_dir;
+		while( "${cwd}" != "/" )
+			if( -d "${cwd}/nfs" ) then
+				set base_dir="${cwd}";
+				set escaped_base_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g'`";
+				break;
+			else
+				cd "..";
+			endif
+		end
+		cd "${old_cwd}";
+		set owd="${old_owd}";
+		unset old_owd old_cwd this_podcast;
+	endif
 	
 	foreach duplicate_dir("`printf "\""${duplicates_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
 		if(! ${?previous_duplicate_dir} ) then
@@ -329,13 +337,13 @@ check_duplicate_dirs:
 		
 		#printf "Looking for: <file://%s>" "${duplicate_podcast}";
 		if(!( "${duplicate_podcast}" != "${this_podcast}" && -e "${duplicate_podcast}" )) then
-			unset base_dir escaped_base_dir duplicate_podcast escaped_duplicate_dir this_podcast;
+			unset duplicate_podcast escaped_duplicate_dir this_podcast;
 			goto check_duplicate_dirs;
 		endif
 		
 		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
 	
-		unset base_dir escaped_base_dir duplicate_podcast escaped_duplicate_dir this_podcast;
+		unset duplicate_podcast escaped_duplicate_dir this_podcast;
 		
 		goto handle_missing_media;
 	end

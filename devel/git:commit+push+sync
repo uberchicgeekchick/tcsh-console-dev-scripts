@@ -531,7 +531,7 @@ remote_clean_up:
 			rm -r "${remote_file}";
 		else if( -e "${remote_file}" ) then
 			printf "file";
-			rm "${remote_file}";
+			rm -r "${remote_file}";
 		endif
 		printf "\t[removed]\n";
 	end

@@ -257,7 +257,7 @@ move_lifestyle_podcasts:
 				mkdir -p  "/media/podcasts/lifestyle";
 			
 			set podcast_dir="`dirname "\""${podcast}"\""`";
-			set podcast_name=`basename "\""${podcast_dir}"\""`;
+			set podcast_name="`basename "\""${podcast_dir}"\""`";
 			if(! -d "/media/podcasts/lifestyle/${podcast_name}" ) \
 				mkdir -v "/media/podcasts/lifestyle/${podcast_name}";
 			

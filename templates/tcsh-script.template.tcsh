@@ -1826,7 +1826,7 @@ filename_list_append_value:
 		if( ${?debug} || ${?debug_filenames} ) then
 			printf "Adding [%s] to [%s].\nBy running:\n\tfind -L "\""${value}"\""" "${value}" "${filename_list}";
 			if(! ${?supports_hidden_files} ) \
-				printf  \! -iregex '.*\/\..*';
+				printf  " \\\! -iregex '.*\/\..*'";
 			printf "| sort >> "\""${filename_list}"\""\n\n";
 		endif
 		if(! ${?supports_hidden_files} ) then
@@ -1860,7 +1860,7 @@ filename_list_append_value:
 		endif
 		printf "By running:\n\tfind -L "\""${value}"\"" -regextype posix-extended -iregex "\"".*\.(${scripts_supported_extensions})"\"""\$"";
 		if(! ${?supports_hidden_files} ) \
-			printf " \! -iregex '.*\/\..*'";
+			printf  " \\\! -iregex '.*\/\..*'";
 		printf " | sort >> "\""${filename_list}"\""\n\n";
 	endif
 	

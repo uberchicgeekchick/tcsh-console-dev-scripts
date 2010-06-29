@@ -130,6 +130,7 @@ main:
 	@ removed_podcasts=0;
 	@ missing_podcasts=0;
 	@ new_file_count=0;
+	
 #goto main;
 
 
@@ -181,17 +182,29 @@ find_missing_media:
 		endif
 		
 		if( ${?debug} ) then
-			printf "\nRunning:\n\tfind -L "\""${target_directory}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex "\"".*${extensions}"\$\""' -type f\n";
+			printf "\nRunning:\n\tfind -L "\""${target_directory}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex "\"".*${extensions}"\$\""' \! -iregex '.*\/\..*' -type f\n";
 		endif
 		
 		printf ".";
-		find -L "${target_directory}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort >> "${missing_media_filename_list}";
+		find -L "${target_directory}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ \! -iregex '.*\/\..*' -type f | sort >> "${missing_media_filename_list}";
+		if( ${?skip_dirs} ) then
+			foreach skip_dir("`printf "\""${skip_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
+				set escaped_skip_dir="`printf "\""%s"\"" "\""${skip_dir}"\"" | sed -r 's/\//\\\//g'`";
+				ex -s "+1,"\$"s/^${escaped_skip_dir}.*\n//" '+wq!' "${missing_media_filename_list}";
+			end
+		endif
 		printf ".";
 		
 		unset target_directory;
 		goto find_missing_media;
 	end
-	printf "\t[done]\n"
+	while( "`/bin/grep --perl-regex -c '^"\$"' "\""${missing_media_filename_list}"\""`" != 0 )
+		set line_numbers=`/bin/grep --perl-regex --line-number '^$' "${missing_media_filename_list}" | sed -r 's/^([0-9]+).*$/\1/' | grep --perl-regexp '^[0-9]+'`;
+		set line_numbers=`printf "%s\n" "${line_numbers}" | sed 's/ /,/g'`;
+	 	ex -s "+${line_numbers}d" '+1,$s/\v^\n//g' '+wq!' "${missing_media_filename_list}";
+		unset line_numbers;
+	end
+	printf "\t[done]\n";
 	
 	unset previous_target_directory;
 	
@@ -200,13 +213,13 @@ find_missing_media:
 
 
 process_missing_media:
+	onintr exit_script;
 	if(!( `wc -l "${missing_media_filename_list}" | sed -r 's/^([0-9]+).*$/\1/'` > 0 )) then
 		if(! ${?missing_podcasts} ) then
 			printf "\nNo files where found.\n";
 		else
 			printf "\nFinished\n";
 		endif
-		onintr exit_script;
 		goto exit_script;
 	endif
 	
@@ -219,7 +232,6 @@ process_missing_media:
 			endif
 		endif
 	else
-		onintr exit_script;
 		if( ${?this_podcast} ) then
 			printf "[cancelled]\n\t\t<file://%s> has not been processed.\n" "${this_podcast}";
 			unset this_podcast;
@@ -235,28 +247,12 @@ process_missing_media:
 		endif
 	endif
 	
-	onintr process_missing_media;
-	
 	foreach podcast("`cat "\""${missing_media_filename_list}"\"" | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
 		ex -s '+1d' '+wq!' "${missing_media_filename_list}";
 		#printf "-->%s\n" "${podcast}";
 		#continue;
-		if( ${?skip_dirs} ) then
-			foreach skip_dir("`printf "\""${skip_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-				set escaped_skip_dir="`printf "\""%s"\"" "\""${skip_dir}"\"" | sed -r 's/\//\\\//g'`";
-				set dir_test="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/^(${escaped_skip_dir})\/.*"\$"/\1/'`";
-				if( "${dir_test}" == "${skip_dir}" ) then
-					unset dir_test escaped_skip_dir;
-					break;
-				endif
-				unset dir_test escaped_skip_dir skip_dir;
-			end
-			
-			if( ${?skip_dir} ) then
-				unset podcast skip_media;
-				continue;
-			endif
-		endif
+		
+		onintr process_missing_media;
 		
 		set status=0;
 		foreach playlist(${playlists})
@@ -387,7 +383,7 @@ handle_missing_media:
 		switch( "${response}" )
 			case "s":
 			case "i":
-				printf "\n\t<file://%s> will not be procced.\n" "${this_podcast}";
+				printf "\n\t<file://%s> will not be processed.\n" "${this_podcast}";
 				unset prompt_for_playlist;
 				breaksw;
 			
@@ -857,29 +853,29 @@ parse_arg:
 				if(! ${?remove} ) \
 					set remove;
 				
+				#set value=`printf "%s" ${value}" | sed -r 's/^(.).*$/\1/'`;
 				switch("${value}")
 					case "verbose":
-						if( ${?removal_verbose} ) \
-							breaksw;
-						
-						set removal_verbose;
+						if(! ${?removal_verbose} ) \
+							set removal_verbose;
 						breaksw;
 					
 					case "force":
-						if( ${?removal_forced} ) \
-							breaksw;
-						
-						set removal_forced;
-						set remove="${remove}f";
+					case "forced":
+						if(! ${?removal_forced} ) \
+							set removal_forced;
+						if(! ${?removal_verbose} ) \
+							set removal_verbose;
+						if( `printf "%s" "${remove}" | sed -r 's/^.*(f).*$/\1/'` != "f" ) \
+							set remove="${remove}f";
 						breaksw;
 					
 					case "interactive":
 					default:
-						if( ${?removal_interactive} ) \
-							breaksw;
-						
-						set removal_interactive;
-						set remove="${remove}i";
+						if(! ${?removal_interactive} ) \
+							set removal_interactive;
+						if( `printf "%s" "${remove}" | sed -r 's/^.*(i).*$/\1/'` != "i" ) \
+							set remove="${remove}i";
 						breaksw;
 				endsw
 				breaksw;

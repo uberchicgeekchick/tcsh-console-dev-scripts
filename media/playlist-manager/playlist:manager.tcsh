@@ -54,7 +54,7 @@ check_dependencies:
 			goto exception_handler;
 		endif
 			
-		if(! ${?debug} ) \
+		if( ${?debug} ) \
 			printf "**%s debug:** found %s%s dependency: %s.\n" "${scripts_basename}" "${dependencies_index}" "${suffix}" "${dependency}";
 		unset suffix;
 		

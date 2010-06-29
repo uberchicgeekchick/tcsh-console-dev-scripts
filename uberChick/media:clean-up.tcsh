@@ -256,20 +256,21 @@ move_lifestyle_podcasts:
 			if(! -d "/media/podcasts/lifestyle" ) \
 				mkdir -p  "/media/podcasts/lifestyle";
 			
-			if(! -d "/media/podcasts/lifestyle/`basename "\""${podcast}"\""`" ) \
-				mkdir -v "/media/podcasts/lifestyle/`basename "\""${podcast}"\""`";
+			set podcast_dir="`dirname "\""${podcast}"\""`";
+			set podcast_name=`basename "\""${podcast_dir}"\""`;
+			if(! -d "/media/podcasts/lifestyle/${podcast_name}" ) \
+				mkdir -v "/media/podcasts/lifestyle/${podcast_name}";
 			
 			mv -vi \
 				"${podcast}" \
-			"/media/podcasts/lifestyle/`basename "\""${podcast}"\""`/";
+			"/media/podcasts/lifestyle/${podcast_name}/";
 			
-			set podcast_dir="`dirname "\""${podcast}"\""`";
 			if( `/bin/ls -A "${podcast_dir}"` == "" ) \
-				rm -rv "${podcast}";
-			unset podcast_dir;
+				rm -rv "${podcast_dir}";
+			
+			unset podcast_dir podcast_name;
 		end
-		unset podcast;
-		unset lifestyle_podcasts;
+		unset podcast lifestyle_podcasts;
 	endif
 	
 	goto parse_argv;
@@ -278,8 +279,6 @@ move_lifestyle_podcasts:
 
 move_podiobooks:
 	set podiobooks=( \
-	"\n" \
-"/media/podcasts/Archers, The/Archers: 100628 Monday, released on: Mon, 28 Jun 2010 18:20:00 GMT.mp3" \
 	"\n" \
 	);
 	
@@ -321,10 +320,6 @@ move_podiobooks:
 
 move_slashdot:
 	set slashdot=( \
-	"\n" \
-"/media/podcasts/Slashdot/Porn Industry Ready To Drop Flash, released on: Mon, 28 Jun 2010 20:28:00 GMT.mp3" \
-	"\n" \
-"/media/podcasts/Slashdot/King's Quest Fan Project The Silver Lining Is Back, released on: Mon, 28 Jun 2010 20:50:00 GMT.mp3" \
 	"\n" \
 	);
 	
@@ -411,10 +406,10 @@ alacasts_playlists:
 		goto prompt_for_playlist_validation;
 	endif
 	
-	printf "Cleaning up %s...\n" "${playlist_dir}";
 	foreach playlist("`/bin/ls --width=1 -t "\""${playlist_dir}"\""`")
 		set playlist_escaped="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/([\/.])/\\\1/g'`";
 		if(! ${?playlist_count} ) then
+			printf "Cleaning up %s...\n" "${playlist_dir}";
 			@ playlist_count=1;
 		else
 			@ playlist_count++;

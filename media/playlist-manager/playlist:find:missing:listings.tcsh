@@ -189,7 +189,7 @@ find_missing_media:
 		find -L "${target_directory}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ \! -iregex '.*\/\..*' -type f | sort >> "${missing_media_filename_list}";
 		if( ${?skip_dirs} ) then
 			foreach skip_dir("`printf "\""${skip_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
-				set escaped_skip_dir="`printf "\""%s"\"" "\""${skip_dir}"\"" | sed -r 's/\//\\\//g'`";
+				set escaped_skip_dir="`printf "\""%s"\"" "\""${skip_dir}"\"" | sed -r 's/(\\|\[|\*|\/)/\\\1/g'`";
 				ex -s "+1,"\$"s/^${escaped_skip_dir}.*\n//" '+wq!' "${missing_media_filename_list}";
 			end
 		endif
@@ -249,7 +249,7 @@ process_missing_media:
 		endif
 	endif
 	
-	foreach podcast("`cat "\""${missing_media_filename_list}"\"" | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g'`")
+	foreach podcast("`cat "\""${missing_media_filename_list}"\"" | sed -r 's/(\\|\[|\*)/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
 		ex -s '+1d' '+wq!' "${missing_media_filename_list}";
 		#printf "-->%s\n" "${podcast}";
 		#continue;
@@ -276,7 +276,7 @@ process_missing_media:
 			continue;
 		endif
 		
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\(\\|\[|\*)/\1/g'`";
 		
 		if(! -e "${this_podcast}" ) then
 			unset this_podcast podcast;
@@ -298,15 +298,15 @@ check_duplicate_dirs:
 	onintr process_missing_media;
 	
 	if(! ${?base_dir} ) \
-		set base_dir="";
+		set base_dir;
 	
 	if(! ${?escaped_base_dir} ) \
-		set escaped_base_dir="";
+		set escaped_base_dir;
 	
 	if(!( "${escaped_base_dir}" != "" && "${base_dir}" != "" && "`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/^(${escaped_base_dir}).*"\$"/\1/'`" == "${base_dir}" )) then
 		set old_owd="${owd}";
 		set old_cwd="${cwd}";
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\(\\|\[|\*)/\1/g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\(\\|\[|\*)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 		set podcast_dir="`dirname "\""${this_podcast}"\""`";
 		while( "${podcast_dir}" != "/" && ! -d "${podcast_dir}" )
 			set podcast_dir="`dirname "\""${podcast_dir}"\""`";
@@ -316,7 +316,7 @@ check_duplicate_dirs:
 		while( "${cwd}" != "/" )
 			if( -d "${cwd}/nfs" ) then
 				set base_dir="${cwd}";
-				set escaped_base_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g'`";
+				set escaped_base_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/(\\|\[|\*|\/)/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 				break;
 			else
 				cd "..";
@@ -336,9 +336,9 @@ check_duplicate_dirs:
 			continue;
 		endif
 		
-		set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/\//\\\//g'`";
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
-		set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/(\\|\[|\*|\/)/\\\1/g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\(\\|\[|\*)/\1/g'`";
+		set duplicate_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/\\(\\|\[|\*)/\1/g'`";
 		
 		#printf "Looking for: <file://%s>" "${duplicate_podcast}";
 		if(!( "${duplicate_podcast}" != "${this_podcast}" && -e "${duplicate_podcast}" )) then
@@ -346,7 +346,7 @@ check_duplicate_dirs:
 			goto check_duplicate_dirs;
 		endif
 		
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/\\(\\|\[|\*)/\1/g'`";
 		unset duplicate_podcast escaped_duplicate_dir;
 		goto handle_missing_media;
 	end
@@ -434,10 +434,10 @@ handle_missing_media:
 
 remove_missing_media:
 	if(! ${?duplicate_dir} ) then
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\(\\|\[|\*)/\1/g'`";
 	else
-		set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/\//\\\//g'`";
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		set escaped_duplicate_dir="`printf "\""%s"\"" "\""${duplicate_dir}"\"" | sed -r 's/(\\|\[|\*|\/)/\\\1/g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/\\(\\|\[|\*)/\1/g'`";
 	endif
 	
 	if(! -e "${this_podcast}" ) then
@@ -451,9 +451,9 @@ remove_missing_media:
 	endif
 	
 	if(! ${?duplicate_dir} ) then
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r 's/\\(\\|\[|\*)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	else
-		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/(\\\\)/\\/g' | sed -r 's/\\\[/\[/g' | sed -r 's/\\([*])/\1/g'`";
+		set this_podcast="`printf "\""%s"\"" "\""${podcast}"\"" | sed -r "\""s/^${escaped_base_dir}\//${escaped_duplicate_dir}\//"\"" | sed -r 's/\\(\\|\[|\*)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 		unset escaped_duplicate_dir;
 	endif
 	
@@ -483,7 +483,7 @@ remove_missing_media:
 		printf "rm -vf%s "\""%s"\"";\n" "${remove}" "${this_podcast}" >> "${create_script}";
 	endif
 	
-	set podcast_dir_for_ls="`dirname "\""${this_podcast}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+	set podcast_dir_for_ls="`dirname "\""${this_podcast}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	while( "${podcast_dir}" != "/" && "`mount | grep -P "\""^${podcast_dir_for_ls}"\""`" == "" )
 		if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
 			break;
@@ -496,9 +496,9 @@ remove_missing_media:
 			printf "rm -rv "\""%s"\"";\n" "${podcast_dir}" >> "${create_script}";
 		endif
 		
-		set podcast_cwd="`printf "\""%s"\"" "\""${podcast_dir_for_ls}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+		set podcast_cwd="`printf "\""%s"\"" "\""${podcast_dir_for_ls}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 		set podcast_dir="`dirname "\""${podcast_cwd}"\""`";
-		set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
+		set podcast_dir_for_ls="`dirname "\""${podcast_cwd}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	end
 	
 	if( ${?podcast_cwd} ) \

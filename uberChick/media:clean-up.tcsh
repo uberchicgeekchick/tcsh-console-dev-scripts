@@ -360,12 +360,12 @@ move_slashdot:
 
 
 back_up:
-	set slashdot=( \
+	set podcast_to_backup=( \
 	"\n" \
 	);
 	
-	if( ${?slashdot} ) then
-		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+	if( ${?podcast_to_backup} ) then
+		foreach podcast( "`printf "\""${podcast_to_backup}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
 				if(! ${?action_preformed} ) then
 					set action_preformed;
@@ -385,14 +385,7 @@ back_up:
 			endif
 			unset podcast;
 		end
-		unset slashdot;
-		
-		set podcast_dir="/media/podcasts/slash.";
-		if( -e "${podcast_dir}" ) then
-			if( `/bin/ls -A "${podcast_dir}"` == "" ) \
-				rm -rv "${podcast_dir}";
-		endif
-		unset podcast_dir;
+		unset podcast_to_backup;
 	endif
 	
 	goto parse_argv;

@@ -363,6 +363,12 @@ scripts_exec:
 		goto label_stack_set;
 	
 	printf "Converting [%s] to [%s]" "${playlist}" "${new_playlist}";
+	
+	set playlist_swap="${scripts_tmpdir}/swap.`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/\//\:/g'`.playlist.at.`date '+%s'`.${playlist_type}";
+	cp -f "${playlist}" "${playlist_swap}";
+	set playlist="${playlist_swap}";
+	unset playlist_swap;
+	
 	playlist:new:create.tcsh "${playlist}";
 	mv -f "${playlist}.swp" "${playlist}.new";
 	

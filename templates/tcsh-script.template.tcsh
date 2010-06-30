@@ -1100,8 +1100,13 @@ exception_handler:
 		goto callback_stack_update;
 	endif
 	
-	if(! ${?errno} ) \
+	if(! ${?errno} ) then
+		if( ${?callback} ) \
+			goto callback_handler;
 		@ errno=-999;
+	else if( `printf "%s" "$errno" | sed -r 's/^[0-9]+$/\1/'` != "" ) then
+		@ errno=-999;
+	endif
 	
 	if( $errno <= -500 ) then
 		if(! ${?exit_on_exception} ) \
@@ -1119,7 +1124,7 @@ exception_handler:
 	printf "\n" > ${stderr};
 	if( $errno > -400 ) \
 		printf "\t" > ${stderr};
-	printf "**%s error("\$"errno:%d):**\n\t" "${scripts_basename}" ${errno} > ${stderr};
+	printf "**%s error:**, "\$"errno:%d, " "${scripts_basename}" ${errno} > ${stderr};
 	switch( $errno )
 		case -300:
 			printf "Cannot process: <file://%s> is an unsupported file." "${value}" > ${stderr};
@@ -1225,14 +1230,13 @@ exception_handler:
 		
 		case -999:
 		default:
-			printf "An internal script error has occured." > ${stderr}
+			printf "An unknown error has occured." > ${stderr};
 			breaksw;
 	endsw
 	printf "\n\n";
-	@ last_exception_handled=$errno;
 	printf "\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > ${stderr}
 	if(! ${?debug} ) \
-		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > ${stderr}
+		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename}'s failed.\n" > ${stderr}
 	printf "\n" > ${stderr}
 	
 	if( ! ${?callback} || ${?exit_on_exception} ) \

@@ -205,7 +205,7 @@ find_missing_media:
 	 	ex -s "+${line_numbers}d" '+1,$s/\v^\n//g' '+wq!' "${missing_media_filename_list}";
 		unset line_numbers;
 	end
-	printf " .\t[done]\n";
+	printf " . [finished]\n";
 	
 	unset previous_target_directory;
 	

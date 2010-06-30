@@ -267,7 +267,7 @@ fetch_podcast:
 	if( ${?logging} ) \
 		printf "Formating titles%s" "${please_wait_phrase}" >> "${download_log}";
 	ex -s '+1,$s/^\(Zero\)/0/gi' '+1,$s/^\(One\)/1/gi' '+1,$s/^\(Two\)/2/gi' '+1,$s/^\(Three\)/3/gi' '+1,$s/^\(Four\)/4/gi' '+1,$s/^\(Five\)/5/gi' '+wq!' './00-titles.lst';
-	ex -s '+1,$s/^\(Six\)/6/gi' '+1,$s/^\(Seven\)/7/gi' '+1,$s/^\(Eight\)/8/gi' '+1,$s/^\(Nine\)/9/gi' '+1,$s/^\(Ten\)/10/gi' '+wq!' './00-titles.lst';
+	ex -s '+1,$s/^\(Six\)/6/gi' '+1,$s/^\(Seven\)/7/gi' '+1,$s/\v^(Eight)(een|y)?/8\2/gi' '+1,$s/^\(Nine\)/9/gi' '+1,$s/^\(Ten\)/10/gi' '+wq!' './00-titles.lst';
 	
 	ex -s '+1,$s/^\([0-9]\)ty/\10/gi' '+1,$s/^\(Fifty\)/50/gi' '+1,$s/^\(Thirty\)/30/gi' '+1,$s/^\(Twenty\)/20/gi' '+wq!' './00-titles.lst';
 	ex -s '+1,$s/^0\?\([0-9]\)teen/1\1/gi' '+1,$s/^\(Fifteen\)/15/gi' '+1,$s/^\(Thirteen\)/13/gi' '+1,$s/^\(Twelve\)/12/gi' '+1,$s/^\(Eleven\)/11/gi' '+wq!' './00-titles.lst';
@@ -276,12 +276,12 @@ fetch_podcast:
 	ex -s '+1,$s/\([^a-zA-Z]\)\(Six\)/\16/gi' '+1,$s/\([^a-zA-Z]\)\(Seven\)/\17/gi' '+1,$s/\([^a-zA-Z]\)\(Eight\)/\18/gi' '+1,$s/\([^a-zA-Z]\)\(Nine\)/\19/gi' '+1,$s/\([^a-zA-Z]\)\(Ten\)/\110/gi' '+wq!' './00-titles.lst';
 	
 	ex -s '+1,$s/\([^a-zA-Z]\)\([0-9]\)ty\([^a-zA-Z]\)/\1\20\3/gi' '+1,$s/\([^a-zA-Z]\)\(Fifty\)\([^a-zA-Z]\)/\150\3/gi' '+1,$s/\([^a-zA-Z]\)\(Thirty\)\([^a-zA-Z]\)/\130\3/gi' '+1,$s/\([^a-zA-Z]\)\(Twenty\)\([^a-zA-Z]\)/\120\3/gi' '+wq!' './00-titles.lst';
-	ex -s '+1,$s/\([^a-zA-Z]\)0\?\([0-9]\)teen\([^a-zA-Z]\)/\11\2\3/gi' '+1,$s/\([^a-zA-Z]\)\(Fifteen\)\([^a-zA-Z]\)/\115\3/gi' '+1,$s/\([^a-zA-Z]\)\(Thirteen\)\([^a-zA-Z]\)/\113\3/gi' '+1,$s/\([^a-zA-Z]\)\(Twelve\)\([^a-zA-Z]\)/\112\3/gi' '+1,$s/\([^a-zA-Z]\)\(Eleven\)\([^a-zA-Z]\)/\111\3/gi' '+wq!' './00-titles.lst';
+	ex -s '+1,$s/\([^a-zA-Z]\)0\?\([0-9]\)teen\([^a-zA-Z]\)/\11\2\3/gi' '+1,$s/\v([^a-zA-Z])(Eight)(een|y)?([^a-zA-Z])/\18\2\3/gi' '+1,$s/\([^a-zA-Z]\)\(Fifteen\)\([^a-zA-Z]\)/\115\3/gi' '+1,$s/\([^a-zA-Z]\)\(Thirteen\)\([^a-zA-Z]\)/\113\3/gi' '+1,$s/\([^a-zA-Z]\)\(Twelve\)\([^a-zA-Z]\)/\112\3/gi' '+1,$s/\([^a-zA-Z]\)\(Eleven\)\([^a-zA-Z]\)/\111\3/gi' '+wq!' './00-titles.lst';
 	
 	ex -s '+1,$s/\([^a-zA-Z]\)\([0-9]\)ty/\1\20/gi' '+1,$s/\([^a-zA-Z]\)\(Fifty\)/\150/gi' '+1,$s/\([^a-zA-Z]\)\(Thirty\)/\130/gi' '+1,$s/\([^a-zA-Z]\)\(Twenty\)/\120/gi' '+wq!' './00-titles.lst';
-	ex -s '+1,$s/\([^a-zA-Z]\)0\?\([0-9]\)teen/\11\2/gi' '+1,$s/\([^a-zA-Z]\)\(Fifteen\)/\115/gi' '+1,$s/\([^a-zA-Z]\)\(Thirteen\)/\113/gi' '+1,$s/\([^a-zA-Z]\)\(Twelve\)/\112/gi' '+1,$s/\([^a-zA-Z]\)\(Eleven\)/\111/gi' '+wq!' './00-titles.lst';
+	ex -s '+1,$s/\([^a-zA-Z]\)0\?\([0-9]\)teen/\11\2/gi' '+1,$s/\v([^a-zA-Z])(Eight)(een|y)?/\18\2/gi' '+1,$s/\([^a-zA-Z]\)\(Fifteen\)/\115/gi' '+1,$s/\([^a-zA-Z]\)\(Thirteen\)/\113/gi' '+1,$s/\([^a-zA-Z]\)\(Twelve\)/\112/gi' '+1,$s/\([^a-zA-Z]\)\(Eleven\)/\111/gi' '+wq!' './00-titles.lst';
 	
-	ex -s '+1,$s/^\v([0-9])([^0-9])/0\1\2/' '+1,$s/\v([^0-9])([0-9])([^0-9])/\10\2\3/g' '+1,$s/\v([^0-9])([0-9])$/\10\2/' '+wq!' './00-titles.lst';
+	ex -s '+1,$s/^\v([0-9])([^0-9])/0\1\2/' '+1,$s/\v([^0-9])([0-9])([^0-9])/\10\2\3/g' '+1,$s/\v([^0-9])([0-9])$/\10\2/' '+1,$s/(8)(een)/1\1/gi' '+1,$s/(8)(y)/\10/gi' '+1,$s/\v0([1-9])(teen)/1\1/i' '+1,$s/\v0([2-9])(ty)/\10/i' '+wq!' './00-titles.lst';
 	
 	#start: fixing/renaming roman numerals
 	ex -s '+1,$s/\ I\ /\ 1\ /g' '+1,$s/\ II\ /\ 2\ /g' '+1,$s/\ III\ /\ 3\ /g' '+1,$s/\ IV\ /\ 4\ /g' '+1,$s/\ V\ /\ 5\ /g' '+wq!' './00-titles.lst';

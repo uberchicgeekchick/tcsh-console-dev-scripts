@@ -6,19 +6,25 @@ init:
 	if(!( ${?0} && ${#argv} == 1 )) then
 		goto usage;
 	endif
+	set value="$argv[1]";
 #goto init;
 
-main:
-	set value="$argv[1]";
-	if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) then
+# turns $value from a relative path, e.g.: ~/Documents/../Photos/./Me.png, to its absolute path, e.g.: /home/user/Photos/Me.png.
+rel2abs:
+	
+	if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
 		set value="${cwd}/${value}";
-		while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\/)(.*)$/\2/'` == "/./" )
-			set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(.*)(\/\.\/)(.*)"\$"/\1\/\3/'`";
-		end
-		while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\.\/)(.*)$/\2/'` == "/../" )
-			set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(.*)(\/\.\.\/)([^/]+\/)(.*)"\$"/\1\/\4/'`";
-		end
-	endif
+	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(\/)(\/)/\1/g'`";
+	while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\/)(.*)$/\2/'` == "/./" )
+		set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(\/\.\/)/\//'`";
+	end
+	while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\.\/)(.*)$/\2/'` == "/../" )
+		set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/'`";
+	end
+	
+#goto rel2abs;
+
+main:
 	printf "%s\n" "${value}";
 #goto main;
 

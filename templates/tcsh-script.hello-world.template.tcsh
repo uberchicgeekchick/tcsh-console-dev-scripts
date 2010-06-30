@@ -20,10 +20,6 @@ setup:
 
 
 exit_script:
-	if( ${?stdout} ) \
-		unset stdout;
-	if( ${?sterr} ) \
-		unset sterr;
 	if(! ${?errno} ) \
 		@ errno=0;
 	set status=$errno;
@@ -47,6 +43,7 @@ exception_handler:
 	printf "**%s error:** "\$"errno:%d:**\n\t" "${scripts_basename}" ${errno} > ${stderr};
 	switch( $errno )
 		case -1:
+			printf "This script cannot be sourced." > ${stderr};
 			breaksw;
 		
 		case -999:

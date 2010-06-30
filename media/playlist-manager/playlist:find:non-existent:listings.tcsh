@@ -244,6 +244,16 @@ main:
 	
 	onintr parse_arg;
 	
+	if( `printf "%s" "${playlist}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+		set playlist="${cwd}/${playlist}";
+	set playlist="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/(\/)(\/)/\1/g'`";
+	while( `printf "%s" "${playlist}" | sed -r 's/^(.*)(\/\.\/)(.*)$/\2/'` == "/./" )
+		set playlist="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/(\/\.\/)/\//'`";
+	end
+	while( `printf "%s" "${playlist}" | sed -r 's/^(.*)(\/\.\.\/)(.*)$/\2/'` == "/../" )
+		set playlist="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/'`";
+	end
+	
 	if( ${?edit_playlist} ) \
 		${EDITOR} "${playlist}";
 	
@@ -719,22 +729,13 @@ parse_arg:
 				breaksw;
 			
 			case "playlist":
-				if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) then
-					set value="${cwd}/${value}";
-					while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\/)(.*)$/\2/'` == "/./" )
-						set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(.*)(\/\.\/)(.*)"\$"/\1\/\3/'`";
-					end
-					while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\.\/)(.*)$/\2/'` == "/../" )
-						set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(.*)(\/\.\.\/)([^/]+\/)(.*)"\$"/\1\/\4/'`";
-					end
-				endif
-				set playlist="${value}";
 				if(! -e "${value}" ) then
 					@ errno=-506;
 					set callback="parse_arg";
 					goto exception_handler;
 					breaksw;
 				endif
+				set playlist="${value}";
 				breaksw;
 			
 			case "debug":
@@ -881,10 +882,12 @@ parse_argv_quit:
 			unset arg;
 		endif
 	endif
-	if(! ${?diagnostic_mode} ) then
-		set callback="exit_script";
-	else
+	if(! ${?0} ) then
+		set callback="if_source";
+	else if( ${?diagnostic_mode} ) then
 		set callback="diagnostic_mode";
+	else
+		set callback="exit_script";
 	endif
 	
 	goto callback_handler;

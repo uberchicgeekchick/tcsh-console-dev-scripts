@@ -235,7 +235,7 @@ exec:
 		goto exception_handler;
 	endif
 	
-	set maxVersion="3";
+	set maxVersion="4";
 	if(! ${?matchVersion} ) then
 		if(! ${?update_all} ) then
 			set matchVersion="[0-${maxVersion}]\.[^\*]";
@@ -659,7 +659,7 @@ parse_arg:
 			case "f":
 			case "force":
 			case "update-all":
-			cass "all-extensions":
+			case "all-extensions":
 				if(! ${?update_all} ) \
 					set update_all;
 				breaksw;

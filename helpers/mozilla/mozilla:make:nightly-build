@@ -349,7 +349,7 @@ exec_install:
 	set ff_binaries=("${build_mozilla}-bin" "${build_mozilla}");
 	foreach ff_binary( ${ff_binaries} )
 		if(! ${?ff_found} ) then
-			printf "Looking for running instance of: %s.\n" ${ff_binary};
+			printf "Looking for running instance(s) of: %s.\n" ${ff_binary};
 			foreach ff_pid(`/bin/pidof ${ff_binary}`)
 				printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
 				if( "${ff_pid}" != "" && $ff_pid > 0 ) then
@@ -362,44 +362,56 @@ exec_install:
 		endif
 	end
 	
-	set program="${program_path}/plugin-container";
-	if(! -x "${program}" ) \
+	if(! ${?ff_found} ) \
 		goto scripts_main_quit;
+	goto renice_supporting_programs;
+#goto exec_install;
+
 	
-	unset ff_found;
-	printf "Renicing:\n\t%s\n\n" "${program}";
-	
-	set ff_binaries=("${program}");
-	
-	@ ff_attempt_max=10;
-	@ ff_attempt_sleep=20;
-	@ ff_attempt=0;
-	@ ff_renice_priority=10;
-	
-	foreach ff_binary( ${ff_binaries} )
-		@ ff_attempt++;
-		if( $ff_attempt > $ff_attempt_max ) \
-			break;
+renice_supporting_programs:
+	set supporting_binaries=( "plugin-container" );
+	foreach supporting_binary( ${ff_binaries} )
+		set ="${prefix}/x86_64/${supporting_binary}";
+		if(! -x "${prefix}/x86_64/${supporting_binary}" ) \
+			continue;
 		
-		if(! ${?ff_found} ) then
-			printf "Looking for running instance of: %s.\n" ${ff_binary};
-			foreach ff_pid(`/bin/pidof ${ff_binary}`)
-				printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
-				if( "${ff_pid}" != "" && $ff_pid > 0 ) then
-					renice +$ff_renice_priority $ff_pid >& /dev/null;
-					printf "Found running instance of: %s; pid: %s\n" ${ff_binary} ${ff_pid};
-					if(! ${?ff_found} ) \
-						set ff_found;
-				endif
+		printf "Renicing:\n\t%s\n\n" "${supporting_binary}";
+		
+		@ ff_attempt_max=10;
+		@ ff_attempt_sleep=20;
+		@ ff_attempt=0;
+		@ ff_renice_priority=10;
+		
+		while( ! ${?ff_found} && $ff_attempt < $ff_attempt_max )
+			@ ff_attempt++;
+			
+			printf "Looking for running instance(s) of: %s.\n" ${supporting_binary};
+			foreach ff_pid(`/bin/pidof "${prefix}/x86_64/${supporting_binary}"`)
+				if(!( "${ff_pid}" != "" && `printf "%s" "${ff_pid}" | sed -r 's/^[0-9]+$//'` == "" )) \
+					continue;
+				
+				if(!( $ff_pid > 0 )) \
+					continue;
+				
+				if(! ${?ff_found} ) \
+					set ff_found;
+				
+				printf "Changing: %s, pid: %d, nice level to: +%d" "${supporting_binary}" $ff_pid $ff_renice_priority;
+				renice +$ff_renice_priority $ff_pid >& /dev/null;
+				printf "\t[done]\n";
 			end
-		endif
+			
+			if( ${?ff_found} ) \
+				break;
+			
+			sleep $ff_attempt_sleep;
+		end
 		
 		if( ${?ff_found} ) \
-			break;
-		
-		sleep $ff_attempt_sleep;
+			unset ff_found;
 	end
-#exec_install:
+	goto scripts_main_quit;
+#goto renice_supporting_programs;
 
 
 scripts_main_quit:
@@ -445,7 +457,7 @@ stop_build:
 	@ ff_renice_priority=5;
 	
 	foreach ff_binary( ${ff_binaries} )
-		printf "Looking for running instance of: %s.\n" ${ff_binary};
+		printf "Looking for running instance(s) of: %s.\n" ${ff_binary};
 		foreach pid ( `pidof -x "${ff_binary}"` )
 			@ ff_attempt=0;
 			while ( ${ff_attempt} < $ff_attempt_max )

@@ -58,6 +58,7 @@ init:
 #init:
 
 dependencies_check:
+	onintr scripts_main_quit;
 	set label_current="dependencies_check";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
@@ -177,6 +178,7 @@ sourcing_init:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
+	onintr sourcing_main_quit;
 	# BEGIN: source scripts_basename support.
 	if(! ${?TCSH_RC_SESSION_PATH} ) \
 		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
@@ -184,6 +186,8 @@ sourcing_init:
 	
 	# START: special handler for when this file is sourced.
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
+	set callback="sourcing_main";
+	goto callback_handler;
 #sourcing_init:
 
 
@@ -198,6 +202,8 @@ sourcing_main:
 	# START: special handler for when this file is sourced.
 	alias "${script_alias}" \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.
+	set callback="sourcing_main_quit";
+	goto callback_handler;
 #sourcing_main:
 
 
@@ -206,11 +212,13 @@ sourcing_main_quit:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
+	onintr scripts_main_quit;
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	
 	# END: source scripts_basename support.
 	
-	goto scripts_main_quit;
+	set callback="scripts_main_quit";
+	goto callback_handler;
 #sourcing_main_quit:
 
 
@@ -224,17 +232,22 @@ main:
 	
 	if(! ${?playlist} ) then
 		@ errno=-506;
+		set callback="parse_arg";
 		goto exception_handler;
 	endif
 	
 	if(! -e "${playlist}" ) then
 		@ errno=-506;
+		set callback="parse_arg";
 		goto exception_handler;
 	endif
+	
+	onintr parse_arg;
 	
 	if( ${?edit_playlist} ) \
 		${EDITOR} "${playlist}";
 	
+	printf "Ensuring that all files listed in: <file//%s> still exists.\n" "${playlist}";
 	playlist:new:create.tcsh "${playlist}";
 	if(! ${?filename_list} ) \
 		set filename_list="`mktemp --tmpdir filenames.${scripts_basename}.XXXXXX`";
@@ -258,12 +271,12 @@ exec:
 		if( ${?filename} ) then
 			if( -e "${filename}.${extension}" ) then
 				if( ${?clean_up} ) then
-					printf "%s\n" "${filename}.${extension}" >> "${playlist}.new";
+					printf "%s.%s\n" "${filename}" "${extension}" >> "${playlist}.new";
 				endif
 			else
 				if(! ${?dead_file_count} ) then
 					if( ${?clean_up} ) \
-						printf "\n**%s notice:** The following files will be removed from [%s]:\n" "${scripts_basename}" "${playlist}";
+						printf "\tThese files will be removed from <file://%s>:\n" "${playlist}";
 					@ dead_file_count=1;
 				else
 					@ dead_file_count++;
@@ -274,9 +287,8 @@ exec:
 		set callback="filename_next";
 		goto callback_handler;
 	endif
-	if( ${?clean_up} ) \
-		goto format_new_playlist;
-	goto scripts_main_quit;
+	set callback="format_new_playlist";
+	goto callback_handler;
 #exec:
 
 filename_next:
@@ -293,14 +305,21 @@ filename_next:
 #filename_next:
 
 format_new_playlist:
-	if( ${?clean_up} && ${?dead_file_count} ) then
-		playlist:new:save.tcsh --force "${playlist}";
-		unset dead_file_count;
+	if(! ${?clean_up} ) then
+		printf "%s has finished processing:\n\t<file//%s>\n" "${scripts_basename}" "${playlist}";
+	else
+		printf "<file//%s> now only contains existing files.\n" "${playlist}";
+		if( ${?dead_file_count} ) then
+			printf "\n";
+			playlist:new:save.tcsh --force "${playlist}";
+			printf "\n";
+			unset dead_file_count;
+		endif
 	endif
 	unset playlist;
 	
 	set callback="parse_arg";
-	goto callback_handler;
+	goto callback_handler
 #format_new_playlist:
 
 scripts_main_quit:
@@ -700,6 +719,15 @@ parse_arg:
 				breaksw;
 			
 			case "playlist":
+				if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) then
+					set value="${cwd}/${value}";
+					while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\/)(.*)$/\2/'` == "/./" )
+						set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(.*)(\/\.\/)(.*)"\$"/\1\/\3/'`";
+					end
+					while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\.\/)(.*)$/\2/'` == "/../" )
+						set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(.*)(\/\.\.\/)([^/]+\/)(.*)"\$"/\1\/\4/'`";
+					end
+				endif
 				set playlist="${value}";
 				if(! -e "${value}" ) then
 					@ errno=-506;

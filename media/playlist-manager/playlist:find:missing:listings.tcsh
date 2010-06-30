@@ -168,23 +168,24 @@ find_missing_media:
 	
 	#find -L ${target_directories}${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["$!`])/"\\\1"/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g' >! "${missing_media_filename_list}";
 	if(! ${?previous_target_directory} ) \
-		printf "\nSearching";
+		printf "\nSearching for multimedia files";
 	foreach target_directory( ${target_directories} )
 		if(! ${?previous_target_directory} ) then
 			set previous_target_directory="${target_directory}";
 		else
 			if( "${previous_target_directory}" == "${target_directory}" ) then
-				printf "<%s> == <%s>\n" "${previous_target_directory}" "${target_directory}";
+				if( ${?debug} ) \
+					printf "<%s> == <%s>\n" "${previous_target_directory}" "${target_directory}";
 				unset previous_target_directory;
 			endif
-			printf ".";
+			printf " .";
 			continue;
 		endif
 		
-		#if( ${?debug} ) \
+		if( ${?debug} ) \
 			printf "\nRunning:\n\tfind -L "\""${target_directory}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex "\"".*${extensions}"\$\""' \! -iregex '.*\/\..*' -type f\n";
 		
-		printf ".";
+		printf " .";
 		find -L "${target_directory}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ \! -iregex '.*\/\..*' -type f | sort >> "${missing_media_filename_list}";
 		if( ${?skip_dirs} ) then
 			foreach skip_dir("`printf "\""${skip_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
@@ -192,21 +193,23 @@ find_missing_media:
 				ex -s "+1,"\$"s/^${escaped_skip_dir}.*\n//" '+wq!' "${missing_media_filename_list}";
 			end
 		endif
-		printf ".";
+		printf " .";
 		
 		unset target_directory;
 		goto find_missing_media;
 	end
+	printf " .";
 	while( "`/bin/grep --perl-regex -c '^"\$"' "\""${missing_media_filename_list}"\""`" != 0 )
 		set line_numbers=`/bin/grep --perl-regex --line-number '^$' "${missing_media_filename_list}" | sed -r 's/^([0-9]+).*$/\1/' | grep --perl-regexp '^[0-9]+'`;
 		set line_numbers=`printf "%s\n" "${line_numbers}" | sed 's/ /,/g'`;
 	 	ex -s "+${line_numbers}d" '+1,$s/\v^\n//g' '+wq!' "${missing_media_filename_list}";
 		unset line_numbers;
 	end
-	printf "\t[done]\n";
+	printf " .\t[done]\n";
 	
 	unset previous_target_directory;
 	
+	printf "\nFinding any multimedia files which are not listed in the provided playlists...\n";
 	goto process_missing_media;
 #goto find_missing_media;
 

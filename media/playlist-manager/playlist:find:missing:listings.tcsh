@@ -158,6 +158,7 @@ create_clean_up_script:
 			chmod u+x "${create_script}";
 		endif
 	endif
+	goto find_missing_media;
 #create_clean_up_script:
 
 
@@ -168,17 +169,19 @@ find_missing_media:
 	#find -L ${target_directories}${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["$!`])/"\\\1"/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g' >! "${missing_media_filename_list}";
 	if(! ${?previous_target_directory} ) \
 		printf "\nSearching";
-	foreach target_directory(${target_directories})
-		#if(! ${?previous_target_directory} ) then
-		#	set previous_target_directory="${target_directory}";
-		#else
-		#	if( "${previous_target_directory}" == "${target_directory}" ) \
-		#		unset previous_target_directory;
-		#	printf ".";
-		#	continue;
-		#endif
+	foreach target_directory( ${target_directories} )
+		if(! ${?previous_target_directory} ) then
+			set previous_target_directory="${target_directory}";
+		else
+			if( "${previous_target_directory}" == "${target_directory}" ) then
+				printf "<%s> == <%s>\n" "${previous_target_directory}" "${target_directory}";
+				unset previous_target_directory;
+			endif
+			printf ".";
+			continue;
+		endif
 		
-		if( ${?debug} ) \
+		#if( ${?debug} ) \
 			printf "\nRunning:\n\tfind -L "\""${target_directory}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex "\"".*${extensions}"\$\""' \! -iregex '.*\/\..*' -type f\n";
 		
 		printf ".";
@@ -192,7 +195,7 @@ find_missing_media:
 		printf ".";
 		
 		unset target_directory;
-		#goto find_missing_media;
+		goto find_missing_media;
 	end
 	while( "`/bin/grep --perl-regex -c '^"\$"' "\""${missing_media_filename_list}"\""`" != 0 )
 		set line_numbers=`/bin/grep --perl-regex --line-number '^$' "${missing_media_filename_list}" | sed -r 's/^([0-9]+).*$/\1/' | grep --perl-regexp '^[0-9]+'`;
@@ -233,7 +236,7 @@ process_missing_media:
 			unset this_podcast;
 		endif
 		unset podcast;
-		printf "\nWould you like to stop looking for any unlisted files? [Yes/No(default)] ";
+		printf "\n\tWould you like to stop looking for any unlisted files? [Yes/No(default)] ";
 		set exit_value="$<";
 		set exit_value=`printf "%s" "${exit_value}" | sed -r 's/^(.).*$/\l\1/'`;
 		printf "\n";
@@ -397,9 +400,8 @@ handle_missing_media:
 			
 			case "a":
 			case "c":
-				printf "\n\t<%s> has been cancelled; and will now exit.\n" "${scripts_basename}";
 				unset prompt_for_playlist response playlist_index;
-				goto exit_script;
+				goto process_missing_media;
 				breaksw;
 			
 			default:
@@ -935,7 +937,7 @@ parse_arg:
 			case "search-directory":
 			case "target-directory":
 				if( -d "${value}" ) \
-					goto append_directory;
+					goto append_target_directory;
 				breaksw;
 			
 			case "playlist":
@@ -951,7 +953,7 @@ parse_arg:
 			
 			default:
 				if( -d "${value}" ) \
-					goto append_directory;
+					goto append_target_directory;
 				
 				if( -f "${value}" ) then
 					goto append_playlist;
@@ -987,65 +989,20 @@ parse_arg:
 
 
 append_playlist:
-	if(! -f "${value}" )  then
-		if( ${?arg_shifted} ) \
-			goto parse_arg;
-		
-		set callback="parse_arg";
-		@ errno=-2;
-		goto exception_handler;
-	endif
-	
 	if(! ${?playlists_filename_list} ) \
 		set playlists_filename_list="`mktemp --tmpdir "\""filename.list:playlists.for:${scripts_basename}.XXXXXXXX"\""`";
 	
-	set filename_list="${playlists_filename_list}";
-	set callback="append_playlist";
-	goto append_to_filename_list;
+	printf "${value}\n" >> "${playlists_filename_list}";
+	goto parse_arg;
 #goto append_playlist;
 
 
-append_directory:
-	if(! -d "${value}" ) then
-		if( ${?arg_shifted} ) \
-			goto parse_arg;
-		
-		set callback="parse_arg";
-		@ errno=-3;
-		goto exception_handler;
-	endif
-	
+append_target_directory:
 	if(! ${?target_directories_filename_list} ) \
 		set target_directories_filename_list="`mktemp --tmpdir "\""filename.list:target-directories.for:${scripts_basename}.XXXXXXXX"\""`";
 	
-	set filename_list="${target_directories_filename_list}";
-	set callback="append_to_filename_list";
-	goto append_to_filename_list;
-#goto append_directory;
-
-
-append_to_filename_list:
-	if( ${?debug} ) \
-		printf "\nAdding <%s> to:\n\t<%s>\n" "${value}" "${filename_list}";
-	printf "${value}\n" >> "${filename_list}";
-	while( $arg < $argc )
-		@ arg++;
-		if(!( $arg < $argc )) then
-			@ arg--;
-			goto parse_arg;
-		endif
-		
-		if(! ${?arg_shifted} ) \
-			set arg_shifted;
-		if(! -e "$argv[$arg]" ) then
-			goto parse_arg;
-		endif
-		
-		set value="$argv[$arg]";
-		goto $callback;
-	end
-	unset filname_list filename_test;
+	printf "${value}\n" >> "${target_directories_filename_list}";
 	goto parse_arg;
-#goto append_to_filename_list;
+#goto append_target_directory;
 
 

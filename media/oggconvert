@@ -24,7 +24,7 @@ scripts_main_quit:
 			if( -e "${playlist}.new" ) \
 				rm "${playlist}.new";
 		else
-			printf "\t";
+			printf "\n\t";
 			playlist:new:save.tcsh "${playlist}";
 			printf "\n";
 			unset playlists_new_files;
@@ -1055,7 +1055,7 @@ parse_arg:
 			if( -e "${playlist}.new" ) \
 				rm "${playlist}.new";
 		else
-			printf "\t";
+			printf "\n\t";
 			playlist:new:save.tcsh "${playlist}";
 			printf "\n";
 			unset playlists_new_files;
@@ -1298,21 +1298,6 @@ parse_arg:
 				breaksw;
 			
 			case "playlist":
-				if( ${?playlist} ) then
-					if(! ${?playlists_new_files} ) then
-						if( -e "${playlist}.swp" ) \
-							rm "${playlist}.swp";
-						if( -e "${playlist}.new" ) \
-							rm "${playlist}.new";
-					else
-						printf "\t";
-						playlist:new:save.tcsh "${playlist}";
-						printf "\n";
-						unset playlists_new_files;
-					endif
-					unset playlist;
-				endif
-				
 				if( "${value}" != "" ) then
 					set playlist_type="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/'`";
 				else
@@ -1348,17 +1333,6 @@ parse_arg:
 				if(! ${?playlist} ) \
 					breaksw;
 				
-				if(! ${?playlists_new_files} ) then
-					if( -e "${playlist}.swp" ) \
-						rm "${playlist}.swp";
-					if( -e "${playlist}.new" ) \
-						rm "${playlist}.new";
-				else
-					printf "\t";
-					playlist:new:save.tcsh "${playlist}";
-					printf "\n";
-					unset playlists_new_files;
-				endif
 				unset playlist;
 				breaksw;
 			

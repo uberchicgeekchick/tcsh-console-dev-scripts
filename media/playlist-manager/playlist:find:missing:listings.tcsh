@@ -186,7 +186,7 @@ find_missing_media:
 			printf "\nRunning:\n\tfind -L "\""${target_directory}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex "\"".*${extensions}"\$\""' \! -iregex '.*\/\..*' -type f\n";
 		
 		printf " .";
-		find -L "${target_directory}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ \! -iregex '.*\/\..*' -type f | sort >> "${missing_media_filename_list}";
+		find -L "${target_directory}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ \! -iregex '.*\/\..*' -type f >> "${missing_media_filename_list}";
 		if( ${?skip_dirs} ) then
 			foreach skip_dir("`printf "\""${skip_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
 				set escaped_skip_dir="`printf "\""%s"\"" "\""${skip_dir}"\"" | sed -r 's/(\\|\[|\*|\/)/\\\1/g'`";
@@ -198,6 +198,8 @@ find_missing_media:
 		unset target_directory;
 		goto find_missing_media;
 	end
+	sort "${missing_media_filename_list}" | uniq >! "${missing_media_filename_list}.swp";
+	mv -f "${missing_media_filename_list}.swp" "${missing_media_filename_list}";
 	printf " .";
 	while( "`/bin/grep --perl-regex -c '^"\$"' "\""${missing_media_filename_list}"\""`" != 0 )
 		set line_numbers=`/bin/grep --perl-regex --line-number '^$' "${missing_media_filename_list}" | sed -r 's/^([0-9]+).*$/\1/' | grep --perl-regexp '^[0-9]+'`;
@@ -372,7 +374,8 @@ handle_missing_media:
 		if( ${?response} ) then
 			printf "\n\t**error:** %s is an invalid selection.  Please select again?\n\n" "${response}";
 		endif
-		printf "\n\t<file://%s> is not listed in any of the provided playlists.\n\n\tWhat action would you like to take:" "${this_podcast}";
+		printf "\n\t**Unlisted file:**\n\t\t<file://%s>" "${this_podcast}";
+		printf "\n\n\tWhat action would you like to take:";
 		@ playlist_index=0;
 		while( $playlist_index < ${#playlists} )
 			@ playlist_index++;
@@ -380,20 +383,21 @@ handle_missing_media:
 		end
 		
 		printf "\n";
-		printf "\n\t\tD/r) Delete, i.e.: Remove this file and any resulting empty directories.";
-		printf "\n\t\tI/s) Ignore, i.e.: Skip this file and do nothing.";
-		printf "\n\t\tA/c) Abort, i.e.: Cancel and exit %s." "${scripts_basename}";
+		printf "\n\t\tD/r) Delete: Remove this file and any resulting empty directories.";
+		printf "\n\t\tI/c/s) Ignore: Cancel/skip processing this file and do nothing.";
+		printf "\n\t\tA/e) Abort and exit %s." "${scripts_basename}";
 		
 		printf "\n\n\tPlease select which action you want performed?  [1";
 		if( $playlist_index > 1 ) then
 			printf "-%d" $playlist_index;
 		endif
-		printf ", D/r, I/s, A/c]: ";
+		printf ", D/r, I/c/s, A/e]: ";
 		set response="$<";
 		printf "\n";
 		switch( `printf "%s" "${response}" | sed -r 's/^(.).*$/\l\1/'` )
-			case "s":
 			case "i":
+			case "c":
+			case "s":
 				printf "\n\t<file://%s> will not be processed.\n" "${this_podcast}";
 				unset prompt_for_playlist;
 				breaksw;
@@ -406,7 +410,7 @@ handle_missing_media:
 				breaksw;
 			
 			case "a":
-			case "c":
+			case "e":
 				unset prompt_for_playlist response playlist_index;
 				goto process_missing_media;
 				breaksw;

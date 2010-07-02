@@ -547,17 +547,16 @@ scripts_main_quit:
 			rm -f "${missing_media_filename_list}";
 	endif
 	
-	if( ${?new_file_count} ) \
-		unset new_file_count;
-	
 	if( ${?target_directories_filename_list} ) then
 		if( -e "${target_directories_filename_list}" ) \
 			rm -f "${target_directories_filename_list}";
 	endif
+	
 	if(! ${?removed_podcasts} ) \
 		@ removed_podcasts=0;
 	if( $removed_podcasts == 0 && ${?create_script} ) then
-		rm "${create_script}";
+		if( -e "${create_script}" ) \
+			rm -f "${create_script}";
 	endif
 	
 	if( ${?old_owd} ) then
@@ -584,6 +583,13 @@ scripts_main_quit:
 			rm -rf "${scripts_tmpdir}";
 		unset scripts_tmpdir;
 	endif
+	
+	if( ${?removed_podcasts} )\
+		unset removed_podcasts;
+	if( ${?missing_podcasts} )\
+		unset missing_podcasts;
+	if( ${?new_file_count} ) \
+		unset new_file_count;
 	
 	if(! ${?errno} ) \
 		@ errno=0;

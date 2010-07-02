@@ -289,7 +289,11 @@ fetch_podcast:
 	ex -s '+1,$s/\ XI\ /\ 11\ /g' '+1,$s/\ XII\ /\ 12\ /g' '+1,$s/\ XIII\ /\ 13\ /g' '+1,$s/\ XIV\ /\ 14\ /g' '+1,$s/\ XV\ /\ 15\ /g' '+wq!' './00-titles.lst';
 	ex -s '+1,$s/\ XVI\ /\ 16\ /g' '+1,$s/\ XVII\ /\ 17\ /g' '+1,$s/\ XVIII\ /\ 18\ /g' '+1,$s/\ XIX\ /\ 19\ /g' '+1,$s/\ XX\ /\ 20\ /g' '+wq!' './00-titles.lst';
 	
-	ex -s '+1,$s/\//\ \-\ /g' '+1,$s/[\ ]\{2,\}/\ /g' '+wq!' './00-titles.lst';
+	# removes 'directory' seporators.
+	ex -s '+1,$s/\//\ \-\ /g' './00-titles.lst'
+	# removes & trims white spaces.
+	ex -s '+1,$s/\v[ ]{2,}/\ /g' '+1,$s/^ //' '+1,$s/ $//' '+wq!' './00-titles.lst';
+	
 	if(! ${?silent} ) \
 		printf "\t\t[done]\n";
 	if( ${?logging} ) \

@@ -655,49 +655,44 @@ oggconvert:
 	printf "\n\tConverting";
 	if( ${file_count} > 1 ) \
 		printf " (file %s of %s)" "${files_processed}" "${file_count}";
-	printf ":";
+	printf ":\n\t\t<%s.%s>\n" "${save_to_filename}" "${original_extension}";
 	
 	if(! -e "${save_to_filename}.${original_extension}.bck" ) \
 		cp -f "${save_to_filename}.${original_extension}" "${save_to_filename}.${original_extension}.bck";
 	
-	#if( "${extension}" != "wav" || ${?ltrim} || ${?rtrim} || ${?length} || ${?volume} ) then
-	if( "${extension}" == "wav" && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} && ! ${?volume} ) then
-		printf "\n\t\t<%s.%s>\n" "${save_to_filename}" "${original_extension}";
-	else
+	if( "${extension}" != "wav" || ${?ltrim} || ${?rtrim} || ${?length} || ${?volume} ) then
 		set ffmpeg_input_file_options="";
 		set ffmpeg_output_file_options="";
 		
 		if( ${?length} && ( ${?rtrim} || ! ${?ltrim} ) ) then
 			if( ${?rtrim} ) then
-				printf "\n\t\tRemoving: [%s] from the end of:" "${rtrim}";
+				printf "\t\tRemoving: [%s] from its ending.\n" "${rtrim}";
 			else
-				printf "\n\t\tLimiting: [%s] as the maximum length of:" "${length}";
+				printf "\t\tLimiting: [%s] as its maximum length.\n" "${length}";
 			endif
 			set ffmpeg_input_file_options=" -t ${length}";
 			if( ${?volume} && ! ${?ltrim} ) then
-				printf "\n\t\tAnd setting the default volume to: [%s]" "${volume}";
+				printf "\t\tAnd setting its default volume to: [%s].\n" "${volume}";
 				set ffmpeg_output_file_options=" -vol ${volume}";
 			endif
 		else if( ${?ltrim} && ${?length} ) then
-			printf "\n\t\tTrimming: [%s] from the begining, and limiting the maximum length to: [%s] of:" "${ltrim}" "${length}";
+			printf "\t\tTrimming: [%s] from its begining, and limiting its maximum length to: [%s].\n" "${ltrim}" "${length}";
 			set ffmpeg_input_file_options=" -t ${length} -ss ${ltrim}";
 			if( ${?volume} ) then
-				printf "\n\t\tAnd setting the default volume to: [%s]" "${volume}";
+				printf "\t\tAnd setting its default volume to: [%s]\n" "${volume}";
 				set ffmpeg_output_file_options=" -vol ${volume}";
 			endif
 		else if( ${?ltrim} ) then
-			printf "\n\t\tTrimming: [%s] from the begining of:" "${ltrim}";
+			printf "\t\tTrimming: [%s] from its begining.\n" "${ltrim}";
 			set ffmpeg_input_file_options=" -ss ${ltrim}";
 			if( ${?volume} ) then
-				printf "\n\t\tAnd setting the default volume to: [%s]" "${volume}";
+				printf "\t\tAnd setting its default volume to: [%s].\n" "${volume}";
 				set ffmpeg_output_file_options=" -vol ${volume}";
 			endif
 		else if( ${?volume} ) then
-			printf "\n\t\tSetting the default volume to: [%s]" "${volume}";
+			printf "\t\tSetting its default volume to: [%s].\n" "${volume}";
 			set ffmpeg_output_file_options=" -vol ${volume}";
 		endif
-		
-		printf "\n\t\t<%s.%s>\n" "${save_to_filename}" "${original_extension}";
 		
 		if( "${extension}" == "" && ${?combine} ) then
 			set ffmpeg_output_file_options=" -ac 1";#" -ar 44100 -ab 64000";

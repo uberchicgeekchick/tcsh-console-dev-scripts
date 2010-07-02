@@ -7,7 +7,7 @@
 <title><xsl:value-of select="rss/channel/title"/></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="alternate" type="application/rss+xml" title="David Allen Company Master RSS Feed" href="http://www.davidco.com/master_rss.php?usm=1" />
-<link rel="stylesheet" href="http://www.davidco.com/css/styles.css" type="text/css" />
+<link rel="stylesheet" href="index.css" type="text/css" />
 <script language="JavaScript" type="text/JavaScript">
 <!--
 function MM_openBrWindow(theURL,winName,features) { //v2.0
@@ -154,3 +154,4 @@ Subscribe Now
 </html>
 </xsl:template>
 </xsl:stylesheet>
+

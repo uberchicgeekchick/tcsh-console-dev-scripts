@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href="/podcast_xsl.php" type="text/xsl" media="screen"?>
-
-<!--
-This is 512 bytes of nonsense, since the Firefox 2 developers, in one of the strangest decisions ever, decided they would obsolete XML styles by overriding them without permission.  Furthermore, the developers appear to be disinterested in fixing this.  Therefore, we use the unofficial workaround, which includes filling up the first 512 bytes of a document so that the sniffer doesn't encounter the RSS tag.  I really enjoy using Firefox, but this particular behavior really annoys me! Anyway, since I'm almost at 512 characters, I'm going to ramble on for another minute in this comment, and then, without further ado, present you with a valid XML feed.  
--->
-
-<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0">
-

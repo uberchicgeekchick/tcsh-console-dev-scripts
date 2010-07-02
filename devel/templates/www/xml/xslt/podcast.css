@@ -1,0 +1,62 @@
+/* CSS Document */
+body {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+}
+table#feed {
+	border-bottom:1px dotted black;
+	width:100%;
+}
+table#feed td {
+	padding:10px;
+	}
+table#list {
+	padding:0px;
+	width:100%;
+	border-collapse:collapse;
+}
+table#list td{
+	padding-left:10px;
+	padding-top:10px;
+	padding-bottom:10px;
+}
+table#list tr.alternate td{
+	background-color:#CCCCCC;
+}
+table#list a {
+	color:#666666;
+	font-weight:bold;
+	margin-right:20px;
+}
+div#bk {
+	margin:0px;
+	height:100%;
+	width:100%;
+	background-color:#CCFFCC;
+}
+div#content {
+	border:1px solid #666666;
+	width:600px;
+	margin:0px auto 0px auto;
+	background-image:url(/skins/default/images/background.jpg);
+	background-repeat:repeat-x;
+}
+div#head {
+	
+}
+img.logo {
+	border:1px solid black;
+	float:left;
+}
+span.title {
+	font-size:18px;
+}
+p.itemDescription {
+	margin-right:15px;
+	width:400px;
+}
+span.new {
+	color:#990000;
+	font-weight:bold;
+	font-size:12px;
+	}

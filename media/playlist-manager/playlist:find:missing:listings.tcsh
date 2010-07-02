@@ -356,19 +356,22 @@ check_duplicate_dirs:
 
 
 handle_missing_media:
-	onintr process_missing_media;
+	onintr -;
 	
 	@ missing_podcasts++;
 	
 	if( ${?removal_forced} ) \
 		goto remove_missing_media;
 	
+	if( $missing_podcasts > 1 ) \
+		printf "\n\n";
+	
 	set prompt_for_playlist;
 	while( ${?prompt_for_playlist} )
 		if( ${?response} ) then
-			printf "\n\t%s is an invalid selection.  Please select again?\n" "${response}";
+			printf "\n\t**error:** %s is an invalid selection.  Please select again?\n\n" "${response}";
 		endif
-		printf "\n\t<file://%s> is not listed in any of the provided playlists.\n\tWhat would you like to do:" "${this_podcast}";
+		printf "\n\t<file://%s> is not listed in any of the provided playlists.\n\n\tWhat action would you like to take:" "${this_podcast}";
 		@ playlist_index=0;
 		while( $playlist_index < ${#playlists} )
 			@ playlist_index++;
@@ -422,6 +425,8 @@ handle_missing_media:
 		endsw
 	end
 	unset response playlist_index;
+	
+	onintr process_missing_media;
 	
 	if( ${?duplicates_dirs} ) \
 		goto check_duplicate_dirs;

@@ -364,7 +364,7 @@ handle_missing_media:
 		goto remove_missing_media;
 	
 	if( $missing_podcasts > 1 ) \
-		printf "\n\n";
+		printf "\n\n\t------------------------------------\n\n";
 	
 	set prompt_for_playlist;
 	while( ${?prompt_for_playlist} )

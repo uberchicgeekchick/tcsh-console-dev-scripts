@@ -209,7 +209,11 @@ find_missing_media:
 	
 	unset previous_target_directory;
 	
-	printf "\nFinding any multimedia files which are not listed in the provided playlists...\n";
+	if(!( ${#playlists} > 1 )) then
+		printf "\nLooking for any files which aren't listed in the provided playlist...\n";
+	else
+		printf "\nLooking for any files which aren't listed in any of the provided playlists...\n";
+	endif
 	goto process_missing_media;
 #goto find_missing_media;
 
@@ -220,20 +224,17 @@ process_missing_media:
 		if(! ${?missing_podcasts} ) then
 			printf "\nNo files where found.\n";
 		else
-			printf "\nFinished\n";
+			printf "\nFinished processing multimedia files found in the target ";
+			if(!( ${#target_directories} > 1 )) then
+				printf "directory.\n";
+			else
+				printf "directories.\n";
+			endif
 		endif
 		goto exit_script;
 	endif
 	
-	if(! ${?podcast} ) then
-		if(! ${?missing_podcasts} ) then
-			if(!( ${#playlists} > 1 )) then
-				printf "\nLooking for any files which aren't listed in the provided playlist.\n";
-			else
-				printf "\nLooking for any files which aren't listed in any of the provided playlists.\n";
-			endif
-		endif
-	else
+	if( ${?podcast} ) then
 		if( ${?this_podcast} ) then
 			printf "[cancelled]\n\t\t<file://%s> has not been processed.\n" "${this_podcast}";
 			unset this_podcast;

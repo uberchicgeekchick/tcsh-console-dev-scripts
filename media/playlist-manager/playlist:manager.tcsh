@@ -147,16 +147,20 @@ parse_argv:
 				breaksw;
 			
 			case "import":
-				if(! -e "${value}" ) then
+				set import="${value}";
+				if(! -e "${import}" ) then
 					@ errno=-601;
 					goto exception_handler;
 				endif
-				set import="${value}";
 				breaksw;
 			
 			case "export":
 			case "export-to":
 				set export_to="${value}";
+				if(! -d "`dirname "\""${export_to}"\""`" ) then
+					@ errno=-602;
+					goto exception_handler;
+				endif
 				breaksw;
 			
 			case "edit-playlist":
@@ -164,8 +168,7 @@ parse_argv:
 				breaksw;
 			
 			case "target-directory":
-				if( -d "${value}" ) \
-					set target_directory="${value}"
+				set target_directory="${value}"
 				breaksw;
 			
 			case "recursive":
@@ -217,21 +220,18 @@ main:
 	endif
 	
 	if(! ${?playlist} ) then
-		printf "**error:** a valid target playlist must be specified.\n" > /dev/stderr;
-		@ errno=-1;
-		goto exit_script;
+		@ errno=-401;
+		goto exception_handler;
 	endif
 	
 	if( ${?export_to} && ${?import} ) then
-		printf "**error:** you cannot import and export a playlist at the same time.\nPlease choose to either import or export a playlist and than export or import the playlist created by your initial playlist import or export.\n" > /dev/stderr;
-		@ errno=-2;
-		goto exit_script;
+		@ errno=-402;
+		goto exception_handler;
 	endif
 	
 	if( ! -e "${playlist}" && ! ${?import} ) then
-		printf "**error:** an existing playlist must be specified.\n" > /dev/stderr;
-		@ errno=-3;
-		goto exit_script;
+		@ errno=-403;
+		goto exception_handler;
 	endif
 	
 	set playlist_type="`printf "\""%s"\"" "\""${playlist}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
@@ -242,10 +242,8 @@ main:
 			breaksw;
 		
 		default:
-			printf "**error:** [%s] is an unsupported playlist type: [%s].\n" "${playlist}" "${playlist_type}" > /dev/stderr;
-			unset playlist playlist_type;
-			@ errno=-4;
-			goto exit_script;
+			@ errno=-404;
+			goto exception_handler;
 			breaksw;
 	endsw
 #main:
@@ -256,13 +254,13 @@ import:
 		goto export;
 	
 	if( "${import}" == "${playlist}" ) then
-		printf "**error** [%s] and [%s] are the same file.\nImporting playlist:\t\t[failed]\n" "${import}" "${playlist}"
-		goto export;
+		@ errno=-405;
+		goto exception_handler;
 	endif
 	
 	if(! -e "${import}" ) then
-		printf "**error:** [%s] does not exist/could not be found.\nImporting <file://%s>:\t\t[failed]\n" "${import}" "${import}" > /dev/stderr;
-		goto export;
+		@ errno=-601;
+		goto exception_handler;
 	endif
 	
 	set import_type="`printf "\""%s"\"" "\""${import}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
@@ -285,7 +283,9 @@ import:
 			breaksw;
 		
 		default:
-			printf "**error:** [%s] cannot by imported. It is an unsupported playlist type: [%s].\n" "${import}" "${import_type}" > /dev/stderr;
+			@ errno=-406;
+			goto exception_handler;
+			breaksw;
 	endsw
 	unset import import_type;
 #import:
@@ -296,13 +296,18 @@ export:
 		goto clean_up;
 	
 	if( "${export_to}" == "${playlist}" ) then
-		printf "**error** [%s] and [%s] are the same file.\nExporting playlist:\t\t[failed]\n" "${export_to}" "${playlist}"
-		goto clean_up;
+		@ errno=-407;
+		goto exception_handler;
 	endif
 	
 	if(! -e "${playlist}" ) then
-		printf "**error:** [%s] does not exist/could not be found.\nCannot export a non-existing playlist.\nExporting playlist:\t\t[failed]\n" "${playlist}" > /dev/stderr;
-		goto clean_up;
+		@ errno=-600;
+		goto exception_handler;
+	endif
+	
+	if(! -d "`dirname "\""${export_to}"\""`" ) then
+		@ errno=-602;
+		goto exception_handler;
 	endif
 	
 	set export_type="`printf "\""%s"\"" "\""${export_to}"\"" | sed 's/.*\.\([^\.]\+\)"\$"/\1/'`";
@@ -314,6 +319,12 @@ export:
 				${EDITOR} "${playlist}";
 				set playlist_edited;
 			endif
+			
+			if(! -d "`dirname "\""${export_to}"\""`" ) then
+				@ errno=-602;
+				goto exception_handler;
+			endif
+			
 			if( "${export_type}" == "${playlist_type}" ) then
 				cp -vf "${playlist}" "${export_to}";
 			else
@@ -322,7 +333,8 @@ export:
 			breaksw;
 		
 		default:
-			printf "**error:** [%s] cannot by exported. It is an unsupported playlist type: [%s].\n" "${export}" "${export_type}" > /dev/stderr;
+			@ errno=-408;
+			goto exception_handler;
 			breaksw;
 	endsw
 	unset export_type export;
@@ -333,32 +345,46 @@ clean_up:
 	if(! ${?clean_up} ) \
 		goto get_missing;
 	
+	if(! -e "${playlist}" ) then
+		@ errno=-600;
+		goto exception_handler;
+	endif
+	
 	if(! ${?maxdepth} ) \
 		set maxdepth="--search-subdirs-only";
 	
-	if(! ${?target_directory} ) \
-		set target_directory="${cwd}";
+	if(! ${?target_directory} ) then
+		@ errno=-409;
+		goto exception_handler;
+	endif
+	
+	if(! -d "${target_directory}" ) then
+		@ errno=-603;
+		goto exception_handler;
+	endif
 	
 	printf "Checking for any files found under [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
 	set old_owd="${owd}";
 	set old_cwd="${cwd}";
 	cd "${target_directory}";
 	while( "${cwd}" != "/" )
-		if( -d "${cwd}/nfs" ) then
+		if(! -d "${cwd}/nfs" ) then
+			cd "..";
+		else
 			set skip_directory=" --skip-dir=${cwd}/nfs";
 			set duplicate_directory=" --check-for-duplicates-in-dir=${cwd}/nfs";
 			break;
-		else
-			cd "..";
 		endif
 	end
-	if(! ${?skip_directory} ) \
-		set skip_directory;
-	if(! ${?duplicate_directory} ) \
-		set duplicate_directory;
 	cd "${old_cwd}";
 	set owd="${old_owd}";
 	unset old_owd old_cwd;
+	
+	if(!( ${?skip_directory} && ${?duplicate_directory} )) then
+		@ errno=-410;
+		goto exception_handler;
+	endif
+	
 	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
 	
 	unset target_directory maxdepth clean_up;
@@ -369,6 +395,11 @@ get_missing:
 	if(! ${?auto_copy} ) \
 		goto validate;
 	
+	if(! -e "${playlist}" ) then
+		@ errno=-600;
+		goto exception_handler;
+	endif
+	
 	playlist:copy:missing:listings.tcsh "${playlist}";
 	unset auto_copy;
 #get_missing:
@@ -377,6 +408,11 @@ get_missing:
 validate:
 	if(! ${?validate} ) \
 		goto exit_script;
+	
+	if(! -e "${playlist}" ) then
+		@ errno=-600;
+		goto exception_handler;
+	endif
 	
 	if( ${?edit_playlist} && ! ${?playlist_edited} ) then
 		${EDITOR} "${playlist}";
@@ -507,10 +543,7 @@ exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-999;
 	
-	if( $errno <= -500 ) then
-		if(! ${?exit_on_exception} ) \
-			set exit_on_exception;
-	else if( $errno < -400 ) then
+	if( $errno < -400 ) then
 		if(! ${?exit_on_exception} ) \
 			set exit_on_exception;
 	else if( $errno > -400 && $errno < -100 ) then
@@ -525,6 +558,47 @@ exception_handler:
 		printf "\t" > ${stderr};
 	printf "**%s error("\$"errno:%d):**\n\t" "${scripts_basename}" ${errno} > ${stderr};
 	switch( $errno )
+		case -401:
+			printf "a valid target playlist must be specified." > ${stderr};
+			breaksw;
+		
+		case -402:
+			printf "you cannot import and export a playlist at the same time.\nPlease choose to either import or export a playlist and than export or import the playlist created by your initial playlist import or export." > ${stderr};
+			breaksw;
+		
+		case -403:
+			printf "an existing playlist must be specified." > ${stderr};
+			breaksw;
+		
+		case -404:
+			printf "[%s] is an unsupported playlist type: [%s]." "${playlist}" "${playlist_type}" > ${stderr};
+			unset playlist playlist_type;
+			breaksw;
+		
+		case -405:
+			printf "%s] and [%s] are the same file.\nImporting playlist:\t\t[failed]" "${import}" "${playlist}" > ${stderr};
+			breaksw;
+		
+		case -406:
+			printf "[%s] cannot by imported. It is an unsupported playlist type: [%s]." "${import}" "${import_type}" > ${stderr};
+			breaksw;
+		
+		case -407:
+			printf "[%s] and [%s] are the same file.\nExporting playlist:\t[failed]." "${export_to}" "${playlist}" > ${stderr};
+			breaksw;
+		
+		case -408:
+			printf "[%s] cannot by exported. It is an unsupported playlist type: [%s]." "${export}" "${export_type}" > ${stderr};
+			breaksw;
+		
+		case -409:
+			printf "Clean-up requires a target directory to be specified." > ${stderr};
+			breaksw;
+		
+		case -410:
+			printf "<file://%s> cannot be cleaned up its remote directory doesn't exists and/or couldn't be found." "${target_directory}" > ${stderr};
+			breaksw;
+		
 		case -501:
 			printf "<%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s]." "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
 			unset suffix dependency dependencies dependencies_index;
@@ -547,8 +621,20 @@ exception_handler:
 			unset dashes option equals value;
 			breaksw;
 		
+		case -600:
+			printf "[%s] does not exist/could not be found.\nCannot export a non-existing playlist.\nExporting playlist:\t\t[failed]" "${playlist}" > ${stderr};
+			breaksw;
+		
 		case -601:
-			printf "fatal import error:\n\t<file://%s> does not exist." "${value}";
+			printf "fatal import error:\n\t<file://%s> does not exist." "${import}" > ${stderr};
+			breaksw;
+		
+		case -602:
+			printf "fatal export error:\n\t<file://%s> target directory does not exist." "${export_to}" > ${stderr};
+			breaksw;
+		
+		case -603:
+			printf "Cannot clean-up: <file://%s> doesn't exist." "${target_directory}" > ${stderr};
 			breaksw;
 		
 		case -604:

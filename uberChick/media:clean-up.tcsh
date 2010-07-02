@@ -350,6 +350,8 @@ move_slashdot:
 	if( -d "/media/podcasts/Slashdot" ) then
 		if(! ${?action_preformed} ) then
 			set action_preformed;
+		else
+			printf "\n\n";
 		endif
 		
 		rm -rv "/media/podcasts/Slashdot";

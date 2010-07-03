@@ -29,7 +29,20 @@ setup:
 	set starting_cwd="${cwd}";
 	
 	@ minimum_options=-1;
+	if( ${?minimum_options} ) then
+		if( ${minimum_options} > 0 && ${#argv} < ${minimum_options} ) then
+			@ errno=-503;
+			goto exception_handler;
+		endif
+	endif
+		
 	@ maximum_options=-1;
+	if( ${?maximum_options} ) then
+		if( ${maximum_options} > 0 && ${#argv} > ${maximum_options} ) then
+			@ errno=-504;
+			goto exception_handler;
+		endif
+	endif
 	
 	if( "`alias cwdcmd`" != "" ) then
 		set original_cwdcmd="`alias cwdcmd`";
@@ -605,17 +618,16 @@ dependencies_check:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?script} ) \
+				if( ${?script} ) then
+					set old_owd="${cwd}";
+					cd "`dirname "\""${program}"\""`";
+					set scripts_path="${cwd}";
+					cd "${owd}";
+					set owd="${old_owd}";
+					unset old_owd;
+					set script="${scripts_path}/${scripts_basename}";
 					breaksw;
-				
-				set old_owd="${cwd}";
-				cd "`dirname "\""${program}"\""`";
-				set scripts_path="${cwd}";
-				cd "${owd}";
-				set owd="${old_owd}";
-				unset old_owd;
-				set script="${scripts_path}/${scripts_basename}";
-				breaksw;
+				endif
 			
 			default:
 				if(! ${?execs} ) \
@@ -1108,10 +1120,7 @@ exception_handler:
 		@ errno=-999;
 	endif
 	
-	if( $errno <= -500 ) then
-		if(! ${?exit_on_exception} ) \
-			set exit_on_exception;
-	else if( $errno < -400 ) then
+	if( $errno < -400 ) then
 		if(! ${?exit_on_exception} ) \
 			set exit_on_exception;
 	else if( $errno > -400 && $errno < -100 ) then
@@ -1340,20 +1349,6 @@ parse_argv:
 		if( ( ${?debug_options} || ${?debug_arguments} ) && ! ${?debug} ) \
 			set debug debug_set;
 		
-		if( ${?minimum_options} ) then
-			if( ${minimum_options} > 0 && ${argc} < ${minimum_options} ) then
-				@ errno=-503;
-				goto exception_handler;
-			endif
-		endif
-		
-		if( ${?maximum_options} ) then
-			if( ${maximum_options} > 0 && ${argc} > ${maximum_options} ) then
-				@ errno=-504;
-				goto exception_handler;
-			endif
-		endif
-	
 		if( ${?debug} ) \
 			printf "**%s debug:** parsing "\$"argv's %d options.\n" "${scripts_basename}" "${argc}";
 	endif
@@ -1449,7 +1444,7 @@ parse_arg:
 	if( ${?debug} ) \
 		printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}";
 	
-	if(!( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
+	if( "${value}" != "${argument}" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
 		@ arg++;
 		if( ${arg} > ${argc} ) then
 			@ arg--;

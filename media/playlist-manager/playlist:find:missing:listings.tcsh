@@ -226,12 +226,13 @@ process_missing_media:
 		if(! ${?missing_podcasts} ) then
 			printf "\nNo files where found.\n";
 		else
-			printf "\nFinished processing multimedia files found in the target ";
+			printf "\n\n\tFinished processing multimedia files found in the target ";
 			if(!( ${#target_directories} > 1 )) then
-				printf "directory.\n";
+				printf "directory";
 			else
-				printf "directories.\n";
+				printf "directories";
 			endif
+			printf ".\n\n";
 		endif
 		goto exit_script;
 	endif
@@ -359,7 +360,6 @@ check_duplicate_dirs:
 
 
 handle_missing_media:
-	onintr -;
 	
 	@ missing_podcasts++;
 	
@@ -369,10 +369,15 @@ handle_missing_media:
 	if( $missing_podcasts > 1 ) \
 		printf "\n\n\t\t-----------------------------------------------------\n\n";
 	
+	onintr -;
+	if( ${?append_set} ) \
+		unset append append_set;
 	set prompt_for_playlist;
 	while( ${?prompt_for_playlist} )
 		if( ${?response} ) then
-			printf "\n\t**error:** %s is an invalid selection.  Please select again?\n\n" "${response}";
+			printf "\n\n\t\t-----------------------------------------------------";
+			printf "\n\t\t**error:** %s is an invalid selection.  Please select again?" "${response}";
+			printf "\n\t\t-----------------------------------------------------\n\n";
 		endif
 		printf "\n\t**Unlisted file:**\n\t\t<file://%s>" "${this_podcast}";
 		printf "\n\n\tWhat action would you like to take:";
@@ -383,54 +388,68 @@ handle_missing_media:
 		end
 		
 		printf "\n";
-		printf "\n\t\tD/r) Delete: Remove this file and any resulting empty directories.";
-		printf "\n\t\tI/c/s) Ignore: Cancel/skip processing this file and do nothing.";
-		printf "\n\t\tA/e) Abort and exit %s." "${scripts_basename}";
+		printf "\n\t\tD) Delete this file and resulting empty directories.";
+		printf "\n\t\tI) Ignore: This discrepency and do nothing about.";
+		printf "\n\t\tA) Abort and exit %s." "${scripts_basename}";
 		
-		printf "\n\n\tPlease select which action you want performed?  [1";
-		if( $playlist_index > 1 ) then
-			printf "-%d" $playlist_index;
+		printf "\n\n\tPlease select which action you want performed?  ";
+		if(!( $playlist_index > 1 )) then
+			printf "1";
+		else
+			printf "[1-%d]" $playlist_index;
 		endif
-		printf ", D/r, I/c/s, A/e]: ";
+		if(! ${?append} ) \
+			printf "/D/I/A: ";
 		set response="$<";
 		printf "\n";
-		switch( `printf "%s" "${response}" | sed -r 's/^(.).*$/\l\1/'` )
-			case "i":
-			case "c":
-			case "s":
-				printf "\n\t<file://%s> will not be processed.\n" "${this_podcast}";
-				unset prompt_for_playlist;
-				breaksw;
+		switch( `printf "%s" "${response}" | sed -r 's/^(.).*$/\U\1/'` )
+			case "I":
+				if(! ${?append} ) then
+					printf "\n\t**Cancelled:**\n\t\t<file://%s>\n" "${this_podcast}";
+					unset prompt_for_playlist;
+					breaksw;
+				endif
 			
-			case "d":
-			case "r":
-				printf "\n\t<file://%s> will be removed.\n" "${this_podcast}";
-				unset prompt_for_playlist response playlist_index;
-				goto remove_missing_media;
-				breaksw;
+			case "D":
+				if(! ${?append} ) then
+					printf "\n\t**Deleting:**\n\t\t<file://%s>\n\tand cleaning up any empty directories.\n" "${this_podcast}";
+					unset prompt_for_playlist response playlist_index;
+					goto remove_missing_media;
+					breaksw;
+				endif
 			
-			case "a":
-			case "e":
-				unset prompt_for_playlist response playlist_index;
-				goto process_missing_media;
-				breaksw;
+			case "A":
+				if(! ${?append} ) then
+					printf "\n\t**Cancelled:**\n\t\t<file://%s>\t[cancelled]" "${this_podcast}";
+					printf "\n\t**Exiting:** %s...\n\n" "${scripts_basename}";
+					unset prompt_for_playlist response playlist_index;
+					unset this_podcast podcast;
+					goto exit_script;
+					breaksw;
+				endif
 			
 			default:
 				if( `printf "%s" "${response}" | sed -r 's/^[0-9]+$//'` != "" ) \
-					breaksw;
+					continue;
 				
 				if(!( $response > 0 && $response <= $playlist_index )) \
-					breaksw;
+					continue;
 				
-				@ new_file_count++;
-				printf "\n\tAdding: <file//%s> to: <file://%s>\n" "${this_podcast}" "$playlists[$response]";
-				printf "%s\n" "${this_podcast}" >> "$playlists[$response].new";
 				unset prompt_for_playlist;
+				set append=$response;
+				set append_set;
 				breaksw;
 		endsw
 	end
 	unset response playlist_index;
 	
+	if( ${?append} ) then
+		@ new_file_count++;
+		printf "\n\t**Appending:**\n\t\t<file//%s>\n\t\tto:\n\t\t<file://%s>\n" "${this_podcast}" "$playlists[$append]";
+		printf "%s\n" "${this_podcast}" >> "$playlists[$append].new";
+		if( ${?append_set} ) \
+			unset append append_set;
+	endif
 	onintr process_missing_media;
 	
 	if( ${?duplicates_dirs} ) \
@@ -494,7 +513,7 @@ remove_missing_media:
 	endif
 	
 	set podcast_dir_for_ls="`dirname "\""${this_podcast}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	while( "${podcast_dir}" != "/" && "`mount | grep -P "\""^${podcast_dir_for_ls}"\""`" == "" )
+	while( "${podcast_dir}" != "/" && "`mount | grep "\""^${podcast_dir_for_ls} "\""`" == "" )
 		if( "`/bin/ls -A "\""${podcast_dir_for_ls}"\""`" != "" ) \
 			break;
 		

@@ -13,6 +13,7 @@ if( $args_handled > 0 ) then
 	unset args_shifted;
 endif
 unset args_handled;
+#alias chmod 'if(! -e "!$" ) touch "!$"; chmod "!$"';
 set owners=( 'u' 'g' 'o' );
 set changes=( '-' '+' '=' );
 set permissions=( 'r' 'w' 'x' 'X' 's' 't' );

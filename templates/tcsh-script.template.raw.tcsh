@@ -173,17 +173,16 @@ dependencies_check:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?script} ) \
+				if( ${?script} ) then
+					set old_owd="${cwd}";
+					cd "`dirname "\""${program}"\""`";
+					set scripts_path="${cwd}";
+					cd "${owd}";
+					set owd="${old_owd}";
+					unset old_owd;
+					set script="${scripts_path}/${scripts_basename}";
 					breaksw;
-				
-				set old_owd="${cwd}";
-				cd "`dirname "\""${program}"\""`";
-				set scripts_path="${cwd}";
-				cd "${owd}";
-				set owd="${old_owd}";
-				unset old_owd;
-				set script="${scripts_path}/${scripts_basename}";
-				breaksw;
+				endif
 			
 			default:
 				if(! ${?execs} ) \
@@ -354,7 +353,7 @@ parse_arg:
 	if( ${?debug} ) \
 		printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
 	
-	if(!( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
+	if( "${value}" != "${argument}" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
 		@ arg++;
 		if( ${arg} > ${argc} ) then
 			@ arg--;

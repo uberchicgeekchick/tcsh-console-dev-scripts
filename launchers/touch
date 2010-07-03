@@ -14,22 +14,26 @@ init:
 	
 	set escaped_starting_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
-#init:
+#goto init;
 
 debug_check:
 	@ arg=0;
 	@ argc=${#argv};
 	
+	@ minimum_options=1;
 	if( ${?minimum_options} ) then
-		if( ${minimum_options} > 0 && ${argc} < ${minimum_options} ) then
+		if( ${minimum_options} > 0 && ${#argv} < ${minimum_options} ) then
 			@ errno=-503;
+			printf "One or more required options have not been provided." > ${stderr};
 			goto exception_handler;
 		endif
 	endif
 	
+	#@ maximum_options=2;
 	if( ${?maximum_options} ) then
-		if( ${maximum_options} > 0 && ${argc} > ${maximum_options} ) then
+		if( ${maximum_options} > 0 && ${#argv} > ${maximum_options} ) then
 			@ errno=-504;
+			printf "To many options have been provided." > ${stderr};
 			goto exception_handler;
 		endif
 	endif
@@ -153,7 +157,7 @@ debug_check:
 
 
 check_dependencies:
-	set dependencies=("${scripts_basename}");
+	set dependencies=("${scripts_basename}" "touch" "chmod");
 	@ dependencies_index=0;
 	
 	while( $dependencies_index < ${#dependencies} )
@@ -171,7 +175,7 @@ check_dependencies:
 			if( ${?debug} ) \
 				printf "\n**%s debug:** looking for dependency: %s, "\$"dependencies[%d], against: %s.\n\n" $dependencies_index "${exec}" "${scripts_basename}" "${dependency}" > ${stdout};
 			switch("${exec}")
-				case "./${scripts_basename}":
+				case "${scripts_basename}":
 				case "${TCSH_LAUNCHER_PATH}/${scripts_basename}":
 					if( ${?script} ) \
 						breaksw;
@@ -183,31 +187,40 @@ check_dependencies:
 					set owd="${old_owd}";
 					unset old_owd;
 					set script="${scripts_path}/${scripts_basename}";
-					unset exec;
 					breaksw;
 				
 				case "/bin/${scripts_basename}":
 				case "/usr/bin/${scripts_basename}":
 				case "/usr/share/bin/${scripts_basename}":
 				case "/usr/local/bin/${scripts_basename}":
-					set program="${exec}";
+					if(! ${?touch_exec} ) then
+						set touch_exec="${exec}";
+					else if(! ${?chmod} ) then
+						set chmod_exec="${exec}";
+					endif
 					breaksw;
 				
 				default:
 					breaksw;
 			endsw
+			unset exec;
 		end
 	end
 	
-	if(! ${?program} ) \
-		set program="";
+	if(! ${?touch_exec} ) \
+		goto missing_dependency;
 	
-	if(! -x "${program}" ) \
+	if(! -x "${touch_exec}" ) \
 		goto missing_dependency;
 		
+	if(! ${?chmod_exec} ) \
+		goto missing_dependency;
+	
+	if(! -x "${chmod_exec}" ) \
+		goto missing_dependency;
 	
 	unset dependency dependencies;
-#check_dependencies:
+#goto check_dependencies;
 
 
 if_sourced:
@@ -235,20 +248,16 @@ if_sourced:
 	# END: source support.
 	
 	goto scripts_main_quit;
-#if_sourced:
+#goto if_sourced;
 
 
 main:
 	set argc=${#argv};
-	if( ${argc} != 1 ) then
-		set status=-1;
-		goto usage;
-	endif
 	
 	alias ex "ex -E -n -X --noplugin";
 	
 	goto parse_argv; # exit's via 'usage:' or 'exec:'.
-#main:
+#goto main;
 
 
 exec:
@@ -261,10 +270,17 @@ exec:
 	endif
 	
 	if( ${?debug} ) \
-		printf "( %s "\""%s"\"" > %s ) >& %s;" "${program}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
-	( ${program} "${touch_target}" > ${stdout} ) >& ${stderr};
+		printf "( %s "\""%s"\"" > %s ) >& %s;" "${touch_exec}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
+	( ${touch_exec} "${touch_target}" > ${stdout} ) >& ${stderr};
+	
+	if( ${?mode} ) then
+		if( ${?debug} ) \
+			printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${chmod_exec}" "${mode}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
+		( ${chmod_exec} ${mode} "${touch_target}" > ${stdout} ) >& ${stderr};
+	endif
+	
 	goto scripts_main_quit;
-#exec:
+#goto exec;
 
 
 scripts_main_quit:
@@ -302,31 +318,19 @@ scripts_main_quit:
 		unset use_old_owd;
 	endif
 	exit ${status}
-#scripts_main_quit:
+#goto scripts_main_quit;
 
 
 missing_dependency:
 	printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_basename}" "${dependencies}";
 	set status=-1;
 	goto scripts_main_quit;
-#missing_dependency:
+#goto missing_dependency;
 
 
 usage:
-	if( ${?script} && ${?program} ) then
-		if( "${program}" != "${script}" && -x ${?program} ) then
-			${program} --help;
-			set usage_displayed;
-		endif
-	endif
-	
-	if( ! ${?usage_displayed} && ${?usage_message} ) then
-		printf "%s\n" "${usage_message}";
-		set usage_displayed;
-	endif
-	
 	if(! ${?usage_displayed} ) then
-		printf "\nUsage: %s [OPTION]... FILE...\n\t\n\tUpdate the access and modification times of each FILE to the current time.\n\tA FILE argument that does not exist is created empty as are any missing parent directories.\n\n" "${scripts_basename}";
+		printf "\n\n\tUsage: %s FILE\n\tor: %s MODE FILE\n\tUpdate the access and modification times of each FILE to the current time.\n\tA FILE argument that does not exist is created empty as are any missing parent directories.\n\n" "${scripts_basename}" "${scripts_basename}";
 	endif
 	
 	if(! ${?usage_displayed} ) \
@@ -335,7 +339,7 @@ usage:
 		goto scripts_main_quit;
 	
 	goto parse_arg;
-#usage:
+#goto usage;
 
 
 parse_argv:
@@ -344,7 +348,7 @@ parse_argv:
 	@ parsed_argc=0;
 	if( ${?debug} || ${?diagnostic_mode} ) \
 		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${scripts_basename}" "${argc}";
-#parse_argv:
+#goto parse_argv;
 
 parse_arg:
 	set argz="";
@@ -377,7 +381,7 @@ parse_arg:
 		if( ${?debug} ) \
 			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
 		
-		if(!( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
+		if( "${value}" != "${argument}" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;
@@ -452,18 +456,20 @@ parse_arg:
 			case "diagnosis":
 			case "diagnostic-mode":
 			case "debug":
-				if(${?arg_shifted}) then
-					@ arg--;
-					unset arg_shifted;
-				endif
 				breaksw;
 			
 			case "":
 			default:
+				if( ! ${?mode} && `printf "%s" "${value}" | sed -r 's/[ugo]{0,3}[\+\-=][rwxXst]{1,6}//'` == "" ) then
+					set mode="${value}";
+					breaksw;
+				endif
+				
 				if(! ${?touch_target} ) then
 					set touch_target="${value}";
 					breaksw;
 				endif
+				printf "$mode == $touch_target\n";
 				
 				printf "%s%s%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${equals}" "${value}" "${scripts_basename}" >& ${stderr};
 				breaksw;
@@ -477,6 +483,6 @@ parse_arg:
 		unset dashes option equals value parsed_arg;
 	end
 	goto exec;
-#parse_arg:
+#goto parse_arg;
 
 

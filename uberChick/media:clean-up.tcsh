@@ -216,6 +216,8 @@ delete:
 			
 			if(! ${?action_preformed} ) then
 				set action_preformed;
+			else
+				printf "\n\n";
 			endif
 			
 			if( -d "${podcast}" ) then
@@ -246,11 +248,15 @@ move_lifestyle_podcasts:
 	
 	if( ${?lifestyle_podcasts} ) then
 		foreach podcast( "`printf "\""${lifestyle_podcasts}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) \
+			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) then
+				unset podcast;
 				continue;
+			endif
 			
 			if(! ${?action_preformed} ) then
 				set action_preformed;
+			else
+				printf "\n\n";
 			endif
 			
 			if(! -d "/media/podcasts/lifestyle" ) \
@@ -268,9 +274,9 @@ move_lifestyle_podcasts:
 			if( `/bin/ls -A "${podcast_dir}"` == "" ) \
 				rm -rv "${podcast_dir}";
 			
-			unset podcast_dir podcast_name;
+			unset podcast podcast_dir podcast_name;
 		end
-		unset podcast lifestyle_podcasts;
+		unset lifestyle_podcasts;
 	endif
 	
 	goto parse_argv;
@@ -284,32 +290,33 @@ move_podiobooks:
 	
 	if( ${?podiobooks} ) then
 		foreach podiobook( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podiobook}" != "" && "${podiobook}" != "/" && -e "${podiobook}" ) then
-				if(! ${?action_preformed} ) then
-					set action_preformed;
-				endif
-				
-				if(! -d "/media/podiobooks/Latest" ) \
-					mkdir -p  "/media/podiobooks/Latest";
-				
-				if(! -d "${podiobook}" ) then
-					set podiobook="`dirname "\""${podiobook}"\""`";
-				endif
-				
-				if(! -d "/media/podiobooks/Latest/`basename "\""${podiobook}"\""`" ) then
-					mv -vi \
-						"${podiobook}" \
-					"/media/podiobooks/Latest";
-				else
-					mv -vi \
-						"${podiobook}/"* \
-					"/media/podiobooks/Latest/`basename "\""${podiobook}"\""`";
-					
-					if( `/bin/ls -A "${podiobook}"` == "" ) \
-						rm -rv "${podiobook}";
-				endif
+			if(!( "${podiobook}" != "" && "${podiobook}" != "/" && -e "${podiobook}" )) then
+				unset podiobook;
+				continue;
 			endif
-			unset podiobook;
+			
+			if(! ${?action_preformed} ) then
+				set action_preformed;
+			else
+				printf "\n\n";
+			endif
+			
+			if(! -d "/media/podiobooks/Latest" ) \
+				mkdir -p  "/media/podiobooks/Latest";
+			
+			set podiobook_dir="`dirname "\""${podiobook}"\""`";
+			set podiobook_name="`basename "\""${podiobook_dir}"\""`";
+			if(! -d "/media/podiobooks/Latest/${podiobook_name}" ) \
+				mkdir -v "/media/podiobooks/Latest/${podiobook_name}";
+			
+			mv -vi \
+				"${podiobook}" \
+			"/media/podiobooks/Latest/${podiobook_name}/";
+			
+			if( `/bin/ls -A "${podiobook_dir}"` == "" ) \
+				rm -rv "${podiobook_dir}";
+			
+			unset podiobook podiobook_dir podiobook_name;
 		end
 		unset podiobooks;
 	endif
@@ -325,24 +332,28 @@ move_slashdot:
 	
 	if( ${?slashdot} ) then
 		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
-				if(! ${?action_preformed} ) then
-					set action_preformed;
-				endif
-				
-				if(! -d "/media/podcasts/slash." ) \
-					mkdir -p  "/media/podcasts/slash.";
-				
-				mv -vi \
-					"${podcast}" \
-				"/media/podcasts/slash.";
-				
-				set podcast_dir="`dirname "\""${podcast}"\""`";
-				if( `/bin/ls -A "${podcast_dir}"` == "" ) \
-					rm -rv "${podcast_dir}";
-				unset podcast_dir;
+			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) then
+				unset podcast;
+				continue;
 			endif
-			unset podcast;
+			
+			if(! ${?action_preformed} ) then
+				set action_preformed;
+			else
+				printf "\n\n";
+			endif
+			
+			if(! -d "/media/podcasts/slash." ) \
+				mkdir -p  "/media/podcasts/slash.";
+			
+			mv -vi \
+				"${podcast}" \
+			"/media/podcasts/slash.";
+			
+			set podcast_dir="`dirname "\""${podcast}"\""`";
+			if( `/bin/ls -A "${podcast_dir}"` == "" ) \
+				rm -rv "${podcast_dir}";
+			unset podcast_dir podcast;
 		end
 		unset slashdot;
 	endif
@@ -368,24 +379,28 @@ back_up:
 	
 	if( ${?podcast_to_backup} ) then
 		foreach podcast( "`printf "\""${podcast_to_backup}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" ) then
-				if(! ${?action_preformed} ) then
-					set action_preformed;
-				endif
-				
-				if(! -d "/art/media/resources/stories/Slashdot" ) \
-					mkdir -p  "/art/media/resources/stories/Slashdot";
-				
-				mv -vi \
-					"${podcast}" \
-				"/art/media/resources/stories/Slashdot";
-				
-				set podcast_dir="`dirname "\""${podcast}"\""`";
-				if( `/bin/ls -A "${podcast_dir}"` == "" ) \
-					rm -rv "${podcast_dir}";
-				unset podcast_dir;
+			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) then
+				unset podcast;
+				continue;
 			endif
-			unset podcast;
+			
+			if(! ${?action_preformed} ) then
+				set action_preformed;
+			else
+				printf "\n\n";
+			endif
+			
+			if(! -d "/art/media/resources/stories/Slashdot" ) \
+				mkdir -p  "/art/media/resources/stories/Slashdot";
+			
+			mv -vi \
+				"${podcast}" \
+			"/art/media/resources/stories/Slashdot";
+			
+			set podcast_dir="`dirname "\""${podcast}"\""`";
+			if( `/bin/ls -A "${podcast_dir}"` == "" ) \
+				rm -rv "${podcast_dir}";
+			unset podcast_dir podcast;
 		end
 		unset podcast_to_backup;
 	endif
@@ -418,6 +433,8 @@ alacasts_playlists:
 			if(! -e "${playlist_dir}/${playlist}" ) then
 				if(! ${?action_preformed} ) then
 					set action_preformed;
+				else
+					printf "\n\n";
 				endif
 			else if( ${?validate_playlists} ) then
 				printf "\tWould you like to make sure that all files in <file://%s/%s> still exist? [Yes/No(default)]" "${playlist_dir}" "${playlist}" > /dev/stdout;
@@ -432,6 +449,8 @@ alacasts_playlists:
 							printf "%s" "${playlist_check_result}";
 							if(! ${?action_preformed} ) then
 								set action_preformed;
+							else
+								printf "\n\n";
 							endif
 						endif
 						unset playlist_check_result;
@@ -445,6 +464,8 @@ alacasts_playlists:
 		else	
 			if(! ${?action_preformed} ) then
 				set action_preformed;
+			else
+				printf "\n\n";
 			endif
 			
 			rm -v "${playlist_dir}/${playlist}";
@@ -469,6 +490,8 @@ logs:
 	if( "`find /media/podcasts/ -regextype posix-extended -iregex '.*alacast'\''s log for .*' \! -iregex '.*alacast'\''s log for ${current_year}-${current_month}-${current_day} from ${current_hour}.*'`" != "" ) then
 		if(! ${?action_preformed} ) then
 			set action_preformed;
+		else
+			printf "\n\n";
 		endif
 		
 		( rm -v "`find /media/podcasts/ -regextype posix-extended -iregex '.*alacast'\''s log for .*' \! -iregex '.*alacast'\''s log for ${current_year}-${current_month}-${current_day} from ${current_hour}.*'`" > /dev/tty ) >& /dev/null;
@@ -570,6 +593,8 @@ validate_playlists:
 						printf "%s" "${playlist_check_result}";
 						if(! ${?action_preformed} ) then
 							set action_preformed;
+						else
+							printf "\n\n";
 						endif
 					endif
 					rm -f "${playlist_check_file}";

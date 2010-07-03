@@ -48,6 +48,8 @@ parse_argv:
 			case "--create-label":
 				if(! ${?create_unset_label} ) \
 					set create_unset_label;
+				if(! ${?show_unset_for_all_vars} ) \
+					set show_unset_for_all_vars;
 				breaksw;
 			
 			default:
@@ -66,8 +68,8 @@ parse_argv:
 
 
 check_vars:
-	set var_list="`mktemp --tmpdir '.escaped.vars.${scripts_basename}.XXXXXX'`";
-	foreach var("`grep -P '[ \t](set|\@|setenv)([ \t]+[a-zA-Z][a-zA-Z0-9_]+)[\+\-\=\;\ ]' "\""${tcsh_script}"\"" | sed -r 's/.*(set|\@)(env)?[ \t]+([a-zA-Z][a-zA-Z0-9_]+)[-+=; ].*"\$"/\2 \3/'`")
+	set var_list="`mktemp --tmpdir '.escaped.vars.to.unset.XXXXXX'`";
+	foreach var("`grep -P '[ \t](set|\@|setenv|foreach)([ \t]+[a-zA-Z][a-zA-Z0-9_]+)[\+\-\=\;\ \(]' "\""${tcsh_script}"\"" | sed -r 's/.*(set|\@|foreach)(env)?[ \t]+([a-zA-Z][a-zA-Z0-9_]+)[-+=; (].*"\$"/\2 \3/'`")
 		if( ${?show_unset_for_all_vars} || "`grep -P 'unset.*$var' "\""${tcsh_script}"\""`" == "" ) then
 			switch( "${var}" )
 				case " errno":
@@ -84,7 +86,7 @@ check_vars:
 		unset var;
 	end
 	
-	foreach var("`grep -P '^(set|\@|setenv)([ \t]+[a-zA-Z][a-zA-Z0-9_]+)[\+\-\=\;\ ]' "\""${tcsh_script}"\"" | sed -r 's/.*(set|\@)(env)?[ \t]+([a-zA-Z][a-zA-Z0-9_]+)[-+=; ].*"\$"/\2 \3/'`")
+	foreach var("`grep -P '^(set|\@|setenv|foreach)([ \t]+[a-zA-Z][a-zA-Z0-9_]+)[\+\-\=\;\ \(]' "\""${tcsh_script}"\"" | sed -r 's/.*(set|\@|foreach)(env)?[ \t]+([a-zA-Z][a-zA-Z0-9_]+)[-+=; (].*"\$"/\2 \3/'`")
 		if( ${?show_unset_for_all_vars} || "`grep -P 'unset.*$var' "\""${tcsh_script}"\""`" == "" ) then
 			switch( "${var}" )
 				case " errno":

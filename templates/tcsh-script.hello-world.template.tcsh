@@ -22,6 +22,12 @@ setup:
 exit_script:
 	if(! ${?errno} ) \
 		@ errno=0;
+	
+	if( ${?stdout} ) \
+		unset stdout;
+	if( ${?stderr} ) \
+		unset stderr;
+	
 	set status=$errno;
 	exit $errno;
 #goto exit_script;

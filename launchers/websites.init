@@ -27,7 +27,7 @@ if(! ${?0} ) then
 	if(! -x "${browser}" ) \
 		goto noexec;
 	
-	set websites=( 'google' 'google.com' 'search?q=' 'slashdot' 'slashdot.org' 'index2.pl?fhfilter=' 'podiobooks.com' 'www.podiobooks.com' 'podiobooks/search.php?includeAdult=1&keyword=' 'technologyreview' 'technologyreview.com' 'search.aspx?s=' 'dictionary.com' 'dictionary.reference.com' 'browse/' 'archive.org' 'www.archive.org' 'search.php?query=' 'librivox' 'librivox.org' 'newcatalog/search.php?title=Sherlock+Holmes' 'librivox:author' 'librivox.org:author' 'newcatalog/search.php?title=&author=' );
+	set websites=( 'google' 'google.com' 'search?q=' 'slashdot' 'slashdot.org' 'index2.pl?fhfilter=' 'podiobooks.com' 'www.podiobooks.com' 'podiobooks/search.php?includeAdult=1&keyword=' 'technologyreview' 'technologyreview.com' 'search.aspx?s=' 'dictionary.com' 'dictionary.reference.com' 'browse/' 'archive.org' 'www.archive.org' 'search.php?query=' 'librivox:author' 'librivox.org' 'newcatalog/search_advanced.php?&status=complete&language=English&author=' 'librivox:genre' 'librivox.org' 'newcatalog/search_advanced.php?&status=complete&language=English&genre=' 'librivox' 'librivox.org' 'newcatalog/search_advanced.php?&status=complete&language=English&title=' );
 	@ site=0;
 	while( $site < ${#websites} )
 		@ site++;

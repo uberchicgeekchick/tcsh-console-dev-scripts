@@ -292,7 +292,7 @@ process_missing_media:
 		unset this_podcast;
 	unset podcast;
 	
-	printf "\n\n\tFinished processing missing multimedia files found in the target ";
+	printf "\nFinished processing missing multimedia files found in the target ";
 	if(!( ${#target_directories} > 1 )) then
 		printf "directory";
 	else
@@ -410,7 +410,7 @@ handle_missing_media:
 		switch( `printf "%s" "${response}" | sed -r 's/^(.).*$/\U\1/'` )
 			case "I":
 				if(! ${?append} ) then
-					printf "\n\t**Cancelled:**\n\t\t<file://%s>\n" "${this_podcast}";
+					printf "\n\t**Ignoring:**\n\t\t<file://%s>\n" "${this_podcast}";
 					unset prompt_for_playlist;
 					breaksw;
 				endif
@@ -425,7 +425,7 @@ handle_missing_media:
 			
 			case "A":
 				if(! ${?append} ) then
-					printf "\n\t**Cancelled:**\n\t\t<file://%s>\t[cancelled]" "${this_podcast}";
+					printf "\n\t**Aborting:**\n\t\t<file://%s>" "${this_podcast}";
 					printf "\n\t\t**Exiting:** %s...\n\n" "${scripts_basename}";
 					unset prompt_for_playlist response playlist_index;
 					unset this_podcast podcast;
@@ -548,6 +548,8 @@ remove_missing_media:
 
 
 scripts_main_quit:
+	onintr -;
+	
 	if( ${?scripts_basname} ) \
 		unset scripts_basname;
 	if( ${?scripts_path} ) \
@@ -624,7 +626,7 @@ scripts_main_quit:
 
 
 exit_script:
-	onintr scripts_main_quit;
+	onintr -;
 	goto scripts_main_quit;
 #exit_script:
 
@@ -757,7 +759,7 @@ parse_arg:
 		if( ${?debug} ) \
 			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
 		
-		if( "${dashes}" != "" && "${option}" != "" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "${argument}" ) ) then
+		if( "${value}" != "${argument}" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;

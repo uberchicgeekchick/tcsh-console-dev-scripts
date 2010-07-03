@@ -262,7 +262,7 @@ parse_arg:
 			set quotes="";
 		
 		set value="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\5/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
-		if( "${option}" != "$argv[$arg]" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "$argv[$arg]" ) ) then
+		if( "${value}" != "$argv[$arg]" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;

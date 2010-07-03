@@ -661,7 +661,7 @@ exception_handler:
 		set exit_on_exception;
 	endif
 	
-	goto callback_handler;
+	goto $callback;
 #@ errno=-101;
 #set callback="$!";
 #goto exception_handler;

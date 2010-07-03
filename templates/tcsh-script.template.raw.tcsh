@@ -203,13 +203,13 @@ dependencies_check:
 
 
 exit_script:
-	onintr exit_script;
+	onintr -;
 	goto scripts_main_quit;
 #goto exit_script;
 
 
 scripts_main_quit:
-	onintr exit_script;
+	onintr -;
 	if( ${?starting_cwd} ) then
 		if( "${starting_cwd}" != "${cwd}" ) \
 			cd "${starting_cwd}";

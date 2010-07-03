@@ -15,8 +15,14 @@ setenv:
 #goto setenv;
 
 
+exit_script:
+	onintr -;
+	goto scripts_main_quit;
+#goto exit_script;
+
 scripts_main_quit:
-	onintr scripts_main_quit;
+	onintr -;
+	
 	if( ${?playlist} ) then
 		if(! ${?playlists_new_files} ) then
 			if( -e "${playlist}.swp" ) \
@@ -399,44 +405,62 @@ main:
 
 
 cancel_convert:
+	onintr scripts_main_quit;
+	
 	if( ${?length} && ! ${?length_set} ) \
 		unset length;
 	
-	if(! ${?process_each_filename} ) then
-		onintr scripts_main_quit;
-	else
-		onintr parse_arg;
-	endif
+	#if(! ${?process_each_filename} ) then
+	#	onintr scripts_main_quit;
+	#else
+	#	onintr parse_arg;
+	#endif
 	
-	if(!( ${?save_to_filename} && ${?original_extension} )) then
-		sleep 2;
-		goto convert_filename_list;
-	endif
-	
-	printf "\t[cancelled]\n";
-	
-	if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
-		rm "${save_to_filename}.wav";
-	
-	if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
-		rm "${save_to_filename}.ogg";
-	
-	if( -e "${save_to_filename}.${original_extension}.bck" ) then
-		if( "${original_extension}" == "ogg" || "${original_extension}" == "wav" ) then
-			mv -f "${save_to_filename}.${original_extension}.bck" "${save_to_filename}.${original_extension}";
-		else
-			rm "${save_to_filename}.${original_extension}.bck";
+	if( ${?save_to_filename} && ${?original_extension} ) then
+		onintr -;
+		printf "\t[cancelled]\n";
+		
+		if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
+			rm "${save_to_filename}.wav";
+		
+		if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
+			rm "${save_to_filename}.ogg";
+		
+		if( -e "${save_to_filename}.${original_extension}.bck" ) then
+			if( "${original_extension}" == "ogg" || "${original_extension}" == "wav" ) then
+				mv -f "${save_to_filename}.${original_extension}.bck" "${save_to_filename}.${original_extension}";
+			else
+				rm -f "${save_to_filename}.${original_extension}.bck";
+			endif
 		endif
 	endif
 	
-	unset save_to_filename original_extension;
+	printf "\n\tWould you like %s to exit? [Yes(default)/No] " "${scripts_basename}";
+	set exit_value="$<";
+	set exit_value=`printf "%s" "${exit_value}" | sed -r 's/^(.).*$/\u\1/'`;
+	printf "\n";
+	switch("${exit_value}")
+		case "N":
+			breaksw;
+		
+		case "Y":
+		default:
+			unset exit_value;
+			goto exit_script;
+			breaksw;
+	endsw
 	
-	sleep 2;
+	if(!( ${?save_to_filename} && ${?original_extension} )) \
+		goto convert_filename_list;
+	
+	unset save_to_filename original_extension;
 	goto convert_filenames;
 #goto cancel_convert;
 
 
 convert_filename_list:
+	onintr cancel_convert;
+	
 	if(! ${?filename_list} ) \
 		goto usage;
 	
@@ -558,7 +582,7 @@ convert_filenames:
 		if(! ${?force} ) \
 			goto confirm_overwrite;
 		
-		if( ${?rtrim} ) \
+		if( ${?rtrim} && ! ${?ltrim} ) \
 			goto find_length;
 		
 		goto oggconvert;
@@ -1029,7 +1053,7 @@ parse_argv:
 
 
 parse_arg:
-	onintr parse_arg;
+	onintr cancel_convert;
 	
 	if( ${?playlist} ) then
 		if(! ${?playlists_new_files} ) then
@@ -1098,7 +1122,7 @@ parse_arg:
 		if( ${?debug} || ${?debug_arguments} ) \
 			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t"\$"dashes: [%s];\n\t"\$"option: [%s];\n\t"\$"equals: [%s];\n\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}";
 		
-		if( "${option}" != "" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "${argument}" ) ) then
+		if( "${value}" != "${argument}" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;

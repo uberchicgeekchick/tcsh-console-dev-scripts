@@ -62,10 +62,12 @@ setup:
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
 	#alias ${download_command} "${download_command_with_options}";
+	#alias "curl" "curl --location --fail --show-error --silent --output";
 	
 	#set download_command="wget";
 	#set download_command_with_options="${download_command} --no-check-certificate --continue --quiet --output-document";
 	#alias ${download_command} "${download_command_with_options}";
+	#alias "wget" "wget --no-check-certificate --continue --quiet --output-document";
 	
 	alias ex "ex -E -X -n --noplugin";
 	
@@ -103,6 +105,8 @@ exit_script:
 
 
 scripts_main_quit:
+	onintr -;
+	
 	set label_current="scripts_main_quit";
 	if(! ${?label_previous} ) then
 		goto callback_stack_update;
@@ -1444,6 +1448,7 @@ parse_arg:
 	if( ${?debug} ) \
 		printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}";
 	
+	#if( "${dashes}" != "" && "${option}" != "" && "${equals}" == "" && ( "${value}" == "" || "${value}" == "${argument}" ) ) then
 	if( "${value}" != "${argument}" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
 		@ arg++;
 		if( ${arg} > ${argc} ) then

@@ -27,7 +27,7 @@ if(! ${?0} ) then
 	if(! -x "${browser}" ) \
 		goto noexec;
 	
-	set websites=( 'google' 'google.com' 'search?q=' 'slashdot' 'slashdot.org' 'index2.pl?fhfilter=' 'podiobooks.com' 'www.podiobooks.com' 'podiobooks/search.php?keyword=' 'technologyreview' 'technologyreview.com' 'search.aspx?s=' 'dictionary.com' 'dictionary.reference.com' 'browse/' 'archive.org' 'www.archive.org' 'search.php?query=' );
+	set websites=( 'google' 'google.com' 'search?q=' 'slashdot' 'slashdot.org' 'index2.pl?fhfilter=' 'podiobooks.com' 'www.podiobooks.com' 'podiobooks/search.php?includeAdult=1&keyword=' 'technologyreview' 'technologyreview.com' 'search.aspx?s=' 'dictionary.com' 'dictionary.reference.com' 'browse/' 'archive.org' 'www.archive.org' 'search.php?query=' 'librivox' 'librivox.org' 'newcatalog/search.php?title=Sherlock+Holmes' 'librivox:author' 'librivox.org:author' 'newcatalog/search.php?title=&author=' );
 	@ site=0;
 	while( $site < ${#websites} )
 		@ site++;
@@ -117,11 +117,8 @@ launchers_main:
 					rm -f "${podiobooks_book_feed}";
 					unset podiobooks_book_feed;
 					set index="title/${title}/";
-				else
-					unset podiobooks_book_feed;
-					set index="${index}`printf "\""%s"\"" "\""${search_phrase}"\"" | sed -r 's/ /%20/g'`&includeAdult=1";
+					breaksw;
 				endif
-				breaksw;
 			endif
 		
 		default:

@@ -154,7 +154,7 @@ playlist_save:
 	endsw
 	rm "${playlist_temp}";
 	mv -f "${playlist_swap}" "${new_playlist}";
-	printf "\t[done]\n";
+	printf "\t[finished]\n";
 	
 	unset new_playlist_to_read playlist_swap playlist_temp;
 	

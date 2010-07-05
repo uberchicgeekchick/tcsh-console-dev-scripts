@@ -20,7 +20,7 @@ foreach manual ( *html*.tar.gz )
 	else if( -e "${gtk_doc_dir}/${book}" ) then
 		rm "${gtk_doc_dir}/${book}";
 	endif
-	printf "\t\t\t[done]\n"
+	printf "\t\t\t[finished]\n"
 	ln -sf ${cwd}/../${extracted_to} ${gtk_doc_dir}/${book};
 end
 

@@ -39,14 +39,14 @@ case "cp":
 	
 	printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n";
 	cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}";
-	printf "\t\t[done]";
+	printf "\t\t[finished]";
 	
 	# cleaning up swp files that may have been copied to the remote location
 	printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
 	foreach swp ( "`/usr/bin/find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
 		rm --verbose "${swp}";
 	end
-	printf "\t\t[done]";
+	printf "\t\t[finished]";
 	
 	# TODO: FIXME:
 	# 	I really need to stop this from nuking good files, but for now `cp -u` handles more reliably w/o nuking files.
@@ -77,7 +77,7 @@ case "cp":
 	#	printf "\t[removed]\n";
 	#end
 	#
-	#printf "\nRemoving stale remote files\t\t[done]";
+	#printf "\nRemoving stale remote files\t\t[finished]";
 	
 	breaksw;
 endsw

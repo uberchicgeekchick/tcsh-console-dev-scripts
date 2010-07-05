@@ -28,15 +28,15 @@ main:
 			printf "Saving initial history to create "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 			history -S;
 		endif
-		printf "\t[done]\n" > ${stdout};
+		printf "\t[finished]\n" > ${stdout};
 		goto exit_script;
 	endif
 	
 	printf "Merging this terminal's history with existing "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 	history -M;
-	printf "\t[done]\nSaving merged and complete history's "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
+	printf "\t[finished]\nSaving merged and complete history's "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 	history -S;
-	printf "\t[done]\n" > ${stdout};
+	printf "\t[finished]\n" > ${stdout};
 	/bin/cp -fLpv "${histfile}" "${histfile}.bckcp";
 #main:
 

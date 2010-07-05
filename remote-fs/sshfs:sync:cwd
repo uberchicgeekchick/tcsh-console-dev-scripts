@@ -36,14 +36,14 @@ endsw
 
 printf "\n\nI am now copying new and/or modified files.\nTo update this project's remote location.\nThis may also take several moments.\n\n";
 cp -r --verbose --update --no-dereference ./* "${sshfs_path}/${project_name}";
-printf "\t\t[done]";
+printf "\t\t[finished]";
 
 # cleaning up swp files that may have been copied to the remote location
 printf "\n\tI'm now removing any swap or back-up files that may have been copied.\n";
 foreach swp ( "`/usr/bin/find '${sshfs_path}/${project_name}' -iregex '.*\.\(sw.\|~\)'`" )
 	rm --verbose "${swp}";
 end
-printf "\t\t[done]";
+printf "\t\t[finished]";
 
 check_stale:
 printf "\n\nFinding all remote files to check for stale files and directories.\nPlease be patient as this may take a few moments.\n"
@@ -71,7 +71,7 @@ foreach remote_file ( "`/usr/bin/find "\""${sshfs_path}/${project_name}/"\""`" )
 		#printf ":\n\t%s\n" "${remote_file}"
 	endif
 end
-printf "\nRemoving stale remote files\t\t[done]";
+printf "\nRemoving stale remote files\t\t[finished]";
 
 printf "\n\n"
 

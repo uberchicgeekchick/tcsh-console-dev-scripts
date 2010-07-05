@@ -7,6 +7,31 @@ setup:
 #goto setup;
 
 
+setup_lists:
+	set to_delete=( \
+	"\n" \
+	);
+	
+	set lifestyle_podcasts=( \
+	"\n" \
+	);
+	
+	set podiobooks=( \
+	"\n" \
+	);
+	
+	set slashdot=( \
+	"\n" \
+	);
+	
+	set podcasts_to_backup=( \
+	"\n" \
+	);
+	
+	goto parse_argv;
+#goto setup_lists;
+
+
 parse_argv:
 	if(! ${?arg} ) then
 		@ arg=0;
@@ -207,34 +232,6 @@ playlists:
 	endsw
 	goto parse_argv;
 #goto playlists;
-
-
-setup_lists:
-	set to_delete=( \
-	"\n" \
-	);
-	
-	set lifestyle_podcasts=( \
-	"\n" \
-	);
-	
-	set podiobooks=( \
-	"\n" \
-	);
-	
-	set slashdot=( \
-	"\n" \
-	);
-	
-	set podcasts_to_backup=( \
-	"\n" \
-	);
-	
-	if(! ${?callback} ) \
-		goto parse_argv;
-	
-	goto $callback;
-#goto setup_lists;
 
 
 delete:

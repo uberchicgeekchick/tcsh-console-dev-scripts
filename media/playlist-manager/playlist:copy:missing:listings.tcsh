@@ -335,9 +335,9 @@ scripts_exec:
 	/bin/rm "${playlist}.new";
 	
 	ex -s '+3,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tcsh_copy_script}";
-	ex -s '+3,$s/\v^(\/[^/]+\/[^/]+\/)(.*\/)?([^/]*)(\.[^.]+)$/if\(\! -e "\1\2\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\3\4" \) then\r\t\tprintf "**error coping:** remote file\\n\\t\<\1nfs\/\2\3\4\> doesn'\''t exists.\\n" \> \/dev\/stderr;\r\telse\r\t\tset current_podcast="\1\2";\r\t\tif\(\! -d "${current_podcast}" \) \\\r\t\t\tmkdir -p "${current_podcast}";\r\t\t\r\t\tif\( "${old_podcast}" \!\= "`basename "\\""${current_podcast}"\\""`" \) then\r\t\t\tset old_podcast\="`basename "\\""${current_podcast}"\\""`";\r\t\t\tprintf "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\tprintf "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\3\4" "\1\2\3\4";\r\t\tprintf "\\t\\t[done]\\n";\r\tendif\rendif\r/' '+wq!' "${tcsh_copy_script}";
+	ex -s '+3,$s/\v^(\/[^/]+\/[^/]+\/)(.*\/)?([^/]*)(\.[^.]+)$/if\(\! -e "\1\2\3\4" \) then\r\tif\(\! -e "\1nfs\/\2\3\4" \) then\r\t\tprintf "**error coping:** remote file\\n\\t\<\1nfs\/\2\3\4\> doesn'\''t exists.\\n" \> \/dev\/stderr;\r\telse\r\t\tset current_podcast="\1\2";\r\t\tif\(\! -d "${current_podcast}" \) \\\r\t\t\tmkdir -p "${current_podcast}";\r\t\t\r\t\tif\( "${old_podcast}" \!\= "`basename "\\""${current_podcast}"\\""`" \) then\r\t\t\tset old_podcast\="`basename "\\""${current_podcast}"\\""`";\r\t\t\tprintf "\\nCopying: ${old_podcast}'\''s content(s):";\r\t\tendif\r\t\tprintf "\\n\\tCopying: \3\4";\r\t\tcp "\1nfs\/\2\3\4" "\1\2\3\4";\r\t\tprintf "\\t\\t[finished]\\n";\r\tendif\rendif\r/' '+wq!' "${tcsh_copy_script}";
 	
-	printf "\t\t[done]\n\nChecking for any missing files and copying them from the nfs share to local fs.\n";
+	printf "\t\t[finished]\n\nChecking for any missing files and copying them from the nfs share to local fs.\n";
 	"${tcsh_copy_script}";
 	/bin/rm "${tcsh_copy_script}";
 	printf "\nCopying files from nfs share to local fs:\t[finished]\n";

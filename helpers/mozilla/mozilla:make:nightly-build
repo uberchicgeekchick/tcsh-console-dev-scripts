@@ -398,7 +398,7 @@ renice_supporting_programs:
 				
 				printf "Changing: %s, pid: %d, nice level to: +%d" "${supporting_binary}" $ff_pid $ff_renice_priority;
 				renice +$ff_renice_priority $ff_pid >& /dev/null;
-				printf "\t[done]\n";
+				printf "\t[finished]\n";
 			end
 			
 			if( ${?ff_found} ) \

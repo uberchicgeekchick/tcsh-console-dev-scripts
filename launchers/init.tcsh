@@ -60,7 +60,7 @@ foreach launcher ( "`/usr/bin/find -L ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f 
 			printf "Setting up alias(es) for: %s.\n\tSourcing %s/%s @ %s.\n" ${launcher} ${TCSH_LAUNCHER_PATH} ${launcher} `date "+%I:%M:%S%P"`;
 		source "${TCSH_LAUNCHER_PATH}/${launcher}" ${argv};
 		if( ${?TCSH_RC_DEBUG} ) \
-			printf "[done]\n";
+			printf "[finished]\n";
 		continue;
 	endif
 	

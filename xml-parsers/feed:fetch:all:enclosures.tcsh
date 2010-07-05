@@ -256,9 +256,9 @@ fetch_podcast:
 	
 	ex -s '+1,$s/&\(#038\|amp\)\;/\&/ig' '+1,$s/\v\&(#8220|#8221|quot)\;/\"/ig' '+1,$s/&\(#8243\|#8217\|\#039\|rsquo\|lsquo\)\;/'\''/ig' '+1,$s/&[^;]\+\;[\ \t]*/\ /ig' '+1,$s/#//g' '+1,$s/\//\ \-\ /g' '+wq!' './00-titles.lst';
 	if(! ${?silent} ) \
-		printf "\t\t[done]\n";
+		printf "\t\t[finished]\n";
 	if( ${?logging} ) \
-		printf "\t\t[done]\n" >> "${download_log}";
+		printf "\t\t[finished]\n" >> "${download_log}";
 	
 	# This will be my last update to any part of Alacast v1
 	# This fixes episode & chapter titles so that they will sort correctly
@@ -295,9 +295,9 @@ fetch_podcast:
 	ex -s '+1,$s/\v[ ]{2,}/\ /g' '+1,$s/^ //' '+1,$s/ $//' '+wq!' './00-titles.lst';
 	
 	if(! ${?silent} ) \
-		printf "\t\t[done]\n";
+		printf "\t\t[finished]\n";
 	if( ${?logging} ) \
-		printf "\t\t[done]\n" >> "${download_log}";
+		printf "\t\t[finished]\n" >> "${download_log}";
 	
 	# Grabs the release dates of the podcast and all episodes.
 	if(! ${?silent} ) \
@@ -310,9 +310,9 @@ fetch_podcast:
 	ex -s '+1,$s/.*<\(item\|entry\)[^>]*>.*<\(pubDate\|updated\)[^>]*>\(.*\)<\/\(pubDate\|updated\)>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\/\(item\|entry\)>$/\3/ig' '+1,$s/.*<\(item\|entry\)[^>]*>.*<.*enclosure[^>]*\(url\|href\)=["'\'']\([^"'\'']\+\)["'\''].*<\(pubDate\|updated\)[^>]*>\(.*\)<\/\(pubDate\|updated\)>.*<\/\(item\|entry\)>$/\5/ig' '+1,$s/.*<\(item\|entry\)[^>]*>.*<\/\(item\|entry\)>[\n\r]*//ig' '+wq!' './00-pubDates.lst';
 	
 	if(! ${?silent} ) \
-		printf "\t\t[done]\n";
+		printf "\t\t[finished]\n";
 	if( ${?logging} ) \
-		printf "\t\t[done]\n" >> "${download_log}";
+		printf "\t\t[finished]\n" >> "${download_log}";
 	
 	# Grabs the enclosures from the feed.
 	# This 1st method only grabs one enclosure per item/entry.
@@ -344,9 +344,9 @@ fetch_podcast:
 		/bin/rm -f "./00-enclosures-01.lst";
 	endif
 	if(! ${?silent} ) \
-		printf "\t\t[done]\n";
+		printf "\t\t[finished]\n";
 	if( ${?logging} ) \
-		printf "\t\t[done]\n" >> "${download_log}";
+		printf "\t\t[finished]\n" >> "${download_log}";
 	
 	if(! ${?silent} ) \
 		printf "Beginning to download: %s\n" "${title}";

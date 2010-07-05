@@ -353,7 +353,7 @@ parse_arg:
 	if( ${?debug} ) \
 		printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
 	
-	if( "${value}" != "${argument}" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
+	if( "${dashes}" != "" && "${option}" != "" && "${equals}" == "" && "${value}" == "" ) then
 		@ arg++;
 		if( ${arg} > ${argc} ) then
 			@ arg--;

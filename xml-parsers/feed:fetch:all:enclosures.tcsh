@@ -106,6 +106,9 @@ main:
 		set output=/dev/null;
 	endif
 	
+	if( ${?save_script} ) \
+		@ scripted_downloads=0;
+	
 	if( "`alias cwdcmd`" != "" ) then
 		set old_cwdcmd="`alias cwdcmd`";
 		unalias cwdcmd;
@@ -513,12 +516,32 @@ fetch_episode:
 	if( ${?save_script} ) then
 		printf "Saving %s; episode: <%s> download command to:\n\t<file://%s>\n" "${title}" "${episodes_title}" "${save_script}";
 		printf '%s %s %s\n' "${download_command_with_options}" "./${episodes_filename}" "${episode}" >> "${save_script}";
+		@ scripted_downloads++;
 		unset episodes_filename;
 		goto fetch_episodes;
 	endif
 	
 	if( ${?downloading} ) then
+		if( ${?interactive} ) then
+			printf "\n\t\tWould you like to download %s episode: <%s>? [Yes(default)/No] " "${title}" "${episodes_title}";
+			set confirmation="$<";
+			printf "\n";
+			
+			switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+				case "n":
+					printf "\n\t\t**Skipping:** <file://%s>\n" "${episodes_filename}";
+					unset episodes_filename;
+					goto fetch_episodes;
+					breaksw;
+				
+				case "y":
+				default:
+					breaksw;
+			endsw
+		endif
+		
 		printf "\t\tSaving %s; episode: <%s> to:\n\t\t\t<file://%s/%s>\n" "${title}" "${episodes_title}" "${cwd}" "${episodes_filename}";
+		
 		${download_command_with_options} "./${episodes_filename}" "${episode}";
 		
 		if(! -e "./${episodes_filename}" ) then
@@ -582,6 +605,18 @@ exit_script:
 			/bin/rm -f './00-pubDates.lst';
 		if( -e './00-feed.xml' ) \
 			/bin/rm -f './00-feed.xml';
+	endif
+	
+	if( ${?save_script} ) then
+		if( $scripted_downloads == 0 ) then
+			if( -e "${save_script}" ) \
+				rm -f "${save_script}";
+			if( ${?save_script_dir_created} ) then
+				rm -rv "`dirname "\""${save_script}"\""`";
+				unset save_script_dir_created;
+			endif
+		endif
+		unset scripted_downloads save_script;
 	endif
 	
 	if( -e "${alacasts_download_log}" ) \
@@ -656,7 +691,7 @@ parse_arg:
 			set equals="";
 		
 		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
-		if( "${value}" != "$argv[$arg]" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
+		if( "${dashes}" != "" && "${option}" != "" && "${equals}" == "" && "${value}" == "" ) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;
@@ -666,7 +701,9 @@ parse_arg:
 				set test_equals="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\3/'`";
 				set test_value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
 				
-				if( "${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]") then
+				if(!( "${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]" )) then
+					@ arg--;
+				else
 					set equals=" ";
 					set value="$argv[$arg]";
 					set arg_shifted;
@@ -682,6 +719,14 @@ parse_arg:
 			case "h":
 			case "help":
 				goto usage;
+				breaksw;
+			
+			case "prompt":
+			case "interactive":
+				if( ${?interactive} ) \
+					breaksw;
+				
+				set interactive;
 				breaksw;
 			
 			case "oldest":
@@ -720,27 +765,23 @@ parse_arg:
 			case "script":
 			case "save-as":
 			case "save-script":
-				if( "${value}" != "" && -d "`dirname '${value}'`" ) then
-					set save_script="${value}";
-					printf "Enclosures will not be downloaded but instead the script: <file://%s> will be created.\n" "${save_script}";
+				if( "${value}" == "" ) then
+					set save_script;
 					breaksw;
 				endif
 				
-				@ arg++;
-				if( $arg > $argc ) then
-					@ arg--;
-					printf "%s%s script's target must be within existing directory.  The script cannot be saved.\n" "${dashes}" "${option}" > /dev/stderr;
+				if( `printf "%s" "${value}" | sed -r 's/^.*(\/)$/\1/' == "/" ) then
+					printf "%s%s must specify a script's target and not just its directory.\n" "${dashes}" "${option}" > /dev/stderr;
 					goto exit_script;
 				endif
 				
-				if(!( "$argv[$arg]" != "" && -d "`dirname '$argv[$arg]'`" )) then
-					printf "%s%s script's target must be within existing directory.  The script cannot be saved.\n" "${dashes}" "${option}" > /dev/stderr;
-					goto exit_script;
+				if(! -d "`dirname '${value}'`" ) then
+					mkdir -p "`dirname "\""${value}"\""`";
+					set save_script_dir_created;
 				endif
 				
-				set save_script="$argv[$arg]";
+				set save_script="${value}";
 				printf "Enclosures will not be downloaded but instead the script: <file://%s> will be created.\n" "${save_script}";
-				
 				breaksw;
 			
 			case "l":

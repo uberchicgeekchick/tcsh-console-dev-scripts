@@ -245,36 +245,32 @@ parse_arg:
 		if( ${?debug} || ${?diagnostic_mode} ) \
 			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" "${arg}" "$argv[$arg]";
 		
-		set dashes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(\=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\1/' | sed -r 's/(["\$"])/"\""\\"\$""\""/g'`";
+		set dashes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=)?(.*)"\$"/\1/' | sed -r 's/(["\$"])/"\""\\"\$""\""/g'`";
 		if( "${dashes}" == "$argv[$arg]" ) \
 			set dashes="";
 		
-		set option="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\2/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
+		set option="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=)?(.*)"\$"/\2/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
 		if( "${option}" == "$argv[$arg]" ) \
 			set option="";
 		
-		set equals="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\3/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
+		set equals="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=)?(.*)"\$"/\3/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
 		if( "${equals}" == "$argv[$arg]" ) \
 			set equals="";
 		
-		set quotes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\4/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
-		if( "${quotes}" == "$argv[$arg]" ) \
-			set quotes="";
+		set value="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=)?(.*)"\$"/\4/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
 		
-		set value="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\5/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
-		if( "${value}" != "$argv[$arg]" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
+		if( "${dashes}" != "" && "${option}" != "" && "${equals}" == "" && "${value}" == "" ) then
 			@ arg++;
 			if( ${arg} > ${argc} ) then
 				@ arg--;
 			else
-				set test_dashes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\1/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
-				set test_option="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\2/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
-				set test_equals="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\3/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
-				set test_quotes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\4/' | sed -r 's/(["\$"])/"\""\\"\$""\""/g'`";
-				set test_value="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(['\''"\""]?)(.*)(['\''"\""]?)"\$"/\5/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";# | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g'`";
+				set test_dashes="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=)?(.*)"\$"/\1/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
+				set test_option="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=)?(.*)"\$"/\2/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
+				set test_equals="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=)?(.*)"\$"/\3/' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
+				set test_value="`printf '$argv[$arg]' | sed -r 's/^([\-]{1,2})([^\=]+)(=)?(.*)"\$"/\4/' | sed -r 's/(["\$"])/"\""\\"\$""\""/g'`";
 				
 				if( ${?debug} || ${?diagnostic_mode} ) \
-					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_quotes: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_quotes}" \$ "${test_value}";
+					printf "\tparsed %sargv[%d] (%s) to test for replacement value.\n\tparsed %stest_dashes: [%s]; %stest_option: [%s]; %stest_equals: [%s]; %stest_value: [%s]\n" \$ "${arg}" "$argv[$arg]" \$ "${test_dashes}" \$ "${test_option}" \$ "${test_equals}" \$ "${test_value}";
 				
 				if(!("${test_dashes}" == "$argv[$arg]" && "${test_option}" == "$argv[$arg]" && "${test_equals}" == "$argv[$arg]" && "${test_value}" == "$argv[$arg]")) then
 					@ arg--;
@@ -288,7 +284,7 @@ parse_arg:
 		endif
 		
 		@ parsed_argc++;
-		set parsed_arg="${dashes}${option}${equals}${quotes}${value}${quotes}";
+		set parsed_arg="${dashes}${option}${equals}${value}";
 		if(! ${?parsed_argv} ) then
 			set parsed_argv="${parsed_arg}";
 		else

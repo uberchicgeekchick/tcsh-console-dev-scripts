@@ -407,53 +407,34 @@ main:
 cancel_convert:
 	onintr scripts_main_quit;
 	
-	if( ${?length} && ! ${?length_set} ) \
+	if( ${?length} ) \
 		unset length;
 	
-	#if(! ${?process_each_filename} ) then
-	#	onintr scripts_main_quit;
-	#else
-	#	onintr parse_arg;
-	#endif
+	if(!( ${?save_to_filename} && ${?original_extension} )) then
+		sleep 2;
+		goto convert_filename_list;
+	endif
 	
-	if( ${?save_to_filename} && ${?original_extension} ) then
-		onintr -;
-		printf "\t[cancelled]\n";
-		
-		if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
-			rm "${save_to_filename}.wav";
-		
-		if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
-			rm "${save_to_filename}.ogg";
-		
-		if( -e "${save_to_filename}.${original_extension}.bck" ) then
-			if( "${original_extension}" == "ogg" || "${original_extension}" == "wav" ) then
-				mv -f "${save_to_filename}.${original_extension}.bck" "${save_to_filename}.${original_extension}";
-			else
-				rm -f "${save_to_filename}.${original_extension}.bck";
-			endif
+	onintr -;
+	printf "\t[cancelled]\n";
+	
+	if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
+		rm "${save_to_filename}.wav";
+	
+	if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
+		rm "${save_to_filename}.ogg";
+	
+	if( -e "${save_to_filename}.${original_extension}.bck" ) then
+		if( "${original_extension}" == "ogg" || "${original_extension}" == "wav" ) then
+			mv -f "${save_to_filename}.${original_extension}.bck" "${save_to_filename}.${original_extension}";
+		else
+			rm -f "${save_to_filename}.${original_extension}.bck";
 		endif
 	endif
 	
-	printf "\n\tWould you like %s to exit? [Yes(default)/No] " "${scripts_basename}";
-	set exit_value="$<";
-	set exit_value=`printf "%s" "${exit_value}" | sed -r 's/^(.).*$/\u\1/'`;
-	printf "\n";
-	switch("${exit_value}")
-		case "N":
-			breaksw;
-		
-		case "Y":
-		default:
-			unset exit_value;
-			goto exit_script;
-			breaksw;
-	endsw
-	
-	if(!( ${?save_to_filename} && ${?original_extension} )) \
-		goto convert_filename_list;
-	
 	unset save_to_filename original_extension;
+	onintr scripts_main_quit;
+	sleep 2;
 	goto convert_filenames;
 #goto cancel_convert;
 
@@ -464,7 +445,7 @@ convert_filename_list:
 	if(! ${?filename_list} ) \
 		goto usage;
 	
-	if( ${?length} && ! ${?length_set} ) \
+	if( ${?length} ) \
 		unset length;
 	
 	set filename_list_value="`head -1 "\""${filename_list}"\""`";
@@ -528,11 +509,11 @@ convert_filename_list:
 		cat "${filename_list}";
 #goto convert_filename_list;
 
-	
+
 convert_filenames:
 	onintr cancel_convert;
 	
-	if( ${?length} && ! ${?length_set} ) \
+	if( ${?length} ) \
 		unset length;
 	
 	foreach original_filename( "`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
@@ -561,28 +542,32 @@ convert_filenames:
 				continue;
 			endif
 			
-			if( "${original_extension}" == "ogg" && (!( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length} )) ) then
+			if( "${original_extension}" == "ogg" && (!( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length_set} )) ) then
 				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
 				if( "${original_extension}" != "ogg" ) \
 					printf ", <file://%s.ogg> already exists, " "${filename}";
 				if(! ${?re_encode} ) \
 					printf "re-encoding is disabled"
-				if( ! ${?re_encode} && (!( ${?ltrim} || ${?rtrim} || ${?length} )) ) \
+				if( ! ${?re_encode} && (!( ${?ltrim} || ${?rtrim} || ${?length_set} )) ) \
 					printf "and ";
-				if(!( ${?ltrim} || ${?rtrim} || ${?length} )) \
+				if(!( ${?ltrim} || ${?rtrim} || ${?length_set} )) \
 					printf "no advanced conversion options specified";
 				printf ".\n\n";
 				continue;
 			endif
 		endif
 		
-		if( "${extension}" != "ogg" ) \
+		if( "${extension}" != "ogg" ) then
+			if( ${?ltrim} && ${?length_set} ) \
+				goto find_length;
+			
 			goto oggconvert;
+		endif
 		
 		if(! ${?force} ) \
 			goto confirm_overwrite;
 		
-		if( ${?rtrim} && ! ${?ltrim} ) \
+		if( ${?rtrim} || ( ${?ltrim} && ${?length_set} )) \
 			goto find_length;
 		
 		goto oggconvert;
@@ -643,10 +628,10 @@ confirm_overwrite:
 			if( ${?dont_re_encode} ) \
 				unset dont_re_encode;
 		case "y":
-			if( ${?ltrim} || ${?length} || "${original_extension}" != "ogg" ) \
+			if( ( ${?ltrim} && ! ${?length_set} ) || "${original_extension}" != "ogg" ) \
 				goto oggconvert;
 			
-			if( ${?rtrim} ) \
+			if( ${?rtrim} || ( ${?ltrim} && ${?length_set} ) ) \
 				goto find_length;
 			
 			goto oggconvert;
@@ -688,7 +673,7 @@ oggconvert:
 		set ffmpeg_input_file_options="";
 		set ffmpeg_output_file_options="";
 		
-		if( ${?length} && ( ${?rtrim} || ! ${?ltrim} ) ) then
+		if( ${?length} || ${?rtrim} ) then
 			if( ${?rtrim} ) then
 				printf "\t\tRemoving: [%s] from its ending.\n" "${rtrim}";
 			else
@@ -806,7 +791,7 @@ oggconvert:
 	if( ${?combine} && "${filename}" != "${save_to_filename}" ) \
 		goto scripts_main_quit;
 	
-	if( ${?rtrim} && ! ${?length} ) \
+	if( ( ${?rtrim} || ${?length_set} ) && ! ${?length} ) \
 		goto find_length;
 	
 	if( ${?debug} || ${?debug_length} || ${?debug_encoding} ) then
@@ -854,29 +839,38 @@ find_length:
 	
 	set original_filename="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	
-	set rtrim_hours="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
-	set rtrim_minutes="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
-	set rtrim_seconds="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
-	set oggs_length="`${ogginfo} "\""${original_filename}.ogg"\"" | /bin/grep --perl-regexp 'Playback length:'`";
 	set oggs_hours="00";
-	set oggs_minutes="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\1/'`";
-	if( "${oggs_minutes}" == "${oggs_length}" ) \
-		set oggs_minutes="00";
-	set oggs_seconds="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\3/'`";
-	if( "${oggs_seconds}" == "${oggs_length}" ) \
-		set oggs_seconds="00";
+	if( ${?length_set} && ${?ltrim} ) then
+		set rtrim="${ltrim}";
+		set oggs_hours="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
+		set oggs_minutes="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
+		set oggs_seconds="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
+	else
+		set oggs_length="`${ogginfo} "\""${original_filename}.ogg"\"" | /bin/grep --perl-regexp 'Playback length:'`";
+		if( ${?debug} ) \
+			printf "%s\n" "${oggs_length}";
+		set oggs_minutes="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\1/'`";
+		if( "${oggs_minutes}" == "${oggs_length}" ) \
+			set oggs_minutes="00";
+		set oggs_seconds="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\3/'`";
+		if( "${oggs_seconds}" == "${oggs_length}" ) \
+			set oggs_seconds="00";
+	endif
+	
+	set trim_hours="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
+	set trim_minutes="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
+	set trim_seconds="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
 	
 	if( ${?debug} ) then
-		printf "%s\n" "${oggs_length}";
-		printf "\t%s%s%s\n" "${oggs_hours}" "${modifier}" "${rtrim_hours}";
-		printf "\t%s%s%s\n" "${oggs_minutes}" "${modifier}" "${rtrim_minutes}";
-		printf "\t%s%s%s\n" "${oggs_seconds}" "${modifier}" "${rtrim_seconds}";
+		printf "\t%s%s%s\n" "${oggs_hours}" "${modifier}" "${trim_hours}";
+		printf "\t%s%s%s\n" "${oggs_minutes}" "${modifier}" "${trim_minutes}";
+		printf "\t%s%s%s\n" "${oggs_seconds}" "${modifier}" "${trim_seconds}";
 	endif
 	unset oggs_length;
 	
-	set hours="`printf "\""%s%s%s\n"\"" "\""${oggs_hours}"\"" "\""${modifier}"\"" "\""${rtrim_hours}"\"" | bc`";
-	set minutes="`printf "\""%s%s%s\n"\"" "\""${oggs_minutes}"\"" "\""${modifier}"\"" "\""${rtrim_minutes}"\"" | bc`";
-	set seconds="`printf "\""%s%s%s\n"\"" "\""${oggs_seconds}"\"" "\""${modifier}"\"" "\""${rtrim_seconds}"\"" | bc`";
+	set hours="`printf "\""%s%s%s\n"\"" "\""${oggs_hours}"\"" "\""${modifier}"\"" "\""${trim_hours}"\"" | bc`";
+	set minutes="`printf "\""%s%s%s\n"\"" "\""${oggs_minutes}"\"" "\""${modifier}"\"" "\""${trim_minutes}"\"" | bc`";
+	set seconds="`printf "\""%s%s%s\n"\"" "\""${oggs_seconds}"\"" "\""${modifier}"\"" "\""${trim_seconds}"\"" | bc`";
 	if( ${?debug} ) then
 		printf "After %s rtrim length from the ogg file's length:\n" "${function}ing";
 		printf "\thours: %s\n" "${hours}";
@@ -892,7 +886,7 @@ calculate_length:
 	endif
 	if( "`printf "\""%s"\"" "\""${minutes}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
 		set hours="`printf "\""%s%s1\n"\"" "\""${hours}"\"" "\""${modifier}"\"" | bc`";
-		set minutes="`printf "\""(%s%s60)%s%s\n"\"" "\""${oggs_minutes}"\"" "\""${reverse_modifier}"\"" "\""${modifier}"\"" "\""${rtrim_minutes}"\"" | bc`";
+		set minutes="`printf "\""(%s%s60)%s%s\n"\"" "\""${oggs_minutes}"\"" "\""${reverse_modifier}"\"" "\""${modifier}"\"" "\""${trim_minutes}"\"" | bc`";
 	endif
 	if( ${minutes} > 60 ) then
 		set hours="`printf "\""%s+1\n"\"" "\""${hours}"\"" | bc`";
@@ -904,7 +898,7 @@ calculate_length:
 	
 	if( "`printf "\""%s"\"" "\""${seconds}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
 		set minutes="`printf "\""%s%s1\n"\"" "\""${minutes}"\"" "\""${modifier}"\"" | bc`";
-		set seconds="`printf "\""(%s%s60)%s%s\n"\"" "\""${oggs_seconds}"\"" "\""${reverse_modifier}"\"" "\""${modifier}"\"" "\""${rtrim_seconds}"\"" | bc`";
+		set seconds="`printf "\""(%s%s60)%s%s\n"\"" "\""${oggs_seconds}"\"" "\""${reverse_modifier}"\"" "\""${modifier}"\"" "\""${trim_seconds}"\"" | bc`";
 	endif
 	if( ${seconds} > 60 ) then
 		set minutes="`printf "\""%s+1\n"\"" "\""${minutes}"\"" | bc`";
@@ -950,8 +944,8 @@ calculate_length:
 			goto scripts_main_quit;
 	endif
 	
-	unset oggs_hours rtrim_hours oggs_minutes rtrim_minutes oggs_seconds rtrim_seconds hours minutes seconds;
-	if( "${extension}" != "ogg" ) \
+	unset oggs_hours trim_hours oggs_minutes trim_minutes oggs_seconds trim_seconds hours minutes seconds;
+	if( "${extension}" != "ogg" && ! ${?length_set} ) \
 		set extension="ogg";
 	
 	if( ${?debug_set} ) \
@@ -1276,8 +1270,8 @@ parse_arg:
 					breaksw;
 				endif
 				
-				set length="${value}";
-				set length_set;
+				set length;
+				set length_set="${value}";
 				set value_used;
 				breaksw;
 			
@@ -1601,5 +1595,6 @@ filename_list_append_value:
 		goto convert_filename_list;
 	endif
 #goto filename_list_append_value;
+
 
 

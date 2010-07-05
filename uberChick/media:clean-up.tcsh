@@ -1,6 +1,11 @@
 #!/bin/tcsh -f
-if(! ${?0} ) \
-	exit -1;
+setup:
+	if(! ${?0} ) \
+		exit -1;
+	
+	goto setup_lists;
+#goto setup;
+
 
 parse_argv:
 	if(! ${?arg} ) then
@@ -155,15 +160,15 @@ move:
 	endif
 	
 	switch( $goto_index )
-		case 1:
+		case 0:
 			goto move_lifestyle_podcasts;
 			breaksw;
 		
-		case 2:
+		case 1:
 			goto move_podiobooks;
 			breaksw;
 		
-		case 3:
+		case 2:
 			goto move_slashdot;
 			breaksw;
 		
@@ -192,7 +197,7 @@ playlists:
 			goto alacasts_playlists;
 			breaksw;
 		
-		case 2:
+		case 1:
 			goto logs;
 			breaksw;
 		
@@ -204,11 +209,35 @@ playlists:
 #goto playlists;
 
 
-delete:
+setup_lists:
 	set to_delete=( \
 	"\n" \
 	);
 	
+	set lifestyle_podcasts=( \
+	"\n" \
+	);
+	
+	set podiobooks=( \
+	"\n" \
+	);
+	
+	set slashdot=( \
+	"\n" \
+	);
+	
+	set podcasts_to_backup=( \
+	"\n" \
+	);
+	
+	if(! ${?callback} ) \
+		goto parse_argv;
+	
+	goto $callback;
+#goto setup_lists;
+
+
+delete:
 	if( ${?to_delete} ) then
 		foreach podcast( "`printf "\""${to_delete}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) \
@@ -242,10 +271,6 @@ delete:
 
 
 move_lifestyle_podcasts:
-	set lifestyle_podcasts=( \
-	"\n" \
-	);
-	
 	if( ${?lifestyle_podcasts} ) then
 		foreach podcast( "`printf "\""${lifestyle_podcasts}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) then
@@ -284,10 +309,6 @@ move_lifestyle_podcasts:
 
 
 move_podiobooks:
-	set podiobooks=( \
-	"\n" \
-	);
-	
 	if( ${?podiobooks} ) then
 		foreach podiobook( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if(!( "${podiobook}" != "" && "${podiobook}" != "/" && -e "${podiobook}" )) then
@@ -326,10 +347,6 @@ move_podiobooks:
 
 
 move_slashdot:
-	set slashdot=( \
-	"\n" \
-	);
-	
 	if( ${?slashdot} ) then
 		foreach podcast( "`printf "\""${slashdot}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) then
@@ -373,12 +390,8 @@ move_slashdot:
 
 
 back_up:
-	set podcast_to_backup=( \
-	"\n" \
-	);
-	
-	if( ${?podcast_to_backup} ) then
-		foreach podcast( "`printf "\""${podcast_to_backup}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+	if( ${?podcasts_to_backup} ) then
+		foreach podcast( "`printf "\""${podcasts_to_backup}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) then
 				unset podcast;
 				continue;
@@ -402,7 +415,7 @@ back_up:
 				rm -rv "${podcast_dir}";
 			unset podcast_dir podcast;
 		end
-		unset podcast_to_backup;
+		unset podcasts_to_backup;
 	endif
 	
 	goto parse_argv;

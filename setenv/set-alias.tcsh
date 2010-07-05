@@ -1,6 +1,7 @@
 #!/bin/tcsh -f
 setup:
-set scripts_basename="set-alias";
+	onintr scripts_deinit;
+	set scripts_basename="set-alias";
 #goto setup;
 
 
@@ -61,9 +62,9 @@ prep_exec:
 
 set_alias:
 	if( ${?debug} ) \
-		printf "Seting alias for: <%s> to <%s %s>.\n\t"\$"this_program: [%s]; "\$"program: [%s]; "\$"arguments: [%s].\n" "${1}" "${program}" "${arguments}" "${this_program}" "${program}" "${arguments}" > ${stdout};
+		printf "Seting alias for: <%s> to <%s %s>.\n\t"\$"program: [%s]; "\$"this_program: [%s]; "\$"arguments: [%s].\n" "${1}" "${this_program}" "${arguments}" "${this_program}" "${program}" "${arguments}" > ${stdout};
 	
-	alias "${1}" "${program} ${arguments}";
+	alias "${1}" "${this_program} ${arguments}";
 	
 	if( ${?debug} ) \
 		alias "${1}";
@@ -73,10 +74,10 @@ set_alias:
 
 
 exit_script:
-	if(! ${?env_unset} ) then
-		goto env_unset;
+	if(! ${?scripts_deinit} ) then
+		goto scripts_deinit;
 	else
-		unset env_unset;
+		unset scripts_deinit;
 	endif
 	
 	if(! ${?errno} ) \
@@ -92,7 +93,7 @@ no_exec:
 no_exec:
 
 
-env_unset:
+scripts_deinit:
 	unset scripts_basename arg argc;
 	if( ${?this_program} ) \
 		unset this_program;
@@ -104,7 +105,7 @@ env_unset:
 		unset required_options;
 	if( ${?arguments} ) \
 		unset arguments;
-	set env_unset;
+	set scripts_deinit;
 	goto exit_script;
-#goto env_unset;
+#goto scripts_deinit;
 

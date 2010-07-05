@@ -518,7 +518,7 @@ convert_filenames:
 	
 	foreach original_filename( "`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
 		if( ${?debug} || ${?debug_filelist} ) \
-			printf "\tParsing: %s.\n" "${original_filename}";
+			printf "\n\tParsing: %s." "${original_filename}";
 		ex -s '+1d' '+wq!' "${filename_list}";
 		@ files_processed++;
 		set extension="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/g'`";
@@ -526,24 +526,24 @@ convert_filenames:
 		set filename="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/g'`";
 		set save_to_filename="${filename}";
 		if( ${?debug} || ${?debug_filelist} ) \
-			printf "\tLooking for: %s.%s\n" "${filename}" "${extension}";
+			printf "\n\tLooking for: %s.%s" "${filename}" "${extension}";
 		
 		if(! -e "${filename}.${extension}" ) then
-			printf "\t**%s error:** <file://%s.%s> no longer exists\t[skipping]\n\n" "${scripts_basename}" "${filename}" "${extension}" > /dev/stderr;
+			printf "\n\t**%s error:** <file://%s.%s> no longer exists\t[skipping]\n" "${scripts_basename}" "${filename}" "${extension}" > /dev/stderr;
 			continue;
 		endif
 		
 		if( -e "${save_to_filename}.ogg" ) then
 			if( ${?dont_re_encode} ) then
-				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
+				printf "\n\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
 				if( "${original_extension}" != "ogg" ) \
 					printf ", <file://%s.ogg> already exists, " "${filename}";
-				printf "re-encoding is disabled.\n\n";
+				printf "re-encoding is disabled.\n";
 				continue;
 			endif
 			
 			if( "${original_extension}" == "ogg" && (!( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length_set} )) ) then
-				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
+				printf "\n\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
 				if( "${original_extension}" != "ogg" ) \
 					printf ", <file://%s.ogg> already exists, " "${filename}";
 				if(! ${?re_encode} ) \
@@ -552,27 +552,20 @@ convert_filenames:
 					printf "and ";
 				if(!( ${?ltrim} || ${?rtrim} || ${?length_set} )) \
 					printf "no advanced conversion options specified";
-				printf ".\n\n";
+				printf ".\n";
 				continue;
 			endif
-		endif
-		
-		if( "${extension}" != "ogg" ) then
-			if( ${?ltrim} && ${?length_set} ) \
-				goto find_length;
 			
-			goto oggconvert;
+			if(! ${?force} ) \
+				goto confirm_overwrite;
 		endif
-		
-		if(! ${?force} ) \
-			goto confirm_overwrite;
 		
 		if( ${?rtrim} || ( ${?ltrim} && ${?length_set} )) \
 			goto find_length;
 		
 		goto oggconvert;
 		
-		printf "\t**Skipping:** <file://%s.%s>; no advanced conversion options specified.\n\n" "${filename}" "${extension}";
+		printf "\n\t**Skipping:** <file://%s.%s>; no advanced conversion options specified.\n" "${filename}" "${extension}";
 		continue;
 	end
 	
@@ -620,7 +613,7 @@ confirm_overwrite:
 	
 	switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
 		case "a":
-			printf "\tTip: you can run "\`"%s --re-encode=force"\`" to skip this prompt in the future.\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
+			printf "\n\tTip: you can run "\`"%s --re-encode=force"\`" to skip this prompt in the future.\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
 			if(! ${?force} ) \
 				set force;
 			if(! ${?re_encode} ) \
@@ -628,17 +621,17 @@ confirm_overwrite:
 			if( ${?dont_re_encode} ) \
 				unset dont_re_encode;
 		case "y":
-			if( ( ${?ltrim} && ! ${?length_set} ) || "${original_extension}" != "ogg" ) \
-				goto oggconvert;
+			if( "${original_extension}" != "ogg" && ${?ltrim} && ${?length_set} ) \
+				goto find_length;
 			
-			if( ${?rtrim} || ( ${?ltrim} && ${?length_set} ) ) \
+			if( ( ${?rtrim} || ${?length_set} ) && ! ${?ltrim} ) \
 				goto find_length;
 			
 			goto oggconvert;
 			breaksw;
 		
 		case "s":
-			printf "\t**Skipping:** <file://%s.ogg>,\n\t\tTip: you can run "\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n\n" "${save_to_filename}" "${scripts_basename}";
+			printf "\n\t**Skipping:** <file://%s.ogg>,\n\t\tTip: you can run "\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n" "${save_to_filename}" "${scripts_basename}";
 			set skip_message_shown;
 			if( ${?force} ) \
 				unset force;
@@ -649,7 +642,7 @@ confirm_overwrite:
 		case "n":
 		default:
 			if(! ${?skip_message_shown} ) then
-				printf "\t**Skipping:** <file://%s.ogg>." "${save_to_filename}";
+				printf "\n\t**Skipping:** <file://%s.ogg>." "${save_to_filename}";
 			else
 				unset skip_message_shown;
 			endif
@@ -669,37 +662,44 @@ oggconvert:
 	if(! -e "${save_to_filename}.${original_extension}.bck" ) \
 		cp -f "${save_to_filename}.${original_extension}" "${save_to_filename}.${original_extension}.bck";
 	
-	if( "${extension}" != "wav" || ${?ltrim} || ${?rtrim} || ${?length} || ${?volume} ) then
+	if( "${extension}" != "wav" || ${?ltrim} || ${?rtrim} || ${?length_set} || ${?length} || ${?volume} ) then
 		set ffmpeg_input_file_options="";
 		set ffmpeg_output_file_options="";
 		
-		if( ${?length} || ${?rtrim} ) then
+		if( ${?rtrim} && ${?length} ) then
 			if( ${?rtrim} ) then
-				printf "\t\tRemoving: [%s] from its ending.\n" "${rtrim}";
+				printf "\n\t\tRemoving: [%s] from its ending." "${rtrim}";
 			else
-				printf "\t\tLimiting: [%s] as its maximum length.\n" "${length}";
+				printf "\n\t\tLimiting: [%s] as its maximum length.\n" "${length}";
 			endif
 			set ffmpeg_input_file_options=" -t ${length}";
 			if( ${?volume} && ! ${?ltrim} ) then
-				printf "\t\tAnd setting its default volume to: [%s].\n" "${volume}";
+				printf "\n\t\tAnd setting its default volume to: [%s]." "${volume}";
 				set ffmpeg_output_file_options=" -vol ${volume}";
 			endif
 		else if( ${?ltrim} && ${?length} ) then
-			printf "\t\tTrimming: [%s] from its begining, and limiting its maximum length to: [%s].\n" "${ltrim}" "${length}";
+			printf "\n\t\tTrimming: [%s] from its begining, and limiting its maximum length to: [%s]." "${ltrim}" "${length}";
 			set ffmpeg_input_file_options=" -t ${length} -ss ${ltrim}";
 			if( ${?volume} ) then
-				printf "\t\tAnd setting its default volume to: [%s]\n" "${volume}";
+				printf "\n\t\tAnd setting its default volume to: [%s]" "${volume}";
 				set ffmpeg_output_file_options=" -vol ${volume}";
 			endif
 		else if( ${?ltrim} ) then
-			printf "\t\tTrimming: [%s] from its begining.\n" "${ltrim}";
+			printf "\n\t\tTrimming: [%s] from its begining." "${ltrim}";
 			set ffmpeg_input_file_options=" -ss ${ltrim}";
 			if( ${?volume} ) then
-				printf "\t\tAnd setting its default volume to: [%s].\n" "${volume}";
+				printf "\n\t\tAnd setting its default volume to: [%s]." "${volume}";
+				set ffmpeg_output_file_options=" -vol ${volume}";
+			endif
+		else if( ${?length_set} ) then
+			printf "\n\t\tLimiting its maximum length to: [%s]." "${length_set}";
+			set ffmpeg_input_file_options=" -t ${length_set}";
+			if( ${?volume} ) then
+				printf "\n\t\tAnd setting its default volume to: [%s]." "${volume}";
 				set ffmpeg_output_file_options=" -vol ${volume}";
 			endif
 		else if( ${?volume} ) then
-			printf "\t\tSetting its default volume to: [%s].\n" "${volume}";
+			printf "\n\t\tSetting its default volume to: [%s]." "${volume}";
 			set ffmpeg_output_file_options=" -vol ${volume}";
 		endif
 		
@@ -712,7 +712,7 @@ oggconvert:
 		endif
 		
 		if( "${original_extension}" != "wav" || "${ffmpeg_input_file_options}" != "" ) then
-			printf "\t\t\tCreating temporary WAV file.  This may take several moments...";
+			printf "\n\t\t\tCreating temporary WAV file.  This may take several moments...";
 			
 			if( ${?debug} || ${?debug_encoding} ) then
 				printf "\n\nRunning:\n\t";
@@ -733,7 +733,7 @@ oggconvert:
 			unset ffmpeg_input_file_options ffmpeg_output_file_options;
 			
 			if(!( "${status}" == "0" && -e "${save_to_filename}.wav" )) then
-				printf "\t[failed]\n\t\t\tUnable to create temorary WAV file.\n\t\t\tffmpeg returned: %s\n\n" "${status}";
+				printf "\t\t[failed]\n\t\t\tUnable to create temorary WAV file.\n\t\t\tffmpeg returned: %s\n\n" "${status}";
 				if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
 					rm "${save_to_filename}.wav";
 				
@@ -791,11 +791,18 @@ oggconvert:
 	if( ${?combine} && "${filename}" != "${save_to_filename}" ) \
 		goto scripts_main_quit;
 	
-	if( ( ${?rtrim} || ${?length_set} ) && ! ${?length} ) \
+	if( ${?rtrim} && ${?length_set} && ! ${?length} ) \
 		goto find_length;
 	
+	printf "\n\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[completed]\n";
+	
 	if( ${?debug} || ${?debug_length} || ${?debug_encoding} ) then
-		${ogginfo} "${save_to_filename}.ogg";
+		printf "\n\t\t\t\t\t\t\t\tPlayback length of\n\t\t\t\t\t\t\t\t<file://";
+		if( "`printf "\""%s"\"" "\""${save_to_filename}"\"" | sed -r 's/^(.)(.*)"\$"/\1/'`" != "/" ) \
+			printf "%s/" "${cwd}";
+		printf "%s.ogg>\n" "${save_to_filename}";
+		
+		${ogginfo} "${save_to_filename}.ogg" || grep 'Playback length:';
 	endif
 	
 	if( ${?playlist} ) then
@@ -809,8 +816,6 @@ oggconvert:
 			printf "%s/" "${cwd}" >> "${playlist}.new";
 		printf "%s.ogg\n" "${save_to_filename}" >> "${playlist}.new";
 	endif
-	
-	printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[completed]\n\n";
 	
 	if( ${?transcode} && "${original_extension}" != "ogg" ) then
 		rm ${transcode} "${filename}.${original_extension}";
@@ -841,6 +846,7 @@ find_length:
 	
 	set oggs_hours="00";
 	if( ${?length_set} && ${?ltrim} ) then
+		set rtrim_set;
 		set rtrim="${ltrim}";
 		set oggs_hours="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
 		set oggs_minutes="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
@@ -877,6 +883,9 @@ find_length:
 		printf "\tminutes: %s\n" "${minutes}";
 		printf "\tseconds: %s\n" "${seconds}";
 	endif
+	
+	if( ${?rtrim_set} && ${?ltrim} && ${?ltrim} ) \
+		unset rtrim rtrim_set;
 #goto find_length;
 
 
@@ -1256,8 +1265,6 @@ parse_arg:
 			
 			case "length":
 				if( "${value}" == "" ) then
-					if( ${?length} ) \
-						unset length;
 					if( ${?lengt_set} ) \
 						unset length_set;
 					breaksw;
@@ -1270,7 +1277,6 @@ parse_arg:
 					breaksw;
 				endif
 				
-				set length;
 				set length_set="${value}";
 				set value_used;
 				breaksw;

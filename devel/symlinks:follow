@@ -72,18 +72,6 @@ while ( $arg < $argc )
 	if( ${?debug} ) \
 		printf "Option parsing complete.\n";
 
-if(! ${?commit_log} ) then
-	if( -d "${log_dir}" ) then
-		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
-		set commit_log="${log_dir}/${commit_log}";
-	endif
-	if(! ${?commit_action} ) \
-		set commit_action="Commit Appended";
-else
-	if(! ${?commit_action} ) \
-		set commit_action="Committed";
-endif
-
 follow_symlinks:
 	set symlink_log="./.symlink.`date '+%s'`.lst";
 	touch "${symlink_log}";
@@ -131,7 +119,6 @@ follow_symlinks:
 			unset target symlink project_symlink;
 		end
 		( find . -ignore_readdir_race \! -iregex ".*\.\(${extensions}\)"\$ -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
-		#( find . -ignore_readdir_race -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
 		set symlink_count="`cat "\""${this_symlink_log}"\""`";
 	end
 	

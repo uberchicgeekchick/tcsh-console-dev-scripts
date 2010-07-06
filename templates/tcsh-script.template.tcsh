@@ -1455,19 +1455,19 @@ parse_arg:
 	unset argument_file;
 	set argument="`printf "\""%s"\"" "\""${escaped_argument}"\""`";
 	
-	set dashes="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
+	set dashes="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
 	if( "${dashes}" == "${argument}" ) \
 		set dashes="";
 	
-	set option="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
+	set option="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
 	if( "${option}" == "${argument}" ) \
 		set option="";
 	
-	set equals="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\3/'`";
+	set equals="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\3/'`";
 	if( "${equals}" == "${argument}" ) \
 		set equals="";
 	
-	set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
+	set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
 	
 	if( ${?debug} ) \
 		printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}";
@@ -1489,19 +1489,19 @@ parse_arg:
 			unset argument_file;
 			set test_argument="`printf "\""%s"\"" "\""${escaped_test_argument}"\""`";
 			
-			set test_dashes="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
+			set test_dashes="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\1/'`";
 			if( "${test_dashes}" == "${test_argument}" ) \
 				set test_dashes="";
 			
-			set test_option="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
+			set test_option="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
 			if( "${test_option}" == "${test_argument}" ) \
 				set test_option="";
 			
-			set test_equals="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\3/'`";
+			set test_equals="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\3/'`";
 			if( "${test_equals}" == "${test_argument}" ) \
 				set test_equals="";
 			
-			set test_value="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
+			set test_value="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
 			
 			if( ${?debug} ) \
 				printf "\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}";

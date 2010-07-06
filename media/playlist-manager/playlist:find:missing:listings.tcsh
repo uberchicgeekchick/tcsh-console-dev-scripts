@@ -407,15 +407,15 @@ handle_missing_media:
 			printf "/D/I/A: ";
 		set response="$<";
 		printf "\n";
-		switch( `printf "%s" "${response}" | sed -r 's/^(.).*$/\U\1/'` )
-			case "I":
+		switch( `printf "%s" "${response}" | sed -r 's/^(.).*$/\l\1/'` )
+			case "i":
 				if(! ${?append} ) then
 					printf "\n\t**Ignoring:**\n\t\t<file://%s>\n" "${this_podcast}";
 					unset prompt_for_playlist;
 					breaksw;
 				endif
 			
-			case "D":
+			case "d":
 				if(! ${?append} ) then
 					printf "\n\t**Deleting:**\n\t\t<file://%s>\n\t\tand cleaning up any empty directories.\n" "${this_podcast}";
 					unset prompt_for_playlist response playlist_index;
@@ -423,7 +423,7 @@ handle_missing_media:
 					breaksw;
 				endif
 			
-			case "A":
+			case "a":
 				if(! ${?append} ) then
 					printf "\n\t**Aborting:**\n\t\t<file://%s>" "${this_podcast}";
 					printf "\n\t\t**Exiting:** %s...\n\n" "${scripts_basename}";
@@ -445,16 +445,22 @@ handle_missing_media:
 				set append_set;
 				breaksw;
 		endsw
+		unset response;
 	end
-	unset response playlist_index;
-	
 	if( ${?append} ) then
-		@ new_file_count++;
-		printf "\n\t**Appending:**\n\t\t<file//%s>\n\t\t\tto:\n\t\t<file://%s>\n" "${this_podcast}" "$playlists[$append]";
-		printf "%s\n" "${this_podcast}" >> "$playlists[$append].new";
-		if( ${?append_set} ) \
-			unset append append_set;
+		if( `printf "%s" "${append}" | sed -r 's/^[0-9]+$//'` == "" ) then
+			if( $append > 0 && $append <= $playlist_index ) then
+				@ new_file_count++;
+				printf "\n\t**Appending:**\n\t\t<file//%s>\n\t\t\tto:\n\t\t<file://%s>\n" "${this_podcast}" "$playlists[$append]";
+				printf "%s\n" "${this_podcast}" >> "$playlists[$append].new";
+				if( ${?append_set} ) \
+					unset append append_set;
+			endif
+		endif
 	endif
+	
+	unset playlist_index;
+	
 	onintr cancel_processing_media;
 	
 	if( ${?duplicates_dirs} ) \
@@ -742,19 +748,19 @@ parse_arg:
 			printf "Checking "\$"argv[%d] (%s).\n" "${arg}" "$argv[$arg]";
 		
 		set argument="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`";
-		set dashes="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/([\-]{1,2})([^\=]+)(=?)(.*)/\1/'`";
+		set dashes="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/([\-]{1,2})([^=]+)(=?)(.*)/\1/'`";
 		if( "${dashes}" == "${argument}" ) \
 			set dashes="";
 		
-		set option="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/([\-]{1,2})([^\=]+)(=?)(.*)/\2/'`";
+		set option="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/([\-]{1,2})([^=]+)(=?)(.*)/\2/'`";
 		if( "${option}" == "${argument}" ) \
 			set option="";
 		
-		set equals="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\3/'`";
+		set equals="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=?)(.*)"\$"/\3/'`";
 		if( "${equals}" == "${argument}" ) \
 			set equals="";
 		
-		set value="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\4/'`";
+		set value="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=?)(.*)"\$"/\4/'`";
 		
 		if( ${?debug} ) \
 			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}" > ${stdout};
@@ -767,19 +773,19 @@ parse_arg:
 				if( ${?debug} ) \
 					printf "\n\tChecking "\$"argv[%d], (%s), for possible value.\n" "${arg}" "$argv[$arg]";
 				set test_argument="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g'`";
-				set test_dashes="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\1/'`";
+				set test_dashes="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=?)(.*)"\$"/\1/'`";
 				if( "${test_dashes}" == "${test_argument}" ) \
 					set test_dashes="";
 				
-				set test_option="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\2/'`";
+				set test_option="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=?)(.*)"\$"/\2/'`";
 				if( "${test_option}" == "${test_argument}" ) \
 					set test_option="";
 				
-				set test_equals="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\3/'`";
+				set test_equals="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=?)(.*)"\$"/\3/'`";
 				if( "${test_equals}" == "${test_argument}" ) \
 					set test_equals="";
 				
-				set test_value="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(=?)(.*)"\$"/\4/'`";
+				set test_value="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=?)(.*)"\$"/\4/'`";
 				if( ${?debug} ) \
 					printf "\n\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}" > ${stdout};
 				

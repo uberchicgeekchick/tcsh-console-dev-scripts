@@ -45,7 +45,8 @@ endif
 set log_dir="./.`basename '${0}'`.logs";
 set project="`basename '${cwd}'`";
 
-set push_to;
+set push;
+set push_to=();
 set follow_symlinks;
 
 @ arg=0;

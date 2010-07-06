@@ -1,0 +1,173 @@
+#!/bin/tcsh -f
+if(! ${?0} ) then
+	printf "This script cannot be sourced and can only be executed.\n";
+	set status=-1;
+	exit -1;
+endif
+
+set status=0;
+	
+	onintr exit_script;
+	
+@ arg=0;
+@ argc=${#argv};
+while ( $arg < $argc )
+	@ arg++;
+	set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^[\-]{1,2}([^=]*)=?(.*)"\$"/\1/'`";
+	if( "${option}" == "$argv[$arg]" ) \
+		set option = "";
+	set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^[\-]{1,2}\([^=]*)=?(.*)"\$"/\2/'`";
+	if( ${?debug} ) \
+		printf 'Parsing Option:\n\t--%s=%s\n' "${option}" "${value}";
+	switch ( "${option}" )
+		case "h":
+		case "help":
+			goto usage;
+			breaksw;
+		
+		case "debug":
+			set debug;
+			breaksw;
+		
+		case "follow-sysmlinks":
+			switch("${value}")
+				case "disable":
+					if( ${?follow_symlinks} ) \
+						unset follow_symlinks;
+					breaksw;
+				case "enable":
+				default:
+					if(! ${?follow_symlinks} ) \
+						set follow_symlinks;
+					breaksw;
+			endsw
+			breaksw;
+		
+		case "enable":
+			switch("${value}")
+				case "logging":
+					if(! ${?logging} ) \
+						set logging;
+					breaksw;
+			endsw
+			breaksw;
+		
+		case "disable":
+			switch("${value}")
+				case "logging":
+					if( ${?logging} ) \
+						unset logging;
+					breaksw;
+			endsw
+			breaksw;
+		
+		default:
+			breaksw;
+		endsw
+	end
+	
+	if( ${#push_to} < 1 ) \
+		unset push_to;
+	
+	if( ${?debug} ) \
+		printf "Option parsing complete.\n";
+
+if(! ${?commit_log} ) then
+	if( -d "${log_dir}" ) then
+		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
+		set commit_log="${log_dir}/${commit_log}";
+	endif
+	if(! ${?commit_action} ) \
+		set commit_action="Commit Appended";
+else
+	if(! ${?commit_action} ) \
+		set commit_action="Committed";
+endif
+
+follow_symlinks:
+	set symlink_log="./.symlink.`date '+%s'`.lst";
+	touch "${symlink_log}";
+	
+	onintr -;
+	
+	set this_symlink_log="`mktemp --tmpdir .symlink.lst.XXXXXXXXX`";
+	set extensions="bz2\|gz\|tgz\|zip|art\|dev\|ref\|new\|old\|symlink[s]?";
+	( find . -ignore_readdir_race \! -iregex ".*\.\(${extensions}\)"\$ -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+	#( find . -ignore_readdir_race -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+	set symlink_count="`cat "\""${this_symlink_log}"\""`";
+	while( ${#symlink_count} > 0 )
+		cat "${this_symlink_log}" >! "${symlink_log}.swp";
+		cat "${symlink_log}" >> "${symlink_log}.swp";
+		mv -f "${symlink_log}.swp" "${symlink_log}";
+		#rm -f "${this_symlink_log}";
+		
+		foreach project_symlink("`cat "\""${this_symlink_log}"\""`")
+			set symlink="`printf "\""%s"\"" "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
+			set target="`printf "\""%s"\"" "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
+			
+			if(! -l "${symlink}" ) \
+				continue;
+			
+			if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+				printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+				unset target symlink;
+				continue;
+			endif
+			
+			if(! ${?symlink_total} ) then
+				printf "Following symlinks.\n";
+				@ symlink_total=0;
+			endif
+			@ symlink_total++;
+			
+			#printf "following: %s\n\t%s points to %s\n" "${project_symlink}" "${symlink}" "${target}";
+			cd `dirname "${symlink}"`;
+			rm -r ./`basename "${symlink}"`;
+			if(! -e ./`basename "${symlink}"` ) \
+				cp -r "${target}" ./`basename "${symlink}"`;
+			
+			cd "${owd}";
+			
+			unset target symlink project_symlink;
+		end
+		( find . -ignore_readdir_race \! -iregex ".*\.\(${extensions}\)"\$ -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+		#( find . -ignore_readdir_race -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+		set symlink_count="`cat "\""${this_symlink_log}"\""`";
+	end
+	
+	if(! ${?symlink_total} ) then
+		if( ${?symlink_log} ) then
+			if( -e "${symlink_log}" ) \
+				rm -f "${symlink_log}";
+			unset symlink_log;
+		endif
+	endif
+	
+	if( ${?this_symlink_log} ) then
+		if( -e "${this_symlink_log}" ) \
+			rm -f "${this_symlink_log}";
+		unset this_symlink_log;
+	endif
+	
+	if( ${?symlink_count} ) \
+		unset symlink_count;
+#follow_symlinks:
+
+
+exit_script:
+	if( ${?top_git_dir} ) then
+		cd "${original_cwd}";
+		set owd="${original_owd}";
+		unset old_owd;
+		unset old_cwd;
+	endif
+	
+	exit ${status};
+#exit_script:
+
+	
+usage:
+	printf "Usage: %s ./.symlink."\`"date '+%s'"\`".lst\n" "`basename '${0}'`";
+	goto exit_script;
+#usage
+

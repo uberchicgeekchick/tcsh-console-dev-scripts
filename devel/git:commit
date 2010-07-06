@@ -45,25 +45,25 @@ endif
 set log_dir="./.`basename '${0}'`.logs";
 set project="`basename '${cwd}'`";
 
-@ argc=0
-while ( "$argv[$argc]" != "" )
-	if( "$argv[$argc]" == "--debug" )
-		set debug_commit;
-		break;
-	endif
-	@ argc++;
-end
+set push_to;
 
-set follow_symlinks;
-set push_to=();
-while ( "${1}" != "" )
-	set option="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?"\$"/\1/'`";
-	set value="`printf '%s' "\""${1}"\"" | sed 's/^\-\-\([^=]*\)=\?['\''"\""]\?\(.*\)['\''"\""]\?"\$"/\2/'`";
-	if( ${?debug_commit} ) \
+@ arg=0;
+@ argc=${#argv};
+while ( $arg < $argc )
+	@ arg++;
+	set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^[\-]{1,2}([^=]*)=?(.*)"\$"/\1/'`";
+	if( "${option}" == "$argv[$arg]" ) \
+		set option = "";
+	set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^[\-]{1,2}([^=]*)=?(.*)"\$"/\2/'`";
+	if( ${?debug} ) \
 		printf 'Parsing Option:\n\t--%s=%s\n' "${option}" "${value}";
 	switch ( "${option}" )
 		case "help":
 			goto usage;
+			breaksw;
+		
+		case "debug":
+			set debug;
 			breaksw;
 		
 		case "sync":
@@ -119,7 +119,7 @@ while ( "${1}" != "" )
 				printf "No previous commit messages could be found.  I new commit will be created.";
 				breaksw;
 			endif
-			set commit_log=`ls --width=1 ${log_dir} | tail -1`;
+			set commit_log=`/bin/ls --width=1 -tr ${log_dir} | tail -1`;
 			set commit_log="${log_dir}/${commit_log}";
 		
 			if( ! -e "${commit_log}" ) then
@@ -194,21 +194,20 @@ while ( "${1}" != "" )
 			else
 				printf '\n\n' >> "${commit_log}";
 			endif
-			printf "\t%s" "${1}" >> "${commit_log}";
+			printf "\t%s" "$argv[$arg]" >> "${commit_log}";
 			breaksw;
 		endsw
-		shift;
 	end
 	
 	if( ${#push_to} < 1 ) \
 		unset push_to;
 	
-	if( ${?debug_commit} ) \
+	if( ${?debug} ) \
 		printf "Option parsing complete.\n";
 
 if(! ${?commit_log} ) then
 	if( -d "${log_dir}" ) then
-		set commit_log=`ls --width=1 ${log_dir} | tail -1`;
+		set commit_log=`/bin/ls --width=1 -tr ${log_dir} | tail -1`;
 		set commit_log="${log_dir}/${commit_log}";
 	endif
 	if(! ${?commit_action} ) \
@@ -232,6 +231,8 @@ unset commit_action;
 follow_symlinks:
 	if(! ${?follow_symlinks} ) \
 		goto git_commit;
+	
+	onintr -;
 	
 	set symlink_log="./.symlink.`date '+%s'`.lst";
 	touch "${symlink_log}";
@@ -297,10 +298,14 @@ follow_symlinks:
 	
 	if( ${?symlink_count} ) \
 		unset symlink_count;
+	
+	onintr exit_script;
 #follow_symlinks:
 
 
 git_commit:
+	onintr exit_script;
+	
 	git add .;
 
 	# Keep extremely large files from being committed;
@@ -378,6 +383,8 @@ restore_symlinks:
 	if(! -e "${symlink_log}" ) \
 		goto git_push;
 	
+	onintr -;
+	
 	#printf "Symlinks saved to: <file://%s>\n" "${symlink_log}";
 	#unset symlink_log;
 	#goto exit_script;
@@ -409,12 +416,16 @@ restore_symlinks:
 	rm -f "${symlink_log}" > /dev/null;
 	unset project_symlink follow_symlinks symlink_log;
 	
+	onintr exit_script;
+	
 	if( ${?commit_cancelled} ) \
 		goto exit_script;
 #restore_symlinks:
 
 
 git_push:
+	onintr exit_script;
+	
 	if(! ${?push} ) \
 		goto check_sync;
 	foreach git_repo("`git remote`")

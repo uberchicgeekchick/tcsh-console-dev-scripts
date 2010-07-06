@@ -3,19 +3,25 @@ if(! ${?0} ) then
 	printf "This script cannot be sourced.\n";
 	goto exit_script;
 endif
+	
+	onintr exit_script;
 
-	if(!( "${1}" != "" && -e "${1}" )) then
-		printf "Usage:\n\t%s ./.symlink."\`"date '+%s'"\`".lst\n" "`basename '${0}'`";
-		goto exit_script;
+	if( "${1}" != "" ) then
+		set symlink_log="${1}";
+	else
+		set symlink_log=`/bin/ls --width=1 -tr ./.symlink* | tail -1`;
 	endif
 	
-	set symlink_log="${1}";
+	if(!( "${symlink_log}" != "" && -e "${symlink_log}" )) \
+		goto usage;
 	
 restore_symlinks:
 	if(! ${?symlink_log} ) \
-		goto exit_script;
+		goto usage;
 	if(! -e "${symlink_log}" ) \
-		goto exit_script;
+		goto usage;
+	
+	onintr -;
 	
 	printf "Restoring symlinks.\n";
 	
@@ -41,8 +47,16 @@ restore_symlinks:
 	
 	rm -f "${symlink_log}" > /dev/null;
 	unset project_symlink follow_symlinks symlink_log;
+	
+	onintr exit_script;
 #restore_symlinks:
 
 exit_script:
 	exit;
 #exit_script:
+
+
+usage:
+	printf "Usage: %s ./.symlink."\`"date '+%s'"\`".lst\n" "`basename "\""${0}"\""`";
+	goto exit_script;
+#goto usage;

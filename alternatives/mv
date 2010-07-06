@@ -9,32 +9,31 @@ init:
 	endif
 	
 	set supports_being_source;
-	set scripts_basename="touch";
-	set scripts_tmpdir="/tmp";
+	set scripts_basename="mv";
+	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
+	
+	alias ex "ex -E -n -X --noplugin";
 	
 	set escaped_starting_dir="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
-#goto init;
+#init:
 
 debug_check:
 	@ arg=0;
 	@ argc=${#argv};
 	
-	@ minimum_options=1;
+	@ minimum_options=2;
 	if( ${?minimum_options} ) then
-		if( ${minimum_options} > 0 && ${#argv} < ${minimum_options} ) then
+		if( ${minimum_options} > 0 && ${argc} < ${minimum_options} ) then
 			@ errno=-503;
-			printf "One or more required options have not been provided." > ${stderr};
-			goto exception_handler;
+			goto exit_script;
 		endif
 	endif
 	
-	#@ maximum_options=2;
 	if( ${?maximum_options} ) then
-		if( ${maximum_options} > 0 && ${#argv} > ${maximum_options} ) then
+		if( ${maximum_options} > 0 && ${argc} > ${maximum_options} ) then
 			@ errno=-504;
-			printf "To many options have been provided." > ${stderr};
-			goto exception_handler;
+			goto exit_script;
 		endif
 	endif
 	
@@ -156,8 +155,8 @@ debug_check:
 #goto debug_check;
 
 
-check_dependencies:
-	set dependencies=("${scripts_basename}" "touch" "chmod");
+dependencies_check:
+	set dependencies=("${scripts_basename}" "mv");
 	@ dependencies_index=0;
 	
 	while( $dependencies_index < ${#dependencies} )
@@ -166,17 +165,17 @@ check_dependencies:
 		if( ${?debug} ) \
 			printf "\n**%s debug:** looking for dependency: %s; "\$"dependencies[%d].\n\n" "${scripts_basename}" "${dependency}" $dependencies_index > ${stdout};
 			
-		foreach exec("`where '${dependency}'`")
+		foreach exec("`where "\""${dependency}"\""`")
 			if(! -x "${exec}" ) then
 				unset exec;
 				continue;
 			endif
 			
 			if( ${?debug} ) \
-				printf "\n**%s debug:** looking for dependency: %s, "\$"dependencies[%d], against: %s.\n\n" $dependencies_index "${exec}" "${scripts_basename}" "${dependency}" > ${stdout};
+				printf "\n**%s debug:** looking for dependency: %s, "\$"dependencies[%d], against: %s.\n\n" "${scripts_basename}" "${dependency}" $dependencies_index "${exec}" > ${stdout};
 			switch("${exec}")
 				case "${scripts_basename}":
-				case "${TCSH_LAUNCHER_PATH}/${scripts_basename}":
+				case "${TCSH_ALTERNATIVES_PATH}/${scripts_basename}":
 					if( ${?script} ) \
 						breaksw;
 						
@@ -187,40 +186,31 @@ check_dependencies:
 					set owd="${old_owd}";
 					unset old_owd;
 					set script="${scripts_path}/${scripts_basename}";
+					unset exec;
 					breaksw;
 				
-				case "/bin/${scripts_basename}":
-				case "/usr/bin/${scripts_basename}":
-				case "/usr/share/bin/${scripts_basename}":
-				case "/usr/local/bin/${scripts_basename}":
-					if(! ${?touch_exec} ) then
-						set touch_exec="${exec}";
-					else if(! ${?chmod} ) then
-						set chmod_exec="${exec}";
-					endif
+				case "/bin/mv":
+				case "/usr/bin/mv":
+				case "/usr/share/bin/mv":
+				case "/usr/local/bin/mv":
+					set program="${exec}";
 					breaksw;
 				
 				default:
 					breaksw;
 			endsw
-			unset exec;
 		end
 	end
 	
-	if(! ${?touch_exec} ) \
-		goto missing_dependency;
+	if(! ${?program} ) \
+		set program="";
 	
-	if(! -x "${touch_exec}" ) \
+	if(! -x "${program}" ) \
 		goto missing_dependency;
 		
-	if(! ${?chmod_exec} ) \
-		goto missing_dependency;
-	
-	if(! -x "${chmod_exec}" ) \
-		goto missing_dependency;
 	
 	unset dependency dependencies;
-#goto check_dependencies;
+#goto ependencies_check;
 
 
 if_sourced:
@@ -233,7 +223,7 @@ if_sourced:
 	if(! ${?supports_being_source} ) then
 		set status=-1;
 		printf "%s does not support being sourced.\n" "${scripts_basename}";
-		goto scripts_main_quit;
+		goto exit_script;
 	endif
 	# END: disable source scripts_basename.
 	
@@ -247,40 +237,50 @@ if_sourced:
 	
 	# END: source support.
 	
-	goto scripts_main_quit;
-#goto if_sourced;
+	goto exit_script;
+#if_sourced:
 
 
 main:
-	set argc=${#argv};
-	
-	alias ex "ex -E -n -X --noplugin";
+	@ argc=${#argv};
+	if(!( $argc >= 2 )) then
+		set status=-1;
+		goto usage;
+	endif
 	
 	goto parse_argv; # exit's via 'usage:' or 'exec:'.
-#goto main;
+#main:
 
 
 exec:
 	set status=0;
-	if(! ${?no_mk_path} ) then
-		set touch_dir=`dirname "${touch_target}"`;
-		if(! -d "${touch_dir}" ) \
-			mkdir -p "${touch_dir}";
-		unset touch_dir;
-	endif
+	onintr exec;
+	if(!( ${?target} && ${?sources} )) \
+		goto usage;
 	
-	if( ${?debug} ) \
-		printf "( %s "\""%s"\"" > %s ) >& %s;" "${touch_exec}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
-	( ${touch_exec} "${touch_target}" > ${stdout} ) >& ${stderr};
-	
-	if( ${?mode} ) then
+	foreach source_file("`cat "\""${sources}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
+		ex -s '+1d' '+wq!' "${sources}";
+		if(! -e "${source_file}" ) then
+			printf "\n**%s error:** moving %s no longer exists.\n";
+			unset source_file;
+			continue;
+		endif
+		
+		if(! -d "${target}" ) \
+			mkdir -p "${target}";
+		
 		if( ${?debug} ) \
-			printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${chmod_exec}" "${mode}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
-		( ${chmod_exec} ${mode} "${touch_target}" > ${stdout} ) >& ${stderr};
-	endif
-	
+			printf "( %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;" "${program}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
+		( ${program} "${source_file}" ${target} > ${stdout} ) >& ${stderr};
+		unset source_file;
+	end
+	goto exit_script;
+#exec:
+
+exit_script:
+	onintr scripts_main_quit;
 	goto scripts_main_quit;
-#goto exec;
+#goto exit_script;
 
 
 scripts_main_quit:
@@ -290,6 +290,13 @@ scripts_main_quit:
 			source "${scripts_path}/argv:clean-up" "${scripts_basename}";
 		# END: source support
 	endif
+	
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
+	
 	if( ${?supports_being_source} ) \
 		unset supports_being_source;
 	if( ${?scripts_basename} ) \
@@ -306,8 +313,14 @@ scripts_main_quit:
 		unset dependencies;
 	if( ${?debug} ) \
 		unset debug;
-	if( ${?touch_target} ) \
-		unset touch_target;
+	if( ${?target} ) \
+		unset target;
+	if( ${?source} ) \
+		unset source;
+	if( ${?sources} ) then
+		rm -f "${sources}";
+		unset sources;
+	endif
 	if( ${?usage_displayed} ) \
 		unset usage_displayed;
 	if( ${?exit_on_usage} ) \
@@ -317,6 +330,7 @@ scripts_main_quit:
 		set owd="${use_old_owd}";
 		unset use_old_owd;
 	endif
+	
 	exit ${status}
 #goto scripts_main_quit;
 
@@ -324,31 +338,41 @@ scripts_main_quit:
 missing_dependency:
 	printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_basename}" "${dependencies}";
 	set status=-1;
-	goto scripts_main_quit;
-#goto missing_dependency;
+	goto exit_script;
+#missing_dependency:
 
 
 usage:
 	if(! ${?usage_displayed} ) then
-		printf "\n\n\tUsage: %s FILE\n\tor: %s MODE FILE\n\tUpdate the access and modification times of each FILE to the current time.\n\tA FILE argument that does not exist is created empty as are any missing parent directories.\n\n" "${scripts_basename}" "${scripts_basename}";
+		if( ${?script} && ${?program} ) then
+			if( "${program}" != "${script}" ) then
+				${program} --help;
+				set usage_displayed;
+			endif
+		endif
+	endif
+	
+	if(! ${?usage_displayed} ) then
+		printf "Usage: %s SOURCE... DIRECTORY\n\tor: %s [-h|--help]\tDisplays this screen.\n\t\n\tRename SOURCE to DEST, or move SOURCE(s) to DIRECTORY.  Any non-existant parent directories of DIRECTORY are created\n\t\nMandatory arguments to long options are mandatory for short options too\n\n\t\t-p, --parent\tcreates any non-existant parent directories of DIRECTORY.\n\t\t-h, --help\tDisplays this screen.\n\n" "${scripts_basename}" "${scripts_basename}";
+		set usage_displayed;
 	endif
 	
 	if(! ${?usage_displayed} ) \
 		set usage_displayed;
-	if( ${?exit_on_usage} ) \
-		goto scripts_main_quit;
-	
-	goto parse_arg;
-#goto usage;
+	goto exit_script;
+#usage:
 
 
 parse_argv:
+	if(!( ${#argv} >= 2 )) \
+		goto usage;
+	
 	@ argc=${#argv};
 	@ arg=0;
 	@ parsed_argc=0;
 	if( ${?debug} || ${?diagnostic_mode} ) \
 		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${scripts_basename}" "${argc}";
-#goto parse_argv;
+#parse_argv:
 
 parse_arg:
 	set argz="";
@@ -448,28 +472,32 @@ parse_arg:
 		switch("${option}")
 			case "h":
 			case "help":
+				goto usage;
 				if(! ${?exit_on_usage} ) \
 					set exit_on_usage;
-				goto usage;
 				breaksw;
 			
 			case "diagnosis":
 			case "diagnostic-mode":
 			case "debug":
+				if(${?arg_shifted}) then
+					@ arg--;
+					unset arg_shifted;
+				endif
 				breaksw;
 			
 			case "":
 			default:
-				if( ! ${?mode} && `printf "%s" "${value}" | sed -r 's/[ugo]{0,3}[\+\-=][rwxXst]{1,6}//'` == "" ) then
-					set mode="${value}";
+				if( $arg == $argc ) then
+					set target="${value}";
 					breaksw;
 				endif
-				
-				if(! ${?touch_target} ) then
-					set touch_target="${value}";
+				if( -e "${value}" ) then
+					if(! ${?sources} ) \
+						set sources="`mktemp --tmpdir .escaped.${scripts_basename}.sources.XXXXXXXXXX`";
+					printf "${value}\n" >> "${sources}";
 					breaksw;
 				endif
-				printf "$mode == $touch_target\n";
 				
 				printf "%s%s%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${equals}" "${value}" "${scripts_basename}" >& ${stderr};
 				breaksw;
@@ -483,6 +511,6 @@ parse_arg:
 		unset dashes option equals value parsed_arg;
 	end
 	goto exec;
-#goto parse_arg;
+#parse_arg:
 
 

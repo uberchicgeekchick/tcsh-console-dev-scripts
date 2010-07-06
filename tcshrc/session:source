@@ -36,9 +36,9 @@ endif
 foreach rc_file ( "${TCSH_RC_SESSION_PATH}/"*.tcsh )
 	set rc_file="`basename '${rc_file}'`";
 	if( \
-		"`printf '%s' '${rc_file}' | sed --regexp-extended 's/.*\.(cshrc).*/\1/g'`" == "cshrc" \
+		"`printf '%s' '${rc_file}' | sed -r 's/.*\.(cshrc).*/\1/g'`" == "cshrc" \
 		|| \
-		"`printf '%s' '${rc_file}' | sed --regexp-extended 's/(etc\-).*/\1/g'`" == "etc-" \
+		"`printf '%s' '${rc_file}' | sed -r 's/(etc\-).*/\1/g'`" == "etc-" \
 	) continue;
 	
 	if( ${?TCSH_RC_DEBUG} ) \

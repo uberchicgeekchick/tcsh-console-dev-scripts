@@ -5,7 +5,8 @@ setenv:
 	set scripts_basename="oggconvert";
 	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
-	set scripts_supported_extensions="ogg|mp3|m4a|rm|wma|wav";
+	set scripts_supported_extensions_defaults="ogg|mp3|m4a|rm|wma|wav";
+	set scripts_supported_extensions="${scripts_supported_extensions_defaults}";
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/(["\$\"\!\`"])/"\""\\\1"\""/g' | sed -r 's/([\[\/])/\\\1/g'`";
 	set escaped_starting_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/(["\$\"\!\`"])/"\""\\\1"\""/g' | sed -r 's/([\[\/])/\\\1/g'`";
 	set supports_being_sourced;
@@ -1264,7 +1265,7 @@ parse_arg:
 				endsw
 			
 			case "default-files":
-				if( ${?scripts_supported_extensions} ) \
+				if(! ${?scripts_supported_extensions} ) \
 					set scripts_supported_extensions="${scripts_supported_extensions_defaults}";
 				breaksw;
 			

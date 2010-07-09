@@ -1,0 +1,3 @@
+#!/bin/tcsh -f
+git init;
+git config receive.denyCurrentBranch ignore;

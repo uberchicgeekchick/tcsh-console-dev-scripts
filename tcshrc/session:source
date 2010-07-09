@@ -52,8 +52,23 @@ end
 
 if( ${?TCSH_RC_DEBUG} ) \
 	printf "Setting up artistic environment @ %s.\n" `date "+%I:%M:%S%P"`;
-source "${TCSH_RC_SESSION_PATH}/art.cshrc.tcsh";
+source "${TCSH_RC_SESSION_PATH}/art.cshrc.tcsh" ${argv};
 
+	if( -e "${TCSH_RC_SESSION_PATH}/../launchers/init.tcsh" ) then
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Setting up launcher script aliases @ %s.\n" `date "+%I:%M:%S%P"`;
+		source "${TCSH_RC_SESSION_PATH}/../launchers/init.tcsh" ${argv};
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Setting up launcher script aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+	endif
+	
+	if( -e "${TCSH_RC_SESSION_PATH}/../alternatives/init.tcsh" ) then
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "Setting up launcher script aliases @ %s.\n" `date "+%I:%M:%S%P"`;
+		source "${TCSH_RC_SESSION_PATH}/../alternatives/init.tcsh" ${argv};
+		if( ${?TCSH_RC_DEBUG} ) \
+			printf "launcher script aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+	endif
 if( ${?TCSH_RC_DEBUG} ) \
 	printf "\nSession set up completed @ %s\n" `date "+%I:%M:%S%P"`;
 

@@ -14,22 +14,6 @@ unset args_handled;
 
 source ${TCSH_RC_SESSION_PATH}/source:argv "${TCSH_RC_SESSION_PATH}/art:color.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:devel:make:init.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" "art:grep-and-find.cshrc.tcsh";
 
-	if( -e "${TCSH_RC_SESSION_PATH}/../launchers/init.tcsh" ) then
-		if( ${?TCSH_RC_DEBUG} ) \
-			printf "Setting up launcher script aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-		source "${TCSH_RC_SESSION_PATH}/../launchers/init.tcsh" ${argv};
-		if( ${?TCSH_RC_DEBUG} ) \
-			printf "Setting up launcher script aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
-	endif
-	
-	if( -e "${TCSH_RC_SESSION_PATH}/../alternatives/init.tcsh" ) then
-		if( ${?TCSH_RC_DEBUG} ) \
-			printf "Setting up launcher script aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-		source "${TCSH_RC_SESSION_PATH}/../alternatives/init.tcsh" ${argv};
-		if( ${?TCSH_RC_DEBUG} ) \
-			printf "launcher script aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
-	endif
-
 alias cmake "cmake -Wno-dev";
 alias sqlite "sqlite3";
 

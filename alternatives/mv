@@ -5,7 +5,7 @@ init:
 		set stderr=/dev/null;
 	else
 		set stdout=/dev/stdout;
-		set stderr=/dev/stdout;
+		set stderr=/dev/stderr;
 	endif
 	
 	set supports_being_source;
@@ -288,7 +288,14 @@ exec:
 	#	mkdir -p "`dirname "\""${target}"\""`";
 	endif
 	unset sources_count;
-
+	
+	#if( ${?debug} ) \
+		printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;\n" "${scripts_exec}" "${argz}" "`cat "\""${sources}"\""`" "${target}" "${stdout}" "${stderr}" > ${stdout};
+	( ${scripts_exec} ${argz} "`cat "\""${sources}"\""`" "${target}" > ${stdout} ) >& ${stderr};
+	unset source_file;
+	
+	goto exit_script;
+	
 	foreach source_file("`cat "\""${sources}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
 		ex -s '+1d' '+wq!' "${sources}";
 		set source_file="`printf "\""%s"\"" "\""${source_file}"\""`";
@@ -297,12 +304,18 @@ exec:
 			unset source_file;
 			continue;
 		endif
-		
-		#if( ${?debug} ) \
-			printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;" "${scripts_exec}" "${argz}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
-		( ${scripts_exec} ${argz} "${source_file}" "${target}" > ${stdout} ) >& ${stderr};
+		if(! ${?source_argument} ) then
+			set source_argument="${source_file}";
+		else
+			set source_argument="${source_argument} ${source_file}";
+		endif
 		unset source_file;
 	end
+	
+	#if( ${?debug} ) \
+		printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;\n" "${scripts_exec}" "${argz}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
+	( ${scripts_exec} ${argz} "${source_file}" "${target}" > ${stdout} ) >& ${stderr};
+	unset source_file;
 	
 	goto exit_script;
 #exec:
@@ -522,8 +535,10 @@ parse_arg:
 					breaksw;
 				endif
 				if( -e "${value}" ) then
-					if(! ${?ources} ) \
+					if(! ${?sources} ) \
 						set sources="`mktemp --tmpdir .escaped.${scripts_basename}.sources.XXXXXXXXXX`";
+					if( ${?debug} ) \
+						printf "Adding %s to <file://%s>\n" "${value}" "${sources}";
 					printf "${value}\n" >> "${sources}";
 					breaksw;
 				endif

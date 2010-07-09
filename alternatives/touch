@@ -5,7 +5,7 @@ init:
 		set stderr=/dev/null;
 	else
 		set stdout=/dev/stdout;
-		set stderr=/dev/stdout;
+		set stderr=/dev/stderr;
 	endif
 	
 	set supports_being_source;
@@ -196,7 +196,7 @@ dependencies_check:
 				case "/usr/share/bin/${dependency}":
 				case "/usr/local/bin/${dependency}":
 					switch( "${dependency}" )
-						case "${scripts_ basename}":
+						case "${scripts_basename}":
 							if(! ${?scripts_exec} ) \
 								set scripts_exec="${exec}";
 							breaksw;
@@ -283,7 +283,7 @@ exec:
 		unset touch_dir;
 	endif
 	
-	if( ${?debug} ) \
+	#if( ${?debug} ) \
 		printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${scripts_exec}" "${argz}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
 	( ${scripts_exec} ${argz} "${touch_target}" > ${stdout} ) >& ${stderr};
 	

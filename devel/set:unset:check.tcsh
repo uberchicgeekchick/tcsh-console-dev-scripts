@@ -109,6 +109,10 @@ check_vars:
 		cat "${var_list}";
 		rm -f "${var_list}";
 	else
+		printf "env_unset:\n" >! "${var_list}.label";
+		cat "${var_list}" >> "${var_list}.label";
+		printf "\n\tset env_unset;\n#goto env_unset;" >> "${var_list}.label";
+		mv -f "${var_list}.label" "${var_list}";
 		printf "Need unsets have been saved to: <%s>." "${var_list}";
 	endif
 	unset tcsh_script;

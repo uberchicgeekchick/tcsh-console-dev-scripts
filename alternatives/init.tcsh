@@ -32,7 +32,8 @@ setenv TCSH_ALTERNATIVES_PATH "${TCSH_RC_SESSION_PATH}/../alternatives";
 				printf "Skipping:\n\t<file://%s/%s>\n\tits the alternative(s) initalization scriprt.\n" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
 			breaksw;
 		
-		case "find.bck";
+		case "find.bck":
+		case "find":
 			if( ${?TCSH_RC_DEBUG} ) \
 				printf "Skipping incomplete alternative scriprt:\n\t<file://%s/%s>\n" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
 			breaksw;
@@ -63,11 +64,12 @@ setenv TCSH_ALTERNATIVES_PATH "${TCSH_RC_SESSION_PATH}/../alternatives";
 			# alias to target this alternative:
 			if( ${?TCSH_RC_DEBUG} ) \
 				printf "Aliasing: [%s] to [%s/%s]\n" "${alternative}" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
-			#if( `alias "${alternative}"` != "" ) then
-			#	set alias_argz=" `alias "\""${alternative}"\"" | sed -r 's/^([^ ]+) (.*)/\2/'`";;
-			#else
-				set alias_argz;
-			#endif
+			set alias_argz=" `alias "\""${alternative}"\"" | sed -r 's/^([^ ]+) (.*)/\2/'`";;
+			if( "${alias_argz}" != "" ) then
+				set escaped_alternative="`printf "\""%s"\"" "\""${alias_argz}"\"" | sed -r 's/([\[\/\(\.\+\*\-])/\\\1/g'`";
+				if( "`printf "\""%s"\"" "\""${alias_argz}"\"" | sed -r 's/^(${escaped_alternative})(.*)"\$"/\1/'`" == "${TCSH_ALTERNATIVES_PATH}/${alternative}" ) \
+					set alias_argz="`printf "\""%s"\"" "\""${alias_argz}"\"" | sed -r 's/^(${escaped_alternative})(.*)"\$"/\2/'`";
+			endif
 			
 			alias ${alternative} \$"{TCSH_ALTERNATIVES_PATH}/${alternative}${alias_argz}";
 			

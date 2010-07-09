@@ -5,14 +5,23 @@
 		exit -1;
 	endif
 	
+	set documents=( \
+		"/art/www/uberChicks.Net/phone-sex-operator/characters/Lexi.asc" \
+	);
+	
 	set primary_playlists=( \
 		"/media/library/playlists/m3u/eee.m3u" \
 		"/media/library/playlists/m3u/podcasts.m3u" \
-		"/media/library/playlists/m3u/lifestyle.m3u" \
 		"/media/library/playlists/m3u/podiobooks.m3u" \
+		"/media/library/playlists/m3u/lifestyle.m3u" \
 	);
 	
-	set latest_playlist="/media/podcasts/playlists/m3u/`/bin/ls -tr --width 1 /media/podcasts/playlists/m3u/ | tail -1`";
+	set latest_playlist="`/bin/ls -tr --width 1 /media/podcasts/playlists/m3u/ | tail -1`";
+	if( "${latest_playlist}" != "" ) then
+		set latest_playlist="/media/podcasts/playlists/m3u/${latest_playlist}";
+	else
+		set latest_playlist="";
+	endif
 	
 	set scripts=( \
 		"/media/clean-up.tcsh" \
@@ -20,12 +29,10 @@
 	
 	set secondary_playlists=( \
 		"/media/library/playlists/m3u/erotica.m3u" \
-		"/media/library/playlists/m3u/science-vodcasts.m3u" \
-		"/media/library/playlists/m3u/geeky-goodness.m3u" \
-		#"/media/library/playlists/m3u/slashdot.m3u" \
+		"/media/library/playlists/m3u/vodcasts.m3u" \
+		"/media/library/playlists/m3u/slashdot.m3u" \
 	);
 
-set edit_playlist="echo";
 if( ${#argv} > 0 ) then
 	switch( "$argv[1]" )
 		case "--auto-edit":
@@ -42,6 +49,7 @@ endif
 
 edit_playlists:
 	vim-enhanced -p \
+		${documents} \
 		${primary_playlists} \
 		${scripts} \
 		"${latest_playlist}" \
@@ -52,12 +60,18 @@ edit_playlists:
 
 
 display_playlists:
+	foreach document( ${documents} )
+		printf "%s\n" "${document}";
+		unset document;
+	end
+	
 	foreach playlist( ${primary_playlists} )
 		printf "%s\n" "${playlist}";
 		unset playlist;
 	end
 	
-	printf "%s\n" "${latest_playlist}";
+	if( "${latest_playlist}" != "" ) \
+		printf "%s\n" "${latest_playlist}";
 	
 	foreach script( ${scripts} )
 		printf "%s\n" "${script}";

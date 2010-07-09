@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 setup:
-	onintr scripts_main_quit;
+	onintr exit_script;
 	
 	if(! -o /dev/$tty ) then
 		set stdout=/dev/null;
@@ -92,19 +92,6 @@ exit_script:
 		goto callback_stack_update;
 	endif
 	
-	if( ${?arg} ) \
-		unset arg;
-	
-	if( ${?filename_list} ) then
-		if(! ${?supports_multiple_files} ) then
-			@ errno=-506;
-			goto exception_handler;
-		endif
-		
-		set callback="filename_list_post_process";
-		goto callback_handler;
-	endif
-	
 	set callback="scripts_main_quit";
 	goto callback_handler;
 #exit_script:
@@ -118,6 +105,27 @@ scripts_main_quit:
 		goto callback_stack_update;
 	else if("${label_current}" != "${label_previous}") then
 		goto callback_stack_update;
+	endif
+	
+	if( ${?arg} ) \
+		unset arg;
+	
+	if( ${?filename_list} ) then
+		if( -e "${filename_list}.all" ) then
+			set file_count=`wc -l "${filename_list}.all" | sed -r 's/^([0-9]+).*$/\1/'`;
+		else if( -e "${filename_list}" ) then
+			set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+).*$/\1/'`;
+		endif
+		
+		if( `printf "%s" "${file_count}" | sed -r 's/^[0-9]+$//g'` == "" ) then
+			if(! ${?supports_multiple_files} ) then
+				@ errno=-506;
+				goto exception_handler;
+			endif
+			
+			set callback="filename_list_post_process";
+			goto callback_handler;
+		endif
 	endif
 	
 	if( ! ${?0} && ${?supports_being_sourced} ) then
@@ -143,12 +151,10 @@ scripts_main_quit:
 		goto exception_handler;
 	endif
 	
-	if( ${?file_count_all} ) \
-		unset file_count_all;
-	if( ${?filenames_processed} ) \
-		unset filenames_processed;
 	if( ${?file_count} ) \
 		unset file_count;
+	if( ${?filenames_processed} ) \
+		unset filenames_processed;
 
 	
 	if( ${?diagnosis} ) then
@@ -362,10 +368,6 @@ scripts_main_quit:
 	if( ${?grep_test} ) \
 		unset grep_test;
 	
-	if( ${?arg_shifted} ) \
-		unset arg_shifted;
-	if( ${?value_used} ) \
-		unset value_used;
 	if( ${?dashes} ) \
 		unset dashes;
 	if( ${?option} ) \
@@ -427,7 +429,8 @@ debug_check_init:
 	
 	set callback="parse_argv";
 	goto callback_handler;
-#goto debug_check_init;
+#set callback="debug_check_init";
+#goto callback_handler;
 
 
 debug_check_quit:
@@ -455,7 +458,8 @@ debug_check_quit:
 	
 	set callback="dependencies_check";
 	goto callback_handler;
-#goto debug_check_quit;
+#set callback="debug_check_quit";
+#goto callback_handler;
 
 
 check_mode:
@@ -1017,33 +1021,21 @@ filename_list_post_process:
 		goto callback_stack_update;
 	endif
 	
-	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
+	if( ${?filename_list} && ! ${?supports_multiple_files} ) then
 		@ errno=-506;
 		goto exception_handler;
 	endif
 	
 	if( -e "${filename_list}.all" ) then
-		wc -l "${filename_list}.all";
-		set file_count_all="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+		set file_count=`wc -l "${filename_list}.all" | sed -r 's/^([0-9]+).*$/\1/'`;
+	else if( -e "${filename_list}" ) then
+		set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+).*$/\1/'`;
 	endif
 	
-	if( -e "${filename_list}" ) then
-		wc -l "${filename_list}";
-		set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
+	if( ${?file_count} ) then
+		if( `printf "%s" "${file_count}" | sed -r 's/^[0-9]+$//g'` != "" ) \
+			@ file_count=0;
 	endif
-	
-	if( ${?file_count_all} && ${?file_count} ) then
-		if( ${?file_count_all} != ${?file_count} ) then
-			cat "${filename_list}.all" >> "${filename_list}";
-			#set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
-			set file_count="`printf "\""%d+%d\n"\"" ${file_count_all} ${file_count}`";
-		endif
-	else if(! ${?file_count} ) then
-		@ file_count=0;
-	endif
-	
-	if( ${?file_count_all} ) \
-		unset file_count_all;
 	
 	if(! ${?filenames_processed} ) \
 		@ filenames_processed=0;
@@ -1350,13 +1342,9 @@ parse_argv:
 		
 		if( ${?debug} ) \
 			printf "**%s debug:** parsing "\$"argv's %d options.\n" "${scripts_basename}" "${argc}";
-	else if( $arg < $argc ) then
+	else if( $arg <= $argc ) then
 		@ parsed_argc++;
-		if(! ${?value_used} ) then
-			set parsed_arg="${dashes}${option}";
-		else
-			set parsed_arg="${dashes}${option}${equals}${value}";
-		endif
+		set parsed_arg="${dashes}${option}${equals}${value}";
 		
 		if(! ${?parsed_argv} ) then
 			set parsed_argv=("${parsed_arg}");
@@ -1366,18 +1354,13 @@ parse_argv:
 		
 		if( ${?debug} ) \
 			printf "\t**debug:** parsed "\$"argv[%d]: %s%s%s%s\n" $arg "${dashes}" "${option}" "${equals}" "${value}";
-	else
-		unset escaped_argument argument dashes option equals escaped_value value parsed_arg;
+		
+		if( ${?value} ) \
+			unset escaped_argument argument dashes option equals escaped_value value parsed_arg;
 	endif
 	
 	while( $arg < $argc )
-		if( ! ${?arg_shifted} || ${?value_used} ) \
-			@ arg++;
-		
-		if( ${?arg_shifted} ) \
-			unset arg_shifted;
-		if( ${?value_used} ) \
-			unset value_used;
+		@ arg++;
 		
 		if( ${?debug} ) \
 			printf "**%s parse_argv:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]";
@@ -1385,10 +1368,6 @@ parse_argv:
 		goto callback_handler;
 	end
 	
-	if( ${?arg_shifted} ) \
-		unset arg_shifted;
-	if( ${?value_used} ) \
-		unset value_used;
 	unset argc arg;
 	set callback=$arg_parse_complete;
 	goto callback_handler;
@@ -1408,32 +1387,38 @@ parse_arg:
 		case "<":
 			if(! ${?auto_read_stdin} ) \
 				set auto_read_stdin;
-		goto parse_argv;
+			set callback="parse_argv";
+			goto calllback_handler;
 		
 		case "<!":
 			if( ${?auto_read_stdin} ) \
 				unset auto_read_stdin;
-		goto parse_argv;
+			set callback="parse_argv";
+			goto calllback_handler;
 		
 		case "-":
 			if(! ${?scripts_interactive} ) \
 				set scripts_interactive;
-		goto parse_argv;
+			set callback="parse_argv";
+			goto calllback_handler;
 		
 		case "-!":
 			if( ${?scripts_interactive} ) \
 				unset scripts_interactive;
-		goto parse_argv;
-		
+			set callback="parse_argv";
+			goto calllback_handler;
+				
 		case "--":
 			if(! ${?process_each_filename} ) \
 				set process_each_filename;
-		goto parse_argv;
+			set callback="parse_argv";
+			goto calllback_handler;
 		
 		case "--!":
 			if( ${?process_each_filename} ) \
 				unset process_each_filename;
-		goto parse_argv;
+			set callback="parse_argv";
+			goto calllback_handler;
 	endsw
 	
 	set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
@@ -1495,12 +1480,10 @@ parse_arg:
 			if( ${?debug} ) \
 				printf "\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}";
 			
-			if(!( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" )) then
-				@ arg--;
-			else
+			@ arg--;
+			if( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" ) then
 				set equals=" ";
 				set value="${test_value}";
-				set arg_shifted;
 			endif
 			unset escaped_test_argument test_argument test_dashes test_option test_equals test_value;
 		endif
@@ -1579,7 +1562,6 @@ check_arg:
 			endif
 		
 			set numbered_option="${value}";
-			set value_used;
 		breaksw;
 		
 		case "option-array":
@@ -1599,7 +1581,6 @@ check_arg:
 			endif
 			
 			set length="${value}";
-			set value_used;
 		breaksw;
 		
 		case "verbose":
@@ -1613,7 +1594,6 @@ check_arg:
 				case "verbose":
 				case "interactive":
 					set switch_option="${dashes}${value}";
-					set value_used;
 				breaksw;
 				
 				default:
@@ -1682,7 +1662,6 @@ check_arg:
 		case "":
 		default:
 			if( -e "${value}" && ${?supports_multiple_files} ) then
-				set value_used;
 				set callback="filename_list_append_value";
 				goto callback_handler;
 				breaksw;
@@ -1702,14 +1681,6 @@ check_arg:
 			goto exception_handler;
 			breaksw;
 	endsw
-	
-	if( ${?arg_shifted} ) then
-		if(! ${?value_used} ) \
-			@ arg--;
-		unset arg_shifted;
-	endif
-	
-	unset dashes option equals value parsed_arg;
 	
 	set callback="parse_argv";
 	goto callback_handler;

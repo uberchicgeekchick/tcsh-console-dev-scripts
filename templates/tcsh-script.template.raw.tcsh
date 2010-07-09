@@ -80,8 +80,6 @@ debug_check_quit:
 		unset debug debug_set;
 	
 	if( ${?arg} ) then
-		if( $arg >= $argc ) \
-			set argv_parsed;
 		unset arg;
 	endif
 	
@@ -208,12 +206,12 @@ dependencies_check:
 	
 	unset dependencies dependencies_index;
 	
-	goto parse_argv;
+	goto parse_argv_init;
 #goto dependencies_check;
 
 
 exit_script:
-	onintr -;
+	onintr scripts_main_quit;
 	goto scripts_main_quit;
 #goto exit_script;
 
@@ -280,12 +278,13 @@ main:
 	if(! ${?0} ) \
 		goto sourced;
 	
+	printf "Running: %s\n" "${scripts_basename}";
 	goto exec;
 #goto main;
 
 
 exec:
-	printf "Hello World\!";
+	printf "Hello World\!\n";
 	goto exit_script;
 #goto exec;
 
@@ -323,11 +322,7 @@ parse_argv_quit:
 
 parse_argv:
 	while ( $arg < $argc )
-		if(! ${?arg_shifted} ) then
-			@ arg++;
-		else
-			unset arg_shifted;
-		endif
+		@ arg++;
 		
 		if( ${?debug} ) \
 			printf "\t**debug:** parsing "\$"argv[%d] (%s).\n" $arg "$argv[$arg]";
@@ -397,13 +392,11 @@ parse_arg:
 			if( ${?debug} ) \
 				printf "\n\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}" > ${stdout};
 			
-			if(!( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" )) then
-				@ arg--;
-			else
+			@ arg--;
+			if( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" ) then
 				set equals=" ";
 				set value="${test_value}";
 				set escaped_value="${escaped_test_argument}";
-				set arg_shifted;
 			endif
 			unset escaped_test_argument test_argument test_dashes test_option test_equals test_value;
 		endif

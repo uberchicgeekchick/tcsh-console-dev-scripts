@@ -296,7 +296,7 @@ exec:
 		
 		if( ${?debug} ) \
 			printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;" "${scripts_exec}" "${argz}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
-		( ${scripts_exec} ${argz} "${source_file}" ${target} > ${stdout} ) >& ${stderr};
+		( ${scripts_exec} ${argz} "${source_file}" "${target}" > ${stdout} ) >& ${stderr};
 		unset source_file;
 	end
 	goto exit_script;
@@ -409,8 +409,7 @@ parse_argv:
 
 parse_arg:
 	while( $arg < $argc )
-		if( ! ${?arg_shifted} || ${?value_used} ) \
-			@ arg++;
+		@ arg++;
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
 		printf "%s" "$argv[${arg}]" >! "${argument_file}";
@@ -472,7 +471,6 @@ parse_arg:
 				if( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" ) then
 					set equals=" ";
 					set value="${test_value}";
-					set arg_shifted;
 				endif
 				unset escaped_test_argument test_argument test_dashes test_option test_equals test_value;
 				@ arg--;
@@ -541,12 +539,6 @@ parse_arg:
 		endsw
 		
 		unset dashes option equals value parsed_arg;
-		
-		if( ${?arg_shifted} ) then
-			if(! ${?value_used} ) \
-				@ arg--;
-			unset arg_shifted;
-		endif
 	end
 	goto exec;
 #parse_arg:

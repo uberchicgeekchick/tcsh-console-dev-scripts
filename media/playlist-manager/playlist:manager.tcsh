@@ -118,12 +118,25 @@ parse_argv:
 			case "remove":
 			case "clean-up":
 				switch("${value}")
+					case "local":
+					case "no-remote":
+					case "skip:nfs":
+						if(! ${?clean_up_local_disk_only} ) \
+							set clean_up_local_disk_only
+						
+						if(! ${?clean_up} ) \
+							set clean_up;
+						breaksw;
+					
 					case "forced":
 					case "verbose":
 					case "interactive":
 					case "silent":
 					default:
-						if(! ${?clean_up} ) then
+						if(! ${?clean_up} ) \
+							set clean_up;
+						
+						if( "${clean_up}" == "" ) then
 							set clean_up="${value}";
 						else
 							set clean_up="${clean_up} --clean-up=${value}";
@@ -359,31 +372,36 @@ clean_up:
 		goto exception_handler;
 	endif
 	
-	printf "Checking for any files found under [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
-	set old_owd="${owd}";
-	set old_cwd="${cwd}";
-	cd "${target_directory}";
-	while( "${cwd}" != "/" )
-		if(! -d "${cwd}/nfs" ) then
-			cd "..";
-		else
-			set skip_directory=" --skip-dir=${cwd}/nfs";
-			set duplicate_directory=" --check-for-duplicates-in-dir=${cwd}/nfs";
-			break;
+	if( ${?clean_up_local_disk_only} ) then
+		set skip_directory;
+		set duplicate_directory;
+	else
+		printf "Checking for any files found under [%s] which are not listed in [%s]:\n" "${target_directory}" "${playlist}";
+		set old_owd="${owd}";
+		set old_cwd="${cwd}";
+		cd "${target_directory}";
+		while( "${cwd}" != "/" )
+			if(! -d "${cwd}/nfs" ) then
+				cd "..";
+			else
+				set skip_directory=" --skip-dir=${cwd}/nfs";
+				set duplicate_directory=" --check-for-duplicates-in-dir=${cwd}/nfs";
+				break;
+			endif
+		end
+		cd "${old_cwd}";
+		set owd="${old_owd}";
+		unset old_owd old_cwd;
+	
+		if(!( ${?skip_directory} && ${?duplicate_directory} )) then
+			@ errno=-410;
+			goto exception_handler;
 		endif
-	end
-	cd "${old_cwd}";
-	set owd="${old_owd}";
-	unset old_owd old_cwd;
-	
-	if(!( ${?skip_directory} && ${?duplicate_directory} )) then
-		@ errno=-410;
-		goto exception_handler;
 	endif
-	
+		
 	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
 	
-	unset target_directory maxdepth clean_up;
+	unset skip_directory duplicate_directory target_directory maxdepth clean_up;
 #clean_up:
 
 

@@ -1,0 +1,23 @@
+#!/bin/tcsh -f
+set my_editor = "`printf "\""${0}"\"" | sed 's/.*\/\([^\:]\+\).*/\1/g'`"
+
+if("${my_editor}" == "${0}" ) then
+	echo "**error:** unable to determine session editor
+your default editor will be used.";
+	set my_editor="${EDITOR}";
+endif
+
+switch ( "${my_editor}" )
+case "connectED":
+case "gedit":
+	breaksw
+case "vi":
+case "vim":
+case "vim-enhanced":
+default:
+	set my_editor = `printf "%s -p" "vim-enhanced"`
+	breaksw
+endsw
+
+${my_editor} ""/projects/cli/console.pallet/alternatives/cp ""/projects/cli/console.pallet/alternatives/find.bck ""/projects/cli/console.pallet/alternatives/mv ""/projects/cli/console.pallet/alternatives/touch ""/projects/cli/console.pallet/fix.value_test.tcsh ""/projects/cli/console.pallet/launchers/mv ""/projects/cli/console.pallet/launchers/touch;
+

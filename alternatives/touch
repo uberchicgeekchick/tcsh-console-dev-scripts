@@ -191,19 +191,21 @@ dependencies_check:
 					set script="${scripts_path}/${scripts_basename}";
 					breaksw;
 				
-				case "/bin/touch":
-				case "/usr/bin/touch":
-				case "/usr/share/bin/touch":
-				case "/usr/local/bin/touch":
-					if(! ${?touch_exec} ) \
-						set touch_exec="${exec}";
-				
-				case "/bin/chmod":
-				case "/usr/bin/chmod":
-				case "/usr/share/bin/chmod":
-				case "/usr/local/bin/chmod":
-					if(! ${?chmod} ) \
-						set chmod_exec="${exec}";
+				case "/bin/${dependency}":
+				case "/usr/bin/${dependency}":
+				case "/usr/share/bin/${dependency}":
+				case "/usr/local/bin/${dependency}":
+					switch( "${dependency}" )
+						case "${scripts_ basename}":
+							if(! ${?scripts_exec} ) \
+								set scripts_exec="${exec}";
+							breaksw;
+						
+						case "chmod":
+							if(! ${?chmod_exec} ) \
+								set chmod_exec="${exec}";
+							breaksw;
+					endsw
 					breaksw;
 				
 				default:
@@ -213,10 +215,10 @@ dependencies_check:
 		end
 	end
 	
-	if(! ${?touch_exec} ) \
+	if(! ${?scripts_exec} ) \
 		goto missing_dependency;
 	
-	if(! -x "${touch_exec}" ) \
+	if(! -x "${scripts_exec}" ) \
 		goto missing_dependency;
 		
 	if(! ${?chmod_exec} ) \
@@ -282,8 +284,8 @@ exec:
 	endif
 	
 	if( ${?debug} ) \
-		printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${touch_exec}" "${argz}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
-	( ${touch_exec} ${argz} "${touch_target}" > ${stdout} ) >& ${stderr};
+		printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${scripts_exec}" "${argz}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
+	( ${scripts_exec} ${argz} "${touch_target}" > ${stdout} ) >& ${stderr};
 	
 	if( ${?mode} ) then
 		if( ${?debug} ) \
@@ -316,6 +318,10 @@ scripts_main_quit:
 		unset scripts_path;
 	if( ${?script} ) \
 		unset script;
+	if( ${?scripts_exec} ) \
+		unset scripts_exec;
+	if( ${?chmod_exec} ) \
+		unset chmod_exec;
 	if( ${?escaped_cwd} ) \
 		unset escaped_cwd;
 	if( ${?dependency} ) \
@@ -371,7 +377,8 @@ parse_argv:
 
 parse_arg:
 	while( $arg < $argc )
-		@ arg++;
+		if( ! ${?arg_shifted} || ${?value_used} ) \
+			@ arg++;
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
 		printf "%s" "$argv[${arg}]" >! "${argument_file}";
@@ -503,6 +510,12 @@ parse_arg:
 		endsw
 		
 		unset dashes option equals value parsed_arg;
+		
+		if( ${?arg_shifted} ) then
+			if(! ${?value_used} ) \
+				@ arg--;
+			unset arg_shifted;
+		endif
 	end
 	goto exec;
 #goto parse_arg;

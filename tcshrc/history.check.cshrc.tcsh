@@ -1,7 +1,8 @@
 #!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "history.check.cshrc.tcsh" ${argv};
+set scripts_basename="history.check.cshrc.tcsh";
+source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 if( $args_handled > 0 ) then
 	@ args_shifted=0;
 	while( $args_shifted < $args_handled )
@@ -13,13 +14,13 @@ endif
 unset args_handled;
 
 main:
-	alias history-check "source "\$"{TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
-	alias history-refresh "history-check";
+	alias "history:check" "source "\$"{TCSH_RC_SESSION_PATH}/${scripts_basename}";
+	alias "history:refresh" "history-check";
 	
 	if(!( ${?histfile} && ${?my_histfile} )) then
-		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh" $argv;
+		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh" ${argv};
 	else if( "${histfile}" != "${my_history}" ) then
-		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh" $argv;
+		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh" ${argv};
 	endif
 	
 	if(! -e "${histfile}" ) then
@@ -44,5 +45,5 @@ main:
 #main:
 
 exit_script:
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "history.check.cshrc.tcsh";
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 #exit_script:

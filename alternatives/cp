@@ -189,25 +189,27 @@ dependencies_check:
 					unset exec;
 					breaksw;
 				
-				case "/bin/cp":
-				case "/usr/bin/cp":
-				case "/usr/share/bin/cp":
-				case "/usr/local/bin/cp":
-					set program="${exec}";
-					breaksw;
-				
+				case "/bin/${dependency}":
+				case "/usr/bin/${dependency}":
+				case "/usr/share/bin/${dependency}":
+				case "/usr/local/bin/${dependency}":
 				default:
+					switch("${dependency}")
+						case "${scripts_basename}":
+							if(! ${?scripts_exec} ) \
+								set scripts_exec="${exec}";
+							breaksw;
+					endsw
 					breaksw;
 			endsw
 		end
 	end
 	
-	if(! ${?program} ) \
-		set program="";
+	if(! ${?scripts_exec} ) \
+		set scripts_exec="";
 	
-	if(! -x "${program}" ) \
+	if(! -x "${scripts_exec}" ) \
 		goto missing_dependency;
-		
 	
 	unset dependency dependencies;
 #goto ependencies_check;
@@ -293,8 +295,8 @@ exec:
 		endif
 		
 		if( ${?debug} ) \
-			printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;" "${program}" "${argz}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
-		( ${program} ${argz} "${source_file}" ${target} > ${stdout} ) >& ${stderr};
+			printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;" "${scripts_exec}" "${argz}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
+		( ${scripts_exec} ${argz} "${source_file}" ${target} > ${stdout} ) >& ${stderr};
 		unset source_file;
 	end
 	goto exit_script;
@@ -332,6 +334,8 @@ scripts_main_quit:
 		unset scripts_path;
 	if( ${?script} ) \
 		unset script;
+	if( ${?scripts_exec} ) \
+		unset scripts_exec;
 	if( ${?escaped_cwd} ) \
 		unset escaped_cwd;
 	if( ${?dependency} ) \
@@ -367,14 +371,14 @@ missing_dependency:
 	printf "One or more required dependencies couldn't be found.\n\n[%s] couldn't be found.\n\n%s requires: %s" "${dependency}" "${scripts_basename}" "${dependencies}";
 	set status=-1;
 	goto exit_script;
-#missing_dependency:
+#godo missing_dependency;
 
 
 usage:
 	if(! ${?usage_displayed} ) then
-		if( ${?script} && ${?program} ) then
-			if( "${program}" != "${script}" ) then
-				${program} --help;
+		if( ${?script} && ${?scripts_exec} ) then
+			if( "${scripts_exec}" != "${script}" ) then
+				${scripts_exec} --help;
 				set usage_displayed;
 			endif
 		endif
@@ -405,7 +409,8 @@ parse_argv:
 
 parse_arg:
 	while( $arg < $argc )
-		@ arg++;
+		if( ! ${?arg_shifted} || ${?value_used} ) \
+			@ arg++;
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
 		printf "%s" "$argv[${arg}]" >! "${argument_file}";
@@ -536,6 +541,12 @@ parse_arg:
 		endsw
 		
 		unset dashes option equals value parsed_arg;
+		
+		if( ${?arg_shifted} ) then
+			if(! ${?value_used} ) \
+				@ arg--;
+			unset arg_shifted;
+		endif
 	end
 	goto exec;
 #parse_arg:

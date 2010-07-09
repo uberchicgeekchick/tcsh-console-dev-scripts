@@ -13,13 +13,13 @@ endif
 unset args_handled;
 
 
-source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh";
+source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh" ${argv};
 
 if( ${uid} != 0 ) then
 	if( -e "${TCSH_RC_SESSION_PATH}/aliases:sudo:services.cshrc.tcsh" ) then
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "Setting up sudo services aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-		source "${TCSH_RC_SESSION_PATH}/aliases:sudo:services.cshrc.tcsh";
+		source "${TCSH_RC_SESSION_PATH}/aliases:sudo:services.cshrc.tcsh" ${argv};
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "sudo services aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
@@ -27,7 +27,7 @@ if( ${uid} != 0 ) then
 	if( -e "${TCSH_RC_SESSION_PATH}/aliases:sudo:binaries.cshrc.tcsh" ) then
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "Setting up sudo command aliases @ %s.\n" `date "+%I:%M:%S%P"`;
-		source "${TCSH_RC_SESSION_PATH}/aliases:sudo:binaries.cshrc.tcsh";
+		source "${TCSH_RC_SESSION_PATH}/aliases:sudo:binaries.cshrc.tcsh" ${argv};
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "sudo command aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
 	endif
@@ -43,7 +43,7 @@ foreach rc_file ( "${TCSH_RC_SESSION_PATH}/"*.tcsh )
 	
 	if( ${?TCSH_RC_DEBUG} ) \
 		printf "Sourcing: %s @ %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
-	source "${TCSH_RC_SESSION_PATH}/${rc_file}";
+	source "${TCSH_RC_SESSION_PATH}/${rc_file}" ${argv};
 	if( ${?TCSH_RC_DEBUG} ) \
 		printf "%s finished loading %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
 	if( ${?http_proxy} ) \
@@ -51,7 +51,7 @@ foreach rc_file ( "${TCSH_RC_SESSION_PATH}/"*.tcsh )
 end
 
 if( ${?TCSH_RC_DEBUG} ) \
-	printf "Setting up artistic programming canvas @ %s.\n" `date "+%I:%M:%S%P"`;
+	printf "Setting up artistic environment @ %s.\n" `date "+%I:%M:%S%P"`;
 source "${TCSH_RC_SESSION_PATH}/art.cshrc.tcsh";
 
 if( ${?TCSH_RC_DEBUG} ) \

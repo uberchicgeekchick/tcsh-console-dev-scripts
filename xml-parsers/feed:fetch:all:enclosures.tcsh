@@ -35,7 +35,6 @@ init:
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/\//\\\//g' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/([*])/\\\1/g' | sed -r 's/(['\!'])/\\\1/g'`";
 	
 	alias ex "ex -E -n -X --noplugin";
-	
 	#set download_command="curl";
 	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
 	
@@ -58,6 +57,9 @@ main:
 	if(! -e "${alacasts_download_log}" ) then
 		set status=-1;
 		goto usage;
+	endif
+	if( ${?nice} ) then
+		alias ex "nice +10 ex -E -n -X --noplugin";
 	endif
 	
 	if(! ${?save_to_dir} ) then
@@ -731,6 +733,15 @@ parse_arg:
 				set interactive;
 				breaksw;
 			
+			case "nice":
+				if(!( "${value}" == "" || `printf "%s" "${value}" | sed -r 's/^[0-9]+$//'` == "" )) then
+					printf "%s%s must be followed by a valid number greater than zero." "${dashes}" "${option}";
+					goto exit_script;
+				endif
+				
+				set nice="${value}";
+				breaksw;
+			
 			case "oldest":
 			case "last":
 			case "stop-with-episode":
@@ -738,9 +749,9 @@ parse_arg:
 			case "stop-at-episode":
 			case "stop-at":
 			case "download-limit":
-				if(!( "${value}" != "" && ${value} > 0 )) then
+				if(!( "${value}" != "" && `printf "%s" "${value}" | sed -r 's/^[0-9]+$//'` == "" )) then
 					printf "%s%s must be followed by a valid number greater than zero." "${dashes}" "${option}";
-					breaksw;
+					goto exit_script;
 				endif
 				
 				set download_limit="${value}";
@@ -752,9 +763,9 @@ parse_arg:
 			case "start-with":
 			case "start-at-episode":
 			case "start-at":
-				if(! ( "${value}" != "" && ${value} > 0 )) then
+				if(!( "${value}" != "" && `printf "%s" "${value}" | sed -r 's/^[0-9]+$//'` == "" )) then
 					printf "%s%s must be followed by a valid number greater than zero." "${dashes}" "${option}";
-					breaksw;
+					goto exit_script;
 				endif
 				
 				set start_with=${value};
@@ -821,9 +832,10 @@ parse_arg:
 				endif
 				if(!( "${value}" != "" && -d "${value}" )) then
 					printf "%s%s must specify a valid and existing target directory.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${scripts_basename}";
-				else
-					set save_to_dir="${value}";
+					goto exit_script;
 				endif
+				
+				set save_to_dir="${value}";
 				breaksw;
 			
 			case "regex-match-titles":
@@ -863,8 +875,11 @@ parse_arg:
 						set playlist_type="${value}";
 						breaksw;
 					
-					default:
+					case "":
 						set playlist_type="m3u";
+					default:
+						printf "%s is unsupported playlist type.  Supported plaxlist types are: m3u, tox, and pls.\n" > /dev/stderr;
+						goto exit_script;
 						breaksw;
 				endsw
 				breaksw;
@@ -919,6 +934,7 @@ parse_arg:
 					
 					default:
 						printf "enabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
+						goto exit_script;
 						breaksw;
 				endsw
 				breaksw;
@@ -972,6 +988,7 @@ parse_arg:
 					
 					default:
 						printf "disabling %s is not supported by %s.  See %s --help\n" "${value}" "${scripts_basename}" "${scripts_basename}";
+						goto exit_script;
 						breaksw;
 				endsw
 				breaksw;
@@ -987,17 +1004,20 @@ parse_arg:
 					printf "%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${scripts_basename}";
 					goto exit_script;
 				endif
+				
 				if( "${value}" == "" ) \
 					set value="$argv[$arg]";
+				
 				if( "`echo '${value}' | sed -r 's/^(http|https|ftp)(:\/\/).*/\2/i'`" != "://" ) then
 					if( "${option}" != "" ) then
 						printf "%s%s=[url] must specify a valid http, https, or ftp URI.\n" "${dashes}" "${option}" > /dev/stderr;
-					else
-						printf "A valid http, https, or ftp feeds URI must be specified.\n";
+						goto exit_script;
 					endif
-				else
-					printf "%s\n" "${value}" >> "${alacasts_download_log}";
+					printf "A valid http, https, or ftp feeds URI must be specified.\n";
+					goto exit_script;
 				endif
+				
+				printf "%s\n" "${value}" >> "${alacasts_download_log}";
 				breaksw;
 		endsw
 		

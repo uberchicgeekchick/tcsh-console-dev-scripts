@@ -21,17 +21,32 @@ else
 endif
 
 setenv TCSH_ALTERNATIVES_PATH "${TCSH_RC_SESSION_PATH}/../alternatives";
-if( ${?TCSH_RC_DEBUG} ) \
-	printf "Loading:\n\t[file://%s/init.tcsh] @ %s.\n" "${TCSH_ALTERNATIVES_PATH}" `date "+%I:%M:%S%P"`;
-source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=1 "${TCSH_ALTERNATIVES_PATH}";
-foreach alternative ( "`find -L ${TCSH_ALTERNATIVES_PATH} -maxdepth 1 -type f -perm '/u=x' -printf '%f\n'`" )
+	
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Loading:\n\t[file://%s/init.tcsh] @ %s.\n" "${TCSH_ALTERNATIVES_PATH}" `date "+%I:%M:%S%P"`;
+	source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=1 "${TCSH_ALTERNATIVES_PATH}";
+	foreach alternative ( "`find -L ${TCSH_ALTERNATIVES_PATH} -maxdepth 1 -type f -perm '/u=x' -printf '%f\n'`" )
 	switch( "${alternative}" )
 		case "init.tcsh":
 			if( ${?TCSH_RC_DEBUG} ) \
-				printf "Skipping:\n\t<file://%s/%s>\n\tits not a alternative(s) initalization scriprt.\n" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
+				printf "Skipping:\n\t<file://%s/%s>\n\tits the alternative(s) initalization scriprt.\n" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
+			breaksw;
+		
+		case "find.bck";
+			if( ${?TCSH_RC_DEBUG} ) \
+				printf "Skipping incomplete alternative scriprt:\n\t<file://%s/%s>\n" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
 			breaksw;
 		
 		default:
+			if( "`printf "\""%s"\"" "\""${alternative}"\"" | sed -r 's/.*(\.init)"\$"/\1/g'`" == ".init" ) then
+				if( ${?TCSH_RC_DEBUG} ) \
+					printf "Setting up alias(es) for: %s.\n\tSourcing %s/%s @ %s.\n" ${alternative} ${TCSH_LAUNCHER_PATH} ${alternative} `date "+%I:%M:%S%P"`;
+				source "${TCSH_ALTERNATIVES_PATH}/${alternative}" ${argv};
+				if( ${?TCSH_RC_DEBUG} ) \
+					printf "[finished]\n";
+				continue;
+			endif
+	
 			foreach program ( "`where "\""${alternative}"\""`" )
 				if( "${program}" != "${0}" && "${program}" != "./${alternative}" && "${program}" != "${TCSH_ALTERNATIVES_PATH}/${alternative}" && -x "${program}" ) \
 					break;
@@ -48,11 +63,11 @@ foreach alternative ( "`find -L ${TCSH_ALTERNATIVES_PATH} -maxdepth 1 -type f -p
 			# alias to target this alternative:
 			if( ${?TCSH_RC_DEBUG} ) \
 				printf "Aliasing: [%s] to [%s/%s]\n" "${alternative}" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
-			if( `alias "${alternative}"` != "" ) then
-				set alias_argz=" `alias "\""${alternative}"\"" | sed -r 's/^([^ ]+) (.*)/\2/'`";;
-			else
+			#if( `alias "${alternative}"` != "" ) then
+			#	set alias_argz=" `alias "\""${alternative}"\"" | sed -r 's/^([^ ]+) (.*)/\2/'`";;
+			#else
 				set alias_argz;
-			endif
+			#endif
 			
 			alias ${alternative} \$"{TCSH_ALTERNATIVES_PATH}/${alternative}${alias_argz}";
 			

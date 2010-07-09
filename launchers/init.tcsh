@@ -25,7 +25,6 @@ source "${TCSH_RC_SESSION_PATH}/../setenv/PATH:recursively:add.tcsh" --maxdepth=
 foreach launcher ( "`/usr/bin/find -L ${TCSH_LAUNCHER_PATH} -maxdepth 1 -type f -perm '/u=x' -printf '%f\n'`" )
 	switch( "${launcher}" )
 		case "init.tcsh":
-		case "find":
 			if( ${?TCSH_RC_DEBUG} ) \
 				printf "Skipping:\n\t[file://%s/%s]\n\tits not a launcher.\n" "${TCSH_LAUNCHER_PATH}" "${launcher}";
 			continue;

@@ -23,8 +23,13 @@ setup:
 	
 	set scripts_basename="tcsh-script.template.tcsh";
 	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
-	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
+	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc|init)"\$"/\1/'`";
 	set usage_message="Usage: ${scripts_basename} [options]\n\tA template for advanced tcsh shell scripts.\n\t\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n\n\t\t\t-\tTells ${scripts_basename} to read all further arguments/filenames from standard input (-! disables this).\n\n\t\t\t--\tThis will cause the script to process any further filenames as they're reached(--! disables this).";
+	
+	if( ${?script} ) \
+		unset script;
+	if( ${?scripts_exec} ) \
+		unset scripts_exec;
 	
 	set starting_owd="${owd}";
 	set starting_cwd="${cwd}";
@@ -282,8 +287,6 @@ scripts_main_quit:
 	
 	if( ${?argc_required} ) \
 		unset argc_required;
-	if( ${?arg_shifted} ) \
-		unset arg_shifted;
 	
 	if( ${?current_cwd} ) \
 		unset current_cwd;
@@ -1368,7 +1371,7 @@ parse_argv:
 	endif
 	
 	while( $arg < $argc )
-		if( ! ${?arg_shifted}  || ${?value_used} ) \
+		if( ! ${?arg_shifted} || ${?value_used} ) \
 			@ arg++;
 		
 		if( ${?arg_shifted} ) \
@@ -1705,6 +1708,8 @@ check_arg:
 			@ arg--;
 		unset arg_shifted;
 	endif
+	
+	unset dashes option equals value parsed_arg;
 	
 	set callback="parse_argv";
 	goto callback_handler;

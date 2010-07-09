@@ -38,8 +38,6 @@ setup_lists:
 setup_podibooks:
 	set latest_podiobooks=( \
 	"\n" \
-"/media/podcasts/Pseudopod/Pseudopod 202: Eye Spy, released on: Fri, 09 Jul 2010 05:01:55 GMT.mp3" \
-	"\n" \
 	);
 	
 	set librivox_podiobooks=( \

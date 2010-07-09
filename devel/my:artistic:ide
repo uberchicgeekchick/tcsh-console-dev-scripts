@@ -210,7 +210,6 @@ artistic_canvas:
 
 
 build_canvas:
-	set with_screen;
 	switch( "${canvas}" )
 		case  "Mozilla":
 			set my_canvas=( \

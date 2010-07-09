@@ -91,10 +91,18 @@ debug_check_quit:
 
 check_mode:
 	switch("${option}")
+		case "h":
+		case "help":
+			if(! ${?exit_on_usage} ) \
+				set exit_on_usage;
+			goto usage;
+			breaksw;
+		
 		case "nodeps":
 			if( ${?nodeps} ) \
 				continue;
 		
+			printf "**%s debug:**, via "\$"argv[%d], nodeps mode\t[enabled].\n\n" "${scripts_basename}" $arg;
 			set nodeps;
 			breaksw;
 		
@@ -103,6 +111,7 @@ check_mode:
 			if( ${?diagnosis} && ${?debug} ) \
 				continue;
 			
+			printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
 			set diagnosis;
 			if(! ${?debug} ) \
 				set debug;
@@ -112,6 +121,7 @@ check_mode:
 			if( ${?debug} ) \
 				continue;
 			
+			printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${scripts_basename}" $arg;
 			set debug;
 			breaksw;
 		
@@ -289,6 +299,7 @@ parse_argv_init:
 	if( ${?debug} ) \
 		printf "**debug:** parsing "\$"argv's %d options.\n" "${scripts_basename}" "${argc}";
 	
+	#set argz;
 	set arg_handler="check_argv";
 	set arg_parse_complete="parse_argv_quit";
 	
@@ -419,27 +430,23 @@ parse_arg:
 
 check_arg:
 	switch ( "${option}" )
-		case "h":
-		case "help":
-			if(! ${?exit_on_usage} ) \
-				set exit_on_usage;
-			goto usage;
-			breaksw;
-		
+		case "nodeps":
 		case "diagnosis":
 		case "diagnostic-mode":
-			printf "**%s debug:**, via "\$"argv[%d], diagnostic mode\t[enabled].\n\n" "${scripts_basename}" $arg;
-			set diagnostic_mode;
-			set debug;
-			breaksw;
-		
 		case "debug":
-			printf "**%s debug:**, via "\$"argv[%d], debug mode\t[enabled].\n\n" "${scripts_basename}" $arg;
-			set debug;
 			breaksw;
 		
 		case "":
 		default:
+			if( ${?argz} ) then
+				if( ${dashes} != "" ) then
+					set argz="${argz} $argv[$arg]";
+				else
+					set argz="${argz}$argv[$arg]";
+				endif
+				breaksw;
+			endif
+			
 			@ errno=-505;
 			set callback="parse_argv";
 			goto exception_handler;

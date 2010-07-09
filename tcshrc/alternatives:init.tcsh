@@ -28,34 +28,38 @@ foreach alternative ( "`find -L ${TCSH_ALTERNATIVES_PATH} -maxdepth 1 -type f -p
 	switch( "${alternative}" )
 		case "init.tcsh":
 			if( ${?TCSH_RC_DEBUG} ) \
-				printf "Skipping:\n\t[file://%s/%s]\n\tits not a alternative(s) initalization scriprt.\n" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
-			unset alternative;
-			continue;
+				printf "Skipping:\n\t<file://%s/%s>\n\tits not a alternative(s) initalization scriprt.\n" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
+			breaksw;
+		
+		default:
+			foreach program ( "`where "\""${alternative}"\""`" )
+				if( "${program}" != "${0}" && "${program}" != "./${alternative}" && "${program}" != "${TCSH_ALTERNATIVES_PATH}/${alternative}" && -x "${program}" ) \
+					break;
+				unset program;
+			end
+			
+			if(! ${?program} ) then
+				if( ${?TCSH_RC_DEBUG} ) \
+					printf "ERROR: Unable to create alias for %s to [%s/%s] @ %s.\n\tERROR: No executable could be found.\n" "${alternative}" "${TCSH_ALTERNATIVES_PATH}" "${alternative}" `date "+%I:%M:%S%P"`;
+				unset program;
+				breaksw;
+			endif
+			
+			# alias to target this alternative:
+			if( ${?TCSH_RC_DEBUG} ) \
+				printf "Aliasing: [%s] to [%s/%s]\n" "${alternative}" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
+			if( `alias "${alternative}"` != "" ) then
+				set alias_argz=" `alias "\""${alternative}"\"" | sed -r 's/^([^ ]+) (.*)/\2/'`";;
+			else
+				set alias_argz;
+			endif
+			
+			alias ${alternative} \$"{TCSH_ALTERNATIVES_PATH}/${alternative}${alias_argz}";
+			
+			unset programm alias_argz;
 			breaksw;
 	endsw
-	
-	foreach program ( "`where "\""${alternative}"\""`" )
-		if( "${program}" != "${0}" && "${program}" != "./${alternative}" && "${program}" != "${TCSH_ALTERNATIVES_PATH}/${alternative}" && -x "${program}" ) \
-			break;
-		unset program;
-	end
-	if(! ${?program} ) \
-		set program="";
-	if(! -x "${program}" ) then
-		if( `alias '${alternative}'` != "" ) \
-			unalias "${alternative}";
-		if( ${?TCSH_RC_DEBUG} ) \
-			printf "ERROR: Unable to create alias for %s to [%s/%s] @ %s.\n\tERROR: No executable could be found.\n" "${alternative}" "${TCSH_ALTERNATIVES_PATH}" "${alternative}" `date "+%I:%M:%S%P"`;
-		unset program alternative;
-		continue;
-	endif
-	
-	# alias to target this alternative:
-	if( ${?TCSH_RC_DEBUG} ) \
-		printf "Aliasing: [%s] to [%s/%s]\n" "${alternative}" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
-	alias ${alternative} \$"{TCSH_ALTERNATIVES_PATH}/${alternative}";
-	
-	unset program alternative;
+	unset alternative;
 end
 
 unsetenv output

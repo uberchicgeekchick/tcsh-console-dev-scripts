@@ -43,9 +43,6 @@ scripts_main_quit:
 	if( ${?original_extension} ) \
 		unset original_extension;
 	
-	if( ${?dont_re_encode} ) \
-		unset dont_re_encode;
-	
 	if( ${?skip_message_shown} ) \
 		unset skip_message_shown;
 	
@@ -165,6 +162,11 @@ debug_check:
 			continue;
 		
 		switch( "$argv[${arg}]" )
+			case "h":
+			case "help":
+				goto usage;
+				breaksw;
+			
 			case "--":
 				if(! ${?process_each_filename} ) \
 					set process_each_filename;
@@ -540,27 +542,30 @@ convert_filenames:
 		endif
 		
 		if( -e "${save_to_filename}.ogg" ) then
-			if( ${?dont_re_encode} ) then
+			if( "${extension}" == "ogg" && ! ${?re_encode} ) then
 				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
-				if( "${original_extension}" != "ogg" ) \
+				if( "${extension}" != "ogg" ) \
 					printf ", <file://%s.ogg> already exists, " "${filename}";
 				printf "re-encoding is disabled.\n\n";
 				continue;
 			endif
 			
-			if( "${original_extension}" == "ogg" && (!( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length} )) ) then
+			if( "${extension}" == "ogg" && (!( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length} )) ) then
 				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
-				if( "${original_extension}" != "ogg" ) \
+				if( "${extension}" != "ogg" ) \
 					printf ", <file://%s.ogg> already exists, " "${filename}";
 				if(! ${?re_encode} ) \
-					printf "re-encoding is disabled"
+					printf "re-encoding has not been enabled"
 				if( ! ${?re_encode} && (!( ${?ltrim} || ${?rtrim} || ${?length} )) ) \
 					printf "and ";
 				if(!( ${?ltrim} || ${?rtrim} || ${?length} )) \
-					printf "no advanced conversion options specified";
+					printf "no advanced conversion options were specified";
 				printf ".\n\n";
 				continue;
 			endif
+			
+			if(! ${?force} ) \
+				goto confirm_overwrite;
 		endif
 		
 		if( "${extension}" != "ogg" ) \
@@ -613,22 +618,20 @@ convert_filenames:
 
 
 confirm_overwrite:
-	if(! -e "${save_to_filename}.ogg" ) \
+	if(! -e "${filename}.ogg" ) \
 		goto oggconvert;
 	
-	printf "\n\t**Warning:** <file://%s.ogg> already exists.\n\t\tWould you like to re-convert it? [Yes/Always/Skip all/No(default)]" "${save_to_filename}";
+	printf "\n\t**Warning:** <file://%s.ogg> already exists.\n\t\tWould you like to re-convert it? [Yes/Always/Skip all/No(default)]" "${filename}";
 	set confirmation="$<";
 	printf "\n";
 	
 	switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
 		case "a":
-			printf "\tTip: you can run "\`"%s --re-encode=force"\`" to skip this prompt in the future.\n\n" "${save_to_filename}" "${scripts_basename}" "${scripts_basename}";
+			printf "\tTip: you can run "\`"%s --re-encode=force"\`" to skip this prompt in the future.\n\n" "${filename}" "${scripts_basename}" "${scripts_basename}";
 			if(! ${?force} ) \
 				set force;
 			if(! ${?re_encode} ) \
 				set re_encode;
-			if( ${?dont_re_encode} ) \
-				unset dont_re_encode;
 		case "y":
 			if( ${?ltrim} || ${?length} || "${original_extension}" != "ogg" ) \
 				goto oggconvert;
@@ -640,18 +643,16 @@ confirm_overwrite:
 			breaksw;
 		
 		case "s":
-			printf "\t**Skipping:** <file://%s.ogg>,\n\t\tTip: you can run "\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n\n" "${save_to_filename}" "${scripts_basename}";
+			printf "\t**Skipping:** <file://%s.ogg>,\n\t\tTip: you can run "\`"%s --no-re-encode to skip all existing files w/o prompting"\`".\n\n" "${filename}" "${scripts_basename}";
 			set skip_message_shown;
 			if( ${?force} ) \
 				unset force;
 			if( ${?re_encode} ) \
 				unset re_encode;
-			if(! ${?dont_re_encode} ) \
-				set dont_re_encode;
 		case "n":
 		default:
 			if(! ${?skip_message_shown} ) then
-				printf "\t**Skipping:** <file://%s.ogg>." "${save_to_filename}";
+				printf "\t**Skipping:** <file://%s.ogg>." "${filename}";
 			else
 				unset skip_message_shown;
 			endif
@@ -1181,10 +1182,47 @@ parse_arg:
 			printf "\tparsed option "\$"parsed_argv[%d]: %s\n\n" ${parsed_argc} "${parsed_arg}";
 		
 		switch("${option}")
+			case "nodeps":
+			case "debug":
+			case "diagnosis":
+			case "diagnostic-mode":
+				breaksw;
+			
 			case "any-file":
 			case "all-files":
+				if(! ${?scripts_supported_extensions} ) \
+					breaksw;
+				
+				set scripts_supported_extensions_defaults="${scripts_supported_extensions}";
+				unset scripts_supported_extensions;
+				breaksw;
+			
+			case "default-files":
+				if( ${?scripts_supported_extensions} && ${?scripts_supported_extensions_defaults} ) then
+					if( "${scripts_supported_extensions}" == "${scripts_supported_extensions_defaults}" ) \
+						breaksw;
+				endif
+				
+				set scripts_supported_extensions="${scripts_supported_extensions_defaults}";
+				breaksw;
+			
+			case "extension":
+			case "extensions":
 				if( ${?scripts_supported_extensions} ) \
-					unset scripts_supported_extensions;
+					set scripts_supported_extensions_defaults="${scripts_supported_extensions}";
+				
+				set scripts_supported_extensions="${value}";
+				breaksw;
+			
+			case "with-extension":
+			case "with-extensions":
+			case "include-extension":
+			case "include-extensions":
+				if(! ${?scripts_supported_extensions} ) then
+					set scripts_supported_extensions="${value}";
+				else
+					set scripts_supported_extensions=`printf "(%s|%s)" "${scripts_supported_extensions}" "${value}" | sed -r 's/[()]//g'`;
+				endif
 				breaksw;
 			
 			case "normalize";
@@ -1231,18 +1269,24 @@ parse_arg:
 				breaksw;
 			
 			case "no-ltrim":
+				if( ${?lenth} ) \
+					unset lenth;
+				if( ${?lenth_set} ) \
+					unset lenth_set;
 				if( ${?ltrim} ) \
 					unset ltrim;
 				breaksw;
 			
 			case "no-lenth":
-				if( ${?lenth} ) \
-					unset lenth;
+				if( ${?lenth_set} ) \
+					unset lenth lenth_set;
 				breaksw;
 			
 			case "no-rtrim":
 				if( ${?rtrim} ) \
 					unset rtrim;
+				if( ${?lenth_set} ) \
+					unset lenth lenth_set;
 				breaksw;
 			
 			case "ltrim":
@@ -1285,6 +1329,9 @@ parse_arg:
 				breaksw;
 			
 			case "rtrim":
+				if( ${?lenth_set} ) \
+					unset lenth lenth_set;
+				
 				if( "${value}" == "" ) then
 					if( ${?rtrim} ) \
 						unset rtrim;
@@ -1378,27 +1425,14 @@ parse_arg:
 					set combine;
 				breaksw;
 			
-			case "h":
-			case "help":
-				goto usage;
-				breaksw;
-			
 			case "verbose":
 				if(! ${?be_verbose} ) \
 					set be_verbose;
 				breaksw;
 			
-			case "nodeps":
-			case "debug":
-			case "diagnosis":
-			case "diagnostic-mode":
-				breaksw;
-			
 			case "do-not-re-encode":
 			case "don't-re-encode":
 			case "no-re-encode":
-				if(! ${?dont_re_encode} ) \
-					set dont_re_encode;
 				if( ${?re_encode} ) \
 					unset re_encode;
 				if( ${?force} ) \
@@ -1414,8 +1448,6 @@ parse_arg:
 					default:
 						if(! ${?re_encode} ) \
 							set re_encode;
-						if( ${?dont_re_encode} ) \
-							unset dont_re_encode;
 				endsw
 				breaksw;
 			
@@ -1424,8 +1456,6 @@ parse_arg:
 					set force;
 				if(! ${?re_encode} ) \
 					set re_encode;
-				if( ${?dont_re_encode} ) \
-					unset dont_re_encode;
 				breaksw;
 			
 			case "enable":
@@ -1442,8 +1472,6 @@ parse_arg:
 					case "re-encode":
 						if(! ${?re_encode} ) \
 							set re_encode;
-						if( ${?dont_re_encode} ) \
-							unset dont_re_encode;
 						breaksw;
 					
 					case "transcode":
@@ -1474,8 +1502,6 @@ parse_arg:
 					case "re-encode":
 						if( ${?re_encode} ) \
 							unset re_encode;
-						if(! ${?dont_re_encode} ) \
-							set dont_re_encode;
 						breaksw;
 					
 					case "transcode":

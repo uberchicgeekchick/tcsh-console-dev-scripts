@@ -232,7 +232,15 @@ if_sourced:
 		source "${scripts_path}/argv:check" "${scripts_basename}" ${argv};
 	
 	# START: special handler for when this file is sourced.
-	alias ${scripts_basename} "${script}";
+	if( `alias "${scripts_basename}"` != "" ) then
+		set alias_argz=" `alias "\""${scripts_basename}"\"" | sed -r 's/^([^ ]+) (.*)/\2/'`";;
+	else
+		set alias_argz;
+	endif
+	
+	alias ${scripts_basename} "${script}${alias_argz}";
+	
+	unset alias_argz;
 	# FINISH: special handler for when this file is sourced.
 	
 	# END: source support.
@@ -256,24 +264,37 @@ main:
 
 exec:
 	set status=0;
-	onintr exec;
+	onintr exit_script;
 	if(!( ${?target} && ${?sources} )) \
 		goto usage;
 	
+	sort "${sources}" | uniq >! "${sources}.pso";
+	mv -f "${sources}.pso" "${sources}";
+	
+	set sources_count=`wc -l "${sources}" | sed -r 's/^([0-9]+).*$/\1/'`;
+	
+	if( `printf "%s" "${sources_count}" | sed -r 's/^[0-9]+$//'` != "" ) then
+		printf "**fatal error:** %s cannot determine how many files are being moved.\n" "${scripts_basename}";
+		unset sources_count;
+		goto exit_script;
+	endif
+	
+	if( ! -e "${target}" && ( $sources_count > 1 || `printf "%s" "${target}" | sed -r 's/.*(\/)$/\1/'` == "/" ) ) \
+		mkdir -p "${target}";
+	unset sources_count;
+
 	foreach source_file("`cat "\""${sources}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
 		ex -s '+1d' '+wq!' "${sources}";
+		set source_file="`printf "\""%s"\"" "\""${source_file}"\""`";
 		if(! -e "${source_file}" ) then
-			printf "\n**%s error:** copying %s no longer exists.\n";
+			printf "\n**%s error:** moving: <file://%s> no longer exists.\n" "${scripts_basename}" "${source_file}";
 			unset source_file;
 			continue;
 		endif
 		
-		if(! -d "${target}" ) \
-			mkdir -p "${target}";
-		
 		if( ${?debug} ) \
-			printf "( %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;" "${program}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
-		( ${program} "${source_file}" ${target} > ${stdout} ) >& ${stderr};
+			printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;" "${program}" "${argz}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
+		( ${program} ${argz} "${source_file}" ${target} > ${stdout} ) >& ${stderr};
 		unset source_file;
 	end
 	goto exit_script;
@@ -293,6 +314,10 @@ scripts_main_quit:
 		# END: source support
 	endif
 	
+	if( ${?sources_count} ) \
+		unset sources_count;
+	if( ${?target_parent_dir} ) \
+		unset target_parent_dir;
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) \
 			rm -rf "${scripts_tmpdir}";
@@ -320,7 +345,8 @@ scripts_main_quit:
 	if( ${?source} ) \
 		unset source;
 	if( ${?sources} ) then
-		rm -f "${sources}";
+		if( -e "${sources}" ) \
+			rm -f "${sources}";
 		unset sources;
 	endif
 	if( ${?usage_displayed} ) \
@@ -374,13 +400,12 @@ parse_argv:
 	@ parsed_argc=0;
 	if( ${?debug} || ${?diagnostic_mode} ) \
 		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${scripts_basename}" "${argc}";
+	set argz;
 #parse_argv:
 
 parse_arg:
-	set argz="";
 	while( $arg < $argc )
-		if(! ${?arg_shifted} ) \
-			@ arg++;
+		@ arg++;
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
 		printf "%s" "$argv[${arg}]" >! "${argument_file}";
@@ -439,14 +464,13 @@ parse_arg:
 				
 				if( ${?debug} ) \
 					printf "\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}" > ${stdout};
-				if(!( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" )) then
-					@ arg--;
-				else
+				if( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" ) then
 					set equals=" ";
 					set value="${test_value}";
 					set arg_shifted;
 				endif
 				unset escaped_test_argument test_argument test_dashes test_option test_equals test_value;
+				@ arg--;
 			endif
 		endif
 		
@@ -482,14 +506,9 @@ parse_arg:
 			case "diagnosis":
 			case "diagnostic-mode":
 			case "debug":
-				if(${?arg_shifted}) then
-					@ arg--;
-					unset arg_shifted;
-				endif
 				breaksw;
 			
 			case "":
-			default:
 				if( $arg == $argc ) then
 					set target="${value}";
 					breaksw;
@@ -500,15 +519,21 @@ parse_arg:
 					printf "${value}\n" >> "${sources}";
 					breaksw;
 				endif
+				breaksw;
+				
+			default:
+				if( ${?argz} ) then
+					if( ${dashes} != "" ) then
+						set argz="${argz} $argv[$arg]";
+					else
+						set argz="${argz}$argv[$arg]";
+					endif
+					breaksw;
+				endif
 				
 				printf "%s%s%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${equals}" "${value}" "${scripts_basename}" >& ${stderr};
 				breaksw;
 		endsw
-		
-		if( ${?arg_shifted} ) then
-			unset arg_shifted;
-			@ arg--;
-		endif
 		
 		unset dashes option equals value parsed_arg;
 	end

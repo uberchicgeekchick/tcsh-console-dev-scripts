@@ -13,6 +13,9 @@ endif
 unset args_handled;
 
 main:
+	alias history-check "source "\$"{TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh";
+	alias history-refresh "history-check";
+	
 	if(!( ${?histfile} && ${?my_histfile} )) then
 		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh" $argv;
 	else if( "${histfile}" != "${my_history}" ) then

@@ -248,7 +248,15 @@ if_sourced:
 		source "${scripts_path}/argv:check" "${scripts_basename}" ${argv};
 	
 	# START: special handler for when this file is sourced.
-	alias ${scripts_basename} "${script}";
+	if( `alias "${scripts_basename}"` != "" ) then
+		set alias_argz=" `alias "\""${scripts_basename}"\"" | sed -r 's/^([^ ]+) (.*)/\2/'`";;
+	else
+		set alias_argz;
+	endif
+	
+	alias ${scripts_basename} "${script}${alias_argz}";
+	
+	unset alias_argz;
 	# FINISH: special handler for when this file is sourced.
 	
 	# END: source support.
@@ -274,8 +282,8 @@ exec:
 	endif
 	
 	if( ${?debug} ) \
-		printf "( %s "\""%s"\"" > %s ) >& %s;" "${touch_exec}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
-	( ${touch_exec} "${touch_target}" > ${stdout} ) >& ${stderr};
+		printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${touch_exec}" "${argz}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
+	( ${touch_exec} ${argz} "${touch_target}" > ${stdout} ) >& ${stderr};
 	
 	if( ${?mode} ) then
 		if( ${?debug} ) \
@@ -358,13 +366,12 @@ parse_argv:
 	@ parsed_argc=0;
 	if( ${?debug} || ${?diagnostic_mode} ) \
 		printf "**%s debug:** checking argv.  %d total arguments.\n\n" "${scripts_basename}" "${argc}";
+	set argz;
 #goto parse_argv;
 
 parse_arg:
-	set argz="";
 	while( $arg < $argc )
-		if(! ${?arg_shifted} ) \
-			@ arg++;
+		@ arg++;
 		
 		set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
 		printf "%s" "$argv[${arg}]" >! "${argument_file}";
@@ -469,7 +476,6 @@ parse_arg:
 				breaksw;
 			
 			case "":
-			default:
 				if( ! ${?mode} && `printf "%s" "${value}" | sed -r 's/[ugo]{0,3}[\+\-=][rwxXst]{1,6}//'` == "" ) then
 					set mode="${value}";
 					breaksw;
@@ -479,16 +485,22 @@ parse_arg:
 					set touch_target="${value}";
 					breaksw;
 				endif
-				printf "$mode == $touch_target\n";
+				breaksw;
+			
+			default:
+				
+				if( ${?argz} ) then
+					if( ${dashes} != "" ) then
+						set argz="${argz} $argv[$arg]";
+					else
+						set argz="${argz}$argv[$arg]";
+					endif
+					breaksw;
+				endif
 				
 				printf "%s%s%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${equals}" "${value}" "${scripts_basename}" >& ${stderr};
 				breaksw;
 		endsw
-		
-		if( ${?arg_shifted} ) then
-			unset arg_shifted;
-			@ arg--;
-		endif
 		
 		unset dashes option equals value parsed_arg;
 	end

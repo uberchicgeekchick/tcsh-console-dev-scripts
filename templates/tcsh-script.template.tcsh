@@ -15,6 +15,7 @@ setup:
 	set supports_multiple_files;
 	#set supports_hidden_files;
 	set scripts_supported_extensions="mp3|ogg|m4a";
+	set scripts_supported_extensions_defaults="${scripts_supported_extensions}";
 	
 	#set auto_read_stdin;
 	#set scripts_interactive;
@@ -463,6 +464,14 @@ check_mode:
 	endif
 	
 	switch("${option}")
+		case "h":
+		case "help":
+			if(! ${?exit_on_usage} ) \
+				set exit_on_usage;
+			set callback="usage";
+			goto callback_handler;
+			breaksw;
+		
 		case "nodeps":
 			if( ${?nodeps} ) \
 				breaksw;
@@ -1279,6 +1288,7 @@ parse_argv_init:
 		goto callback_stack_update;
 	endif
 	
+	#set argz;
 	set arg_handler="check_arg";
 	set arg_parse_complete="parse_argv_quit";
 	
@@ -1304,30 +1314,6 @@ parse_argv_quit:
 			set argv_parsed;
 		unset arg;
 	endif
-	
-	#if( ${?parsed_argc} && ${?parsed_argv} ) then
-	#	if( ${parsed_argc} > 0 ) then
-	# 		set parsed_argv_file="${scripts_tmpdir}/.escaped.parsed_argv.${scripts_basename}.`date '+%s'`";
-	#		printf "%s" "$parsed_argv" >! "${parsed_argv_file}";
-	#		ex -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${parsed_argv_file}";
-	#		set escaped_parsed_argv="`cat "\""${parsed_argv_file}"\""`";
-	#		@ parsed_argc=0;
-	#		foreach parsed_arg("`cat "\""${parsed_argv_file}"\""`")
-	#			@ parsed_argc++;
-	#			if(! ${?parsed_argv} ) then
-	#				set parsed_argv=("`printf "\""%s"\"" "\""${parsed_arg}"\""`");
-	#			else
-	#				set parsed_argv=("${parsed_argv}" "`printf "\""%s"\"" "\""${parsed_arg}"\""`");
-	#			endif
-	#		end
-	#		rm -f "${parsed_argv_file}";
-	#		unset parsed_argv_file;
-	#		printf "-->%s\n" "${parsed_argv}";
-	#		foreach parsed_arg( ${escaped_parsed_argv} )
-	#			printf "-->%s\n" "${parsed_arg}";
-	#		end
-	#	endif
-	#endif
 	
 	if( ${?debug_set} ) \
 		unset debug debug_set;
@@ -1537,17 +1523,48 @@ parse_arg:
 
 check_arg:
 	switch("${option}")
-		case "h":
-		case "help":
-			if(! ${?exit_on_usage} ) \
-				set exit_on_usage;
-			set callback="usage";
-			goto callback_handler;
+		case "nodeps":
+		case "debug":
+		case "diagnosis":
+		case "diagnostic-mode":
+			# these are all caught above. See: [debug_check:]
 			breaksw;
 		
+		case "any-file":
 		case "all-files":
-			if( ${?scripts_supported_extensions} ) \
+			if(! ${?scripts_supported_extensions} ) \
+				breaksw;
+			
+			set scripts_supported_extensions_defaults="${scripts_supported_extensions}";
+			unset scripts_supported_extensions;
+			breaksw;
+		
+		case "default-files":
+			if( ${?scripts_supported_extensions} && ${?scripts_supported_extensions_defaults} ) then
+				if( "${scripts_supported_extensions}" == "${scripts_supported_extensions_defaults}" ) \
+					breaksw;
+			endif
+			
+			set scripts_supported_extensions="${scripts_supported_extensions_defaults}";
+			breaksw;
+		
+		case "extension":
+		case "extensions":
+			if( ${?scripts_supported_extensions} ) then
+				set scripts_supported_extensions_defaults="${scripts_supported_extensions}";
 				unset scripts_supported_extensions;
+			endif
+			breaksw;
+		
+		case "with-extension":
+		case "with-extensions":
+		case "include-extension":
+		case "include-extensions":
+			if(! ${?scripts_supported_extensions} ) then
+				set scripts_supported_extensions="${value}";
+			else
+				set scripts_supported_extensions=`printf "(%s|%s)" "${scripts_supported_extensions}" "${value}" | sed -r 's/[()]//g'`;
+			endif
 			breaksw;
 		
 		case "numbered_option":
@@ -1585,13 +1602,6 @@ check_arg:
 		case "verbose":
 			if(! ${?be_verbose} ) \
 				set be_verbose;
-			breaksw;
-		
-		case "nodeps":
-		case "debug":
-		case "diagnosis":
-		case "diagnostic-mode":
-			# these are all caught above. See: [debug_check:]
 			breaksw;
 		
 		case "switch-option":
@@ -1672,6 +1682,15 @@ check_arg:
 				set value_used;
 				set callback="filename_list_append_value";
 				goto callback_handler;
+				breaksw;
+			endif
+			
+			if( ${?argz} ) then
+				if( ${dashes} != "" ) then
+					set argz="${argz} $argv[$arg]";
+				else
+					set argz="${argz}$argv[$arg]";
+				endif
 				breaksw;
 			endif
 			

@@ -2,7 +2,7 @@
 <?php
 	ini_set( "display_errors", TRUE );
 	ini_set( "error_reporting", E_ALL | E_STRICT );
-	ini_set( "default_charset", "utf-8" );
+	//ini_set( "default_charset", "utf-8" );
 	
 	function usage($status=0){
 		printf("Usage: %s [\"string\"] or -(to read from stdin)\n", $_SERVER['argv'][0]);
@@ -16,14 +16,14 @@
 	
 	if( "{$_SERVER['argv'][1]}" != "-" ){
 		$data=$_SERVER['argv'][1];
-		printf( "%s", utf8_encode(html_entity_decode($data) ));
+		printf( "%s", utf8_encode(html_entity_decode($data, ENT_QUOTES)));
 		exit(0);
 	}
 	
 	$data="";
 	while(!feof(STDIN))
 		while( $data=fread(STDIN, 1024)){
-			printf( "%s", utf8_encode(html_entity_decode($data) ));
+			printf( "%s", utf8_encode(html_entity_decode($data, ENT_QUOTES)));
 			$data="";
 		}
 	

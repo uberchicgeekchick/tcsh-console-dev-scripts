@@ -108,10 +108,6 @@ main:
 	rm -f "${target_directories_filename_list}";
 	unset target_directories_filename_list;
 	
-	if(! ${?remove} ) then
-		set remove;
-	endif
-	
 	if(! ${?maxdepth} ) \
 		set maxdepth=" -maxdepth 2";
 	
@@ -386,25 +382,32 @@ handle_missing_media:
 		endif
 		printf "\n\t**Unlisted file:**\n\t\t<file://%s>" "${this_podcast}";
 		printf "\n\n\tWhat action would you like to take:";
-		@ playlist_index=0;
-		while( $playlist_index < ${#playlists} )
-			@ playlist_index++;
-			printf "\n\t\t%d) Append to <file://%s>" $playlist_index "$playlists[$playlist_index]";
-		end
+		if(! ${?remove} ) then
+			@ playlist_index=0;
+			while( $playlist_index < ${#playlists} )
+				@ playlist_index++;
+				printf "\n\t\t%d) Append to <file://%s>" $playlist_index "$playlists[$playlist_index]";
+			end
+			printf "\n";
+		endif
 		
-		printf "\n";
 		printf "\n\t\tD) Delete this file and resulting empty directories.";
 		printf "\n\t\tI) Ignore: This discrepency and do nothing about.";
 		printf "\n\t\tA) Abort and exit %s." "${scripts_basename}";
 		
 		printf "\n\n\tPlease select which action you want performed?  ";
-		if(!( $playlist_index > 1 )) then
-			printf "1";
-		else
-			printf "[1-%d]" $playlist_index;
+		
+		if(! ${?remove} ) then
+			if(!( $playlist_index > 1 )) then
+				printf "1";
+			else
+				printf "[1-%d]" $playlist_index;
+			endif
+			printf " or ";
 		endif
+		
 		if(! ${?append} ) \
-			printf "/D/I/A: ";
+			printf "[Delete, Ignore, Abort]: ";
 		set response="$<";
 		printf "\n";
 		switch( `printf "%s" "${response}" | sed -r 's/^(.).*$/\l\1/'` )
@@ -434,6 +437,9 @@ handle_missing_media:
 				endif
 			
 			default:
+				if( ${?remove} ) \
+					continue;
+				
 				if( `printf "%s" "${response}" | sed -r 's/^[0-9]+$//'` != "" ) \
 					continue;
 				
@@ -508,7 +514,11 @@ remove_missing_media:
 		printf "\n";
 	endif
 	
+	if(! ${?remove} ) \
+		set remove remove_set;
 	set rm_notification="`rm -v${remove} "\""${this_podcast}"\""`";
+	if( ${?remove_set} ) \
+		unset remove remove_set;
 	if(!( ${status} == 0 && "${rm_notification}" != "" )) then
 		unset rm_notification podcast_dir;
 		unset this_podcast podcast;
@@ -910,27 +920,26 @@ parse_arg:
 			case "clean-up":
 				#set value=`printf "%s" ${value}" | sed -r 's/^(.).*$/\1/'`;
 				switch("${value}")
-					case "force":
 					case "forced":
-						if(! ${?removal_forced} ) \
-							set removal_forced;
-						if(! ${?remove} ) then
-							set remove="f";
-						else if( `printf "%s" "${remove}" | sed -r 's/^.*(f).*$/\1/'` != "f" ) then
-							set remove="${remove}f";
-						endif
-						breaksw;
-					
-					case "silent":
-						if(! ${?removal_silent} ) \
-							set removal_silent;
-						breaksw;
-					
+					case "verbose":
 					case "interactive":
-						if(! ${?remove} ) then
-							set remove="i";
-						else if( `printf "%s" "${remove}" | sed -r 's/^.*(i).*$/\1/'` != "i" ) then
-							set remove="${remove}i";
+					case "silent":
+					default:
+						if( "${value}" == "" || "${value}" == "switch" ) \
+							set value="null";
+						set removal_$value;
+						set removal_switch=`printf "%s" "${value}" | sed -r 's/^([ifv]).*$/\1/'`;
+						if(! ${?remove} ) \
+							set remove;
+						
+						if( "${removal_switch}" != "${value}" ) then
+							if( "${remove}" == "" ) then
+								set remove="${removal_switch}";
+							else if( `printf "%s" "${remove}" | sed -r "s/^.*(${removal_switch}).*"\$"/\1/"` != "${removal_switch}" ) then
+								set remove="${remove}${removal_switch}";
+							endif
+						else
+							unset removal_switch;
 						endif
 						breaksw;
 				endsw

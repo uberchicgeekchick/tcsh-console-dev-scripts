@@ -39,8 +39,8 @@ prep_exec:
 	if( ${?program} ) \
 		unset program;
 	
-	set this_program="`printf "\""%s"\"" "\""${2}"\"" | sed -r 's/^([^\ ]+) (.*)/\1/'`";
-	set arguments="`printf "\""%s"\"" "\""${2}"\"" | sed -r 's/^([^\ ]+) (.*)/\2/'`";
+	set this_program="`printf "\""%s"\"" "\""${2}"\"" | sed -r 's/^([^ ]+) (.*)/\1/'`";
+	set arguments="`printf "\""%s"\"" "\""${2}"\"" | sed -r 's/^([^ ]+) (.*)/\2/'`";
 	
 	if( "`alias "\""${1}"\""`" != "" ) \
 		unalias "${1}";

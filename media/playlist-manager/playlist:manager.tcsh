@@ -285,10 +285,12 @@ import:
 			else
 				playlist:convert.tcsh --force "${import}" "${playlist}";
 			endif
+			
 			if( ${?edit_playlist} && ! ${?playlist_edited} ) then
 				${EDITOR} "${playlist}";
 				set playlist_edited;
 			endif
+			
 			breaksw;
 		
 		default:
@@ -324,14 +326,14 @@ export:
 		case "m3u":
 		case "tox":
 		case "pls":
-			if( ${?edit_playlist} && ! ${?playlist_edited} ) then
-				${EDITOR} "${playlist}";
-				set playlist_edited;
-			endif
-			
 			if(! -d "`dirname "\""${export_to}"\""`" ) then
 				@ errno=-602;
 				goto exception_handler;
+			endif
+			
+			if( ${?edit_playlist} && ! ${?playlist_edited} ) then
+				${EDITOR} "${playlist}";
+				set playlist_edited;
 			endif
 			
 			if( "${export_type}" == "${playlist_type}" ) then
@@ -371,6 +373,11 @@ clean_up:
 	
 	if(! ${?maxdepth} ) \
 		set maxdepth="--search-subdirs-only";
+	
+	if( ${?edit_playlist} && ! ${?playlist_edited} ) then
+		${EDITOR} "${playlist}";
+		set playlist_edited;
+	endif
 	
 	if( ${?clean_up_local_disk_only} ) then
 		set skip_directory;
@@ -412,6 +419,11 @@ get_missing:
 	if(! -e "${playlist}" ) then
 		@ errno=-600;
 		goto exception_handler;
+	endif
+	
+	if( ${?edit_playlist} && ! ${?playlist_edited} ) then
+		${EDITOR} "${playlist}";
+		set playlist_edited;
 	endif
 	
 	playlist:copy:missing:listings.tcsh "${playlist}";

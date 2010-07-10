@@ -70,9 +70,10 @@ parse_argv:
 		set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
 		set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
 		switch( "${option}" )
-			case "validate":
-			case "validate-playlists":
-				set validate_playlists;
+			case "no-validation":
+			case "no-validation":
+			case "dont-validate-playlists":
+				set dont_validate_playlists;
 			
 			case "clean-up":
 				goto clean_up;
@@ -592,7 +593,7 @@ alacasts_playlists:
 		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 1 ) then
 			printf "<file://%s/%s> still lists files.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
 			
-			if( ${?validate_playlists} ) then
+			if(! ${?dont_validate_playlists} ) then
 				printf "\tWould you like to remove it:\n" > /dev/stderr;
 				rm -vi "${playlist_dir}/${playlist}";
 				if(! -e "${playlist_dir}/${playlist}" ) then

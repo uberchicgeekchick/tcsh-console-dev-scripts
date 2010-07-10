@@ -10,10 +10,9 @@
 	);
 	
 	set primary_playlists=( \
-		"/media/library/playlists/m3u/eee.m3u" \
-		"/media/library/playlists/m3u/podcasts.m3u" \
+		"/media/library/playlists/m3u/science.m3u" \
+		"/media/library/playlists/m3u/technology.m3u" \
 		"/media/library/playlists/m3u/podiobooks.m3u" \
-		"/media/library/playlists/m3u/lifestyle.m3u" \
 	);
 	
 	set latest_playlist="`/bin/ls -tr --width 1 /media/podcasts/playlists/m3u/ | tail -1`";
@@ -28,9 +27,14 @@
 	);
 	
 	set secondary_playlists=( \
+		"/media/library/playlists/m3u/lifestyle.m3u" \
+		"/media/library/playlists/m3u/culture.m3u" \
+		"/media/library/playlists/m3u/slashdot.m3u" \
+	);
+	
+	set additional_playlists=( \
 		"/media/library/playlists/m3u/erotica.m3u" \
 		"/media/library/playlists/m3u/vodcasts.m3u" \
-		"/media/library/playlists/m3u/slashdot.m3u" \
 	);
 
 if( ${#argv} > 0 ) then
@@ -52,8 +56,9 @@ edit_playlists:
 		${documents} \
 		${primary_playlists} \
 		${scripts} \
-		"${latest_playlist}" \
 		${secondary_playlists} \
+		"${latest_playlist}" \
+		${additional_playlists} \
 	;
 	goto exit_script;
 #goto edit_playlists;
@@ -79,6 +84,11 @@ display_playlists:
 	end
 	
 	foreach playlist( ${secondary_playlists} )
+		printf "%s\n" "${playlist}";
+		unset playlist;
+	end
+	
+	foreach playlist( ${additional_playlists} )
 		printf "%s\n" "${playlist}";
 		unset playlist;
 	end

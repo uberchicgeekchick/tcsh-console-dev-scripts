@@ -114,8 +114,8 @@ main_quit:
 		unset scripts_basename;
 	if( ${?dependency} ) \
 		unset dependency;
-	if( ${?program} ) \
-		unset program;
+	if( ${?scripts_exec} ) \
+		unset scripts_exec;
 	if( ${?scripts_basename} ) \
 		unset scripts_basename;
 	exit ${status};
@@ -145,12 +145,12 @@ launchers_main:
 		goto usage;
 	
 	if( $uid != 0 && `printf "${priority}" | sed -r 's/^(.).*$/\1/'` == "-" ) \
-		set program="sudo ${program}";
+		set scripts_exec="sudo ${scripts_exec}";
 	
-	echo ${program} ${priority} ${pid};
-	${program} ${priority} ${pid};
+	echo ${scripts_exec} ${priority} ${pid};
+	${scripts_exec} ${priority} ${pid};
 
-	unset scripts_basename program;
+	unset scripts_basename scripts_exec;
 	goto main_quit;
 #goto launchers_main;
 

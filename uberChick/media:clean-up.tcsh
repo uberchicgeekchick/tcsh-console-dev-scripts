@@ -38,6 +38,8 @@ setup_lists:
 setup_podibooks:
 	set latest_podiobooks=( \
 	"\n" \
+"/media/podcasts/FinalRune Productions/The Troll of Stony Brook, released on: Fri, 02 Jul 2010 13:34:19 +0000.ogg" \
+	"\n" \
 	);
 	
 	set librivox_podiobooks=( \
@@ -601,7 +603,7 @@ backup:
 
 alacasts_playlists:
 	set playlist_dir="/media/podcasts/playlists/m3u";
-	if(! ${?confirmation} ) then
+	if(! ${?validate_playlists} ) then
 		set return_to="alacasts_playlists";
 		goto prompt_for_playlist_validation;
 	endif
@@ -619,17 +621,18 @@ alacasts_playlists:
 			printf "<file://%s/%s> is in use and will not be deleted.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
 		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 1 ) then
 			printf "<file://%s/%s> still lists files.\n\tWould you like to remove it:\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
-			rm -vi "${playlist_dir}/${playlist}";
-			if(! -e "${playlist_dir}/${playlist}" ) then
-				if(! ${?action_preformed} ) then
-					set action_preformed;
-				else
-					printf "\n\n";
-				endif
-			else if( ${?validate_playlists} ) then
+			if( "${validate_playlists}" != "n" ) then
+				rm -vi "${playlist_dir}/${playlist}";
+				if(! -e "${playlist_dir}/${playlist}" ) then
+					if(! ${?action_preformed} ) then
+						set action_preformed;
+					else
+						printf "\n\n";
+					endif
+				
 				printf "\tWould you like to make sure that all files in <file://%s/%s> still exist? [Yes/No(default)]" "${playlist_dir}" "${playlist}" > /dev/stdout;
 				set confirmation="$<";
-				#set rconfirmation=$<:q;
+				#set confirmation=$<:q;
 				printf "\n";
 				
 				switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
@@ -691,152 +694,20 @@ logs:
 #goto logs;
 
 
-validate_playlists:
-	set return_to="validate_playlists";
-	if(! ${?confirmation} ) \
-		goto prompt_for_playlist_validation;
-	
-	if(! ${?playlists_validated} ) then
-		set playlists_validated;
-	else
-		goto parse_arge;
-	endif
-	
-	if(! ${?validate_playlists} ) \
-		goto parse_argv;
-	
-	set playlist_data=( "/media/library/playlists/m3u/artistic.podcasts.m3u" "/media/podcasts" "/media/library/playlists/m3u/local.podiobooks.m3u" "/media/podiobooks/Latest" "/media/library/playlists/m3u/lifestyle.podcasts.m3u" "/media/podcasts/lifestyle" "/media/library/playlists/m3u/science.podcasts.m3u" "/media/podcasts/science" "/media/library/playlists/m3u/culture.podcasts.m3u" "/media/podcasts/culture" );
-	
-	if(! ${?confirmations} ) \
-		set confirmations=( "" "" "" );
-	
-	@ playlist_index=0;
-	while( $playlist_index < ${#playlist_data} )
-		@ playlist_index++;
-		set playlist=$playlist_data[$playlist_index];
-		@ playlist_index++;
-		set playlist_dir=$playlist_data[$playlist_index];
-		@ playlist_check=0;
-		while( $playlist_check < 3 )
-			@ playlist_check++;
-			if( "$confirmations[$playlist_check]" != "" ) then
-				set confirmation="$confirmations[$playlist_check]";
-			else
-				switch( $playlist_check )
-					case 1:
-						printf "\tWould you like to remove any files found under <file://%s> which are not listed in <file://%s>:" "${playlist_dir}" "${playlist}" > /dev/stdout;
-						breaksw;
-					
-					case 2:
-						printf "\tWould you like to update <file://%s> to include all files found under <file://%s>:" "${playlist}" "${playlist_dir}" > /dev/stdout;
-						breaksw;
-					
-					case 3:
-						printf "\tWould you like to make sure that all files in <file://%s> still exist:" "${playlist}" > /dev/stdout;
-						breaksw;
-				endsw
-				printf "\n\t[Always/Yes/No(default)/Reject all]?" > /dev/stdout;
-				
-				set confirmation="$<";
-				#set rconfirmation=$<:q;
-				printf "\n";
-			endif
-			
-			switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
-				case "a":
-					if( "$confirmations[$playlist_check]" == "" ) then
-						set confirmations[$playlist_check]="${confirmation}";
-					else
-						switch( $playlist_check )
-							case 1:
-								printf "\tRemoving any files found under <file://%s> which are not listed in <file://%s>" "${playlist_dir}" "${playlist}" > /dev/stdout;
-								breaksw;
-							
-							case 2:
-								printf "\tUpdating <file://%s> to include all files found under <file://%s>" "${playlist}" "${playlist_dir}" > /dev/stdout;
-								breaksw;
-							
-							case 3:
-								printf "\tEnsuring all files in <file://%s> still exist." "${playlist}" > /dev/stdout;
-								breaksw;
-						endsw
-						printf "\n";
-					endif
-				case "y":
-					set playlist_check_file="`mktemp -u --tmpdir filename_list.XXXXXXXX`";
-					switch( $playlist_check )
-						case 1:
-							playlist:find:missing:listings.tcsh "${playlist}" "${playlist_dir}" --extensions='(mp3|ogg|m4a|wma)' --remove=interactive >! "${playlist_check_file}";
-							breaksw;
-						
-						case 2:
-							playlist:find:missing:listings.tcsh "${playlist}" "${playlist_dir}" --extensions='(mp3|ogg|m4a|wma)' --append >! "${playlist_check_file}";
-							breaksw;
-						
-						case 3:
-							playlist:find:non-existent:listings.tcsh --clean-up "${playlist}" >! "${playlist_check_file}";
-							breaksw;
-					endsw
-					
-					set playlist_check_result="`cat "\""${playlist_check_file}"\""`";
-					if( "${playlist_check_result}" != "" ) then
-						printf "%s" "${playlist_check_result}";
-						if(! ${?action_preformed} ) then
-							set action_preformed;
-						else
-							printf "\n\n";
-						endif
-					endif
-					rm -f "${playlist_check_file}";
-					unset playlist_check_file playlist_check_result;
-					
-					breaksw;
-				
-				case "r":
-					if( "$confirmations[$playlist_check]" == "" ) then
-						set confirmations[$playlist_check]="${confirmation}";
-					else
-						switch( $playlist_check )
-							case 1:
-								printf "\tSkipping checks to remove any files found under <file://%s> which are not listed in <file://%s>" "${playlist_dir}" "${playlist}" > /dev/stdout;
-								breaksw;
-							
-							case 2:
-								printf "\tSkipping checks to update <file://%s> to include all files found under <file://%s>" "${playlist}" "${playlist_dir}" > /dev/stdout;
-								breaksw;
-							
-							case 3:
-								printf "\tSkipping checks to make sure that all files in <file://%s> still exist" "${playlist}" > /dev/stdout;
-								breaksw;
-						endsw
-						printf "\n";
-					endif
-				case "n":
-				default:
-					breaksw;
-			endsw
-		end
-		unset playlist_check playlist_dir playlist;
-	end
-	unset playlist_data playlist_index;
-	
-	goto parse_argv;
-#goto validate_playlists;
-
-
 prompt_for_playlist_validation:
 	printf "\n\tWould you like to validate existing playlists? [Yes/Always/No(default)]" > /dev/stdout;
 	set confirmation="$<";
-	#set rconfirmation=$<:q;
+	#set confirmation=$<:q;
 	
-	switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+	set validate_playlists`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`;
+	unset confirmation;
+	switch("${validate_playlists}")
 		case "a":
-			set confirmations=( "a" "a" "a" );
 		case "y":
-			set validate_playlists;
 			breaksw;
 		case "n":
 		default:
+			set validate_playlists="n";
 			breaksw;
 	endsw
 	

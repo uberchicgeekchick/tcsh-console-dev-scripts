@@ -848,16 +848,22 @@ find_length:
 		set oggs_minutes="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
 		set oggs_seconds="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
 	else
-		set original_filename="`printf "\""%s.ogg"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+		set original_filename="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`.ogg";
 		set oggs_length="`${ogginfo} "\""${original_filename}"\"" | /bin/grep --perl-regexp 'Playback length:'`";
 		if( ${?debug} ) \
-			printf "%s\n" "${oggs_length}";
+			printf "Length of %s\n\t%s\n" "${original_filename}" "${oggs_length}";
 		set oggs_minutes="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\1/'`";
-		if( "${oggs_minutes}" == "${oggs_length}" ) \
+		if( "${oggs_minutes}" == "${oggs_length}" ) then
+			set oggs_hours="00";
 			set oggs_minutes="00";
+		else
+			set oggs_hours="`printf "\""%s/60\n"\"" "\""${oggs_minutes}"\"" | bc`";
+			set oggs_minutes="`printf "\""%s%%60\n"\"" "\""${oggs_minutes}"\"" | bc`";
+		endif
 		set oggs_seconds="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/^[^0-9]*([0-9]*)(m:)([0-9]+)\..*"\$"/\3/'`";
 		if( "${oggs_seconds}" == "${oggs_length}" ) \
 			set oggs_seconds="00";
+		unset oggs_length;
 	endif
 	
 	set trim_hours="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
@@ -869,7 +875,6 @@ find_length:
 		printf "\t%s%s%s\n" "${oggs_minutes}" "${modifier}" "${trim_minutes}";
 		printf "\t%s%s%s\n" "${oggs_seconds}" "${modifier}" "${trim_seconds}";
 	endif
-	unset oggs_length;
 	
 	set hours="`printf "\""%s%s%s\n"\"" "\""${oggs_hours}"\"" "\""${modifier}"\"" "\""${trim_hours}"\"" | bc`";
 	set minutes="`printf "\""%s%s%s\n"\"" "\""${oggs_minutes}"\"" "\""${modifier}"\"" "\""${trim_minutes}"\"" | bc`";
@@ -952,7 +957,7 @@ calculate_length:
 	
 	unset oggs_hours trim_hours oggs_minutes trim_minutes oggs_seconds trim_seconds hours minutes seconds;
 	
-	if( ${?length_set} && ${?ltrim} ) then
+	if( ${?length_set} && ${?ltrim} ) \
 		goto convert_filenames;
 	
 	if( "${extension}" != "ogg" ) \

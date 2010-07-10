@@ -18,20 +18,40 @@ playlist_init:
 	if( $argc < 1 || $argc > 4 ) \
 		goto usage;
 	
-	@ arg=1;
-	if( "$argv[$arg]" == "--force" ) then
-		set force;
+	@ arg=0;
+	while( $arg < $argc )
 		@ arg++;
+		switch( "$argv[$arg]" )
+			case "--force":
+				set force;
+				breaksw;
+			
+			case "--silent":
+				set silent;
+				breaksw;
+			
+			case "--save-empty":
+				set save_empty;
+				breaksw;
+			
+			default:
+				if( -e "$argv[$arg]" && -e "$argv[$arg].new" ) then
+					break;
+				endif
+				breaksw;
+		endsw
+	end
+	
+	if( $arg > $argc ) then
+		@ errno=-1;
+		@ arg--;
+	else if(! -e "$argv[$arg].new" ) then
+		@ errno=-1;
 	endif
 	
-	if( "$argv[$arg]" == "--silent" ) then
-		set silent;
-		@ arg++;
-	endif
-	
-	if(! -e "$argv[$arg].new" ) then
-		printf "**%s error:** cannot find: [%s.new].\nSo no new playlist can be saved.\n" "${scripts_basename}" "$argv[$arg].new" > /dev/stderr;
-		set status=-1;
+	if( ${?errno} ) then
+		printf "**%s error:** cannot find: [%s.new].\nSo no new playlist can be saved.\n" "${scripts_basename}" "$argv[$arg]" > /dev/stderr;
+		set status=$errno;
 		goto usage;
 	endif
 	
@@ -40,6 +60,11 @@ playlist_init:
 	
 	@ arg++;
 	if( $arg <= $argc ) then
+		if(! -d "`dirname "\""$argv[$arg]"\""`" ) then
+			printf "**%s error:** cannot save: <file://%s>.\nIts directory doesn't exists.\nSo no new playlist can be saved.\n" "${scripts_basename}" "$argv[$arg]" > /dev/stderr;
+			goto scripts_main_quit;
+		endif
+		
 		set new_playlist="$argv[$arg]";
 		set new_playlist_type="`printf "\""%s"\"" "\""${new_playlist}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
 	else
@@ -68,15 +93,19 @@ playlist_init:
 	
 	if(! -e "${playlist}.new" ) \
 		touch "${playlist}.new";
-	set files_new=`wc -l "${playlist}.new" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
-	if(!( ${files_new} > 0 )) then
-		unset files_new;
-		rm -f "${playlist}.new";
-		if( -e "${playlist}.swp" ) \
-			rm -f "${playlist}.swp";
-		goto scripts_main_quit;
+	if(! ${?save_empty} ) then
+		set files_new=`wc -l "${playlist}.new" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+		if(!( ${files_new} > 0 )) then
+			unset files_new;
+			rm -f "${playlist}.new";
+			if( -e "${playlist}.swp" ) \
+				rm -f "${playlist}.swp";
+			goto scripts_main_quit;
+		endif
 	endif
 	unset files_new;
+	
+	goto playlist_setup;
 #playlist_init:
 
 
@@ -168,6 +197,9 @@ scripts_main_quit:
 	
 	if( ${?new_playlist_type} ) \
 		unset new_playlist_type;
+	
+	if( ${?save_empty} ) \
+		unset save_empty;
 	
 	if( ${?playlist} ) then
 		if( ${?playlist_temp} ) then

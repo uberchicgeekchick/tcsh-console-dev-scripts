@@ -321,7 +321,7 @@ format_new_playlist:
 		printf "<file//%s> now only contains existing files.\n" "${playlist}";
 		if( ${?dead_file_count} ) then
 			printf "\n";
-			playlist:new:save.tcsh --force "${playlist}";
+			playlist:new:save.tcsh --save-empty --force "${playlist}";
 			printf "\n";
 			unset dead_file_count;
 		endif

@@ -289,7 +289,7 @@ exec:
 	endif
 	unset sources_count;
 	
-	#if( ${?debug} ) \
+	if( ${?debug} ) \
 		printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;\n" "${scripts_exec}" "${argz}" "`cat "\""${sources}"\""`" "${target}" "${stdout}" "${stderr}" > ${stdout};
 	( ${scripts_exec} ${argz} "`cat "\""${sources}"\""`" "${target}" > ${stdout} ) >& ${stderr};
 	unset source_file;
@@ -312,7 +312,7 @@ exec:
 		unset source_file;
 	end
 	
-	#if( ${?debug} ) \
+	if( ${?debug} ) \
 		printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;\n" "${scripts_exec}" "${argz}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
 	( ${scripts_exec} ${argz} "${source_file}" "${target}" > ${stdout} ) >& ${stderr};
 	unset source_file;

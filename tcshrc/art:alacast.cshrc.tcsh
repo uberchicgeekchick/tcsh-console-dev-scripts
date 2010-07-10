@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 if( $?0 ) then
 	cd "`dirname '${0}'`";
 	set scripts_name="`basename '${0}'`";

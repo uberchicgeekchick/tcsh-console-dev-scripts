@@ -285,7 +285,7 @@ exec:
 		mkdir -p "${target}";
 	unset sources_count;
 
-	#if( ${?debug} ) \
+	if( ${?debug} ) \
 		printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;\n" "${scripts_exec}" "${argz}" "`cat "\""${sources}"\""`" "${target}" "${stdout}" "${stderr}" > ${stdout};
 	( ${scripts_exec} ${argz} "`cat "\""${sources}"\""`" "${target}" > ${stdout} ) >& ${stderr};
 	unset source_file;
@@ -302,7 +302,7 @@ exec:
 		endif
 		
 		if( ${?debug} ) \
-			printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;" "${scripts_exec}" "${argz}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
+			printf "( %s %s "\""%s"\"" "\""%s"\"" > %s ) >& %s;\n" "${scripts_exec}" "${argz}" "${source_file}" "${target}" "${stdout}" "${stderr}" > ${stdout};
 		( ${scripts_exec} ${argz} "${source_file}" "${target}" > ${stdout} ) >& ${stderr};
 		unset source_file;
 	end

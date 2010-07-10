@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 setenv:
 	if(! ${?TCSH_RC_PATH} ) \
 		setenv TCSH_RC_PATH "/projects/cli/console.pallet";

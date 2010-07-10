@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 # Both
 # 	${TCSH_RC_SESSION_PATH}/complete.cshrc.tcsh
 # and

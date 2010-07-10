@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 # bindkey.tcsh		Bind keys on escape sequences of xterm
 #			and linux console
 #

@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 	if( ${?TCSH_RC_SOURCE_FILE} ) \
 		unsetenv TCSH_RC_SOURCE_FILE;
 	

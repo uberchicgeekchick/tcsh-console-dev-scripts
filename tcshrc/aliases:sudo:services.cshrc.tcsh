@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 if( ${uid} == 0 ) \
 	exit 0;
 

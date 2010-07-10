@@ -31,14 +31,13 @@ setup_lists:
 	set podcasts_to_backup=( \
 	"\n" \
 	);
+	
 	goto setup_podibooks;
 #goto setup_lists;
 
 
 setup_podibooks:
 	set latest_podiobooks=( \
-	"\n" \
-"/media/podcasts/FinalRune Productions/The Troll of Stony Brook, released on: Fri, 02 Jul 2010 13:34:19 +0000.ogg" \
 	"\n" \
 	);
 	
@@ -60,9 +59,6 @@ parse_argv:
 		@ arg=0;
 		@ argc=${#argv};
 		if( $argc == 0 ) then
-			set confirmation;
-			set confirmations=( "r" "r" "r" );
-			set playlists_validated;
 			goto clean_up;
 		endif
 	else if ${?callback} then
@@ -74,19 +70,10 @@ parse_argv:
 		set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\2/'`";
 		set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^([\-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
 		switch( "${option}" )
-			case "no-validation":
-				set option="disable";
-				set value="playlist-validation";
-				
-			case "disable":
-				switch("${value}")
-					case "playlist-validation":
-						set confirmation;
-						set confirmations=( "r" "r" "r" );
-						set playlists_validated;
-						breaksw;
-					endsw
-				
+			case "validate":
+			case "validate-playlists":
+				set validate_playlists;
+			
 			case "clean-up":
 				goto clean_up;
 				breaksw;
@@ -120,10 +107,6 @@ parse_argv:
 				goto alacasts_playlists;
 				breaksw;
 				
-			case "validate-playlists":
-				goto validate_playlists;
-				breaksw;
-				
 			default:
 				goto clean_up;
 				breaksw;
@@ -131,20 +114,11 @@ parse_argv:
 		endsw
 	end
 	
-	if(! ${?playlists_validated} ) \
-		goto validate_playlists;
-			
 	goto exit_script;
 #goto parse_argv;
 
 
 exit_script:
-	if( ${?validate_playlists} ) \
-		unset validate_playlists;
-	
-	if( ${?playlists_validated} ) \
-		unset playlists_validated;
-	
 	if( ${?action_preformed} ) \
 		unset action_preformed;
 	exit 0;
@@ -603,10 +577,6 @@ backup:
 
 alacasts_playlists:
 	set playlist_dir="/media/podcasts/playlists/m3u";
-	if(! ${?validate_playlists} ) then
-		set return_to="alacasts_playlists";
-		goto prompt_for_playlist_validation;
-	endif
 	
 	foreach playlist("`/bin/ls --width=1 -t "\""${playlist_dir}"\""`")
 		set playlist_escaped="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/([\/.])/\\\1/g'`";
@@ -620,8 +590,10 @@ alacasts_playlists:
 		if( "`find "\""${playlist_dir}"\"" -iregex "\"".*\/\.${playlist_escaped}\.sw."\""`" != "" ) then
 			printf "<file://%s/%s> is in use and will not be deleted.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
 		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 1 ) then
-			printf "<file://%s/%s> still lists files.\n\tWould you like to remove it:\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
-			if( "${validate_playlists}" != "n" ) then
+			printf "<file://%s/%s> still lists files.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
+			
+			if( ${?validate_playlists} ) then
+				printf "\tWould you like to remove it:\n" > /dev/stderr;
 				rm -vi "${playlist_dir}/${playlist}";
 				if(! -e "${playlist_dir}/${playlist}" ) then
 					if(! ${?action_preformed} ) then
@@ -629,43 +601,21 @@ alacasts_playlists:
 					else
 						printf "\n\n";
 					endif
-				
-				printf "\tWould you like to make sure that all files in <file://%s/%s> still exist? [Yes/No(default)]" "${playlist_dir}" "${playlist}" > /dev/stdout;
-				set confirmation="$<";
-				#set confirmation=$<:q;
-				printf "\n";
-				
-				switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
-					case "y":
-						set playlist_check_result="`playlist:find:non-existent:listings.tcsh --clean-up "\""${playlist}"\""`";
-						if( "${playlist_check_result}" != "" ) then
-							printf "%s" "${playlist_check_result}";
-							if(! ${?action_preformed} ) then
-								set action_preformed;
-							else
-								printf "\n\n";
-							endif
-						endif
-						unset playlist_check_result;
-					breaksw;
-				
-				case "n":
-				default:
-					breaksw;
-				endsw
+				endif
 			endif
 		else	
+			rm -v "${playlist_dir}/${playlist}";
+			
 			if(! ${?action_preformed} ) then
 				set action_preformed;
 			else
 				printf "\n\n";
 			endif
-			
-			rm -v "${playlist_dir}/${playlist}";
 		endif
 		unset playlist_escaped playlist;
 	end
 	unset playlist_count playlist_dir;
+	
 	goto parse_argv;
 #goto alacasts_playlists;
 
@@ -692,26 +642,5 @@ logs:
 	
 	goto parse_argv;
 #goto logs;
-
-
-prompt_for_playlist_validation:
-	printf "\n\tWould you like to validate existing playlists? [Yes/Always/No(default)]" > /dev/stdout;
-	set confirmation="$<";
-	#set confirmation=$<:q;
-	
-	set validate_playlists`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`;
-	unset confirmation;
-	switch("${validate_playlists}")
-		case "a":
-		case "y":
-			breaksw;
-		case "n":
-		default:
-			set validate_playlists="n";
-			breaksw;
-	endsw
-	
-	goto $return_to;
-#goto prompt_for_playlist_validation;
 
 

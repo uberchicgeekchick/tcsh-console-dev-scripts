@@ -276,22 +276,31 @@ main:
 
 exec:
 	set status=0;
-	if(! ${?no_mk_path} ) then
-		set touch_dir=`dirname "${touch_target}"`;
-		if(! -d "${touch_dir}" ) \
-			mkdir -p "${touch_dir}";
-		unset touch_dir;
-	endif
+	sort "${touch_targets}" | uniq >! "${touch_targets}.pso";
+	mv -f "${touch_targets}.pso" "${touch_targets}";
 	
-	#if( ${?debug} ) \
-		printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${scripts_exec}" "${argz}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
-	( ${scripts_exec} ${argz} "${touch_target}" > ${stdout} ) >& ${stderr};
+	foreach touch_target("`cat "\""${touch_targets}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
+		ex -s '+1d' '+wq!' "${touch_targets}";
+		set touch_target="`printf "\""%s"\"" "\""${touch_target}"\""`";
+		
+		if(! ${?no_mk_path} ) then
+			set touch_dir=`dirname "${touch_target}"`;
+			if(! -d "${touch_dir}" ) \
+				mkdir -p "${touch_dir}";
+			unset touch_dir;
+		endif
 	
-	if( ${?mode} ) then
 		if( ${?debug} ) \
-			printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${chmod_exec}" "${mode}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
-		( ${chmod_exec} ${mode} "${touch_target}" > ${stdout} ) >& ${stderr};
-	endif
+			printf "( %s %s "\""%s"\"" > %s ) >& %s;\n" "${scripts_exec}" "${argz}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
+		( ${scripts_exec} ${argz} "${touch_target}" > ${stdout} ) >& ${stderr};
+		
+		if( ${?mode} ) then
+			if( ${?debug} ) \
+				printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${chmod_exec}" "${mode}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
+			( ${chmod_exec} ${mode} "${touch_target}" > ${stdout} ) >& ${stderr};
+		endif
+		unset touch_target;
+	end
 	
 	goto exit_script;
 #goto exec;
@@ -310,6 +319,13 @@ scripts_main_quit:
 			source "${scripts_path}/argv:clean-up" "${scripts_basename}";
 		# END: source support
 	endif
+	
+	if( ${?touch_targets} ) then
+		if( -e "${touch_targets}" ) \
+			rm -f "${touch_targets}";
+		unset touch_targets;
+	endif
+	
 	if( ${?supports_being_source} ) \
 		unset supports_being_source;
 	if( ${?scripts_basename} ) \
@@ -481,6 +497,26 @@ parse_arg:
 			case "diagnostic-mode":
 			case "debug":
 				breaksw;
+
+			case "a":
+			case "c":
+			case "d":
+			case "date":
+			case "f":
+			case "help":
+			case "m":
+			case "no-create":
+			case "r":
+			case "reference":
+			case "t":
+			case "time":
+			case "version":
+				if( ${dashes} != "" ) then
+					set argz="${argz} $argv[$arg]";
+				else
+					set argz="${argz}$argv[$arg]";
+				endif
+				breaksw;
 			
 			case "":
 				if( ! ${?mode} && `printf "%s" "${value}" | sed -r 's/[ugo]{0,3}[\+\-=][rwxXst]{1,6}//'` == "" ) then
@@ -488,23 +524,14 @@ parse_arg:
 					breaksw;
 				endif
 				
-				if(! ${?touch_target} ) then
-					set touch_target="${value}";
-					breaksw;
-				endif
+				if(! ${?touch_targets} ) \
+					set touch_targets="`mktemp --tmpdir .escaped.${scripts_basename}.targets.XXXXXXXXXX`";
+				if( ${?debug} ) \
+					printf "Adding %s to <file://%s>\n" "${value}" "${touch_targets}";
+				printf "${value}\n" >> "${touch_targets}";
 				breaksw;
 			
 			default:
-				
-				if( ${?argz} ) then
-					if( ${dashes} != "" ) then
-						set argz="${argz} $argv[$arg]";
-					else
-						set argz="${argz}$argv[$arg]";
-					endif
-					breaksw;
-				endif
-				
 				printf "%s%s%s%s is an unsupported option.  See %s -h|--help for more information.\n" "${dashes}" "${option}" "${equals}" "${value}" "${scripts_basename}" >& ${stderr};
 				breaksw;
 		endsw

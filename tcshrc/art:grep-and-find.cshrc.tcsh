@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 	set scripts_name="art:grep-and-find.cshrc.tcsh";
 	if( `printf '%s' "${0}" | sed -r 's/^[^\.]*(tcsh)$/\1/'` != "tcsh" ) then
 		printf "%s%s only supports being sourced from within a TCSH script.\n" "${0}" "${scripts_name}";

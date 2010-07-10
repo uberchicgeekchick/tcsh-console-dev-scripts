@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 
 check_tcsh_rc_current_source_file:
 	if(! ${?TCSH_RC_CURRENT_SOURCE_FILE} ) \

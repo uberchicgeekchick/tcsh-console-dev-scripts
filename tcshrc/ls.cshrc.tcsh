@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 if( -x /usr/bin/dircolors ) then
     if( -r $HOME/.dir_colors ) then
 	eval `/usr/bin/dircolors -c $HOME/.dir_colors`;

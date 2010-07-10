@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 if( ${?TCSH_RC_DEBUG} ) then
 	if( ${?TCSH_OUTPUT_ENABLED} ) \
 		exit 1;

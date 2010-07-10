@@ -1,4 +1,3 @@
-#!/bin/tcsh -f
 set lib_path="/usr/lib";
 if( "${1}" != "" && ( "${1}" == "x86_64" || "${1}" == "64bit" ) ) \
 	set lib_path="${lib_path}64";

@@ -359,9 +359,6 @@ clean_up:
 		goto exception_handler;
 	endif
 	
-	if(! ${?maxdepth} ) \
-		set maxdepth="--search-subdirs-only";
-	
 	if(! ${?target_directory} ) then
 		@ errno=-409;
 		goto exception_handler;
@@ -371,6 +368,9 @@ clean_up:
 		@ errno=-603;
 		goto exception_handler;
 	endif
+	
+	if(! ${?maxdepth} ) \
+		set maxdepth="--search-subdirs-only";
 	
 	if( ${?clean_up_local_disk_only} ) then
 		set skip_directory;

@@ -406,7 +406,7 @@ clean_up:
 		endif
 	endif
 	
-	if( "${cleam_up}" != "" ) then
+	if( "${clean_up}" != "" ) then
 		playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
 	else
 		playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)';

@@ -157,7 +157,7 @@ check_dependencies:
 		if( ${?debug} ) \
 			printf "\n**${scripts_basename} debug:** looking for dependency: ${dependency}.\n\n"; 
 			
-		foreach program("`where '${dependency}'`")
+		foreach program("`where "\""${dependency}"\""`")
 			if( -x "${program}" ) \
 				break;
 			unset program;

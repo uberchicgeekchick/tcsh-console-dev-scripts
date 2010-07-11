@@ -56,6 +56,14 @@ init:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
+	@ required_options=2;
+	
+	if( ${argc} < ${required_options} ) then
+		@ errno=-503;
+		set callback="parse_argv_quit";
+		goto exception_handler;
+	endif
+	
 	set usage_message="Usage:\n\t${scripts_basename} [options] [path/to/playlist/file.(m3u|tox|pls)] [path/to/new/playlist.(m3u|tox|pls)](optional)\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n\t\t--force\tForces the new, sorted, playlist to over-write the the output file, if it exists.\n\t\t\n\t\t--interactive\tPrompts for confimation before saving the final playlist if it would over-write an existing file.\nNOTE:\n--force and --interactive are both optional and may be used together or separate.\n";
 	
 	set original_owd=${owd};
@@ -169,7 +177,7 @@ check_dependencies:
 		if( ${?debug} ) \
 			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
 			
-		foreach program("`where '${dependency}'`")
+		foreach program("`where "\""${dependency}"\""`")
 			if( -x "${program}" ) \
 				break;
 			unset program;
@@ -300,14 +308,6 @@ scripts_main:
 	set label_current="scripts_main";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
-	
-	@ required_options=2;
-	
-	if( ${argc} < ${required_options} ) then
-		@ errno=-503;
-		set callback="parse_argv_quit";
-		goto exception_handler;
-	endif
 	
 	if(! ${?playlist} ) then
 		@ errno=-601;

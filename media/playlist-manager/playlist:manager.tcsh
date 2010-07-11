@@ -405,8 +405,12 @@ clean_up:
 			goto exception_handler;
 		endif
 	endif
-		
-	playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
+	
+	if( "${cleam_up}" != "" ) then
+		playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)' --remove=${clean_up};
+	else
+		playlist:find:missing:listings.tcsh "${playlist}" "${target_directory}" ${maxdepth}${skip_directory}${duplicate_directory} --extensions='(mp3|ogg|m4a)';
+	endif
 	
 	unset skip_directory duplicate_directory target_directory maxdepth clean_up;
 #clean_up:

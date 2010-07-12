@@ -64,7 +64,7 @@ playlist_setup:
 		case "m3u":
 			breaksw;
 	endsw
-	ex -s '+1,$s/\v^[^/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${playlist}.swp";
+	ex -s '+1,$s/\v[^/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${playlist}.swp";
 	printf "\n" >> "${playlist}.swp";
 #playlist_setup:
 

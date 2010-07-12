@@ -16,11 +16,11 @@ init:
 		goto exception_handler;
 	endif
 	
-	goto check_dependencies;
+	goto dependencies_check;
 #goto init;
 
 
-check_dependencies:
+dependencies_check:
 	set dependencies=("${scripts_basename}" "playlist:sort:by:pubdate.tcsh");# "`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
@@ -42,15 +42,15 @@ check_dependencies:
 		
 		if( ${?debug} || ${?debug_dependencies} ) then
 			switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([1-3])"\$"/\1/'`" )
-				case "1":
+				case 1:
 					set suffix="st";
 					breaksw;
 				
-				case "2":
+				case 2:
 					set suffix="nd";
 					breaksw;
 				
-				case "3":
+				case 3:
 					set suffix="rd";
 					breaksw;
 				
@@ -371,9 +371,17 @@ handle_missing_media:
 		printf "\n\n\t\t-----------------------------------------------------\n\n";
 	
 	onintr -;
-	if( ${?append_set} ) \
+	
+	if( ${?append_set} ) then
 		unset append append_set;
-	set prompt_for_playlist;
+	else if( ${?append_automatically} ) then
+		if( $append_automatically > 0 && $append_automatically <= ${#playlists}  ) then
+		set append=$append_automatically;
+		set playlist_index=$append_automatically;
+	else
+		set prompt_for_playlist;
+	endif
+	
 	while( ${?prompt_for_playlist} )
 		if( ${?response} ) then
 			printf "\n\n\t\t-----------------------------------------------------";
@@ -951,17 +959,29 @@ parse_arg:
 			
 			case "append":
 				set append;
+				switch( "${value}" )
+					case "auto":
+					case "automatically":
+						set append_automatically=-1;
+					
+					default:
+						if( ${value} != "" && `printf "%s" "${value}" | sed -r 's/^([0-9]+)$//'` == "" ) then
+							if( ${value} > 0 ) \
+								set append_automatically="${value}";
+						endif
+						breaksw;
+				endsw
 				breaksw;
 			
 			case "maxdepth":
 				if( ${?maxdepth} ) \
 					breaksw;
 				
-				if( ${value} != "" && `printf "%s" "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
-					set value=`printf "%s" "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
+				if( ${value} != "" && `printf "%s" "${value}" | sed -r 's/^([0-9]+)$//'` == "" ) then
 					if( ${value} > 0 ) \
-						set maxdepth=" -maxdepth ${value}";
+						set maxdepth=" -maxdepth ${value} ";
 				endif
+				
 				if(! ${?maxdepth} ) \
 					printf "--maxdepth must be an integer value that is gretter than 0." > /dev/stderr;
 				breaksw;
@@ -970,8 +990,7 @@ parse_arg:
 				if( ${?mindepth} ) \
 					breaksw;
 				
-				if( ${value} != "" && `printf "%s" "${value}" | sed -r 's/^([\-]).*/\1/'` != "-" ) then
-					set value=`printf "%s" "${value}" | sed -r 's/.*([0-9]+).*/\1/'`
+				if( ${value} != "" && `printf "%s" "${value}" | sed -r 's/^([0-9]+)$//'` == "" ) then
 					if( ${value} > 0 ) \
 						set mindepth=" -mindepth ${value} ";
 				endif

@@ -445,37 +445,34 @@ cancel_convert:
 convert_filename_list:
 	onintr cancel_convert;
 	
+	@ errno=0;
+	
 	if(! ${?filename_list} ) \
 		goto usage;
 	
 	if( ${?length} && ! ${?length_set} ) \
 		unset length;
 	
+	if( ${?length_set} && ${?rtrim} ) then
+		@ errno=-1;
+		goto convert_error;
+	endif
+	
+	if(! -e "${filename_list}" ) then
+		@ errno=-2;
+		goto convert_error;
+	endif
+	
 	set filename_list_value="`head -1 "\""${filename_list}"\""`";
 	ex -s '+1d' '+wq!' "${filename_list}";
-	
-	if( ${?length_set} && ${?rtrim} ) then
-		printf "\t**Error:** both --length and --rtrim cannot be specified at the same time.\n\n" > /dev/stderr;
-		@ errno=-610;
-		if(! ${?process_each_filename} ) then
-			goto scripts_main_quit;
-		else
-			goto parse_arg;
-		endif
-	endif
 	
 	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
 	mv -f "${filename_list}.swp" "${filename_list}";
 	
 	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 	if(!( ${file_count} > 0 )) then
-		@ errno=0;
-		printf "\t**Skipping:** <file://%s> no convertable files were found.\n\n" "${filename_list_value}" > /dev/stderr;
-		if(! ${?process_each_filename} ) then
-			goto scripts_main_quit;
-		else
-			goto parse_arg;
-		endif
+		@ errno=-3;
+		goto convert_error;
 	endif
 	
 	if(! -e "${filename_list}.all" ) then
@@ -496,13 +493,8 @@ convert_filename_list:
 		end
 		set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 		if(!( ${file_count} > 0 )) then	
-			@ errno=0;
-			printf "\t**Skipping:** <file://%s> all convertable files have been processed.\n\n" "${filename_list_value}" > /dev/stderr;
-			if(! ${?process_each_filename} ) then
-				goto scripts_main_quit;
-			else
-				goto parse_arg;
-			endif
+			@ errno=-4;
+			goto convert_error;
 		endif
 		cat "${filename_list}" >> "${filename_list}.all";
 		set file_count="`wc -l "\""${filename_list}.all"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
@@ -517,6 +509,31 @@ convert_filename_list:
 	
 	goto convert_filenames;
 #goto convert_filename_list;
+
+convert_error:
+	switch( $errno )
+		case -1:
+			printf "\t**Error:** both --length and --rtrim cannot be specified at the same time.\n\n" > /dev/stderr;
+			breaksw;
+		
+		case -2:
+			breaksw;
+		
+		case -3:
+			printf "\t**Skipping:** <file://%s> no convertable files were found.\n\n" "${filename_list_value}" > /dev/stderr;
+			breaksw;
+		
+		case -4:
+			printf "\t**Skipping:** <file://%s> all convertable files have been processed.\n\n" "${filename_list_value}" > /dev/stderr;
+			breaksw;
+	endsw
+	
+	if(! ${?process_each_filename} ) then
+		goto scripts_main_quit;
+	else
+		goto parse_arg;
+	endif
+#goto convert_error;
 
 	
 convert_filenames:
@@ -670,7 +687,7 @@ confirm_overwrite:
 			else
 				unset skip_message_shown;
 			endif
-			@ errno=-4;
+			@ errno=-6;
 			goto convert_filenames;
 			breaksw;
 	endsw
@@ -1678,6 +1695,24 @@ filename_list_append_value:
 	
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
+	
+	set value_file="`mktemp --tmpdir .escaped.${scripts_basename}.filename.value.XXXXXXXX`";
+	printf "%s" "$value" >! "${value_file}";
+	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+	set escaped_value="`cat "\""${value_file}"\""`";
+	rm -f "${value_file}";
+	unset value_file;
+	#set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+	if( `printf "%s" "${escaped_value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+		set value="${cwd}/${value}";
+	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(\/)(\/)/\1/g'`";
+	while( `printf "%s" "${escaped_value}" | sed -r 's/^(.*)(\/\.\/)(.*)$/\2/'` == "/./" )
+		set value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//'`";
+	end
+	while( `printf "%s" "${escaped_value}" | sed -r 's/^(.*)(\/\.\.\/)(.*)$/\2/'` == "/../" )
+		set value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/'`";
+	end
+	unset escaped_value;
 	
 	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";
 	if(!( ${file_count} > 0 )) then

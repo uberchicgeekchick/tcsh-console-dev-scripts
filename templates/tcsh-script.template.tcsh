@@ -1496,7 +1496,7 @@ parse_arg:
 		set escaped_value="`cat "\""${value_file}"\""`";
 		rm -f "${value_file}";
 		unset value_file;
-		set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+		#set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
 	endif
 	
 	if( "${option}" == "${value}" ) \
@@ -1738,7 +1738,7 @@ read_stdin:
 	set escaped_value="`cat "\""${value_file}"\""`";
 	rm -f "${value_file}";
 	unset value_file;
-	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+	#set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
 	unset escaped_value;
 	
 	while( "${value}" != "" )
@@ -1817,6 +1817,24 @@ filename_list_append_value:
 	
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
+	
+	set value_file="`mktemp --tmpdir .escaped.${scripts_basename}.filename.value.XXXXXXXX`";
+	printf "%s" "$value" >! "${value_file}";
+	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+	set escaped_value="`cat "\""${value_file}"\""`";
+	rm -f "${value_file}";
+	unset value_file;
+	#set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+	if( `printf "%s" "${escaped_value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+		set value="${cwd}/${value}";
+	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(\/)(\/)/\1/g'`";
+	while( `printf "%s" "${escaped_value}" | sed -r 's/^(.*)(\/\.\/)(.*)$/\2/'` == "/./" )
+		set value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//'`";
+	end
+	while( `printf "%s" "${escaped_value}" | sed -r 's/^(.*)(\/\.\.\/)(.*)$/\2/'` == "/../" )
+		set value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/'`";
+	end
+	unset escaped_value;
 	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} || ${?debug_filenames} ) then

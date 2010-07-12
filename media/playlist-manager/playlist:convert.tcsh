@@ -43,7 +43,7 @@ exit_script:
 		goto label_stack_set;
 	
 	if( ! ${?0} && ${?supports_being_sourced} ) then
-		set callback="sourcing_quit";
+		set callback="scripts_sourcing_quit";
 	else
 		set callback="scripts_main_quit";
 	endif
@@ -58,9 +58,13 @@ init:
 	
 	@ required_options=2;
 	
+	
+	@ required_options=2;
+	
+	@ argc=${#argv};
 	if( ${argc} < ${required_options} ) then
 		@ errno=-503;
-		set callback="parse_argv_quit";
+		set callback="exit_script";
 		goto exception_handler;
 	endif
 	
@@ -241,20 +245,6 @@ check_dependencies:
 #check_dependencies:
 
 
-exit_script:
-	set label_current="exit_script";
-	if( "${label_current}" != "${label_previous}" ) \
-		goto label_stack_set;
-	
-	if( ! ${?0} && ${?supports_being_sourced} ) then
-		set callback="scripts_sourcing_quit";
-	else
-		set callback="scripts_main_quit";
-	endif
-	goto callback_handler;
-#exit_script:
-
-
 if_sourced:
 	set label_current="if_sourced";
 	if( "${label_current}" != "${label_previous}" ) \
@@ -299,7 +289,7 @@ scripts_sourcing_quit:
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	# END: source scripts_basename support.
 	
-	set callback="scripts_main_quit";
+	set callback="exit_script";
 	goto callback_handler;
 #scripts_sourcing_quit:
 
@@ -335,7 +325,7 @@ scripts_main:
 			set rm_confirmation="`rm -vfi "\""${new_playlist}"\""`";
 			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) then
 				printf "Your playlist(s) have been left alone and %s is now exiting.\n" "${scripts_basename}";
-				set callback="scripts_main_quit";
+				set callback="exit_script";
 				goto callback_handler;
 			endif
 		endif
@@ -347,10 +337,10 @@ scripts_main:
 		set callback="filename_list_process_init";
 	else if( ${?filename_list} && ! ${?supports_multiple_files} ) then
 		@ errno=-505;
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 		goto exception_handler;
 	else
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	endif
 	
 	goto callback_handler;
@@ -382,7 +372,7 @@ scripts_exec:
 	
 	playlist:new:save.tcsh --force --silent "${playlist}" "${new_playlist}";
 	
-	set callback="scripts_main_quit";
+	set callback="exit_script";
 	goto callback_handler;
 #scripts_exec:
 
@@ -401,7 +391,7 @@ filename_list_process_init:
 		if( ${?no_exit_on_exception} ) \
 			unset no_exit_on_exception;
 		@ errno=-503;
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 		goto exception_handler;
 	endif
 	
@@ -547,8 +537,8 @@ scripts_main_quit:
 	if( ${?no_exit_on_usage} ) \
 		unset no_exit_on_usage;
 	
-	if(! ${?no_exit_on_exception} ) \
-		set no_exit_on_exception;
+	if( ${?no_exit_on_exception} ) \
+		unset no_exit_on_exception;
 	if( ${?last_exception_handled} ) \
 		unset last_exception_handled;
 	
@@ -694,14 +684,8 @@ usage:
 	if(! ${?usage_displayed} ) \
 		set usage_displayed;
 	
-	if(! ${?no_exit_on_usage} ) then
-		if(! ${0} ) then
-			set callback="scripts_sourcing_quit";
-		else
-			set callback="scripts_main_quit";
-		endif
-	else if(! ${?callback} ) then
-		set callback="scripts_main_quit";
+	if(!( ${?callback} && ${?no_exit_on_usage} )) then
+		set callback="exit_script";
 	endif
 	
 	goto callback_handler;
@@ -716,7 +700,7 @@ exception_handler:
 	if(! ${?errno} ) \
 		@ errno=-999;
 	
-	if( $errno > 0 && $errno < -500 ) then
+	if( $errno < -500 ) then
 		if( ${?no_exit_on_exception} ) \
 			set no_exit_on_exception;
 	else if( ${?strict} && $errno <= -500 ) then
@@ -781,12 +765,8 @@ exception_handler:
 		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > /dev/stderr;
 	printf "\n";
 	
-	if(!( ${?callback} && ${no_exit_on_exception}} )) then
-		if(! ${?0} && ${?supports_being_sourced} ) then
-			set callback="scripts_sourcing_quit";
-		else
-			set callback="scripts_main_quit";
-		endif
+	if(!( ${?callback} && ${?no_exit_on_exception} )) then
+		set callback="exit_script";
 	endif
 	
 	if( ${?no_exit_on_exception_set} ) \
@@ -1006,12 +986,6 @@ parse_arg:
 				breaksw;
 			
 			default:
-				if( -e "${value}" && ${?supports_multiple_files} ) then
-					set value_used;
-					set callback="filename_list_append";
-					goto callback_handler;
-				endif
-				
 				if(! ${?playlist} ) then
 					if(! -e "${value}" ) then
 						if( ${?no_exit_on_exception} ) \
@@ -1069,13 +1043,6 @@ parse_arg:
 				
 				if( ${?value_used} ) \
 					breaksw;
-				
-				if(! ${?strict} ) then
-					if(! ${?no_exit_on_exception} ) \
-						set no_exit_on_exception_set no_exit_on_exception;
-				else if( ${?no_exit_on_exception} ) then
-					unset no_exit_on_exception;
-				endif
 				
 				@ errno=-504;
 				set callback="parse_arg";
@@ -1270,7 +1237,7 @@ label_stack_set:
 
 callback_handler:
 	if(! ${?callback} ) \
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	
 	if(! ${?callback_stack} ) then
 		set callback_stack=("${callback}");

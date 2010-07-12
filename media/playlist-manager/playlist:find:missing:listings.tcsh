@@ -212,7 +212,6 @@ find_missing_media:
 	else
 		printf "\nLooking for any files which aren't listed in any of the provided playlists...\n";
 	endif
-	goto process_missing_media;
 	
 	if(!( `wc -l "${missing_media_filename_list}" | sed -r 's/^([0-9]+).*$/\1/'` > 0 )) then
 		printf "\nNo files where found.\n";
@@ -376,8 +375,9 @@ handle_missing_media:
 		unset append append_set;
 	else if( ${?append_automatically} ) then
 		if( $append_automatically > 0 && $append_automatically <= ${#playlists}  ) then
-		set append=$append_automatically;
-		set playlist_index=$append_automatically;
+			set append=$append_automatically;
+			set playlist_index=$append_automatically;
+		endif
 	else
 		set prompt_for_playlist;
 	endif

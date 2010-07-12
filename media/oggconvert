@@ -554,13 +554,13 @@ convert_filenames:
 		endif
 		
 		if( -e "${save_to_filename}.ogg" ) then
-			if( "${original_extension}" == "ogg" && ! ${?re_encode} ) then
+			if( ${?dont_re_encode} ) then
 				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
 				if( "${original_extension}" != "ogg" ) \
-					printf ", <file://%s.ogg> already exists, " "${filename}";
+					printf ", <file://%s.ogg> already exists, and " "${filename}";
 				printf "re-encoding is disabled.\n\n";
 				continue;
-		endif
+			endif
 			
 			if( "${original_extension}" == "ogg" && (!( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length} )) ) then
 				printf "\t**Skipping:** <file://%s.%s> " "${filename}" "${extension}";
@@ -680,6 +680,8 @@ confirm_overwrite:
 				unset force;
 			if( ${?re_encode} ) \
 				unset re_encode;
+			if(! ${?dont_re_encode} ) \
+				set dont_re_encode;
 		case "n":
 		default:
 			if(! ${?skip_message_shown} ) then
@@ -1554,6 +1556,8 @@ parse_arg:
 			case "do-not-re-encode":
 			case "don't-re-encode":
 			case "no-re-encode":
+				if(! ${?dont_re_encode} ) \
+					set dont_re_encode;
 				if( ${?re_encode} ) \
 					unset re_encode;
 				if( ${?force} ) \
@@ -1566,13 +1570,17 @@ parse_arg:
 						set value_used;
 						if(! ${?force} ) \
 							set force;
-					default:
-						if(! ${?re_encode} ) \
-							set re_encode;
+					breaksw;
 				endsw
+				if( ${?dont_re_encode} ) \
+					unset dont_re_encode;
+				if(! ${?re_encode} ) \
+					set re_encode;
 				breaksw;
 			
 			case "force":
+				if( ${?dont_re_encode} ) \
+					unset dont_re_encode;
 				if(! ${?force} ) \
 					set force;
 				if(! ${?re_encode} ) \
@@ -1593,6 +1601,8 @@ parse_arg:
 					case "re-encode":
 						if(! ${?re_encode} ) \
 							set re_encode;
+						if( ${?dont_re_encode} ) \
+							unset dont_re_encode;
 						breaksw;
 					
 					case "transcode":
@@ -1623,6 +1633,8 @@ parse_arg:
 					case "re-encode":
 						if( ${?re_encode} ) \
 							unset re_encode;
+						if(! ${?dont_re_encode} ) \
+							set dont_re_encode;
 						breaksw;
 					
 					case "transcode":
@@ -1738,9 +1750,9 @@ filename_list_append_value:
 		goto convert_filename_list;
 	endif
 	
-	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|rm|wma|wav" && ! ${?re_encode} && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
+	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|rm|wma|wav" && ( ${?dont_re_encode} || ( ! ${?re_encode} && ! ${?ltrim} && ! ${?rtrim} && ! ${?length_set} ) ) ) then
 		set scripts_supported_extensions="mp3|m4a|rm|wma|wav";
-	else if( "${scripts_supported_extensions}" == "mp3|m4a|rm|wma|wav" && ( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length} ) ) then
+	else if( "${scripts_supported_extensions}" == "mp3|m4a|rm|wma|wav" && ! ${?dont_re_encode} && ( ${?re_encode} || ${?ltrim} || ${?rtrim} || ${?length_set} ) ) then
 		set scripts_supported_extensions="ogg|mp3|m4a|rm|wma|wav";
 	endif
 	

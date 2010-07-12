@@ -483,7 +483,7 @@ convert_filename_list:
 			foreach filename_next( "`cat "\""${filename_list}"\""`")# | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")# | sed -r 's/(["\"\$\!\`"])/"\""\\"\\1""\""/g'`" )
 				@ line++;
 				if( "${filename_prev}" == "${filename_next}" ) then
-					#printf "\t**Skipping:** <file://%s> its already been converted.\n\n" "${filename_next}";
+					#printf "\n\t**Skipping:** <file://%s> its already been converted.\n\n" "${filename_next}";
 					ex -s "+${line}d" '+wq!' "${filename_list}";
 					@ line--;
 				endif
@@ -503,36 +503,30 @@ convert_filename_list:
 	if( ${?debug} || ${?debug_filelist} ) \
 		cat "${filename_list}";
 	
-	if( ${?length_set} && ${?ltrim} ) then
-		goto find_length;
-	endif
-	
 	goto convert_filenames;
 #goto convert_filename_list;
 
 convert_error:
 	switch( $errno )
 		case -1:
-			printf "\t**Error:** both --length and --rtrim cannot be specified at the same time.\n\n" > /dev/stderr;
+			printf "\n\t**Error:** both --length and --rtrim cannot be specified at the same time.\n\n" > /dev/stderr;
 			breaksw;
 		
 		case -2:
 			breaksw;
 		
 		case -3:
-			printf "\t**Skipping:** <file://%s> no convertable files were found.\n\n" "${filename_list_value}" > /dev/stderr;
+			printf "\n\t**Skipping:** <file://%s> no convertable files were found.\n\n" "${filename_list_value}" > /dev/stderr;
 			breaksw;
 		
 		case -4:
-			printf "\t**Skipping:** <file://%s> all convertable files have been processed.\n\n" "${filename_list_value}" > /dev/stderr;
+			printf "\n\t**Skipping:** <file://%s> all convertable files have been processed.\n\n" "${filename_list_value}" > /dev/stderr;
 			breaksw;
 	endsw
 	
-	if(! ${?process_each_filename} ) then
+	if(! ${?process_each_filename} ) \
 		goto scripts_main_quit;
-	else
-		goto parse_arg;
-	endif
+	goto parse_arg;
 #goto convert_error;
 
 	
@@ -602,8 +596,11 @@ convert_filenames:
 		if(! ${?force} ) \
 			goto confirm_overwrite;
 		
-		if( ${?rtrim} && ! ${?ltrim} ) \
+		if( ( ${?rtrim} && ! ${?ltrim} ) || ${?length_set} ) then
+			if( ${?debug} ) \
+				printf "\tGoing to find <file://%s.%s>'s length.\n" "${filename}" "${extension}";
 			goto find_length;
+		endif
 		
 		goto oggconvert;
 	end
@@ -621,9 +618,9 @@ convert_filenames:
 			printf "--combine reqires at least two input files.\n";
 			@ errno=-5;
 			goto scripts_main_quit;
-		else
-			goto init_combine;
 		endif
+		
+		goto init_combine;
 	endif
 	
 	if( ${?filename} ) \
@@ -664,11 +661,14 @@ confirm_overwrite:
 				goto find_length;
 			endif
 			
-			if( ${?ltrim} || ${?length} || "${original_extension}" != "ogg" ) \
+			if( ${?ltrim} || ${?length_set} || "${original_extension}" != "ogg" ) \
 				goto oggconvert;
 			
-			if( ${?rtrim} ) \
+			if( ( ${?rtrim} && ! ${?ltrim} ) || ${?length_set} ) then
+				if( ${?debug} ) \
+					printf "\tGoing to find <file://%s.%s>'s length.\n" "${filename}" "${extension}";
 				goto find_length;
+			endif
 			
 			goto oggconvert;
 			breaksw;
@@ -1732,11 +1732,10 @@ filename_list_append_value:
 			find -L "${value}" | sort >> "${filename_list}";
 		endif
 		
-		if(! ${?process_each_filename} ) then
+		if(! ${?process_each_filename} ) \
 			goto parse_arg;
-		else
-			goto convert_filename_list;
-		endif
+		
+		goto convert_filename_list;
 	endif
 	
 	if( "${scripts_supported_extensions}" == "ogg|mp3|m4a|rm|wma|wav" && ! ${?re_encode} && ! ${?ltrim} && ! ${?rtrim} && ! ${?length} ) then
@@ -1763,11 +1762,10 @@ filename_list_append_value:
 		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${filename_list}";
 	endif
 	
-	if(! ${?process_each_filename} ) then
+	if(! ${?process_each_filename} ) \
 		goto parse_arg;
-	else
-		goto convert_filename_list;
-	endif
+	
+	goto convert_filename_list;
 #goto filename_list_append_value;
 
 

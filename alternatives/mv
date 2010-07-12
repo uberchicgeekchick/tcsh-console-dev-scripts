@@ -282,10 +282,12 @@ exec:
 		goto exit_script;
 	endif
 	
-	if( ! -e "${target}" && ( $sources_count > 1 || `printf "%s" "${target}" | sed -r 's/.*(\/)$/\1/'` == "/" ) ) then
-		mkdir -p "${target}";
-	#else if(! -d "`dirname "\""${target}"\""`" ) then
-	#	mkdir -p "`dirname "\""${target}"\""`";
+	if(! -e "${target}" ) then
+		if( $sources_count > 1 || `printf "%s" "${target}" | sed -r 's/.*(\/)$/\1/'` == "/" ) then
+			mkdir -p "${target}";
+		else if(! -d "`dirname "\""${target}"\""`" ) then
+			mkdir -p "`dirname "\""${target}"\""`";
+		endif
 	endif
 	unset sources_count;
 	

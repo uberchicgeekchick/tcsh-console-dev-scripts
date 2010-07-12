@@ -13,22 +13,17 @@
 		"/media/library/playlists/m3u/lifestyle.m3u" \
 		"/media/library/playlists/m3u/erotica.m3u" \
 		"/media/library/playlists/m3u/podiobooks.m3u" \
-		"/media/library/playlists/m3u/technology.m3u" \
-		"/media/library/playlists/m3u/science.m3u" \
 	);
 	
-	set latest_playlist="`/bin/ls -tr --width 1 /media/podcasts/playlists/m3u/ | tail -1`";
-	if( "${latest_playlist}" != "" ) then
-		set latest_playlist="/media/podcasts/playlists/m3u/${latest_playlist}";
-	else
-		set latest_playlist="";
-	endif
+	set latest_playlist="/media/podcasts/playlists/m3u/`/bin/ls -tr --width 1 /media/podcasts/playlists/m3u/ | tail -1`";
 	
 	set scripts=( \
 		"/media/clean-up.tcsh" \
 	);
 	
 	set secondary_playlists=( \
+		"/media/library/playlists/m3u/technology.m3u" \
+		"/media/library/playlists/m3u/science.m3u" \
 		"/media/library/playlists/m3u/culture.m3u" \
 		"/media/library/playlists/m3u/slashdot.m3u" \
 	);

@@ -14,12 +14,6 @@ unset args_handled;
 	
 	alias ex "ex -E -n -X --noplugin";
 
-if(!(${?DEBUG_EXEC})) then
-	setenv output " >& /dev/null &";
-else
-	setenv output " &";
-endif
-
 setenv TCSH_ALTERNATIVES_PATH "${TCSH_RC_SESSION_PATH}/../alternatives";
 	
 	if( ${?TCSH_RC_DEBUG} ) \
@@ -83,8 +77,6 @@ setenv TCSH_ALTERNATIVES_PATH "${TCSH_RC_SESSION_PATH}/../alternatives";
 		endsw
 		unset alternative;
 	end
-	
-	unset output
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "alternatives/init.tcsh";
 	

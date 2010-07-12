@@ -10,9 +10,8 @@
 	);
 	
 	set primary_playlists=( \
-		"/media/library/playlists/m3u/lifestyle.m3u" \
 		"/media/library/playlists/m3u/erotica.m3u" \
-		"/media/library/playlists/m3u/podiobooks.m3u" \
+		"/media/library/playlists/m3u/lifestyle.m3u" \
 	);
 	
 	set latest_playlist="/media/podcasts/playlists/m3u/`/bin/ls -tr --width 1 /media/podcasts/playlists/m3u/ | tail -1`";
@@ -22,17 +21,20 @@
 	);
 	
 	set secondary_playlists=( \
-		"/media/library/playlists/m3u/technology.m3u" \
 		"/media/library/playlists/m3u/science.m3u" \
 		"/media/library/playlists/m3u/culture.m3u" \
+		"/media/library/playlists/m3u/technology.m3u" \
+		"/media/library/playlists/m3u/podiobooks.m3u" \
 		"/media/library/playlists/m3u/slashdot.m3u" \
 	);
 	
-	set additional_playlists=( \
+	set final_playlists=( \
 		"/media/library/playlists/m3u/vodcasts.m3u" \
 	);
 
-if( ${#argv} > 0 ) then
+	if( ${#argv} == 0 ) \
+		set argv=("--edit");
+	
 	switch( "$argv[1]" )
 		case "--auto-edit":
 		case "--edit":
@@ -44,7 +46,7 @@ if( ${#argv} > 0 ) then
 			goto display_playlists;
 			breaksw;
 	endsw
-endif
+	
 
 edit_playlists:
 	vim-enhanced -p \
@@ -53,7 +55,8 @@ edit_playlists:
 		${scripts} \
 		${secondary_playlists} \
 		"${latest_playlist}" \
-		${additional_playlists} \
+		${final_playlists} \
+		'+tablast' \
 	;
 	goto exit_script;
 #goto edit_playlists;
@@ -70,9 +73,6 @@ display_playlists:
 		unset playlist;
 	end
 	
-	if( "${latest_playlist}" != "" ) \
-		printf "%s\n" "${latest_playlist}";
-	
 	foreach script( ${scripts} )
 		printf "%s\n" "${script}";
 		unset script;
@@ -83,7 +83,10 @@ display_playlists:
 		unset playlist;
 	end
 	
-	foreach playlist( ${additional_playlists} )
+	if( "${latest_playlist}" != "" ) \
+		printf "%s\n" "${latest_playlist}";
+	
+	foreach playlist( ${final_playlists} )
 		printf "%s\n" "${playlist}";
 		unset playlist;
 	end
@@ -94,7 +97,11 @@ display_playlists:
 
 
 exit_script:
-	unset primary_playlists scriptslatest_playlist secondary_playlists;
+	if( ${?playlist} ) \
+		unset playlist;
+	
+	unset primary_playlists scripts latest_playlist secondary_playlists final_playlists;
+	
 	set status=0;
 	exit 0;
 #goto exit_script;

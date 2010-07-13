@@ -25,17 +25,9 @@ scripts_main_quit:
 	onintr -;
 	
 	if( ${?playlist} ) then
-		if(! ${?playlists_new_files} ) then
-			if( -e "${playlist}.swp" ) \
-				rm "${playlist}.swp";
-			if( -e "${playlist}.new" ) \
-				rm "${playlist}.new";
-		else
-			printf "\n\t";
-			playlist:new:save.tcsh "${playlist}";
-			printf "\n";
-			unset playlists_new_files;
-		endif
+		printf "\n\t";
+		playlist:new:save.tcsh --force "${playlist}";
+		printf "\n";
 		unset playlist;
 	endif
 	
@@ -132,8 +124,6 @@ scripts_main_quit:
 		unset parsed_argc;
 	if( ${?parsed_argv} ) \
 		unset parsed_argv;
-	if( ${?playlists_new_files} ) \
-		unset playlists_new_files;
 	if( ${?reverse_modifier} ) \
 		unset reverse_modifier;
 	if( ${?scripts_basename} ) \
@@ -842,14 +832,7 @@ oggconvert:
 	endif
 	
 	if( ${?playlist} ) then
-		if(! ${?playlists_new_files} ) then
-			@ playlists_new_files=1;
-		else
-			@ playlists_new_files++;
-		endif
-		
-		if( "`printf "\""%s"\"" "\""${save_to_filename}"\"" | sed -r 's/^(.)(.*)"\$"/\1/'`" != "/" ) \
-			printf "%s/" "${cwd}" >> "${playlist}.new";
+		printf "\tAppending:\n\t\t<file://%s.ogg>\n\t\t\tto\n\t\t<file://%s>\n" "${save_to_filename}" "${playlist}";
 		printf "%s.ogg\n" "${save_to_filename}" >> "${playlist}.new";
 	endif
 	
@@ -1169,21 +1152,6 @@ parse_argv:
 parse_arg:
 	onintr cancel_convert;
 	
-	if( ${?playlist} ) then
-		if(! ${?playlists_new_files} ) then
-			if( -e "${playlist}.swp" ) \
-				rm "${playlist}.swp";
-			if( -e "${playlist}.new" ) \
-				rm "${playlist}.new";
-		else
-			printf "\n\t";
-			playlist:new:save.tcsh "${playlist}";
-			printf "\n";
-			unset playlists_new_files;
-		endif
-		unset playlist;
-	endif
-	
 	while( $arg < $argc )
 		if(! ${?arg_shifted} ) then
 			@ arg++;
@@ -1501,6 +1469,7 @@ parse_arg:
 					set playlist="${scripts_basename}'s ${playlist_type} playlist @ `date '+%c'`.${playlist_type}";
 				endif
 				
+				printf "\tConverted ogg vorbis files will be added to:\n\t\t<file://%s>\n" "${playlist}";
 				playlist:new:create.tcsh "${playlist}";
 				unset playlist_type;
 				set value_used;
@@ -1510,10 +1479,12 @@ parse_arg:
 				if(! ${?playlist} ) \
 					breaksw;
 				
-				if( -e "${playlist}" && -e "${playlist}.new" ) then
+				if( ${?playlist} ) then
+					printf "\n\t";
 					playlist:new:save.tcsh --force "${playlist}";
+					printf "\n";
+					unset playlist;
 				endif
-				unset playlist;
 				breaksw;
 			
 			case "transcode":
@@ -1715,15 +1686,16 @@ filename_list_append_value:
 	rm -f "${value_file}";
 	unset value_file;
 	#set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-	if( `printf "%s" "${escaped_value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+	set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+		set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	end
+	while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+		set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	end
+	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+	if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
 		set value="${cwd}/${value}";
-	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(\/)(\/)/\1/g'`";
-	while( `printf "%s" "${escaped_value}" | sed -r 's/^(.*)(\/\.\/)(.*)$/\2/'` == "/./" )
-		set value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//'`";
-	end
-	while( `printf "%s" "${escaped_value}" | sed -r 's/^(.*)(\/\.\.\/)(.*)$/\2/'` == "/../" )
-		set value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/'`";
-	end
 	unset escaped_value;
 	
 	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";

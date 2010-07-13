@@ -144,7 +144,8 @@ launchers_main:
 	if(!( ${?priority} && ${?pid} )) \
 		goto usage;
 	
-	if( $uid != 0 && `printf "${priority}" | sed -r 's/^(.).*$/\1/'` == "-" ) \
+	#if( $uid != 0 && `printf "${priority}" | sed -r 's/^(.).*$/\1/'` == "-" ) \
+	if( $uid != 0 ) \
 		set scripts_exec="sudo ${scripts_exec}";
 	
 	echo ${scripts_exec} ${priority} ${pid};

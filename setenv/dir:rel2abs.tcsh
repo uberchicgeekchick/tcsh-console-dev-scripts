@@ -12,16 +12,25 @@ init:
 # turns $value from a relative path, e.g.: ~/Documents/../Photos/./Me.png, to its absolute path, e.g.: /home/user/Photos/Me.png.
 rel2abs:
 	
+	set value_file="`mktemp --tmpdir .escaped.${scripts_basename}.filename.value.XXXXXXXX`";
+	printf "%s" "$value" >! "${value_file}";
+	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+	set escaped_value="`cat "\""${value_file}"\""`";
+	rm -f "${value_file}";
+	unset value_file;
+	set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+		set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	end
+	while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+		set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	end
+	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
 	if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
 		set value="${cwd}/${value}";
-	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(\/)(\/)/\1/g'`";
-	while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\/)(.*)$/\2/'` == "/./" )
-		set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(\/\.\/)/\//'`";
-	end
-	while( `printf "%s" "${value}" | sed -r 's/^(.*)(\/\.\.\/)(.*)$/\2/'` == "/../" )
-		set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/'`";
-	end
+	unset escaped_value;
 	
+	goto main;
 #goto rel2abs;
 
 main:

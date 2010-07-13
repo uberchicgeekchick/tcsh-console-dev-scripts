@@ -39,8 +39,6 @@ setup_lists:
 setup_podibooks:
 	set latest_podiobooks=( \
 	"\n" \
-"/media/podcasts/Archers, The/Archers: 100712 Monday, released on: Mon, 12 Jul 2010 18:20:00 GMT.mp3" \
-	"\n" \
 	);
 	
 	set librivox_podiobooks=( \

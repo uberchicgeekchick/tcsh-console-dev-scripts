@@ -831,12 +831,13 @@ oggconvert:
 		${ogginfo} "${save_to_filename}.ogg";
 	endif
 	
+	printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[completed]\n\n";
+	
 	if( ${?playlist} ) then
-		printf "\tAppending:\n\t\t<file://%s.ogg>\n\t\t\tto\n\t\t<file://%s>\n" "${save_to_filename}" "${playlist}";
+		if( ${?debug} ) \
+			printf "\tAppending:\n\t\t<file://%s.ogg>\n\t\t\tto\n\t\t<file://%s>\n" "${save_to_filename}" "${playlist}";
 		printf "%s.ogg\n" "${save_to_filename}" >> "${playlist}.new";
 	endif
-	
-	printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[completed]\n\n";
 	
 	if( ${?transcode} && "${original_extension}" != "ogg" ) then
 		rm ${transcode} "${filename}.${original_extension}";
@@ -1469,7 +1470,8 @@ parse_arg:
 					set playlist="${scripts_basename}'s ${playlist_type} playlist @ `date '+%c'`.${playlist_type}";
 				endif
 				
-				printf "\tConverted ogg vorbis files will be added to:\n\t\t<file://%s>\n" "${playlist}";
+				if( ${?debug} ) \
+					printf "\tConverted ogg vorbis files will be added to:\n\t\t<file://%s>\n" "${playlist}";
 				playlist:new:create.tcsh "${playlist}";
 				unset playlist_type;
 				set value_used;
@@ -1479,12 +1481,10 @@ parse_arg:
 				if(! ${?playlist} ) \
 					breaksw;
 				
-				if( ${?playlist} ) then
-					printf "\n\t";
-					playlist:new:save.tcsh --force "${playlist}";
-					printf "\n";
-					unset playlist;
-				endif
+				printf "\n\t";
+				playlist:new:save.tcsh --force "${playlist}";
+				printf "\n";
+				unset playlist;
 				breaksw;
 			
 			case "transcode":

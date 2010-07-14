@@ -388,7 +388,13 @@ handle_missing_media:
 			printf "\n\t\t**error:** %s is an invalid selection.  Please select again?" "${response}";
 			printf "\n\t\t-----------------------------------------------------\n\n";
 		endif
-		printf "\n\t**Unlisted file:**\n\t\t<file://%s>" "${this_podcast}";
+		printf "\n\t**";
+		if(! ${?duplicate_dir} ) then
+			printf "Unlisted";
+		else
+			printf "Remote/Duplicate";
+		endif
+		printf " file:**\n\t\t<file://%s>" "${this_podcast}";
 		printf "\n\n\tWhat action would you like to take:";
 		if(! ${?remove} ) then
 			@ playlist_index=0;
@@ -400,7 +406,7 @@ handle_missing_media:
 		endif
 		
 		printf "\n\t\tD) Delete this file and resulting empty directories.";
-		printf "\n\t\tI) Ignore: This discrepency and do nothing about.";
+		printf "\n\t\tS) Skip this file and do nothing.";
 		printf "\n\t\tA) Abort and exit %s." "${scripts_basename}";
 		
 		printf "\n\n\tPlease select which action you want performed?  ";
@@ -415,13 +421,13 @@ handle_missing_media:
 		endif
 		
 		if(! ${?append} ) \
-			printf "[Delete, Ignore, Abort]: ";
+			printf "[Delete, Skip, Abort]: ";
 		set response="$<";
 		printf "\n";
 		switch( `printf "%s" "${response}" | sed -r 's/^(.).*$/\l\1/'` )
-			case "i":
+			case "s":
 				if(! ${?append} ) then
-					printf "\n\t**Ignoring:**\n\t\t<file://%s>\n" "${this_podcast}";
+					printf "\n\t**Skipping:**\n\t\t<file://%s>\n" "${this_podcast}";
 					unset prompt_for_playlist;
 					breaksw;
 				endif

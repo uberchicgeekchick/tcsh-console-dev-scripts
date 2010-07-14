@@ -17,8 +17,8 @@ set addsuffix
 
 setenv	LS_OPTIONS	"--human-readable --color --quoting-style=c --classify --group-directories-first --format=vertical"
 
-#set correct=cmd
-set correct=all
+#set correct=all
+set correct=cmd
 set autoexpand
 set autocorrect
 set autolist=ambiguous

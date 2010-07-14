@@ -22,8 +22,8 @@
 	
 	set secondary_playlists=( \
 		"/media/library/playlists/m3u/science.m3u" \
-		"/media/library/playlists/m3u/culture.m3u" \
 		"/media/library/playlists/m3u/technology.m3u" \
+		"/media/library/playlists/m3u/culture.m3u" \
 		"/media/library/playlists/m3u/podiobooks.m3u" \
 		"/media/library/playlists/m3u/slashdot.m3u" \
 	);

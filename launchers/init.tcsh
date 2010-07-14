@@ -12,6 +12,12 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
+	if(! ${?TCSH_SILENT_EXEC} ) then
+		set output="&";
+	else
+		set output=">& /dev/null &";
+	endif
+	
 	setenv TCSH_LAUNCHER_PATH "${TCSH_RC_SESSION_PATH}/../launchers";
 	if( ${?TCSH_RC_DEBUG} ) \
 		printf "Loading:\n\t[file://%s/init.tcsh] @ %s.\n" "${TCSH_LAUNCHER_PATH}" `date "+%I:%M:%S%P"`;
@@ -83,6 +89,9 @@ unset args_handled;
 				breaksw;
 		endsw
 	end
+	
+	if( ${?output} ) \
+		unset output;
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "launchers/init.tcsh";
 	

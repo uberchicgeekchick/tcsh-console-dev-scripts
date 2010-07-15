@@ -943,9 +943,6 @@ parse_arg:
 							set value="null";
 						set removal_$value;
 						set removal_switch=`printf "%s" "${value}" | sed -r 's/^([ifv]).*$/\1/'`;
-						if(! ${?remove} ) \
-							set remove;
-						
 						if( "${removal_switch}" != "${value}" ) then
 							if( "${remove}" == "" ) then
 								set remove="${removal_switch}";
@@ -955,6 +952,9 @@ parse_arg:
 						else
 							unset removal_switch;
 						endif
+						
+						if(! ${?remove} ) \
+							set remove;
 						breaksw;
 				endsw
 				breaksw;

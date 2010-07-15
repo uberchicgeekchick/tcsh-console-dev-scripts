@@ -257,7 +257,7 @@ main:
 	if( ${?edit_playlist} ) \
 		${EDITOR} "${playlist}";
 	
-	printf "Ensuring that all files listed in: <file//%s> still exists.\n" "${playlist}";
+	printf "Ensuring that all files listed in: <file://%s> still exists.\n" "${playlist}";
 	playlist:new:create.tcsh "${playlist}";
 	if(! ${?filename_list} ) \
 		set filename_list="`mktemp --tmpdir filenames.${scripts_basename}.XXXXXX`";

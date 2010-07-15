@@ -64,22 +64,26 @@ edit_playlists:
 
 display_playlists:
 	foreach document( ${documents} )
-		printf "%s\n" "${document}";
+		if( -e "${document}" ) \
+			printf "%s\n" "${document}";
 		unset document;
 	end
 	
 	foreach playlist( ${primary_playlists} )
-		printf "%s\n" "${playlist}";
+		if( -e "${playlist}" ) \
+			printf "%s\n" "${playlist}";
 		unset playlist;
 	end
 	
 	foreach script( ${scripts} )
-		printf "%s\n" "${script}";
+		if( -e "${script}" ) \
+			printf "%s\n" "${script}";
 		unset script;
 	end
 	
 	foreach playlist( ${secondary_playlists} )
-		printf "%s\n" "${playlist}";
+		if( -e "${playlist}" ) \
+			printf "%s\n" "${playlist}";
 		unset playlist;
 	end
 	
@@ -87,7 +91,8 @@ display_playlists:
 		printf "%s\n" "${latest_playlist}";
 	
 	foreach playlist( ${final_playlists} )
-		printf "%s\n" "${playlist}";
+		if( -e "${playlist}" ) \
+			printf "%s\n" "${playlist}";
 		unset playlist;
 	end
 	

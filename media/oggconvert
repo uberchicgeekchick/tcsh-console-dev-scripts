@@ -1045,8 +1045,8 @@ calculate_length:
 	
 	unset oggs_hours trim_hours oggs_minutes trim_minutes oggs_seconds trim_seconds hours minutes seconds;
 	
-	if( ${?length_set} && ${?ltrim} ) \
-		goto convert_filenames;
+	#if( ${?length_set} && ${?ltrim} ) \
+	#	goto convert_filenames;
 	
 	if( "${extension}" != "ogg" ) \
 		set extension="ogg";

@@ -132,15 +132,19 @@ parse_argv:
 					case "verbose":
 					case "interactive":
 					case "silent":
+						if( "${clean_up}" == "" ) then
+							set clean_up="${value}";
+						else if( `printf "%s" "${clean_up}" | sed -r "s/^.*(${value}).*"\$"/\1/"` != "${value}" ) then
+							set clean_up="${clean_up} --clean-up=${value}";
+						endif
+						
+						if(! ${?clean_up} ) \
+							set clean_up;
+						breaksw;
+					
 					default:
 						if(! ${?clean_up} ) \
 							set clean_up;
-						
-						if( "${clean_up}" == "" ) then
-							set clean_up="${value}";
-						else
-							set clean_up="${clean_up} --clean-up=${value}";
-						endif
 						breaksw;
 				endsw
 				breaksw;

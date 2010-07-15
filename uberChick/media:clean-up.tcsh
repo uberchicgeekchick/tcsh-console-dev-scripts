@@ -28,7 +28,7 @@ setup_lists:
 	"\n" \
 	);
 	
-	set podcasts_to_backup=( \
+	set to_archive=( \
 	"\n" \
 	);
 	
@@ -91,9 +91,8 @@ parse_argv:
 				goto videos;
 				breaksw;
 				
-			case "backup":
-			case "back-up":
-				goto backup;
+			case "archive":
+				goto archive;
 				breaksw;
 				
 			case "delete":
@@ -164,7 +163,7 @@ clean_up:
 			breaksw;
 		
 		case 6:
-			goto backup;
+			goto archive;
 			breaksw;
 		
 		case 7:
@@ -218,7 +217,7 @@ move:
 		
 		default:
 			unset goto_index callback;
-			goto backup;
+			goto archive;
 			breaksw;
 	endsw
 	goto parse_argv;
@@ -543,9 +542,9 @@ videos:
 #goto videos;
 
 
-backup:
-	if( ${?podcasts_to_backup} ) then
-		foreach podcast( "`printf "\""${podcasts_to_backup}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
+archive:
+	if( ${?to_archive} ) then
+		foreach podcast( "`printf "\""${to_archive}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
 			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) then
 				unset podcast;
 				continue;
@@ -557,23 +556,31 @@ backup:
 				printf "\n\n";
 			endif
 			
-			if(! -d "/art/media/resources/stories/Slashdot" ) \
-				mkdir -p  "/art/media/resources/stories/Slashdot";
+			set podcast_dir="`dirname "\""${podcast}"\""`";
+			set podcast_dir="`basename "\""${podcast_dir}"\""`";
+			switch( "${podcast_dir}" )
+				case "slash.":
+					set podcast_dir="Slashdot";
+					breaksw;
+			endsw
+			
+			if(! -d "/art/media/resources/archived-podcasts/${podcast_dir}" ) \
+				mkdir -p "/art/media/resources/archived-podcasts/${podcast_dir}";
 			
 			mv -vi \
 				"${podcast}" \
-			"/art/media/resources/stories/Slashdot";
+			"/art/media/resources/archived-podcasts/${podcast_dir}";
 			
 			set podcast_dir="`dirname "\""${podcast}"\""`";
 			if( `/bin/ls -A "${podcast_dir}"` == "" ) \
 				rm -rv "${podcast_dir}";
 			unset podcast_dir podcast;
 		end
-		unset podcasts_to_backup;
+		unset to_archive;
 	endif
 	
 	goto parse_argv;
-#goto backup;
+#goto archive;
 
 
 alacasts_playlists:

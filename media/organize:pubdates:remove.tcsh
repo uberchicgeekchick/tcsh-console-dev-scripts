@@ -29,10 +29,11 @@ if(! ${?target_directory} ) then
 	exit ${status};
 endif
 
-foreach title("`/usr/bin/find -L "\""${target_directory}"\"" -regextype posix-extended -iregex '.*, released on.*\.([^\.]*)"\$"' -type f | sort | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g'`")
+foreach title("`/usr/bin/find -L "\""${target_directory}"\"" -regextype posix-extended -iregex '.*, released on.*\.([^\.]*)"\$"' -type f | sort | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
 	set file_path="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on\:\ )([^\.]+)\.([^\.]+)/\1/g'`";
 	set file_name="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on\:\ )([^\.]+)\.([^\.]+)/\2/g'`";
 	set extension="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on\:\ )([^\.]+)\.([^\.]+)/\5/g'`";
+	set title="`printf "\""%s"\"" "\""${title}"\""`";
 	mv -v "${title}" "${file_path}/${file_name}.${extension}";
 end
 

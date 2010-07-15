@@ -101,12 +101,8 @@ main:
 	endif
 	
 	set playlists="`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	rm -f "${playlists_filename_list}";
-	unset playlists_filename_list;
 	
-	set target_directories="`cat "\""${target_directories_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";# | sed -r 's/(.*)/"\""\1"\""/'`";;
-	rm -f "${target_directories_filename_list}";
-	unset target_directories_filename_list;
+	set target_directories="`cat "\""${target_directories_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	
 	if(! ${?maxdepth} ) \
 		set maxdepth=" -maxdepth 2";
@@ -129,17 +125,19 @@ main:
 
 edit_playlists:
 	if( ${?edit_playlist} ) then
-		foreach playlist(${playlists})
+		foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
+			set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
 			${EDITOR} "${playlist}";
+			unset playlist;
 		end
-		unset playlist;
 	endif
 #goto edit_playlists;
 
 
 setup_playlist_new:
-	foreach playlist(${playlists})
-		playlist:new:create.tcsh "$playlist";
+	foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
+		set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
+		playlist:new:create.tcsh "${playlist}";
 		unset playlist;
 	end
 #setup_playlist_new:
@@ -165,23 +163,26 @@ find_missing_media:
 	#find -L ${target_directories}${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ -type f | sort | sed -r 's/(\\)/\\\\/g' | sed -r 's/(["$!`])/"\\\1"/g' | sed -r 's/(\[)/\\\[/g' | sed -r 's/([*])/\\\1/g' >! "${missing_media_filename_list}";
 	if(! ${?previous_target_directory} ) \
 		printf "\nSearching for multimedia files";
-	foreach target_directory( ${target_directories} )
-		if(! ${?previous_target_directory} ) then
-			set previous_target_directory="${target_directory}";
-		else
-			if( "${previous_target_directory}" == "${target_directory}" ) then
-				if( ${?debug} ) \
-					printf "<%s> == <%s>\n" "${previous_target_directory}" "${target_directory}";
-				unset previous_target_directory;
-			endif
-			printf " .";
-			continue;
+	else
+		if( "${previous_target_directory}" == "${target_directory}" ) then
+			if( ${?debug} ) \
+				printf "<%s> == <%s>\n" "${previous_target_directory}" "${target_directory}";
+			unset previous_target_directory;
 		endif
+		printf " .";
+		goto find_missing_media;
+	endif
+	
+	foreach target_directory( "`cat "\""${target_directories_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
+		set target_directory="`printf "\""%s"\"" "\""${target_directory}"\""`";
+		if(! ${?previous_target_directory} ) \
+			set previous_target_directory="${target_directory}";
 		
 		if( ${?debug} ) \
 			printf "\nRunning:\n\tfind -L "\""${target_directory}"\""${maxdepth}${mindepth}-regextype ${regextype} -iregex "\"".*${extensions}"\$\""' \! -iregex '.*\/\..*' -type f\n";
 		
 		printf " .";
+		ex -s '+1d' '+wq!' "${target_directories_filename_list}";
 		find -L "${target_directory}"${maxdepth}${mindepth}-regextype ${regextype} -iregex ".*${extensions}"\$ \! -iregex '.*\/\..*' -type f >> "${missing_media_filename_list}";
 		if( ${?skip_dirs} ) then
 			foreach skip_dir("`printf "\""${skip_dirs}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`")
@@ -254,7 +255,8 @@ process_missing_media:
 		
 		
 		set status=0;
-		foreach playlist(${playlists})
+		foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
+			set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
 			set grep_test="`/bin/grep "\""${podcast}"\"" "\""${playlist}"\""`";
 			#if( ${status} != 0 ) then
 				#printf "**error:** searching for: %s\n" "/bin/grep ${podcast} "\""${playlist}"\""";
@@ -398,9 +400,10 @@ handle_missing_media:
 		printf "\n\n\tWhat action would you like to take:";
 		if(! ${?remove} ) then
 			@ playlist_index=0;
-			while( $playlist_index < ${#playlists} )
+			foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
 				@ playlist_index++;
-				printf "\n\t\t%d) Append to <file://%s>" $playlist_index "$playlists[$playlist_index]";
+				set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
+				printf "\n\t\t%d) Append to <file://%s>" $playlist_index "${playlist}";
 			end
 			printf "\n";
 		endif
@@ -471,8 +474,16 @@ handle_missing_media:
 		if( `printf "%s" "${append}" | sed -r 's/^[0-9]+$//'` == "" ) then
 			if( $append > 0 && $append <= $playlist_index ) then
 				@ new_file_count++;
-				printf "\n\t**Appending:**\n\t\t<file//%s>\n\t\t\tto:\n\t\t<file://%s>\n" "${this_podcast}" "$playlists[$append]";
-				printf "%s\n" "${this_podcast}" >> "$playlists[$append].new";
+				@ playlist_count=0;
+				foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
+					@ playlist_count++;
+					if( $playlist_count == $append ) then
+						set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
+						printf "\n\t**Appending:**\n\t\t<file://%s>\n\t\t\tto:\n\t\t<file://%s>\n" "${this_podcast}" "${playlist}";
+						printf "%s\n" "${this_podcast}" >> "${playlist}.new";
+					endif
+					unset playlist;
+				end
 				if( ${?append_set} ) \
 					unset append append_set;
 			endif
@@ -588,14 +599,15 @@ scripts_main_quit:
 		unset script;
 	
 	if( ${?playlists_filename_list} ) then
-		if( -e "${playlists_filename_list}" ) \
-			rm -f "${playlists_filename_list}";
-	else if( ${?playlists} ) then
-		foreach playlist(${playlists})
-			playlist:new:save.tcsh "$playlist";
-			unset playlist;
-		end
-		unset playlists;
+		if( -e "${playlists_filename_list}" ) then
+			foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
+				set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
+				playlist:new:save.tcsh "${playlist}";
+				unset playlist;
+			end
+		endif
+		rm -f "${playlists_filename_list}";
+		unset playlists_filename_list;
 	endif
 	
 	if( ${?missing_media_filename_list} ) then
@@ -606,6 +618,7 @@ scripts_main_quit:
 	if( ${?target_directories_filename_list} ) then
 		if( -e "${target_directories_filename_list}" ) \
 			rm -f "${target_directories_filename_list}";
+		unset target_directories_filename_list;
 	endif
 	
 	if(! ${?removed_podcasts} ) \
@@ -938,7 +951,6 @@ parse_arg:
 					case "verbose":
 					case "interactive":
 					case "silent":
-					default:
 						if( "${value}" == "" || "${value}" == "switch" ) \
 							set value="null";
 						set removal_$value;
@@ -953,6 +965,11 @@ parse_arg:
 							unset removal_switch;
 						endif
 						
+						if(! ${?remove} ) \
+							set remove;
+						breaksw;
+						
+					default:
 						if(! ${?remove} ) \
 							set remove;
 						breaksw;

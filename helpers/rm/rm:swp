@@ -1,11 +1,56 @@
 #!/bin/tcsh -f
 # cleaning up VIM, gedit, connectED, & etc swp files.
-set interactive="";
-if( "${1}" != "" && "${1}" == "--interactive" ) \
-	set interactive=" --interactive";
+init:
+	set interactive="";
+	if( ${#argv} == 0 ) \
+		set argv=("${cwd}");
+	@ arg=0;
+#goto init;
 
-foreach swp ( "`find -L . -iregex '.*\.\(sw.\|~\)'`" )
-	if(! -e "${swp}" ) \
-		continue;
-	rm${interactive} --verbose "${swp}"
-end
+
+parse_argv:
+	while( $arg < ${#argv} )
+		@ arg++;
+		switch("$argv[$arg]")
+			case "--interactive":
+				set interactive=" --interactive";
+				breaksw;
+			
+			case "--non-interactive":
+				set interactive="";
+				breaksw;
+			
+			default:
+				if( -d "$argv[$arg]" ) then
+					set target_dir="$argv[$arg]";
+					goto clean_swap;
+				endif
+				breaksw;
+		endsw
+	end
+	goto exit_script;
+#goto parse_argv;
+
+clean_swap:
+	if( ${?target_dir} ) \
+		cd "${target_dir}";
+	
+	foreach swp ( "`find -L . -iregex '.*\.\(sw.\|~\)'`" )
+		if(! -e "${swp}" ) \
+			continue;
+		rm${interactive} --verbose "${swp}"
+	end
+	
+	if( ${?target_dir} ) then
+		cd "${owd}";
+		unset target_dir;
+	endif
+	goto parse_argv;
+#goto clean_swap;
+
+
+exit_script:
+	exit -1;
+#goto exit_script;
+
+

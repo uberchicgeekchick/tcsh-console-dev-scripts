@@ -10,6 +10,7 @@ setenv:
 	set escaped_home_dir="`printf "\""%s"\"" "\""${HOME}"\"" | sed -r 's/(["\$\"\!\`"])/"\""\\\1"\""/g' | sed -r 's/([\[\/])/\\\1/g'`";
 	set escaped_starting_cwd="`printf "\""%s"\"" "\""${cwd}"\"" | sed -r 's/(["\$\"\!\`"])/"\""\\\1"\""/g' | sed -r 's/([\[\/])/\\\1/g'`";
 	set supports_being_sourced;
+	set please_wait_phrase="  Please be patient this may take several moments...";
 	#set process_each_filename;
 	
 	goto debug_check;
@@ -745,7 +746,8 @@ oggconvert:
 		endif
 		
 		if( "${original_extension}" != "wav" || "${ffmpeg_input_file_options}" != "" ) then
-			printf "\t\t\tCreating temporary WAV file.  This may take several moments...";
+			printf "\t\t\tCreating temporary WAV file.";
+			printf "${please_wait_phrase}";
 			
 			if( ${?debug} || ${?debug_encoding} ) then
 				printf "\nRunning:\n\t";
@@ -766,7 +768,7 @@ oggconvert:
 			unset ffmpeg_input_file_options ffmpeg_output_file_options;
 			
 			if(!( "${status}" == "0" && -e "${save_to_filename}.wav" )) then
-				printf "\t\t[failed]\n\t\t\tUnable to create temorary WAV file.\n\t\t\tffmpeg returned: %s\n\n" "${status}";
+				printf "\t[failed]\n\t\t\tUnable to create temorary WAV file.\n\t\t\tffmpeg returned: %s\n\n" "${status}";
 				if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
 					rm "${save_to_filename}.wav";
 				
@@ -780,7 +782,7 @@ oggconvert:
 				
 				goto convert_filenames;
 			endif
-			printf "\t\t[success]\n";
+			printf "\t[success]\n";
 		endif
 	endif
 	
@@ -792,7 +794,8 @@ oggconvert:
 		set oggenc_output_file_options="";#" -q 5";
 	endif
 	
-	printf "\t\t\tEncoding OGG Vorbis file.  Please wait several moments...";
+	printf "\t\t\tEncoding OGG Vorbis file.";
+	printf "${please_wait_phrase}";
 	
 	${oggenc} ${oggenc_output_file_options} "${save_to_filename}.wav" >& ${output};
 	if(!( "${status}" == "0" && -e "${save_to_filename}.ogg" )) then
@@ -831,7 +834,7 @@ oggconvert:
 		${ogginfo} "${save_to_filename}.ogg";
 	endif
 	
-	printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[completed]\n\n";
+	printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t\t[completed]\n\n";
 	
 	if( ${?playlist} ) then
 		if( ${?debug} ) \
@@ -1679,6 +1682,8 @@ filename_list_append_value:
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
 	
+	if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+		set value="${cwd}/${value}";
 	set value_file="`mktemp --tmpdir .escaped.${scripts_basename}.filename.value.XXXXXXXX`";
 	printf "%s" "$value" >! "${value_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
@@ -1694,8 +1699,6 @@ filename_list_append_value:
 		set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	end
 	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-	if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
-		set value="${cwd}/${value}";
 	unset escaped_value;
 	
 	set file_count="`wc -l "\""${filename_list}"\"" | sed -r 's/^([0-9]+)(.*)"\$"/\1/'`";

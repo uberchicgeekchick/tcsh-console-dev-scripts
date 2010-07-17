@@ -13,8 +13,8 @@ endif
 unset args_handled;
 
 main:
-	alias "history:check" "source "\$"{TCSH_RC_SESSION_PATH}/${scripts_basename}";
-	alias "history:refresh" "history-check";
+	alias "history-check" "source "\$"{TCSH_RC_SESSION_PATH}/${scripts_basename}";
+	alias "history-refresh" "history-check";
 	
 	if(!( ${?histfile} && ${?my_histfile} )) then
 		source "${TCSH_RC_SESSION_PATH}/history.cshrc.tcsh" ${argv};
@@ -24,7 +24,9 @@ main:
 	
 	if(! -e "${histfile}" ) then
 		if( -e "${histfile}.bckcp" ) then
-			/bin/cp -ufv "${histfile}.bckcp" "${histfile}";
+			printf "Restoring: <file://%s> from <file://%s>" "${histfile}" "${histfile}.bckcp" > ${stdout};
+			/bin/cp -fLp "${histfile}.bckcp" "${histfile}";
+			printf "\t[finished]\n" > ${stdout};
 			printf "Loading history from back-up" > ${stdout};
 			history -L;
 		else
@@ -39,8 +41,9 @@ main:
 	history -M;
 	printf "\t[finished]\nSaving merged and complete history's "\$"histfile: <file://%s>" "${histfile}" > ${stdout};
 	history -S;
+	printf "\t[finished]\nBacking up: <file://%s> to <file://%s>" "${histfile}" "${histfile}.bckcp" > ${stdout};
+	/bin/cp -fLp "${histfile}" "${histfile}.bckcp";
 	printf "\t[finished]\n" > ${stdout};
-	/bin/cp -fLpv "${histfile}" "${histfile}.bckcp";
 #main:
 
 exit_script:

@@ -12,6 +12,8 @@ init:
 # turns $value from a relative path, e.g.: ~/Documents/../Photos/./Me.png, to its absolute path, e.g.: /home/user/Photos/Me.png.
 rel2abs:
 	
+	if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+		set value="${cwd}/${value}";
 	set value_file="`mktemp --tmpdir .escaped.${scripts_basename}.filename.value.XXXXXXXX`";
 	printf "%s" "$value" >! "${value_file}";
 	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
@@ -26,8 +28,6 @@ rel2abs:
 		set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	end
 	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-	if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
-		set value="${cwd}/${value}";
 	unset escaped_value;
 	
 	goto main;

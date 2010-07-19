@@ -390,7 +390,6 @@ prompt_for_action_for_missing_media:
 		if( $append_automatically > 0 && $append_automatically <= ${#playlists}  ) then
 			set append=$append_automatically;
 			set playlist_index=$append_automatically;
-			set append_set;
 		endif
 	else
 		set prompt_for_playlist;

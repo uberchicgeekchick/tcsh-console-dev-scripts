@@ -98,8 +98,8 @@ playlist_init:
 		if(!( ${files_new} > 0 )) then
 			unset files_new;
 			rm -f "${playlist}.new";
-			if( -e "${playlist}.swp" ) \
-				rm -f "${playlist}.swp";
+			if( -e "${playlist}.swap" ) \
+				rm -f "${playlist}.swap";
 			goto scripts_main_quit;
 		endif
 	endif
@@ -110,12 +110,12 @@ playlist_init:
 
 
 playlist_setup:
-	if(! -e "${playlist}.swp" ) \
+	if(! -e "${playlist}.swap" ) \
 		goto playlist_save;
 	
-	set new_playlist_to_read="`printf "\""%s"\"" "\""${playlist}.swp"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
+	set new_playlist_to_read="`printf "\""%s"\"" "\""${playlist}.swap"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 	ex -s "+0r ${new_playlist_to_read}" '+wq!' "${playlist}.new";
-	rm -f "${playlist}.swp";
+	rm -f "${playlist}.swap";
 	unset new_playlist_to_read;
 #playlist_setup:
 
@@ -129,8 +129,8 @@ playlist_save:
 		endif
 	endif
 	
-	set playlist_temp="`mktemp --tmpdir ${scripts_basename}.new.playlist.${new_playlist_type}.XXXXXXXXXX`";
-	set playlist_swap="`mktemp --tmpdir ${scripts_basename}.swp.playlist.${new_playlist_type}.XXXXXXXXXX`";
+	set playlist_temp="`mktemp --tmpdir .${scripts_basename}.new.playlist.${new_playlist_type}.XXXXXXXXXX`";
+	set playlist_swap="`mktemp --tmpdir .${scripts_basename}.swap.playlist.${new_playlist_type}.XXXXXXXXXX`";
 	mv -f "${playlist}.new" "${playlist_temp}";
 	while( "`/bin/grep --perl-regex -c '^"\$"' "\""${playlist_temp}"\""`" != 0 )
 		set line_numbers=`/bin/grep --perl-regex --line-number '^$' "${playlist_temp}" | sed -r 's/^([0-9]+).*$/\1/' | grep --perl-regexp '^[0-9]+'`;
@@ -216,13 +216,13 @@ scripts_main_quit:
 		
 		if( -e "${playlist}.new" ) \
 			rm -f "${playlist}.new";
-		if( -e "${playlist}.swp" ) \
-			rm -f "${playlist}.swp";
-		
-		unset playlist;
+		if( -e "${playlist}.swap" ) \
+			rm -f "${playlist}.swap";
 		
 		if( ${?playlist_type} ) \
 			unset playlist_type;
+		
+		unset playlist;
 	endif
 	
 	if( ${?scripts_tmpdir} ) then

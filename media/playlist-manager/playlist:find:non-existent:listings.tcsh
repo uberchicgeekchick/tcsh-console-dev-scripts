@@ -261,7 +261,7 @@ main:
 	playlist:new:create.tcsh "${playlist}";
 	if(! ${?filename_list} ) \
 		set filename_list="`mktemp --tmpdir filenames.${scripts_basename}.XXXXXX`";
-	mv -f "${playlist}.swp" "${filename_list}";
+	mv -f "${playlist}.swap" "${filename_list}";
 	if(! ${?clean_up} ) \
 		rm -f "${playlist}.new";
 	set callback="exec";
@@ -338,8 +338,8 @@ scripts_main_quit:
 		goto label_stack_set;
 	
 	if( ${?playlist} ) then
-		if( -e "${playlist}.swp" ) \
-			rm "${playlist}.swp";
+		if( -e "${playlist}.swap" ) \
+			rm "${playlist}.swap";
 		if( -e "${playlist}.new" ) \
 			rm "${playlist}.new";
 		unset playlist;

@@ -399,7 +399,7 @@ scripts_exec:
 	unset playlist_swap;
 	
 	playlist:new:create.tcsh "${playlist}";
-	cat "${playlist}.swp" | \
+	cat "${playlist}.swap" | \
 		sed -r 's/(.*\/)(.*, released on\:? [^,]+, )([0-9]+ )(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)( [^.]+)(\.[^\.]+)/\3\4\5\ \:\ \1\2\3\4\5\6/' \
 		| sed -r 's/([0-9]+ )(Jan) ([0-9]+) ([^\:]+)(\:.*)/\3\-01\-\1\4\5/' \
 		| sed -r 's/([0-9]+ )(Feb) ([0-9]+) ([^\:]+)(\:.*)/\3\-02\-\1\4\5/' \
@@ -419,7 +419,7 @@ scripts_exec:
 		#| sort \
 		#| sed -r 's/(.*)\ \:\ (.*)/\2/' \
 		>! "${playlist}.new";
-	rm "${playlist}.swp";
+	rm "${playlist}.swap";
 	playlist:new:save.tcsh --force --silent "${playlist}" "${new_playlist}";
 	if( -e "${playlist}.new" ) \
 		rm "${playlist}.new";
@@ -436,8 +436,8 @@ filename_list_process_init:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
-	mv -f "${filename_list}.swp" "${filename_list}";
+	cat "${filename_list}" | sort | uniq > "${filename_list}.swap";
+	mv -f "${filename_list}.swap" "${filename_list}";
 	
 	set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
 	

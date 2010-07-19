@@ -360,7 +360,7 @@ scripts_exec:
 	unset playlist_swap;
 	
 	playlist:new:create.tcsh "${playlist}";
-	mv -f "${playlist}.swp" "${playlist}.new";
+	mv -f "${playlist}.swap" "${playlist}.new";
 	
 	if( ${?insert_subdir} ) then
 		ex -s "+1,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)(.*)(\.([^\.]+)"\$"/\1${insert_subdir}\/\2\3\4/" '+wq' "${playlist}.new";
@@ -382,8 +382,8 @@ filename_list_process_init:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
-	mv -f "${filename_list}.swp" "${filename_list}";
+	cat "${filename_list}" | sort | uniq > "${filename_list}.swap";
+	mv -f "${filename_list}.swap" "${filename_list}";
 	
 	set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
 	

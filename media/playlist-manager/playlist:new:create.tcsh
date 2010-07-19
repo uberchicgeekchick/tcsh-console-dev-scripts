@@ -37,35 +37,42 @@ playlist_init:
 			breaksw;
 	endsw
 	
+	if( -e "${playlist}.swap" ) \
+		rm -f "${playlist}.swap";
+	
 	if( -e "${playlist}.new" ) \
 		rm -f "${playlist}.new";
+	
+	if(! -d "`dirname "\""${playlist}"\""`" ) then
+		mkdir -pv "`dirname "\""${playlist}"\""`";
+	endif
 	
 	touch "${playlist}.new";
 	
 	if(! -e "${playlist}" ) then
-		touch "${playlist}" "${playlist}.swp";
+		touch "${playlist}" "${playlist}.swap";
 		goto scripts_main_quit;
 	endif
 #playlist_check:
 
 
 playlist_setup:
-	cp -f "${playlist}" "${playlist}.swp";
+	cp -f "${playlist}" "${playlist}.swap";
 	
 	switch( "${playlist_type}" )
 		case "pls":
-			ex -s '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq!' "${playlist}.swp";
+			ex -s '+1,$s/\v^File[0-9]+\=(.*)$/\1/' '+wq!' "${playlist}.swap";
 			breaksw;
 		
 		case "tox":
-			ex -s '+1,$s/\v^\tmrl\ \=\ (\/.*);$/\1/' '+wq!' "${playlist}.swp";
+			ex -s '+1,$s/\v^\tmrl\ \=\ (\/.*);$/\1/' '+wq!' "${playlist}.swap";
 			breaksw;
 		
 		case "m3u":
 			breaksw;
 	endsw
-	ex -s '+1,$s/\v^[^/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${playlist}.swp";
-	printf "\n" >> "${playlist}.swp";
+	ex -s '+1,$s/\v^[^/].*\n//' '+1,$s/\v^\n//g' '+wq!' "${playlist}.swap";
+	printf "\n" >> "${playlist}.swap";
 #playlist_setup:
 
 scripts_main_quit:

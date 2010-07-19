@@ -330,8 +330,8 @@ scripts_exec:
 	
 	printf '#\!/bin/tcsh -f\nset old_podcast="";\n' >! "${tcsh_copy_script}";
 	chmod u+x "${tcsh_copy_script}";
-	ex -s "+2r `printf "\""%s"\"" "\""${playlist}.swp"\"" | sed -r 's/(["\"\$\!"'\''\[\]\(\)\ \<\>])/\\\1/g'`" '+wq!' "${tcsh_copy_script}";
-	/bin/rm "${playlist}.swp";
+	ex -s "+2r `printf "\""%s"\"" "\""${playlist}.swap"\"" | sed -r 's/(["\"\$\!"'\''\[\]\(\)\ \<\>])/\\\1/g'`" '+wq!' "${tcsh_copy_script}";
+	/bin/rm "${playlist}.swap";
 	/bin/rm "${playlist}.new";
 	
 	ex -s '+3,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${tcsh_copy_script}";
@@ -353,8 +353,8 @@ filename_list_process_init:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	cat "${filename_list}" | sort | uniq > "${filename_list}.swp";
-	mv -f "${filename_list}.swp" "${filename_list}";
+	cat "${filename_list}" | sort | uniq > "${filename_list}.swap";
+	mv -f "${filename_list}.swap" "${filename_list}";
 	
 	set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
 	

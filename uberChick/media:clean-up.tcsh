@@ -46,11 +46,6 @@ setup_podibooks:
 	"\n" \
 	);
 	
-	set librivox_podiobooks=( \
-	"\n" \
-	);
-	set librivox_podiobook="Last Days Of Pompeii";
-	
 	set between_the_covers_podiobooks=( \
 	"\n" \
 	);
@@ -58,6 +53,12 @@ setup_podibooks:
 	set podiobooks_dot_com_podiobooks=( \
 	"\n" \
 	);
+	
+	set librivox_podiobook="Last Days Of Pompeii";
+	set librivox_podiobooks=( \
+	"\n" \
+	);
+	
 	goto parse_argv;
 #goto setup_podibooks;
 

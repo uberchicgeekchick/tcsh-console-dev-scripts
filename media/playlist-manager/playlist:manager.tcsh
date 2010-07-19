@@ -121,11 +121,24 @@ parse_argv:
 					case "local":
 					case "no-remote":
 					case "skip:nfs":
-						if(! ${?clean_up_local_disk_only} ) \
-							set clean_up_local_disk_only
+						if(! ${?local} ) \
+							set local;
 						
 						if(! ${?clean_up} ) \
 							set clean_up;
+						breaksw;
+					
+					case "check-for-duplicates":
+					case "check:nfs":
+					case "remote":
+					case "nfs":
+						if( ${?local} ) \
+							unset local;
+						
+						if(! ${?clean_up} ) \
+							set clean_up;
+						breaksw;
+					
 						breaksw;
 					
 					case "forced":
@@ -383,7 +396,7 @@ clean_up:
 		set playlist_edited;
 	endif
 	
-	if( ${?clean_up_local_disk_only} ) then
+	if( ${?local} ) then
 		set skip_directory;
 		set duplicate_directory;
 	else

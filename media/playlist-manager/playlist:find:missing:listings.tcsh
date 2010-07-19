@@ -400,6 +400,9 @@ handle_missing_media:
 		printf "\n\n\tWhat action would you like to take:";
 		if(! ${?remove} ) then
 			@ playlist_index=0;
+			
+			printf "\n\n\t\t0) Append to & create a new playlist.\n";
+			
 			foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
 				@ playlist_index++;
 				set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
@@ -408,7 +411,9 @@ handle_missing_media:
 			printf "\n";
 		endif
 		
-		printf "\n\t\tD) Delete this file and resulting empty directories.";
+		if(! ${?append} ) \
+			printf "\n\t\tD) Delete this file and resulting empty directories.";
+		
 		printf "\n\t\tS) Skip this file and do nothing.";
 		printf "\n\t\tA) Abort and exit %s." "${scripts_basename}";
 		
@@ -423,35 +428,35 @@ handle_missing_media:
 			printf " or ";
 		endif
 		
+		printf "[";
 		if(! ${?append} ) \
-			printf "[Delete, Skip, Abort]: ";
+			printf "Delete, ";
+		
+		printf "Skip, Abort]: ";
 		set response="$<";
 		printf "\n";
 		switch( `printf "%s" "${response}" | sed -r 's/^(.).*$/\l\1/'` )
 			case "s":
-				if(! ${?append} ) then
-					printf "\n\t**Skipping:**\n\t\t<file://%s>\n" "${this_podcast}";
-					unset prompt_for_playlist;
-					breaksw;
-				endif
-			
-			case "d":
-				if(! ${?append} ) then
-					printf "\n\t**Deleting:**\n\t\t<file://%s>\n\t\tand cleaning up any empty directories.\n" "${this_podcast}";
-					unset prompt_for_playlist response playlist_index;
-					goto remove_missing_media;
-					breaksw;
-				endif
+				printf "\n\t**Skipping:**\n\t\t<file://%s>\n" "${this_podcast}";
+				unset prompt_for_playlist;
+				breaksw;
 			
 			case "a":
-				if(! ${?append} ) then
-					printf "\n\t**Aborting:**\n\t\t<file://%s>" "${this_podcast}";
-					printf "\n\t\t**Exiting:** %s...\n\n" "${scripts_basename}";
-					unset prompt_for_playlist response playlist_index;
-					unset this_podcast podcast;
-					goto exit_script;
+				printf "\n\t**Aborting:**\n\t\t<file://%s>" "${this_podcast}";
+				printf "\n\t\t**Exiting:** %s...\n\n" "${scripts_basename}";
+				unset prompt_for_playlist response playlist_index;
+				unset this_podcast podcast;
+				goto exit_script;
+				breaksw;
+			
+			case "d":
+				if( ${?append} ) \
 					breaksw;
-				endif
+				
+				printf "\n\t**Deleting:**\n\t\t<file://%s>\n\t\tand cleaning up any empty directories.\n" "${this_podcast}";
+				unset prompt_for_playlist response playlist_index;
+				goto remove_missing_media;
+				breaksw;
 			
 			default:
 				if( ${?remove} ) \
@@ -460,7 +465,7 @@ handle_missing_media:
 				if( `printf "%s" "${response}" | sed -r 's/^[0-9]+$//'` != "" ) \
 					continue;
 				
-				if(!( $response > 0 && $response <= $playlist_index )) \
+				if(!( $response > -1 && $response <= $playlist_index )) \
 					continue;
 				
 				unset prompt_for_playlist;
@@ -472,7 +477,31 @@ handle_missing_media:
 	end
 	if( ${?append} ) then
 		if( `printf "%s" "${append}" | sed -r 's/^[0-9]+$//'` == "" ) then
-			if( $append > 0 && $append <= $playlist_index ) then
+			if( $append == 0 ) then
+				while(! ${?playlist_new_type} )
+					printf "Please enter the full filename of the playlist you would like to create: ";
+					set playlist_new="$<";
+					printf "\n";
+					set playlist_new_type=`printf "%s" "${playlist_new}" | sed -r 's/^.*\.([^.]+)$/\1/'`;
+					switch( "${playlist_new_type}" )
+						case "m3u":
+						case "tox":
+						case "pls":
+							@ new_file_count++;
+							printf "\n\t";
+							playlist:new:create "${playlist_new}";
+							printf "\n";
+							printf "%s\n" "${playlist_new}.new" >> "${playlists_filename_list}";
+							breaksw;
+						
+						default:
+							printf "%s is an unsupported playlist type.  Only m3u, tox, and pls playlists are supported.\\n" "${playlist_new}";
+							unset playlist_new playlist_new_type;
+							breaksw;
+					endsw
+				end
+				unset playlist_new playlist_new_type;
+			else if( $append > 0 && $append <= $playlist_index ) then
 				@ new_file_count++;
 				@ playlist_count=0;
 				foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )

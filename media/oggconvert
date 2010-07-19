@@ -834,7 +834,7 @@ oggconvert:
 		${ogginfo} "${save_to_filename}.ogg";
 	endif
 	
-	printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t\t[completed]\n\n";
+	printf "\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t\t\t[finished]\n\n";
 	
 	if( ${?playlist} ) then
 		if( ${?debug} ) \

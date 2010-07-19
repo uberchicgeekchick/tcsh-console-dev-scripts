@@ -184,7 +184,7 @@ main:
 	
 	printf "Executing %s's main.\n" "${scripts_basename}";
 	if(! ${?devices} ) \
-		set devices=/dev/sdc[12356];
+		set devices=/dev/sdc[123568];
 	
 	if(! ${?check} ) \
 		set check;

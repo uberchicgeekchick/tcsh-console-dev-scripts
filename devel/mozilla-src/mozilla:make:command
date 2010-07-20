@@ -13,6 +13,12 @@ while( $arg < $argc )
 			set project="`echo $argv[$arg] | sed -r 's/\-\-(.*)"\$"/\1/'`";
 			breaksw;
 		
+		case "firefox":
+		case "xulrunner":
+		case "thunderbird":
+			set project="$argv[$arg]";
+			breaksw;
+		
 		case "clean":
 		case "distclean":
 		case "install":

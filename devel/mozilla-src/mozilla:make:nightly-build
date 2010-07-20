@@ -198,7 +198,7 @@ checkout:
 	if( "${cwd}" != "${srcdir}" ) \
 		cd "${srcdir}";
 	if( "${build_mozilla}" == "thunderbird" && -e client.py ) then
-		python client.py checkout;
+		python client.py checkout --skip-comm;
 	endif
 	
 	if( ${status} != 0 ) \
@@ -265,6 +265,9 @@ make:
 	printf "ac_add_options --enable-application=%s %s --enable-optimize --enable-installer --disable-freetypetest --disable-updater --disable-pedantic --disable-tests --disable-mochitest --disable-shared --enable-cpp-rtti\nmk_add_options MOZ_OBJDIR=%s MOZ_CO_PROJECT=%s AUTOCONF=autoconf-2.13\n" "${mozilla_project}" "${enable_mozilla}" "${objdir}" "${mozilla_project}" >! "${MOZCONFIG}";
 	#" --enable-default-toolkit=gtk2";
 	
+	#if( -e "./configure" && -x "./configure" ) then
+	#	./configure;
+	#endif
 	make -f client.mk;
 	if( ${status} != 0 ) \
 		goto status_failed;

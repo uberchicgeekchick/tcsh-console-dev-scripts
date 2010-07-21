@@ -242,18 +242,22 @@ scripts_main_quit:
 	if( ${?supports_being_sourced} ) \
 		unset supports_being_sourced;
 	
-	if( ${?script} ) \
-		unset script;
 	if( ${?scripts_alias} ) \
 		unset scripts_alias;
 	if( ${?scripts_basename} ) \
 		unset scripts_basename;
 	if( ${?scripts_path} ) \
 		unset scripts_path;
+	if( ${?script} ) \
+		unset script;
+	if( ${?scripts_exec_path} ) \
+		unset scripts_exec_path;
+	if( ${?scripts_exec} ) \
+		unset scripts_exec;
 	
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) \
-			rm -rf "${scripts_tmpdir}";
+			/bin/rm -rf "${scripts_tmpdir}";
 		unset scripts_tmpdir;
 	endif
 	
@@ -592,6 +596,9 @@ dependencies_check:
 		goto callback_stack_update;
 	endif
 	
+	if( ${?script} ) \
+		unset script;
+	
 	if( ! ${?debug} && ${?debug_dependencies} ) \
 		set debug debug_set;
 	
@@ -605,19 +612,25 @@ dependencies_check:
 			break;
 		endif
 		
-		set dependency=$dependencies[$dependencies_index];
+		set dependency="$dependencies[$dependencies_index]";
 		
-		set which_dependency=`printf "%d" "${dependencies_index}" | sed -r 's/^[0-9]*[^1]?([0-9])$/\1/'`;
-		if( $which_dependency == 1 ) then
-			set suffix="st";
-		else if( $which_dependency == 2 ) then
-			set suffix="nd";
-		else if( $which_dependency == 3 ) then
-			set suffix="rd";
-		else
-			set suffix="th";
-		endif
-		unset which_dependency;
+		switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*([0-9])"\$"/\1/'`" )
+			case 1:
+				set suffix="st";
+				breaksw;
+			
+			case 2:
+				set suffix="nd";
+				breaksw;
+			
+			case 3:
+				set suffix="rd";
+				breaksw;
+			
+			default:
+				set suffix="th";
+				breaksw;
+		endsw
 		
 		if( ${?debug} ) \
 			printf "\n**dependencies:** looking for <%s>'s %d%s dependency: %s.\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}";
@@ -639,7 +652,7 @@ dependencies_check:
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?script} ) then
+				if(! ${?script} ) then
 					set old_owd="${cwd}";
 					cd "`dirname "\""${program}"\""`";
 					set scripts_path="${cwd}";
@@ -647,6 +660,15 @@ dependencies_check:
 					set owd="${old_owd}";
 					unset old_owd;
 					set script="${scripts_path}/${scripts_basename}";
+					breaksw;
+				else if(! ${?scripts_exec} ) then
+					set old_owd="${cwd}";
+					cd "`dirname "\""${program}"\""`";
+					set scripts_exec_path="${cwd}";
+					cd "${owd}";
+					set owd="${old_owd}";
+					unset old_owd;
+					set scripts_exec="${scripts_exec_path}/${scripts_basename}";
 					breaksw;
 				endif
 			
@@ -1841,12 +1863,12 @@ filename_list_append_value:
 			printf "Adding [%s] to [%s].\nBy running:\n\tfind -L "\""${value}"\""" "${value}" "${filename_list}";
 			if(! ${?supports_hidden_files} ) \
 				printf  " \\\! -iregex '.*\/\..*'";
-			printf "| sort >> "\""${filename_list}"\""\n\n";
+			printf " -type f | sort >> "\""${filename_list}"\""\n\n";
 		endif
 		if(! ${?supports_hidden_files} ) then
-			find -L "${value}" \! -iregex '.*\/\..*' | sort >> "${filename_list}";
+			find -L "${value}" \! -iregex '.*\/\..*' -type f | sort >> "${filename_list}";
 		else
-			find -L "${value}" | sort >> "${filename_list}";
+			find -L "${value}" -type f | sort >> "${filename_list}";
 		endif
 		
 		if( ${?process_each_filename} ) then
@@ -1875,13 +1897,13 @@ filename_list_append_value:
 		printf "By running:\n\tfind -L "\""${value}"\"" -regextype posix-extended -iregex "\"".*\.(${scripts_supported_extensions})"\"""\$"";
 		if(! ${?supports_hidden_files} ) \
 			printf  " \\\! -iregex '.*\/\..*'";
-		printf " | sort >> "\""${filename_list}"\""\n\n";
+		printf " -type f | sort >> "\""${filename_list}"\""\n\n";
 	endif
 	
 	if(! ${?supports_hidden_files} ) then
-		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*'  | sort >> "${filename_list}";
+		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*' -type f | sort >> "${filename_list}";
 	else
-		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${filename_list}";
+		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ -type f | sort >> "${filename_list}";
 	endif
 	
 	if( ${?process_each_filename} ) then

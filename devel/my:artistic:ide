@@ -304,8 +304,12 @@ ssh_canvas:
 			breaksw;
 		
 		case "dreams":
-		case "ocs":
 			set with_ssh_dreams;
+			set my_canvas=();
+			breaksw;
+		
+		case "uberchick":
+			set with_ssh_uberchick;
 			set my_canvas=();
 			breaksw;
 		
@@ -332,13 +336,13 @@ default_canvas:
 			set with_screen;
 			set with_ssh_our_eee;
 			set with_ssh_dreams;
-			set my_canvas="";
+			set my_canvas;
 			breaksw;
 		
 		case "Home":
 		case "~":
 			set with_home;
-			set my_canvas="";
+			set my_canvas;
 			breaksw;
 		
 		default:
@@ -346,7 +350,7 @@ default_canvas:
 			#set with_ssh_our_eee;
 			#set with_ssh_dreams;
 			set with_home;
-			set my_canvas="";
+			set my_canvas;
 			breaksw;
 	endsw
 	
@@ -374,31 +378,41 @@ next_canvas:
 		
 		
 		if(! ${?with_screen} ) then
-			set with_screen="";
+			set with_screen;
 		else
 			set with_screen=("--tab-with-profile=screen --working-directory='${rtorrent_session_dir}'");
 		endif
 		
-		if(! ${?with_ssh_dreams} ) then
-			set with_ssh_dreams="";
+		if(! ${?with_ssh_uberchick} ) then
+			set with_ssh_uberchick;
 		else
-			set with_ssh_our_dreams=("--tab-with-profile=ssh:dreams --title='<ssh:[dreams@sky.ocssolutions.com] #>'");# --command='ssh dreams@sky.ocssolutions.com'");
+			set with_ssh_uberchick=("	\
+				--tab-with-profile="\"\\\"\""ssh:dreams"\"\\\"\"" --title="\"\\\"\""'<ssh:[uberchick@aquarius.ocssolutions.com] #>'"\"\\\"\"" --command="\"\\\"\""ssh uberchick@aquarius.ocssolutions.com"\"\\\"\"" \
+			");
+		endif
+		
+		if(! ${?with_ssh_dreams} ) then
+			set with_ssh_dreams;
+		else
+			set with_ssh_our_dreams=("	\
+				--tab-with-profile="\"\\\"\""ssh:dreams"\"\\\"\"" --title="\"\\\"\""'<ssh:[dreams@sky.ocssolutions.com] #>'"\"\\\"\"" --command="\"\\\"\""ssh dreams@sky.ocssolutions.com"\"\\\"\"" \
+			");
 		endif
 		
 		if(! ${?with_ssh_our_eee} ) then
-			set with_ssh_our_eee="";
+			set with_ssh_our_eee;
 		else
 			set with_ssh_our_eee=("--tab-with-profile=ssh:our-eee --title='<ssh:[uberChick@192.168.0.6] #>'");# --command='ssh uberChick@192.168.0.6'");
 		endif
 		
 		if(! ${?with_home} ) then
-			set with_home="";
+			set with_home;
 		else
 			set with_home=("--tab-with-profile='${USER}' --title="\'"[@~] #>"\'" --working-directory="\'"${HOME}"\'" --command="\'"tcsh -f"\'"");
 		endif
 		
 		if(! ${?with_rtorrent} ) then
-			set with_rtorrent="";
+			set with_rtorrent;
 		else
 			set with_rtorrent=("--tab-with-profile=rtorrent --title='[`rtorrent`] #>' --working-directory=/media/torrents --command='rtorrent'");
 		endif
@@ -416,15 +430,17 @@ next_canvas:
 			unset canvas_directory working_directory;
 		endif
 		
-		/usr/bin/gnome-terminal --hide-menubar --geometry="${geometry}" --role="${canvas_role}"		\
+		gnome-terminal --hide-menubar --geometry="${geometry}" --role="${canvas_role}"		\
 			${with_screen}										\
 			${with_ssh_dreams}									\
+			${with_ssh_uberchick}									\
 			${with_ssh_our_eee}									\
 			${with_home}										\
 			${my_canvas}										\
 			${with_rtorrent}									\
 		&;
-		unset my_canvas with_screen with_ssh_dreams with_ssh_our_eee with_home with_rtorrent;
+		
+		unset my_canvas with_screen with_ssh_dreams with_ssh_uberchick with_ssh_our_eee with_home with_rtorrent;
 	endif
 end
 

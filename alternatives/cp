@@ -281,7 +281,7 @@ exec:
 		goto exit_script;
 	endif
 	
-	if( ! -e "${target}" && ( $sources_count > 1 || `printf "%s" "${target}" | sed -r 's/.*(\/)$/\1/'` == "/" ) ) \
+	if( ! -e "${target}" && ( $sources_count > 1 || "`printf "\""%s"\"" "\""${escaped_target}"\"" | sed -r 's/.*(\/)"\$"/\1/'`" == "/" ) ) \
 		mkdir -p "${target}";
 	unset sources_count;
 
@@ -520,6 +520,7 @@ parse_arg:
 			
 			case "":
 				if( $arg == $argc ) then
+					set escaped_target="${escaped_value}";
 					set target="${value}";
 					breaksw;
 				endif

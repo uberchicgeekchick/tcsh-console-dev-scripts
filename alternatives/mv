@@ -156,6 +156,9 @@ debug_check:
 
 
 dependencies_check:
+	if( ${?script} ) \
+		unset script;
+	
 	set dependencies=("${scripts_basename}" "mv");
 	@ dependencies_index=0;
 	
@@ -283,10 +286,10 @@ exec:
 	endif
 	
 	if(! -e "${target}" ) then
-		if( $sources_count > 1 || `printf "%s" "${target}" | sed -r 's/.*(\/)$/\1/'` == "/" ) then
+		if( $sources_count > 1 || "`printf "\""%s"\"" "\""${escaped_target}"\"" | sed -r 's/.*(\/)"\$"/\1/'`" == "/" ) then
 			mkdir -p "${target}";
-		else if(! -d "`dirname "\""${target}"\""`" ) then
-			mkdir -p "`dirname "\""${target}"\""`";
+		else if(! -d "`dirname "\""${escaped_target}"\""`" ) then
+			mkdir -p "`dirname "\""${escaped_target}"\""`";
 		endif
 	endif
 	unset sources_count;
@@ -342,7 +345,7 @@ scripts_main_quit:
 		unset target_parent_dir;
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) \
-			rm -rf "${scripts_tmpdir}";
+			/bin/rm -rf "${scripts_tmpdir}";
 		unset scripts_tmpdir;
 	endif
 	
@@ -533,6 +536,7 @@ parse_arg:
 			
 			case "":
 				if( $arg == $argc ) then
+					set escaped_target="${escaped_value}";
 					set target="${value}";
 					breaksw;
 				endif

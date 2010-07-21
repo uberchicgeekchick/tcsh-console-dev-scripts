@@ -3,10 +3,20 @@ setup:
 	if(! ${?0} ) \
 		exit -1;
 	
+	alias ls "ls-F -N --color=always -T 0 --human-readable --quoting-style=c --classify  --group-directories-first --format=vertical --time-style='+%Y-%m-%d %H:%m:%S %Z(%:z)'";
 	goto setup_lists;
 #goto setup;
 
 
+#regex to escape double quotes within a filename:
+#	s/"/&\\&\\\\\\&\\&&/g
+#-or-
+#	s/\v(["])/\1\\\1\\\\\\\1\\\1\1/g
+#will, for example, turn:
+#	/media/podcasts/testing doule "quote".mp3
+#into:
+#	/media/podcasts/testing doule "\"\\\"\""quote"\"\\\"\"".mp3
+#
 setup_lists:
 	set to_delete=( \
 	"\n" \
@@ -59,8 +69,17 @@ setup_podibooks:
 	"\n" \
 	);
 	
-	goto parse_argv;
+	goto finalize_lists;
 #goto setup_podibooks;
+
+
+finalize_lists:
+	set podcasts_to_restore=( \
+	"\n" \
+	);
+	
+	goto parse_argv;
+#goto finalize_lists;
 
 
 parse_argv:
@@ -289,6 +308,10 @@ move_podcasts:
 		set podcasts="${slashdot_podcasts}";
 		set podcasts_target_directory="/media/podcasts/slash.";
 		unset slashdot_podcasts;
+	else if( ${?podcasts_to_restore} ) then
+		set podcasts="${podcasts_to_restore}";
+		set podcasts_target_directory="/media/podcasts";
+		unset podcasts_to_restore;
 	else
 		if( -d "/media/podcasts/Slashdot" ) then
 			if(! ${?action_preformed} ) then
@@ -305,6 +328,9 @@ move_podcasts:
 		
 		if( ${?erotica_podcasts} ) \
 			unset erotica_podcasts;
+		
+		if( ${?podcasts_to_restore} ) \
+			unset podcasts_to_restore;
 		
 		if( ${?slashdot_podcasts} ) \
 			unset slashdot_podcasts;

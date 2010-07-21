@@ -29,7 +29,7 @@ init:
 	set starting_dir=${cwd};
 	set escaped_starting_dir=${escaped_cwd};
 	
-	set scripts_basename="playlist:find:non-existent:listings.tcsh";
+	set scripts_basename="playlist:duration.tcsh";
 	set script_alias="`printf '%s' '${scripts_basename}' | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
 	#set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
 	
@@ -63,7 +63,7 @@ dependencies_check:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh");# "${script_alias}");
+	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "ffprobe");# "${script_alias}");
 	@ dependencies_index=0;
 #dependencies_check:
 
@@ -125,6 +125,10 @@ dependency_check:
 				set owd="${old_owd}";
 				unset old_owd;
 				set script="${scripts_path}/${scripts_basename}";
+				breaksw;
+			
+			case "ffprobe":
+				set ffprobe="${program}";
 				breaksw;
 			
 			default:
@@ -254,16 +258,16 @@ main:
 		set playlist="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/'`";
 	end
 	
-	if( ${?edit_playlist} ) \
-		${EDITOR} "${playlist}";
+	set seconds;
+	set minutes;
+	set hours;
 	
-	printf "Ensuring that all files listed in: <file://%s> still exists.\n" "${playlist}";
-	playlist:new:create.tcsh "${playlist}";
 	if(! ${?filename_list} ) \
 		set filename_list="`mktemp --tmpdir filenames.${scripts_basename}.XXXXXX`";
+	printf "\nCalculating the total duration of all files listed in: <file://%s>\n" "${playlist}";
+	playlist:new:create.tcsh "${playlist}";
 	mv -f "${playlist}.swap" "${filename_list}";
-	if(! ${?clean_up} ) \
-		rm -f "${playlist}.new";
+	rm -f "${playlist}.new";
 	set callback="exec";
 	goto callback_handler;
 #main:
@@ -278,26 +282,60 @@ exec:
 		printf "Executing %s's exec.\n" "${scripts_basename}";
 	
 	if( ${?filename_list} ) then
-		if( ${?filename} ) then
-			if( -e "${filename}.${extension}" ) then
-				if( ${?clean_up} ) then
-					printf "%s.%s\n" "${filename}" "${extension}" >> "${playlist}.new";
-				endif
-			else
-				if(! ${?dead_file_count} ) then
-					if( ${?clean_up} ) \
-						printf "\tThese files will be removed from <file://%s>:\n" "${playlist}";
-					@ dead_file_count=1;
-				else
-					@ dead_file_count++;
-				endif
-				printf "%s.%s\n" "${filename}" "${extension}";
+		if( ${?original_filename}) then
+			set ffprobe_info_file="`mktemp --tmpdir "\"".escaped.ffprobe.info.XXXXXX"\""`";
+			${ffprobe} "`printf "\""%s"\"" "\""${original_filename}"\""`" >&! "${ffprobe_info_file}";
+			set duration="`egrep 'Duration:' "\""${ffprobe_info_file}"\""`";
+			rm -f "${ffprobe_info_file}";
+			unset ffprobe_info_file;
+			
+			if( "${duration}" == "" ) then
+				set callback="filename_next";
+				goto callback_handler;
 			endif
+			
+			if( ${?debug} ) \
+				printf "Length of %s\n\t%s\n" "${original_filename}" "${duration}";
+			if( "${seconds}" != "" ) \
+				set seconds="${seconds}+";
+			set seconds="${seconds}`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\3/'`";
+			if( ${?debug} ) \
+				printf "seconds: ${seconds}\n";
+			
+			
+			if( "${minutes}" != "" ) \
+				set minutes="${minutes}+";
+			set minutes="${minutes}`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\2/'`";
+			if( ${?debug} ) \
+				printf "minutes: ${minutes}\n";
+			
+			
+			if( "${hours}" != "" ) \
+				set hours="${hours}+";
+			set hours="${hours}`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\1/'`";
+			if( ${?debug} ) \
+				printf "hours: ${hours}\n";
+			
+			set extra_minutes=`printf "(${seconds})/60\n" | bc`;
+			set seconds=`printf "(${seconds})%%60\n" | bc`;
+			set hours=`printf "(${extra_minutes}+${minutes})/60\n" | bc`;
+			set minutes=`printf "(${extra_minutes}+${minutes})%%60\n" | bc`;
+			
+			unset duration;
 		endif
-		set callback="filename_next";
-		goto callback_handler;
+		
+		if( $seconds < 10 ) \
+			set seconds="0${seconds}";
+		
+		if( $minutes < 10 ) \
+			set minutes="0${minutes}";
+		
+		if( $hours < 10 ) \
+			set hours="0${hours}";
+		
+		endif
 	endif
-	set callback="format_new_playlist";
+	set callback="filename_next";
 	goto callback_handler;
 #exec:
 
@@ -309,27 +347,13 @@ filename_next:
 		set callback="exec";
 		goto callback_handler;
 	end
+	#printf "Total duration for all filess listed in:\n\t<file://%s>\n" "${playlist}";
+	printf "\t%s hours; %s minutes; %s seconds.\n" "${hours}" "${minutes}" "${seconds}";
 	rm "${filename_list}";
-	unset filename filename_list;
-#filename_next:
-
-format_new_playlist:
-	if(! ${?clean_up} ) then
-		printf "%s has finished processing:\n\t<file//%s>\n" "${scripts_basename}" "${playlist}";
-	else
-		printf "<file//%s> now only contains existing files.\n" "${playlist}";
-		if( ${?dead_file_count} ) then
-			printf "\n";
-			playlist:new:save.tcsh --save-empty --force "${playlist}";
-			printf "\n";
-			unset dead_file_count;
-		endif
-	endif
-	unset playlist;
-	
+	unset filename filename_list playlist;
 	set callback="parse_arg";
 	goto callback_handler
-#format_new_playlist:
+#filename_next:
 
 scripts_main_quit:
 	set label_current="scripts_main_quit";
@@ -448,6 +472,8 @@ scripts_main_quit:
 			unset filename;
 		if( ${?extension} ) \
 			unset extension;
+		if( ${?original_extension} ) \
+			unset original_extension;
 		
 		if( -e "${filename_list}" ) \
 			rm "${filename_list}";
@@ -619,6 +645,11 @@ parse_arg:
 	set label_current="parse_arg";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
+	
+	if( ${?playlist} ) then
+		printf "Calculating <file://%s> total duration:\n\t\t\t[cancalled]\n" "${playlist}";
+		unset playlist;
+	endif
 	
 	while( $arg < $argc )
 		if(! ${?arg_shifted} ) \

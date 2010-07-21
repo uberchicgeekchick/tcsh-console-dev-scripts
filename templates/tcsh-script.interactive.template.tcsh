@@ -1813,12 +1813,12 @@ filename_list_append_value:
 			printf "Adding [%s] to [%s].\nBy running:\n\tfind -L "\""${value}"\""" "${value}" "${filename_list}";
 			if(! ${?supports_hidden_files} ) \
 				printf  " \\\! -iregex '.*\/\..*'";
-			printf "| sort >> "\""${filename_list}"\""\n\n";
+			printf " -type f | sort >> "\""${filename_list}"\""\n\n";
 		endif
 		if(! ${?supports_hidden_files} ) then
-			find -L "${value}" \! -iregex '.*\/\..*' | sort >> "${filename_list}";
+			find -L "${value}" \! -iregex '.*\/\..*' -type f | sort >> "${filename_list}";
 		else
-			find -L "${value}" | sort >> "${filename_list}";
+			find -L "${value}" -type f | sort >> "${filename_list}";
 		endif
 		
 		if( ${?process_each_filename} ) then
@@ -1847,13 +1847,13 @@ filename_list_append_value:
 		printf "By running:\n\tfind -L "\""${value}"\"" -regextype posix-extended -iregex "\"".*\.(${scripts_supported_extensions})"\"""\$"";
 		if(! ${?supports_hidden_files} ) \
 			printf  " \\\! -iregex '.*\/\..*'";
-		printf " | sort >> "\""${filename_list}"\""\n\n";
+		printf " -type f | sort >> "\""${filename_list}"\""\n\n";
 	endif
 	
 	if(! ${?supports_hidden_files} ) then
-		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*'  | sort >> "${filename_list}";
+		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*' -type f | sort >> "${filename_list}";
 	else
-		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${filename_list}";
+		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ -type f | sort >> "${filename_list}";
 	endif
 	
 	if( ${?process_each_filename} ) then

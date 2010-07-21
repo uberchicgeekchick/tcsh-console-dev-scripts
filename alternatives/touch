@@ -279,12 +279,12 @@ exec:
 	sort "${touch_targets}" | uniq >! "${touch_targets}.pso";
 	mv -f "${touch_targets}.pso" "${touch_targets}";
 	
-	foreach touch_target("`cat "\""${touch_targets}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
+	foreach escaped_touch_target("`cat "\""${touch_targets}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
 		ex -s '+1d' '+wq!' "${touch_targets}";
-		set touch_target="`printf "\""%s"\"" "\""${touch_target}"\""`";
+		set touch_target="`printf "\""%s"\"" "\""${escaped_touch_target}"\""`";
 		
 		if(! ${?no_mk_path} ) then
-			set touch_dir=`dirname "${touch_target}"`;
+			set touch_dir="`dirname "\""${escaped_touch_target}"\""`";
 			if(! -d "${touch_dir}" ) \
 				mkdir -p "${touch_dir}";
 			unset touch_dir;
@@ -519,8 +519,10 @@ parse_arg:
 				breaksw;
 			
 			case "":
-				if( ! ${?mode} && `printf "%s" "${value}" | sed -r 's/[ugo]{0,3}[\+\-=][rwxXst]{1,6}//'` == "" ) then
+				if( ! ${?mode} && "${value}" != "" && "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/[ugo]{0,3}[\+\-=][rwxXst]{1,6}//'`" == "" ) then
 					set mode="${value}";
+					if( ${?debug} ) \
+						printf "All files touched will also have their priviledges changed to: %s.\n" "${mode}";
 					breaksw;
 				endif
 				

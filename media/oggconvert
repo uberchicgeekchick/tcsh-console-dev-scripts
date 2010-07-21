@@ -31,6 +31,14 @@ scripts_main_quit:
 		unset playlist;
 	endif
 	
+	if( ${?file} ) \
+		unset file;
+	if( ${?ffprobe_info_file} ) then
+		if( -e "${ffprobe_info_file}" ) then
+			rm -f "${ffprobe_info_file}";
+		endif
+		unset ffprobe_info_file;
+	endif
 	if( ${?filename} ) \
 		unset filename;
 	if( ${?original_extension} ) \
@@ -46,10 +54,12 @@ scripts_main_quit:
 		unset extension;
 	
 	if( ${?filename_list} ) then
-		if( -e "${filename_list}") \
+		if( -e "${filename_list}") then
 			rm -f "${filename_list}";
-		if( -e "${filename_list}.all") \
+		endif
+		if( -e "${filename_list}.all") then
 			rm -f "${filename_list}.all";
+		endif
 		unset filename_list;
 	endif
 	if( ${?filename_list_value} ) \
@@ -69,8 +79,9 @@ scripts_main_quit:
 	endif
 	
 	if( ${?scripts_tmpdir} ) then
-		if( -d "${scripts_tmpdir}" ) \
-			rm -rf "${scripts_tmpdir}";
+		if( -d "${scripts_tmpdir}" ) then
+			/bin/rm -rf "${scripts_tmpdir}";
+		endif
 		unset scripts_tmpdir;
 	endif
 	
@@ -130,6 +141,8 @@ scripts_main_quit:
 		unset scripts_basename;
 	if( ${?scripts_path} ) \
 		unset scripts_path;
+	if( ${?script} ) \
+		unset script;
 	if( ${?supports_being_sourced} ) \
 		unset supports_being_sourced;
 	if( ${?usage_displayed} ) \
@@ -272,7 +285,10 @@ debug_check:
 #goto debug_check;
 
 
-check_dependencies:
+dependencies_check:
+	if( ${?script} ) \
+		unset script;
+	
 	set dependencies=("${scripts_basename}" "ffmpeg" "ffprobe" "oggenc" "ogginfo" "playlist:new:create.tcsh" "playlist:new:save.tcsh");# `printf ${scripts_basename} | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
@@ -297,16 +313,16 @@ check_dependencies:
 		endif
 		
 		if( ${?debug} || ${?debug_dependencies} ) then
-			switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([0-9])"\$"/\1/'`" )
-				case "1":
+			switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*([0-9])"\$"/\1/'`" )
+				case 1:
 					set suffix="st";
 					breaksw;
 				
-				case "2":
+				case 2:
 					set suffix="nd";
 					breaksw;
 				
-				case "3":
+				case 3:
 					set suffix="rd";
 					breaksw;
 				
@@ -357,7 +373,7 @@ check_dependencies:
 	unset dependency dependencies dependencies_index;
 	
 	goto if_sourced;
-#goto check_dependencies;
+#goto dependencies_check;
 
 
 if_sourced:
@@ -416,11 +432,13 @@ cancel_convert:
 	onintr -;
 	printf "\t[cancelled]\n";
 	
-	if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
+	if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) then
 		rm "${save_to_filename}.wav";
+	endif
 	
-	if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) \
+	if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) then
 		rm "${save_to_filename}.ogg";
+	endif
 	
 	if( -e "${save_to_filename}.${original_extension}.bck" ) then
 		if( "${original_extension}" == "ogg" || "${original_extension}" == "wav" ) then
@@ -596,7 +614,9 @@ convert_filenames:
 		goto oggconvert;
 	end
 	
-	rm -f "${filename_list}";
+	if( -e "${filename_list}" ) then
+		rm -f "${filename_list}";
+	endif
 	
 	if( ${?arg} ) then
 		goto parse_arg;
@@ -775,8 +795,9 @@ oggconvert:
 			
 			if(!( "${status}" == "0" && -e "${save_to_filename}.wav" )) then
 				printf "\t[failed]\n\t\t\tUnable to create temorary WAV file.\n\t\t\tffmpeg returned: %s\n\n" "${status}";
-				if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) \
+				if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) then
 					rm "${save_to_filename}.wav";
+				endif
 				
 				if( -e "${save_to_filename}.${original_extension}.bck" ) then
 					if( "${original_extension}" == "wav" ) then
@@ -807,9 +828,9 @@ oggconvert:
 	if(!( "${status}" == "0" && -e "${save_to_filename}.ogg" )) then
 		printf "\t\t[failed]\n\t\t\tUnable to encode file.  Encoder: [`basename %s`]; returned: %s\n\n" "${oggenc}" "${status}";
 		if( "${original_extension}" != "wav" && -e "${save_to_filename}.wav" ) then
-			rm "${save_to_filename}.wav";
+			rm -f "${save_to_filename}.wav";
 		else if( "${original_extension}" != "ogg" && -e "${save_to_filename}.ogg" ) then
-			rm "${save_to_filename}.ogg";
+			rm -f "${save_to_filename}.ogg";
 		endif
 		
 		if( -e "${save_to_filename}.${original_extension}.bck" ) then
@@ -824,11 +845,13 @@ oggconvert:
 	endif
 	
 	printf "\t\t[success]\n";
-	if( "${original_extension}" != "wav" ) \
+	if( "${original_extension}" != "wav" ) then
 		rm -f "${save_to_filename}.wav";
+	endif
 	
-	if( -e "${save_to_filename}.${original_extension}.bck" ) \
+	if( -e "${save_to_filename}.${original_extension}.bck" ) then
 		rm -f "${save_to_filename}.${original_extension}.bck";
+	endif
 	
 	if( ${?combine} && "${filename}" != "${save_to_filename}" ) \
 		goto scripts_main_quit;
@@ -846,7 +869,7 @@ oggconvert:
 	endif
 	
 	if( ${?transcode} && "${original_extension}" != "ogg" ) then
-		rm ${transcode} "${filename}.${original_extension}";
+		rm -f ${transcode} "${filename}.${original_extension}";
 	endif
 	
 	@ files_coverted++;
@@ -885,18 +908,20 @@ find_length:
 		set oggs_hours="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
 		set oggs_minutes="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
 		set oggs_seconds="`printf "\""%s"\"" "\""${length_set}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
-	else if( ${?ltrim} && ${?rtrim} ) then
+	else
+		#if( ${?ltrim} && ${?rtrim} ) then
 		set file="`basename "\""${filename}.${extension}"\""`";
 		set ffprobe_info_file="`mktemp --tmpdir "\"".escaped.ffprobe.info:${file}.XXXXXXXX"\""`";
 		unset file;
 		${ffprobe} "`printf "\""%s"\"" "\""${original_filename}"\""`" >&! "${ffprobe_info_file}";
-		set oggs_length="`egrep 'Duration:' "\""${ffprobe_info_file}"\""`";
+		set duration="`egrep 'Duration:' "\""${ffprobe_info_file}"\""`";
 		rm -f "${ffprobe_info_file}";
-		if( ${?debug} || ${?debug_length} ) \
-			printf "Length of %s\n\t%s\n" "${original_filename}" "${oggs_length}";
-		set oggs_hours="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\1/'`";
-		set oggs_minutes="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\2/'`";
-		set oggs_seconds="`printf "\""%s"\"" "\""${oggs_length}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\3/'`";
+		unset ffprobe_info_file;
+		if( ${?debug} ) \
+			printf "Length of %s\n\t%s\n" "${original_filename}" "${duration}";
+		set oggs_hours="`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\1/'`";
+		set oggs_minutes="`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\2/'`";
+		set oggs_seconds="`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\3/'`";
 		if( ${?ltrim_hours} ) then
 			set hours="`printf "\""%s-%s\n"\"" "\""${oggs_hours}"\"" "\""${ltrim_hours}"\"" | bc`";
 		endif
@@ -948,7 +973,7 @@ find_length:
 				unset single_pass ltrim_hours ltrim_minutes ltrim_seconds hours minutes seconds;
 			endif
 		endif
-		unset oggs_length;
+		unset duration;
 	endif
 	
 	set trim_hours="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
@@ -1012,39 +1037,45 @@ calculate_length:
 		printf "\tseconds: %s\n" "${seconds}";
 	endif
 	
-	if( "${hours}" == "" || "`printf "\""%s"\"" "\""${hours}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
+	#if( "${hours}" == "" || "`printf "\""%s"\"" "\""${hours}"\"" | sed -r 's/^(\-).*/\1/'`" == "-" ) then
+	if( $hours < 0 ) then
 		set hours="00";
-	endif
-	if( "`printf "\""%s"\"" "\""${hours}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${hours}" ) then
+	else if( $hours < 10 ) then
+	#endif
+	#if( "`printf "\""%s"\"" "\""${hours}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${hours}" ) then
 		set hours="0${hours}";
 	endif
-	if( "`printf "\""%s"\"" "\""${minutes}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${minutes}" ) then
+	#if( "`printf "\""%s"\"" "\""${minutes}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${minutes}" ) then
+	if( $minutes < 10 ) then
 		set minutes="0${minutes}";
 	endif
-	if( "`printf "\""%s"\"" "\""${seconds}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${seconds}" ) then
+	#if( "`printf "\""%s"\"" "\""${seconds}"\"" | sed -r 's/^([0-9]{1})[0-9]{0,1}/\1/'`" == "${seconds}" ) then
+	if( $seconds < 10 ) then
 		set seconds="0${seconds}";
 	endif
 	if( ${?debug} ) then
-		printf "After checkingfor any needed '0' padding:\n";
+		printf "After checking for any needed '0' padding:\n";
 		printf "\thours: %s\n" "${hours}";
 		printf "\tminutes: %s\n" "${minutes}";
 		printf "\tseconds: %s\n" "${seconds}";
 	endif
 	
 	set length="${hours}:${minutes}:${seconds}";
+	
+	if( ${?debug_set} ) \
+		unset debug_set debug;
+	
+	unset oggs_hours trim_hours oggs_minutes trim_minutes oggs_seconds trim_seconds hours minutes seconds;
+	
 	if( "`printf "\""%s"\"" "\""${length}"\"" | sed -r 's/^[0-9]{2}:[0-9]{2}:[0-9]{2}"\$"//'`" != "" ) then
 		printf "Invalid calculated length: %s, lenth must be formatted as: hh:mm:ss\n" "${length}";
+		unset length;
 		goto convert_filenames;
 	endif
 	
 	if( ${?debug} ) then
 		printf "Calcucated Length: %s\n" "${length}";
 	endif
-	
-	unset oggs_hours trim_hours oggs_minutes trim_minutes oggs_seconds trim_seconds hours minutes seconds;
-	
-	if( ${?debug_set} ) \
-		unset debug_set debug;
 	
 	if( "${filename}" == "${save_to_filename}" ) \
 		goto oggconvert;
@@ -1699,12 +1730,12 @@ filename_list_append_value:
 			printf "Adding [%s] to [%s].\nBy running:\n\tfind -L "\""%s"\""" "${value}" "${filename_list}" "${value}";
 			if(! ${?supports_hidden_files} ) \
 				printf  \! -iregex '.*\/\..*';
-			printf "| sort >> "\""%s"\""\n\n" "${filename_list}";
+			printf " -type f | sort >> "\""%s"\""\n\n" "${filename_list}";
 		endif
 		if(! ${?supports_hidden_files} ) then
-			find -L "${value}" \! -iregex '.*\/\..*' | sort >> "${filename_list}";
+			find -L "${value}" \! -iregex '.*\/\..*' -type f | sort >> "${filename_list}";
 		else
-			find -L "${value}" | sort >> "${filename_list}";
+			find -L "${value}" -type f | sort >> "${filename_list}";
 		endif
 		
 		if(! ${?process_each_filename} ) \
@@ -1728,13 +1759,13 @@ filename_list_append_value:
 		printf "By running:\n\tfind -L "\""${value}"\"" -regextype posix-extended -iregex "\"".*\.(${scripts_supported_extensions})"\"""\$"";
 		if(! ${?supports_hidden_files} ) \
 			printf " \! -iregex '.*\/\..*'";
-		printf " | sort >> "\""%s"\""\n\n" "${filename_list}";
+		printf " -type f | sort >> "\""%s"\""\n\n" "${filename_list}";
 	endif
 	
 	if(! ${?supports_hidden_files} ) then
-		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*'  | sort >> "${filename_list}";
+		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*' -type f | sort >> "${filename_list}";
 	else
-		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${filename_list}";
+		find -L "${value}" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ -type f | sort >> "${filename_list}";
 	endif
 	
 	if(! ${?process_each_filename} ) \

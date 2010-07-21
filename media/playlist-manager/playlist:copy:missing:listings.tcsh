@@ -345,6 +345,14 @@ scripts_exec:
 	
 	set callback="scripts_main_quit";
 	goto callback_handler;
+	set lines="`wc -l "\""${tcsh_copy_script}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`";
+	@ line=2;
+	@ line_next=3;
+	while( $line < $lines )
+		@ line++;
+		@ line_next++;
+		ex -s "+${line}s/\v^(\/[^/]+\/[^/]+\/)(.*\/)?([^/]*)(\.[^.]+)"\$"/copy_missing_${line}:\r\tonintr copy_missing_${line}_cancel;\r\tif\(\! -e "\""\1\2\3\4"\"" \) then\r\tif\(\! -e "\""\1nfs\/\2\3\4"\"" \) then\r\t\t\tprintf "\""**error coping:** remote file\\n\\t\<\1nfs\/\2\3\4\> doesn't exists.\\n"\"" \> \/dev\/stderr;\r\t\telse\r\t\tset current_podcast="\""\1\2"\"";\r\t\t\tif\(\! -d "\"""\$"{current_podcast}"\"" \) \\\r\t\t\t\tmkdir -p "\"""\$"{current_podcast}"\"";\r\t\t\r\t\t\tif\( "\"""\$"{old_podcast}"\"" \!\= "\"""\`"basename "\""\\"\"""\"""\$"{current_podcast}"\""\\"\"""\"""\`""\"" \) then\r\t\t\t\tset old_podcast\="\"""\`"basename "\""\\"\"""\"""\$"{current_podcast}"\""\\"\"""\"""\`""\"";\r\t\t\t\tprintf "\""\\nCopying: "\$"{old_podcast}'s content(s):"\"";\r\t\t\tendif\r\t\t\tprintf "\""\\n\\tCopying: \3\4"\"";\r\t\t\tcp "\""\1nfs\/\2\3\4"\"" "\""\1\2\3\4"\"";\r\t\t\tprintf "\""\\t\\t[finished]\\n"\"";\r\t\tendif\r\tendif\r\tgoto copy_missing_${line_next};\r#goto copy_missing_${line};\rcopy_missing_${line}_cancel:\r\tprintf "\""[cancelled]"\"";\r#onintr copy_missing_${line}_cancel;\r/" '+wq!' "${tcsh_copy_script}";
+	end
 #scripts_exec:
 
 

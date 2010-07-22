@@ -528,11 +528,17 @@ convert_error:
 			breaksw;
 		
 		case -3:
-			printf "\n\t**Skipping:** <file://%s> no convertable files were found.\n\n" "${filename_list_value}" > /dev/stderr;
+			printf "\n\t" > /dev/stderr;
+			if( ${?process_each_filename} ) \
+				printf "**Skipping:** <file://%s>.  " "${filename_list_value}" > /dev/stderr;
+			printf "No convertable files were found.\n\n" > /dev/stderr;
 			breaksw;
 		
 		case -4:
-			printf "\n\t**Skipping:** <file://%s> all convertable files have been processed.\n\n" "${filename_list_value}" > /dev/stderr;
+			printf "\n\t" > /dev/stderr;
+			if( ${?process_each_filename} ) \
+				printf "**Skipping:** <file://%s>.  " "${filename_list_value}" > /dev/stderr;
+			printf "All convertable files have been processed.\n\n" > /dev/stderr;
 			breaksw;
 	endsw
 	

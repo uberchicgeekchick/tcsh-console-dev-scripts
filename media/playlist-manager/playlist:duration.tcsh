@@ -283,16 +283,25 @@ exec:
 	
 	if( ${?filename_list} ) then
 		if( ${?original_filename}) then
-			set ffprobe_info_file="`mktemp --tmpdir "\"".escaped.ffprobe.info.XXXXXX"\""`";
-			${ffprobe} "`printf "\""%s"\"" "\""${original_filename}"\""`" >&! "${ffprobe_info_file}";
-			set duration="`egrep 'Duration:' "\""${ffprobe_info_file}"\""`";
-			rm -f "${ffprobe_info_file}";
-			unset ffprobe_info_file;
-			
-			if( "${duration}" == "" ) then
+			if(! -e "${filename}.${extension}" ) then
+				printf "\t**Skipping:** <file://%s.%s>.  It no longer exists.\n" "${filename}" "${extension}";
 				set callback="filename_next";
 				goto callback_handler;
 			endif
+			
+			set ffprobe_info_file="`mktemp --tmpdir "\"".escaped.ffprobe.info.XXXXXX"\""`";
+			${ffprobe} "${filename}.${extension}" >&! "${ffprobe_info_file}";
+			set duration="`egrep 'Duration:' "\""${ffprobe_info_file}"\""`";
+			
+			if( "${duration}" == "" ) then
+				printf "\t**Skipping:** <file://%s.%s>.  Its duration could not be determind.\n\tffprobe returned: %s\n" "${filename}" "${extension}" "`tail -1 "\""${ffprobe_info_file}"\""`";
+				rm -f "${ffprobe_info_file}";
+				unset ffprobe_info_file;
+				set callback="filename_next";
+				goto callback_handler;
+			endif
+			rm -f "${ffprobe_info_file}";
+			unset ffprobe_info_file;
 			
 			if( ${?debug} ) \
 				printf "Length of %s\n\t%s\n" "${original_filename}" "${duration}";
@@ -342,8 +351,8 @@ exec:
 filename_next:
 	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
 		ex -s '+1d' '+wq!' "${filename_list}";
-		set extension="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/g'`";
-		set filename="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\1/g'`";
+		set extension="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/g'`";
+		set filename="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\1/g'`";
 		set callback="exec";
 		goto callback_handler;
 	end

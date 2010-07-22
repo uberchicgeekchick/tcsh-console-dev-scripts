@@ -13,9 +13,9 @@ setup:
 #-or-
 #	s/\v(["])/\1\\\1\\\\\\\1\\\1\1/g
 #will, for example, turn:
-#	/media/podcasts/testing doule "quote".mp3
+#	/media/podcasts/testing doule "quote".ogg
 #into:
-#	/media/podcasts/testing doule "\"\\\"\""quote"\"\\\"\"".mp3
+#	/media/podcasts/testing doule "\"\\\"\""quote"\"\\\"\"".ogg
 #
 setup_lists:
 	set to_delete=( \

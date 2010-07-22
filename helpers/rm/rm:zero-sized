@@ -1,0 +1,99 @@
+#!/bin/tcsh -f
+init:
+	if(! ${?0} ) then
+		printf "This script cannot be sourced.\n";
+		exit -1;
+	endif
+	
+	if( ${?GREP_OPTIONS} ) then
+		set grep_options="${GREP_OPTIONS}";
+		unsetenv GREP_OPTIONS;
+	endif
+	
+	if( "`alias grep`" != "" ) then
+		set original_grep="`alias grep`";
+		unalias grep;
+	endif
+	
+	set rm_flags;
+	if(!( ${#argv} > 0 )) then
+		set argv=("${cwd}");
+	endif
+	
+	@ argc=${#argv};
+	@ arg=0;
+#goto init;
+
+parse_argv:
+	while( $arg < $argc )
+		@ arg++;
+		switch( "$argv[$arg]" )
+			case "-f":
+			case "--force":
+				if( `printf "%s" "${rm_flags}" | sed -r 's/.*(f).*/\1/'` != "f" ) \
+					set rm_flags="f";
+				breaksw;
+			
+			case "-v":
+			case "--verbose":
+				if( `printf "%s" "${rm_flags}" | sed -r 's/.*(v).*/\1/'` != "v" ) \
+					set rm_flags="v";
+				breaksw;
+			
+			case "-i":
+			case "--interactive":
+				if( `printf "%s" "${rm_flags}" | sed -r 's/.*(i).*/\1/'` != "i" ) \
+					set rm_flags="i";
+				breaksw;
+			
+			default:
+				if( -d "$argv[$arg]" ) then
+					goto clean_up_dir;
+				endif
+				
+				printf "\t%s is an unsupported option.\n" "$argv[$arg]";
+				goto usage;
+				breaksw;
+		endsw
+	end
+	goto exit_script;
+#goto parse_argv;
+
+exit_script:
+	if( ${?grep_options} ) then
+		setenv GREP_OPTIONS "${grep_options}";
+		unset grep_options;
+	endif
+	
+	if( ${?original_grep} ) then
+		alias grep "${original_grep}";
+		unset original_grep;
+	endif
+	
+	exit;
+#goto exit_script;
+
+usage:
+	printf "\tUsage: %s directory...\n" "`basename "\""${0}"\""`";
+	goto exit_script;
+#goto usage;
+
+
+clean_up_dir:
+	set empty_files="`find /media/podcasts/ -printf '%s - %p\n' -type f | grep '^0 - ' | sed -r 's/.*:[0-9]+:0 - (.*)"\$"/\1/'`";
+	if( ${#empty_files} > 0 ) then
+		if( "${rm_flags}" == "" ) then
+			set rm_flags="-i";
+		else
+			set rm_flags="-${rm_flags}";
+		endif
+		rm ${rm_flags} "`find /media/podcasts/ -printf '%s - %p\n' -type f | grep '^0 - ' | sed -r 's/^0 - (.*)"\$"/\1/'`"
+	endif
+	
+	if( "${rm_flags}" != "" ) \
+		set rm_flags;
+	
+	goto parse_argv;
+#goto clean_up_dir;
+
+

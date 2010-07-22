@@ -45,6 +45,8 @@ setup_podcasts:
 	
 	set slashdot_podcasts=( \
 	"\n" \
+"/media/podcasts/Slashdot/Crytek Dev On Fun vs. Realism In Game Guns, released on: Thu, 22 Jul 2010 09:04:00 GMT.mp3" \
+	"\n" \
 	);
 	
 	goto setup_podibooks;
@@ -54,6 +56,10 @@ setup_podcasts:
 setup_podibooks:
 	set latest_podiobooks=( \
 	"\n" \
+"/media/podcasts/A Dance With Demons/37. ADWD 37 - A Dance With Demons, released on: Thu, 22 Jul 2010 09:22:22 GMT.mp3" \
+	"\n" \
+"/media/podcasts/Conjuring Raine/15. ConjuringRaine15 - Conjuring Raine, released on: Thu, 22 Jul 2010 09:23:03 GMT.mp3" \
+	"\n" \
 	);
 	
 	set between_the_covers_podiobooks=( \
@@ -61,6 +67,8 @@ setup_podibooks:
 	);
 	
 	set podiobooks_dot_com_podiobooks=( \
+	"\n" \
+"/media/podcasts/No Doorway Wide Enough/10. NoDoorway 10 - No Doorway Wide Enough, released on: Thu, 22 Jul 2010 09:25:30 GMT.mp3" \
 	"\n" \
 	);
 	

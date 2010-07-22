@@ -1519,6 +1519,32 @@ parse_arg:
 		rm -f "${value_file}";
 		unset value_file;
 		#set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+		
+		#if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/\1/"\""`" == "~" ) then
+		#	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(~)(.*)/${escaped_home_dir}\2/"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/['"\$"']/"\""\\'"\$"'"\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
+		#endif
+		
+		#if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/\1/"\""`" == "." ) then
+		#	set value="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(\.)(.*)/${escaped_starting_dir}\2/"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/['"\$"']/"\""\\'"\$"'"\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/(\[)/\\\1/g' | sed -r 's/([*])/\\\1/g'`";
+		#endif
+		
+		#if( "`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(.*)(\*)/\2/"\""`" == "*" ) then
+		#	set dir="`printf "\""%s"\"" "\""${value}"\"" | sed -r "\""s/^(.*)\*'"\$"'/\2/"\""`";
+		#	set value="`/bin/ls --width=1 "\""${dir}"\""*`";
+		#endif
+		
+		if( -e "${value}" ) then
+			if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+				set value="${cwd}/${value}";
+			set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+				set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			end
+			while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+				set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			end
+			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+		endif
 	endif
 	
 	if( "${option}" == "${value}" ) \
@@ -1839,24 +1865,6 @@ filename_list_append_value:
 	
 	if(! -e "${filename_list}" ) \
 		touch "${filename_list}";
-	
-	set value_file="`mktemp --tmpdir .escaped.${scripts_basename}.filename.value.XXXXXXXX`";
-	printf "%s" "$value" >! "${value_file}";
-	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
-	set escaped_value="`cat "\""${value_file}"\""`";
-	rm -f "${value_file}";
-	unset value_file;
-	set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
-		set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	end
-	while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
-		set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^/.]{2}.+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-	end
-	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-	if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
-		set value="${cwd}/${value}";
-	unset escaped_value;
 	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} || ${?debug_filenames} ) then

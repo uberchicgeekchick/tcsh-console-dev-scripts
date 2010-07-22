@@ -58,9 +58,6 @@ init:
 	
 	@ required_options=2;
 	
-	
-	@ required_options=2;
-	
 	@ argc=${#argv};
 	if( ${argc} < ${required_options} ) then
 		@ errno=-503;
@@ -878,6 +875,26 @@ parse_arg:
 			endif
 		endif
 		
+		if( -e "${value}" ) then
+			if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+				set value="${cwd}/${value}";
+			set value_file="`mktemp --tmpdir .escaped.relative.filename.value.XXXXXXXX`";
+			printf "%s" "${value}" >! "${value_file}";
+			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+			set escaped_value="`cat "\""${value_file}"\""`";
+			rm -f "${value_file}";
+			unset value_file;
+			set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+				set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			end
+			while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+				set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			end
+			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+			unset escaped_value;
+		endif
+		
 		@ parsed_argc++;
 		if( "${option}" == "${value}" ) \
 			set option="";
@@ -1013,7 +1030,25 @@ parse_arg:
 							breaksw;
 					endsw
 				else if(! ${?new_playlist} ) then
-					set new_playlist_type="`printf "\""$value"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+					if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+						set value="${cwd}/${value}";
+					set value_file="`mktemp --tmpdir .escaped.relative.filename.value.XXXXXXXX`";
+					printf "%s" "${value}" >! "${value_file}";
+					ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+					set escaped_value="`cat "\""${value_file}"\""`";
+					rm -f "${value_file}";
+					unset value_file;
+					set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+					while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+					end
+					while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+					end
+					set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+					
+					set new_playlist_type="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+					unset escaped_value;
 					if( "${new_playlist_type}" == "${playlist_type}" ) then
 							if( ${?no_exit_on_exception} ) \
 								unset no_exit_on_exception;
@@ -1059,7 +1094,7 @@ parse_arg:
 		if( ${?value_used} ) \
 			unset value_used;
 		
-		unset dashes option equals value parsed_arg;
+		unset escaped_value dashes option equals value parsed_arg;
 	end
 #parse_arg:
 

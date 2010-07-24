@@ -2,7 +2,7 @@
 init:
 	set current_label="init";
 	
-	if( `printf '%s' "${0}" | sed -r 's/^[^\.]*(csh)$/\1/'` == "csh" ) \
+	if(! ${?0} ) \
 		set being_sourced;
 	
 	set scripts_basename="egrep-files.tcsh";

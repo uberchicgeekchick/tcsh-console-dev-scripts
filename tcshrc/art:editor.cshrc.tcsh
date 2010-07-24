@@ -22,8 +22,8 @@ else if( "${CSHEDIT}" != "vi" ) then
 endif
 
 
-#alias vim-enhanced "vim-enhanced -X -p";
-alias vim-enhanced "vim-enhanced --noplugin -X -p";
+#alias vim-enhanced "vim-enhanced --noplugin -X -p";
+alias vim-enhanced "vim-enhanced -X -p";
 alias vim "vim-enhanced";
 alias lvim "vim-enhanced -c 'normal '\''0'"
 alias vi "vim-enhanced";
@@ -34,14 +34,14 @@ alias ex "ex -E -n --noplugin -X";
 setenv EDITOR "vim-enhanced";
 bindkey "^Z" run-fg-editor;
 
-#alias vim-enhanced "vim-enhanced --servername "\`"hostname --fqdn | sed -r 's/(.*)/\U\1/g'"\`" -X --remote-tab-silent";
-alias vim-remote "set vim_server="\`"vim-enhanced --serverlist"\`"; if( "\"""\$"vim_server"\"" == "\"""\"" ) set vim_server="\`"hostname --fqdn | sed -r 's/(.*)/\U\1/g'"\`"; vim-enhanced --servername "\$"vim_server -X --remote-tab-silent";
-alias vi-remote "vim-remote";
-alias rvim "vim-remote";
-alias rvi "vim-remote";
-alias rvi "vim-remote";
-alias vim-connect "vim-remote"
-alias vi-connect "vim-remote"
+#alias vim-sever 'set vim_server=`vim-enhanced --serverlist`; if( "${vim_server}" == "" ) set vim_server=`hostname --fqdn`; vim-enhanced --servername $vim_server -X --remote-tab-silent';
+alias vim-remote "vim-server";
+alias vi-remote "vim-server";
+alias rvim "vim-server";
+alias rvi "vim-server";
+alias rvi "vim-server";
+alias vim-connect "vim-server"
+alias vi-connect "vim-server"
 
 source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "art:editor.cshrc.tcsh";
 

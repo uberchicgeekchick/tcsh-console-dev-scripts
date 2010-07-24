@@ -50,8 +50,11 @@ foreach rc_file ( "${TCSH_RC_SESSION_PATH}/"*.tcsh )
 	source "${TCSH_RC_SESSION_PATH}/${rc_file}" ${argv};
 	if( ${?TCSH_RC_DEBUG} ) \
 		printf "%s finished loading %s\n" "${rc_file}" `date "+%I:%M:%S%P"`;
-	if( ${?http_proxy} ) \
-		unsetenv http_proxy;
+	
+	if( ${?http_proxy} ) then
+		if( "${http_proxy}" == "" ) \
+			unsetenv http_proxy;
+	endif
 	
 	unset rc_file;
 end

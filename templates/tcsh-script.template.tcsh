@@ -704,8 +704,16 @@ if_sourced:
 	@ errno=0;
 	
 	if( ${?0} ) then
-		onintr exit_script;
-		set callback="main";
+		if( "`basename "\""${0}"\""`" == "${scripts_basename}" ) then
+			onintr exit_script;
+			set callback="main";
+		else if( ${?supports_being_sourced} ) then
+			onintr scripts_main_quit;
+			set callback="sourced";
+		else
+			@ errno=-502;
+			goto exception_handler;
+		endif
 	else if( ${?supports_being_sourced} ) then
 		onintr scripts_main_quit;
 		set callback="sourced";

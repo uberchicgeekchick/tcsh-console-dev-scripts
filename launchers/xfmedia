@@ -41,7 +41,7 @@ endif
 if(! ${?output} ) \
 	set output=">& /dev/null &";
 
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) then
+if(! ${?0} ) then
 	set set_alias;
 else if( "`basename '${0}'`" != "${this_program}" && "`basename '${0}'`" != "${this_program}-${resolution}" ) then
 	set set_alias;

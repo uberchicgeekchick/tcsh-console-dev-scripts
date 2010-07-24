@@ -73,10 +73,10 @@ playlist_init:
 		set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 	end
 	set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-	unset escaped_value;
 	
 	set playlist="${value}";
-	set playlist_type="`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+	set playlist_type="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+	unset escaped_value;
 	
 	@ arg++;
 	if( $arg <= $argc ) then
@@ -103,10 +103,10 @@ playlist_init:
 			set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 		end
 		set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-		unset escaped_value;
 		
 		set new_playlist="${value}";
-		set new_playlist_type="`printf "\""%s"\"" "\""${new_playlist}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+		set new_playlist_type="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+		unset escaped_value;
 	else
 		set new_playlist="${playlist}";
 		set new_playlist_type="${playlist_type}";

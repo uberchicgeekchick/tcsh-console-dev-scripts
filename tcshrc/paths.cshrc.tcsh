@@ -12,7 +12,7 @@ endif
 unset args_handled;
 
 if( ${?TCSH_RC_DEBUG} ) \
-	printf "Setting up PATH environmental variable.\n";
+	printf "Setting up path directories.\n";
 
 if( ${?PATH} ) \
 	unsetenv PATH;
@@ -27,13 +27,14 @@ if( "${cwd}" != "${TCSH_RC_SESSION_PATH}" ) then
 	cd "${TCSH_RC_SESSION_PATH}";
 endif
 
-source "${TCSH_RC_SESSION_PATH}/source:argv" art:alacast.cshrc.tcsh art:paths.cshrc.tcsh paths:programs.cshrc.tcsh;
+source "${TCSH_RC_SESSION_PATH}/source:argv" alacast:environment.cshrc.tcsh art:paths.cshrc.tcsh paths:programs.cshrc.tcsh;
 
 #source "paths:lib.cshrc.tcsh";
 #if( "${MACHTYPE}" == "x86_64" ) \
 #	source "paths:lib.cshrc.tcsh" "${MACHTYPE}";
 
 setenv PATH "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/^\://' | sed -r 's/\:\:/\:/g' | sed -r 's/(\/)(\:)/\2/g' | sed -r 's/[\/\:]+"\$"//g'`";
+
 if( ${?revert_to_owd} ) then
 	cd "${revert_to_owd}";
 	if( ${?paths_oldcwdcmd} ) then

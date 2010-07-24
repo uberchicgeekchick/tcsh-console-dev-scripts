@@ -285,18 +285,29 @@ exec:
 		
 		if(! ${?no_mk_path} ) then
 			set touch_dir="`dirname "\""${escaped_touch_target}"\""`";
-			if(! -d "${touch_dir}" ) \
-				mkdir -p "${touch_dir}";
+			if(! -d "${touch_dir}" ) then
+				if(! ${?be_vebose} ) then
+					mkdir -p "${touch_dir}";
+				else
+					mkdir -pv "${touch_dir}";
+				endif
+			endif
 			unset touch_dir;
 		endif
 	
-		if( ${?debug} ) \
+		if( ${?debug} ) then
 			printf "( %s %s "\""%s"\"" > %s ) >& %s;\n" "${scripts_exec}" "${argz}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
+		else if( ${?be_verbose} ) then
+			printf "touch: creating <file://%s>\n" "${touch_target}";
+		endif
 		( ${scripts_exec} ${argz} "${touch_target}" > ${stdout} ) >& ${stderr};
 		
 		if( ${?mode} ) then
-			if( ${?debug} ) \
+			if( ${?debug} ) then
 				printf "( %s %s "\""%s"\"" > %s ) >& %s;" "${chmod_exec}" "${mode}" "${touch_target}" "${stdout}" "${stderr}" > ${stdout};
+			else if( ${?be_verbose} ) then
+				printf "touch: setting mode of <file://%s> to [%s].\n" "${touch_target}" "${mode}";
+			endif
 			( ${chmod_exec} ${mode} "${touch_target}" > ${stdout} ) >& ${stderr};
 		endif
 		unset touch_target;
@@ -496,6 +507,11 @@ parse_arg:
 			case "diagnosis":
 			case "diagnostic-mode":
 			case "debug":
+				breaksw;
+			
+			case "v":
+			case "verbose":
+				set be_verbose;
 				breaksw;
 
 			case "a":

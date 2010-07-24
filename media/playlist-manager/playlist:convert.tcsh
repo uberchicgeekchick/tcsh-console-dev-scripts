@@ -627,21 +627,22 @@ scripts_main_quit:
 	if( ${?scripts_diagnosis_log} ) \
 		unset scripts_diagnosis_log;
 	
-	if( ${?strict} ) then
+	if( ${?strict} ) \
 		unset strict;
-		if( ${?arg_shifted} ) \
-			unset arg_shifted;
-		if( ${?value_used} ) \
-			unset value_used;
-		if( ${?dashes} ) \
-			unset dashes;
-		if( ${?option} ) \
-			unset option;
-		if( ${?equals} ) \
-			unset equals;
-		if( ${?value} ) \
-			unset value;
-	endif
+	if( ${?arg_shifted} ) \
+		unset arg_shifted;
+	if( ${?value_used} ) \
+		unset value_used;
+	if( ${?escaped_value} ) \
+		unset escaped_value;
+	if( ${?dashes} ) \
+		unset dashes;
+	if( ${?option} ) \
+		unset option;
+	if( ${?equals} ) \
+		unset equals;
+	if( ${?value} ) \
+		unset value;
 	
 	if(! ${?errno} ) \
 		@ errno=0;
@@ -892,7 +893,6 @@ parse_arg:
 				set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 			end
 			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-			unset escaped_value;
 		endif
 		
 		@ parsed_argc++;
@@ -1011,7 +1011,7 @@ parse_arg:
 						goto exception_handler;
 					endif
 					
-					set playlist_type="`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+					set playlist_type="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
 					switch("${playlist_type}")
 						case "m3u":
 						case "pls":
@@ -1030,32 +1030,33 @@ parse_arg:
 							breaksw;
 					endsw
 				else if(! ${?new_playlist} ) then
-					if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
-						set value="${cwd}/${value}";
-					set value_file="`mktemp --tmpdir .escaped.relative.filename.value.XXXXXXXX`";
-					printf "%s" "${value}" >! "${value_file}";
-					ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
-					set escaped_value="`cat "\""${value_file}"\""`";
-					rm -f "${value_file}";
-					unset value_file;
-					set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-					while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
-						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-					end
-					while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
-						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-					end
-					set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+					if(! ${?escaped_value} ) then
+						if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+							set value="${cwd}/${value}";
+						set value_file="`mktemp --tmpdir .escaped.relative.filename.value.XXXXXXXX`";
+						printf "%s" "${value}" >! "${value_file}";
+						ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+						set escaped_value="`cat "\""${value_file}"\""`";
+						rm -f "${value_file}";
+						unset value_file;
+						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+							set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						end
+						while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+							set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						end
+						set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+					endif
 					
 					set new_playlist_type="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
-					unset escaped_value;
 					if( "${new_playlist_type}" == "${playlist_type}" ) then
-							if( ${?no_exit_on_exception} ) \
-								unset no_exit_on_exception;
-							set unsupported_playlist_type="${new_playlist_type}";
-							unset new_playlist_type;
-							@ errno=-602;
-							goto exception_handler;
+						if( ${?no_exit_on_exception} ) \
+							unset no_exit_on_exception;
+						set unsupported_playlist_type="${new_playlist_type}";
+						unset new_playlist_type;
+						@ errno=-602;
+						goto exception_handler;
 					endif
 					switch("${new_playlist_type}")
 						case "m3u":

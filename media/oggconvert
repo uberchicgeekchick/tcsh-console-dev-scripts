@@ -24,13 +24,6 @@ exit_script:
 scripts_main_quit:
 	onintr -;
 	
-	if( ${?playlist} ) then
-		printf "\n\t";
-		playlist:new:save.tcsh --force "${playlist}";
-		printf "\n";
-		unset playlist;
-	endif
-	
 	if( ${?file} ) \
 		unset file;
 	if( ${?ffprobe_info_file} ) then
@@ -38,6 +31,21 @@ scripts_main_quit:
 			rm -f "${ffprobe_info_file}";
 		endif
 		unset ffprobe_info_file;
+	endif
+	if( ${?playlist} ) then
+		if( -e "${playlist}.new" ) then
+			if( `wc "${playlist}.new" | sed -r 's/^([0-9]+).*$/\1/'` <= 0 ) then
+				rm -f "${playlist}.new";
+				if( -e "${playlist}.swap" ) then
+					rm -f "${playlist}.swap";
+				endif
+			else
+				printf "\t\t";
+				playlist:new:save --force "${playlist}"
+				printf "\n";
+			endif
+		endif
+		unset playlist;
 	endif
 	if( ${?filename} ) \
 		unset filename;
@@ -123,6 +131,14 @@ scripts_main_quit:
 		unset itsoffset;
 	if( ${?modifier} ) \
 		unset modifier;
+	if( ${?ltrim} ) \
+		unset ltrim ltrim_hours ltrim_minutes ltrim_seconds;
+	if( ${?rtrim} ) \
+		unset rtrim;
+	if( ${?length} ) \
+		unset length;
+	if( ${?length_set} ) \
+		unset length_set;
 	if( ${?oggenc} ) \
 		unset oggenc;
 	if( ${?oggenc_output_file_options} ) \
@@ -866,13 +882,18 @@ oggconvert:
 		${ogginfo} "${save_to_filename}.ogg";
 	endif
 	
-	printf "\t\t\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[finished]\n\n";
+	printf "\t\t\t\t\t\t\t\t\t\tOGG Vorbis conversion:\t\t[finished]\n";
 	
 	if( ${?playlist} ) then
+		playlist:new:create.tcsh "${playlist}";
 		if( ${?debug} ) \
-			printf "\tAppending:\n\t\t<file://%s.ogg>\n\t\t\tto\n\t\t<file://%s>\n" "${save_to_filename}" "${playlist}";
+			printf "\t\tAppending:\n\t\t\t<file://%s.ogg>\n\t\t\t\tto\n\t\t\t<file://%s>\n" "${save_to_filename}" "${playlist}";
 		printf "%s.ogg\n" "${save_to_filename}" >> "${playlist}.new";
+		printf "\t\t";
+		playlist:new:save.tcsh --force "${playlist}";
+		printf "\n";
 	endif
+	printf "\n";
 	
 	if( ${?transcode} && "${original_extension}" != "ogg" ) then
 		rm -f ${transcode} "${filename}.${original_extension}";
@@ -901,13 +922,6 @@ find_length:
 		set reverse_modifier="-";
 	endif
 	
-	if( ${?ltrim} ) then
-		set single_pass;
-		set ltrim_hours="`printf "\""%s"\"" "\""${ltrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
-		set ltrim_minutes="`printf "\""%s"\"" "\""${ltrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
-		set ltrim_seconds="`printf "\""%s"\"" "\""${ltrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
-	endif
-	
 	if( ${?length_set} && ${?ltrim} ) then
 		set rtrim_set;
 		set rtrim="${ltrim}";
@@ -928,11 +942,9 @@ find_length:
 		set oggs_hours="`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\1/'`";
 		set oggs_minutes="`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\2/'`";
 		set oggs_seconds="`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\3/'`";
-		if( ${?ltrim_hours} ) then
+		if( ${?ltrim} ) then
 			set hours="`printf "\""%s-%s\n"\"" "\""${oggs_hours}"\"" "\""${ltrim_hours}"\"" | bc`";
-		endif
-		
-		if( ${?ltrim_minutes} ) then
+			
 			set minutes="`printf "\""%s-%s\n"\"" "\""${oggs_minutes}"\"" "\""${ltrim_minutes}"\"" | bc`";
 			
 			if( $minutes < 0 ) then
@@ -948,10 +960,7 @@ find_length:
 			else
 				set oggs_minutes="${minutes}";
 			endif
-			unset minutes;
-		endif
-		
-		if( ${?ltrim_seconds} ) then
+			
 			set seconds="`printf "\""%s-%s\n"\"" "\""${oggs_seconds}"\"" "\""${ltrim_seconds}"\"" | bc`";
 			
 			if( $seconds < 0 ) then
@@ -966,20 +975,17 @@ find_length:
 				set seconds="00";
 			endif
 			
-			if( ${?single_pass} ) then
-				if( ${?debug} ) then
-					printf "After %sing ltrim's length %s the ogg file's length:\n" "${function}" "${to_or_from}";
-					printf "\thours: %s%s%s\n" "${hours}" "${modifier}" "${ltrim_hours}";
-					printf "\tminutes: %s%s%s\n" "${minutes}" "${modifier}" "${ltrim_minutes}";
-					printf "\tseconds: %s%s%s\n" "${seconds}" "${modifier}" "${ltrim_seconds}";
-				endif
-				set oggs_hours="${hours}";
-				set oggs_minutes="${minutes}";
-				set oggs_seconds="${seconds}";
-				unset single_pass ltrim_hours ltrim_minutes ltrim_seconds hours minutes seconds;
+			if( ${?debug} ) then
+				printf "After %sing ltrim's length %s the ogg file's length:\n" "${function}" "${to_or_from}";
+				printf "\thours: %s%s%s\n" "${hours}" "${modifier}" "${ltrim_hours}";
+				printf "\tminutes: %s%s%s\n" "${minutes}" "${modifier}" "${ltrim_minutes}";
+				printf "\tseconds: %s%s%s\n" "${seconds}" "${modifier}" "${ltrim_seconds}";
 			endif
+			set oggs_hours="${hours}";
+			set oggs_minutes="${minutes}";
+			set oggs_seconds="${seconds}";
 		endif
-		unset duration;
+		unset hours minutes seconds duration;
 	endif
 	
 	set trim_hours="`printf "\""%s"\"" "\""${rtrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
@@ -1333,7 +1339,7 @@ parse_arg:
 				endif
 				breaksw;
 			
-			case "normalize";
+			case "normalize":
 				if( ${?volume} ) \
 					unset volume;
 				breaksw;
@@ -1392,7 +1398,7 @@ parse_arg:
 				if( ${?lenth_set} ) \
 					unset lenth_set;
 				if( ${?ltrim} ) \
-					unset ltrim;
+					unset ltrim ltrim_hours ltrim_minutes ltrim_seconds;
 				breaksw;
 			
 			case "no-lenth":
@@ -1410,7 +1416,7 @@ parse_arg:
 			case "ltrim":
 				if( "${value}" == "" ) then
 					if( ${?ltrim} ) \
-						unset ltrim;
+						unset ltrim ltrim_hours ltrim_minutes ltrim_seconds;
 					breaksw;
 				endif
 				
@@ -1422,6 +1428,9 @@ parse_arg:
 				endif
 				
 				set ltrim="${value}";
+				set ltrim_hours="`printf "\""%s"\"" "\""${ltrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\1/'`";
+				set ltrim_minutes="`printf "\""%s"\"" "\""${ltrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\2/'`";
+				set ltrim_seconds="`printf "\""%s"\"" "\""${ltrim}"\"" | sed -r 's/([0-9]{2}):([0-9]{2}):([0-9]{2})/\3/'`";
 				set value_used;
 				breaksw;
 			
@@ -1499,9 +1508,6 @@ parse_arg:
 					set playlist="${scripts_basename}'s ${playlist_type} playlist @ `date '+%c'`.${playlist_type}";
 				endif
 				
-				if( ${?debug} ) \
-					printf "\tConverted ogg vorbis files will be added to:\n\t\t<file://%s>\n" "${playlist}";
-				playlist:new:create.tcsh "${playlist}";
 				unset playlist_type;
 				set value_used;
 				breaksw;
@@ -1510,9 +1516,6 @@ parse_arg:
 				if(! ${?playlist} ) \
 					breaksw;
 				
-				printf "\n\t";
-				playlist:new:save.tcsh --force "${playlist}";
-				printf "\n";
 				unset playlist;
 				breaksw;
 			

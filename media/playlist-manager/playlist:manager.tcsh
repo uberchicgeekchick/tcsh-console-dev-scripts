@@ -89,8 +89,8 @@ parse_argv:
 	@ argc=${#argv};
 	while( $arg < $argc )
 		@ arg++;
-		set option = "`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\1/g'`";
-		set value = "`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\2/g'`";
+		set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\1/g'`";
+		set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/\-{2}([^\=]+)\=?(.*)/\2/g'`";
 		if( "${option}" != "" && "${value}" == "" ) then
 			@ arg++;
 			if( $arg < $argc ) then
@@ -116,7 +116,6 @@ parse_argv:
 				set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 			end
 			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-			unset escaped_value;
 		endif
 		
 		if( ${?debug} ) \
@@ -202,8 +201,27 @@ parse_argv:
 			
 			case "export":
 			case "export-to":
+				if(! ${?escaped_value} ) then
+					if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+						set value="${cwd}/${value}";
+					set value_file="`mktemp --tmpdir .escaped.relative.filename.value.XXXXXXXX`";
+					printf "%s" "${value}" >! "${value_file}";
+					ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+					set escaped_value="`cat "\""${value_file}"\""`";
+					rm -f "${value_file}";
+					unset value_file;
+					set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+					while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+					end
+					while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+					end
+					set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+				endif
+				
 				set export_to="${value}";
-				if(! -d "`dirname "\""${export_to}"\""`" ) then
+				if(! -d "`dirname "\""${escaped_value}"\""`" ) then
 					@ errno=-602;
 					goto exception_handler;
 				endif
@@ -238,6 +256,25 @@ parse_argv:
 				breaksw;
 			
 			case "playlist":
+				if(! ${?escaped_value} ) then
+					if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+						set value="${cwd}/${value}";
+					set value_file="`mktemp --tmpdir .escaped.relative.filename.value.XXXXXXXX`";
+					printf "%s" "${value}" >! "${value_file}";
+					ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+					set escaped_value="`cat "\""${value_file}"\""`";
+					rm -f "${value_file}";
+					unset value_file;
+					set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+					while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+					end
+					while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+					end
+					set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+				endif
+				
 				set playlist="${value}";
 				breaksw;
 			
@@ -247,12 +284,34 @@ parse_argv:
 			
 			default:
 				if( ! ${?playlist} && ( -e "${value}" || ${?import} ) ) then
+					if(! ${?escaped_value} ) then
+						if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+							set value="${cwd}/${value}";
+						set value_file="`mktemp --tmpdir .escaped.relative.filename.value.XXXXXXXX`";
+						printf "%s" "${value}" >! "${value_file}";
+						ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+						set escaped_value="`cat "\""${value_file}"\""`";
+						rm -f "${value_file}";
+						unset value_file;
+						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+							set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						end
+						while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+							set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						end
+						set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+					endif
+					
 					set playlist="${value}";
 				else if( ${?target_dir} && -d "${value}" ) then
 					set target_dir="${value}";
 				endif
 				breaksw;
 		endsw
+		if( ${?escaped_value} ) \
+			unset escaped_value;
+		unset option value;
 	end
 parse_argv:
 

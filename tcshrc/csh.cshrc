@@ -18,9 +18,11 @@ if(! ${?prompt} ) \
 	source "${TCSH_RC_SESSION_PATH}/prompts.cshrc.tcsh";
 if( ${?echo} ) \
 	unset echo;
-
-if( ${?http_proxy} ) \
-	unsetenv http_proxy;
+	
+	if( ${?http_proxy} ) then
+		if( "${http_proxy}" == "" ) \
+			unsetenv http_proxy;
+	endif
 
 set logout=normal;
 
@@ -52,7 +54,10 @@ else
 		unsetenv TCSH_RC_SESSION_SOURCE_SKIPPED;
 endif
 
-if( ${?http_proxy} ) \
-	unsetenv http_proxy;
-
-source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "csh.cshrc";
+	if( ${?http_proxy} ) then
+		if( "${http_proxy}" == "" ) \
+			unsetenv http_proxy;
+	endif
+	
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "csh.cshrc";
+	

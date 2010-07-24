@@ -10,8 +10,8 @@ setup:
 
 	set podiobooks=( \
 			# "book_id/title"(e.g.: "509" or "conjuring-raine") (optional: "start-with", e.g.: "2" or "0", "download-limit", e.g.: "2" or "-1")  \
-			"509" \
-			"466" 2 1 \
+			"482" \
+			"505" \ # 2 1 \
 	);
 	
 	@ podiobook_index=0;
@@ -21,11 +21,11 @@ fetch_podiobook:
 	onintr exit_script;
 	if( ${?fetch_command} ) then
 		printf "Cancelled:\n\t%s\n" "${fetch_command}";
-		unset start_with download_limit podiobook feed fetch_command;
+		unset limit start_with download_limit podiobook feed fetch_command;
 		sleep 2;
 	else if( ${?podiobook} ) then
 		printf "Cancelled downloading: %s\n" "${podiobook}";
-		unset start_with download_limit podiobook feed fetch_command;
+		unset limit start_with download_limit podiobook feed fetch_command;
 		sleep 2;
 	endif
 	while( $podiobook_index < ${#podiobooks} )
@@ -49,21 +49,22 @@ fetch_enclosures:
 		unset limit;
 		goto get_limit;
 	endif
-	if( `printf "%s" "$podiobooks[$podiobook_index]" | sed -r 's/^[0-9]+$//'` != "" ) then
+	if( `printf "%s" "$podiobook" | sed -r 's/^[0-9]+$//'` != "" ) then
 		set feed="http://www.podiobooks.com/title/$podiobook/feed/";
 	else
 		set feed="http://www.podiobooks.com/bookfeed/29127/$podiobook/book.xml";
 	endif
 	set fetch_command="feed:fetch:all:enclosures.tcsh --disable=logging --download-limit=$download_limit --start-with=$start_with $feed";
+	printf "Running: [%s]\n" "${fetch_command}";
 	$fetch_command;
-	unset start_with download_limit podiobook feed fetch_command;
+	unset limit start_with download_limit podiobook feed fetch_command;
 	goto fetch_podiobook;
 #goto fetch_enclosures;
 
 
 get_limit:
 	@ podiobook_index++;
-	if( $podiobook_index <= ${#podiobooks} ) then
+	if( $podiobook_index < ${#podiobooks} ) then
 		if( `printf "%s" "$podiobooks[$podiobook_index]" | sed -r 's/^[0-9]+$//'` != "" ) then
 			@ podiobook_index--;
 			if(! $?limit ) then
@@ -88,6 +89,17 @@ get_limit:
 					@ limit=1;
 				endif
 			endif
+		endif
+	else
+		#@ podiobook_index--;
+		if(! $?limit ) then
+			if(! ${?start_with} ) then
+				@ limit=2;
+			else
+				@ limit=1;
+			endif
+		else if( $limit != 1 )
+			@ limit=1;
 		endif
 	endif
 	goto fetch_enclosures;

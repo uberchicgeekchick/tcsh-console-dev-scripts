@@ -917,7 +917,6 @@ parse_arg:
 				set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 			end
 			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
-			unset escaped_value;
 		endif
 		
 		if( ${?debug} ) \
@@ -1140,10 +1139,8 @@ parse_arg:
 				if( -d "${value}" ) \
 					goto append_target_directory;
 				
-				if( -f "${value}" ) then
+				if( -f "${value}" ) \
 					goto append_playlist;
-					breaksw;
-				endif
 				
 				@ errno=-504;
 				set callback="parse_arg";
@@ -1166,6 +1163,8 @@ parse_arg:
 		unset option;
 	if( ${?equals} )\
 		unset equals;
+	if( ${?escaped_value} ) \
+		unset escaped_value;
 	if( ${?value} )\
 		unset value;
 	

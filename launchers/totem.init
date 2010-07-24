@@ -1,7 +1,11 @@
 #!/bin/tcsh -f
 exit;
-#if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) exit;
-#set this_program="`basename '${0}' | sed -r 's/^([^\.]+)\.init$/\1/'`";
+if(! ${?0} ) then
+	printf "This script cannot be sourced.\n";
+	exit -1;
+endif
+
+set this_program="`basename "\""${0}"\"" | sed -r 's/^([^.]+)\.init$/\1/'`";
 set this_program="totem";
 foreach program ( "`which '${this_program}'`" )
 	if( "${program}" != "${0}" && -x "${program}" ) break

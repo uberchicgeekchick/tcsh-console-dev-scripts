@@ -1,0 +1,81 @@
+#!/bin/tcsh -f
+onintr -;
+set scripts_basename="vim-server";
+
+if(! ${?TCSH_RC_SESSION_PATH} ) then
+	foreach exec("`where "\""${scripts_basename}"\""`")
+		if(! -x "${exec}" ) then
+			unset exec;
+			continue;
+		endif
+		
+		set old_cwd="${cwd}";
+		cd "`dirname "\""${exec}"\""`";
+		
+		if( -d "${cwd}/../tcshrc" ) \
+			setenv TCSH_RC_SESSION_PATH "${cwd}/../tcshrc";
+		
+		cd "${owd}";
+		set cwd="${old_cwd}";
+		unset exec;
+		
+		if( ${?TCSH_RC_SESSION_PATH} ) \
+			break;
+	endif
+endif
+
+if( ${?TCSH_RC_SESSION_PATH} ) then
+	printf "Setting up path...";
+	source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh" ${argv};
+	printf "\t[done]\nSetting up key bindings...";
+	source "${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh" ${argv};
+	printf "\t[done]\nSetting up %s..." "${scripts_basename}";;
+	source "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" ${argv};
+	printf "\t[done]\n";
+endif
+
+set working_directory="/media";
+
+set vim_server=`vim-enhanced --serverlist`;
+if( "${vim_server}" == "" ) \
+	set vim_server=`hostname --fqdn | sed -r 's/^(.*)$/\U\1/'`;
+if( ${#argv} > 0 ) then
+	set vim_tabs="$argv";
+else
+	set vim_tabs=("`/media/vim-enhanced:edit-playlists.tcsh --display | sed -r 's/^(.*)"\$"/"\\\""\1"\\\""/'`");
+endif
+
+@ repeat=10;
+
+while(! ${?confirmation} )
+	tcsh -fic "cd "\""${working_directory}"\""; vim-enhanced --servername $vim_server --remote-tab-silent '+tabnext 4' ${vim_tabs}";
+	foreach pid( `/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ vim-enhanced --servername.*" | sed -r 's/^[0-9]+[\\ ]+([0-9]+).*[\r\n]*/\1/'` )
+		@ killed=0;
+		printf "Interupting %s's PID: %s " $gPodderCmd $pid;
+		while( $killed < $repeat && `/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ vim-enhanced --servername.*" | sed -r "s/^[0-9]+[\\ ]+.*(${pid}).*[\r\n]*/\1/"` == $pid )
+			kill -QUIT $pid;
+			if( $repeat == 1 ) \
+				break;
+			printf ".";
+			sleep $sleep;
+			@ killed++;
+		end
+		printf "[finished]\n";
+	end
+	
+	printf "Would you like to restart vim-server? [Y]es(default)/[N]o: ";
+	set confirmation="$<";
+	printf "\n";
+	switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+		case "n":
+			breaksw;
+		
+		case "y":
+		default:
+			printf "----------------------------\n";
+			printf "Restarting vim-server.......\n";
+			printf "----------------------------\n\n\n";
+			unset confirmation;
+			breaksw;
+	endsw
+end

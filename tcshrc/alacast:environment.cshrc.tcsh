@@ -1,9 +1,10 @@
-if( $?0 ) then
-	cd "`dirname '${0}'`";
-	set scripts_name="`basename '${0}'`";
-	printf "%s sets up alacast's environmental settings\n%s should be sourced and not run directly.\nUsage:\n\t%ssource %s%s" "${source}" "${scripts_name}" '`' "${cwd}/${scripts_name}" '`';
-	cd "${owd}"
-	exit -1;
+#!/bin/tcsh -f
+set scripts_basename="alacast:environment.cshrc.tcsh";
+if( ${?0} ) then
+	if( "`basename "\""${0}"\""`" == "${scripts_basename}" ) then
+		printf "%s sets up alacast's environmental settings\n%s should be sourced and not run directly.\nUsage:\n\t"\`"source %s"\`"\n" "${scripts_basename}" "${scripts_basename}" "${scripts_basename}";
+		exit -1;
+	endif
 endif
 
 if( ${?TCSH_RC_DEBUG} )	\
@@ -33,6 +34,7 @@ set_gtk_path:
 		set alacast_gtk_path="${ALACAST_GTK_PATH}/${alacast_gtk_path}";
 		set escaped_alacast_gtk_path="`printf "\""%s"\"" "\""${alacast_gtk_path}"\"" | sed -r 's/\//\\\//g'`";
 		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/.*\:(${escaped_alacast_gtk_path}).*/\1/g'`" == "${alacast_gtk_path}" ) then
+			unset alacast_gtk_path escaped_alacast_gtk_path;
 			continue;
 		endif
 		
@@ -45,9 +47,9 @@ set_gtk_path:
 			set alacasts_path="${alacasts_path}:${alacast_gtk_path}";
 		endif
 		
-		unset escaped_alacast_gtk_path;
+		unset alacast_gtk_path escaped_alacast_gtk_path;
 	end
-	unset alacast_gtk_path alacast_gtk_paths;
+	unset alacast_gtk_paths;
 #set_gtk_path:
 
 

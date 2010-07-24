@@ -1,6 +1,9 @@
 #!/bin/tcsh -f
-if( "`echo '${0}' | sed -r 's/^[^\.]*(tcsh)/\1/'`" == "tcsh" ) \
-	exit;
+if(! ${?0} ) then
+	printf "This script does not support being sourced.\n";
+	exit -1;
+endif
+
 set this_program="`basename '${0}'`";
 foreach program ( "`which '${this_program}'`" )
 	if( "${program}" != "${0}" && -x "${program}" ) \

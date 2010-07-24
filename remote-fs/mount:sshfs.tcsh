@@ -1,58 +1,86 @@
 #!/bin/tcsh -f
+exit -1;
 init:
-	exit -1;
+	onintr exit_script;
+	
 	set scripts_basename="mount:sshfs.tcsh";
 	set ssh_accounts=("uberchick@aquarius.ocssolutions.com" "dreams@sky.ocssolutions.com" );
+	
+	if(! ${?0} ) then
+		set being_sourced;
+	else if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
+		set being_sourced;
+	endif
+	
+	if( ${?being_sourced} ) then
+		if(! ${?TCSH_RC_SESSION_PATH} ) \
+			setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc"
+		source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
+		if( $args_handled > 0 ) then
+			@ args_shifted=0;
+			while( $args_shifted < $args_handled )
+				@ args_shifted++;
+				shift;
+			end
+			unset args_shifted;
+		endif
+		unset args_handled;
+	endif
+		
+	if( ${?TCSH_RC_DEBUG} && ! ${?debug} ) \
+		set debug_set debug;
 #goto init;
 
 
 dependencies_check:
-	set dependencies=("${scripts_basename}" "sshfs" "sed" "ex");# "${scripts_alias}");
+	set dependencies=("${scripts_basename}" "sshfs");# "${scripts_alias}");
 	@ dependencies_index=0;
 	
 	while( $dependencies_index < ${#dependencies} )
 		@ dependencies_index++;
 		
-		if( ${?nodeps} && $dependencies_index > 1 ) \
-			break;
+		set dependency="$dependencies[$dependencies_index]";
 		
-		set dependency=$dependencies[$dependencies_index];
-		
-		set which_dependency=`printf "%d" "${dependencies_index}" | sed -r 's/^[0-9]*[^1]?([0-9])$/\1/'`;
-		if( $which_dependency == 1 ) then
-			set suffix="st";
-		else if( $which_dependency == 2 ) then
-			set suffix="nd";
-		else if( $which_dependency == 3 ) then
-			set suffix="rd";
-		else
-			set suffix="th";
-		endif
-		unset which_dependency;
+		switch( "`printf "\""%d"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*([0-9])"\$"/\1/'`" )
+			case 1:
+				set suffix="st";
+				breaksw;
+			
+			case 2:
+				set suffix="nd";
+				breaksw;
+			
+			case 3:
+				set suffix="rd";
+				breaksw;
+			
+			default:
+				set suffix="th";
+				breaksw;
+		endsw
 		
 		if( ${?debug} ) \
-			printf "\n**dependencies:** looking for <%s>'s %d%s dependency: %s.\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" > ${stdout};
+			printf "\n**dependencies:** looking for <%s>'s %d%s dependency: %s.\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}";
 		
 		foreach program("`where "\""${dependency}"\""`")
 			if( -x "${program}" ) \
 				break;
 			unset program;
 		end
-		
 		if(! ${?program} ) then
-			printf "**dependencies:** <%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s]." "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
+			printf "<%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s]." "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
 			unset suffix dependency dependencies dependencies_index;
+			@ errno=-501;
 			goto exit_script;
 		endif
 		
 		if( ${?debug} ) \
-			printf "**dependencies:** <%s>'s %d%s dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${program}" > ${stdout};
+			printf "\n**dependencies:** <%s>'s %d%s dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${program}";
+		
+		unset suffix;
 		
 		switch("${dependency}")
 			case "${scripts_basename}":
-				if( ${?script} ) \
-					breaksw;
-				
 				set old_owd="${cwd}";
 				cd "`dirname "\""${program}"\""`";
 				set scripts_path="${cwd}";
@@ -62,33 +90,20 @@ dependencies_check:
 				set script="${scripts_path}/${scripts_basename}";
 				breaksw;
 			
-			default:
-				if(! ${?execs} ) \
-					set execs=()
-				set execs=(${execs} "${program}");
+			case "sshfs":
+				set sshfs_exec="${program}";
 				breaksw;
 		endsw
+		
 		unset program dependency;
 	end
 	
-	if( ${?debug_set} ) \
-		unset debug;
-	
 	unset dependencies dependencies_index;
-	
 	goto parse_argv;
 #goto dependencies_check;
 
 
-main:
-	if(! ${?0} ) then
-		# START: special handler for when this file is sourced.
-		if(! ${?TCSH_RC_SESSION_PATH} ) \
-			setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
-		source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
-	endif
-	
-	
+main:	
 	foreach ssh_account( ${ssh_accounts} )
 		if( `alias "mount:sshfs:${ssh_account}"` == "" ) then
 			set set_alias;
@@ -166,13 +181,94 @@ next_attempt:
 		endif
 	endif
 	goto main;
-#goto next_attempt:
+#goto next_attempt;
 
+
+env_unset:
+	if( ${?arg} ) \
+		unset arg;
+	if( ${?argc} ) \
+		unset argc;
+	if( ${?arg_shifted} ) \
+		unset arg_shifted;
+	if( ${?args_shifted} ) \
+		unset args_shifted;
+	if( ${?being_sourced} ) \
+		unset being_sourced;
+	if( ${?dashes} ) \
+		unset dashes;
+	if( ${?debug} ) \
+		unset debug;
+	if( ${?dependencies} ) \
+		unset dependencies;
+	if( ${?dependencies_index} ) \
+		unset dependencies_index;
+	if( ${?dependency} ) \
+		unset dependency;
+	if( ${?env_unset} ) \
+		unset env_unset;
+	if( ${?equals} ) \
+		unset equals;
+	if( ${?old_owd} ) \
+		unset old_owd;
+	if( ${?option} ) \
+		unset option;
+	if( ${?program} ) \
+		unset program;
+	if( ${?script} ) \
+		unset script;
+	if( ${?scripts_basename} ) \
+		unset scripts_basename;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
+	if( ${?set_alias} ) \
+		unset set_alias;
+	if( ${?ssh_account} ) \
+		unset ssh_account;
+	if( ${?ssh_accounts} ) \
+		unset ssh_accounts;
+	if( ${?sshfs_exec} ) \
+		unset sshfs_exec;
+	if( ${?sshfs_max_attempts} ) \
+		unset sshfs_max_attempts;
+	if( ${?sshfs_mount_count} ) \
+		unset sshfs_mount_count;
+	if( ${?sshfs_mount_test} ) \
+		unset sshfs_mount_test;
+	if( ${?ssh_mount_point} ) \
+		unset ssh_mount_point;
+	if( ${?ssh_server} ) \
+		unset ssh_server;
+	if( ${?ssh_user} ) \
+		unset ssh_user;
+	if( ${?suffix} ) \
+		unset suffix;
+	if( ${?test_dashes} ) \
+		unset test_dashes;
+	if( ${?test_equals} ) \
+		unset test_equals;
+	if( ${?test_option} ) \
+		unset test_option;
+	if( ${?test_value} ) \
+		unset test_value;
+	if( ${?use_sudo} ) \
+		unset use_sudo;
+	if( ${?value} ) \
+		unset value;
+	set env_unset;
+	goto exit_script;
+#goto env_unset;
 
 exit_script:
-	unset debug ssh_user ssh_server ssh_mount_point ssh_path sshfs_mount_count sshfs_mount_test;
-	if(! ${?0} ) then
+	if(! ${?env_sunset} ) then
+		goto env_unset;
+	else
+		unset env_unset;
+	endif
+	
+	if( ${?being_sourced} ) then
 		source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
+		unset being_sourced;
 		# FINISH: special handler for when this file is sourced.
 	endif
 	

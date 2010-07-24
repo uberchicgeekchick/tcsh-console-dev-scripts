@@ -93,7 +93,8 @@ set ssh_path="/home/${ssh_user}";
 set ssh_mount_point="${ssh_mount_point}/${ssh_user}@${ssh_server}";
 
 if( "`mount | grep "\""${ssh_mount_point}"\""`" != "" ) then
-	printf "<%s@%s> is already mounted.\n" "${ssh_user}" "${ssh_server}";
+	if( ${?TCSH_OUTPUT_ENABLED} ) \
+		printf "<%s@%s> is already mounted.\n" "${ssh_user}" "${ssh_server}";
 	set status=-1;
 	goto exit_script;
 endif

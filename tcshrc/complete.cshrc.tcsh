@@ -919,7 +919,7 @@ complete tar c/-[Acru]*/"(b B C f F g G h i l L M N o P \
 
 complete mount p/*/f/ c/-/"(a n v t r w)"/ n/-t/"(minix iso9660 msdos vfat ext2 nfs proc)"/ \
    			'C@/de@F@' 'C@/*@F@@' 'n@*@`grep -E -v \(^#\|^\$\) /etc/fstab|awk \{\ print\ \$2\ \}`@'
-complete umount p/1/d/ c/-/"(a n t)"/   n/-t/"(minix iso9660 msdos ext2 nfs proc)"/ \
+complete umount p/1/f/ c/-/"(a n t)"/   n/-t/"(minix iso9660 msdos ext2 nfs proc)"/ \
    			n/*/'`mount | cut -d " " -f 3`'/
 		# these deal with NIS (formerly YP); if it's not running you don't need 'em
 complete domainname p@1@D:$_ypdir@" " n@*@n@

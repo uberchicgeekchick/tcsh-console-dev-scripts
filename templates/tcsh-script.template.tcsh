@@ -337,6 +337,11 @@ scripts_main_quit:
 		unset original_grep;
 	endif
 	
+	if( ${?original_egrep} ) then
+		alias egrep "${original_egrep}";
+		unset original_egrep;
+	endif
+	
 	if( ${?scripts_supported_extensions} ) \
 		unset scripts_supported_extensions;
 	if( ${?supports_hidden_files} ) \

@@ -1029,31 +1029,26 @@ parse_arg:
 			case "clean-up":
 				#set value=`printf "%s" ${value}" | sed -r 's/^(.).*$/\1/'`;
 				switch("${value}")
+					case "force":
 					case "forced":
-					case "verbose":
 					case "interactive":
+					case "verbose":
 					case "silent":
-						if( "${value}" == "" || "${value}" == "switch" ) \
-							set value="null";
 						set removal_$value;
-						set removal_switch=`printf "%s" "${value}" | sed -r 's/^([ifv]).*$/\1/'`;
+						
+					default:
+						if(! ${?remove} ) \
+							set remove;
+						
+						set removal_switch=`printf "%s" "${value}" | sed -r 's/^([fiv]+).*$/\L\1/'`;
 						if( "${removal_switch}" != "${value}" ) then
 							if( "${remove}" == "" ) then
 								set remove="${removal_switch}";
 							else if( `printf "%s" "${remove}" | sed -r "s/^.*(${removal_switch}).*"\$"/\1/"` != "${removal_switch}" ) then
 								set remove="${remove}${removal_switch}";
 							endif
-						else
-							unset removal_switch;
 						endif
-						
-						if(! ${?remove} ) \
-							set remove;
-						breaksw;
-						
-					default:
-						if(! ${?remove} ) \
-							set remove;
+						unset removal_switch;
 						breaksw;
 				endsw
 				breaksw;

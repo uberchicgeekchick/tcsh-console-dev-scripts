@@ -20,6 +20,12 @@ setup:
 setup_lists:
 	set to_delete=( \
 	"\n" \
+"/media/podcasts/lifestyle/Savage Love Podcast/Savage Love Episode 197, released on: Tue, 27 Jul 2010 12:00:00 GMT.ogg" \
+	"\n" \
+"/media/podcasts/lifestyle/Erotic Awakening Podcast/EA073 - Pony Play, released on: Tue, 20 Jul 2010 02:30:50 GMT.ogg" \
+	"\n" \
+"/media/podcasts/lifestyle/Galore Podcast/Galore Podcasts gets full of gay PRIDE, released on: Wed, 21 Jul 2010 07:13:10 GMT.ogg" \
+	"\n" \
 	);
 	
 	set videos=( \

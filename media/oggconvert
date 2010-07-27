@@ -1655,14 +1655,17 @@ parse_arg:
 				breaksw;
 			
 			case "":
-				if( -e "${value}" ) then
+				if(! -e "${value}" ) then
+					@ errno=-610;
+					printf "**%s error:** <file://%s%s%s%s> could not be found.\nOr is unsupported.\n\nSee "\`"${scripts_basename} --debug"\`" for more information.\n" "${scripts_basename}" "${dashes}" "${option}" "${equals}" "${value}" > /dev/stderr;
+				else
 					set value_used;
 					goto filename_list_append_value;
-					breaksw;
 				endif
-			
+				breaksw;
+				
 			default:
-				if( -e "${value}") then
+				if( -e "${value}" ) then
 					set value="";
 				endif
 				

@@ -1,9 +1,13 @@
 #!/bin/tcsh -f
+	onintr exit_script;
 	if(! ${?0} ) then
-		printf "**errno:** you cannot source this script.\n";
-		set status=-1;
-		exit -1;
+		set being_sourced;
+	else if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
+		set being_sourced;
 	endif
+	
+	if( ${?being_sourced} ) \
+		goto exit_script;
 	
 	set documents=( \
 		"/art/www/uberChicks.Net/phone-sex-operator/characters/Lexi.asc" \
@@ -32,11 +36,14 @@
 		"/media/library/playlists/m3u/vodcasts.m3u" \
 	);
 
-	if( ${#argv} == 0 ) \
+	if( ${#argv} == 0 ) then
 		set argv=("--edit");
+	else if( ${#argv} > 1 ) then
+		printf "Usage: %s --edit|--display\n";
+		goto exit_script;
+	endif
 	
 	switch( "$argv[1]" )
-		case "--auto-edit":
 		case "--edit":
 			goto edit_playlists;
 			breaksw;
@@ -102,12 +109,33 @@ display_playlists:
 
 
 exit_script:
+	if( ${?being_sourced} ) then
+		printf "**errno:** you cannot source this script.\n";
+		@ errno=-1;
+		unset being_sourced;
+	endif
+	
+	if( ${?latest_playlist} )\
+		unset latest_playlist;
+	if( ${?primary_playlists} )\
+		unset primary_playlists;
+	if( ${?scripts} )\
+		unset scripts;
+	if( ${?secondary_playlists} )\
+		unset secondary_playlists;
+	if( ${?final_playlists} )\
+		unset final_playlists;
+	
+	if( ${?document} ) \
+		unset document;
 	if( ${?playlist} ) \
 		unset playlist;
+	if( ${?script} ) \
+		unset script;
 	
-	unset primary_playlists scripts latest_playlist secondary_playlists final_playlists;
-	
-	set status=0;
-	exit 0;
+	if(! ${?errno} ) \
+		@ errno=0;
+	set status=$errno;
+	exit $errno;
 #goto exit_script;
 

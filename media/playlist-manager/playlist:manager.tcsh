@@ -134,36 +134,64 @@ parse_argv:
 					set debug;
 				breaksw;
 			
+			case "local":
+			case "no-remote":
+			case "skip:nfs":
+				if(! ${?clean_up_local} ) \
+					set clean_up_local;
+				
+				if(! ${?clean_up} ) \
+					set clean_up;
+				breaksw;
+					
+			case "nfs":
+			case "remote":
+			case "check:nfs":
+			case "check-for-dups":
+			case "check-for-duplicates":
+				if( ${?clean_up_local} ) \
+					unset clean_up_local;
+				
+				if(! ${?clean_up} ) \
+					set clean_up;
+				breaksw;
+			
 			case "remove":
 			case "clean-up":
 				switch("${value}")
 					case "local":
 					case "no-remote":
 					case "skip:nfs":
-						if(! ${?local} ) \
-							set local;
+						if(! ${?clean_up_local} ) \
+							set clean_up_local;
 						
 						if(! ${?clean_up} ) \
 							set clean_up;
 						breaksw;
 					
-					case "check-for-duplicates":
-					case "check:nfs":
-					case "remote":
 					case "nfs":
-						if( ${?local} ) \
-							unset local;
+					case "remote":
+					case "check:nfs":
+					case "check-for-dups":
+					case "check-for-duplicates":
+						if( ${?clean_up_local} ) \
+							unset clean_up_local;
 						
 						if(! ${?clean_up} ) \
 							set clean_up;
 						breaksw;
 					
-						breaksw;
-					
+					case "f":
+					case "force":
 					case "forced":
+					case "v":
 					case "verbose":
+					case "i":
 					case "interactive":
 					case "silent":
+						if(! ${?clean_up} ) \
+							set clean_up;
+						
 						if( "${clean_up}" == "" ) then
 							set clean_up="${value}";
 						else if( `printf "%s" "${clean_up}" | sed -r "s/^.*(${value}).*"\$"/\1/"` != "${value}" ) then
@@ -475,7 +503,7 @@ clean_up:
 		set playlist_edited;
 	endif
 	
-	if( ${?local} ) then
+	if( ${?clean_up_local} ) then
 		set skip_directory;
 		set duplicate_directory;
 	else

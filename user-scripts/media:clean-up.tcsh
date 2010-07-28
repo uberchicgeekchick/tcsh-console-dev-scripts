@@ -20,12 +20,6 @@ setup:
 setup_lists:
 	set to_delete=( \
 	"\n" \
-"/media/podcasts/lifestyle/Savage Love Podcast/Savage Love Episode 197, released on: Tue, 27 Jul 2010 12:00:00 GMT.ogg" \
-	"\n" \
-"/media/podcasts/lifestyle/Erotic Awakening Podcast/EA073 - Pony Play, released on: Tue, 20 Jul 2010 02:30:50 GMT.ogg" \
-	"\n" \
-"/media/podcasts/lifestyle/Galore Podcast/Galore Podcasts gets full of gay PRIDE, released on: Wed, 21 Jul 2010 07:13:10 GMT.ogg" \
-	"\n" \
 	);
 	
 	set videos=( \
@@ -507,7 +501,7 @@ videos:
 archive:
 	if( ${?to_archive} ) then
 		foreach podcast( "`printf "\""${to_archive}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" )) then
+			if(!( "${podcast}" != "" && "${podcast}" != "/" && -e "${podcast}" && "`printf "\""%s"\"" "\""${podcast}"\"" | sed '^.*\/(archive)\/.*"\$"/\1`" != "archive" )) then
 				unset podcast;
 				continue;
 			endif
@@ -524,6 +518,25 @@ archive:
 				case "slash.":
 					set podcast_dir="Slashdot";
 					breaksw;
+				
+				default:
+					if( "`printf "\""%s"\"" "\""${podcast}"\"" | sed '^\/media\/(podiobooks)\/.*"\$"/\1`" == "podiobooks" ) then
+						set podcast_dir="`printf "\""%s"\"" "\""${podcast}"\"" | sed '^(\/media\/podiobooks)\/[^/]+\/([^/]+\/.*"\$"/\1\/archived\/\2/'`";
+						breaksw;
+					endif
+					
+					set podcast_top_dir="`dirname "\""${podcast}"\""`";
+					set podcast_top_dir="`dirname "\""${podcast_top_dir}"\""`";
+					set podcast_top_dir="`basename "\""${podcast_top_dir}"\""`";
+					switch("${podcast_top_dir}")
+						case "lifestyle":
+						case "erotica":
+							set podcast_dir="${podcast_top_dir}/${podcast_dir}";
+							breaksw;
+						default:
+							breaksw;
+					endsw
+					unset podcast_top_dir;
 			endsw
 			
 			if(! -d "/art/media/resources/archived-podcasts/${podcast_dir}" ) \

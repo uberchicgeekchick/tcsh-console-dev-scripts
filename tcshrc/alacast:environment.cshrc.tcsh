@@ -90,12 +90,9 @@ set_alacast_environment:
 		unset alacasts_path;
 	endif
 	
-	alias "alacast:feed:fetch:all:enclosures.tcsh" "${ALACAST_GTK_PATH}/scripts/alacast:feed:fetch:all:enclosures.tcsh --disable=logging"
-	
-	# when no option are given alacast:cli uses the environmental variable: $ALACAST_OPTIONS.
-	alias "alacast.php:sync" "${ALACAST_CLI_PATH}/bin/alacast.php --with-defaults=sync";
-	# --with-defaults prepends $ALACAST_OPTIONS
-	alias "alacast.php:update" "${ALACAST_CLI_PATH}/bin/alacast.php --with-defaults=update";
+	alias "alacast:feed:fetch:enclosures.tcsh" "${ALACAST_GTK_PATH}/scripts/alacast:feed:fetch:enclosures.tcsh --disable=logging"
+	#alias "alacast:feed:fetch:enclosures:latest.tcsh" "alacast:feed:fetch:enclosures.tcsh --download-limit=1";
+	#alias "alacast:feed:fetch:enclosures:latest:podiobooks.com.tcsh" "alacast:feed:fetch:enclosures.tcsh --start-with=2 --download-limit=1";
 #set_alacast_environment:
 
 

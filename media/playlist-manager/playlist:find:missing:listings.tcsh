@@ -367,6 +367,14 @@ check_duplicate_dirs:
 handle_missing_media:
 	@ missing_podcasts++;
 	
+	printf "\n\t**";
+	if(! ${?duplicate_dir} ) then
+		printf "Unlisted";
+	else
+		printf "Remote/Duplicate";
+	endif
+	printf " file:**\n\t\t<file://%s>\n" "${this_podcast}";
+	
 	if( ${?removal_forced} ) \
 		goto remove_missing_media;
 	
@@ -400,15 +408,15 @@ prompt_for_action_for_missing_media:
 			printf "\n\n\t\t-----------------------------------------------------";
 			printf "\n\t\t**error:** %s is an invalid selection.  Please select again?" "${response}";
 			printf "\n\t\t-----------------------------------------------------\n\n";
+			printf "\n\t**";
+			if(! ${?duplicate_dir} ) then
+				printf "Unlisted";
+			else
+				printf "Remote/Duplicate";
+			endif
+			printf " file:**\n\t\t<file://%s>\n" "${this_podcast}";
 		endif
-		printf "\n\t**";
-		if(! ${?duplicate_dir} ) then
-			printf "Unlisted";
-		else
-			printf "Remote/Duplicate";
-		endif
-		printf " file:**\n\t\t<file://%s>" "${this_podcast}";
-		printf "\n\n\tWhat action would you like to take:";
+		printf "\n\tWhat action would you like to take:";
 		if(! ${?remove} ) then
 			@ playlist_index=0;
 			
@@ -1029,6 +1037,13 @@ parse_arg:
 			case "clean-up":
 				#set value=`printf "%s" ${value}" | sed -r 's/^(.).*$/\1/'`;
 				switch("${value}")
+					case "removal":
+						set removal_forced;
+						set removal_interactive;
+						set removal_verbose;
+						set remove="ifv";
+						breaksw;
+					
 					case "force":
 					case "forced":
 					case "interactive":
@@ -1040,15 +1055,19 @@ parse_arg:
 						if(! ${?remove} ) \
 							set remove;
 						
-						set removal_switch=`printf "%s" "${value}" | sed -r 's/^([fiv]+).*$/\L\1/'`;
-						if( "${removal_switch}" != "${value}" ) then
-							if( "${remove}" == "" ) then
-								set remove="${removal_switch}";
-							else if( `printf "%s" "${remove}" | sed -r "s/^.*(${removal_switch}).*"\$"/\1/"` != "${removal_switch}" ) then
-								set remove="${remove}${removal_switch}";
+						if( `printf "%s" "${value}" | sed -r 's/^([fiv]+).*$//'` != "" ) \
+							breaksw;
+						
+						foreach removal_switch("`printf "\""%s"\"" "\""${value}\""" | sed -r 's/^([fiv]+).*"\$"/\l\1\n/g'`")
+							if( "${removal_switch}" != "${value}" ) then
+								if( "${remove}" == "" ) then
+									set remove="${removal_switch}";
+								else if( `printf "%s" "${remove}" | sed -r "s/^.*(${removal_switch}).*"\$"/\1/"` != "${removal_switch}" ) then
+									set remove="${remove}${removal_switch}";
+								endif
 							endif
-						endif
-						unset removal_switch;
+							unset removal_switch;
+						end
 						breaksw;
 				endsw
 				breaksw;

@@ -63,15 +63,15 @@ main:
 	endif
 	
 	if(! ${?save_to_dir} ) then
-		if( "`basename '${0}' | sed -r 's/^(alacast).*/\1/ig'`" == "alacast" ) then
+		if( "`basename "\""${0}"\"" | sed -r 's/^(alacast).*/\1/ig'`" == "alacast" ) then
 			if( -e "${HOME}/.alacast/alacast.ini" ) then
 				set alacast_ini="${HOME}/.alacast/alacast.ini";
 			else if( -e "${HOME}/.alacast/profiles/${USER}/alacast.ini" ) then
 				set alacast_ini="${HOME}/.alacast/profiles/${USER}/alacast.ini";
-			else if( -e "`dirname '${0}'`../data/profiles/${USER}/alacast.ini" ) then
-				set alacast_ini="`dirname '${0}'`../data/profiles/${USER}/alacast.ini";
-			else if( -e "`dirname '${0}'`../data/profiles/default/alacast.ini" ) then
-				set alacast_ini="`dirname '${0}'`../data/profiles/default/alacast.ini";
+			else if( -e "`dirname "\""${0}"\""`../data/profiles/${USER}/alacast.ini" ) then
+				set alacast_ini="`dirname "\""${0}"\""`../data/profiles/${USER}/alacast.ini";
+			else if( -e "`dirname "\""${0}"\""`../data/profiles/default/alacast.ini" ) then
+				set alacast_ini="`dirname "\""${0}"\""`../data/profiles/default/alacast.ini";
 			endif
 			if( ${?alacast_ini} ) then
 				set media_dir="`/bin/grep --perl-regexp '^media_dir.*' '${alacast_ini}' | /bin/sed -r 's/.*[^=]*=["\""'\'']([^"\""'\'']*)["\""'\''];/\1/' | sed -r 's/\//\\\//g'`";

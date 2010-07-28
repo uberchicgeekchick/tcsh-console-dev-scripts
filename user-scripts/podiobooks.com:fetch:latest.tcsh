@@ -5,13 +5,12 @@ setup:
 	
 	cd "`dirname "\""${0}"\""`";
 	
-	alias podiobook:fetch:latest.tcsh "feed:fetch:all:enclosures.tcsh --disable=logging --start-with=2 --download-limit=1";
+	alias feed:podiobook:fetch:latest.tcsh "feed:fetch:all:enclosures.tcsh --disable=logging --start-with=2 --download-limit=1";
 	alias feed:fetch:all:enclosures.tcsh "feed:fetch:all:enclosures.tcsh --disable=logging";
 
 	set podiobooks=( \
 			# "book_id/title"(e.g.: "509" or "conjuring-raine") (optional: "start-with", e.g.: "2" or "0", "download-limit", e.g.: "2" or "-1")  \
-			"482" \
-			"505" \ # 2 1 \
+			"506" \ # 2 1 \
 	);
 	
 	@ podiobook_index=0;

@@ -181,12 +181,10 @@ parse_argv:
 							set clean_up;
 						breaksw;
 					
-					case "f":
 					case "force":
 					case "forced":
-					case "v":
+					case "removal":
 					case "verbose":
-					case "i":
 					case "interactive":
 					case "silent":
 						if(! ${?clean_up} ) \
@@ -198,8 +196,6 @@ parse_argv:
 							set clean_up="${clean_up} --clean-up=${value}";
 						endif
 						
-						if(! ${?clean_up} ) \
-							set clean_up;
 						breaksw;
 					
 					default:

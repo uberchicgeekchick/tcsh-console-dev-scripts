@@ -26,7 +26,9 @@ alias set-alias "source "\$"{TCSH_RC_SESSION_PATH}/../setenv/set-alias.tcsh${set
 complete alias 'p/1/c/' 'p/2-/c/';
 complete set-alias 'p/1/c/' 'p/2-/c/';
 
-set-alias "feed:fetch:all:enclosures.tcsh" "${TCSH_RC_SESSION_PATH}/../xml-parsers/feed:fetch:all:enclosures.tcsh --disable=logging";
+set-alias "feed:fetch:enclosures.tcsh" "${TCSH_RC_SESSION_PATH}/../xml-parsers/feed:fetch:enclosures.tcsh --disable=logging";
+#set-alias "feed:fetch:enclosures:latest.tcsh" "feed:fetch:enclosures.tcsh --download-limit=1";
+#set-alias "feed:fetch:enclosures:latest:podiobooks.com.tcsh" "feed:fetch:enclosures.tcsh --start-with=2 --download-limit=1";
 
 set-alias "most" "most -w";
 set-alias "tiv" "/programs/bin/tiv -p";

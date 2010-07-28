@@ -1,0 +1,206 @@
+#!/bin/tcsh -f
+if(! ${?0} ) then
+	printf "This script cannot be sourced and can only be executed.\n";
+	set status=-1;
+	exit -1;
+endif
+
+	onintr exit_script;
+	
+set original_cwd="${cwd}";
+while( "${cwd}" != "/" && ! ${?top_git_dir} )
+	if(! -d "./.git" ) then
+		cd ..;
+		continue;
+	endif
+	set top_git_dir="${cwd}";
+	break;
+end
+
+if(! ${?top_git_dir} ) then
+	cd "${original_cwd}";
+	set owd="${original_owd}";
+	unset old_owd;
+	unset old_cwd;
+	printf "Unable to find projects base git directory.\n" > /dev/stderr;
+	goto exit_script;
+endif
+
+set follow_symlinks;
+
+set commit_log=/dev/null;
+
+follow_symlinks:
+	if(! ${?follow_symlinks} ) \
+		goto git_stash;
+	
+	onintr -;
+	
+	set symlink_log="./.symlink.`date '+%s'`.lst";
+	touch "${symlink_log}";
+	
+	set this_symlink_log="`mktemp --tmpdir .symlink.lst.XXXXXXXXX`";
+	set extensions="bz2\|gz\|tgz\|zip|art\|dev\|ref\|new\|old\|symlink[s]?";
+	( find . -ignore_readdir_race \! -iregex ".*\.\(${extensions}\)"\$ -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+	#( find . -ignore_readdir_race -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+	set symlink_count="`cat "\""${this_symlink_log}"\""`";
+	while( ${#symlink_count} > 0 )
+		cat "${this_symlink_log}" >! "${symlink_log}.swp";
+		cat "${symlink_log}" >> "${symlink_log}.swp";
+		mv -f "${symlink_log}.swp" "${symlink_log}";
+		#rm -f "${this_symlink_log}";
+		
+		foreach project_symlink("`cat "\""${this_symlink_log}"\""`")
+			set symlink="`printf "\""%s"\"" "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
+			set target="`printf "\""%s"\"" "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
+			
+			if(! -l "${symlink}" ) \
+				continue;
+			
+			if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+				printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+				unset target symlink;
+				continue;
+			endif
+			
+			if(! ${?symlink_total} ) then
+				printf "Following symlinks.\n";
+				@ symlink_total=0;
+			endif
+			@ symlink_total++;
+			
+			#printf "following: %s\n\t%s points to %s\n" "${project_symlink}" "${symlink}" "${target}";
+			cd `dirname "${symlink}"`;
+			rm -r ./`basename "${symlink}"`;
+			if(! -e ./`basename "${symlink}"` ) \
+				cp -r "${target}" ./`basename "${symlink}"`;
+			
+			cd "${owd}";
+			
+			unset target symlink project_symlink;
+		end
+		( find . -ignore_readdir_race \! -iregex ".*\.\(${extensions}\)"\$ -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+		#( find . -ignore_readdir_race -type l -printf '%p\t=\t%l\n' >! "${this_symlink_log}" ) >& /dev/null;
+		set symlink_count="`cat "\""${this_symlink_log}"\""`";
+	end
+	
+	if(! ${?symlink_total} ) then
+		if( ${?symlink_log} ) then
+			if( -e "${symlink_log}" ) \
+				rm -f "${symlink_log}";
+			unset symlink_log;
+		endif
+	endif
+	
+	if( ${?this_symlink_log} ) then
+		if( -e "${this_symlink_log}" ) \
+			rm -f "${this_symlink_log}";
+		unset this_symlink_log;
+	endif
+	
+	if( ${?symlink_count} ) \
+		unset symlink_count;
+	
+	onintr exit_script;
+#follow_symlinks:
+
+
+git_stash:
+	onintr exit_script;
+	
+	git add .;
+
+	# Keep extremely large files from being committed;
+	set extensions="bz2\|gz\|tgz\|zip\|deb\|rpm";
+	foreach file("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
+		git rm -r --cached --quiet "${file}";
+	end
+	
+	# Don't commit early art works, uber-alpha code, & ald works;
+	set extensions="art\|dev\|ref\|new\|old\|symlink[s]?";
+	foreach file("`find . -iregex '.*\.\(${extensions}\)"\$"' \! -iregex '.*\/\..*' -printf '%P\n' | uniq`")
+		git rm -r --cached --quiet "${file}";
+	end
+	
+	git rm -r --cached --quiet "${log_dir}";
+	
+	# Remove any vim, connectED, gedit, or etc 'swp' files.;
+	set extensions="sw.\|bck\|~\|o";
+	foreach file("`find . -iregex '.*\.\(${extensions}\)"\$"' -printf '%P\n' | uniq`")
+		git rm -r --cached --quiet "${file}";
+	end
+	
+	# Keep any remaining hidden files from being committed;
+	foreach file("`find . -iregex '.*\/\..*' \! -iregex '.*\/\.git.*' \! -iregex '.*\.\(${extensions}\)"\$"' -printf '%P\n' | uniq`")
+		git rm -r --cached --quiet "${file}";
+	end
+	unset file extensions;
+	
+	git stash;
+#git_stash:
+
+
+restore_symlinks:
+	if(! ${?symlink_log} ) \
+		goto exit_script;
+	if(! -e "${symlink_log}" ) \
+		goto exit_script;
+	
+	onintr -;
+	
+	#printf "Symlinks saved to: <file://%s>\n" "${symlink_log}";
+	#unset symlink_log;
+	#goto exit_script;
+	
+	printf "Restoring symlinks.\n";
+	
+	foreach project_symlink("`cat "\""${symlink_log}"\""`")
+		ex -s '+1d' '+wq!' "${symlink_log}";
+		set symlink="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\1/'`";
+		set target="`printf '%s' "\""${project_symlink}"\"" | sed -r 's/(.*)\t\=\t(.*)\/?"\$"/\2/'`";
+		
+		if(!( "${target}" != "" && "${target}" != "${project_symlink}" && "${symlink}" != "" && "${symlink}" != "${project_symlink}" )) then
+			printf "**error** Cannot follow the symlink for %s\n" "${project_symlink}";
+			unset target symlink;
+			continue;
+		endif
+		
+		#set echo;
+		cd `dirname "${symlink}"`;
+		rm -rf ./`basename "${symlink}"`;
+		if(! -e ./`basename "${symlink}"` ) \
+			ln -sf "${target}" ./`basename "${symlink}"`;
+		cd "${owd}";
+		#unset echo;
+		
+		unset target symlink;
+	end
+	
+	rm -f "${symlink_log}" > /dev/null;
+	unset project_symlink follow_symlinks symlink_log;
+	
+	onintr exit_script;
+	
+	goto exit_script;
+#restore_symlinks:
+
+
+exit_script:
+	if( ${?symlink_log} ) then
+		set commit_cancelled;
+		goto restore_symlinks;
+	else if( ${?commit_cancelled} ) then
+		unset commit_cancelled;
+	endif
+	
+	if( ${?top_git_dir} ) then
+		cd "${original_cwd}";
+		set owd="${original_owd}";
+		unset old_owd;
+		unset old_cwd;
+	endif
+	
+	exit ${status};
+#exit_script:
+
+

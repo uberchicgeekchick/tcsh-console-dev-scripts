@@ -1,9 +1,11 @@
 #!/bin/tcsh -f
+	set scripts_basename="vim-enhanced:edit-playlists.tcsh";
 	onintr exit_script;
 	if(! ${?0} ) then
 		set being_sourced;
-	else if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
-		set being_sourced;
+	else
+		if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) \
+			set being_sourced;
 	endif
 	
 	if( ${?being_sourced} ) \

@@ -1,11 +1,18 @@
 #!/bin/tcsh -f
 set scripts_basename="alacast:environment.cshrc.tcsh";
-if( ${?0} ) then
-	if( "`basename "\""${0}"\""`" == "${scripts_basename}" ) then
-		printf "%s sets up alacast's environmental settings\n%s should be sourced and not run directly.\nUsage:\n\t"\`"source %s"\`"\n" "${scripts_basename}" "${scripts_basename}" "${scripts_basename}";
-		exit -1;
+if(! ${?0} ) then
+	set being_sourced;
+else
+	if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
+		set being_sourced;
 	endif
 endif
+
+if(! ${?being_sourced} ) then
+	printf "%s sets up alacast's environmental settings\n%s should be sourced and not run directly.\nUsage:\n\t"\`"source %s"\`"\n" "${scripts_basename}" "${scripts_basename}" "${scripts_basename}";
+	exit -1;
+endif
+unset being_sourced;
 
 if( ${?TCSH_RC_DEBUG} )	\
 	printf "Setting up Alacast v1's and v2's environment @ %s\n" `date "+%I:%M:%S%P"`;
@@ -26,7 +33,7 @@ set_perl_modules:
 #set_perl_modules:
 
 set_gtk_path:
-	setenv ALACAST_GTK_PATH "/projects/gtk/alacast";
+	setenv ALACAST_GTK_PATH "/art/e.r.i.c.a/pieces/00-mine/alacast";
 	set alacast_gtk_paths=("bin" "scripts" "scripts/auto-updaters" "scripts/playlist-manager" "scripts/validators" "scripts/user-scripts");
 	foreach alacast_gtk_path(${alacast_gtk_paths})
 		if( ${?TCSH_RC_DEBUG} )	\

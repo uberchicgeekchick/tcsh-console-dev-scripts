@@ -29,6 +29,7 @@ if( ${?TCSH_RC_SESSION_PATH} ) then
 	source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh" ${argv};
 	printf "\t[done]\nSetting up key bindings...";
 	source "${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh" ${argv};
+	set scripts_basename="vim-server";
 	printf "\t[done]\nSetting up %s..." "${scripts_basename}";;
 	source "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" ${argv};
 	printf "\t[done]\n";
@@ -48,7 +49,19 @@ endif
 @ repeat=10;
 
 while(! ${?confirmation} )
+	if(!( ${#vim_tabs} > 0 )) then
+		if( ${#argv} > 0 ) then
+			set vim_tabs="$argv";
+		else
+			set vim_tabs=("`/media/vim-enhanced:edit-playlists.tcsh --display | sed -r 's/^(.*)"\$"/"\\\""\1"\\\""/'`");
+		endif
+	endif
+	
+	if( ${?TCSH_RC_DEBUG} ) \
+		echo tcsh -fic "cd "\""${working_directory}"\""; vim-enhanced --servername $vim_server --remote-tab-silent '+tabnext 4' ${vim_tabs}";
+	
 	tcsh -fic "cd "\""${working_directory}"\""; vim-enhanced --servername $vim_server --remote-tab-silent '+tabnext 4' ${vim_tabs}";
+	
 	foreach pid( `/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ vim-enhanced --servername.*" | sed -r 's/^[0-9]+[\\ ]+([0-9]+).*[\r\n]*/\1/'` )
 		@ killed=0;
 		printf "Interupting %s's PID: %s " $gPodderCmd $pid;

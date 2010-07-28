@@ -1,3 +1,4 @@
+#!/bin/tcsh -f
 if(! ${?noglob} ) then
 	set noglob
 	set globset

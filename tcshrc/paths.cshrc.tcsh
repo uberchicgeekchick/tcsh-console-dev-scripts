@@ -1,3 +1,4 @@
+#!/bin/tcsh -f
 if(! ${?TCSH_RC_SESSION_PATH} ) \
 	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 source "${TCSH_RC_SESSION_PATH}/argv:check" "paths.cshrc.tcsh" ${argv};

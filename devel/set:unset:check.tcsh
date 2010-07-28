@@ -96,6 +96,7 @@ check_vars:
 		if( ${?show_unset_for_all_vars} || "`grep -P 'unset.*$var' "\""${tcsh_script}"\""`" == "" ) then
 			switch( "${var}" )
 				case " errno":
+				case " env_unset":
 				case " status":
 				case " cwd":
 				case " owd":
@@ -131,6 +132,7 @@ check_vars:
 		if( ${?show_unset_for_all_vars} || "`grep -P 'unset.*$var' "\""${tcsh_script}"\""`" == "" ) then
 			switch( "${var}" )
 				case " errno":
+				case " env_unset":
 				case " status":
 				case " cwd":
 				case " owd":

@@ -1,3 +1,4 @@
+#!/bin/tcsh -f
 #
 # System csh.login for tcsh,
 # (c) Werner Fink '93

@@ -1,3 +1,4 @@
+#!/bin/tcsh -f
 if( ${?0} ) then
 	printf "This script is only useful when sourced from within tcsh.\n";
 	exit -1;

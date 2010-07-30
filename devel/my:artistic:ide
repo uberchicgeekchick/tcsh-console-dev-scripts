@@ -7,7 +7,7 @@ endif
 
 set resolutions_path="`dirname '${0}'`/../resolutions/gnome-terminal";
 
-set erica_geometry=`cat "${resolutions_path}/e.r.i.c.a.rc"`;
+set ericas_dimensions=`cat "${resolutions_path}/erica.rc"`;
 set artistic_geometry=`cat "${resolutions_path}/artistic.rc"`;
 set media_geometry=`cat "${resolutions_path}/media.rc"`;
 set canvas_geometry=`cat "${resolutions_path}/canvas.rc"`;
@@ -26,60 +26,51 @@ foreach canvas ( "${argv}" )
 	
 	set my_gnome_terminal="/usr/bin/gnome-terminal --hide-menubar --role='${canvas}'";
 	set canvas_role="${canvas}";
-	set canvas_type="`printf "\""%s"\"" "\""${canvas}'"\""| sed 's/^\([^:]\+\):\(.*\)/\1/g'`";
-	set canvas="`printf "\""%s"\"" "\""${canvas}"\"" | sed 's/^\([^:]\+\):\(.*\)/\2/g'`";
+	set canvas_type="`printf "\""%s"\"" "\""${canvas}'"\""| sed 's/^\([^:]\+\):\(.*\)/\L\1/g'`";
+	set canvas="`printf "\""%s"\"" "\""${canvas}"\"" | sed 's/^\([^:]\+\):\(.*\)/\L\2/g'`";
 	
 	switch( "${canvas_type}" )
-	case "Editor":
+	case "editor":
 		shift;
 		set geometry="${editor_geometry}";
 		goto editor_canvas;
 		breaksw;
 	
-	case "Canvas":
+	case "canvas":
 		shift;
 		set geometry="${canvas_geometry}";
 		goto canvas_canvas;
 		breaksw;
 	
-	case "ericaDesign":
-		shift;
-		set geometry="${ericas_geometry}";
-		goto artistic_canvas;
-		breaksw;
-	
-	case "Artistic":
+	case "artistic":
 		shift;
 		set geometry="${artistic_geometry}";
 		goto artistic_canvas;
 		breaksw;
 	
-	case "Media":
+	case "media":
 		shift;
 		set geometry="${media_geometry}";
 		goto media_canvas;
 		breaksw;
 	
-	case "Build":
+	case "build":
 		shift;
 		set geometry="${build_geometry}";
 		goto build_canvas;
 		breaksw;
 	
-	case "SSH":
+	case "ssh":
 		set geometry="${ssh_geometry}";
 		goto ssh_canvas;
 		breaksw;
 	
-	case "Erica":
 	case "erica":
-	case "E.R.I.C.A.":
-	case "e.r.i.c.a.":
-		set geometry="${ericas_geometry}"
+		set geometry="${ericas_dimensions}";
 		goto erica_design_canvas;
 		breaksw;
 	
-	case "Default":
+	case "default":
 	default:
 		set geometry="${default_geometry}"
 		goto default_canvas;
@@ -94,53 +85,45 @@ erica_design_canvas:
 	set with_screen;
 	set with_ssh_our_eee;
 	switch( "${canvas}" )
-		case "Resources":
 		case "resources":
-			set geometry="${ericas_geometry}"
 			set my_canvas=( \
-				"--tab-with-profile=./e.r.i.c.a --title='[@./e.r.i.c.a] #>' --working-directory=/art/e.r.i.c.a" \
+				"--tab-with-profile=./erica --title='[@./erica] #>' --working-directory=/art/erica" \
 				"--tab-with-profile=project:art --title='[@/art] #>' --working-directory=/art" \
 				"--tab-with-profile=project:art --title='[@/art/media] #>' --working-directory=/art/media" \
 				"--tab-with-profile=project:art --title='[@/media-library] #>' --working-directory=/media/library" \
 			);
 			breaksw;
 		
-		case "Tools":
 		case "tools":
-			set geometry="${ericas_geometry}"
 			set my_canvas= ( \
-				"--tab-with-profile=opensim --title='[./e->(`opensim`);] #>' --working-directory='/art/e.r.i.c.a/tools/servers/opensim/bin --command=/art/e.r.i.c.a/tools/servers/opensim/OpenSim.tcsh'" \
-				"--tab-with-profile=./e.r.i.c.a --title='[./e->(erica:engines);] #>' --working-directory=/art/e.r.i.c.a/libraries-and-engines" \
-				"--tab-with-profile=./e.r.i.c.a --title='[./e->(tools);] #>' --working-directory=/art/e.r.i.c.a/tools" \
+				"--tab-with-profile=opensim --title='[./e->(`opensim`);] #>' --working-directory='/art/erica/tools/servers/opensim/bin --command=/art/erica/tools/servers/opensim/OpenSim.tcsh'" \
+				"--tab-with-profile=./erica --title='[./e->(erica:engines);] #>' --working-directory=/art/erica/libraries-and-engines" \
+				"--tab-with-profile=./erica --title='[./e->(tools);] #>' --working-directory=/art/erica/tools" \
 			);
 			breaksw;
 		
-		case "All":
 		case "all":
-		case "AllPieces":
 		case "allpieces":
-		case "Pieces":
 		case "pieces":
 			set my_canvas=( \
-				"--tab-with-profile=./e.r.i.c.a --title='[@./e.r.i.c.a] #>' --working-directory=/art/e.r.i.c.a" \
-				"--tab-with-profile=./e.r.i.c.a --title='[./e->(our-many-worlds);] #>' --working-directory=/art/e.r.i.c.a/art-works/00-mine/our-many-worlds" \
-				"--tab-with-profile=./e.r.i.c.a --title='[./e->(hackGirls);] #>' --working-directory=/art/e.r.i.c.a/art-works/00-mine/hackGirls" \
-				"--tab-with-profile=./e.r.i.c.a. --title='[./e->(alacast);] #>' --working-directory=/art/e.r.i.c.a/art-works/00-mine/alacast" \
+				"--tab-with-profile=./erica --title='[@./erica] #>' --working-directory=/art/erica" \
+				"--tab-with-profile=./erica --title='[./e->(our-many-worlds);] #>' --working-directory=/art/erica/my_pieces/our-many-worlds" \
+				"--tab-with-profile=./erica --title='[./e->(hackGirls);] #>' --working-directory=/art/erica/my_pieces/hackGirls" \
+				"--tab-with-profile=./erica --title='[./e->(alacast);] #>' --working-directory=/art/erica/my_pieces/alacast" \
 			);
 			breaksw;
 		
-		case "MyPieces":
-		case "mypieces":
-		case "E.R.I.C.A.":
+		case "erica":
+		case "design":
 		default:
 			set my_canvas=( \
-				"--tab-with-profile=./e.r.i.c.a --title='[@./e.r.i.c.a] #>' --working-directory=/art/e.r.i.c.a" \
+				"--tab-with-profile=./erica --title='[@./erica] #>' --working-directory=/art/erica" \
 				"--tab-with-profile=art --title='[@/art] #>' --working-directory=/art" \
 				"--tab-with-profile=projects --title='[@/projects] #>' --working-directory=/projects" \
 				"--tab-with-profile=art:media --title='[@/media] #>'  --working-directory=/media" \
-				"--tab-with-profile=./e.r.i.c.a. --title='[./e->(alacast);] #>' --working-directory=/art/e.r.i.c.a/art-works/00-mine/alacast" \
-				"--tab-with-profile=vim-server --title='[`vim-server`;] #>' --working-directory=/media --command=/projects/cli/console.pallet/devel/vim-server" \
+				"--tab-with-profile=./erica --title='[./e->(alacast);] #>' --working-directory=/art/erica/my_pieces/alacast" \
 				"--tab-with-profile=build:canvas --title='[@build:canvas] #>' --working-directory=/programs/src" \
+				"--tab-with-profile=vim-server --title='[`vim-server`;] #>' --working-directory=/media --command=/projects/cli/console.pallet/devel/vim-server" \
 			);
 			breaksw;
 	endsw
@@ -192,7 +175,7 @@ artistic_canvas:
 		
 		case  "Projects":
 			set my_canvas=( \
-				"--tab-with-profile=./e.r.i.c.a --title='[./e->(our-many-worlds)] #>' --working-directory=/art/e.r.i.c.a/art-works/00-mine/our-many-worlds" \
+				"--tab-with-profile=./erica --title='[./e->(our-many-worlds)] #>' --working-directory=/art/erica/my_pieces/our-many-worlds" \
 				"--tab-with-profile=projects:cli --title='[@cli] #>' --working-directory=/projects/cli" \
 				"--tab-with-profile=art:www --title='[@a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=projects:gtk --title='[@get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \

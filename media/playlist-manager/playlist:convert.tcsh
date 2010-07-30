@@ -1,0 +1,1297 @@
+#!/bin/tcsh -f
+setenv:
+	onintr exit_script;
+	
+	if( "`alias cwdcmd`" != "" ) then
+		set original_cwdcmd="`alias cwdcmd`";
+		unalias cwdcmd;
+	endif
+	
+	if( ${?GREP_OPTIONS} ) then
+		set grep_options="${GREP_OPTIONS}";
+		unsetenv GREP_OPTIONS;
+	endif
+	
+	set scripts_basename="playlist:convert.tcsh";
+	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
+	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)"\$"/\1/'`";
+	
+	set strict;
+	#set supports_being_sourced;
+	
+	alias ex "ex -E -X -n --noplugin";
+	
+	#set supports_multiple_files;
+	#set supports_hidden_files;
+	#set scripts_supported_extensions="mp3|ogg|m4a";
+	
+	#set download_command="curl";
+	#set download_command_with_options="${download_command} --location --fail --show-error --silent --output";
+	#alias "curl" "${download_command_with_options}";
+	
+	#set download_command="wget";
+	#set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
+	#alias "wget" "${download_command_with_options}";
+	set label_current="init";
+	goto label_stack_set;
+#setenv:
+
+
+exit_script:
+	set label_current="exit_script";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if( ! ${?0} && ${?supports_being_sourced} ) then
+		set callback="scripts_sourcing_quit";
+	else
+		set callback="scripts_main_quit";
+	endif
+	goto callback_handler;
+#exit_script:
+
+
+init:
+	set label_current="init";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	@ required_options=2;
+	
+	@ argc=${#argv};
+	if( ${argc} < ${required_options} ) then
+		@ errno=-503;
+		set callback="exit_script";
+		goto exception_handler;
+	endif
+	
+	set usage_message="Usage:\n\t${scripts_basename} [options] [path/to/playlist/file.(m3u|tox|pls)] [path/to/new/playlist.(m3u|tox|pls)](optional)\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n\t\t--force\tForces the new, sorted, playlist to over-write the the output file, if it exists.\n\t\t\n\t\t--interactive\tPrompts for confimation before saving the final playlist if it would over-write an existing file.\nNOTE:\n--force and --interactive are both optional and may be used together or separate.\n";
+	
+	set original_owd=${owd};
+	set starting_dir=${cwd};
+	set escaped_starting_cwd=${escaped_cwd};
+	
+	set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
+	printf "%s" "${HOME}" >! "${argument_file}";
+	ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+	set escaped_cwd="`cat "\""${argument_file}"\"" | sed -r 's/([\[\/])/\\\1/g'`";
+	rm -f "${argument_file}";
+	unset argument_file;
+#init:
+
+
+debug_check:
+	set label_current="debug_check";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	@ arg=0;
+	@ argc=${#argv};
+	while( $arg < $argc )
+		@ arg++;
+		
+		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		printf "$argv[$arg]" >! "${argument_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		set argument="`cat "\""${argument_file}"\""`";
+		rm -f "${argument_file}";
+		unset argument_file;
+		
+		set option="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+		set value="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+		if( -e "${value}" ) \
+			continue;
+		
+		if( ${?debug} || ${?debug_arguments} ) \
+			printf "**%s [debug_check:]**"\$"option: [${option}]; "\$"value: [${value}].\n" "${scripts_basename}";
+		
+		switch("${option}")
+			case "diagnosis":
+			case "diagnostic-mode":
+				printf "**%s debug:**, via "\$"argv[$arg], diagnostic mode:\t[enabled].\n\n" "${scripts_basename}";
+				set diagnostic_mode;
+				if(! ${?debug} ) \
+					set debug;
+				breaksw;
+			
+			case "debug":
+				switch("${value}")
+					case "logged":
+						if( ${?logging} ) \
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[${arg}], debug logging:\t[enabled].\n\n" "${scripts_basename}";
+						set debug_logging;
+						breaksw;
+					
+					case "argv":
+					case "parse_argv":
+					case "arguments":
+						if( ${?debug_arguments} ) \
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[${arg}], debugging arguments:\t[enabled].\n\n" "${scripts_basename}";
+						set debug_arguments;
+						breaksw;
+					
+					case "filenames":
+						if(! ${?supports_multiple_files} ) then
+							printf "**%s debug:**, via "\$"argv[${arg}], debugging ${value}:\t[unsupported].\n" "${scripts_basename}" > /dev/stderr;
+							printf "**%s debug:** does not support handling or processing multiple files.\n" "${scripts_basename}" > /dev/stderr;
+							breaksw;
+						endif
+						
+						if( ${?debug_filenames} ) \
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[${arg}], debugging ${value}:\t[enabled].\n\n" "${scripts_basename}";
+						set debug_filenames;
+						breaksw;
+					
+					default:
+						if( ${?debug} ) \
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[%s], debug mode:\t[enabled].\n\n" "${arg}" "${scripts_basename}";
+						set debug="${value}";
+						breaksw;
+				endsw
+				breaksw;
+			
+			default:
+				continue;
+		endsw
+	end
+#debug_check:
+
+
+check_dependencies:
+	set label_current="check_dependencies";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh");# "${script_alias}");
+	@ dependencies_index=0;
+	
+	foreach dependency(${dependencies})
+		@ dependencies_index++;
+		if( ${?debug} ) \
+			printf "\n**%s debug:** looking for dependency: %s.\n\n" "${scripts_basename}" "${dependency}"; 
+			
+		foreach program("`where "\""${dependency}"\""`")
+			if( -x "${program}" ) \
+				break;
+			unset program;
+		end
+		
+		if(! ${?program} ) then
+			@ errno=-501;
+			goto exception_handler;
+		endif
+		
+		if( ${?debug} ) then
+			switch( "`printf "\""%s"\"" "\""${dependencies_index}"\"" | sed -r 's/^[0-9]*[^1]?([1-3])"\$"/\1/'`" )
+				case "1":
+					set suffix="st";
+					breaksw;
+				
+				case "2":
+					set suffix="nd";
+					breaksw;
+				
+				case "3":
+					set suffix="rd";
+					breaksw;
+				
+				default:
+					set suffix="th";
+					breaksw;
+			endsw
+			
+			printf "**%s debug:** found %s%s dependency: %s.\n" "${scripts_basename}" "${dependencies_index}" "${suffix}" "${dependency}";
+			unset suffix;
+		endif
+		
+		switch("${dependency}")
+			case "${scripts_basename}":
+				if( ${?script} ) \
+					breaksw;
+				
+				set old_owd="${cwd}";
+				cd "`dirname '${program}'`";
+				set scripts_path="${cwd}";
+				cd "${owd}";
+				set owd="${old_owd}";
+				unset old_owd;
+				set script="${scripts_path}/${scripts_basename}";
+				breaksw;
+			
+				if(! ${?execs} ) \
+					set execs=()
+				set execs=(${execs} "${program}");
+				breaksw;
+		endsw
+		
+		unset program;
+	end
+	
+	unset dependency dependencies;
+	
+	set callback="parse_argv";
+	goto callback_handler;
+#check_dependencies:
+
+
+if_sourced:
+	set label_current="if_sourced";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	@ errno=0;
+	
+	if( ${?0} ) then
+		set callback="scripts_main";
+	else if( ${?supports_being_sourced} ) then
+		set callback="scripts_sourcing_main";
+	else
+		@ errno=-502;
+		goto exception_handler;
+	endif
+	goto callback_handler;
+	# END: disable source scripts_basename.
+#if_sourced:
+
+
+scripts_sourcing_main:
+	set label_current="scripts_sourcing_main";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	# BEGIN: source scripts_basename support.
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
+	
+	# START: special handler for when this file is sourced.
+	alias ${scripts_alias} \$"{TCSH_LAUNCHER_PATH}/${scripts_basename}";
+	# FINISH: special handler for when this file is sourced.
+#scripts_sourcing_main:
+
+
+scripts_sourcing_quit:
+	set label_current="scripts_sourcing_quit";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
+	# END: source scripts_basename support.
+	
+	set callback="exit_script";
+	goto callback_handler;
+#scripts_sourcing_quit:
+
+
+scripts_main:
+	set label_current="scripts_main";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if(! ${?playlist} ) then
+		@ errno=-601;
+		goto exception_handler;
+	endif
+	
+	if(! -e "${playlist}" ) then
+		@ errno=-601;
+		goto exception_handler;
+	endif
+	
+	if(!( ${?new_playlist} && ${?new_playlist_type} )) then
+		@ errno=-602;
+		goto exception_handler;
+	endif
+	
+	if( "${new_playlist}" == "${playlist}" ) then
+		@ errno=-603;
+		goto exception_handler;
+	endif
+	
+	if( ! ${?force} && -e "${new_playlist}" ) then
+		if(! ${?force} ) then
+			printf "You've specified that you want to over-write an existing playlist with the newly sorted playlist\nIn order to do this the existing playlist must first be removed.\nAre you sure you want to proceed?\n" > /dev/stderr;
+			set rm_confirmation="`rm -vfi "\""${new_playlist}"\""`";
+			if(!( ${status} == 0 && "${rm_confirmation}" != "" )) then
+				printf "Your playlist(s) have been left alone and %s is now exiting.\n" "${scripts_basename}";
+				set callback="exit_script";
+				goto callback_handler;
+			endif
+		endif
+	endif
+	
+	if(!( ${?filename_list} && ${?supports_multiple_files} )) then
+		set callback="scripts_exec";
+	else if( ${?filename_list} && ${?supports_multiple_files} ) then
+		set callback="filename_list_process_init";
+	else if( ${?filename_list} && ! ${?supports_multiple_files} ) then
+		@ errno=-505;
+		set callback="exit_script";
+		goto exception_handler;
+	else
+		set callback="exit_script";
+	endif
+	
+	goto callback_handler;
+#scripts_main:
+
+
+scripts_exec:
+	set label_current="scripts_exec";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	printf "Converting [%s] to [%s]" "${playlist}" "${new_playlist}";
+	
+	set playlist_swap="${scripts_tmpdir}/swap.`printf "\""%s"\"" "\""${playlist}"\"" | sed -r 's/\//\:/g'`.playlist.at.`date '+%s'`.${playlist_type}";
+	cp -f "${playlist}" "${playlist_swap}";
+	set playlist="${playlist_swap}";
+	unset playlist_swap;
+	
+	playlist:new:create.tcsh "${playlist}";
+	mv -f "${playlist}.swap" "${playlist}.new";
+	
+	if( ${?insert_subdir} ) then
+		ex -s "+1,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)(.*\/)(.*)(\.([^\.]+)"\$"/\1${insert_subdir}\/\2\3\4/" '+wq' "${playlist}.new";
+	endif
+	
+	if( ${?strip_subdir} ) then
+		ex -s "+1,"\$"s/\v^(\/[^\/]+\/[^\/]+\/)${strip_subdir}\/(.*\/)(.*)(\.([^\.]+)"\$"/\1\2\3\4/" '+wq' "${playlist}.new";
+	endif
+	
+	playlist:new:save.tcsh --force --silent "${playlist}" "${new_playlist}";
+	
+	set callback="exit_script";
+	goto callback_handler;
+#scripts_exec:
+
+
+filename_list_process_init:
+	set label_current="filename_list_process_init";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	cat "${filename_list}" | sort | uniq > "${filename_list}.swap";
+	mv -f "${filename_list}.swap" "${filename_list}";
+	
+	set file_count=`wc -l "${filename_list}" | sed -r 's/^([0-9]+)(.*)$/\1/'`;
+	
+	if(! ${file_count} > 0 ) then
+		if( ${?no_exit_on_exception} ) \
+			unset no_exit_on_exception;
+		@ errno=-503;
+		set callback="exit_script";
+		goto exception_handler;
+	endif
+	
+	@ files_processed=0;
+	#ex -X -n --noplugin -s '+1,$s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${filename_list}";
+	cp "${filename_list}" "${filename_list}.all";
+#filename_list_process_init:
+
+
+filename_list_process:
+	set label_current="filename_list_process";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )# | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g' | sed -r 's/["\`"]/"\""\\"\`""\""/g'`" )
+	#foreach filename("`cat "\""${filename_list}"\""`")
+		ex -s '+1d' '+wq!' "${filename_list}";
+		@ files_processed++;
+		if( ${?debug} ) \
+			printf "Attempting to filename_process: [%s] (file: #%s of %s)\n" "${original_filename}" "${files_processed}" "${file_count}";
+		set callback="filename_process";
+		goto callback_handler;
+	end
+	if( ${files_processed} > 0 ) then
+		set callback="scripts_main_quit";
+	else
+		set callback="usage";
+	endif
+	goto callback_handler;
+#filename_list_process:
+
+
+filename_process:
+	set label_current="filename_process";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	set callback="filename_list_process";
+	set extension="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\2/g'`";
+	if( "${extension}" == "${original_filename}" ) \
+		set extension="";
+	set original_extension="${extension}";
+	set filename="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)(\.[^\.]+)"\$"/\1/g'`";
+	if(! -e "${filename}${extension}" ) then
+		if(! ${?no_exit_on_exception} ) \
+			set no_exit_on_exception_set no_exit_on_exception;
+		@ errno=-498;
+		set callback="filename_list_process";
+		goto exception_handler;
+	endif
+	
+	set filename_for_regexp="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/([\\\*\[\/])/\\\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+	set filename_for_editor="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/(["\"\$\!"\[\(\)\ \<\>])/\\\1/g'`";
+	if( ${?edit_all_files} ) \
+		${EDITOR} "+0r ${filename_for_editor}";
+	printf "\nFile info for:\n\t<file://%s%s>\n" "${filename}" "${extension}";
+	
+	if( -d "${filename}${extension}" ) \
+		/bin/ls -d -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
+	
+	/bin/ls -l "${filename}${extension}" | grep -v --perl-regexp '^[\s\ \t\r\n]+$';
+	
+	set grep_test="`grep "\""^${filename_for_regexp}"\"\$" "\""${filename_list}.all"\""`";
+	printf "grep ";
+	if( "${grep_test}" != "" ) then
+		printf "found:\n\t%s\n" "${grep_test}";
+	else
+		printf "couldn't find:\n\t%s.\n" "${filename_for_regexp}";
+	endif
+	
+	goto callback_handler;
+#filename_process:
+
+
+scripts_main_quit:
+	set label_current="scripts_main_quit";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if( ${?label_current} ) \
+		unset label_current;
+	if( ${?label_previous} ) \
+		unset label_previous;
+	if( ${?labels_previous} ) \
+		unset labels_previous;
+	if( ${?label_next} ) \
+		unset label_next;
+	
+	if( ${?arg} ) \
+		unset arg;
+	if( ${?argc} ) \
+		unset argc;
+	if( ${?parsed_arg} ) \
+		unset parsed_arg;
+	if( ${?parsed_argv} ) \
+		unset parsed_argv;
+	if( ${?parsed_argc} ) \
+		unset parsed_argc;
+	
+	if( ${?argument} ) \
+		unset argument;
+	if( ${?argument_file} ) then
+		if( -e "${argument_file}" ) \
+			rm -f "${argument_file}";
+		unset argument_file;
+	endif
+	
+	if( ${?being_sourced} ) \
+		unset being_sourced;
+	if( ${?supports_being_sourced} ) \
+		unset supports_being_sourced;
+	
+	if( ${?script} ) \
+		unset script;
+	if( ${?scripts_alias} ) \
+		unset scripts_alias;
+	if( ${?scripts_basename} ) \
+		unset scripts_basename;
+	if( ${?scripts_path} ) \
+		unset scripts_path;
+	if( ${?script} ) \
+		unset script;
+	if( ${?scripts_tmpdir} ) then
+		if( -d "${scripts_tmpdir}" ) \
+			rm -rf "${scripts_tmpdir}";
+		unset scripts_tmpdir;
+	endif
+	
+	
+	if( ${?nodeps} ) \
+		unset nodeps;
+	if( ${?execs} ) \
+		unset execs;
+	if( ${?dependency} ) \
+		unset dependency;
+	if( ${?dependencies} ) \
+		unset dependencies;
+	if( ${?missing_dependency} ) \
+		unset missing_dependency;
+	
+	if( ${?usage_displayed} ) \
+		unset usage_displayed;
+	if( ${?no_exit_on_usage} ) \
+		unset no_exit_on_usage;
+	
+	if( ${?no_exit_on_exception} ) \
+		unset no_exit_on_exception;
+	if( ${?last_exception_handled} ) \
+		unset last_exception_handled;
+	
+	if( ${?label_previous} ) \
+		unset label_previous;
+	if( ${?label_next} ) \
+		unset label_next;
+	
+	if( ${?callback} ) \
+		unset callback;
+	if( ${?last_callback} ) \
+		unset last_callback;
+	if( ${?callback_stack} ) \
+		unset callback_stack;
+	
+	if( ${?argc_required} ) \
+		unset argc_required;
+	if( ${?arg_shifted} ) \
+		unset arg_shifted;
+	
+	if( ${?escaped_cwd} ) \
+		unset escaped_cwd;
+	if( ${?escaped_home_dir} ) \
+		unset escaped_home_dir;
+	if( ${?escaped_starting_cwd} ) \
+		unset escaped_starting_cwd;
+	
+	if( ${?old_owd} ) then
+		if( ${old_owd} != ${owd} ) \
+			set owd=${old_owd};
+		unset old_owd;
+	endif
+	
+	if( ${?original_owd} ) then
+		cd "${owd}";
+		set owd="${original_owd}";
+		unset original_owd;
+	endif
+	
+	if( ${?starting_cwd} ) then
+		if( "${starting_cwd}" != "${cwd}" ) \
+			cd "${starting_cwd}";
+	endif
+	
+	if( ${?original_cwdcmd} ) then
+		alias cwdcmd "${original_cwdcmd}";
+		unset original_cwdcmd;
+	endif
+	
+	if( ${?grep_options} ) then
+		setenv GREP_OPTIONS "${grep_options}";
+		unset grep_options;
+	endif
+	
+	if( ${?supports_multiple_files} ) \
+		unset supports_multiple_files;
+	if( ${?scripts_supported_extensions} ) \
+		unset scripts_supported_extensions;
+	if( ${?supports_hidden_files} ) \
+		unset supports_hidden_files;
+	
+	if( ${?filename_list} ) then
+		if( ${?original_filename} ) \
+			unset original_filename;
+		if( ${?filename} ) \
+			unset filename;
+		if( ${?filename_for_regexp} ) \
+			unset filename_for_regexp;
+		if( ${?filename_for_editor} ) \
+			unset filename_for_editor;
+		if( ${?extension} ) \
+			unset extension;
+		if( ${?original_extension} ) \
+			unset original_extension;
+		if( ${?file_count} ) \
+			unset file_count;
+		if( ${?files_processed} ) \
+			unset files_processed;
+		
+		if( -e "${filename_list}" ) \
+			rm "${filename_list}";
+		if( -e "${filename_list}.all" ) \
+			rm "${filename_list}.all";
+		unset filename_list;
+	endif
+	
+	if( ${?debug} ) \
+		unset debug;
+	if( ${?scripts_diagnosis_log} ) \
+		unset scripts_diagnosis_log;
+	
+	if( ${?strict} ) \
+		unset strict;
+	if( ${?arg_shifted} ) \
+		unset arg_shifted;
+	if( ${?value_used} ) \
+		unset value_used;
+	if( ${?escaped_value} ) \
+		unset escaped_value;
+	if( ${?dashes} ) \
+		unset dashes;
+	if( ${?option} ) \
+		unset option;
+	if( ${?equals} ) \
+		unset equals;
+	if( ${?value} ) \
+		unset value;
+	
+	if(! ${?errno} ) \
+		@ errno=0;
+	
+	@ status=$errno;
+	exit ${errno}
+#scripts_main_quit:
+
+
+usage:
+	set label_current="usage";
+	if( "${label_next}" != "${label_current}" ) \
+		goto label_stack_set;
+	
+	if( ${?errno} ) then
+		if( ${errno} != 0 ) then
+			if(! ${?last_exception_handled} ) \
+				set last_exception_handled=0;
+			if( ${last_exception_handled} != ${errno} ) then
+				if(! ${?callback} ) \
+					set callback="usage";
+				goto exception_handler;
+			endif
+		endif
+	endif
+	
+	if(!( ${?script} && ${?program} )) then
+		printf "${usage_message}\n";
+	else
+		if( "${program}" != "${script}" ) then
+			${program} --help;
+		else
+			printf "${usage_message}\n";
+		endif
+	endif
+	
+	if(! ${?usage_displayed} ) \
+		set usage_displayed;
+	
+	if(!( ${?callback} && ${?no_exit_on_usage} )) then
+		set callback="exit_script";
+	endif
+	
+	goto callback_handler;
+#usage:
+
+
+exception_handler:
+	set label_current="exception_handler";
+	if( "${label_next}" != "${label_current}" ) \
+		goto label_stack_set;
+	
+	if(! ${?errno} ) \
+		@ errno=-999;
+	
+	if( $errno < -500 ) then
+		if( ${?no_exit_on_exception} ) \
+			set no_exit_on_exception;
+	else if( ${?strict} && $errno <= -500 ) then
+		if(! ${?no_exit_on_exception} ) \
+			set no_exit_on_exception;
+	endif
+	
+	printf "\n**%s error("\$"errno:$errno):**\n\t" "${scripts_basename}";
+	switch( $errno )
+		case -498:
+			printf "**%s error:** filename: %s%s can no longer be found" "${scripts_basename}" "${filename}" "${extension}" > ${stderr};
+			breaksw;
+		
+		case -500:
+			printf "Debug mode has triggered an exception for diagnosis.  Please see any output above" > /dev/stderr;
+			breaksw;
+		
+		case -501:
+			printf "One or more required dependencies couldn't be found.\n\t[%s] couldn't be found.\n\t%s requires: %s" "${dependency}" "${scripts_basename}" "${dependencies}" > /dev/stderr;
+			breaksw;
+		
+		case -502:
+			printf "Sourcing is not supported. %s may only be executed" "${scripts_basename}" > /dev/stderr;
+			breaksw;
+		
+		case -503:
+			printf "One or more required options have not been provided" > /dev/stderr;
+			breaksw;
+		
+		case -504:
+			printf "%s%s%s%s is an unsupported option" "${dashes}" "${option}" "${equals}" "${value}" > /dev/stderr;
+			breaksw;
+		
+		case -505:
+			printf "handling and/or processing multiple files isn't supported" > /dev/stderr;
+			breaksw;
+		
+		case -601:
+			printf "An existing playlist must be specified" > /dev/stderr;
+			breaksw;
+		
+		case -602:
+			printf "An existing and supported playlist type must be specified.\n[%s] either doesn't exist or isn't supported.\n%s supports m3u, tox, and pls playlists" "${value}" "${scripts_basename}" > /dev/stderr;
+			breaksw;
+		
+		case -603:
+			printf "[%s] doesn't support converting between the same playlist types.\nJust copy them" "${scripts_basename}" > /dev/stderr;
+			breaksw;
+		
+		case -604:
+			printf "%s %s is not supported" "`printf "\""%s"\"" "\""${option}"\"" | sed -r 's/^(.*)e"\$"/\1ing/`" "${value}" "${scripts_basename}" > ${stderr};
+			breaksw;
+		
+		case -999:
+		default:
+			printf "An internal script error has caused an exception: errno: [#%d].  Please see any output above" $errno > /dev/stderr;
+			breaksw;
+	endsw
+	set last_exception_handled=$errno;
+	printf ".\n\tPlease see: "\`"${scripts_basename} --help"\`" for more information and supported options.\n" > /dev/stderr;
+	if(! ${?debug} ) \
+		printf "\tOr run: "\`"${scripts_basename} --debug"\`" to diagnose where ${scripts_basename} failed.\n" > /dev/stderr;
+	printf "\n";
+	
+	if(!( ${?callback} && ${?no_exit_on_exception} )) then
+		set callback="exit_script";
+	endif
+	
+	if( ${?no_exit_on_exception_set} ) \
+		unset no_exit_on_exception_set no_exit_on_exception;
+	
+	goto callback_handler;
+#exception_handler:
+
+parse_argv:
+	set label_current="parse_argv";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	@ arg=0;
+	
+	@ arg=0;
+	@ parsed_argc=0;
+	@ argc=${#argv};
+	
+	if( ${?debug_arguments} && ! ${?debug} ) \
+		set debug debug_set;
+	
+	if( ${?debug} ) \
+		printf "**%s debug:** checking argv.  %s total arguments.\n\n" "${scripts_basename}" "${argc}";
+#parse_argv:
+
+parse_arg:
+	set label_current="parse_arg";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	while( $arg < $argc )
+		if(! ${?arg_shifted} ) then
+			@ arg++;
+		else
+			if( ${?value_used} ) then
+				@ arg++;
+				unset value_used;
+			endif
+			unset arg_shifted;
+		endif
+		
+		if( ${?debug} ) \
+			printf "**%s debug:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
+		
+		set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+		printf "$argv[$arg]" >! "${argument_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		set argument="`cat "\""${argument_file}"\""`";
+		rm -f "${argument_file}";
+		unset argument_file;
+		
+		set dashes="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
+		if( "${dashes}" == "${argument}" ) \
+			set dashes="";
+		
+		set option="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+		if( "${option}" == "${argument}" ) \
+			set option="";
+		
+		set equals="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
+		if( "${equals}" == "${argument}" ) \
+			set equals="";
+		
+		set value="`printf "\""%s"\"" "\""${argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+		
+		if( ${?debug} ) \
+			printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t"\$"dashes: [%s];\n\t"\$"option: [%s];\n\t"\$"equals: [%s];\n\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[$arg]" "${dashes}" "${option}" "${equals}" "${value}";
+		
+		if( "${dashes}" != "" && "${option}" != "" && "${equals}" == "" && "${value}" == "" ) then
+			@ arg++;
+			if( ${arg} > ${argc} ) then
+				@ arg--;
+			else
+				if( ${?debug} ) \
+					printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[$arg]";
+				
+				set argument_file="${scripts_tmpdir}/.escaped.argument.$scripts_basename.argv[$arg].`date '+%s'`.arg";
+				printf "$argv[$arg]" >! "${argument_file}";
+				ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+				set test_argument="`cat "\""${argument_file}"\""`";
+				rm -f "${argument_file}";
+				unset argument_file;
+				
+				set test_dashes="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\1/'`";
+				if( "${test_dashes}" == "${test_argument}" ) \
+					set test_dashes="";
+				
+				set test_option="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\2/'`";
+				if( "${test_option}" == "${test_argument}" ) \
+					set test_option="";
+				
+				set test_equals="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\3/'`";
+				if( "${test_equals}" == "${test_argument}" ) \
+					set test_equals="";
+				
+				set test_value="`printf "\""%s"\"" "\""${test_argument}"\"" | sed -r 's/^([\-]{1,2})([^\=]+)(\=)?(.*)"\$"/\4/'`";
+				
+				if(!( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" )) then
+					@ arg--;
+				else
+					if( ${?debug} ) \
+						printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t"\$"dashes: [%s];\n\t"\$"option: [%s];\n\t"\$"equals: [%s];\n\t"\$"value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[$arg]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}";
+					set equals="=";
+					set value="${test_value}";
+					set arg_shifted;
+				endif
+				unset test_argument test_dashes test_option test_equals test_value;
+			endif
+		endif
+		
+		if( -e "${value}" ) then
+			if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+				set value="${cwd}/${value}";
+			set value_file="`mktemp --tmpdir .escaped.relative.filename.value.XXXXXXXX`";
+			printf "%s" "${value}" >! "${value_file}";
+			ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+			set escaped_value="`cat "\""${value_file}"\""`";
+			rm -f "${value_file}";
+			unset value_file;
+			set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+				set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			end
+			while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+				set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			end
+			set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+		endif
+		
+		@ parsed_argc++;
+		if( "${option}" == "${value}" ) \
+			set option="";
+		set parsed_arg="${dashes}${option}${equals}${value}";
+		if(! ${?parsed_argv} ) then
+			set parsed_argv="${parsed_arg}";
+		else
+			set parsed_argv="${parsed_argv} ${parsed_arg}";
+		endif
+		
+		if( ${?debug} ) \
+			printf "\tparsed option "\$"parsed_argv[${parsed_argc}]: ${parsed_arg}\n\n";
+		
+		switch("${option}")
+			case "h":
+			case "help":
+				if( ${?callback} ) \
+					unset callback;
+				
+				goto usage;
+				breaksw;
+			
+			case "force":
+				if( ${?force} ) \
+					breaksw;
+				
+				set force;
+				breaksw;
+			
+			case "verbose":
+				if(! ${?be_verbose} ) \
+					set be_verbose;
+				breaksw;
+			
+			case "insert-subdir":
+				if( "${value}" != "" ) \
+					set insert_subdir="${value}";
+				breaksw;
+			
+			case "strip-subdir":
+				if( "${value}" != "" ) \
+					set strip_subdir="${value}";
+				breaksw;
+			
+			case "nodeps":
+			case "debug":
+			case "diagnosis":
+			case "diagnostic-mode":
+				# these are all caught above. See: [debug_check:]
+				breaksw;
+			
+			case "enable":
+				switch("${value}")
+					case "force":
+						if( ${?force} ) \
+							breaksw;
+						
+						if( ${?debug} ) \
+							printf "**%s debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" "${scripts_basename}";
+						set force;
+						breaksw;
+					
+					case "verbose":
+						if(! ${?be_verbose} ) \
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" "${scripts_basename}";
+						set be_verbose;
+						breaksw;
+					
+					default:
+						if( ${?no_exit_on_exception} ) \
+							unset no_exit_on_exception;
+						@ errno=-604;
+						goto exception_handler;
+						breaksw;
+				endsw
+				breaksw;
+			
+			case "disable":
+				switch("${value}")
+					case "force":
+						if(! ${?force} ) \
+							breaksw;
+						
+						if( ${?debug} ) \
+							printf "**%s debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" "${scripts_basename}";
+						unset force;
+						breaksw;
+					
+					case "verbose":
+						if(! ${?be_verbose} ) \
+							breaksw;
+						
+						printf "**%s debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" "${scripts_basename}";
+						unset be_verbose;
+						breaksw;
+					
+					default:
+						if( ${?no_exit_on_exception} ) \
+							unset no_exit_on_exception;
+						@ errno=-604;
+						goto exception_handler;
+						breaksw;
+				endsw
+				breaksw;
+			
+			default:
+				if(! ${?playlist} ) then
+					if(! -e "${value}" ) then
+						if( ${?no_exit_on_exception} ) \
+							unset no_exit_on_exception;
+						@ errno=-601;
+						goto exception_handler;
+					endif
+					
+					set playlist_type="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+					switch("${playlist_type}")
+						case "m3u":
+						case "pls":
+						case "tox":
+							set playlist="${value}";
+							set value_used;
+							breaksw;
+						
+						default:
+							if( ${?no_exit_on_exception} ) \
+								unset no_exit_on_exception;
+							set unsupported_playlist_type="${playlist_type}";
+							unset playlist_type;
+							@ errno=-602;
+							goto exception_handler;
+							breaksw;
+					endsw
+				else if(! ${?new_playlist} ) then
+					if(! ${?escaped_value} ) then
+						if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
+							set value="${cwd}/${value}";
+						set value_file="`mktemp --tmpdir .escaped.relative.filename.value.XXXXXXXX`";
+						printf "%s" "${value}" >! "${value_file}";
+						ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${value_file}";
+						set escaped_value="`cat "\""${value_file}"\""`";
+						rm -f "${value_file}";
+						unset value_file;
+						set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/)(\/)/\1/g' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\/)(.*)"\$"/\2/'`" == "/./" )
+							set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(\/\.\/)/\//' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						end
+						while( "`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)(\/\.\.\/)(.*)"\$"/\2/'`" == "/../" )
+							set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						end
+						set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+					endif
+					
+					set new_playlist_type="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
+					if( "${new_playlist_type}" == "${playlist_type}" ) then
+						if( ${?no_exit_on_exception} ) \
+							unset no_exit_on_exception;
+						set unsupported_playlist_type="${new_playlist_type}";
+						unset new_playlist_type;
+						@ errno=-602;
+						goto exception_handler;
+					endif
+					switch("${new_playlist_type}")
+						case "m3u":
+						case "pls":
+						case "tox":
+							set new_playlist="${value}";
+							set value_used;
+							breaksw;
+						
+						default:
+							if( ${?no_exit_on_exception} ) \
+								unset no_exit_on_exception;
+							unset new_playlist_type;
+							set unsupported_playlist_type="${new_playlist_type}";
+							@ errno=-602;
+							goto exception_handler;
+							breaksw;
+					endsw
+				endif
+				
+				if( ${?value_used} ) \
+					breaksw;
+				
+				@ errno=-504;
+				set callback="parse_arg";
+				goto exception_handler;
+				breaksw;
+		endsw
+		
+		if( ${?arg_shifted} ) then
+			unset arg_shifted;
+			if(! ${?value_used} ) \
+				@ arg--;
+		endif
+		
+		if( ${?value_used} ) \
+			unset value_used;
+		
+		unset escaped_value dashes option equals value parsed_arg;
+	end
+#parse_arg:
+
+
+parse_argv_quit:
+	set label_current="parse_argv_quit";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if( ${?debug_set} ) \
+		unset debug debug_set;
+	
+	if(! ${?callback} ) then
+		unset arg;
+	else
+		if( "${callback}" != "parse_arg" ) then
+			unset arg;
+		endif
+	endif
+	
+	if(! ${?diagnostic_mode} ) then
+		set callback="if_sourced";
+	else
+		set callback="diagnostic_mode";
+	endif
+	
+	goto callback_handler;
+#parse_argv_quit:
+
+
+filename_list_append:
+	set label_current="filename_list_append";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if(! ${?supports_multiple_files} ) then
+		@ errno=-505;
+		set callback="parse_arg";
+		goto exception_handler;
+	endif
+	
+	if(! ${?filename_list} ) then
+		set filename_list="${scripts_tmpdir}/.filenames.${scripts_basename}.@`date '+%s'`";
+		touch "${filename_list}";
+	endif
+	
+	if(! ${?scripts_supported_extensions} ) then
+		if( ${?debug} || ${?debug_filenames} ) then
+			printf "Adding [%s] to [%s].\nBy running:\n\tfind -L "\""$value"\""" "${value}" "${filename_list}";
+			if(! ${?supports_hidden_files} ) \
+				printf  \! -iregex '.*\/\..*';
+			printf "| sort >> "\""${filename_list}"\""\n\n";
+		endif
+		if(! ${?supports_hidden_files} ) then
+			find -L "$value" \! -iregex '.*\/\..*' | sort >> "${filename_list}";
+		else
+			find -L "$value" | sort >> "${filename_list}";
+		endif
+		
+		set callback="parse_arg";
+		goto callback_handler;
+	endif
+	
+	#if( "${scripts_supported_extensions}" == "mp3|ogg|m4a" && ! ${?ltrim} && ! ${?rtrim} ) \
+	#	set scripts_supported_extensions="mp3|m4a";
+	
+	if( ${?debug}  || ${?debug_filenames} ) then
+		if(! -d "$value" ) then
+			printf "Adding [%s] to [%s] if its a supported file type.\nSupported extensions are:\n\t`printf '%s' | sed -r 's/\|/,\ /g'`.\n" "${value}" "${filename_list}" "${scripts_supported_extensions}";
+		else
+			printf "Adding any supported files found under [%s] to [%s].\nSupported extensions are:\n\t`printf '%s' | sed -r 's/\|/,\ /g'`.\n" "${value}" "${filename_list}" "${scripts_supported_extensions}";
+		endif
+		printf "By running:\n\tfind -L "\""$value"\"" -regextype posix-extended -iregex "\"".*\.(${scripts_supported_extensions})"\"""\$"";
+		if(! ${?supports_hidden_files} ) \
+			printf " \! -iregex '.*\/\..*'";
+		printf " | sort >> "\""${filename_list}"\""\n\n";
+	endif
+	
+	if(! ${?supports_hidden_files} ) then
+		find -L "$value" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ \! -iregex '.*\/\..*'  | sort >> "${filename_list}";
+	else
+		find -L "$value" -regextype posix-extended -iregex ".*\.(${scripts_supported_extensions})"\$ | sort >> "${filename_list}";
+	endif
+	
+	set callback="parse_arg";
+	goto callback_handler;
+#filename_list_append:
+
+
+diagnostic_mode:
+	set label_current="diagnostic_mode";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	if(! -d "${HOME}/tmp" ) then
+		set scripts_diagnosis_log="/tmp/${scripts_basename}.diagnosis.log";
+	else
+		set scripts_diagnosis_log="${HOME}/tmp/${scripts_basename}.diagnosis.log";
+	endif
+	if( -e "${scripts_diagnosis_log}" ) \
+		rm -v "${scripts_diagnosis_log}";
+	touch "${scripts_diagnosis_log}";
+	printf "----------------%s debug.log-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
+	printf \$"argv:\n\t${argv}\n\n" >> "${scripts_diagnosis_log}";
+	printf \$"parsed_argv:\n\t$parsed_argv\n\n" >> "${scripts_diagnosis_log}";
+	printf \$"{0} == [${0}]\n" >> "${scripts_diagnosis_log}";
+	@ arg=0;
+	while( "${1}" != "" )
+		@ arg++;
+		printf \$"{${arg}} == ${1}\n" >> "${scripts_diagnosis_log}";
+		shift;
+	end
+	printf "\n\n----------------<%s> environment-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
+	env >> "${scripts_diagnosis_log}";
+	printf "\n\n----------------<%s> variables-----------------\n" "${scripts_basename}" >> "${scripts_diagnosis_log}";
+	set >> "${scripts_diagnosis_log}";
+	printf "Create %s diagnosis log:\n\t%s\n" "${scripts_basename}" "${scripts_diagnosis_log}";
+	@ errno=-500;
+	if( ${?callback} ) \
+		unset callback;
+	goto exception_handler;
+#diagnostic_mode:
+
+
+label_stack_set:
+	if( ${?current_cwd} ) then
+		if( ${current_cwd} != ${cwd} ) \
+			cd ${current_cwd};
+		unset current_cwd;
+	endif
+	
+	if( ${?old_owd} ) then
+		if( ${old_owd} != ${owd} ) then
+			set owd=${old_owd};
+		endif
+	endif
+	
+	if(! ${?currend_cwd} ) \
+		set current_cwd="";
+	
+	if( "${current_cwd}" != "${cwd}" ) then
+		set old_owd="${owd}";
+		set current_cwd="${cwd}";
+		set argument_file="${scripts_tmpdir}/.escaped.dir.`date '+%s'`.file";
+		printf "%s" "${cwd}" >! "${argument_file}";
+		ex -s '+s/\v([\"\!\$\`])/\"\\\1\"/g' '+wq!' "${argument_file}";
+		set escaped_cwd="`cat "\""${argument_file}"\""`";
+		rm -f "${argument_file}";
+		unset argument_file;
+	endif
+	
+	set label_next=${label_current};
+	
+	if(! ${?labels_previous} ) then
+		set labels_previous=("${label_current}");
+		set label_previous=$labels_previous[${#labels_previous}];
+	else
+		if("${label_current}" != "$labels_previous[${#labels_previous}]" ) then
+			set labels_previous=($labels_previous "${label_current}");
+			set label_previous=$labels_previous[${#labels_previous}];
+		else
+			set label_previous=$labels_previous[${#labels_previous}];
+			unset labels_previous[${#labels_previous}];
+		endif
+	endif
+	
+	#set callback=${label_previous};
+	
+	if( ${?debug} ) \
+		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/stdout;
+	
+	goto ${label_previous};
+#label_stack_set:
+
+
+callback_handler:
+	if(! ${?callback} ) \
+		set callback="exit_script";
+	
+	if(! ${?callback_stack} ) then
+		set callback_stack=("${callback}");
+		set last_callback="$callback_stack[${#callback_stack}]";
+	else
+		if("${callback}" != "$callback_stack[${#callback_stack}]" ) then
+			set callback_stack=($callback_stack "${callback}");
+			set last_callback="$callback_stack[${#callback_stack}]";
+		else
+			set last_callback="$callback_stack[${#callback_stack}]";
+			unset callback_stack[${#callback_stack}];
+		endif
+		unset callback;
+	endif
+	if( ${?debug} ) \
+		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
+	
+	goto $last_callback;
+#callback_handler:
+
+

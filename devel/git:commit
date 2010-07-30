@@ -430,27 +430,22 @@ git_push:
 	
 	if(! ${?push} ) \
 		goto check_sync;
+	
 	foreach git_repo("`git remote`")
-		if( "${push}" != "" && "${push}" != "${git_repo}" ) \
-			continue;
-		
-		if(! ${?push_to} ) then
-			if( ${?branch} ) then
-				git push "${git_repo}" "${branch}"
-			endif
-			git push "${git_repo}" master;
-			continue;
-		endif
-		
-		foreach repo(${push_to})
-			if("${repo}" != "${git_repo}" ) \
+		if( ${?push_to} ) then
+			foreach repo(${push_to})
+				if("${repo}" == "${git_repo}" ) \
+					break;
+				unset repo;
+			end
+			if(! ${?repo} ) \
 				continue;
+		endif
 			
-			if( ${?branch} ) then
-				git push "${git_repo}" "${branch}"
-			endif
-			git push "${git_repo}" master;
-		end
+		if( ${?branch} ) then
+			git push "${git_repo}" "${branch}"
+		endif
+		git push "${git_repo}" master;
 	end
 #git_push:
 

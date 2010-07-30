@@ -1041,7 +1041,7 @@ parse_arg:
 						set removal_forced;
 						set removal_interactive;
 						set removal_verbose;
-						set remove="ifv";
+						set remove="iv";
 						breaksw;
 					
 					case "force":

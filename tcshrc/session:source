@@ -73,14 +73,11 @@ source "${TCSH_RC_SESSION_PATH}/art.cshrc.tcsh" ${argv};
 	
 	if( -e "${TCSH_RC_SESSION_PATH}/../alternatives/init.tcsh" ) then
 		if( ${?TCSH_RC_DEBUG} ) \
-			printf "Setting up launcher script aliases @ %s.\n" `date "+%I:%M:%S%P"`;
+			printf "Setting up alternatives....\n";
 		source "${TCSH_RC_SESSION_PATH}/../alternatives/init.tcsh" ${argv};
 		if( ${?TCSH_RC_DEBUG} ) \
-			printf "launcher script aliases setup completed @ %s.\n" `date "+%I:%M:%S%P"`;
+			printf "alternatives setup\t\t${color_start}00;22m[completed]${color_start}00;00m.\n";
 	endif
-	
-	if( ${?TCSH_RC_DEBUG} ) \
-		printf "\nSession set up completed @ %s\n" `date "+%I:%M:%S%P"`;
 	
 	if( ${?script} ) \
 		unset script;

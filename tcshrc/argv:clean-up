@@ -14,8 +14,6 @@ check_tcsh_rc_source_file:
 		goto sourcing_finished;
 	
 	if( "${TCSH_RC_SOURCE_FILE}" != "$argv[1]" ) then
-		if( ${?TCSH_RC_DEBUG} ) \
-			printf "%s%s != %s%s\n" \$ "${TCSH_RC_SOURCE_FILE}" \$ "$argv[1]";
 		goto exit_script;
 	endif
 #goto check_tcsh_rc_source_file;
@@ -84,15 +82,6 @@ finished_sourcing_tcsh_rc_source_file:
 		alias cwdcmd "${oldcwdcmd}";
 		unsetenv oldcwdcmd;
 	endif
-	
-	if(! ${?TCSH_RC_DEBUG} ) \
-		goto check_debug;
-	
-	if(! ${?usage_message} ) then
-		printf "TCSH's setup finished @ %s.\n*smile*, enjoy yourself, & follow your passions :-)\n" "`date '+%I:%M:%S%P'`";
-	else
-		printf "TCSH's setup finished:  %s @ %s.\n" "${usage_message}" "`date '+%I:%M:%S%P'`";
-	endif
 #goto finished_sourcing_tcsh_rc_source_file;
 
 
@@ -101,9 +90,9 @@ check_debug:
 		goto exit_script;
 	
 	if(! ${?usage_message} ) then
-		printf "TCSH finished processing source files, starting from: <%s>, debug mode is being disabled.\n" "$argv[1]";
+		printf "sourcing finished. <%s>: debug mode disabled.\n" "$argv[1]";
 	else
-		printf "TCSH finished: %s, starting from: <%s>, debug mode is being disabled @ %s.\n" "${usage_message}" "$argv[1]" "`date '+%I:%M:%S%P'`";
+		printf "%s finished. <%s>: debug mode disabled.\n" "${usage_message}" "$argv[1]";
 	endif
 	if( "${TCSH_RC_DEBUG}" == "$argv[1]" ) \
 		unsetenv TCSH_RC_DEBUG;

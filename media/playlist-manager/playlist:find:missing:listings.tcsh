@@ -367,13 +367,8 @@ check_duplicate_dirs:
 handle_missing_media:
 	@ missing_podcasts++;
 	
-	printf "\n\t**";
-	if(! ${?duplicate_dir} ) then
-		printf "Unlisted";
-	else
-		printf "Remote/Duplicate";
-	endif
-	printf " file:**\n\t\t<file://%s>\n" "${this_podcast}";
+	if( $missing_podcasts > 1 ) \
+		printf "\n\n\t\t-----------------------------------------------------\n\n";
 	
 	if( ${?removal_forced} ) \
 		goto remove_missing_media;
@@ -383,9 +378,6 @@ handle_missing_media:
 
 
 prompt_for_action_for_missing_media:
-	if( $missing_podcasts > 1 ) \
-		printf "\n\n\t\t-----------------------------------------------------\n\n";
-	
 	onintr -;
 	
 	if( ${?playlist} ) \
@@ -409,13 +401,14 @@ prompt_for_action_for_missing_media:
 			printf "\n\t\t**error:** %s is an invalid selection.  Please select again?" "${response}";
 			printf "\n\t\t-----------------------------------------------------\n\n";
 			printf "\n\t**";
-			if(! ${?duplicate_dir} ) then
-				printf "Unlisted";
-			else
-				printf "Remote/Duplicate";
-			endif
-			printf " file:**\n\t\t<file://%s>\n" "${this_podcast}";
 		endif
+		
+		if(! ${?duplicate_dir} ) then
+			printf "Unlisted";
+		else
+			printf "Remote/Duplicate";
+		endif
+		printf " file:**\n\t\t<file://%s>\n" "${this_podcast}";
 		printf "\n\tWhat action would you like to take:";
 		if(! ${?remove} ) then
 			@ playlist_index=0;
@@ -495,54 +488,77 @@ prompt_for_action_for_missing_media:
 		endsw
 		unset response;
 	end
-	if( ${?append} ) then
-		if( `printf "%s" "${append}" | sed -r 's/^[0-9]+$//'` == "" ) then
-			if( $append == 0 ) then
-				while(! ${?playlist_new_type} )
-					printf "\n\t\tPlease enter the full filename of the playlist you would like to create:";
-					printf "\n\t\t\tor enter 'cancel' to select a different action: ";
-					set playlist_new="$<";
-					printf "\n";
-					if( `printf "%s" "${playlist_new}" | sed -r 's/^(.*)$/\L\1/'` == "cancel" ) then
-						unset playlist_new;
-						if( ${?append_set} ) \
-							unset append append_set;
-						goto prompt_for_action_for_missing_media;
-					endif
-					set playlist_new_type=`printf "%s" "${playlist_new}" | sed -r 's/^.*\.([^.]+)$/\1/'`;
-					switch( "${playlist_new_type}" )
-						case "m3u":
-						case "tox":
-						case "pls":
-							@ new_file_count++;
-							if(! -e "${playlist_new}" ) then
-								printf "\n\t";
-								playlist:new:create.tcsh "${playlist_new}";
-								printf "\n";
-								if(!( -e "${playlist_new}" && -e "${playlist_new}.new" )) then
-									printf "\n\t\t\t**error:** %s could not be created. Please enter a valid path for the new playlist.\n\n" "${playlist_new}";
-									unset playlist_new playlist_new_type;
-									breaksw;
-								endif
+	
+	if(! ${?append} ) then
+		goto finish_processing_missing_media;
+	endif
+	
+	if( `printf "%s" "${append}" | sed -r 's/^[0-9]+$//'` != "" ) then
+		goto finish_processing_missing_media;
+	endif
+	
+	switch( $append )
+		case 0:
+			while(! ${?playlist_new_type} )
+				printf "\n\t\tPlease enter the full filename of the playlist you would like to create:";
+				printf "\n\t\t\tor enter 'cancel' to select a different action: ";
+				set playlist_new="$<";
+				printf "\n";
+				if( `printf "%s" "${playlist_new}" | sed -r 's/^(.*)$/\L\1/'` == "cancel" ) then
+					unset playlist_new;
+					if( ${?append_set} ) \
+						unset append append_set;
+					goto prompt_for_action_for_missing_media;
+				endif
+				set playlist_new_type=`printf "%s" "${playlist_new}" | sed -r 's/^.*\.([^.]+)$/\1/'`;
+				switch( "${playlist_new_type}" )
+					case "m3u":
+					case "tox":
+					case "pls":
+						@ new_file_count++;
+						if(! -e "${playlist_new}" ) then
+							printf "\n\tCreating: <file://%s>\n" "${playlist_new}";
+							set podcast_dir="`dirname "\""${playlist_new}"\""`";
+							if(! -d "${podcast_dir}" ) then
+								mkdir -pv "${podcast_dir}";
+								set podcast_dir_created;
 							endif
-							printf "\n\t**Appending:**\n\t\t<file://%s>\n\t\t\tto:\n\t\t<file://%s>\n" "${this_podcast}" "${playlist_new}";
-							printf "%s\n" "${this_podcast}" >> "${playlist_new}.new";
-							printf "%s\n" "${playlist_new}" >> "${playlists_filename_list}";
-							
-							sort "${playlists_filename_list}" | uniq > "${playlists_filename_list}.swap";
-							mv -f "${playlists_filename_list}.swap" "${playlists_filename_list}";
-							set playlists="`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
-							unset playlist_new;
-							breaksw;
+							unset podcast_dir;
+							touch "${playlist_new}";
+							if(!( -e "${playlist_new}" )) then
+								printf "\n\t\t\t**error:** %s could not be created. Please enter a valid path for the new playlist.\n\n" "${playlist_new}";
+								unset playlist_new playlist_new_type;
+								breaksw;
+							endif
+						endif
 						
-						default:
-							printf "%s is an unsupported playlist type.  Only m3u, tox, and pls playlists are supported.\n\n" "${playlist_new}";
-							unset playlist_new playlist_new_type;
-							breaksw;
-					endsw
-				end
-				unset playlist_new playlist_new_type;
-			else if( $append > 0 && $append <= $playlist_index ) then
+						sort "${playlists_filename_list}" | uniq > "${playlists_filename_list}.swap";
+						mv -f "${playlists_filename_list}.swap" "${playlists_filename_list}";
+						set playlists="`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+						$playlist_index++;
+						set append_set;
+						@ append=$playlist_index;
+						breaksw;
+					
+					default:
+						printf "%s is an unsupported playlist type.  Only m3u, tox, and pls playlists are supported.\n\n" "${playlist_new}";
+						unset playlist_new_type;
+						breaksw;
+				endsw
+				if( ${?playlist_new} ) \
+					unset playlist_new;
+				
+				if( ${?playlist_new_type} ) then
+					if(! ${?append} ) then
+						unset playlist_new_type;
+					else if( $append > 0 && $append <= $playlist_index ) then
+						unset playlist_new_type;
+					endif
+				endif
+			end
+		
+		default:
+			if( $append > 0 && $append <= $playlist_index ) then
 				@ new_file_count++;
 				@ playlist_count=0;
 				foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
@@ -556,22 +572,26 @@ prompt_for_action_for_missing_media:
 				end
 				unset playlist_count;
 			endif
-		endif
-		if( ${?append_set} ) \
-			unset append append_set;
-	endif
+			breaksw;
+	endsw
 	
-	unset playlist_index;
+	goto finish_processing_missing_media;
+#goto prompt_for_action_for_missing_media;
+
 	
+finish_processing_missing_media:
 	onintr cancel_processing_media;
 	
-	if( ${?duplicates_dirs} ) \
-		goto check_duplicate_dirs;
+	unset playlist_index;
+	if( ${?append_set} ) \
+		unset append append_set;
+	
+	if(! ${?duplicates_dirs} ) \
+		goto process_missing_media;
 	
 	unset this_podcast podcast;
-	
-	goto process_missing_media;
-#goto prompt_for_action_for_missing_media;
+	goto check_duplicate_dirs;
+#goto finish_processing_missing_media;
 
 
 remove_missing_media:

@@ -1,7 +1,40 @@
 #!/bin/tcsh -f
-onintr -;
-set scripts_basename="vim-server";
+	onintr -;
+	set scripts_basename="vim-server";
+	@ errno=0;
+	if(! ${?0} ) then
+		@ errno=-1;
+		goto error_handler;
+	else
+		if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
+			@ errno=-1;
+			goto error_handler;
+		endif
+	endif
+	goto init;
 
+error_handler:
+	if(! ${?errno} ) \
+		goto exit_script;
+	switch($error)
+		case -1:
+			printf "%s cannot be sourced" "${scripts_basenam}";
+			breaksw;
+	endsw
+	printf ".\n";
+	goto exit_script;
+#goto error_handler;
+
+
+exit_script:
+	unset scripts_basename;
+	if(! ${?errno} ) \
+		@ errno=0;
+	set status=$errno;
+	exit $errno;
+#goto exit_script;
+
+init:
 if(! ${?TCSH_RC_SESSION_PATH} ) then
 	foreach exec("`where "\""${scripts_basename}"\""`")
 		if(! -x "${exec}" ) then
@@ -27,40 +60,66 @@ endif
 if( ${?TCSH_RC_SESSION_PATH} ) then
 	printf "Setting up path...";
 	source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh" ${argv};
-	printf "\t[done]\nSetting up key bindings...";
+	set scripts_basename="vim-server";
+	printf "\t[done]\n";
+	
+	printf "Setting up key bindings...";
 	source "${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh" ${argv};
 	set scripts_basename="vim-server";
-	printf "\t[done]\nSetting up %s..." "${scripts_basename}";;
+	printf "\t[done]\n";
+	
+	printf "Setting up %s..." "${scripts_basename}";;
 	source "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" ${argv};
+	set scripts_basename="vim-server";
 	printf "\t[done]\n";
 endif
 
-set working_directory="/media";
+	set working_directory="/media";
+	
+	set vim_server=`vim-enhanced --serverlist`;
+	if( "${vim_server}" == "" ) \
+		set vim_server=`hostname --fqdn | sed -r 's/^(.*)$/\U\1/'`;
+	
+	@ argc=${#argv};
+if( $argc > 0 ) then
+	@ arg=0;
+	while( $arg < $argc )
+		@ arg++;
+		switch("$argv[$arg]")
+			case "--gui":
+				set use_gvim;
+				set argv[$arg]="";
+				@ argc--;
+				break;
+		endsw
+	end
+	if( $argc > 0 ) then
+		set vim_tabs="$argv";
+	endif
+endif
 
-set vim_server=`vim-enhanced --serverlist`;
-if( "${vim_server}" == "" ) \
-	set vim_server=`hostname --fqdn | sed -r 's/^(.*)$/\U\1/'`;
-if( ${#argv} > 0 ) then
-	set vim_tabs="$argv";
-else
+if(! ${?vim_tabs} ) then
 	set vim_tabs=("`/media/vim-enhanced:edit-playlists.tcsh --display | sed -r 's/^(.*)"\$"/"\\\""\1"\\\""/'`");
 endif
 
 @ repeat=10;
 
 while(! ${?confirmation} )
-	if(!( ${#vim_tabs} > 0 )) then
-		if( ${#argv} > 0 ) then
-			set vim_tabs="$argv";
-		else
-			set vim_tabs=("`/media/vim-enhanced:edit-playlists.tcsh --display | sed -r 's/^(.*)"\$"/"\\\""\1"\\\""/'`");
-		endif
+	if( $argc > 0 ) then
+		set vim_tabs="$argv";
+	else
+		set vim_tabs=("`/media/vim-enhanced:edit-playlists.tcsh --display | sed -r 's/^(.*)"\$"/"\\\""\1"\\\""/'`");
 	endif
 	
+	if( ${?use_gvim} ) then
+		set vim_command="gvim";
+	else
+		set vim_command="vim-enhanced";
+	endif
 	if( ${?TCSH_RC_DEBUG} ) \
-		echo tcsh -fic "cd "\""${working_directory}"\""; vim-enhanced --servername $vim_server --remote-tab-silent '+tabnext 4' ${vim_tabs}";
+		echo tcsh -fic "cd "\""${working_directory}"\""; ${vim_command} --servername $vim_server --remote-tab-silent '+tabnext 4' ${vim_tabs};";
 	
-	tcsh -fic "cd "\""${working_directory}"\""; vim-enhanced --servername $vim_server --remote-tab-silent '+tabnext 4' ${vim_tabs}";
+	tcsh -fic "cd "\""${working_directory}"\""; ${vim_command} --servername $vim_server --remote-tab-silent '+tabnext 4' ${vim_tabs};";
 	
 	foreach pid( `/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ vim-enhanced --servername.*" | sed -r 's/^[0-9]+[\\ ]+([0-9]+).*[\r\n]*/\1/'` )
 		@ killed=0;

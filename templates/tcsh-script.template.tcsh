@@ -2,6 +2,11 @@
 setup:
 	onintr exit_script;
 	
+	set scripts_basename="tcsh-script.template.tcsh";
+	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
+	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc|init)"\$"/\1/'`";
+	set scripts_debug_output="/dev/null";
+	
 	if(! -o /dev/$tty ) then
 		set stdout=/dev/null;
 		set stderr=/dev/null;
@@ -21,9 +26,6 @@ setup:
 	#set scripts_interactive;
 	set process_each_filename;
 	
-	set scripts_basename="tcsh-script.template.tcsh";
-	set scripts_tmpdir="`mktemp --tmpdir -d tmpdir.for.${scripts_basename}.XXXXXXXXXX`";
-	set scripts_alias="`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc|init)"\$"/\1/'`";
 	set usage_message="Usage: ${scripts_basename} [options]\n\tA template for advanced tcsh shell scripts.\n\t\n\tPossible options are:\n\t\t[-h|--help]\tDisplays this screen.\n\n\t\t\t-\tTells ${scripts_basename} to read all further arguments/filenames from standard input (-! disables this).\n\n\t\t\t--\tThis will cause the script to process any further filenames as they're reached(--! disables this).";
 	
 	if( ${?script} ) \
@@ -246,6 +248,8 @@ scripts_main_quit:
 		unset scripts_alias;
 	if( ${?scripts_basename} ) \
 		unset scripts_basename;
+	if( ${?scripts_debug_output} ) \
+		unset scripts_debug_output;
 	if( ${?scripts_path} ) \
 		unset scripts_path;
 	if( ${?script} ) \
@@ -515,6 +519,17 @@ check_mode:
 			
 			breaksw;
 		
+		case "verbose":
+			if( ${?be_verbose} ) \
+				breaksw;
+			
+			printf "**%s %s:**, "\$"argv[${arg}], mode:\t[enabled].\n\n" "${scripts_basename}" "${option}";
+			set be_verbose;
+			
+			if( "${scripts_debug_output}" == "/dev/null" ) \
+				set scripts_debug_output="/dev/stderr";
+			breaksw;
+		
 		case "debug":
 			switch("${value}")
 				case "logged":
@@ -524,6 +539,9 @@ check_mode:
 					endif
 					
 					set debug_logged;
+					set today=`date '+%Y-%m-%d'`; set now=`date '+%H:%M:%S%P'`;
+					set scripts_debug_output="`mktemp --tmpdir "\""debug.log-for-${scripts_basename}-on:${today}-at:${now}.XXXXXX"\""`";
+					unset today now;
 					breaksw;
 				
 				case "dependencies":
@@ -566,8 +584,13 @@ check_mode:
 						set callback="parse_argv";
 						goto callback_handler;
 					endif
+					
 					if( "${value}" != "" ) \
 						set value="";
+					
+					if( "${scripts_debug_output}" == "/dev/null" ) \
+						set scripts_debug_output="/dev/stderr";
+					
 					set debug;
 					breaksw;
 			endsw
@@ -638,7 +661,7 @@ dependencies_check:
 		endsw
 		
 		if( ${?debug} ) \
-			printf "\n**dependencies:** looking for <%s>'s %d%s dependency: %s.\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}";
+			printf "\n**dependencies:** looking for <%s>'s %d%s dependency: %s.\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" > ${scripts_debug_output};
 		
 		foreach program("`where "\""${dependency}"\""`")
 			if( -x "${program}" ) \
@@ -651,7 +674,7 @@ dependencies_check:
 		endif
 		
 		if( ${?debug} ) \
-			printf "\n**dependencies:** <%s>'s %d%s dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${program}";
+			printf "\n**dependencies:** <%s>'s %d%s dependency: %s ( binary: %s )\t[found]\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${program}" > ${scripts_debug_output};
 		
 		unset suffix;
 		
@@ -778,7 +801,7 @@ sourced:
 		source "${scripts_path}/argv:check" "${scripts_basename}" ${argv};
 	
 	if( ${?debug} ) \
-		printf "Setting up aliases so [%s]; executes: <file://%s>.\n" "${scripts_alias}" "${script}";
+		printf "Setting up aliases so [%s]; executes: <file://%s>.\n" "${scripts_alias}" "${script}" > ${scripts_debug_output};
 	
 	alias "${scripts_alias}" "${script}";
 	
@@ -1376,7 +1399,7 @@ parse_argv:
 			set debug debug_set;
 		
 		if( ${?debug} ) \
-			printf "**%s debug:** parsing "\$"argv's %d options.\n" "${scripts_basename}" "${argc}";
+			printf "**%s debug:** parsing "\$"argv's %d options.\n" "${scripts_basename}" "${argc}" > ${scripts_debug_output};
 	else if( $arg <= $argc ) then
 		@ parsed_argc++;
 		set parsed_arg="${dashes}${option}${equals}${value}";
@@ -1388,7 +1411,7 @@ parse_argv:
 		endif
 		
 		if( ${?debug} ) \
-			printf "\t**debug:** parsed "\$"argv[%d]: %s%s%s%s\n" $arg "${dashes}" "${option}" "${equals}" "${value}";
+			printf "\t**debug:** parsed "\$"argv[%d]: %s%s%s%s\n" $arg "${dashes}" "${option}" "${equals}" "${value}" > ${scripts_debug_output};
 		
 		if( ${?value} ) \
 			unset escaped_argument argument dashes option equals escaped_value value parsed_arg;
@@ -1398,7 +1421,7 @@ parse_argv:
 		@ arg++;
 		
 		if( ${?debug} ) \
-			printf "**%s parse_argv:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]";
+			printf "**%s parse_argv:** Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]" > ${scripts_debug_output};
 		set callback="parse_arg";
 		goto callback_handler;
 	end
@@ -1479,7 +1502,7 @@ parse_arg:
 	set value="`printf "\""%s"\"" "\""${escaped_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
 	
 	if( ${?debug} ) \
-		printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}";
+		printf "\tparsed "\$"argument: [%s]; "\$"argv[%d] (%s)\n\t\t"\$"dashes: [%s];\n\t\t"\$"option: [%s];\n\t\t"\$"equals: [%s];\n\t\t"\$"value: [%s]\n\n" "${argument}" "${arg}" "$argv[${arg}]" "${dashes}" "${option}" "${equals}" "${value}" > ${scripts_debug_output};
 	
 	if( "${dashes}" != "" && "${option}" != "" && "${equals}" == "" && "${value}" == "" ) then
 	#if( "${value}" != "${argument}" && !( "${dashes}" != "" && "${option}" != "" && "${equals}" != "" && "${value}" != "" )) then
@@ -1488,7 +1511,7 @@ parse_arg:
 			@ arg--;
 		else
 			if( ${?debug} ) \
-				printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]";
+				printf "**%s debug:** Looking for replacement value.  Checking argv #%d (%s).\n" "${scripts_basename}" ${arg} "$argv[${arg}]" > ${scripts_debug_output};
 			
 			set argument_file="${scripts_tmpdir}/.escaped.argument.${scripts_basename}.argv[${arg}].`date '+%s'`.arg";
 			printf "%s" "$argv[${arg}]" >! "${argument_file}";
@@ -1513,7 +1536,7 @@ parse_arg:
 			set test_value="`printf "\""%s"\"" "\""${escaped_test_argument}"\"" | sed -r 's/^([-]{1,2})([^=]+)(=)?(.*)"\$"/\4/'`";
 			
 			if( ${?debug} ) \
-				printf "\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}";
+				printf "\t\tparsed argument for possible replacement value:\n\t\t\t"\$"test_argument: [%s]; "\$"argv[%d] (%s)\n\t\t\t"\$"test_dashes: [%s];\n\t\t\t"\$"test_option: [%s];\n\t\t\t"\$"test_equals: [%s];\n\t\t\t"\$"test_value: [%s]\n\n" "${test_argument}" "${arg}" "$argv[${arg}]" "${test_dashes}" "${test_option}" "${test_equals}" "${test_value}" > ${scripts_debug_output};
 			
 			@ arg--;
 			if( "${test_dashes}" == "" && "${test_option}" == "" && "${test_equals}" == "" && "${test_value}" == "${test_argument}" ) then
@@ -1574,6 +1597,7 @@ check_arg:
 		case "debug":
 		case "diagnosis":
 		case "diagnostic-mode":
+		case "verbose":
 			# these are all caught above. See: [debug_check:]
 			breaksw;
 		
@@ -1644,11 +1668,6 @@ check_arg:
 			set length="${value}";
 		breaksw;
 		
-		case "verbose":
-			if(! ${?be_verbose} ) \
-				set be_verbose;
-			breaksw;
-		
 		case "switch-option":
 			switch("${value}")
 				case "iv":
@@ -1663,7 +1682,7 @@ check_arg:
 			endsw
 			
 			if( ${?debug} ) \
-				printf "**%s debug:**, via "\$"argv[${arg}], ${option}:\t[enabled].\n\n" "${scripts_basename}";
+				printf "**%s debug:**, via "\$"argv[${arg}], ${option}:\t[enabled].\n\n" "${scripts_basename}" > ${scripts_debug_output};
 			breaksw;
 		
 		case "enable":
@@ -1673,16 +1692,8 @@ check_arg:
 						breaksw;
 					
 					if( ${?debug} ) \
-						printf "**%s debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" "${scripts_basename}";
+						printf "**%s debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" "${scripts_basename}" > ${scripts_debug_output};
 					set switch_option;
-					breaksw;
-				
-				case "verbose":
-					if(! ${?be_verbose} ) \
-						breaksw;
-					
-					printf "**%s debug:**, via "\$"argv[${arg}], verbose output:\t[${option}d].\n\n" "${scripts_basename}";
-					set be_verbose;
 					breaksw;
 				
 				default:
@@ -1700,7 +1711,7 @@ check_arg:
 						breaksw;
 					
 					if( ${?debug} ) \
-						printf "**%s debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" "${scripts_basename}";
+						printf "**%s debug:**, via "\$"argv[${arg}], ${value} mode:\t[${option}d].\n\n" "${scripts_basename}" > ${scripts_debug_output};
 					unset switch_option;
 					breaksw;
 				
@@ -1804,7 +1815,7 @@ read_stdin:
 	
 	while( "${value}" != "" )
 		if( ${?debug} ) \
-			printf "Processing stdin value: [%s].\n" "${value}";
+			printf "Processing stdin value: [%s].\n" "${value}" > ${scripts_debug_output};
 		
 		switch("${value}")
 			default:
@@ -1881,7 +1892,7 @@ filename_list_append_value:
 	
 	if(! ${?scripts_supported_extensions} ) then
 		if( ${?debug} || ${?debug_filenames} ) then
-			printf "Adding [%s] to [%s].\nBy running:\n\tfind -L "\""${value}"\""" "${value}" "${filename_list}";
+			printf "Adding [%s] to [%s].\nBy running:\n\tfind -L "\""${value}"\""" "${value}" "${filename_list}" > ${scripts_debug_output};
 			if(! ${?supports_hidden_files} ) \
 				printf  " \\\! -iregex '.*\/\..*'";
 			printf " -type f | sort >> "\""${filename_list}"\""\n\n";
@@ -1999,7 +2010,7 @@ return:
 	endif
 	
 	if( ${?debug} ) \
-		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}";
+		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > ${scripts_debug_output};
 	
 	goto ${label_previous};
 #goto return;
@@ -2061,7 +2072,7 @@ callback_handler:
 	unset callback;
 	
 	if( ${?debug} ) \
-		printf "handling callback to [%s].\n" "${last_callback}";
+		printf "handling callback to [%s].\n" "${last_callback}" > ${scripts_debug_output};
 	
 	goto $last_callback;
 #goto callback_handler;

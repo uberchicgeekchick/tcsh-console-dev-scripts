@@ -115,10 +115,6 @@ parse_argv:
 				goto move;
 				breaksw;
 				
-			case "videos":
-				goto videos;
-				breaksw;
-				
 			case "archive":
 				goto archive;
 				breaksw;
@@ -171,22 +167,14 @@ clean_up:
 			breaksw;
 		
 		case 1:
-			goto move_podcasts;
+			goto move;
 			breaksw;
 		
 		case 2:
-			goto move_podiobooks;
-			breaksw;
-		
-		case 3:
-			goto videos;
-			breaksw;
-		
-		case 4:
 			goto archive;
 			breaksw;
 		
-		case 5:
+		case 3:
 			goto alacasts_playlists;
 			breaksw;
 		
@@ -197,40 +185,6 @@ clean_up:
 	endsw
 	goto parse_argv;
 #goto clean_up;
-
-
-move:
-	set callback="move";
-	if(! ${?goto_index} ) then
-		@ goto_index=1;
-	else
-		@ goto_index++;
-		if( ${?action_preformed} ) then
-			printf "\n\n";
-			unset action_preformed;
-		endif
-	endif
-	
-	switch( $goto_index )
-		case 1:
-			goto move_podcasts;
-			breaksw;
-		
-		case 2:
-			goto move_podiobooks;
-			breaksw;
-		
-		case 3:
-			goto videos;
-			breaksw;
-		
-		default:
-			unset goto_index callback;
-			goto archive;
-			breaksw;
-	endsw
-	goto parse_argv;
-#goto move;
 
 
 playlists:
@@ -295,14 +249,14 @@ delete:
 #goto delete;
 
 
-move_podcasts:
+move:
 	if( ${?lifestyle_podcasts} ) then
 		set podcasts="${lifestyle_podcasts}";
 		set podcasts_target_directory="/media/podcasts/lifestyle";
 		unset lifestyle_podcasts;
 	else if( ${?erotica_podcasts} ) then
 		set podcasts="${erotica_podcasts}";
-		set podcasts_target_directory="/media/podcasts/erotica";
+		set podcasts_target_directory="/media/podiobooks/erotica";
 		unset erotica_podcasts;
 	else if( ${?slashdot_podcasts} ) then
 		set podcasts="${slashdot_podcasts}";
@@ -312,6 +266,32 @@ move_podcasts:
 		set podcasts="${podcasts_to_restore}";
 		set podcasts_target_directory="/media/podcasts";
 		unset podcasts_to_restore;
+	else if( ${?videos} ) then
+		set podcasts="${videos}";
+		set podcasts_target_directory="/media/videos/podcasts";
+		unset videos;
+	else if( ${?latest_podiobooks} ) then
+		set podcasts="${latest_podiobooks}";
+		set podcasts_target_directory="/media/podiobooks/Latest";
+		unset latest_podiobooks;
+	else if( ${?podiobooks_dot_com_podiobooks} ) then
+		set podcasts="${podiobooks_dot_com_podiobooks}";
+		set podcasts_target_directory="/media/podiobooks/podiobooks.com";
+		unset podiobooks_dot_com_podiobooks;
+	else if( ${?librivox_podiobooks} ) then
+		set podcasts="${librivox_podiobooks}";
+		set podcasts_target_directory="/media/podiobooks/LibriVox Audiobooks";
+		if( ${#librivox_podiobooks} > 1 ) then
+			set podcast_name="${librivox_podiobook}";
+		endif
+		unset librivox_podiobooks librivox_podiobook;
+	else if( ${?between_the_covers_podiobooks} ) then
+		set podcasts="${between_the_covers_podiobooks}";
+		set podcasts_target_directory="/media/podiobooks/Between the Covers from CBC Radio";
+		if( ${#between_the_covers_podiobooks} > 1 ) then
+			set podcast_name="`printf "\""%s"\"" "\""$between_the_covers_podiobooks[2]"\"" | sed -r 's/(.*\/)(.*)( [0-9]+)(,.*)"\$"/\2/'`";
+		endif
+		unset between_the_covers_podiobooks;
 	else
 		if( -d "/media/podcasts/Slashdot" ) then
 			if(! ${?action_preformed} ) then
@@ -325,15 +305,25 @@ move_podcasts:
 		
 		if( ${?lifestyle_podcasts} ) \
 			unset lifestyle_podcasts;
-		
 		if( ${?erotica_podcasts} ) \
 			unset erotica_podcasts;
-		
 		if( ${?podcasts_to_restore} ) \
 			unset podcasts_to_restore;
-		
 		if( ${?slashdot_podcasts} ) \
 			unset slashdot_podcasts;
+		
+		if( ${?librivox_podiobook} ) \
+			unset librivox_podiobook;
+		if( ${?librivox_podiobooks} ) \
+			unset librivox_podiobooks;
+		if( ${?between_the_covers_podiobooks} ) \
+			unset between_the_covers_podiobooks;
+		if( ${?podiobooks_dot_com_podiobooks} ) \
+			unset podiobooks_dot_com_podiobooks;
+		if( ${?videos} ) \
+			unset videos;
+		if( ${?podcast_name} ) \
+			unset podcast_name;
 		
 		unset podcasts podcasts_target_directory;
 		goto parse_argv;
@@ -355,147 +345,31 @@ move_podcasts:
 			mkdir -p  "${podcasts_target_directory}";
 		
 		set podcast_dir="`dirname "\""${podcast}"\""`";
-		set podcast_name="`basename "\""${podcast_dir}"\""`";
-		if( "${podcast_name}" != "Slashdot" ) then
-			set podcast_name="/${podcast_name}";
-		else
+		if(! ${?podcast_name} ) \
+			set podcast_name_set podcast_name="`basename "\""${podcast_dir}"\""`";
+		
+		if( "${podcast_name}" == "Slashdot" ) then
 			set podcast_name="";
 		endif
 		
 		if(! -d "${podcasts_target_directory}/${podcast_name}" ) \
-			mkdir -v "${podcasts_target_directory}${podcast_name}";
+			mkdir -v "${podcasts_target_directory}/${podcast_name}";
 		
 		mv -vi \
 			"${podcast}" \
-		"${podcasts_target_directory}${podcast_name}/";
+		"${podcasts_target_directory}/${podcast_name}/";
 		
 		if( `/bin/ls -A "${podcast_dir}"` == "" ) \
 			rm -rv "${podcast_dir}";
 		
-		unset podcast podcast_dir podcast_name;
+		if( ${?podcast_name_set} ) \
+			unset podcast_set_name podcast_name;
+		unset podcast podcast_dir;
 	end
 	unset podcasts;
 	
-	goto move_podcasts;
-#goto move_podcasts;
-
-
-move_podiobooks:
-	if( ${?latest_podiobooks} ) then
-		set podiobooks="${latest_podiobooks}";
-		set podiobooks_target_directory="/media/podiobooks/Latest";
-		unset latest_podiobooks;
-	else if( ${?podiobooks_dot_com_podiobooks} ) then
-		set podiobooks="${podiobooks_dot_com_podiobooks}";
-		set podiobooks_target_directory="/media/podiobooks/podiobooks.com";
-		unset podiobooks_dot_com_podiobooks;
-	else if( ${?librivox_podiobooks} ) then
-		set podiobooks="${librivox_podiobooks}";
-		set podiobooks_target_directory="/media/podiobooks/LibriVox Audiobooks";
-		if( ${#librivox_podiobooks} > 1 ) then
-			set current_podiobook="$librivox_podiobook";
-		endif
-		unset librivox_podiobooks librivox_podiobook;
-	else if( ${?between_the_covers_podiobooks} ) then
-		set podiobooks="${between_the_covers_podiobooks}";
-		set podiobooks_target_directory="/media/podiobooks/Between the Covers from CBC Radio";
-		if( ${#between_the_covers_podiobooks} > 1 ) then
-			set current_podiobook="`printf "\""%s"\"" "\""$between_the_covers_podiobooks[2]"\"" | sed -r 's/(.*\/)(.*)( [0-9]+)(,.*)"\$"/\2/'`";
-		endif
-		unset between_the_covers_podiobooks;
-	else
-		if( ${?librivox_podiobook} ) \
-			unset librivox_podiobook;
-		if( ${?librivox_podiobooks} ) \
-			unset librivox_podiobooks;
-		if( ${?between_the_covers_podiobooks} ) \
-			unset between_the_covers_podiobooks;
-		if( ${?podiobooks_dot_com_podiobooks} ) \
-			unset podiobooks_dot_com_podiobooks;
-		if( ${?current_podiobook} ) \
-			unset current_podiobook;
-		unset podiobooks podiobooks_target_directory;
-		goto parse_argv;
-	endif
-	
-	foreach podiobook( "`printf "\""${podiobooks}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-		if(!( "${podiobook}" != "" && "${podiobook}" != "/" && -e "${podiobook}" )) then
-			unset podiobook;
-			continue;
-		endif
-		
-		if(! ${?action_preformed} ) then
-			set action_preformed;
-		else
-			printf "\n\n";
-		endif
-		
-		if(! -d "${podiobooks_target_directory}" ) \
-			mkdir -p  "${podiobooks_target_directory}";
-		
-		set podiobook_dir="`dirname "\""${podiobook}"\""`";
-		if(! ${?current_podiobook} ) \
-			set current_podiobook_set current_podiobook="`basename "\""${podiobook_dir}"\""`";
-		
-		if(! -d "${podiobooks_target_directory}/${current_podiobook}/" ) \
-			mkdir -pv "${podiobooks_target_directory}/${current_podiobook}/";
-		
-		mv -vi \
-			"${podiobook}" \
-		"${podiobooks_target_directory}/${current_podiobook}/";
-		
-		if( `/bin/ls -A "${podiobook_dir}"` == "" ) \
-			rm -rv "${podiobook_dir}";
-		
-		if( ${?current_podiobook_set} ) \
-			unset current_podiobook_set current_podiobook;
-		unset podiobook podiobook_dir;
-	end
-	
-	if( ${?current_podiobook} ) \
-		unset current_podiobook;
-	unset podiobooks podiobooks_target_directory;
-	
-	goto move_podiobooks;
-#goto move_podiobooks;
-
-
-videos:
-	if( ${?videos} ) then
-		foreach video( "`printf "\""${videos}"\"" | sed -r 's/^\ //' | sed -r 's/\ "\$"//'`" )
-			if(!( "${video}" != "" && "${video}" != "/" && -e "${video}" )) then
-				unset video;
-				continue;
-			endif
-			
-			if(! ${?action_preformed} ) then
-				set action_preformed;
-			else
-				printf "\n\n";
-			endif
-			
-			if(! -d "/media/videos/podcasts" ) \
-				mkdir -p  "/media/videos/podcasts";
-			
-			set video_dir="`dirname "\""${video}"\""`";
-			set video_name="`basename "\""${video_dir}"\""`";
-			if(! -d "/media/videos/podcasts/${video_name}" ) \
-				mkdir -v "/media/videos/podcasts/${video_name}";
-			
-			mv -vi \
-				"${video}" \
-			"/media/videos/podcasts/${video_name}/";
-			
-			if( `/bin/ls -A "${video_dir}"` == "" ) \
-				rm -rv "${video_dir}";
-			
-			unset video video_dir video_name;
-		end
-		unset videos;
-	endif
-	
-	goto parse_argv;
-#goto videos;
+	goto move;
+#goto move;
 
 
 archive:
@@ -559,7 +433,7 @@ archive:
 
 
 alacasts_playlists:
-	set playlist_dir="/media/podcasts/playlists/m3u";
+	set playlist_dir="/media/podcasts/playlists/tox";
 	set playlist_type="`basename "\""${playlist_dir}"\""`";
 	
 	foreach playlist("`/bin/ls --width=1 -t "\""${playlist_dir}"\""`")
@@ -581,7 +455,7 @@ alacasts_playlists:
 		
 		if( "`find "\""${playlist_dir}"\"" -iregex "\"".*\/\.${playlist_escaped}\.sw."\""`" != "" ) then
 			printf "<file://%s/%s> is in use and will not be deleted.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
-		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 1 ) then
+		else if( "`wc -l "\""${playlist_dir}/${playlist}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" > 3 ) then
 			printf "<file://%s/%s> still lists files.\n" "${playlist_dir}" "${playlist}" > /dev/stderr;
 			
 			if(! ${?dont_validate_playlists} ) then

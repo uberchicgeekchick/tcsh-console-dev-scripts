@@ -1,4 +1,5 @@
 #!/bin/tcsh -f
+	#onintr -;
 
 check_tcsh_rc_current_source_file:
 	if(! ${?TCSH_RC_CURRENT_SOURCE_FILE} ) \
@@ -76,16 +77,19 @@ finished_sourcing_tcsh_rc_source_file:
 		setenv TCSH_RC_SESSION_STARTED;
 	
 	unsetenv TCSH_RC_SOURCE_FILE;
-	if( ${?oldcwdcmd} ) then
+	if( ${?original_cwdcmd} ) then
 		if( ${?TCSH_RC_DEBUG} ) \
 			printf "Resetting cwdcmd.\n";
-		alias cwdcmd "${oldcwdcmd}";
-		unsetenv oldcwdcmd;
+		alias cwdcmd "${original_cwdcmd}";
+		unsetenv original_cwdcmd;
 	endif
 #goto finished_sourcing_tcsh_rc_source_file;
 
 
 check_debug:
+	if(! ${?debug} ) \
+		set debug;
+	
 	if(! ${?TCSH_RC_DEBUG} ) \
 		goto exit_script;
 	

@@ -46,18 +46,28 @@ endif
 
 set seconds;
 set minutes;
+if(! ${?ogginfo_file} ) \
+	set ogginfo_file="`mktemp --tmpdir .escaped.ogginfo.XXXXXXXX`";
 foreach oggfile("`cat "\""${oggfile_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
 	if( "${seconds}" != "" ) \
 		set seconds="${seconds}+";
-	set seconds="${seconds}`ogginfo "\""${oggfile}"\"" | grep 'Playback length:' | sed -r 's/.*Playback length: ([0-9]+)m:([0-9]+)\.([0-9]+)s/\2/'`";
+	set oggfile="`printf "\""%s"\"" "\""${oggfile}"\""`";
+	ogginfo "${oggfile}" >! "${ogginfo_file}";
+	set playback_length=`grep 'Playback length:' "${ogginfo_file}" | sed -r 's/.*Playback length: ([0-9]+m:[0-9]+\.[0-9]+s)/\1/'`;
+	printf "Length of:\n\t<file://%s>\n\t\t%s\n" "${oggfile}" "${playback_length}";
+	set seconds="`printf "\""%s%s"\"" "\""${seconds}"\"" "\""${playback_length}"\"" | sed -r 's/([0-9]+)m:([0-9]+)\.([0-9]+)s/\2/'`";#+0\.\3/'`";
 	if( ${?debug} ) \
 		printf "seconds: ${seconds}\n";
 	if( "${minutes}" != "" ) \
 		set minutes="${minutes}+";
-	set minutes="${minutes}`ogginfo "\""${oggfile}"\"" | grep 'Playback length:' | sed -r 's/.*Playback length: ([0-9]+)m:([0-9]+)\.([0-9]+)s/\1/'`";
+	set minutes="`printf "\""%s%s"\"" "\""${minutes}"\"" "\""${playback_length}"\"" | sed -r 's/([0-9]+)m:([0-9]+)\.([0-9]+)s/\1/'`";
 	if( ${?debug} ) \
 		printf "minutes: ${minutes}\n";
 end
+if( -e "${ogginfo_file}" ) then
+	rm -f "${ogginfo_file}";
+	unset ogginfo_file;
+endif
 
 set extra_minutes=`printf "(${seconds})/60\n" | bc`;
 set seconds=`printf "(${seconds})%%60\n" | bc`;
@@ -79,6 +89,11 @@ exit_script:
 	if( ${?oggfile_list} ) then
 		if( -e "${oggfile_list}" ) then
 			rm -f "${oggfile_list}";
+		endif
+	endif
+	if( ${?ogginfo_file} ) then
+		if( -e "${ogginfo_file}" ) then
+			rm -f "${ogginfo_file}";
 		endif
 	endif
 	exit 0;

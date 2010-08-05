@@ -170,7 +170,7 @@ main:
 ssh_mount:
 	if( "`mount | grep '$ssh_mount_point'`" != "" ) then
 		if( ${?TCSH_OUTPUT_ENABLED} ) \
-			printf "%s's is already connected to %s\n" "${ssh_user}" "${ssh_server}";
+			printf "%s is already connected to %s\n" "${ssh_user}" "${ssh_server}";
 		set status=-1;
 		unset ssh_account ssh_user ssh_server ssh_mount_point ssh_path;
 		goto main;

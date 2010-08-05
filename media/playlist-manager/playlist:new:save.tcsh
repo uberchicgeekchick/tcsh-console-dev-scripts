@@ -80,11 +80,6 @@ playlist_init:
 	
 	@ arg++;
 	if( $arg <= $argc ) then
-		if(! -d "`dirname "\""$argv[$arg]"\""`" ) then
-			printf "**%s error:** cannot save: <file://%s>.\nIts directory doesn't exists.\nSo no new playlist can be saved.\n" "${scripts_basename}" "$argv[$arg]" > /dev/stderr;
-			goto scripts_main_quit;
-		endif
-		
 		set value="$argv[$arg]";
 		
 		if( `printf "%s" "${value}" | sed -r 's/^(\/).*$/\1/'` != "/" ) \
@@ -103,6 +98,11 @@ playlist_init:
 			set escaped_value="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/(.*)(\/[^.]{2}[^/]+)(\/\.\.\/)(.*)"\$"/\1\/\4/' | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
 		end
 		set value="`printf "\""%s"\"" "\""${escaped_value}"\""`";
+		
+		set playlist_dir_for_ls="`dirname "\""${escaped_value}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+		set playlist_dir="`dirname "\""${escaped_value}"\""`";
+		if(! -d "${playlist_dir}" ) \
+			mkdir -pv "${playlist_dir}";
 		
 		set new_playlist="${value}";
 		set new_playlist_type="`printf "\""%s"\"" "\""${escaped_value}"\"" | sed -r 's/^(.*)\.([^\.]+)"\$"/\2/'`";
@@ -232,6 +232,25 @@ playlist_save:
 
 
 scripts_main_quit:
+	onintr -;
+	if( ${?playlist_dir_for_ls} ) then
+		while( "${playlist_dir}" != "/" && "`mount | grep "\""^${playlist_dir_for_ls} "\""`" == "" )
+			if( "`/bin/ls -A "\""${playlist_dir_for_ls}"\""`" != "" ) \
+				break;
+			
+			set rm_notification="`rm -rv "\""${playlist_dir_for_ls}"\""`";
+			if(! ${?removal_silent} ) \
+				printf "\t%s\n" "${rm_notification}"
+			unset rm_notification;
+			if( ${?create_script} ) then
+				printf "rm -rv "\""%s"\"";\n" "${playlist_dir}" >> "${create_script}";
+			endif
+			
+			set playlist_cwd="`printf "\""%s"\"" "\""${playlist_dir_for_ls}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+			set playlist_dir="`dirname "\""${playlist_cwd}"\""`";
+			set playlist_dir_for_ls="`dirname "\""${playlist_cwd}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`";
+		end
+	endif
 	if( ${?new_playlist} ) \
 		unset new_playlist;
 	

@@ -1,64 +1,106 @@
 #!/bin/tcsh -f
 	set scripts_basename="vim-enhanced:edit-playlists.tcsh";
+	@ errno=0;
 	onintr exit_script;
 	if(! ${?0} ) then
-		set being_sourced;
+		@ errno=-1;
+		goto error_handler;
 	else
-		if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) \
-			set being_sourced;
+		if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
+			@ errno=-1;
+			goto error_handler;
+		endif
 	endif
-	
-	if( ${?being_sourced} ) \
-		goto exit_script;
 	
 	set documents=( \
 		"/art/www/uberChicks.Net/phone-sex-operator/characters/Lexi.asc" \
 	);
 	
 	set primary_playlists=( \
-		"/media/library/playlists/m3u/erotica.m3u" \
-		"/media/library/playlists/m3u/lifestyle.m3u" \
+		"/media/library/playlists/tox/erotica.tox" \
+		"/media/library/playlists/tox/lifestyle.tox" \
 	);
 	
-	set latest_playlist="/media/podcasts/playlists/m3u/`/bin/ls -tr --width 1 /media/podcasts/playlists/m3u/ | tail -1`";
+	set latest_playlist="/media/podcasts/playlists/tox/`/bin/ls -tr --width 1 /media/podcasts/playlists/tox/ | tail -1`";
 	
 	set scripts=( \
 		"/media/clean-up.tcsh" \
 	);
 	
 	set secondary_playlists=( \
-		"/media/library/playlists/m3u/science.m3u" \
-		"/media/library/playlists/m3u/technology.m3u" \
-		"/media/library/playlists/m3u/culture.m3u" \
-		"/media/library/playlists/m3u/podiobooks.m3u" \
-		"/media/library/playlists/m3u/slashdot.m3u" \
+		"/media/library/playlists/tox/science.tox" \
+		"/media/library/playlists/tox/technology.tox" \
+		"/media/library/playlists/tox/culture.tox" \
+		"/media/library/playlists/tox/podiobooks.tox" \
+		"/media/library/playlists/tox/slashdot.tox" \
 	);
 	
 	set final_playlists=( \
-		"/media/library/playlists/m3u/vodcasts.m3u" \
+		"/media/library/playlists/tox/vodcasts.tox" \
 	);
-
-	if( ${#argv} == 0 ) then
+	
+	@ argc=${#argv};
+	if( $argc == 0 ) then
 		set argv=("--edit");
-	else if( ${#argv} > 1 ) then
-		printf "Usage: %s --edit|--display\n";
-		goto exit_script;
+	else if( $argc > 1 ) then
+		printf "to many arguments.\n";
+		goto usage;
 	endif
 	
-	switch( "$argv[1]" )
-		case "--edit":
-			goto edit_playlists;
+	@ arg=0;
+	while( $arg < $argc )
+		@ arg++;
+		switch( "$argv[$arg]" )
+			case "--help":
+				goto usage;
+			
+			case "--gui":
+				set use_gvim;
+			case "--edit":
+				goto edit_playlists;
+			
+			case "--display":
+				goto display_playlists;
+			
+			default:
+				printf "default switch handler.\n";
+				goto usage;
+		endsw
+	end
+	goto edit_playlists;
+#goto init;
+
+usage:
+	@ errno=0;
+	goto error_handler;
+#goto usage;
+
+
+error_handler:
+	if(! ${?errno} ) \
+		goto exit_script;
+	switch($errno)
+		case 0:
+			printf "Usage: %s --edit|--display";
 			breaksw;
-		
-		case "--display":
-		default:
-			goto display_playlists;
+		case -1:
+			printf "%s cannot be sourced." "${scripts_basenam}";
 			breaksw;
 	endsw
-	
+	printf "\n";
+	goto exit_script;
+#goto error_handler;
+
 
 edit_playlists:
-	vim-enhanced -p \
+	if( ${?use_gvim} ) then
+		set vim_command="gvim";
+	else if( ${?server} ) then
+		set vim-command="vim-server";
+	else
+		set vim_command="vim-enhanced";
+	endif
+	${vim_command} -n -p \
 		${documents} \
 		${primary_playlists} \
 		${scripts} \
@@ -67,6 +109,7 @@ edit_playlists:
 		${final_playlists} \
 		'+tablast' \
 	;
+	unset vim_command;
 	goto exit_script;
 #goto edit_playlists;
 
@@ -111,12 +154,6 @@ display_playlists:
 
 
 exit_script:
-	if( ${?being_sourced} ) then
-		printf "**errno:** you cannot source this script.\n";
-		@ errno=-1;
-		unset being_sourced;
-	endif
-	
 	if( ${?latest_playlist} )\
 		unset latest_playlist;
 	if( ${?primary_playlists} )\

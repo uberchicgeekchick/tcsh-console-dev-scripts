@@ -86,6 +86,11 @@ scripts_main_quit:
 		unset use_old_owd;
 	endif
 	
+	if( ${?original_cwdcmd} ) then
+		alias cwdcmd "${original_cwdcmd}";
+		unset original_cwdcmd;
+	endif
+	
 	if( ${?scripts_tmpdir} ) then
 		if( -d "${scripts_tmpdir}" ) then
 			/bin/rm -rf "${scripts_tmpdir}";
@@ -401,12 +406,12 @@ if_sourced:
 		setenv TCSH_RC_SESSION_PATH "${scripts_path}/../tcshrc";
 	source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
 	
-	if( ${?debug} ) \
+	if( ${?TCSH_RC_DEBUG} && ${?debug} ) \
 		printf "Setting up aliases for: oggconvert, oggcombine, and oggtranscode.\n";
 	
-	alias oggconvert "${script}";
-	alias oggtranscode "${script} --transcode";
-	alias oggcombine "${script} --combine";
+	alias "oggconvert" "${script}";
+	alias "oggtranscode" "${script} --transcode";
+	alias "oggcombine" "${script} --combine";
 	
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	# FINISH: special handler for when this file is sourced.

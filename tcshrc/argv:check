@@ -33,68 +33,64 @@ setenv:
 	#endif
 #goto setenv;
 
-parse_argv:
+debug_check:
 	@ argc=${#argv};
 	@ arg=1;
 	@ args_handled=0;
 	
 	if( $argc < 1 ) \
 		goto usage;
+	
 	if( $argc == 1 ) \
 		goto set_source_file;
 	
 	if( ${?TCSH_RC_DEBUG} ) \
-		goto set_source_file;
+		goto parse_argv;
 	
 	while( $arg < $argc )
 		@ arg++;
 		switch( "$argv[$arg]" )
 			case "--debug":
-				@ args_handled++;
-				@ arg=${#argv};
-				if(! ${?TCSH_OUTPUT_ENABLED} ) \
-					breaksw;
-				if( ${?TCSH_RC_DEBUG} ) then
-					if( "${TCSH_RC_DEBUG}" != "$argv[1]" ) \
-						breaksw;
-				endif
-				
-				printf "[%s]: enabling verbose debugging output @ %s.\n" "$argv[1]" `date '+%I:%M:%S%P'`;
-				setenv TCSH_RC_DEBUG "$argv[1]";
+				if(! ${?debug} ) \
+					set debug;
 				break;
 			breaksw;
 		endsw
 	end
 	
-	if( ${?TCSH_RC_DEBUG} && $argc == 2 ) \
-		goto set_source_file;
+	if( $arg > 1 ) \
+		@ arg=1;
 	
-	if( ! ${?TCSH_RC_DEBUG} || $arg > 1 ) \
-		@ arg=0;
-	
-	if( ${?TCSH_RC_DEBUG} ) then
-		printf "Checking %s's argv options.  %d total.\n" "$argv[1]" "${argc}";
-	else if( "`alias cwdcmd`" != "" ) then
-		if( ${?TCSH_RC_DEBUG} ) \
+	if( ${?TCSH_RC_DEBUG} ) \
+		printf "Checking sourced: <file://%s> "\$"argv options.  %d total.\n" "$argv[1]" $argc;
+	if( "`alias cwdcmd`" != "" ) then
+		if( ${?debug} ) \
 			printf "Saving cwdcmd until TCSH finishes loading.\n";
-		setenv oldcwdcmd "`alias cwdcmd`";
+		setenv original_cwdcmd "`alias cwdcmd`";
 		unalias cwdcmd;
 	endif
 	
+	if( ${?debug} && $argc == 2 ) \
+		goto set_source_file;
+	
+	goto parse_argv;
+debug_check:
+
+parse_argv:
 	while( $arg < $argc )
 		@ arg++;
-		if( ${?TCSH_RC_DEBUG} ) \
+		if( ${?debug} ) \
 			printf "Checking %sargv[%sarg], %d of %d's value: %s\n" '$' '$' "${arg}" "${argc}" "$argv[$arg]";
 		
-		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\1/'`";
+		set dashes="`printf "\""$argv[$arg]"\"" | sed -r 's/(-{1,2})([^=]+)(=)?(.*)/\1/'`";
 		if( "${dashes}" == "$argv[$arg]" ) \
 			set dashes="";
 		
-		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\2/'`";
+		set option="`printf "\""$argv[$arg]"\"" | sed -r 's/(-{1,2})([^=]+)(=)?(.*)/\2/'`";
 		if( "${option}" == "$argv[$arg]" ) \
 			set option="";
 		
-		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/([\-]{1,2})([^\=]+)=?['\''"\""]?(.*)['\''"\""]?/\3/'`";
+		set value="`printf "\""$argv[$arg]"\"" | sed -r 's/(-{1,2})([^=]+)(=)?(.*)/\3/'`";
 		if( "${value}" == "$argv[$arg]" || "${value}" == "" ) then
 			if( "${option}" != "" ) then
 				set value="";
@@ -104,6 +100,23 @@ parse_argv:
 		endif
 		
 		switch( "${option}" )
+			case "debug":
+				if(! ${?debug} ) \
+					set debug;
+				@ args_handled++;
+				@ arg=${#argv};
+				if(! ${?TCSH_OUTPUT_ENABLED} ) \
+					breaksw;
+				
+				if( ${?TCSH_RC_DEBUG} ) then
+					if( "${TCSH_RC_DEBUG}" != "$argv[1]" ) \
+						breaksw;
+				endif
+				
+				printf "[%s]: enabling verbose debugging output @ [%s].\n" "$argv[1]" "`date "\""+%Y-%m-%d @ %H:%M:%S%P"\""`";
+				setenv TCSH_RC_DEBUG "$argv[1]";
+				breaksw;
+			
 			case "cd":
 			case "root":
 			case "use-root":
@@ -125,7 +138,7 @@ parse_argv:
 					endif
 				endif
 				
-				setenv TCSH_WORKING_DIR "`printf "\""%s"\"" "\""$value"\"" | sed -r 's/\/"\$"//'`";
+				setenv TCSH_WORKING_DIR "`printf "\""%s"\"" "\""${value}"\"" | sed -r 's/\/"\$"//'`";
 				
 				if( ${?TCSH_OUTPUT_ENABLED} ) \
 					printf "Using [%s] as TCSH's working directory.\t" "${TCSH_WORKING_DIR}";
@@ -137,13 +150,16 @@ parse_argv:
 				
 				if( "${cwd}" != "${value}" ) \
 					cd "${value}";
-			breaksw
+				
+				breaksw;
 		endsw
 	end
 #goto parse_argv;
 
 
 set_source_file:
+	unset arg argc;
+	
 	setenv TCSH_RC_CURRENT_SOURCE_FILE "$argv[1]";
 	if( ${?TCSH_RC_DEBUG} ) \
 		printf "Started loading %s @ %s.\n\n" "$argv[1]" `date '+%I:%M:%S%P'`;

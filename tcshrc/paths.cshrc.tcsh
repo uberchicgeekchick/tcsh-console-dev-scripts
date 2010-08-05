@@ -18,6 +18,8 @@ if( ${?TCSH_RC_DEBUG} ) \
 if( ${?PATH} ) \
 	unsetenv PATH;
 
+alias "path-refresh" "source "\$"{TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh";
+
 setenv PATH "/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin:/etc/rc.d:/etc/init.d:.";
 if( "${cwd}" != "${TCSH_RC_SESSION_PATH}" ) then
 	set revert_to_owd="${cwd}";

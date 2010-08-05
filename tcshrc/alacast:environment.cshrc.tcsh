@@ -19,7 +19,7 @@ if( ${?TCSH_RC_DEBUG} )	\
 
 
 clean_alacasts_path:
-	setenv PATH "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/\/projects\/(cli|gtk)\/alacast(\/[^\:]*\:)?//g'`";
+	setenv PATH "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/(\/art\/erica\/our_pieces\/alacast|\/projects\/cli\/alacast)(\/)?[^:]*://g'`";
 	if( ${?alacasts_path} )	\
 		unset alacasts_path;
 #clean_alacasts_path:
@@ -33,12 +33,12 @@ set_perl_modules:
 #set_perl_modules:
 
 set_gtk_path:
-	setenv ALACAST_GTK_PATH "/art/e.r.i.c.a/pieces/00-mine/alacast";
-	set alacast_gtk_paths=("bin" "scripts" "scripts/auto-updaters" "scripts/playlist-manager" "scripts/validators" "scripts/user-scripts");
+	setenv ALACAST_GTK_PATH "/art/erica/our_pieces/alacast";
+	set alacast_gtk_paths=("." "bin" "scripts" "scripts/auto-updaters" "scripts/playlist-manager" "scripts/validators" "scripts/user-scripts");
 	foreach alacast_gtk_path(${alacast_gtk_paths})
 		if( ${?TCSH_RC_DEBUG} )	\
 			printf "Attempting to add: [file://%s] to your PATH:\t\t" "${alacast_gtk_path}";
-		set alacast_gtk_path="${ALACAST_GTK_PATH}/${alacast_gtk_path}";
+		set alacast_gtk_path="`printf "\""%s"\"" "\""${ALACAST_GTK_PATH}/${alacast_gtk_path}"\"" | sed -r 's/\/\."\$"//'`";
 		set escaped_alacast_gtk_path="`printf "\""%s"\"" "\""${alacast_gtk_path}"\"" | sed -r 's/\//\\\//g'`";
 		if( "`printf "\""%s"\"" "\""${PATH}"\"" | sed -r 's/.*\:(${escaped_alacast_gtk_path}).*/\1/g'`" == "${alacast_gtk_path}" ) then
 			unset alacast_gtk_path escaped_alacast_gtk_path;

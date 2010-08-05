@@ -210,17 +210,10 @@ endif
 #
 # Local configuration
 #
-if( -r /etc/csh.cshrc.local ) then
+if( -r "/etc/csh.cshrc.local" ) then
 	if( ${?TCSH_RC_DEBUG} ) \
-		printf "Loading local TCSH setting [/etc/csh.cshrc.local] @ %s.\n" `date "+%I:%M:%S%P"`;
-	source /etc/csh.cshrc.local
-	if( ${?TCSH_RC_DEBUG} ) \
-		printf "Local TCSH setting finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
-endif
-if( -r "${TCSH_RC_SESSION_PATH}/csh.cshrc" ) then
-	if( ${?TCSH_RC_DEBUG} ) \
-		printf "Loading custom TCSH settings [%s/csh.cshrc] @ %s.\n" "${TCSH_RC_SESSION_PATH}" `date "+%I:%M:%S%P"`;
-	source "${TCSH_RC_SESSION_PATH}/csh.cshrc";
+		printf "Loading custom TCSH settings [/etc/csh.cshrc.local] @ %s.\n" `date "+%I:%M:%S%P"`;
+	source "/etc/csh.cshrc.local";
 	if( ${?TCSH_RC_DEBUG} ) \
 		printf "Custom TCSH settings finished loading @ %s.\n" `date "+%I:%M:%S%P"`;
 endif

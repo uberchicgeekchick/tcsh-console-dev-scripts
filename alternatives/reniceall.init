@@ -11,7 +11,7 @@
 	if( ${?scripts_exec} ) \
 		unset scripts_exec;
 	
-	set dependencies=("${scripts_basename}.init" "renice" );
+	set dependencies=("${scripts_basename}" "renice" );
 	@ dependencies_index=0;
 	
 	while( $dependencies_index < ${#dependencies} )
@@ -72,7 +72,7 @@
 #goto ependencies_check;
 
 if(! ${?0} ) then
-	alias "${scripts_alias}"	\$"{TCSH_ALTERNATIVES_PATH}/${scripts_basename}";
+	alias "${scripts_alias}" \$"{TCSH_ALTERNATIVES_PATH}/${scripts_basename}";
 	complete "${scripts_alias}" 'p/1/(-19 -18 -17 -16 -15 -14 -13 -12 -11 -10 -9 -8 -7 -6 -5 -4 -3 -2 -1 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 +1 +2 +3 +4 +5 +6 +7 +8 +9 +10 +11 +12 +13 +14 +15 +16 +17 +18 +19 +20)/' 'p/2-/c/'
 	set status=-1;
 	unset scripts_ext scripts_basename dependency dependencies;
@@ -81,7 +81,6 @@ endif
 
 main:
 	set status=0;
-	
 	goto parse_argv; #exits via calling main_quit || reniceall.
 #main
 

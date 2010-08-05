@@ -87,18 +87,21 @@ erica_design_canvas:
 	switch( "${canvas}" )
 		case "resources":
 			set my_canvas=( \
-				"--tab-with-profile=./erica --title='[@./erica] #>' --working-directory=/art/erica" \
+				"--tab-with-profile=./erica --title='[@./e();] #>' --working-directory=/art/erica" \
 				"--tab-with-profile=project:art --title='[@/art] #>' --working-directory=/art" \
 				"--tab-with-profile=project:art --title='[@/art/media] #>' --working-directory=/art/media" \
 				"--tab-with-profile=project:art --title='[@/media-library] #>' --working-directory=/media/library" \
 			);
 			breaksw;
 		
-		case "tools":
+		case "Canvas":
 			set my_canvas= ( \
-				"--tab-with-profile=opensim --title='[./e->(`opensim`);] #>' --working-directory='/art/erica/tools/servers/opensim/bin --command=/art/erica/tools/servers/opensim/OpenSim.tcsh'" \
-				"--tab-with-profile=./erica --title='[./e->(erica:engines);] #>' --working-directory=/art/erica/libraries-and-engines" \
-				"--tab-with-profile=./erica --title='[./e->(tools);] #>' --working-directory=/art/erica/tools" \
+				"--tab-with-profile=./erica --title='[@./e();] #>' --working-directory=/art/erica" \
+				"--tab-with-profile=./erica --title='[./e::our_pieces();] #>' --working-directory=/art/erica/our_pieces" \
+				"--tab-with-profile=./erica --title='[./e::code();] #>' --working-directory=/art/erica/code" \
+				"--tab-with-profile=./erica --title='[./e::tools();] #>' --working-directory=/art/erica/tools" \
+				"--tab-with-profile=./erica --title='[./e::engines();] #>' --working-directory=/art/erica/engines" \
+				"--tab-with-profile=opensim --title='[./e::engines::opensim();] #>' --working-directory='/art/erica/tools/servers/opensim/bin --command=/art/erica/tools/servers/opensim/OpenSim.tcsh'" \
 			);
 			breaksw;
 		
@@ -106,10 +109,10 @@ erica_design_canvas:
 		case "allpieces":
 		case "pieces":
 			set my_canvas=( \
-				"--tab-with-profile=./erica --title='[@./erica] #>' --working-directory=/art/erica" \
-				"--tab-with-profile=./erica --title='[./e->(our-many-worlds);] #>' --working-directory=/art/erica/my_pieces/our-many-worlds" \
-				"--tab-with-profile=./erica --title='[./e->(hackGirls);] #>' --working-directory=/art/erica/my_pieces/hackGirls" \
-				"--tab-with-profile=./erica --title='[./e->(alacast);] #>' --working-directory=/art/erica/my_pieces/alacast" \
+				"--tab-with-profile=./erica --title='[./e();] #>' --working-directory=/art/erica" \
+				"--tab-with-profile=./erica --title='[./e::our_pieces::many-worlds();] #>' --working-directory=/art/erica/our_pieces/our-many-worlds" \
+				"--tab-with-profile=./erica --title='[./e::our_pieces::hackGirls();] #>' --working-directory=/art/erica/our_pieces/hackGirls" \
+				"--tab-with-profile=./erica --title='[./e::our_pieces::alacast();] #>' --working-directory=/art/erica/our_pieces/alacast" \
 			);
 			breaksw;
 		
@@ -117,11 +120,11 @@ erica_design_canvas:
 		case "design":
 		default:
 			set my_canvas=( \
-				"--tab-with-profile=./erica --title='[@./erica] #>' --working-directory=/art/erica" \
+				"--tab-with-profile=./erica --title='[@./e();] #>' --working-directory=/art/erica" \
 				"--tab-with-profile=art --title='[@/art] #>' --working-directory=/art" \
 				"--tab-with-profile=projects --title='[@/projects] #>' --working-directory=/projects" \
 				"--tab-with-profile=art:media --title='[@/media] #>'  --working-directory=/media" \
-				"--tab-with-profile=./erica --title='[./e->(alacast);] #>' --working-directory=/art/erica/my_pieces/alacast" \
+				"--tab-with-profile=./erica --title='[./e::our_pieces::alacast);] #>' --working-directory=/art/erica/our_pieces/alacast" \
 				"--tab-with-profile=build:canvas --title='[@build:canvas] #>' --working-directory=/programs/src" \
 				"--tab-with-profile=vim-server --title='[`vim-server`;] #>' --working-directory=/media --command=/projects/cli/console.pallet/devel/vim-server" \
 			);
@@ -175,7 +178,7 @@ artistic_canvas:
 		
 		case  "Projects":
 			set my_canvas=( \
-				"--tab-with-profile=./erica --title='[./e->(our-many-worlds)] #>' --working-directory=/art/erica/my_pieces/our-many-worlds" \
+				"--tab-with-profile=./erica --title='[./e::our_pieces::our-many-worlds)] #>' --working-directory=/art/erica/our_pieces/our-many-worlds" \
 				"--tab-with-profile=projects:cli --title='[@cli] #>' --working-directory=/projects/cli" \
 				"--tab-with-profile=art:www --title='[@a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
 				"--tab-with-profile=projects:gtk --title='[@get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \

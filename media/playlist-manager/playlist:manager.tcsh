@@ -446,6 +446,9 @@ export:
 		case "m3u":
 		case "tox":
 		case "pls":
+			if(! ${?auto_copy} ) \
+				set auto_copy;
+			
 			if(! -d "`dirname "\""${export_to}"\""`" ) then
 				@ errno=-602;
 				goto exception_handler;

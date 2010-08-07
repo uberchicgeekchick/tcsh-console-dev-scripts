@@ -43,7 +43,7 @@ foreach swp ( "`/usr/bin/find -L ${search_dir} -iregex '\..*\.\(sw.\|~\)' | sort
 	endif
 	set file = "`echo ${swp} | sed 's/\/\.\(.*\)\.\(sw.\|~\)/\/\1/g' | sed -r 's/\.\//${cwd_for_sed}/g'`";
 	
-	printf " %s%s%s" '"' '"' >> "${session_exec}" "${file}"
+	printf " "\""%s"\" "${file}" >> "${session_exec}";
 	if( ${?clean_up} ) rm "${swp}"
 end
 

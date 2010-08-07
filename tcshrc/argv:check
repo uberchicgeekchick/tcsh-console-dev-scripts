@@ -51,6 +51,8 @@ debug_check:
 		@ arg++;
 		switch( "$argv[$arg]" )
 			case "--debug":
+				if(! ${?TCSH_RC_DEBUG} ) \
+					setenv TCSH_RC_DEBUG;
 				if(! ${?debug} ) \
 					set debug;
 				break;

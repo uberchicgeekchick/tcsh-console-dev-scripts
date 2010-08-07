@@ -1,8 +1,6 @@
 #!/bin/tcsh -f
 
 init:
-	if(! ${?TCSH_RC_SESSION_PATH} ) \
-		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
 	set scripts_basename="source:argv";
 	goto parse_argv; # exit's via 'usage:' or 'main:'.
 #init:
@@ -34,8 +32,10 @@ exit_script:
 	if( ${?my_arg} ) \
 		unset my_arg;
 	
+	if( ${?scripts_basename} ) \
+		unset scripts_basename;
+	
 	set status=$errno;
-	unset scripts_basename;
 	exit ${errno};
 #exit_script:
 
@@ -144,7 +144,7 @@ while( $my_arg < $my_argc )
 				endif
 			endif
 			unset source_file;
-		breaksw;
+			breaksw;
 	endsw
 	unset dashes option value equals;
 end

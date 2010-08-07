@@ -1,26 +1,12 @@
 #!/bin/tcsh -f
+set scripts_basename="alacast:environment.cshrc.tcsh";
 if( ${?0} ) then
-	if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
+	if( "`basename "\""${0}"\""`" == "${scripts_basename}" ) then
 		printf "%s sets up alacast's environmental settings\n%s should be sourced and not run directly.\nUsage:\n\t"\`"source %s"\`"\n" "${scripts_basename}" "${scripts_basename}" "${scripts_basename}";
 		unset scripts_basename;
 		exit -1;
 	endif
 endif
-
-set scripts_basename="alacast:environment.cshrc.tcsh";
-if(! ${?TCSH_RC_SESSION_PATH} ) \
-	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "${scripts_basename}" ${argv};
-if( $args_handled > 0 ) then
-	@ args_shifted=0;
-	while( $args_shifted < $args_handled )
-		@ args_shifted++;
-		shift;
-	end
-	unset args_shifted;
-endif
-unset args_handled;
-
 
 if( ${?TCSH_RC_DEBUG} )	\
 	printf "Setting up Alacast v1's and v2's environment @ %s\n" `date "+%I:%M:%S%P"`;
@@ -133,9 +119,3 @@ setup_ini:
 	endif
 #setup_ini:
 
-exit_script:
-	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
-	unset scripts_basename;
-	exit -1;
-#goto exit_script;
-	

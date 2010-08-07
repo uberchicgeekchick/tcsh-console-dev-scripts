@@ -288,9 +288,6 @@ move:
 	else if( ${?between_the_covers_podiobooks} ) then
 		set podcasts="${between_the_covers_podiobooks}";
 		set podcasts_target_directory="/media/podiobooks/Between the Covers from CBC Radio";
-		if( ${#between_the_covers_podiobooks} > 1 ) then
-			set podcast_name="`printf "\""%s"\"" "\""$between_the_covers_podiobooks[2]"\"" | sed -r 's/(.*\/)(.*)( [0-9]+)(,.*)"\$"/\2/'`";
-		endif
 		unset between_the_covers_podiobooks;
 	else
 		if( -d "/media/podcasts/Slashdot" ) then
@@ -348,9 +345,15 @@ move:
 		if(! ${?podcast_name} ) \
 			set podcast_name_set podcast_name="`basename "\""${podcast_dir}"\""`";
 		
-		if( "${podcast_name}" == "Slashdot" ) then
-			set podcast_name="";
-		endif
+		switch("${podcast_name}")
+			case "Slashdot":
+				set podcast_name="";
+				breaksw;
+			
+			case "Between the Covers from CBC Radio":
+				set podcast_name="`printf "\""%s"\"" "\""${podcast_name}"\"" | sed -r 's/(.*\/)(.*)( [-0-9]+)(.*)"\$"/\2/'`";
+				breaksw;
+		endsw
 		
 		if(! -d "${podcasts_target_directory}/${podcast_name}" ) \
 			mkdir -v "${podcasts_target_directory}/${podcast_name}";

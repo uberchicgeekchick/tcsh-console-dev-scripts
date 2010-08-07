@@ -1,17 +1,17 @@
 #!/bin/tcsh -f
-if(! ${?TCSH_RC_SESSION_PATH} ) \
-	setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
-source "${TCSH_RC_SESSION_PATH}/argv:check" "launchers/init.tcsh" ${argv};
-if( $args_handled > 0 ) then
-	@ args_shifted=0;
-	while( $args_shifted < $args_handled )
-		@ args_shifted++;
-		shift;
-	end
-	unset args_shifted;
-endif
-unset args_handled;
-
+	if(! ${?TCSH_RC_SESSION_PATH} ) \
+		setenv TCSH_RC_SESSION_PATH "/projects/cli/console.pallet/tcshrc";
+	source "${TCSH_RC_SESSION_PATH}/argv:check" "launchers/init.tcsh" ${argv};
+	if( $args_handled > 0 ) then
+		@ args_shifted=0;
+		while( $args_shifted < $args_handled )
+			@ args_shifted++;
+			shift;
+		end
+		unset args_shifted;
+	endif
+	unset args_handled;
+	
 	if(! ${?TCSH_SILENT_EXEC} ) then
 		set output="&";
 	else

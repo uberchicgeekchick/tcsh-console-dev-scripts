@@ -13,7 +13,7 @@
 	endif
 	
 	set documents=( \
-		"/art/www/uberChicks.Net/phone-sex-operator/characters/Lexi.asc" \
+		"/art/erica/our_pieces/uberChicks.Net/phone-sex-operator/characters/Lexi.asc" \
 	);
 	
 	set primary_playlists=( \

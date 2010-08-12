@@ -21,7 +21,7 @@ sourced:
 	endif
 	unset args_handled;
 	
-	set browsers=("browser" "links" "lynx" "firefox");
+	set browsers=("browser" "w3m" "links" "lynx" "firefox");
 	foreach value(${browsers})
 		foreach browser("`where '${value}'`")
 			if( -x "${browser}" ) \

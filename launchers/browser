@@ -35,10 +35,22 @@ end
 
 if(! ${?browser} ) then
 	if( "${TERM}" == "gnome" ) then
-		set browser="firefox";
+		set browsers=("firefox");
 	else
-		set browser="links"
+		set browsers=("w3m" "links" "lynx" "firefox");
 	endif
+	foreach value(${browsers})
+		foreach browser("`where '${value}'`")
+			if( -x "${browser}" ) \
+				break;
+			unset browser;
+		end
+		unset value;
+	end
+	if(! ${?browser} ) \
+		goto no_exec;
+	if(! -x "${browser}" ) \
+		goto noexec;
 endif
 
 if( -x "${browser}" ) then

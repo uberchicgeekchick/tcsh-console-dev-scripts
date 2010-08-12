@@ -126,7 +126,7 @@ erica_design_canvas:
 				"--tab-with-profile=art:media --title='[@/media] #>'  --working-directory=/media" \
 				"--tab-with-profile=./erica --title='[./e::our_pieces::alacast);] #>' --working-directory=/art/erica/our_pieces/alacast" \
 				"--tab-with-profile=build:canvas --title='[@build:canvas] #>' --working-directory=/programs/src" \
-				"--tab-with-profile=vim-server --title='[`vim-server`;] #>' --working-directory=/media --command=/projects/cli/console.pallet/devel/vim-server" \
+				"--tab-with-profile=vim-server" --title='[`vim-server`;] #>' --working-directory=/media \ #--command=/projects/cli/console.pallet/devel/vim-server" \
 			);
 			breaksw;
 	endsw
@@ -427,11 +427,11 @@ next_canvas:
 		
 		gnome-terminal --hide-menubar --geometry="${geometry}" --role="${canvas_role}"			\
 			${with_screen}										\
-			${with_ssh_dreams}									\
-			${with_ssh_uberchick}									\
-			${with_ssh_our_eee}									\
-			${with_home}										\
 			${my_canvas}										\
+			${with_ssh_our_eee}									\
+			${with_ssh_uberchick}									\
+			${with_ssh_dreams}									\
+			${with_home}										\
 			${with_rtorrent}									\
 		&;
 		

@@ -131,11 +131,11 @@ next_argv:
 		
 		if( "${new_path}" != "" ) then
 			set new_path="`printf "\""%s"\"" "\""${new_path}"\"" | sed -r 's/::/:/g' | sed -r 's/^://' | sed -r 's/:"\$"//'`";
-			if(! ${?PATH} ) then
-				setenv PATH "${new_path}";
-			else
+			#if(! ${?PATH} ) then
+			#	setenv PATH "${new_path}";
+			#else
 				setenv PATH "${PATH}:${new_path}";
-			endif
+			#endif
 		endif
 		
 		goto unset_argv;

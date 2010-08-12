@@ -52,9 +52,9 @@ debug_check:
 		switch( "$argv[$arg]" )
 			case "--debug":
 				if(! ${?TCSH_RC_DEBUG} ) \
-					setenv TCSH_RC_DEBUG;
+					setenv TCSH_RC_DEBUG "$argv[$arg]";
 				if(! ${?debug} ) \
-					set debug;
+					set debug="$argv[$arg]";
 				break;
 			breaksw;
 		endsw
@@ -130,9 +130,17 @@ parse_argv:
 					if( $arg <= $argc ) then
 						if(!( "$argv[$arg]" != "" && -d "$argv[$arg]" )) then
 							if( ${?TCSH_OUTPUT_ENABLED} ) then
-								printf "Using [%s] as TCSH's working directory.\t[failed]\n\tNo valid directory was specified with %s.\n<file://%s> will be used instead.\n" "${value}" "${option}" "${HOME}";
+								printf "Using [%s] as TCSH's working directory.\t[failed]\n" "${value}"
+								printf "\tNo valid directory specified by %s.\n" "${option}";
 							endif
-							set value="${HOME}";
+							if( "${cwd}" != "/" ) then
+								set value="${cwd}";
+							else
+								set value="${HOME}";
+							endif
+							if( ${?TCSH_OUTPUT_ENABLED} ) then
+								printf "\t<file://%s> will be used instead.\n" "${value}";
+							endif
 						else
 							@ args_handled++;
 							set value="$argv[$arg]";

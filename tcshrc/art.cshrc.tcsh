@@ -12,7 +12,7 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-source ${TCSH_RC_SESSION_PATH}/source:argv "${TCSH_RC_SESSION_PATH}/art:color.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:devel:make:init.cshrc.tcsh" "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" "art:grep-and-find.cshrc.tcsh";
+source "${TCSH_RC_SESSION_PATH}/source:argv" "art:color.cshrc.tcsh" "art:devel:make:init.cshrc.tcsh" "art:editor.cshrc.tcsh" "art:grep-and-find.cshrc.tcsh";
 
 alias cmake "cmake -Wno-dev";
 alias sqlite "sqlite3";

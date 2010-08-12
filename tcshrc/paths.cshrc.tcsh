@@ -30,7 +30,7 @@ if( "${cwd}" != "${TCSH_RC_SESSION_PATH}" ) then
 	cd "${TCSH_RC_SESSION_PATH}";
 endif
 
-source "${TCSH_RC_SESSION_PATH}/source:argv" alacast:environment.cshrc.tcsh art:paths.cshrc.tcsh paths:programs.cshrc.tcsh;
+source "${TCSH_RC_SESSION_PATH}/source:argv" "alacast:environment.cshrc.tcsh" "art:paths.cshrc.tcsh" "paths:programs.cshrc.tcsh";
 
 #source "paths:lib.cshrc.tcsh";
 #if( "${MACHTYPE}" == "x86_64" ) \

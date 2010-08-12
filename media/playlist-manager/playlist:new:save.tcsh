@@ -23,6 +23,7 @@ playlist_init:
 		@ arg++;
 		switch( "$argv[$arg]" )
 			case "--force":
+			case "--forced":
 				set force;
 				breaksw;
 			
@@ -223,7 +224,8 @@ playlist_save:
 	endsw
 	rm "${playlist_temp}";
 	mv -f "${playlist_swap}" "${new_playlist}";
-	printf "\t[finished]\n";
+	if(! ${?silent} ) \
+		printf "\t\t[finished]\n";
 	
 	unset new_playlist_to_read playlist_swap playlist_temp;
 	

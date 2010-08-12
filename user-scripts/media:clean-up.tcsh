@@ -341,19 +341,25 @@ move:
 		if(! -d "${podcasts_target_directory}" ) \
 			mkdir -p  "${podcasts_target_directory}";
 		
-		set podcast_dir="`dirname "\""${podcast}"\""`";
-		if(! ${?podcast_name} ) \
-			set podcast_name_set podcast_name="`basename "\""${podcast_dir}"\""`";
-		
-		switch("${podcast_name}")
-			case "Slashdot":
-				set podcast_name="";
-				breaksw;
+		if(! -d "${podcast}" ) then
+			set podcast_dir="`dirname "\""${podcast}"\""`";
+			if(! ${?podcast_name} ) \
+				set podcast_name_set podcast_name="`basename "\""${podcast_dir}"\""`";
 			
-			case "Between the Covers from CBC Radio":
-				set podcast_name="`printf "\""%s"\"" "\""${podcast_name}"\"" | sed -r 's/(.*\/)(.*)( [-0-9]+)(.*)"\$"/\2/'`";
-				breaksw;
-		endsw
+			switch("${podcast_name}")
+				case "Slashdot":
+					set podcast_name="";
+					breaksw;
+				
+				case "Between the Covers from CBC Radio":
+					set podcast_name="`printf "\""%s"\"" "\""${podcast_name}"\"" | sed -r 's/(.*\/)(.*)( [-0-9]+)(.*)"\$"/\2/'`";
+					breaksw;
+			endsw
+		else
+			if(! ${?podcast_name} ) \
+				set podcast_name_set podcast_name="`basename "\""${podcast}"\""`";
+			set podcast_dir="${podcast}";
+		endif
 		
 		if(! -d "${podcasts_target_directory}/${podcast_name}" ) \
 			mkdir -v "${podcasts_target_directory}/${podcast_name}";

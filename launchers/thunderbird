@@ -26,18 +26,22 @@ while( ${?1} && "${1}" != "" )
 		breaksw
 	case "-P":
 		shift;
-		if( ${?1} && "${1}" != "" && -d "${firefox_profile_path}/${1}" ) then
-			set ff_profile="${1}";
-		else
-			set ff_profile="uberChicGeekChick";
+		if(!( ${?1} && "${1}" != "" && -d "${firefox_profile_path}/${1}" )) then
+			printf "%s is an invalid profile: Valid profiles are: %s.\n" "${1}" "`ls --width=1 "\""${firefox_profile_path}/"\"";`" > /dev/stderr;
+			goto exit_script;
 		endif
-		breaksw
+		set ff_profile="${1}";
+		breaksw;
 	default:
 		set argz="${argz} ${1}";
 		breaksw
 	endsw
 	shift;
 end
+
+if(! ${?ff_profile} ) then
+	set ff_profile="uberChicGeekChick";
+endif
 
 if(!(${?program_path})) then
 	if( -d "/programs/mozilla/thunderbird/x86_64" ) then
@@ -95,11 +99,6 @@ launchers_main:
 	set rm_extensions;
 	printf "Attempting load %s; attempt: %d.\n" ${this_program} ${ff_attempt};
 	if(! ${?ff_found} ) then
-		if( ${ff_attempt} == 0 ) then
-			if(! ${?ff_profile} ) \
-				set ff_profile="uberChicGeekChick";
-			set argz="-P '${ff_profile}' ${argz}";
-		endif
 		@ ff_attempt++;
 		if( ${ff_attempt} > 1 ) then
 			if( ${?rm_extensions} ) then
@@ -147,11 +146,11 @@ exit_script:
 ff_start:
 	echo "Launching:\n\t";
 	if( ${?use_launcher} ) then
-		echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program}${argz}" \&;
-		/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} ${argz}" &;
+		echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} -P "${ff_profile}" ${argz}" \&;
+		/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} -P "${ff_profile}" ${argz}" &;
 	else
-		echo ${program} "${argz}" \&;
-		${program} "${argz}" &;
+		echo ${program} -P "${ff_profile}" "${argz}" \&;
+		${program} -P "${ff_profile}" "${argz}" &;
 	endif
 	if( ${ff_attempt} > ${ff_attempt_max} ) then
 		printf "Finished attempting load %s after %d attempts.\n" ${program} ${ff_attempt} > /dev/stderr;

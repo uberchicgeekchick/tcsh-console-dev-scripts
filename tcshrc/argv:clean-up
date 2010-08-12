@@ -87,10 +87,7 @@ finished_sourcing_tcsh_rc_source_file:
 
 
 check_debug:
-	if(! ${?debug} ) \
-		set debug;
-	
-	if(! ${?TCSH_RC_DEBUG} ) \
+	if(!( ${?debug} || ${?TCSH_RC_DEBUG} )) \
 		goto exit_script;
 	
 	if(! ${?usage_message} ) then
@@ -98,8 +95,16 @@ check_debug:
 	else
 		printf "%s finished. <%s>: debug mode disabled.\n" "${usage_message}" "$argv[1]";
 	endif
-	if( "${TCSH_RC_DEBUG}" == "$argv[1]" ) \
-		unsetenv TCSH_RC_DEBUG;
+	
+	if( ${?TCSH_RC_DEBUG} ) then
+		if( "${TCSH_RC_DEBUG}" == "" || "${TCSH_RC_DEBUG}" == "$argv[1]" ) \
+			unsetenv TCSH_RC_DEBUG;
+	endif
+	
+	if( ${?debug} ) then
+		if( "${debug}" == "" || "${debug}" == "$argv[1]" ) \
+			unset debug;
+	endif
 #goto check_debug;
 
 

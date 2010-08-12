@@ -52,7 +52,7 @@ parse_argv:
 	@ my_argc=${#argv};
 	
 	if( ${my_argc} == 0 ) \
-		goto main;
+		goto usage;
 	
 	@ my_arg=0;
 	while( $my_arg < $my_argc )
@@ -64,7 +64,7 @@ parse_argv:
 		set debug;
 		break;
 	end
-	if( ${my_arg} > 1 ) \
+	if( ${my_arg} > 0 ) \
 		@ my_arg=0;
 	
 	if( ${?debug} ) \

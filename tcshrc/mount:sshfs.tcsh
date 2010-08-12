@@ -7,7 +7,7 @@ init:
 	
 	if(! ${?0} ) then
 		set being_sourced;
-	else if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
+	else if( `basename "${0}"` != "${scripts_basename}" ) then
 		set being_sourced;
 	endif
 	
@@ -30,8 +30,8 @@ init:
 		unset args_handled;
 	endif
 		
-	if( ${?TCSH_RC_DEBUG} && ! ${?debug} ) \
-		set debug_set debug;
+	#if( ${?TCSH_RC_DEBUG} && ! ${?debug} ) \
+	#	set debug_set debug;
 #goto init;
 
 
@@ -244,6 +244,8 @@ sshfs_connect:
 
 
 env_unset:
+	if( ${?debug_set} ) \
+		unset debug_set debug;
 	if( ${?arg} ) \
 		unset arg;
 	if( ${?argc} ) \
@@ -323,6 +325,7 @@ usage:
 
 exit_script:
 	if( ${?being_sourced} ) then
+		set scripts_basename="mount:sshfs.tcsh";
 		source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 		unset being_sourced;
 		# FINISH: special handler for when this file is sourced.

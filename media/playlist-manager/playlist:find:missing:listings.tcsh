@@ -137,15 +137,6 @@ edit_playlists:
 #goto edit_playlists;
 
 
-setup_playlist_new:
-	foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
-		set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
-		playlist:new:create.tcsh "${playlist}";
-		unset playlist;
-	end
-#setup_playlist_new:
-
-
 create_clean_up_script:
 	if( ${?create_script} ) then
 		if( "${create_script}" == "" ) \
@@ -566,7 +557,9 @@ prompt_for_action_for_missing_media:
 					if( $playlist_count == $append ) then
 						set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
 						printf "\n\t**Appending:**\n\t\t<file://%s>\n\t\t\tto:\n\t\t<file://%s>\n" "${this_podcast}" "${playlist}";
+						playlist:new:create.tcsh "${playlist}";
 						printf "%s\n" "${this_podcast}" >> "${playlist}.new";
+						playlist:new:save.tcsh --force --silent "${playlist}";
 					endif
 					unset playlist;
 				end
@@ -691,13 +684,8 @@ scripts_main_quit:
 	
 	if( ${?playlists_filename_list} ) then
 		if( -e "${playlists_filename_list}" ) then
-			foreach playlist( "`cat "\""${playlists_filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`" )
-				set playlist="`printf "\""%s"\"" "\""${playlist}"\""`";
-				playlist:new:save.tcsh "${playlist}";
-				unset playlist;
-			end
+			rm -f "${playlists_filename_list}";
 		endif
-		rm -f "${playlists_filename_list}";
 		unset playlists_filename_list;
 	endif
 	

@@ -21,7 +21,7 @@ init:
 
 
 dependencies_check:
-	set dependencies=("${scripts_basename}" "playlist:sort:by:pubdate.tcsh");# "`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
+	set dependencies=("${scripts_basename}" "playlist:new:create.tcsh" "playlist:new:save.tcsh");# "`printf "\""%s"\"" "\""${scripts_basename}"\"" | sed -r 's/(.*)\.(tcsh|cshrc)$/\1/'`");
 	@ dependencies_index=0;
 	foreach dependency(${dependencies})
 		@ dependencies_index++;
@@ -559,7 +559,7 @@ prompt_for_action_for_missing_media:
 						printf "\n\t**Appending:**\n\t\t<file://%s>\n\t\t\tto:\n\t\t<file://%s>\n" "${this_podcast}" "${playlist}";
 						playlist:new:create.tcsh "${playlist}";
 						printf "%s\n" "${this_podcast}" >> "${playlist}.new";
-						playlist:new:save.tcsh --force --silent "${playlist}";
+						playlist:new:save.tcsh --save-empty --force --silent "${playlist}";
 					endif
 					unset playlist;
 				end

@@ -14,7 +14,7 @@ foreach program ( "${1}" "${1}-bin" "${1}-run" )
 		while ( $pauses < 10 )
 			@ pauses++;
 			kill -INT "${pid}"
-			set pid_test = `ps -A | grep "${pid}"`
+			set pid_test=`ps -A | grep "${pid}"`
 			if( "${pid_test}" == "" ) then
 				printf "[finished]\n%s, pid %s, has exited." "${program}" "${pid}"
 				break;

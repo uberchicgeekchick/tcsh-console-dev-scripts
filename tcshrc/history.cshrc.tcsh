@@ -30,7 +30,7 @@ if( -e "${histfile}.lock" ) \
 set history=6000;
 set savehist=( $history "merge" );
 
-history -L;
+source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh" ${argv};
 
 if( ${?loginsh} ) \
 	goto exit_script;

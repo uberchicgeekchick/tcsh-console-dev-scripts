@@ -1,13 +1,13 @@
 #!/bin/tcsh -f
-set search_dir = "./"
-set my_editor = "`printf '${0}' | sed 's/.*\/\([^:]\+\).*/\1/g'`"
+set search_dir="./"
+set my_editor="`printf '${0}' | sed 's/.*\/\([^:]\+\).*/\1/g'`"
 if(${my_editor} == "editor") \
 	unset my_editor;
 
 while ( ${?1} && "${1}" != "" )
 	switch ( "${1}" )
 	case -d:
-		set search_dir = "${1}"
+		set search_dir="${1}"
 		breaksw
 	
 	case "--clean-up":
@@ -15,33 +15,33 @@ while ( ${?1} && "${1}" != "" )
 		breaksw
 	
 	default:
-		set my_editor = "${1}"
+		set my_editor="${1}"
 		breaksw
 	endsw
 	shift
 end
 
 if(!( ${?my_editor} )) then
-	set my_editor = "${EDITOR}"
+	set my_editor="${EDITOR}"
 else
 	foreach editor ( "`where '${my_editor}'`" )
 		if( ! -e "${editor}" ) then
-			set my_editor = "${editor}"
+			set my_editor="${editor}"
 		endif
 	end
 endif
 
-set my_editor = `basename "${my_editor}"`
+set my_editor=`basename "${my_editor}"`
 
-set session_exec = "./${my_editor}:session"
+set session_exec="./${my_editor}:session"
 set cwd_for_sed="`echo '${cwd}/' | sed -r 's/([\/])/\\\1/g'`";
 
 foreach swp ( "`/usr/bin/find -L ${search_dir} -iregex '\..*\.\(sw.\|~\)' | sort`" )
 	if( ! ${?session_started} ) then
 		set session_started
-		printf '#\!/bin/tcsh -f\nset my_editor = "`printf "\\""${0}"\\"" | sed '\''s/.*\/\([^\:]\+\).*/\\1/g'\''`"\n\nif("${my_editor}" == "${0}" ) then\n\techo "**error:** unable to determine session editor\nyour default editor will be used.";\n\tset my_editor="${EDITOR}";\nendif\n\nswitch ( "${my_editor}" )\ncase "connectED":\ncase "gedit":\n\tbreaksw\ncase "vi":\ncase "vim":\ncase "vim-enhanced":\ndefault:\n\tset my_editor = `printf "%%s -p" "vim-enhanced"`\n\tbreaksw\nendsw\n\n${my_editor}' >! "${session_exec}"
+		printf '#\!/bin/tcsh -f\nset my_editor="`printf "\\""${0}"\\"" | sed '\''s/.*\/\([^\:]\+\).*/\\1/g'\''`"\n\nif("${my_editor}" == "${0}" ) then\n\techo "**error:** unable to determine session editor\nyour default editor will be used.";\n\tset my_editor="${EDITOR}";\nendif\n\nswitch ( "${my_editor}" )\ncase "connectED":\ncase "gedit":\n\tbreaksw\ncase "vi":\ncase "vim":\ncase "vim-enhanced":\ndefault:\n\tset my_editor=`printf "%%s -p" "vim-enhanced"`\n\tbreaksw\nendsw\n\n${my_editor}' >! "${session_exec}"
 	endif
-	set file = "`echo ${swp} | sed 's/\/\.\(.*\)\.\(sw.\|~\)/\/\1/g' | sed -r 's/\.\//${cwd_for_sed}/g'`";
+	set file="`echo ${swp} | sed 's/\/\.\(.*\)\.\(sw.\|~\)/\/\1/g' | sed -r 's/\.\//${cwd_for_sed}/g'`";
 	
 	printf " "\""%s"\" "${file}" >> "${session_exec}";
 	if( ${?clean_up} ) rm "${swp}"

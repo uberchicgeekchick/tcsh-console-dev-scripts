@@ -15,7 +15,7 @@ while ( $arg < $argc )
 	@ arg++;
 	set option="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^[\-]{1,2}([^=]*)=?(.*)"\$"/\1/'`";
 	if( "${option}" == "$argv[$arg]" ) \
-		set option = "";
+		set option="";
 	set value="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/^[\-]{1,2}\([^=]*)=?(.*)"\$"/\2/'`";
 	if( ${?debug} ) \
 		printf 'Parsing Option:\n\t--%s=%s\n' "${option}" "${value}";

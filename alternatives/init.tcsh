@@ -33,6 +33,9 @@ setenv TCSH_ALTERNATIVES_PATH "${TCSH_RC_SESSION_PATH}/../alternatives";
 			
 			case "find.bck":
 			case "find":
+			case "touch":
+			case "mv":
+			case "cp":
 				if( ${?TCSH_RC_DEBUG} ) \
 					printf "Skipping incomplete alternative scriprt:\n\t<file://%s/%s>\n" "${TCSH_ALTERNATIVES_PATH}" "${alternative}";
 				breaksw;

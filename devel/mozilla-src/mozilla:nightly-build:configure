@@ -374,7 +374,7 @@ exec_install:
 renice_supporting_programs:
 	set supporting_binaries=( "plugin-container" );
 	foreach supporting_binary( ${ff_binaries} )
-		set ="${prefix}/x86_64/${supporting_binary}";
+		#set binary="${prefix}/x86_64/${supporting_binary}";
 		if(! -x "${prefix}/x86_64/${supporting_binary}" ) \
 			continue;
 		
@@ -475,7 +475,7 @@ stop_build:
 					else
 						@ ff_attempt=$ff_attempt_max;
 						set exec_stopped;
-					break;
+						break;
 					endif
 				end
 			end

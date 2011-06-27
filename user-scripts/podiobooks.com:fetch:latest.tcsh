@@ -5,11 +5,11 @@ setup:
 	
 	cd "`dirname "\""${0}"\""`";
 	
-	alias feed:podiobook:fetch:latest.tcsh "feed:fetch:all:enclosures.tcsh --disable=logging --start-with=2 --download-limit=1";
-	alias feed:fetch:all:enclosures.tcsh "feed:fetch:all:enclosures.tcsh --disable=logging";
+	alias feed:podiobook:fetch:latest.tcsh "feed:fetch:enclosures.tcsh --disable=logging --start-with=2 --download-limit=1";
+	alias feed:fetch:enclosures.tcsh "feed:fetch:enclosures.tcsh --disable=logging";
 
 	set podiobooks=( \
-			# "book_id/title"(e.g.: "509" or "conjuring-raine") (optional: "start-with", e.g.: "2" or "0", "download-limit", e.g.: "2" or "-1")  \
+			# "book_id/title"(e.g.: "506" or "the-ballad-of-iron-percy") (optional: "start-with", e.g.: "2" or "0", "download-limit", e.g.: "2" or "-1")  \
 			"506" \ # 2 1 \
 	);
 	
@@ -23,7 +23,7 @@ fetch_podiobook:
 		unset limit start_with download_limit podiobook feed fetch_command;
 		sleep 2;
 	else if( ${?podiobook} ) then
-		printf "Cancelled downloading: %s\n" "${podiobook}";
+		printf "Cancelled downloading:\n\t%s\n" "${podiobook}";
 		unset limit start_with download_limit podiobook feed fetch_command;
 		sleep 2;
 	endif
@@ -52,10 +52,13 @@ fetch_enclosures:
 		set feed="http://www.podiobooks.com/title/$podiobook/feed/";
 	else
 		set feed="http://www.podiobooks.com/bookfeed/29127/$podiobook/book.xml";
+		set downloading_subscription;
 	endif
-	set fetch_command="feed:fetch:all:enclosures.tcsh --disable=logging --download-limit=$download_limit --start-with=$start_with $feed";
+	set fetch_command="feed:fetch:enclosures.tcsh --disable=logging --download-limit=$download_limit --start-with=$start_with $feed";
 	printf "Running: [%s]\n" "${fetch_command}";
 	$fetch_command;
+	if( ${?downloading_subscription} ) \
+		unset downloading_subscription;
 	unset limit start_with download_limit podiobook feed fetch_command;
 	goto fetch_podiobook;
 #goto fetch_enclosures;

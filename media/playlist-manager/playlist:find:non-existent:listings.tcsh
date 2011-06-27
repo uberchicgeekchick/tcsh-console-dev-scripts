@@ -58,7 +58,7 @@ init:
 #init:
 
 dependencies_check:
-	onintr scripts_main_quit;
+	onintr exit_script;
 	set label_current="dependencies_check";
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
@@ -212,12 +212,12 @@ sourcing_main_quit:
 	if( "${label_current}" != "${label_previous}" ) \
 		goto label_stack_set;
 	
-	onintr scripts_main_quit;
+	onintr exit_script;
 	source "${TCSH_RC_SESSION_PATH}/argv:clean-up" "${scripts_basename}";
 	
 	# END: source scripts_basename support.
 	
-	set callback="scripts_main_quit";
+	set callback="exit_script";
 	goto callback_handler;
 #sourcing_main_quit:
 
@@ -325,6 +325,7 @@ format_new_playlist:
 			unset dead_file_count;
 		endif
 	endif
+	printf "\n\n";
 	unset playlist;
 	
 	set callback="parse_arg";
@@ -504,7 +505,7 @@ usage:
 		set usage_displayed;
 	
 	if( ${?exit_on_usage} ) then
-		set callback="scripts_main_quit";
+		set callback="exit_script";
 	else if(! ${?callback} ) then
 		set callback="parse_arg";
 	endif
@@ -568,7 +569,7 @@ exception_handler:
 	if( ${?callback} ) \
 		goto callback_handler;
 	
-	goto scripts_main_quit;
+	goto exit_script;
 #exception_handler:
 
 parse_argv:
@@ -938,7 +939,7 @@ label_stack_set:
 	set callback=${label_previous};
 	
 	if( ${?debug} ) \
-		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/stdout;
+		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/tty;
 	goto callback_handler;
 #label_stack_set:
 
@@ -946,7 +947,7 @@ label_stack_set:
 callback_handler:
 	if(! ${?callback} ) then
 		if(! ${?callback_stack} ) then
-			goto scripts_main_quit;
+			goto exit_script;
 		else
 			set callback="$callback_stack[${#callback_stack}]";
 			unset callback_stack[${#callback_stack}];
@@ -967,7 +968,7 @@ callback_handler:
 	endif
 	unset callback;
 	if( ${?debug} ) \
-		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
+		printf "handling callback to [%s].\n" "${last_callback}" > /dev/tty;
 	
 	goto $last_callback;
 #callback_handler:

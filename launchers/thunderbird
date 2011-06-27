@@ -144,6 +144,10 @@ exit_script:
 	exit ${status};
 
 ff_start:
+	if( -e "${firefox_profile_path}/${ff_profile}/lock" ) then
+		printf "Removing: <%s/%s/lock>\n" "${firefox_profile_path}" "${ff_profile}";
+		rm -f "${firefox_profile_path}/${ff_profile}/lock";
+	endif
 	echo "Launching:\n\t";
 	if( ${?use_launcher} ) then
 		echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} -P "${ff_profile}" ${argz}" \&;

@@ -53,7 +53,7 @@ if( ${?set_alias} ) then
 		set new_alias="${this_program}-${alias_suffix}";
 	endif
 	if( ${?TCSH_RC_DEBUG} ) \
-		printf "Aliasing [%s] to [%s].\n" $new_alias $program;
+		printf "Aliasing [%s] to [%s].\n" "$new_alias" "$program";
 	
 	# alias to target this launcher:
 	#alias "${new_alias}" "${TCSH_LAUNCHER_PATH}/${new_alias}";
@@ -89,16 +89,18 @@ launcher_exit:
 
 
 set_exec_target:
-	set exec_target="${program}";
+	set exec_target="${program} --hide-video";
 	if( ${?video_driver} ) then
 		set exec_target="${exec_target} --video-driver ${video_driver}";
 	endif
 	if( ${?audio_driver} ) then
 		set exec_target="${exec_target} --audio-driver ${audio_driver}";
 	endif
-	set exec_target="${exec_target} --hide-video --geometry='${resolution}' --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic";
+	set exec_target="${exec_target} --fullscreen --geometry='${resolution}' --session volumn=200,amp=200,loop=loop -Z --deinterlace --aspect-ratio anamorphic --no-splash";
+	
 	if( ${?set_alias} ) \
 		goto launcher_alias;
+	
 	goto launcher_exec;
 #set_exec_target:
 

@@ -1415,7 +1415,7 @@ parse_arg:
 				if( ${?rtrim} ) \
 					unset rtrim;
 				if( ${?lenth_set} ) \
-					unset lenth lenth_set;
+					unset length length_set;
 				breaksw;
 			
 			case "ltrim":

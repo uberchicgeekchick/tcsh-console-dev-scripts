@@ -53,7 +53,7 @@
 		<p><xsl:value-of select="description" disable-output-escaping="yes"/></p>
 		
         <xsl:choose>
-			<xsl:when test="aan:isitunes = 'true'">
+			<xsl:when test="aan:isitunes='true'">
 				<p>
 				<xsl:choose>
 					<xsl:when test="aan:iTunes_id != ''">
@@ -76,7 +76,7 @@
 		</xsl:element>
 		
         <xsl:choose>
-			<xsl:when test="aan:isitunes = 'true'">
+			<xsl:when test="aan:isitunes='true'">
 				<p><strong>Free podcasting software:</strong></p>
 				<p><a href="http://www.apple.com/itunes"><img src="images/getItunes.gif" border="0" /></a>&#160;&#160;
 				<a href="http://juicereceiver.sourceforge.net"><img src="images/badge_juice.gif" border="0" /></a>&#160;&#160;
@@ -95,14 +95,14 @@
 <xsl:for-each select="item">
 <xsl:sort select="position()" data-type="number" order="descending"/>
 <xsl:element name="tr">
-<xsl:if test="position() mod 2 = 0">
+<xsl:if test="position() mod 2=0">
 	<xsl:attribute name="bgcolor">#EEF2F3</xsl:attribute>
 </xsl:if>
 <td valign="top" width="155" align="right"><xsl:element name="a"><xsl:attribute name="href"><xsl:value-of select="guid"/></xsl:attribute>download this now<!--<img src="images/download.jpg" border="0" />--></xsl:element></td>
 	<td valign="top">
 
 	<strong><xsl:value-of select="title"/></strong>
-    <xsl:if test="position() = 1">
+    <xsl:if test="position()=1">
     <span class="new">&#160;&#160;-&#160;&#160;LATEST ISSUE</span>
     </xsl:if>
     <br /><br />

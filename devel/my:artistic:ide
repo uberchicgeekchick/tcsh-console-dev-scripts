@@ -87,32 +87,10 @@ erica_design_canvas:
 	switch( "${canvas}" )
 		case "resources":
 			set my_canvas=( \
-				"--tab-with-profile=./erica --title='[@./e();] #>' --working-directory=/art/erica" \
-				"--tab-with-profile=project:art --title='[@/art] #>' --working-directory=/art" \
-				"--tab-with-profile=project:art --title='[@/art/media] #>' --working-directory=/art/media" \
-				"--tab-with-profile=project:art --title='[@/media-library] #>' --working-directory=/media/library" \
-			);
-			breaksw;
-		
-		case "Canvas":
-			set my_canvas= ( \
-				"--tab-with-profile=./erica --title='[@./e();] #>' --working-directory=/art/erica" \
-				"--tab-with-profile=./erica --title='[./e::our_pieces();] #>' --working-directory=/art/erica/our_pieces" \
-				"--tab-with-profile=./erica --title='[./e::code();] #>' --working-directory=/art/erica/code" \
-				"--tab-with-profile=./erica --title='[./e::tools();] #>' --working-directory=/art/erica/tools" \
-				"--tab-with-profile=./erica --title='[./e::engines();] #>' --working-directory=/art/erica/engines" \
-				"--tab-with-profile=opensim --title='[./e::engines::opensim();] #>' --working-directory='/art/erica/tools/servers/opensim/bin --command=/art/erica/tools/servers/opensim/OpenSim.tcsh'" \
-			);
-			breaksw;
-		
-		case "all":
-		case "allpieces":
-		case "pieces":
-			set my_canvas=( \
-				"--tab-with-profile=./erica --title='[./e();] #>' --working-directory=/art/erica" \
-				"--tab-with-profile=./erica --title='[./e::our_pieces::many-worlds();] #>' --working-directory=/art/erica/our_pieces/our-many-worlds" \
-				"--tab-with-profile=./erica --title='[./e::our_pieces::hackGirls();] #>' --working-directory=/art/erica/our_pieces/hackGirls" \
-				"--tab-with-profile=./erica --title='[./e::our_pieces::alacast();] #>' --working-directory=/art/erica/our_pieces/alacast" \
+				"--tab-with-profile=art:media --title='[@/art] #>' --working-directory=/art" \
+				"--tab-with-profile=art:media --title='[@/art/media] #>' --working-directory=/art/media" \
+				"--tab-with-profile=art:media --title='[@/media] #>' --working-directory=/media" \
+				"--tab-with-profile=art:media --title='[@/media-library] #>' --working-directory=/media/library" \
 			);
 			breaksw;
 		
@@ -120,13 +98,10 @@ erica_design_canvas:
 		case "design":
 		default:
 			set my_canvas=( \
-				"--tab-with-profile=./erica --title='[@./e();] #>' --working-directory=/art/erica" \
 				"--tab-with-profile=art --title='[@/art] #>' --working-directory=/art" \
 				"--tab-with-profile=projects --title='[@/projects] #>' --working-directory=/projects" \
 				"--tab-with-profile=art:media --title='[@/media] #>'  --working-directory=/media" \
-				"--tab-with-profile=./erica --title='[./e::our_pieces::alacast);] #>' --working-directory=/art/erica/our_pieces/alacast" \
-				"--tab-with-profile=build:canvas --title='[@build:canvas] #>' --working-directory=/programs/src" \
-				"--tab-with-profile=vim-server" --title='[`vim-server`;] #>' --working-directory=/media \ #--command=/projects/cli/console.pallet/devel/vim-server" \
+				"--tab-with-profile=vim-server" --title='[vim-server] #>' --working-directory=/media \ #--command=/projects/cli/console.pallet/devel/vim-server" \
 			);
 			breaksw;
 	endsw
@@ -136,7 +111,7 @@ erica_design_canvas:
 
 artistic_canvas:
 	set with_screen;
-	set with_ssh_our_eee;
+	#set with_ssh_our_eee;
 	switch( "${canvas}" )
 		case  "GTK":
 			set my_canvas=( \
@@ -186,17 +161,11 @@ artistic_canvas:
 			breaksw;
 		
 		case  "All":
+		case "artistic":
 		default:
 			set my_canvas=( \
-				"--tab-with-profile=projects:cli --title='[@cli] #>' --working-directory=/projects/cli" \
-				"--tab-with-profile=projects:cli --title='[@...console.pallet] #>' --working-directory=/projects/cli/console.pallet" \
-				"--tab-with-profile=projects:cli --title='[@...most] #>' --working-directory=/projects/cli/most" \
-				"--tab-with-profile=projects:cli --title='[@...alacast.v1] #>' --working-directory=/projects/cli/alacast" \
-				"--tab-with-profile=art --title='[@art] #>' --working-directory=/art" \
-				"--tab-with-profile=art:www --title='[@www] #>' --working-directory=/art/www" \
-				"--tab-with-profile=art:www --title='[@...a.o.php] #>' --working-directory=/art/www/uberChicGeekChick.Com" \
-				"--tab-with-profile=projects:gtk --title='[@...gtk] #>' --working-directory=/projects/gtk" \
-				"--tab-with-profile=projects:gtk --title='[@...get2gnow] #>' --working-directory=/projects/gtk/get2gnow" \
+				"--tab-with-profile=art:media --title='[@/media] #>'  --working-directory=/media" \
+				"--tab-with-profile=vim-server" --title='[vim-server] #>' --working-directory=/media \ #--command=/projects/cli/console.pallet/devel/vim-server" \
 			);
 			breaksw;
 	endsw
@@ -399,6 +368,7 @@ next_canvas:
 		else
 			set with_ssh_our_eee=("--tab-with-profile=ssh:our-eee --title='<ssh:[uberChick@192.168.0.6] #>'");# --command='ssh -X uberChick@192.168.0.6'");
 		endif
+		set with_ssh_our_eee;
 		
 		if(! ${?with_home} ) then
 			set with_home;

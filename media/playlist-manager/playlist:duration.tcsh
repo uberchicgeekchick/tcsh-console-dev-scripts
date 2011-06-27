@@ -281,74 +281,66 @@ exec:
 	if( ${?debug} ) \
 		printf "Executing %s's exec.\n" "${scripts_basename}";
 	
-	if( ${?filename_list} ) then
-		if( ${?original_filename}) then
-			if(! -e "${filename}.${extension}" ) then
-				printf "\t**Skipping:** <file://%s.%s>.  It no longer exists.\n" "${filename}" "${extension}";
-				set callback="filename_next";
-				goto callback_handler;
-			endif
-			
-			set ffprobe_info_file="`mktemp --tmpdir "\"".escaped.ffprobe.info.XXXXXX"\""`";
-			${ffprobe} "${filename}.${extension}" >&! "${ffprobe_info_file}";
-			set duration="`egrep 'Duration:' "\""${ffprobe_info_file}"\""`";
-			
-			if( "${duration}" == "" ) then
-				printf "\t**Skipping:** <file://%s.%s>.  Its duration could not be determind.\n\tffprobe returned: %s\n" "${filename}" "${extension}" "`tail -1 "\""${ffprobe_info_file}"\""`";
-				rm -f "${ffprobe_info_file}";
-				unset ffprobe_info_file;
-				set callback="filename_next";
-				goto callback_handler;
-			endif
-			rm -f "${ffprobe_info_file}";
-			unset ffprobe_info_file;
-			
-			if( ${?debug} ) \
-				printf "Length of %s\n\t%s\n" "${original_filename}" "${duration}";
-			if( "${seconds}" != "" ) \
-				set seconds="${seconds}+";
-			set seconds="${seconds}`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\3/'`";
-			if( ${?debug} ) \
-				printf "seconds: ${seconds}\n";
-			
-			
-			if( "${minutes}" != "" ) \
-				set minutes="${minutes}+";
-			set minutes="${minutes}`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\2/'`";
-			if( ${?debug} ) \
-				printf "minutes: ${minutes}\n";
-			
-			
-			if( "${hours}" != "" ) \
-				set hours="${hours}+";
-			set hours="${hours}`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\1/'`";
-			if( ${?debug} ) \
-				printf "hours: ${hours}\n";
-			
-			set extra_minutes=`printf "(${seconds})/60\n" | bc`;
-			set seconds=`printf "(${seconds})%%60\n" | bc`;
-			set hours=`printf "(${extra_minutes}+${minutes})/60\n" | bc`;
-			set minutes=`printf "(${extra_minutes}+${minutes})%%60\n" | bc`;
-			
-			unset duration;
-		endif
-		
-		if( $seconds < 10 ) \
-			set seconds="0${seconds}";
-		
-		if( $minutes < 10 ) \
-			set minutes="0${minutes}";
-		
-		if( $hours < 10 ) \
-			set hours="0${hours}";
-		
-		endif
+	if(! ${?filename_list} ) then
+		set callback="filename_next";
+		goto callback_handler;
 	endif
+	
+	if(! ${?original_filename}) then
+		set callback="filename_next";
+		goto callback_handler;
+	endif
+	
+	if(! -e "${filename}.${extension}" ) then
+		printf "\t**Skipping:** <file://%s.%s>.  It no longer exists.\n" "${filename}" "${extension}";
+		set callback="filename_next";
+		goto callback_handler;
+	endif
+	
+	set ffprobe_info_file="`mktemp --tmpdir "\"".escaped.ffprobe.info.XXXXXX"\""`";
+	${ffprobe} "${filename}.${extension}" >&! "${ffprobe_info_file}";
+	set duration="`egrep 'Duration:' "\""${ffprobe_info_file}"\""`";
+	
+	if( "${duration}" == "" ) then
+		printf "\t**Skipping:** <file://%s.%s>.  Its duration could not be determind.\n\tffprobe returned: %s\n" "${filename}" "${extension}" "`tail -1 "\""${ffprobe_info_file}"\""`";
+		rm -f "${ffprobe_info_file}";
+		unset ffprobe_info_file duration;
+		set callback="filename_next";
+		goto callback_handler;
+	endif
+	rm -f "${ffprobe_info_file}";
+	unset ffprobe_info_file;
+	
+	set these_hours="`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\1/'`";
+	set these_minutes="`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\2/'`";
+	set these_seconds="`printf "\""%s"\"" "\""${duration}"\"" | sed -r 's/.*Duration: ([0-9]{2}):([0-9]{2}):([0-9]{2}).*"\$"/\3/'`";
+	
+	if( ${?debug} || ${?debug_length} ) \
+		printf "Length of %s\n\t%s\n" "${original_filename}" "${duration}";
+	
+	if( "${seconds}" != "" ) \
+		set seconds="${seconds}+";
+	set seconds="${seconds}${these_seconds}";
+	
+	if( "${minutes}" != "" ) \
+		set minutes="${minutes}+";
+	set minutes="${minutes}${these_minutes}";
+	
+	if( "${hours}" != "" ) \
+		set hours="${hours}+";
+	set hours="${hours}${these_hours}";
+	
+	unset these_minutes these_seconds these_hours duration;
+	
 	set callback="filename_next";
 	goto callback_handler;
 #exec:
 
 filename_next:
+	set label_current="filename_next";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
 	foreach original_filename("`cat "\""${filename_list}"\"" | sed -r 's/(["\"\$\!\`"])/"\""\\\1"\""/g'`")
 		ex -s '+1d' '+wq!' "${filename_list}";
 		set extension="`printf "\""%s"\"" "\""${original_filename}"\"" | sed -r 's/^(.*)\.([^.]+)"\$"/\2/g'`";
@@ -356,13 +348,53 @@ filename_next:
 		set callback="exec";
 		goto callback_handler;
 	end
+	
+	unset duration;
+	
+	set callback="display_duration";
+	goto callback_handler;
+#filename_next:
+
+
+display_duration:
+	set label_current="display_duration";
+	if( "${label_current}" != "${label_previous}" ) \
+		goto label_stack_set;
+	
+	set extra_minutes=`printf "(%s)/60\n" $seconds | bc`;
+	if( ${?debug} || ${?debug_length} ) \
+		printf "Calculating total duration:\n\thours:\t${hours}\n\tminutes:\t${minutes}\n\tseconds:\t${seconds}\n\textra_minutes:\t${extra_minutes}\n";
+	if( ${?debug} || ${?debug_length} ) \
+		printf "Calculating seconds:\n\t(%s)%%60\n" "$seconds";
+	set seconds=`printf "(%s)%%60\n" "$seconds" | bc`;
+	if( ${?debug} || ${?debug_length} ) \
+		printf "Calculating hours:\n\t%s\n" "$hours";
+	set hours=`printf "%s\n" "$hours" | bc`;
+	if( ${?debug} || ${?debug_length} ) \
+		printf "Calculating hours:\n\t%s+((%s+%s)/60)\n" "$hours" "$extra_minutes" "$minutes";
+	set hours=`printf "%s+((%s+%s)/60)\n" "$hours" "$extra_minutes" "$minutes" | bc`;
+	if( ${?debug} || ${?debug_length} ) \
+		printf "Calculating minutes:\n\t(%s+%s)%%60\n" "$extra_minutes" "$minutes";
+	set minutes=`printf "(%s+%s)%%60\n" "$extra_minutes" "$minutes" | bc`;
+	if( ${?debug} || ${?debug_length} ) \
+		printf "Calculated total duration:\n\thours:\t${hours}\n\tminutes:\t${minutes}\n\tseconds:\t${seconds}\n\textra_minutes:\t${extra_minutes}\n";
+	
+	if( $seconds < 10 ) \
+		set seconds="0${seconds}";
+	
+	if( $minutes < 10 ) \
+		set minutes="0${minutes}";
+	
+	if( $hours < 10 ) \
+		set hours="0${hours}";
+	
 	#printf "Total duration for all filess listed in:\n\t<file://%s>\n" "${playlist}";
 	printf "\t%s hours; %s minutes; %s seconds.\n" "${hours}" "${minutes}" "${seconds}";
 	rm "${filename_list}";
 	unset filename filename_list playlist;
 	set callback="parse_arg";
 	goto callback_handler
-#filename_next:
+#display_duration:
 
 scripts_main_quit:
 	set label_current="scripts_main_quit";
@@ -496,6 +528,8 @@ scripts_main_quit:
 	
 	if( ${?debug} ) \
 		unset debug;
+	if( ${?debug_length} ) \
+		unset debug_length;
 	if( ${?script_diagnosis_log} ) \
 		unset script_diagnosis_log;
 	
@@ -783,8 +817,17 @@ parse_arg:
 				breaksw;
 			
 			case "debug":
-				if(! ${?debug} ) \
-					set debug;
+				switch("${value}")
+					case "length":
+						if(! ${?debug_length} ) \
+							set debug_length;
+						breaksw;
+					
+					default:
+						if(! ${?debug} ) \
+							set debug;
+						breaksw;
+				endsw
 				breaksw;
 			
 			case "diagnosis":
@@ -869,12 +912,6 @@ parse_arg:
 				endsw
 				breaksw;
 			
-			case "nodeps":
-			case "debug":
-			case "diagnosis":
-			case "diagnostic-mode":
-				breaksw;
-					
 			default:
 				if( -e "${value}" && ! ${?playlist} ) then
 					set playlist="${value}";
@@ -978,7 +1015,7 @@ label_stack_set:
 	set callback=${label_previous};
 	
 	if( ${?debug} ) \
-		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/stdout;
+		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/tty;
 	goto callback_handler;
 #label_stack_set:
 
@@ -1007,7 +1044,7 @@ callback_handler:
 	endif
 	unset callback;
 	if( ${?debug} ) \
-		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
+		printf "handling callback to [%s].\n" "${last_callback}" > /dev/tty;
 	
 	goto $last_callback;
 #callback_handler:

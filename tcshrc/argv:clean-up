@@ -63,7 +63,7 @@ finished_sourcing_tcsh_rc_source_file:
 		unsetenv TCSH_OUTPUT_DISABLED;
 		setenv TCSH_OUTPUT_ENABLED;
 		
-		set stdout=/dev/stdout;
+		set stdout=/dev/tty;
 		setenv stdout ${stdout};
 		
 		set stderr=/dev/stderr;

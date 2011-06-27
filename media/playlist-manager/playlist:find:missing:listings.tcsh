@@ -8,7 +8,12 @@ init:
 	if(! ${?0} ) then
 		@ errno=-501;
 		goto exception_handler;
+	else if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
+		@ errno=-501;
+		goto exception_handler;
 	endif
+	
+	alias ex "ex -E -X -n --noplugin";
 	
 	set argc=${#argv};
 	if( ${argc} < 2 ) then

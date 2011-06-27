@@ -5,16 +5,16 @@ switch ( "${1}" )
 case "--editor=gedit":
 case "--editor=connectED":
 	shift;
-	set my_editor = "${1}"
+	set my_editor="${1}"
 	breaksw
 case "--editor=vi":
 case "--editor=vim":
 case "--editor=vim-enhanced":
 	shift;
-	set my_editor = `printf "%s -p" "vim-enhanced"`
+	set my_editor=`printf "%s -p" "vim-enhanced"`
 	breaksw
 default:
-	set my_editor = `printf "%s -p" "vim-enhanced"`
+	set my_editor=`printf "%s -p" "vim-enhanced"`
 	breaksw
 endsw
 

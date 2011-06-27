@@ -55,9 +55,11 @@ exit_script:
 	if(! ${?errno} ) \
 		@ errno=0;
 	
-	if( $errno == 0 ) \
-		source "${TCSH_RC_SESSION_PATH}/logout.cshrc.tcsh" $argv;
-	
+	if( $errno == 0 ) then
+		touch "${histfile}.lock";
+		source "${TCSH_RC_SESSION_PATH}/history.check.cshrc.tcsh" ${argv};
+	endif
+
 	if( -e "${histfile}.lock" ) \
 		/bin/rm -fv "${histfile}.lock";
 	

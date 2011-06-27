@@ -55,7 +55,7 @@ sub var_escape_for_shell{
 		open(tcsh_script, ">", "$tcsh_script");
 		open(rm_lst, "<", "$rm_lst");
 		print tcsh_script "#!/bin/tcsh -f\n";
-		while(my $line = <rm_lst>){
+		while(my $line=<rm_lst>){
 			print tcsh_script "$line";
 		}
 		print tcsh_script "rm -v $tcsh_script\n";

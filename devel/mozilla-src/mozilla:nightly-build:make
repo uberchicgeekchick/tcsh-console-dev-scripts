@@ -10,7 +10,7 @@ while( $arg < $argc )
 		case "--firefox":
 		case "--xulrunner":
 		case "--thunderbird":
-			set project="`echo $argv[$arg] | sed -r 's/\-\-(.*)"\$"/\1/'`";
+			set project="`printf "\""%s"\"" "\""$argv[$arg]"\"" | sed -r 's/\-\-(.*)"\$"/\1/'`";
 			breaksw;
 		
 		case "firefox":

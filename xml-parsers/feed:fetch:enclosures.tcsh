@@ -3,13 +3,13 @@
 init:
 	if(! ${?0} ) then
 		set status=-1;
-		printf "This script cannot be sourced; only executed.\n" > /dev/stdout;
+		printf "This script cannot be sourced; only executed.\n" > /dev/tty;
 		goto usage;
 	endif
 	
 	onintr exit_script;
 	
-	set scripts_basename="`basename '${0}'`";
+	set scripts_basename="`basename "\""${0}"\""`";
 	
 	set argc=${#argv};
 	if( ${argc} < 1 ) then
@@ -23,7 +23,7 @@ init:
 	endif
 	
 	set old_owd="${cwd}";
-	cd "`dirname '${0}'`";
+	cd "`dirname "\""${0}"\""`";
 	set scripts_path="${cwd}";
 	cd "${owd}";
 	set owd="${old_owd}";
@@ -41,7 +41,7 @@ init:
 	set download_command="wget";
 	set download_command_with_options="${download_command} --no-check-certificate --quiet --continue --output-document";
 	
-	alias ${download_command} "${download_command_with_options}";
+	alias "${download_command}" "${download_command_with_options}";
 	
 	set status=0;
 	set logging;
@@ -103,7 +103,7 @@ main:
 	endif
 	
 	if(! ${?silent} ) then
-		set output=/dev/stdout;
+		set output=/dev/tty;
 	else
 		set output=/dev/null;
 	endif
@@ -213,13 +213,16 @@ fetch_podcast:
 		goto fetch_podcasts;
 	endif
 	
+	if( "`printf "\""%s"\"" "\""${feed}"\"" | sed -r 's/^([^:]+):\/\/(www\.)?([^.]+)(\.[^/]+)\/.*"\$"/\L\1\2/ig'`" == "podiobooks.com" ) \
+		set title="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^(.+)( - A free audiobook by )(.+)"\$"/\1/ig'`";
+	
 	if( "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^(the)(.*)"\$"/\L\1/ig'`" == "the" ) \
 		set title="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^(the) (.*)"\$"/\2, \1/ig'`";
 	
 	if( "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^([^:]+): (.*)"\$"/\L\1/ig'`" == "librivox" ) \
 		set title="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/^([^:]+: )(.+)( by )([^,]+), (.+)"\$"/\2\3\5 \4/g'`";
 	
-	if(! -d "${title}" ) \
+	if(! -d "./${title}" ) \
 		mkdir -p "./${title}";
 	set old_owd="${owd}";
 	if( "`alias cwdcmd`" != "" ) \
@@ -287,13 +290,13 @@ fetch_podcast:
 	ex -s '+1,$s/^\v([0-9])([^0-9])/0\1\2/' '+1,$s/\v([^0-9])([0-9])([^0-9])/\10\2\3/g' '+1,$s/\v([^0-9])([0-9])$/\10\2/' '+1,$s/\v0?(8)(een)/1\1/gi' '+1,$s/\v0?(8)(y)/\10/gi' '+1,$s/\v0([1-9])(teen)/1\1/i' '+1,$s/\v0([2-9])(ty)/\10/i' '+wq!' './00-titles.lst';
 	
 	#start: fixing/renaming roman numerals
-	ex -s '+1,$s/\ I\ /\ 1\ /g' '+1,$s/\ II\ /\ 2\ /g' '+1,$s/\ III\ /\ 3\ /g' '+1,$s/\ IV\ /\ 4\ /g' '+1,$s/\ V\ /\ 5\ /g' '+wq!' './00-titles.lst';
-	ex -s '+1,$s/\ VI\ /\ 6\ /g' '+1,$s/\ VII\ /\ 7\ /g' '+1,$s/\ VIII\ /\ 8\ /g' '+1,$s/\ IX\ /\ 9\ /g' '+1,$s/\ X\ /\ 10\ /g' '+wq!' './00-titles.lst';
+	ex -s '+1,$s/\ I\ /\ 01\ /g' '+1,$s/\ II\ /\ 02\ /g' '+1,$s/\ III\ /\ 03\ /g' '+1,$s/\ IV\ /\ 04\ /g' '+1,$s/\ V\ /\ 05\ /g' '+wq!' './00-titles.lst';
+	ex -s '+1,$s/\ VI\ /\ 06\ /g' '+1,$s/\ VII\ /\ 07\ /g' '+1,$s/\ VIII\ /\ 08\ /g' '+1,$s/\ IX\ /\ 09\ /g' '+1,$s/\ X\ /\ 10\ /g' '+wq!' './00-titles.lst';
 	ex -s '+1,$s/\ XI\ /\ 11\ /g' '+1,$s/\ XII\ /\ 12\ /g' '+1,$s/\ XIII\ /\ 13\ /g' '+1,$s/\ XIV\ /\ 14\ /g' '+1,$s/\ XV\ /\ 15\ /g' '+wq!' './00-titles.lst';
 	ex -s '+1,$s/\ XVI\ /\ 16\ /g' '+1,$s/\ XVII\ /\ 17\ /g' '+1,$s/\ XVIII\ /\ 18\ /g' '+1,$s/\ XIX\ /\ 19\ /g' '+1,$s/\ XX\ /\ 20\ /g' '+wq!' './00-titles.lst';
 	
 	# removes 'directory' seporators.
-	ex -s '+1,$s/\//\ \-\ /g' '+wq!' './00-titles.lst'
+	ex -s '+1,$s/\//\ \-\ /g' '+1,$s/\v\<[^>]+\>' '+wq!' './00-titles.lst'
 	# removes & trims white spaces.
 	ex -s '+1,$s/\v[ ]{2,}/\ /g' '+1,$s/^ //' '+1,$s/ $//' '+wq!' './00-titles.lst';
 	
@@ -399,6 +402,7 @@ continue_download:
 		printf "\n\tFinishing downloading %s episodes of:\n\t\t'%s'\n\n" "${#episodes}" "${title}";
 	@ episodes_downloaded=0;
 	@ episodes_number=0;
+	goto fetch_episodes;
 #continue_download:
 
 fetch_episodes:
@@ -411,6 +415,9 @@ fetch_episodes:
 		onintr finish_fetching;
 		sleep 2;
 	endif
+	
+	if(! -e './00-enclosures.lst' ) \
+		goto finish_fetching;
 	
 	foreach episode ( "`cat './00-enclosures.lst'`" )
 		ex -s '+1d' '+wq!' "./00-enclosures.lst";
@@ -448,11 +455,16 @@ fetch_episode:
 	endif
 	
 	if( ${?interactive} ) then
-		printf "\n\t\tWould you like to download %s episode: <%s>? [Yes(default)/No] " "${title}" "${episodes_title}";
+		printf "\n\t\tWould you like to download %s episode: <%s>?\n\t[Y]es (default), [N]o, or [C]ancel downloading %s:" "${title}" "${episodes_title}" "${title}";
 		set confirmation="$<";
 		printf "\n";
 		
 		switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+			case "c":
+				unset episode episodes_filename;
+				goto finish_fetching;
+				breaksw;
+			
 			case "n":
 				printf "\n\t\t**Skipping:** <file://%s>\n" "${episodes_filename}";
 				unset episodes_filename;
@@ -484,15 +496,15 @@ fetch_episode:
 		goto fetch_episodes;
 	endif
 	
-	if( -e "./${episodes_filename}" ) then
-		${download_command_with_options} "./${episodes_filename}" "${episode}";
-		if( ${?logging} ) \
-			printf "\t\t\t[sfinished download of existing file]" >> "${download_log}";
-		if(! ${?silent} ) \
-			printf "\t\t\t[finished download of existing file]";
-		unset episodes_filename;
-		goto fetch_episodes;
-	endif
+	#if( -e "./${episodes_filename}" ) then
+	#	${download_command_with_options} "./${episodes_filename}" "${episode}";
+	#	if( ${?logging} ) \
+	#		printf "\t\t\t[sfinished download of existing file]" >> "${download_log}";
+	#	if(! ${?silent} ) \
+	#		printf "\t\t\t[finished download of existing file]";
+	#	unset episodes_filename;
+	#	goto fetch_episodes;
+	#endif
 	
 	switch ( "`basename '${episodes_file}'`" )
 		case "theend.mp3":
@@ -559,9 +571,9 @@ fetch_episode:
 				printf "\t\t\t[*w00t\!*, FTW\!]" >> "${download_log}";
 			if(! ${?silent} ) \
 				printf "\t\t\t[*w00t\!*, FTW\!]";
-			if( ${?playlist} ) then
-				printf "%s/%s\n" "${cwd}" "${episodes_filename}" >> "${playlist}";
-			endif
+			#if( ${?playlist} ) then
+			#	printf "%s/%s\n" "${cwd}" "${episodes_filename}" >> "${playlist}";
+			#endif
 		endif
 	endif
 	unset episodes_filename;

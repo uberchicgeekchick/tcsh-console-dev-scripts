@@ -33,6 +33,7 @@ alias ls "ls-F ${LS_OPTIONS}";
 alias ll "ls -l";
 alias l "ll";
 alias lc "ls --width=1";
+alias lw "lc";
 alias lt "lc -t";
 alias la "ls --all";
 alias lA "ls --almost-all";

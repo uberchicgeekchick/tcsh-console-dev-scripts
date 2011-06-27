@@ -46,7 +46,8 @@ set-alias rd "rmdir -v";
 
 set-alias rm "rm --verbose";
 set-alias rr "rm --recursive";
-set-alias rf "/bin/rm --recursive --force";
+#set-alias rf "/bin/rm --recursive --force";
+set-alias rf "/bin/rm --recursive";
 
 set-alias pidof "pidof -x";
 complete pidof 'p/*/c/';
@@ -76,7 +77,8 @@ set-alias shasum "shasum --algorithm 512";
 
 set-alias screen-saver "gnome-screensaver-command --activate &";
 set-alias unzip "unzip -o -q";
-set-alias ispell "aspell -a --sug-mode=normal";
+set-alias aspell "aspell -a --sug-mode=normal";
+set-alias ispell "aspell";
 
 set-alias alsamixer "alsamixer -V all";
 

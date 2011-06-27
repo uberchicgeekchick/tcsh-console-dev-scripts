@@ -12,7 +12,6 @@ if( $args_handled > 0 ) then
 endif
 unset args_handled;
 
-
 set status=0;
 touch "${histfile}.lock";
 

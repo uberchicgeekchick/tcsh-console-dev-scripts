@@ -26,16 +26,16 @@ use Image::Magick;
 
 # Constants
 
-my @color_int_values = qw/0 95 135 175 215 255/; # determined by direct measurement in urxvt-256color
-my @color_hex_values = map {sprintf("%02X", $_)} @color_int_values;
-my @greyscale_int_values = (); # same as above
-my $n = 8;
+my @color_int_values=qw/0 95 135 175 215 255/; # determined by direct measurement in urxvt-256color
+my @color_hex_values=map {sprintf("%02X", $_)} @color_int_values;
+my @greyscale_int_values=(); # same as above
+my $n=8;
 while($n < 240)
 {
   push(@greyscale_int_values,$n);
   $n += 10;
 }
-my @greyscale_hex_values = map {sprintf("%02X", $_)} @greyscale_int_values;
+my @greyscale_hex_values=map {sprintf("%02X", $_)} @greyscale_int_values;
 
 
 
@@ -43,14 +43,14 @@ my @greyscale_hex_values = map {sprintf("%02X", $_)} @greyscale_int_values;
 
 sub term2hex
 {
-  my $arg = $_[0];
+  my $arg=$_[0];
   if ($arg > 15 and $arg < 232)
   {
     $arg -= 16;
-    my $b = $arg % 6;
-    my $g = int($arg/6) % 6;
-    my $r = int($arg/36) % 6;
-    ($r,$g,$b) = map {$color_hex_values[$_]} ($r,$g,$b);
+    my $b=$arg % 6;
+    my $g=int($arg/6) % 6;
+    my $r=int($arg/36) % 6;
+    ($r,$g,$b)=map {$color_hex_values[$_]} ($r,$g,$b);
     return '#' . join('',$r,$g,$b);
   }
   elsif ($arg > 231 and $arg < 256)
@@ -67,36 +67,36 @@ sub term2hex
 
 sub rgb2term
 {
-  my ($r,$g,$b) = map {255 * $_} @_;
-  my ($cr,$cg,$cb) = map {&get_closest_color($_)} ($r,$g,$b);
-  my ($gr,$gg,$gb) = map {&get_closest_greyscale($_)} ($r,$g,$b);
+  my ($r,$g,$b)=map {255 * $_} @_;
+  my ($cr,$cg,$cb)=map {&get_closest_color($_)} ($r,$g,$b);
+  my ($gr,$gg,$gb)=map {&get_closest_greyscale($_)} ($r,$g,$b);
 
-  my @vectors = ([$cr,$cg,$cb],[($gr) x 3], [($gg) x 3], [($gb) x 3]);
+  my @vectors=([$cr,$cg,$cb],[($gr) x 3], [($gg) x 3], [($gb) x 3]);
 
-  my $shortest = 0x1000000;
-  my $closest = 0;
+  my $shortest=0x1000000;
+  my $closest=0;
   for(my $i=0; $i<scalar(@vectors); $i++)
   {
-    my ($vr,$vg,$vb) = @{ $vectors[$i] };
-    my $d = &get_vector_distance_squared($r,$g,$b,$vr,$vg,$vb);
+    my ($vr,$vg,$vb)=@{ $vectors[$i] };
+    my $d=&get_vector_distance_squared($r,$g,$b,$vr,$vg,$vb);
     if ($d < $shortest)
     {
-      $closest = $i;
-      $shortest = $d;
+      $closest=$i;
+      $shortest=$d;
     }
   }
-  ($r,$g,$b) = @{ $vectors[$closest] };
+  ($r,$g,$b)=@{ $vectors[$closest] };
   if ($closest == 0)
   {
-    ($r,$g,$b) = map {&get_index($_,@color_int_values)} ($r,$g,$b);
+    ($r,$g,$b)=map {&get_index($_,@color_int_values)} ($r,$g,$b);
     return 16 + $b + 6*$g + 36*$r;
   }
   else
   {
     my $color;
-    if ($r == 0) {$color = 16;}
-    elsif ($r == 255) {$color = 231;}
-    else {$color = &get_index($r,@greyscale_int_values) + 232}
+    if ($r == 0) {$color=16;}
+    elsif ($r == 255) {$color=231;}
+    else {$color=&get_index($r,@greyscale_int_values) + 232}
     return $color;
   }
 }
@@ -122,16 +122,16 @@ sub get_closest_greyscale
 
 sub get_closest
 {
-  my ($arg,@int_values) = @_;
-  my $closest = 0;
-  my $shortest = 256;
+  my ($arg,@int_values)=@_;
+  my $closest=0;
+  my $shortest=256;
   foreach my $val (@int_values)
   {
-    my $d = abs($arg - $val);
+    my $d=abs($arg - $val);
     if ($d < $shortest)
     {
-      $closest = $val;
-      $shortest = $d;
+      $closest=$val;
+      $shortest=$d;
     }
   }
   return $closest;
@@ -141,33 +141,33 @@ sub get_closest
 
 sub get_index
 {
-  my $arg = shift;
+  my $arg=shift;
   return (grep {$arg eq $_[$_]} (0..scalar(@_)-1))[0];
 }
 
 sub get_vector_distance_squared
 {
-  my ($a,$b,$c,$u,$v,$w) = @_;
+  my ($a,$b,$c,$u,$v,$w)=@_;
   return ($a-$u)**2 + ($b-$v)**2 + ($c-$w)**2;
 }
 
 sub print_pixel
 {
-  my $color = &rgb2term(@_);
+  my $color=&rgb2term(@_);
   print "\x1b[0;48;5;${color}m ";
 }
 
 
 
 
-my %options = (
+my %options=(
   '-w' => undef,
   '-h' => undef,
   '-r' => undef,
   '-p' => 0
 );
 
-my @switches = qw/-p/;
+my @switches=qw/-p/;
 
 
 
@@ -207,17 +207,17 @@ exit(1);
 }
 
 
-my @fpaths = ();
+my @fpaths=();
 while (@ARGV)
 {
-  my $arg = shift @ARGV;
+  my $arg=shift @ARGV;
   if (grep {$arg eq $_} @switches)
   {
-    $options{$arg} = 1;
+    $options{$arg}=1;
   }
   elsif (exists($options{$arg}))
   {
-    $options{$arg} = shift @ARGV;
+    $options{$arg}=shift @ARGV;
   }
   elsif ($arg eq '--help')
   {
@@ -234,7 +234,7 @@ sub get_term_width
 {
   if (-x '/bin/tput')
   {
-    my $cols = `/bin/tput cols`;
+    my $cols=`/bin/tput cols`;
     chomp  $cols;
     return $cols;
   }
@@ -245,37 +245,37 @@ sub get_term_width
 }
 
 
-my $c = $options{'-w'};
+my $c=$options{'-w'};
 if (not $c)
 {
-  $c = &get_term_width();
+  $c=&get_term_width();
 }
-my $l = $options{'-h'};
-my $ratio = $options{'-r'};
-my $pause = $options{'-p'};
+my $l=$options{'-h'};
+my $ratio=$options{'-r'};
+my $pause=$options{'-p'};
 
 &display_help() if not (@fpaths and $c);
 
 foreach my $fpath (@fpaths)
 {
-  my $image = Image::Magick->new();
+  my $image=Image::Magick->new();
   $image->Read($fpath);
   my $w;
   my $h;
   if (defined($ratio))
   {
-    $w = $image->Get('width');
-    $h = $image->Get('height');
+    $w=$image->Get('width');
+    $h=$image->Get('height');
   
-    $l = int($c * $h / $w) if not defined($l);
+    $l=int($c * $h / $w) if not defined($l);
   
     if ($ratio < 1) { $w /= $ratio; }
     else { $h *= $ratio; }
-    my $f1 = $l/$h;
-    my $f2 = $c/$w;
-    my $f = ($f1 > $f2) ? $f2 : $f1;
-    $w = int($f*$w);
-    $h = int($f*$h);
+    my $f1=$l/$h;
+    my $f2=$c/$w;
+    my $f=($f1 > $f2) ? $f2 : $f1;
+    $w=int($f*$w);
+    $h=int($f*$h);
     $image->Scale('width'=>$w, 'height'=>$h);
   }
   else
@@ -287,13 +287,13 @@ foreach my $fpath (@fpaths)
     else
       { $image->Resize('geometry'=>$c.'x'); }
   }
-  $w = $image->Get('width');
-  $h = $image->Get('height');
+  $w=$image->Get('width');
+  $h=$image->Get('height');
   for (my $y=1;$y<=$h;$y++)
   {
     for (my $x=1;$x<=$w;$x++)
     {
-      my @rgb = $image->GetPixel('x'=>$x, 'y'=>$y, 'channel'=>'RGB');
+      my @rgb=$image->GetPixel('x'=>$x, 'y'=>$y, 'channel'=>'RGB');
       &print_pixel(@rgb);
     }
     print "\x1b[0;49;m";

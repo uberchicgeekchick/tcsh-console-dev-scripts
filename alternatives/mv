@@ -4,7 +4,7 @@ init:
 		set stdout=/dev/null;
 		set stderr=/dev/null;
 	else
-		set stdout=/dev/stdout;
+		set stdout=/dev/tty;
 		set stderr=/dev/stderr;
 	endif
 	
@@ -286,27 +286,24 @@ exec:
 	endif
 	
 	if(! -e "${target}" ) then
-		if( ${?debug} && ${?be_verbose} ) \
-			printf "Creating <file://%s>..." "${target}";
 		if( $sources_count > 1 || "`printf "\""%s"\"" "\""${escaped_target}"\"" | sed -r 's/.*(\/)"\$"/\1/'`" == "/" ) then
-			set creating_dir;
-			mkdir -p "${target}";
+			set creating_dir="${target}";
 		else if(! -d "`dirname "\""${escaped_target}"\""`" ) then
-			set creating_dir;
-			mkdir -p "`dirname "\""${escaped_target}"\""`";
+			set creating_dir="`dirname "\""${escaped_target}"\""`";
 		endif
 		if( ${?creating_dir} ) then
-			unset creating_dir;
-			if(! -d "${target}" ) then
+			if( ${?debug} && ${?be_verbose} ) \
+				printf "Creating <file://%s>..." "${creating_dir}";
+			
+			mkdir -p "${creating_dir}";
+			if(! -d "${creating_dir}" ) then
 				if(!( ${?debug} && ${?be_verbose} )) then
-					printf "**error:** could not create [%s] target parent directories.\n" "${target}";
-				else
-					#if( ${?debug} && ${?be_verbose} ) then
-					printf "\t[failed]\n";
+					printf "\t[failed]\n\t\t**error:** could not create [%s] target parent directories.\n" "${creating_dir}";
 				endif
 			else if( ${?debug} && ${?be_verbose} ) then
 				printf "\t[finished]\n";
 			endif
+			unset creating_dir;
 		endif
 	endif
 	unset sources_count;

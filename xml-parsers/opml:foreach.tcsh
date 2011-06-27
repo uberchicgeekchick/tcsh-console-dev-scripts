@@ -118,7 +118,7 @@ while( ${?1} && "${1}" != "" )
 		if( ${?message} ) then
 			printf "%s\t <%s>\n\t\t\t" "${message}" "${podcast}";
 		endif
-		( ${exec} ${actions}"${podcast}" > /dev/stdout ) >& /dev/stderr;
+		( ${exec} ${actions}"${podcast}" > /dev/tty ) >& /dev/stderr;
 		if( "${status}" == "0" ) then
 			printf "[succeeded]";
 		else

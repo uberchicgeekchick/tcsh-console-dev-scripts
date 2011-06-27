@@ -5,7 +5,7 @@ init:
 	if(! ${?0} ) \
 		set being_sourced;
 	
-	set scripts_basename="fsck.ext2.usb";
+	set scripts_basename="fsck.ext2.extended";
 	
 	set escaped_cwd="`printf '%s' '${cwd}' | sed -r 's/\//\\\//g'`";
 	set escaped_home_dir="`printf '%s' '${HOME}' | sed -r 's/\//\\\//g'`";
@@ -189,6 +189,9 @@ main:
 	if(! ${?check} ) \
 		set check;
 	
+	if(! ${?be_verbose} ) \
+		set be_verbose;
+	
 	if(! ${?use_sudo} ) then
 		if( ${uid} != 0 ) then
 			set use_sudo="sudo ";
@@ -214,8 +217,8 @@ exec:
 	set current_label="exec";
 	
 	printf "Executing %s's exec.\n" "${scripts_basename}";
-	printf "\n-----------------** fsck'ing <%s> **-----------------\n\tRunning: %s.ext2 -yf%s %s\n" "${usb}" "${use_sudo}fsck" "${check}" "${usb}";
-	${use_sudo}fsck.ext2 -yf${check} "${usb}";
+	printf "\n-----------------** fsck'ing <%s> **-----------------\n\tRunning: %s.ext2 -yf%s%s %s\n" "${usb}" "${use_sudo}fsck" "${be_verbose}" "${check}" "${usb}";
+	${use_sudo}fsck.ext2 -yf${be_verbose}${check} "${usb}";
 	if(!( $status == 0 )) then
 		printf "\n\n";
 		goto exec;
@@ -234,6 +237,8 @@ scripts_main_quit:
 		unset devices;
 	if( ${?use_sudo} ) \
 		unset use_sudo;
+	if( ${?be_verbose} ) \
+		unset be_verbose;
 	if( ${?check} ) \
 		unset check;
 	
@@ -493,13 +498,24 @@ parse_arg:
 					set debug;
 				breaksw;
 			
+			case "d":
+			case "dev":
 			case "devices":
-				set devices=${value};
+				if(! ${?devices} ) then
+					set devices=( ${value} );
+				else
+					set devices=( ${devices}, ${value} );
+				endif
 				breaksw;
 			
 			case "c":
 			case "check":
 				set check="c";
+				breaksw;
+			
+			case "v":
+			case "verbose":
+				set be_verbose="v";
 				breaksw;
 			
 			case "diagnosis":
@@ -619,7 +635,7 @@ callback_handler:
 		unset callback;
 	endif
 	if( ${?debug} || ${?diagnostic_mode} ) \
-		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
+		printf "handling callback to [%s].\n" "${last_callback}" > /dev/tty;
 	
 	goto $last_callback;
 #callback_handler:

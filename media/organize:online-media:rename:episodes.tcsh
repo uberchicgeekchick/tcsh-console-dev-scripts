@@ -4,6 +4,7 @@ if(! ${?0} ) then
 	exit -1;
 endif
 
+set keep_pubDate;
 parse_argv:
 	while( "${1}" != "" )
 		set value="${1}";
@@ -11,11 +12,10 @@ parse_argv:
 		
 		switch("${value}")
 			case "--keep-pubdates":
-			case "--keep-pubdates":
-				set keep_pubDate;
+				if(! ${?keep_pubDate} ) \
+					set keep_pubDate;
 				breaksw;
 			
-			case "--drop-pubdates":
 			case "--drop-pubdates":
 				if( ${?keep_pubDate} ) \
 					unset keep_pubDate;
@@ -51,14 +51,14 @@ exit_script:
 
 
 rename_episodes:
-	set books_title="`basename "\""${target_directory}"\"" | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g'`";
+	set books_title="`basename "\""${target_directory}"\"" | sed -r 's/^ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g'`";
 	
-	foreach episode("`/usr/bin/find -L "\""${target_directory}"\"" -regextype posix-extended -iregex '.*\.([^\.]+)"\$"' -type f | sort | sed -r 's/^\ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g'`")
+	foreach episode("`/usr/bin/find -L "\""${target_directory}"\"" -regextype posix-extended -iregex '.*\.([^.]+)"\$"' -type f | sort | sed -r 's/^ //' | sed -r 's/(["\""])/"\""\\"\"""\""/g' | sed -r 's/["\$"]/"\""\\"\$""\""/g' | sed -r 's/(['\!'])/\\\1/g'`")
 		
-		set title="`printf "\""%s"\"" "\""${episode}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on\:\ [^\.]*)\.([^\.]+)"\$"/\1\/\2\.\4/g'`";
+		set title="`printf "\""%s"\"" "\""${episode}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on\:\ [^.]*)\.([^.]+)"\$"/\1\/\2\.\4/g'`";
 		#echo $title;
 		
-		set books_chapter_or_episode_string="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/(.*)\/(.*)([CE])?(hapter|pisode)?[^\.]*[^\.]+\.([^\.]+)/\u\3\L\4/ig' | sed -r 's/^0//'`";
+		set books_chapter_or_episode_string="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/(.*)\/(.*)([CE])?(hapter|pisode)?[^.]*[^.]+\.([^.]+)/\u\3\L\4/ig' | sed -r 's/^0//'`";
 		if( "${books_chapter_or_episode_string}" == "" || "${books_chapter_or_episode_string}" == "${title}" ) then
 			set books_chapter_or_episode_string="Episode";
 			#printf "Cannot rename <%s> it does not appear to be a numbered episode or chapter release.\n" "${episode}" > /dev/stderr;
@@ -66,24 +66,24 @@ rename_episodes:
 			#continue;
 		endif
 		
-		set books_path="`printf "\""%s"\"" "\""${episode}"\"" | sed -r 's/^(.*)\/.*\.([^\.]+)"\$"/\1/g'`";
+		set books_path="`printf "\""%s"\"" "\""${episode}"\"" | sed -r 's/^(.*)\/([^/]*)"\$"/\1/g'`";
 		
-		set rel_string="`printf "\""%s"\"" "\""${episode}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on\:\ )([^\.]*)\.([^\.]+)"\$"/\3/g'`";
-		if( "${rel_string}" == "${episode}" ) \
-			set rel_string="";
-		
-		set pubDate="`printf "\""%s"\"" "\""${episode}"\"" | sed -r 's/^(.*)\/(.*)(,\ released\ on\:\ )([^\.]*)\.([^\.]+)"\$"/\4/g'`";
+		set pubDate="`printf "\""%s"\"" "\""${episode}"\"" | sed -r 's/^(.*)\/(.*)(, released on: [^.]*)\.([^.]+)"\$"/\3/g'`";
 		if( "${pubDate}" == "${episode}" ) \
 			set pubDate="";
 		
-		set books_chapter_number="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/(.*)\/[^0-9\/]*([0-9]+).*(.*)"\$"/\2/g' | sed -r 's/^0//'`";
+		set episode_title="`printf "\""%s"\"" "\""${episode}"\"" | sed -r 's/(.*)\/(.*)([CE])?(hapter|pisode)?([^,])(, released on: [^.]+)\.([^.]+)/\2/ig'`";
+		if( "${episode_title}" == "${episode}" ) \
+			set episode_title="";
+		
+		set books_chapter_number="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/(.*)\/[^0-9/]*([0-9]+)(.*)"\$"/\2/g' | sed -r 's/^0//'`";
 		if( "${books_chapter_number}" == "" || "${books_chapter_number}" == "${title}" ) then
 			printf "Cannot rename <%s> it does not appear to be a numbered episode or chapter release.\n" "${episode}" > /dev/stderr;
 			unset books_chapter_or_episode_string;
 			continue;
 		endif
 		
-		set extension="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\/[^\/]+\.([^\.]+)"\$"/\1/g'`";
+		set extension="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\/[^/]+\.([^.]+)"\$"/\1/g'`";
 		
 		#echo "${books_path}/<${books_title}> - [${books_chapter_or_episode_string}] [#${books_chapter_number}].${extension}";
 		if( $books_chapter_number < 10 && `printf "%s" "${books_chapter_number}" | wc -m` == 1 ) \
@@ -92,7 +92,7 @@ rename_episodes:
 		if(! ${?keep_pubDate} ) then
 			set new_episode_title="${books_path}/${books_title} - ${books_chapter_or_episode_string} ${books_chapter_number}.${extension}";
 		else
-			set new_episode_title="${books_path}/${books_title} - ${books_chapter_or_episode_string}${rel_string} ${books_chapter_number}.${extension}";
+			set new_episode_title="${books_path}/${books_title} - ${books_chapter_or_episode_string}${pubDate} ${books_chapter_number}.${extension}";
 		endif
 		if(!( "${new_episode_title}" == "${episode}" && -e "${new_episode_title}" )) then
 			mv -v "${episode}" "${new_episode_title}";

@@ -5,9 +5,9 @@ if(! ${?0} ) then
 	exit ${status};
 endif
 
-set music_path = "/media/music";
-set music_library = "`basename '${0}' | sed -r 's/.*organize:(.*)\.tcsh"\$"/\1/g'`";
-set podcasts_download_path = "/media/podcasts";
+set music_path="/media/music";
+set music_library="`basename '${0}' | sed -r 's/.*organize:(.*)\.tcsh"\$"/\1/g'`";
+set podcasts_download_path="/media/podcasts";
 
 if( ! -d "${music_path}/${music_library}" ) \
 	then;
@@ -24,7 +24,7 @@ if(! -d "Genres" ) \
 # Archiving all new sons, top tracks, or podcasts:
 ( find -L "${podcasts_download_path}" -type d -name "${music_library}*" >! "${podcasts_download_path}/.New ${music_library} Songs.lst" ) >& /dev/null;
 foreach genre ( "`cat '${podcasts_download_path}/.New ${music_library} Songs.lst'`" )
-	set genre = "`printf '${genre}' | sed -r 's/.*\/${music_library}\ (.*)\ top\ tracks.*/\1/g'`";
+	set genre="`printf '${genre}' | sed -r 's/.*\/${music_library}\ (.*)\ top\ tracks.*/\1/g'`";
 	printf "Moving %s's new %s songs\n" "${music_library}" "${genre}";
 	if( ! -d "Genres/${genre}" ) \
 		mkdir -p "Genres/${genre}";
@@ -39,17 +39,17 @@ foreach title ( "`find -L Genres -iregex '.*, released on.*'`" )
 	set pubdate="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\4/g'`";
 	if( "${pubdate}" == "" || "${pubdate}" == "${title}" ) \
 		continue;
-	set genre = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\1/g'`";
-	set song = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\2/g'`";
-	set artist = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\3/g'`";
-	set extension = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\.([^\.]+)"\$"/\1/g'`";
+	set genre="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\1/g'`";
+	set song="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\2/g'`";
+	set artist="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/Genres\/([^\/]+)\/(.*)\ by\ (.*)(, released on[^\.]*)\.([^\.]+)"\$"/\3/g'`";
+	set extension="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\.([^\.]+)"\$"/\1/g'`";
 	mv "${title}" "Genres/${genre}/${song} by ${artist}.${extension}";
 end
 
 foreach title ( "`find -L Genres -type f`" )
-	set song = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\/(.*)\ by\ (.*)\.([^\.]+)"\$"/\1/g'`";
-	set artist = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\/(.*)\ by\ (.*)\.([^\.]+)"\$"/\2/g'`";
-	set extension = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\.([^\.]+)"\$"/\1/g'`";
+	set song="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\/(.*)\ by\ (.*)\.([^\.]+)"\$"/\1/g'`";
+	set artist="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\/(.*)\ by\ (.*)\.([^\.]+)"\$"/\2/g'`";
+	set extension="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/.*\.([^\.]+)"\$"/\1/g'`";
 	
 	if( -e "Artists/${artist}/${song}.${extension}" ) \
 		continue;

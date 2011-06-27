@@ -71,7 +71,7 @@ dependencies_check:
 			unset program;
 		end
 		if(! ${?program} ) then
-			printf "<%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s]." "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
+			printf "<%s>'s %d%s dependency: <%s> couldn't be found.\n\t%s requires: [%s].\n" "${scripts_basename}" ${dependencies_index} "${suffix}" "${dependency}" "${scripts_basename}" "${dependencies}" > ${stderr};
 			unset suffix dependency dependencies dependencies_index;
 			@ errno=-501;
 			goto exit_script;
@@ -127,7 +127,7 @@ main:
 		if( ${?being_sourced} ) then
 			if( `alias "mount:sshfs:${ssh_account}"` == "" ) then
 				set set_alias;
-			else if( `alias "mount:sshfs:${ssh_account}"` != "${script} ${ssh_account}" ) then
+			else if( `alias "mount:sshfs.${ssh_account}"` != "${script} ${ssh_account}" ) then
 				set set_alias;
 			endif
 		endif
@@ -151,8 +151,8 @@ main:
 			set account_to_mount="${ssh_account}";
 			
 			if( ${?set_alias} ) then
-				alias "mount:sshfs:${ssh_account}" "${script} ${ssh_account}";
-				#alias "mount:sshfs:${ssh_account}" "sshfs '${ssh_user}@${ssh_server}:${ssh_path}' '${ssh_mount_point}'";
+				alias "mount:sshfs.${ssh_account}" "${script} ${ssh_account}";
+				#alias "mount:sshfs.${ssh_account}" "sshfs '${ssh_user}@${ssh_server}:${ssh_path}' '${ssh_mount_point}'";
 				unset set_alias;
 			endif
 		endif
@@ -169,7 +169,7 @@ main:
 
 ssh_mount:
 	if( "`mount | grep '$ssh_mount_point'`" != "" ) then
-		if( ${?TCSH_OUTPUT_ENABLED} ) \
+		if( ${?TCSH_OUTPUT_ENABLED} && ! ${?being_sourced} ) \
 			printf "%s is already connected to %s\n" "${ssh_user}" "${ssh_server}";
 		set status=-1;
 		unset ssh_account ssh_user ssh_server ssh_mount_point ssh_path;
@@ -180,7 +180,7 @@ ssh_mount:
 		if(! -e ${ssh_mount_point} ) then
 			mkdir -p "${ssh_mount_point}";
 		else
-			if( ${?TCSH_OUTPUT_ENABLED} ) \
+			if( ${?TCSH_OUTPUT_ENABLED} && ! ${?being_sourced} ) \
 				printf "%s's connection to %s has been terminated.\nAttempting to unmount.\n" "${ssh_user}" "${ssh_server}";
 			${use_sudo}umount -f "${ssh_mount_point}";
 		endif
@@ -196,7 +196,7 @@ ssh_mount:
 	
 	set sshfs_mount_test="`/bin/mount | grep '${ssh_mount_point}'`";
 	@ sshfs_mount_count=0;
-	if( ${?TCSH_OUTPUT_ENABLED} ) \
+	if( ${?TCSH_OUTPUT_ENABLED} && ! ${?being_sourced} ) \
 		printf "Mounting sshfs: [%s:%s]\t\t" ${ssh_server} ${ssh_path};
 	@ sshfs_max_attempts=10;
 	goto next_attempt;
@@ -208,10 +208,10 @@ next_attempt:
 	while ( ( $sshfs_mount_count <= $sshfs_max_attempts ) && ${#sshfs_mount_test} == 0 )
 		@ sshfs_mount_count++;
 		if( $sshfs_mount_count >= $sshfs_max_attempts ) then
-			if( ${?TCSH_OUTPUT_ENABLED} ) \
+			if( ${?TCSH_OUTPUT_ENABLED} && ! ${?being_sourced} ) \
 				printf "Maximum automated SSH attempts reached (%d out of %d connections attemted)." $sshfs_mount_count $sshfs_max_attempts;
 			set sshfs_mount_test="`printf 'mounting [%s@%s:%s] to [%s] failed\nexiting\n' '${ssh_user}' '${ssh_server}':'${ssh_path}' '${ssh_mount_point}'`";
-		else if( ${?TCSH_OUTPUT_ENABLED} ) then
+		else if( ${?TCSH_OUTPUT_ENABLED} && ! ${?being_sourced} ) then
 			printf "attempt %s out of %s [failed].\n" ${sshfs_mount_count} ${sshfs_max_attempts};
 			if( ${sshfs_mount_count} < ${sshfs_max_attempts} ) \
 				printf "\nre-attempting connection\n";
@@ -219,7 +219,7 @@ next_attempt:
 		goto sshfs_connect;
 	end
 	
-	if( ${?TCSH_OUTPUT_ENABLED} ) then
+	if( ${?TCSH_OUTPUT_ENABLED} && ! ${?being_sourced} ) then
 		if(!(${#sshfs_mount_test})) then
 			printf "[failed]\n";
 		else
@@ -254,8 +254,6 @@ env_unset:
 		unset arg_shifted;
 	if( ${?args_shifted} ) \
 		unset args_shifted;
-	if( ${?being_sourced} ) \
-		unset being_sourced;
 	if( ${?dashes} ) \
 		unset dashes;
 	if( ${?debug} ) \

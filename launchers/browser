@@ -1,85 +1,166 @@
 #!/bin/tcsh -f
-#setenv http_proxy "http://127.0.0.1:3128/";
-while( ${?1} && "${1}" != "" )
-	switch("${1}")
-		case "--firefox":
-		case "--links":
-		case "--lynx":
-			set browser="`echo -n '${1}' | sed -r 's/[\-]{2}(.*)/\1/'`";
-			shift;
-			breaksw
-		default:
-			if( ! ${?browser} && "`echo -n '${1}' | sed -r 's/[\-]{2}(browser)=(.*)/\1/'`" == "browser" ) then
-				set exec_test="`echo -n '${1}' | sed -r 's/[\-]{2}browser=(.*)/\1/'`";
-				foreach browser("`where '${exec_test}'`")
-					if( ${?exec_test} ) \
-						unset exec_test;
-					if( -x "${browser}" ) then
-						shift;
-						breaksw
-					endif
-				end
-				if( ${?browser} ) \
-					unset browser;
-			endif
-			
-			if( ${?url} ) then
-				set url="${url} ${1}";
-			else
-				set url="${1}";
-			endif
-			shift;
-			breaksw
-	endsw
-end
-
-if(! ${?browser} ) then
-	if( "${TERM}" == "gnome" ) then
-		set browsers=("firefox");
+init:
+	set scripts_basename="browser";
+	if(! ${?0} ) then
+		set sourced;
 	else
-		set browsers=("w3m" "links" "lynx" "firefox");
+		if( "`basename "\""${0}"\""`" != "${scripts_basename}" ) then
+			set sourced;
 	endif
-	foreach value(${browsers})
-		foreach browser("`where '${value}'`")
-			if( -x "${browser}" ) \
-				break;
+	
+	if( ${?sourced} ) then
+		printf "This script cannot be sourced.\n";
+		@ errno=-1;
+		goto exit_script;
+	endif
+		
+	set homepage="http://thepiratebay.org/";
+	set default_cli_bowser="links";
+	set default_gui_bowser="firefox";
+	#setenv http_proxy "http://127.0.0.1:3128/";
+	@ argc=${#argv};
+	@ arg=0;
+#goto init;
+
+
+parse_argv:
+	while( $arg < $argc )
+		@ arg++;
+		switch("$argv[$arg]")
+			case "--debug":
+				if(! ${?debug} ) \
+					set debug;
+				set argv[$arg]="";
+				breaksw;
+			
+			case "--w3m":
+			case "--firefox":
+			case "--links":
+			case "--lynx":
+				set browser="`printf "\""$argv[$arg]"\"" | sed -r 's/^[-]{2}(.*)"\$"/\1/'`";
+			
+			default:
+				if( ! ${?browser} && "`printf "\""$argv[$arg]"\"" | sed -r 's/[-]{2}(browser)=(.+)/\1/'`" == "browser" ) then
+					set browser="`printf "\""$argv[$arg]"\"" | sed -r 's/[-]{2}browser=(.+)/\2/'`";
+				endif
+				
+				if( ${?browser} ) then
+					if(! -x "${browser}" ) then
+						if( ${?debug} ) \
+							printf "Looking for [%s]'s binary.\n" "${browser}";
+						foreach browser("`where "\""${browser}"\""`")
+							if( -x "${browser}" ) then
+								break;
+							endif
+							unset browser;
+						end
+						if( ${?browser} ) then
+							set argv[$arg]="";
+							breaksw;
+						endif
+					endif
+				endif
+				
+				if( ${?url} ) then
+					set url="${url} $argv[$arg]";
+				else
+					set url="$argv[$arg]";
+				endif
+				set argv[$arg]="";
+				breaksw;
+		endsw
+	end
+#goto parse_argv;
+
+find_browser:
+	if( ${?browser} ) then
+		if(! -x "${browser}" ) \
 			unset browser;
+	endif
+	
+	if(! ${?browser} ) then
+		if( "${TERM}" == "gnome" ) then
+			set browsers=("$default_gui_bowser" "firefox");
+		else
+			set browsers=("$default_cli_bowser" "w3m" "links" "lynx" "firefox");
+		endif
+		foreach value(${browsers})
+			foreach browser("`where "\""${value}"\""`")
+			if( ${?debug} ) \
+				printf "looking for: [%s]'s browser: %s\n" "${TERM}" "${browser}";
+				if( -x "${browser}" ) \
+					break;
+				unset browser;
+			end
+			unset value;
+			if( ${?browser} ) \
+				break;
 		end
-		unset value;
-	end
-	if(! ${?browser} ) \
-		goto no_exec;
-	if(! -x "${browser}" ) \
+		if(! ${?browser} ) \
+			goto no_exec;
+		if(! -x "${browser}" ) \
+			goto noexec;
+	endif
+	
+	if( -x "${browser}" ) then
+		set program="${browser}";
+		set browser="`basename "\""${program}"\""`";
+	else
+		foreach program ( "`which "\""${browser}"\""`" )
+			if( "${program}" != "${0}" && -x "${program}" ) \
+				break;
+			unset program;
+		end
+	endif
+	
+	if(! ${?program} ) \
 		goto noexec;
-endif
+	if(! -x "${program}" ) \
+		goto noexec;
+	goto launchers_main;
+#goto find_browser;
 
-if( -x "${browser}" ) then
-	set program="${browser}";
-else
-	foreach program ( "`which '${browser}'`" )
-		if( "${program}" != "${0}" && -x "${program}" ) \
-			break;
-		unset program;
-	end
-endif
-
-if(! ${?program} ) \
-	goto noexec;
-if(! -x "${program}" ) \
-	goto noexec;
-goto launchers_main;
 
 noexec:
-	printf "Unable to find %s.\n" "${browser}";
+	printf "Unable to find any executable for supported browsers': (%s).\n" "${browsers}";
+	@ errno=-1;
+	goto exit_script;
+#goto noexec;
+
+
+exit_script:
+	unset scripts_basename;
+	if( ${?homepage} ) \
+		unset homepage;
 	if( ${?program} ) \
 		unset program;
-	unset browser;
-	exit -1;
+	if( ${?browser} ) \
+		unset browser;
+	if( ${?browsers} ) \
+		unset browsers;
+	if( ${?debug} ) \
+		unset debug;
+	if( ${?url} ) \
+		unset url;
+	if(! ${?errno} ) \
+		@ errno=0;
+	exit $errno;
+#goto exit_script;
+
 
 launchers_main:
-
 	if(! ${?url} ) \
-		set url="http://slashdot.org/"
-	
-	${program} "${url}";
+		set url="${homepage}";
+	if( ${?debug} ) \
+		printf "\n\topening: <%s> in [%s]\n" "${url}" "${program}";
+	if( ${?debug} || "`basename "\""${program}"\""`" == "firefox" || "${TERM}" == "gnome" ) then
+		printf "\n\tPlease wait for <%s> to load..." "${url}";
+		${program} "${url}" >& /dev/null &;
+	else
+		${program} "${url}";
+	endif
+	if( ${?debug} ) \
+		printf "\n\topened: <%s> in [%s]\n" "${url}" "${program}";
+	goto exit_script;
+#goto launchers_main;
 

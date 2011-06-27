@@ -6,7 +6,7 @@ setup:
 		set stdout=/dev/null;
 		set stderr=/dev/null;
 	else
-		set stdout=/dev/stdout;
+		set stdout=/dev/tty;
 		set stderr=/dev/stderr;
 	endif
 	

@@ -35,119 +35,152 @@ exit_script:
 #goto exit_script;
 
 init:
-if(! ${?TCSH_RC_SESSION_PATH} ) then
-	foreach exec("`where "\""${scripts_basename}"\""`")
-		if(! -x "${exec}" ) then
+	if( ${?TCSH_RC_SESSION_PATH} ) then
+		printf "Setting up path...";
+		source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh" ${argv};
+		set scripts_basename="vim-server";
+		printf "\t[finished]\n";
+		
+		printf "Setting up key bindings...";
+		source "${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh" ${argv};
+		set scripts_basename="vim-server";
+		printf "\t[finished]\n";
+		
+		printf "Setting up %s..." "${scripts_basename}";;
+		source "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" ${argv};
+		set scripts_basename="vim-server";
+		printf "\t[finished]\n";
+		set scripts_top_dir="${TCSH_RC_SESSION_PATH}/../";
+	else
+		foreach exec("`where "\""${scripts_basename}"\""`")
+			if(! -x "${exec}" ) then
+				unset exec;
+				continue;
+			endif
+			
+			set old_cwd="${cwd}";
+			cd "`dirname "\""${exec}"\""`";
+			set old_owd="${owd}";
+			
+			if( -d "${cwd}/../tcshrc" ) \
+				setenv TCSH_RC_SESSION_PATH "${cwd}/../tcshrc";
+			
+			cd "..";
+			set scripts_top_dir="${cwd}";
+			
+			cd "${old_owd}";
+			set cwd="${old_cwd}";
 			unset exec;
-			continue;
+			
+			if( ${?TCSH_RC_SESSION_PATH} ) \
+				goto init;
+		end
+		if(! ${?TCSH_RC_SESSION_PATH} ) then
+			printf "Setting up VIM's TCSH Environment...";
+			source "/etc/csh.cshrc" ${argv};
+			set scripts_basename="vim-server";
+			printf "\t[finished]\n";
 		endif
-		
-		set old_cwd="${cwd}";
-		cd "`dirname "\""${exec}"\""`";
-		
-		if( -d "${cwd}/../tcshrc" ) \
-			setenv TCSH_RC_SESSION_PATH "${cwd}/../tcshrc";
-		
-		cd "${owd}";
-		set cwd="${old_cwd}";
-		unset exec;
-		
-		if( ${?TCSH_RC_SESSION_PATH} ) \
-			break;
 	endif
-endif
+init:
 
-if( ${?TCSH_RC_SESSION_PATH} ) then
-	printf "Setting up path...";
-	source "${TCSH_RC_SESSION_PATH}/paths.cshrc.tcsh" ${argv};
-	set scripts_basename="vim-server";
-	printf "\t[done]\n";
-	
-	printf "Setting up key bindings...";
-	source "${TCSH_RC_SESSION_PATH}/bindkey.cshrc.tcsh" ${argv};
-	set scripts_basename="vim-server";
-	printf "\t[done]\n";
-	
-	printf "Setting up %s..." "${scripts_basename}";;
-	source "${TCSH_RC_SESSION_PATH}/art:editor.cshrc.tcsh" ${argv};
-	set scripts_basename="vim-server";
-	printf "\t[done]\n";
-endif
-
-	set working_directory="/media";
+main:
+	if( -d "/media" ) then
+		set working_directory="/media";
+	else
+		set working_directory="${HOME}";
+	endif
 	
 	set vim_server=`vim-enhanced --serverlist`;
 	if( "${vim_server}" == "" ) \
 		set vim_server=`hostname --fqdn | sed -r 's/^(.*)$/\U\1/'`;
 	
 	@ argc=${#argv};
-if( $argc > 0 ) then
-	@ arg=0;
-	while( $arg < $argc )
-		@ arg++;
-		switch("$argv[$arg]")
-			case "--gui":
-				set use_gvim;
-				set argv[$arg]="";
-				@ argc--;
-				break;
+	if( ${argc} > 0 ) then
+		@ arg=0;
+		while( $arg < $argc )
+			@ arg++;
+			switch("$argv[$arg]")
+				case "--gui":
+					set vim_command="gvim";
+					set argv[$arg]="";
+					@ argc--;
+					break;
+			endsw
+		end
+		if( $argc > 0 ) then
+			set vim_tabs="$argv";
+		endif
+		unset arg;
+	endif
+	
+	@ repeat=10;
+	if(! ${?vim_command} ) then
+		if( "${TERM}" != "gnome" ) then
+			set vim_command="vim-enhanced";
+		else
+			set vim_command="gvim";
+		endif
+	endif
+	
+	set vim_tab_first="+tabnext 6";
+	@ timeout=2;
+#goto main;
+
+vim_server:
+	while(! ${?confirmation} )
+		if( $argc > 0 ) then
+			set vim_tabs="$argv";
+		else if( -d "${TCSH_RC_SESSION_PATH}/../user-scripts" ) then
+			if( -x "${TCSH_RC_SESSION_PATH}/../user-scripts/vim-enhanced:edit-playlists.tcsh" ) \
+				set vim_tabs=("`${TCSH_RC_SESSION_PATH}/../user-scripts/vim-enhanced:edit-playlists.tcsh --display | sed -r 's/^(.*)"\$"/"\\\""\1"\\\""/'`");
+			endif
+		endif
+		
+		if(! ${?vim_tabs} ) then
+			set vim_tabs=("");
+			set vim_tab_first="+tabnext 6";
+		endif
+		
+		printf "Starting %s daemon:\t[finished]\n\ttcsh -fic "\""cd "\""%s"\""; %s --servername %s --remote-tab-silent "\""%s"\"" %s;\n" "$vim_command" "${working_directory}" "$vim_command" "$vim_server" "$vim_tab_first" "$vim_tabs";		
+		tcsh -fic "cd "\""${working_directory}"\""; ${vim_command} --servername $vim_server --remote-tab-silent "\""$vim_tab_first"\""  ${vim_tabs};";
+		
+		foreach pid( `/bin/ps -AcF | /bin/grep -P "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ ${vim_command} --servername.*" | sed -r 's/^[0-9]+[\\ ]+([0-9]+).*[\r\n]*/\1/'` )
+			@ killed=0;
+			printf "Interupting %s PID: %s " "$vim_command" "$pid";
+			while( $killed < $repeat && `/bin/ps -AcF | /bin/grep -P "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ ${vim_command} --servername.*" | sed -r "s/^[0-9]+[\\ ]+.*(${pid}).*[\r\n]*/\1/"` == $pid )
+				kill -QUIT $pid;
+				if( $repeat == 1 ) \
+					break;
+				printf ".";
+				sleep $timeout;
+				@ killed++;
+			end
+			printf "[finished]\n";
+		end
+		
+		printf "\nRestart %s daemon? [Y]es(default)/[N]o:" "${vim_command}";
+		set confirmation="$<";
+		printf "\n";
+		switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
+			case "n":
+				printf "Shutting down %s daemon\t[finished]\n\n" "$vim_command";
+				goto exit_script;
+				breaksw;
+			
+			case "y":
+			default:
+				printf "----------------------------\n";
+				printf "Restarting %s daemon.......\n" "$vim_command";
+				printf "----------------------------\n\n\n";
+				unset confirmation;
+				breaksw;
 		endsw
 	end
-	if( $argc > 0 ) then
-		set vim_tabs="$argv";
-	endif
-endif
+#goto vim_server;
 
-if(! ${?vim_tabs} ) then
-	set vim_tabs=("`/media/vim-enhanced:edit-playlists.tcsh --display | sed -r 's/^(.*)"\$"/"\\\""\1"\\\""/'`");
-endif
 
-@ repeat=10;
+exit_script:
+	unset argc;
+exit_script:
 
-while(! ${?confirmation} )
-	if( $argc > 0 ) then
-		set vim_tabs="$argv";
-	else
-		set vim_tabs=("`/media/vim-enhanced:edit-playlists.tcsh --display | sed -r 's/^(.*)"\$"/"\\\""\1"\\\""/'`");
-	endif
-	
-	if( ${?use_gvim} ) then
-		set vim_command="gvim";
-	else
-		set vim_command="vim-enhanced";
-	endif
-	if( ${?TCSH_RC_DEBUG} ) \
-		echo tcsh -fic "cd "\""${working_directory}"\""; ${vim_command} --servername $vim_server --remote-tab-silent '+tabnext 4' ${vim_tabs};";
-	
-	tcsh -fic "cd "\""${working_directory}"\""; ${vim_command} --servername $vim_server --remote-tab-silent '+tabnext 4' ${vim_tabs};";
-	
-	foreach pid( `/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ vim-enhanced --servername.*" | sed -r 's/^[0-9]+[\\ ]+([0-9]+).*[\r\n]*/\1/'` )
-		@ killed=0;
-		printf "Interupting vim-server PID: %s " $pid;
-		while( $killed < $repeat && `/bin/ps -A -c -F | /bin/grep --perl-regexp "^[0-9]+[\t\ ]+([0-9]+).*[0-9]{2}:[0-9]{2}:[0-9]{2}\ vim-enhanced --servername.*" | sed -r "s/^[0-9]+[\\ ]+.*(${pid}).*[\r\n]*/\1/"` == $pid )
-			kill -QUIT $pid;
-			if( $repeat == 1 ) \
-				break;
-			printf ".";
-			sleep $sleep;
-			@ killed++;
-		end
-		printf "[finished]\n";
-	end
-	
-	printf "Would you like to restart vim-server? [Y]es(default)/[N]o: ";
-	set confirmation="$<";
-	printf "\n";
-	switch(`printf "%s" "${confirmation}" | sed -r 's/^(.).*$/\l\1/'`)
-		case "n":
-			breaksw;
-		
-		case "y":
-		default:
-			printf "----------------------------\n";
-			printf "Restarting vim-server.......\n";
-			printf "----------------------------\n\n\n";
-			unset confirmation;
-			breaksw;
-	endsw
-end

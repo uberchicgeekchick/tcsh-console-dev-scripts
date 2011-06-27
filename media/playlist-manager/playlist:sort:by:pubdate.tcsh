@@ -1377,7 +1377,7 @@ label_stack_set:
 	#set callback=${label_previous};
 	
 	if( ${?debug} ) \
-		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/stdout;
+		printf "handling label_current: [%s]; label_previous: [%s].\n" "${label_current}" "${label_previous}" > /dev/tty;
 	
 	goto ${label_previous};
 #label_stack_set:
@@ -1401,7 +1401,7 @@ callback_handler:
 		unset callback;
 	endif
 	if( ${?debug} ) \
-		printf "handling callback to [%s].\n" "${last_callback}" > /dev/stdout;
+		printf "handling callback to [%s].\n" "${last_callback}" > /dev/tty;
 	
 	goto $last_callback;
 #callback_handler:

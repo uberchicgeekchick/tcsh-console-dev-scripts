@@ -48,6 +48,7 @@ parse_argv:
 			
 			default:
 				if( -d "$argv[$arg]" ) then
+					cd "$argv[$arg]";
 					goto clean_up_dir;
 				endif
 				
@@ -80,14 +81,14 @@ usage:
 
 
 clean_up_dir:
-	set empty_files="`find /media/podcasts/ -printf '%s - %p\n' -type f | grep '^0 - ' | sed -r 's/.*:[0-9]+:0 - (.*)"\$"/\1/'`";
+	set empty_files="`find ${cwd} -printf '%s - %p\n' -type f | grep '^0 - ' | sed -r 's/.*:[0-9]+:0 - (.*)"\$"/\1/'`";
 	if( ${#empty_files} > 0 ) then
 		if( "${rm_flags}" == "" ) then
 			set rm_flags="-i";
 		else
 			set rm_flags="-${rm_flags}";
 		endif
-		rm ${rm_flags} "`find /media/podcasts/ -printf '%s - %p\n' -type f | grep '^0 - ' | sed -r 's/^0 - (.*)"\$"/\1/'`"
+		rm ${rm_flags} "`find ${cwd} -printf '%s - %p\n' -type f | grep '^0 - ' | sed -r 's/^0 - (.*)"\$"/\1/'`"
 	endif
 	
 	if( "${rm_flags}" != "" ) \

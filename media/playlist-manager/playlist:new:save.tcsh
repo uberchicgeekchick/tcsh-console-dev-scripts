@@ -182,10 +182,10 @@ playlist_save:
 	set new_playlist_to_read="`printf "\""%s"\"" "\""${playlist_temp}"\"" | sed -r 's/([\(\)\ ])/\\\1/g'`";
 	switch( "${new_playlist_type}" )
 		case "tox":
-			printf "#toxine playlist\n\n" >! "${playlist_swap}";
+			printf "# toxine playlist\n\n" >! "${playlist_swap}";
 			ex -s "+2r ${new_playlist_to_read}" '+wq!' "${playlist_swap}";
 			ex -s '+3,$s/\v^(.*\/)(.*)(\.[^.]+)$/entry\ \{\r\tidentifier\ \=\ \2;\r\tmrl\ \=\ \1\2\3;\r\tav_offset\ \=\ 3600;\r};\r/' '+1,$s/\v^(\tidentifier\ \=\ )(.*), released on.*;$/\1\2;/' '+wq!' "${playlist_swap}";
-			printf "#END\n" >> "${playlist_swap}";
+			printf "# END\n" >> "${playlist_swap}";
 			while( "`grep --perl-regexp -c '^(\tidentifier\ \=\ )(.*)[\=;](.*);"\$"' "\""${playlist_swap}"\"" | sed -r 's/^([0-9]+).*"\$"/\1/'`" != 0 )
 				ex -s '+1,$s/\v^(\tidentifier\ \=\ )(.*)[\=;](.*);$/\1\2\3;/' '+wq!' "${playlist_swap}";
 			end

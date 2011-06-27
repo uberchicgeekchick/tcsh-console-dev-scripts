@@ -74,24 +74,21 @@ launchers_main:
 	printf "Attempting load %s; attempt: %d.\n" ${program_basename} ${ff_attempt};
 	if(! ${?ff_found} ) then
 		@ ff_attempt++;
-		if( ${ff_attempt} == 0 ) then
-			if(! ${?ff_profile} ) \
-				set ff_profile="uberChick";
-			set argz="-P '${ff_profile}' ${argz}";
-		endif
 		if( ${ff_attempt} > 1 ) then
 			if( ${?rm_extensions} ) then
+				rm -f "${firefox_profile_path}/${ff_profile}/lock" >& /dev/null;
+				
 				if( -e "${firefox_profile_path}/${ff_profile}/extensions.cache" ) then
 					printf "Removing extensions cache files @\n\t<%s/%s/extensions.cache>\n" "${firefox_profile_path}" "${ff_profile}";
-					rm "${firefox_profile_path}/${ff_profile}/extensions.cache";
+					rm -f "${firefox_profile_path}/${ff_profile}/extensions.cache";
 				endif
 				if( -e "${firefox_profile_path}/${ff_profile}/extensions.rdf" ) then
 					printf "Removing extensions cache files @\n\t<%s/%s/extensions.rdf>\n" "${firefox_profile_path}" "${ff_profile}";
-					rm "${firefox_profile_path}/${ff_profile}/extensions.rdf";
+					rm -f "${firefox_profile_path}/${ff_profile}/extensions.rdf";
 				endif
 				if( -e "${firefox_profile_path}/${ff_profile}/extensions.ini" ) then
 					printf "Removing extensions cache files @\n\t<%s/%s/extensions.ini>\n" "${firefox_profile_path}" "${ff_profile}";
-					rm "${firefox_profile_path}/${ff_profile}/extensions.ini";
+					rm -f "${firefox_profile_path}/${ff_profile}/extensions.ini";
 				endif
 				unset rm_extensions;
 			endif
@@ -151,7 +148,7 @@ ff_binaries_renice:
 		sleep $ff_attempt_sleep;
 	end
 	
-	if( ${#ff_binaries} == 1 ) then
+	if( ${?ff_found} && ${#ff_binaries} == 1 ) then
 		set callback="exit_script";
 	else if(! ${?ff_found} ) then
 		set callback="launchers_main";
@@ -184,19 +181,29 @@ exit_script:
 ff_start:
 	echo "Launching:\n\t";
 	if( ${?use_launcher} ) then
-		echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program}${argz}" \&;
-		/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} ${argz}" &;
+		if( "${argz}" != "" ) then
+			echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} -P ${ff_profile} ${argz}" \&;
+			/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} -P ${ff_profile} ${argz}" &;
+		else
+			echo /usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} -P ${ff_profile}" \&;
+			/usr/bin/gnome-terminal --role="launcher:${ff_binary}" --geometry=80x10 --hide-menubar --tab-with-profile='launcher' --command="${program} -P ${ff_profile}" &;
+		endif
 	else
-		echo ${program} "${argz}" \&;
-		${program} "${argz}" &;
+		if( "${argz}" != "" ) then
+			echo ${program} -P ${ff_profile} "${argz}" \&;
+			${program} -P ${ff_profile} "${argz}" &;
+		else
+			echo ${program} -P ${ff_profile} \&;
+			${program} -P ${ff_profile} &;
+		endif
 	endif
 	if( ${ff_attempt} > ${ff_attempt_max} ) then
-		printf "Finished attempting load %s after %d attempts.\n" ${program} ${ff_attempt};
+		printf "Finished attempting load %s after %d attempts.\n" "${program}" ${ff_attempt};
 		goto exit_script;
 	endif
 	
 	sleep ${ff_attempt_sleep};
 	
-	goto ff_next;
+	goto launchers_main;
 #ff_start;
 

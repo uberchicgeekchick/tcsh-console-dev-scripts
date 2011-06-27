@@ -23,7 +23,7 @@ sourced:
 	
 	set browsers=("browser" "w3m" "links" "lynx" "firefox");
 	foreach value(${browsers})
-		foreach browser("`where '${value}'`")
+		foreach browser("`where "\""${value}"\""`")
 			if( -x "${browser}" ) \
 				break;
 			unset browser;
@@ -35,7 +35,7 @@ sourced:
 	if(! -x "${browser}" ) \
 		goto noexec;
 	
-	set websites=( 'google' 'google.com' 'search?q=' 'slashdot' 'slashdot.org' 'index2.pl?fhfilter=' 'podiobooks.com' 'www.podiobooks.com' 'podiobooks/search.php?includeAdult=1&keyword=' 'technologyreview' 'technologyreview.com' 'search.aspx?s=' 'dictionary.com' 'dictionary.reference.com' 'browse/' 'thesaurus.com' 'thesaurus.reference.com' 'browse/' 'archive.org' 'www.archive.org' 'search.php?query=' 'librivox:author' 'librivox.org' 'newcatalog/search_advanced.php?&status=complete&language=English&author=' 'librivox:genre' 'librivox.org' 'newcatalog/search_advanced.php?&status=complete&language=English&genre=' 'librivox' 'librivox.org' 'newcatalog/search_advanced.php?&status=complete&language=English&title=' 'youtube' 'youtube.com' 'results?search=tag&search_query=' 'tedtalks' 'ted.com' 'search?q=' );
+	set websites=( 'google' 'google.com' 'search?q=' 'slashdot' 'slashdot.org' 'index2.pl?fhfilter=' 'podiobooks.com' 'www.podiobooks.com' 'podiobooks/search.php?includeAdult=1&keyword=' 'technologyreview' 'technologyreview.com' 'search.aspx?s=' 'dictionary.com' 'dictionary.reference.com' 'browse/' 'thesaurus.com' 'thesaurus.reference.com' 'browse/' 'archive.org' 'www.archive.org' 'search.php?query=' 'librivox:author' 'librivox.org' 'newcatalog/search_advanced.php?&status=complete&language=English&author=' 'librivox:genre' 'librivox.org' 'newcatalog/search_advanced.php?&status=complete&language=English&genre=' 'librivox' 'librivox.org' 'newcatalog/search_advanced.php?&status=complete&language=English&title=' 'youtube' 'youtube.com' 'results?search=tag&search_query=' 'tedtalks' 'ted.com' 'search?q=' 'thepiratebay' 'thepiratebay.org' 's/?page=0&orderby=7&q=' 'torrent-finder' 'torrent-finder.com' 'show.php?Browse=&PageLoad=&select=&sids=&pl=loadall&q=' );
 	@ site=0;
 	while( $site < ${#websites} )
 		@ site++;

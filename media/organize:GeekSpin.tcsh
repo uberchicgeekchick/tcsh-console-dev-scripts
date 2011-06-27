@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
-set podcasts_dir = "/media/podcasts";
-set cc_artist = "GeekSpin";
-set media_dir = "/media/music/nerdy-or-geeky";
+set podcasts_dir="/media/podcasts";
+set cc_artist="GeekSpin";
+set media_dir="/media/music/nerdy-or-geeky";
 
 if( -d "${podcasts_dir}/${cc_artist}, The" ) then
 	if( `ls "${podcasts_dir}/${cc_artist}, The"` != "" ) \
@@ -12,7 +12,7 @@ endif
 oggconvert --transcode "${media_dir}/${cc_artist}";
 
 foreach title ("`find -L '${media_dir}/${cc_artist}' -regextype posix-extended -iregex '.*, released on[^\.]*\.[^\.]+'`" )
-	set song = "`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/(.*)(, released on[^\.]*)\.([^\.]+"\$")/\1\.\3/g'`";
+	set song="`printf "\""%s"\"" "\""${title}"\"" | sed -r 's/(.*)(, released on[^\.]*)\.([^\.]+"\$")/\1\.\3/g'`";
 	mv "${title}" "${song}";
 end
 

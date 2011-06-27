@@ -8,17 +8,24 @@ setenv:
 	
 	if(! ${?TCSH_RC_SOURCE_FILE} ) \
 		setenv TCSH_RC_SOURCE_FILE "$argv[1]";
-	
+#goto setenv;
+
+
+set_output:
 	#if( ! ${?TCSH_OUTPUT_ENABLED} && ! ${?TCSH_OUTPUT_DISABLED} ) then
 		if( -o /dev/$tty ) then
+			if( ${?TCSH_RC_DEBUG} ) \
+				printf "TCSH output to %s\t\t[enabled]\n" "${tty}";
 			if( ${?TCSH_OUTPUT_DISABLED} ) \
 				unsetenv TCSH_OUTPUT_DISABLED;
 			setenv TCSH_OUTPUT_ENABLED;
 			
-			set stdout=/dev/stdout;
+			set stdout=/dev/$tty;
 			set stderr=/dev/stderr;
 			setenv TTY /dev/$tty;
 		else
+			if( ${?TCSH_RC_DEBUG} ) \
+				printf "TCSH output to %s\t\t[disabled]\n" "${tty}";
 			if( ${?TCSH_OUTPUT_ENABLED} ) \
 				unsetenv TCSH_OUTPUT_ENABLED;
 			setenv TCSH_OUTPUT_DISABLED;
@@ -31,7 +38,7 @@ setenv:
 		setenv stdout ${stdout};
 		setenv stderr ${stderr};
 	#endif
-#goto setenv;
+#goto set_output;
 
 debug_check:
 	@ argc=${#argv};
